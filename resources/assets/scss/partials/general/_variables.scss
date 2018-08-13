@@ -144,6 +144,9 @@ $spacing: (
   max: 150px
 );
 
+// Loading Icon
+$loading_icon_dimension: 90px;
+$loading_icon_margin: -45px; // needs to be exactly half of $loading_icon_dimension
 
 
 
@@ -151,7 +154,15 @@ $spacing: (
 
 
 
-
+#loader-background {
+	border-radius: 100%;
+	background-color:white;
+	position:relative;
+	top:50%;
+	left:50%;
+	width:96px;
+	height:96px;
+}
 #preloader {
     position: fixed;
     top: 0;
@@ -160,21 +171,24 @@ $spacing: (
     height: 100%;
 	z-index: 9999999;
 }
+
 #loader {
     display: block;
     position: relative;
-    left: 50%;
-    top: 50%;
-    width: 150px;
-    height: 150px;
-    margin: -75px 0 0 -75px;
+    width: $loading_icon_dimension;
+    height: $loading_icon_dimension;
+	margin-top: $loading_icon_margin;
+	margin-bottom: $loading_icon_margin;
+	margin-right: 0px;
+	margin-left: 0px;
     border-radius: 50%;
     border: 3px solid transparent;
-    border-top-color: #9370DB;
+    border-top-color: #283C46;
     -webkit-animation: spin 2s linear infinite;
     animation: spin 2s linear infinite;
 	z-index: 9999999;
 }
+
 #loader:before {
     content: "";
     position: absolute;
@@ -184,10 +198,11 @@ $spacing: (
     bottom: 5px;
     border-radius: 50%;
     border: 3px solid transparent;
-    border-top-color: #BA55D3;
+    border-top-color: #007C83;
     -webkit-animation: spin 3s linear infinite;
     animation: spin 3s linear infinite;
 }
+
 #loader:after {
     content: "";
     position: absolute;
@@ -197,10 +212,11 @@ $spacing: (
     bottom: 15px;
     border-radius: 50%;
     border: 3px solid transparent;
-    border-top-color: #FF00FF;
+    border-top-color: #04B6AF;
     -webkit-animation: spin 1.5s linear infinite;
     animation: spin 1.5s linear infinite;
 }
+
 @-webkit-keyframes spin {
     0%   {
         -webkit-transform: rotate(0deg);

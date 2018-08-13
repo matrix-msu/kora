@@ -53,7 +53,11 @@
       @endif
        <script src="{{ config('app.url') }}/assets/javascripts/navigation/breadcrumbs.js"></script>
 	   <div id="preloader" style="display:none;">
-         <div id="loader"></div>
+         <div id="loader-background">
+		   <div id="loader">
+		     
+		   </div>
+		 </div>
        </div>
     </body>
 </html>
