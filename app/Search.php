@@ -51,7 +51,7 @@ class Search {
     public function __construct($pid, $fid, $arg, $method) {
         $this->pid = $pid;
         $this->fid = $fid;
-        $this->arg = $arg;
+        $this->arg = trim($arg);
         $this->method = $method;
     }
 
