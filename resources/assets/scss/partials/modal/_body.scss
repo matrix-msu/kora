@@ -5,6 +5,17 @@
 
   .description {
     font-size: 13px;
+
+    .validation-errorpage-link {
+      @include transition(color);
+
+      color: palette('gray', text);
+      text-decoration: none;
+
+      &:hover {
+        color: palette('green', accent);
+      }
+    }
   }
 
   .preset-name > label {

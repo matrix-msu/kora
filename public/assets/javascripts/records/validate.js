@@ -9,15 +9,29 @@ Kora.Records.Validate = function() {
 
         var uniquePages = Array.from(new Set(errorList));
 
-        $('ul.error-pages li').remove();
+        $('div.error-pages p').remove();
         $('.error-count-js').text(errorList.length);
+        errorList = [];
 
-        uniquePages.forEach(function(page){
+        uniquePages.forEach(function(page, uniquePages){
+          pageLink = page;
+          pageNum = $('.content-sections-scroll').children('a[href="'+pageLink+'"]').index() + 1;
           page = page.substring(1);
-          $('ul.error-pages').append('<li>' + page + '</li>');
+          $('div.error-pages').append('<p><a href="'+pageLink+'" class="validation-errorpage-link">Page '+pageNum+' - '+page+'</a></p>');
         });
 
         Kora.Modal.open($('.record-validation-modal-js'));
+    }
+
+    function validationModal() {
+      $('.error-pages').on('click', 'a', function(e){
+        e.preventDefault();
+
+        var $this = $(this).attr('href');
+        Kora.Modal.close($('.record-validation-modal-js'));
+
+        $('.content-sections-scroll').find('a[href="'+ $this +'"]').trigger('click');
+      });
     }
 
     function initializeRecordValidation() {
@@ -74,6 +88,7 @@ Kora.Records.Validate = function() {
         });
     }
 
+    validationModal();
     initializeRecordValidation();
     Kora.Records.Modal();
 }
