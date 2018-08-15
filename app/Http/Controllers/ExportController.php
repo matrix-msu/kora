@@ -643,10 +643,6 @@ class ExportController extends Controller {
             case self::KORA:
                 $records = array();
 
-                //So we need to keep track of what fields are used. We have to make sure records that have empty values
-                // for these fields, still have that field represented as blank.
-                $usedFieldNames = array();
-
                 //Check to see if we should bother with options
                 $useOpts = !is_null($options);
 
@@ -670,10 +666,6 @@ class ExportController extends Controller {
                         $slug = str_replace('_'.$data->pid.'_'.$data->fid.'_', '', $data->slug);
                         if(!$useOpts || !$options['under'])
                             $slug = str_replace('_', ' ', $slug); //Now that the tag is gone, remove space fillers
-
-                        //Capture the field index
-                        if(!in_array($slug,$usedFieldNames))
-                            array_push($usedFieldNames,$slug);
 
                         switch($data->type) {
                             case Field::_TEXT:
@@ -749,9 +741,27 @@ class ExportController extends Controller {
                     }
                 }
 
+                $emptyValueSlugs = [];
+
                 //Add those blank values
                 foreach($records as $kid => $data) {
-                    foreach($usedFieldNames as $slug) {
+                    $pid = explode('-',$kid)[0];
+                    $fid = explode('-',$kid)[1];
+
+                    //See if we already fetched these slugs
+                    if(!array_key_exists($fid,$emptyValueSlugs)) {
+                        $slugArray = FormController::getForm($fid)->fields()->pluck('slug')->toArray();
+                        for($i=0;$i<sizeof($slugArray);$i++) {
+                            $slug = $slugArray[$i];
+                            $slugArray[$i] = str_replace('_'.$pid.'_'.$fid.'_', '', $slug);
+                            if(!$useOpts || !$options['under'])
+                                $slugArray[$i] = str_replace('_', ' ', $slugArray[$i]); //Now that the tag is gone, remove space fillers
+                        }
+                    } else {
+                        $slugArray = $emptyValueSlugs[$fid];
+                    }
+
+                    foreach($slugArray as $slug) {
                         if(!isset($data[$slug]))
                             $records[$kid][$slug] = '';
                     }
