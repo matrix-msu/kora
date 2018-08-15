@@ -37,6 +37,7 @@
 @section('body')
     @include('partials.revisions.modals.restoreFieldsModal')
     @include('partials.revisions.modals.reactivateRecordModal')
+    @include('partials.projects.notification')
     @if (!isset($rid) || Request::get('revisions'))
       @if (count($revisions) > 0)
         <section class="record-select-section center">

@@ -461,16 +461,15 @@ function initializeRequestProjectPermissionsModal()
 				  },
 				  success: function(result) {},
 				  error: function(result) {}
-			    });
+			  });
 		
 				// close modal after sending request
 				Kora.Modal.close($(".nav-request-permissions-modal-js"));
 			}
 			else
 				$('.request-error-js').text('Please select a project');
-			}
-		);
-	  
+    });
+
 		$('.multi-select').chosen({
 			width: '100%'
 		});

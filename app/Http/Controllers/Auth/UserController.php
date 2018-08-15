@@ -64,16 +64,26 @@ class UserController extends Controller {
 
         $notification = array(
           'message' => '',
+          'description' => '',
           'warning' => false,
           'static' => false
         );
+
         $prevUrlArray = $request->session()->get('_previous');
         $prevUrl = reset($prevUrlArray);
+
         if ($prevUrl !== url()->current()) {
           $session = $request->session()->get('k3_global_success');
+          $changes = $request->session()->get('user_changes');
 
-          if ($session == 'user_updated')
-            $notification['message'] = 'Profile Successfully Updated!';
+          if ($session == 'user_updated') {
+            if (in_array('password', $changes)) {
+              $notification['message'] = 'Password Successfully Reset!';
+              $notification['static'] = true;
+            } else {
+              $notification['message'] = 'Profile Successfully Updated!';
+            }
+          }
         }
 
         if ($section == 'permissions') {

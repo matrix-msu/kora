@@ -98,6 +98,7 @@ class AdminController extends Controller {
 
         $notification = array(
           'message' => '',
+          'description' => '',
           'warning' => false,
           'static' => false
         );

@@ -130,7 +130,14 @@ class BackupController extends Controller {
             });
         }
 
-        return view('backups.index',compact('savedBackups'));
+        $notification = array(
+          'message' => '',
+          'description' => '',
+          'warning' => false,
+          'static' => false
+        );
+
+        return view('backups.index',compact('savedBackups', 'notification'));
     }
 
 
@@ -156,7 +163,14 @@ class BackupController extends Controller {
         //We store this to know if we auto download backup file after backup
         $autoDownload = isset($request->backupDownload) ? true : false;
 
-        return view('backups.backup',compact('backupLabel','metadata','files','autoDownload'));
+        $notification = array(
+          'message' => '',
+          'description' => '',
+          'warning' => false,
+          'static' => false
+        );
+
+        return view('backups.backup',compact('backupLabel','metadata','files','autoDownload', 'notification'));
     }
 
     /**

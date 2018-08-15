@@ -206,7 +206,8 @@ $(document).ready(function() {
   }
 
   var $noteBody = $('.notification');
-  var $note = $('.note').children();
+  var $note = $('.note').children('p');
+  var $noteDesc = $('.note').children('span');
 
   var message = window.localStorage.getItem('message');
 
@@ -217,12 +218,22 @@ $(document).ready(function() {
 
   setTimeout(function(){
     if ($note.text() != '') {
+      if ($note.text() === 'Update Available!') {
+        $('.view-updates-js').removeClass('hidden');
+      }
+
+      if ($noteDesc.text() != '') {
+        $noteDesc.addClass('note-description');
+        $note.addClass('with-description');
+      }
+
       $noteBody.removeClass('dismiss');
       $('.welcome-body').addClass('with-notification');
 
       if (!$noteBody.hasClass('static-js')) {
         setTimeout(function(){
           $noteBody.addClass('dismiss');
+        $('.view-updates-js').addClass('hidden');
         }, 6000);
       }
     }

@@ -81,11 +81,19 @@ class ProjectController extends Controller {
             $updateNotification = true;
         }*/
 
+        // should probably make a global notificationsController
         $notification = array(
           'message' => '',
+          'description' => '',
           'warning' => false,
           'static' => false
         );
+
+        $current = new UpdateController();
+        if ($current->checkVersion()) {
+          $notification['message'] = 'Update Available!';
+        }
+
         $prevUrlArray = $request->session()->get('_previous');
         $prevUrl = reset($prevUrlArray);
         // we do not need to see notification every time we reload the page
@@ -98,6 +106,11 @@ class ProjectController extends Controller {
               $notification['message'] = 'Project Successfully Archived!';
             else if ($session == 'project_imported')
               $notification['message'] = 'Project Successfully Imported!';
+            else if ($session == 'project_access_requested') {
+              $notification['message'] = 'Project permissions have been requested!';
+              $notification['description'] = 'You will be notified via email once permissions have been granted.';
+              $notification['static'] = true;
+            }
           } else {
             $session = $request->session()->get('k3_global_error');
             $notification['warning'] = true;
@@ -246,6 +259,7 @@ class ProjectController extends Controller {
 
         $notification = array(
           'message' => '',
+          'description' => '',
           'warning' => false,
           'static' => false
         );

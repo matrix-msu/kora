@@ -29,6 +29,16 @@
     &.update {
       min-width: 190px;
     }
+
+    .with-description {
+      margin-bottom: 0;
+      margin-top: 2px;
+    }
+
+    .note-description {
+      font-size: 11px;
+      margin: 0 20px;
+    }
   }
 
   .view-updates {
@@ -69,42 +79,6 @@
   &.warning {
     background: gradient(warning, to right);
   }
-  
-  /* Welcome Page Section */
-  .welcome & {
-    @include transition(top);
-
-    border-radius: 0;
-    height: 30px;
-    left: 0;
-    right: 0;
-    top: 0;
-    z-index: 10000;
-
-    &.dismiss {
-      top: -30px;
-    }
-
-    .container {
-      position: relative;
-    }
-
-    .note {
-      align-items: center;
-      display: flex;
-      height: 100%;
-      justify-content: center;
-      left: 0;
-      position: absolute;
-      right: 0;
-    }
-
-    .toggle-notification {
-      position: absolute;
-      right: 0;
-      top: 0;
-    }
-  }
 
   @media screen and (max-width: $max-mobile-xs-width) {
     @include transition(top);
@@ -140,6 +114,65 @@
         padding: 1px 0;
         position: absolute;
         width: 100%;
+      }
+    }
+  }
+
+  /* Welcome Page Section */
+  .welcome & {
+    @include transition(top);
+
+    border-radius: 0;
+    height: 30px;
+    left: 0;
+    right: 0;
+    top: 0;
+    z-index: 10000;
+
+    &.dismiss {
+      top: -30px;
+    }
+
+    .container {
+      position: relative;
+    }
+
+    .note {
+      align-items: center;
+      display: flex;
+      height: 100%;
+      justify-content: center;
+      left: 0;
+      position: absolute;
+      right: 0;
+    }
+
+    .toggle-notification {
+      position: absolute;
+      right: 0;
+      top: 0;
+    }
+
+    @media screen and (max-width: $max-mobile-xs-width) {
+      height: 50px;
+      min-height: unset;
+      width: 100%;
+
+      &.dismiss {
+        top: -60px;
+      }
+
+      .container {
+        min-height: unset;
+      }
+
+      .note {
+        padding: 0 70px;
+      }
+
+      .toggle-notification {
+        padding: 0 10px;
+        width: unset;
       }
     }
   }

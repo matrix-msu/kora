@@ -113,6 +113,7 @@ class FormController extends Controller {
 
         $notification = array(
           'message' => '',
+          'description' => '',
           'warning' => false,
           'static' => false
         );
