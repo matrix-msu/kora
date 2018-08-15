@@ -10,15 +10,17 @@
     @endforeach
 @else
     <div id="map{{$field->flid}}_{{$record->rid}}" class="geolocator-map geolocator-map-js mt-xxs" map-id="{{$field->flid}}_{{$record->rid}}">
-        <div class="upper-right-corner">
-            <div class="geo-btn external-button external-button-js">
-                <i class="icon icon-external-link"></i>
+        <div class="field-sidebar">
+            <div class="top">
+                <div class="field-btn external-button-js">
+                    <i class="icon icon-external-link"></i>
+                </div>
             </div>
-        </div>
 
-        <div class="lower-right-corner">
-            <div class="geo-btn full-screen-button full-screen-button-js">
-                <i class="icon icon-maximize"></i>
+            <div class="bottom">
+                <div class="field-btn full-screen-button-js">
+                    <i class="icon icon-maximize"></i>
+                </div>
             </div>
         </div>
 
@@ -28,7 +30,7 @@
                   loc-y="{{explode(',', explode('[LatLon]',$location)[1])[1]}}"></span>
         @endforeach
 
-        <div class="modal modal-js modal-mask geolocator-map-modal geolocator-map-modal-js">
+        <div class="full-screen-modal modal modal-js modal-mask geolocator-map-modal geolocator-map-modal-js">
             <div class="content">
                 <div class="header">
                     <a href="#" class="modal-toggle modal-toggle-js">

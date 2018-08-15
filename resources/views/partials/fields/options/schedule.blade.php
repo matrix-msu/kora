@@ -31,14 +31,14 @@
         {!! Form::label('start','Start Year') !!}
         <span class="error-message"></span>
         {!! Form::input('number', 'start', \App\Http\Controllers\FieldController::getFieldOption($field,'Start'),
-            ['class' => 'text-input start-year-js', 'min' => 0, 'max' => 9999]) !!}
+            ['class' => 'text-input start-year-js', 'min' => 0, 'max' => 9999, 'placeholder' => 'Enter start year here']) !!}
     </div>
 
     <div class="form-group mt-xl">
         {!! Form::label('end','End Year') !!}
         <span class="error-message"></span>
         {!! Form::input('number', 'end', \App\Http\Controllers\FieldController::getFieldOption($field,'End'),
-            ['class' => 'text-input end-year-js', 'min' => 0, 'max' => 9999]) !!}
+            ['class' => 'text-input end-year-js', 'min' => 0, 'max' => 9999, 'placeholder' => 'Enter end year here']) !!}
     </div>
 
     <div class="form-group mt-xl">

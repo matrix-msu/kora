@@ -302,6 +302,8 @@ class RecordController extends Controller {
      * @param  int $pid - Project ID
      * @param  int $fid - Form ID
      * @return array - The records that were removed
+     *
+     * TODO::Revisions don't record mass deletes, so it might be helpful to have this not rely on revisions
      */
     public function cleanUp($pid, $fid) {
         $form = FormController::getForm($fid);
@@ -409,7 +411,7 @@ class RecordController extends Controller {
                 $field->getTypedField()->createNewRecordField($field,$record,$value,$request);
         }
 
-        $revision->oldData = RevisionController::buildDataArray($record);
+        $revision->data = RevisionController::buildDataArray($record);
         $revision->save();
 
         //Make new preset
@@ -831,6 +833,13 @@ class RecordController extends Controller {
 
         flash()->overlay(trans('controller_record.recupdate'),trans('controller_record.goodjob'));
         return redirect()->action('RecordController@index',compact('pid','fid'));
+    }
+
+    public function downloadFiles(Request $request) {
+        dd($request->files);
+        $files = $request->files;
+        Zipper::make('downloads/k3download.zip')->add($files);
+        return response()->download(public_path('downloads/k3download.zip'))->deleteFileAfterSend(true);
     }
 
     /**

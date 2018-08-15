@@ -4,7 +4,6 @@ use App\Http\Controllers\FieldController;
 use App\Http\Controllers\RevisionController;
 use Carbon\Carbon;
 use DateTime;
-use Illuminate\Database\Query\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
@@ -230,13 +229,13 @@ class DateField extends BaseField {
                 $datefield->year = $request->input('year_' . $flid);
                 $datefield->era = $request->input('era_' . $flid, 'CE');
                 $datefield->save();
-                $revision->oldData = RevisionController::buildDataArray($record);
+                $revision->data = RevisionController::buildDataArray($record);
                 $revision->save();
             }
         } else {
             $this->createNewRecordField($field, $record, $formFieldValue, $request);
             $revision = RevisionController::storeRevision($record->rid, Revision::EDIT);
-            $revision->oldData = RevisionController::buildDataArray($record);
+            $revision->data = RevisionController::buildDataArray($record);
             $revision->save();
         }
     }
@@ -329,10 +328,10 @@ class DateField extends BaseField {
      * @param  bool $exists - Field for record exists
      */
     public function rollbackField($field, Revision $revision, $exists=true) {
-        if(!is_array($revision->data))
-            $revision->data = json_decode($revision->data, true);
+        if(!is_array($revision->oldData))
+            $revision->oldData = json_decode($revision->oldData, true);
 
-        if(is_null($revision->data[Field::_DATE][$field->flid]['data']))
+        if(is_null($revision->oldData[Field::_DATE][$field->flid]['data']))
             return null;
 
         // If the field doesn't exist or was explicitly deleted, we create a new one.
@@ -342,11 +341,11 @@ class DateField extends BaseField {
             $this->rid = $revision->rid;
         }
 
-        $this->circa = $revision->data[Field::_DATE][$field->flid]['data']['circa'];
-        $this->month = $revision->data[Field::_DATE][$field->flid]['data']['month'];
-        $this->day = $revision->data[Field::_DATE][$field->flid]['data']['day'];
-        $this->year = $revision->data[Field::_DATE][$field->flid]['data']['year'];
-        $this->era = $revision->data[Field::_DATE][$field->flid]['data']['era'];
+        $this->circa = $revision->oldData[Field::_DATE][$field->flid]['data']['circa'];
+        $this->month = $revision->oldData[Field::_DATE][$field->flid]['data']['month'];
+        $this->day = $revision->oldData[Field::_DATE][$field->flid]['data']['day'];
+        $this->year = $revision->oldData[Field::_DATE][$field->flid]['data']['year'];
+        $this->era = $revision->oldData[Field::_DATE][$field->flid]['data']['era'];
         $this->save();
     }
 
@@ -513,8 +512,6 @@ class DateField extends BaseField {
      * @return array - The RIDs that match search
      */
     public function keywordSearchTyped($flid, $arg) {
-        $arg = str_replace(["*", "\""], "", $arg);
-
         $field = FieldController::getField($flid);
 
         // Boolean to decide if we should consider circa options.
@@ -573,9 +570,9 @@ class DateField extends BaseField {
      *
      * @param  int $flid - Field ID
      * @param  array $query - The advance search user query
-     * @return Builder - The RIDs that match search
+     * @return array - The RIDs that match search
      */
-    public function getAdvancedSearchQuery($flid, $query) {
+    public function advancedSearchTyped($flid, $query) {
         $begin_month = ($query[$flid."_begin_month"] == "") ? 1 : intval($query[$flid."_begin_month"]);
         $begin_day = ($query[$flid."_begin_day"] == "") ? 1 : intval($query[$flid."_begin_day"]);
         $begin_year = ($query[$flid."_begin_year"] == "") ? 1 : intval($query[$flid."_begin_year"]);
@@ -618,7 +615,9 @@ class DateField extends BaseField {
                 ->whereBetween("date_object", [$begin, $end]);
         }
 
-        return $query->distinct();
+        return $query->distinct()
+            ->pluck('rid')
+            ->toArray();
     }
 
     ///////////////////////////////////////////////END ABSTRACT FUNCTIONS///////////////////////////////////////////////

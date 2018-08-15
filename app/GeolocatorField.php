@@ -4,7 +4,6 @@ use App\FieldHelpers\gPoint;
 use App\Http\Controllers\FieldController;
 use App\Http\Controllers\RevisionController;
 use Carbon\Carbon;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
@@ -159,13 +158,13 @@ class GeolocatorField extends BaseField {
             if($overwrite == true || ! $geolocatorfield->hasLocations()) {
                 $revision = RevisionController::storeRevision($record->rid, Revision::EDIT);
                 $geolocatorfield->updateLocations($formFieldValue);
-                $revision->oldData = RevisionController::buildDataArray($record);
+                $revision->data = RevisionController::buildDataArray($record);
                 $revision->save();
             }
         } else {
             $this->createNewRecordField($field, $record, $formFieldValue, $request);
             $revision = RevisionController::storeRevision($record->rid, Revision::EDIT);
-            $revision->oldData = RevisionController::buildDataArray($record);
+            $revision->data = RevisionController::buildDataArray($record);
             $revision->save();
         }
     }
@@ -211,10 +210,10 @@ class GeolocatorField extends BaseField {
      * @param  bool $exists - Field for record exists
      */
     public function rollbackField($field, Revision $revision, $exists=true) {
-        if(!is_array($revision->data))
-            $revision->data = json_decode($revision->data, true);
+        if(!is_array($revision->oldData))
+            $revision->oldData = json_decode($revision->oldData, true);
 
-        if(is_null($revision->data[Field::_GEOLOCATOR][$field->flid]['data']))
+        if(is_null($revision->oldData[Field::_GEOLOCATOR][$field->flid]['data']))
             return null;
 
         // If the field doesn't exist or was explicitly deleted, we create a new one.
@@ -225,7 +224,7 @@ class GeolocatorField extends BaseField {
         }
 
         $this->save();
-        $this->updateLocations($revision->data[Field::_GEOLOCATOR][$field->flid]['data']);
+        $this->updateLocations($revision->oldData[Field::_GEOLOCATOR][$field->flid]['data']);
     }
 
     /**
@@ -378,8 +377,8 @@ class GeolocatorField extends BaseField {
             ->select("rid")
             ->where("flid", "=", $flid)
             ->where(function($query) use ($arg) {
-                $query->whereRaw("MATCH (`desc`) AGAINST (? IN BOOLEAN MODE)", [$arg])
-                    ->orWhereRaw("MATCH (`address`) AGAINST (? IN BOOLEAN MODE)", [$arg]);
+                $query->where('desc','LIKE',"%$arg%")
+                    ->orWhere('address','LIKE',"%$arg%");
             })
             ->distinct()
             ->pluck('rid')
@@ -391,9 +390,9 @@ class GeolocatorField extends BaseField {
      *
      * @param  int $flid - Field ID
      * @param  array $query - The advance search user query
-     * @return Builder - The RIDs that match search
+     * @return array - The RIDs that match search
      */
-    public function getAdvancedSearchQuery($flid, $query) {
+    public function advancedSearchTyped($flid, $query) {
         $range = $query[$flid.'_range'];
 
         // Depending on the search type, we must convert the input to latitude and longitude.
@@ -432,7 +431,9 @@ SQL;
             ->whereRaw("`flid` = ?")
             ->havingRaw("`distance` < ?")
             ->distinct()
-            ->setBindings([$lat, $lon, $lat, $flid, $range]);
+            ->setBindings([$lat, $lon, $lat, $flid, $range])
+            ->pluck('rid')
+            ->toArray();
     }
 
     /**

@@ -214,12 +214,12 @@ class RecordPresetController extends Controller {
         // Create the presets file path if it does not exist.
         //
         if(!is_dir($presets_path))
-            mkdir($presets_path, 0755, true);
+            mkdir($presets_path, 0775, true);
 
         $path = $presets_path . '/preset' . $preID; // Path for the new preset's directory.
 
         if(!is_dir($path))
-            mkdir($path, 0755, true);
+            mkdir($path, 0775, true);
 
         // Build the record's directory.
         $record = RecordController::getRecord($rid);
@@ -261,7 +261,7 @@ class RecordPresetController extends Controller {
             }
         }
         else {
-            mkdir($tempPath, 0755, true);
+            mkdir($tempPath, 0775, true);
         }
 
         //
@@ -281,7 +281,7 @@ class RecordPresetController extends Controller {
             $dir = opendir($src);
 
             if (!is_dir($dst) && !is_file($dst))
-                mkdir($dst, 0755, true);
+                mkdir($dst, 0775, true);
 
             while (false !== ($file = readdir($dir))) {
                 if (($file != '.') && ($file != '..')) {

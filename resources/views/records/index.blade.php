@@ -79,7 +79,6 @@
             @if(count($records) > 0)
               @include('partials.records.pagination')
             @else
-              @include('partials.records.search-terms')
               @include('partials.records.no-records')
             @endif
 

@@ -10,6 +10,10 @@ Kora.Records.Validate = function() {
             e.preventDefault();
 
             values = {};
+            //We need to make sure all CKEDITOR data is actually in the form to validate it
+            for(var instanceName in CKEDITOR.instances){
+                CKEDITOR.instances[instanceName].updateElement();
+            }
             $.each($('.record-form').serializeArray(), function(i, field) {
                 if(field.name in values)
                     if(Array.isArray(values[field.name]))

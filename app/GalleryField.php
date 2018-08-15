@@ -1,7 +1,6 @@
 <?php namespace App;
 
 use App\Http\Controllers\FieldController;
-use Illuminate\Database\Query\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -355,10 +354,10 @@ class GalleryField extends FileTypeField  {
      * @param  bool $exists - Field for record exists
      */
     public function rollbackField($field, Revision $revision, $exists=true) {
-        if(!is_array($revision->data))
-            $revision->data = json_decode($revision->data, true);
+        if(!is_array($revision->oldData))
+            $revision->oldData = json_decode($revision->oldData, true);
 
-        if(is_null($revision->data[Field::_GALLERY][$field->flid]['data']))
+        if(is_null($revision->oldData[Field::_GALLERY][$field->flid]['data']))
             return null;
 
         // If the field doesn't exist or was explicitly deleted, we create a new one.
@@ -368,7 +367,7 @@ class GalleryField extends FileTypeField  {
             $this->rid = $revision->rid;
         }
 
-        $this->images = $revision->data[Field::_GALLERY][$field->flid]['data'];
+        $this->images = $revision->oldData[Field::_GALLERY][$field->flid]['data'];
         $this->save();
     }
 
@@ -528,7 +527,7 @@ class GalleryField extends FileTypeField  {
         return DB::table("gallery_fields")
             ->select("rid")
             ->where("flid", "=", $flid)
-            ->whereRaw("MATCH (`images`) AGAINST (? IN BOOLEAN MODE)", [$arg])
+            ->where('images','LIKE',"%$arg%")
             ->distinct()
             ->pluck('rid')
             ->toArray();
@@ -539,16 +538,18 @@ class GalleryField extends FileTypeField  {
      *
      * @param  int $flid - Field ID
      * @param  array $query - The advance search user query
-     * @return Builder - The RIDs that match search
+     * @return array - The RIDs that match search
      */
-    public function getAdvancedSearchQuery($flid, $query) {
-        $processed = $query[$flid."_input"]. "*[Name]";
+    public function advancedSearchTyped($flid, $query) {
+        $arg = $query[$flid."_input"];
 
         return DB::table("gallery_fields")
             ->select("rid")
             ->where("flid", "=", $flid)
-            ->whereRaw("MATCH (`images`) AGAINST (? IN BOOLEAN MODE)", [$processed])
-            ->distinct();
+            ->where('images','LIKE',"%$arg%")
+            ->distinct()
+            ->pluck('rid')
+            ->toArray();
     }
 
     ///////////////////////////////////////////////END ABSTRACT FUNCTIONS///////////////////////////////////////////////

@@ -182,13 +182,13 @@ class NumberField extends BaseField {
                 $revision = RevisionController::storeRevision($record->rid, Revision::EDIT);
                 $numberfield->number = $formFieldValue;
                 $numberfield->save();
-                $revision->oldData = RevisionController::buildDataArray($record);
+                $revision->data = RevisionController::buildDataArray($record);
                 $revision->save();
             }
         } else {
             $this->createNewRecordField($field, $record, $formFieldValue, $request);
             $revision = RevisionController::storeRevision($record->rid, Revision::EDIT);
-            $revision->oldData = RevisionController::buildDataArray($record);
+            $revision->data = RevisionController::buildDataArray($record);
             $revision->save();
         }
     }
@@ -241,10 +241,10 @@ class NumberField extends BaseField {
      * @param  bool $exists - Field for record exists
      */
     public function rollbackField($field, Revision $revision, $exists=true) {
-        if(!is_array($revision->data))
-            $revision->data = json_decode($revision->data, true);
+        if(!is_array($revision->oldData))
+            $revision->oldData = json_decode($revision->oldData, true);
 
-        if(is_null($revision->data[Field::_NUMBER][$field->flid]['data']['number']))
+        if(is_null($revision->oldData[Field::_NUMBER][$field->flid]['data']['number']))
             return null;
 
         // If the field doesn't exist or was explicitly deleted, we create a new one.
@@ -254,7 +254,7 @@ class NumberField extends BaseField {
             $this->fid = $revision->fid;
         }
 
-        $this->number = $revision->data[Field::_NUMBER][$field->flid]['data']['number'];
+        $this->number = $revision->oldData[Field::_NUMBER][$field->flid]['data']['number'];
         $this->save();
     }
 
@@ -364,8 +364,6 @@ class NumberField extends BaseField {
      * @return array - The RIDs that match search
      */
     public function keywordSearchTyped($flid, $arg) {
-        $arg = str_replace(["*", "\""], "", $arg);
-
         if(is_numeric($arg)) { // Only search if we're working with a number.
             $arg = floatval($arg);
 
@@ -386,9 +384,9 @@ class NumberField extends BaseField {
      *
      * @param  int $flid - Field ID
      * @param  array $query - The advance search user query
-     * @return Builder - The RIDs that match search
+     * @return array - The RIDs that match search
      */
-    public function getAdvancedSearchQuery($flid, $query) {
+    public function advancedSearchTyped($flid, $query) {
         $left = $query[$flid . "_left"];
         $right = $query[$flid . "_right"];
         $invert = isset($query[$flid . "_invert"]);
@@ -399,7 +397,9 @@ class NumberField extends BaseField {
 
         self::buildAdvancedNumberQuery($query, $left, $right, $invert);
 
-        return $query->distinct();
+        return $query->distinct()
+            ->pluck('rid')
+            ->toArray();
     }
 
     /**
@@ -415,17 +415,17 @@ class NumberField extends BaseField {
     public static function buildAdvancedNumberQuery(Builder &$query, $left, $right, $invert, $prefix = "") {
         // Determine the interval we should search over. With epsilons to account for float rounding.
         if($left == "") {
-            if ($invert) // (right, inf)
+            if($invert) // [right, inf)
                 $query->where($prefix . "number", ">", floatval($right) - self::EPSILON);
             else // (-inf, right]
                 $query->where($prefix . "number", "<=", floatval($right) + self::EPSILON);
         } else if($right == "") {
-            if($invert) // (-inf, left)
+            if($invert) // (-inf, left]
                 $query->where($prefix . "number", "<", floatval($left) + self::EPSILON);
             else // [left, inf)
                 $query->where($prefix . "number", ">=", floatval($left) - self::EPSILON);
         } else {
-            if($invert) { // (-inf, left) union (right, inf)
+            if($invert) { // (-inf, left] union [right, inf)
                 $query->whereNotBetween($prefix . "number", [floatval($left) - self::EPSILON,
                     floatval($right) + self::EPSILON]);
             } else { // [left, right]

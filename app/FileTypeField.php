@@ -4,6 +4,9 @@ use App\FieldHelpers\UploadHandler;
 use App\Http\Controllers\FieldController;
 use App\Http\Controllers\RecordController;
 use Illuminate\Http\Request;
+use ZipArchive;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\File;
 
 abstract class FileTypeField extends BaseField {
 
@@ -143,6 +146,7 @@ abstract class FileTypeField extends BaseField {
         $options = array();
         $options['flid'] = $flid;
         $options['filename'] = $filename;
+        $options['deleteThat'] = true;
         $upload_handler = new UploadHandler($options);
     }
 
@@ -166,7 +170,52 @@ abstract class FileTypeField extends BaseField {
                 'Content-Length: '. filesize($file_path)
             ]);
         } else {
-            return response()->json(["status"=>false,"message"=>"file_doesnt_exist"],500);
+            return response()->json(["status" => false, "message" => "file_doesnt_exist"], 500);
+        }
+    }
+
+    /**
+     * Downloads a zip file from a particular record field.
+     *
+     * @param  int $rid - Record ID
+     * @param  int $flid - Field ID
+     * @param  string $filename - Name of the file
+     * @return string - html for the file download
+     */
+    public static function getZipDownload($rid, $flid, $filename) {
+        $record = RecordController::getRecord($rid);
+        $field = FieldController::getField($flid);
+
+        // Check if directory app/storage/file folder exists
+        $dir_path = config('app.base_path').'storage/app/files/p'.$record->pid.'/f'.$record->fid.'/r'.$record->rid.'/fl'.$field->flid;
+        if(file_exists($dir_path)) {
+            $zip_name = $filename . '_export' . date("Y_m_d_His") . '.zip';
+            $zip_dir = config('app.base_path').'storage/app/' . ($filename != '' ? $filename : 'zip_exports');
+            $zip = new ZipArchive;
+
+            if ($zip->open($zip_dir . '/' . $zip_name, ZipArchive::CREATE) === TRUE) {
+                foreach (new \DirectoryIterator($dir_path) as $file) {
+                    if ($file->isFile()) {
+                        $content = file_get_contents($file->getRealPath());
+                        $zip->addFromString($file->getFilename(), $content);
+                    }
+                }
+                $zip->close();
+            }
+
+            // Set Header
+            $headers = array(
+                'Content-Type' => 'application/octet-stream',
+            );
+            $filetopath = $zip_dir . '/' . $zip_name;
+            // Create Download Response
+            if(file_exists($filetopath)){
+                return response()->download($filetopath, $zip_name, $headers);
+            } else {
+                return response()->json(["status"=>false,"message"=>"zip_doesnt_exist"],500);
+            }
+        } else {
+            return response()->json(["status"=>false,"message"=>"directory_doesnt_exist"],500);
         }
     }
 

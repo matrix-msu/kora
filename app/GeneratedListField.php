@@ -174,13 +174,13 @@ class GeneratedListField extends BaseField {
                 $revision = RevisionController::storeRevision($record->rid, Revision::EDIT);
                 $generatedlistfield->options = implode("[!]", $formFieldValue);
                 $generatedlistfield->save();
-                $revision->oldData = RevisionController::buildDataArray($record);
+                $revision->data = RevisionController::buildDataArray($record);
                 $revision->save();
             }
         } else {
             $this->createNewRecordField($field, $record, $formFieldValue, $request);
             $revision = RevisionController::storeRevision($record->rid, Revision::EDIT);
-            $revision->oldData = RevisionController::buildDataArray($record);
+            $revision->data = RevisionController::buildDataArray($record);
             $revision->save();
         }
     }
@@ -233,10 +233,10 @@ class GeneratedListField extends BaseField {
      * @param  bool $exists - Field for record exists
      */
     public function rollbackField($field, Revision $revision, $exists=true) {
-        if(!is_array($revision->data))
-            $revision->data = json_decode($revision->data, true);
+        if(!is_array($revision->oldData))
+            $revision->oldData = json_decode($revision->oldData, true);
 
-        if(is_null($revision->data[Field::_GENERATED_LIST][$field->flid]['data']))
+        if(is_null($revision->oldData[Field::_GENERATED_LIST][$field->flid]['data']))
             return null;
 
         //If the field doesn't exist or was explicitly deleted, we create a new one.
@@ -246,7 +246,7 @@ class GeneratedListField extends BaseField {
             $this->fid = $revision->fid;
         }
 
-        $this->options = $revision->data[Field::_GENERATED_LIST][$field->flid]['data'];
+        $this->options = $revision->oldData[Field::_GENERATED_LIST][$field->flid]['data'];
         $this->save();
     }
 
@@ -343,7 +343,7 @@ class GeneratedListField extends BaseField {
         return DB::table("generated_list_fields")
             ->select("rid")
             ->where("flid", "=", $flid)
-            ->whereRaw("MATCH (`options`) AGAINST (? IN BOOLEAN MODE)", [$arg])
+            ->where('options','LIKE',"%$arg%")
             ->distinct()
             ->pluck('rid')
             ->toArray();
@@ -354,9 +354,9 @@ class GeneratedListField extends BaseField {
      *
      * @param  int $flid - Field ID
      * @param  array $query - The advance search user query
-     * @return Builder - The RIDs that match search
+     * @return array - The RIDs that match search
      */
-    public function getAdvancedSearchQuery($flid, $query) {
+    public function advancedSearchTyped($flid, $query) {
         $inputs = $query[$flid."_input"];
 
         $query = DB::table("generated_list_fields")
@@ -365,7 +365,9 @@ class GeneratedListField extends BaseField {
 
         self::buildAdvancedGeneratedListQuery($query, $inputs);
 
-        return $query->distinct();
+        return $query->distinct()
+            ->pluck('rid')
+            ->toArray();
     }
 
     /**
@@ -377,8 +379,10 @@ class GeneratedListField extends BaseField {
     private static function buildAdvancedGeneratedListQuery(Builder &$db_query, $inputs) {
         $db_query->where(function($db_query) use ($inputs) {
             foreach($inputs as $input) {
-                $db_query->orWhereRaw("MATCH (`options`) AGAINST (? IN BOOLEAN MODE)",
-                    ["\"" . $input . "\""]);
+                //since we want to look for the exact term when data is concatenated string
+                $db_query->orWhere('options','LIKE',$input."[!]%"); //is it the first term
+                $db_query->orWhere('options','LIKE',"%[!]".$input); //is it the last term
+                $db_query->orWhere('options','LIKE',"%[!]".$input."[!]%"); //is it in the middle
             }
         });
     }

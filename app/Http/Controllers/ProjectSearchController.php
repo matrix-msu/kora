@@ -6,10 +6,8 @@ use App\Project;
 use App\Record;
 use App\Search;
 use Illuminate\Http\Request;
-use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Session;
 use Illuminate\View\View;
 
 class ProjectSearchController extends Controller {
@@ -42,19 +40,9 @@ class ProjectSearchController extends Controller {
 
         if(isset($request->keywords)) {
             //DO THE SEARCH
-            $arg = trim($request->keywords);
+            $argString = trim($request->keywords);
             $method = intval($request->method);
             $fids = $request->forms;
-
-            // Inform the user about arguments that will be ignored.
-            $args = explode(" ", $arg);
-            $ignored = Search::showIgnoredArguments($args, ($method == Search::SEARCH_EXACT));
-            $args = array_diff($args, $ignored);
-            $arg = implode(" ", $args);
-
-            $ignored = implode(" ", $ignored);
-
-            //TODO::Flash ignored warnings
 
             //Determine if we are searching all forms in project, or just specific ones
             if(in_array("ALL",$fids))
@@ -64,12 +52,12 @@ class ProjectSearchController extends Controller {
 
             $rids = [];
             foreach ($forms as $form) {
-                $search = new Search($form->pid, $form->fid, $arg, $method);
-                $rids = array_merge($search->formKeywordSearch(), $rids);
+                if(!Auth::user()->inAFormGroup($form))
+                    continue;
+                $search = new Search($form->pid, $form->fid, $argString, $method);
+                $results = $search->formKeywordSearch();
+                $this->imitateMerge($rids, $results);
             }
-
-            if(empty($rids))
-                $rids = [];
 
             sort($rids);
 
@@ -99,6 +87,12 @@ class ProjectSearchController extends Controller {
         return view('projectSearch.results', compact("project", "forms", "records", "total", "ignored", "initial"));
     }
 
+    private function imitateMerge(&$array1, &$array2) {
+        foreach($array2 as $i) {
+            $array1[] = $i;
+        }
+    }
+
     /**
      * Executes and displays results for a global multi-project search in Kora3.
      *
@@ -108,19 +102,9 @@ class ProjectSearchController extends Controller {
     public function globalSearch(Request $request) {
         if(isset($request->keywords)) {
             //DO THE SEARCH
-            $arg = trim($request->keywords);
+            $argString = trim($request->keywords);
             $method = intval($request->method);
             $pids = $request->projects;
-
-            // Inform the user about arguments that will be ignored.
-            $args = explode(" ", $arg);
-            $ignored = Search::showIgnoredArguments($args, $method);
-            $args = array_diff($args, $ignored);
-            $arg = implode(" ", $args);
-
-            $ignored = implode(" ", $ignored);
-
-            //TODO::Flash ignored warnings
 
             //Determine if we are searching all forms in project, or just specific ones
             if(in_array("ALL",$pids))
@@ -134,13 +118,11 @@ class ProjectSearchController extends Controller {
                 foreach($forms as $form) {
                     if(!Auth::user()->inAFormGroup($form))
                         continue;
-                    $search = new Search($form->pid, $form->fid, $arg, $method);
-                    $rids = array_merge($search->formKeywordSearch(), $rids);
+                    $search = new Search($form->pid, $form->fid, $argString, $method);
+                    $results = $search->formKeywordSearch();
+                    $this->imitateMerge($rids, $results);
                 }
             }
-
-            if(empty($rids))
-                $rids = [];
 
             sort($rids);
 

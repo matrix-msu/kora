@@ -62,12 +62,128 @@ Kora.Records.Show = function() {
 
     function initializeTypedFieldDisplays() {
         //GALLERY
-        $('.gallery-field-display').slick({
-            dots: true,
-            infinite: true,
-            speed: 500,
-            fade: true,
-            cssEase: 'linear'
+        $('.gallery-field-display-js').each(function() {
+            var $this = $(this);
+            var $slides = $this.find('.slide-js');
+            var $dotsContainer = $this.next().find('.dots-js');
+            var slideCount = $slides.length;
+            var currentSlide = 0;
+            var galHeight = 300, galWidth = 500, galAspectRatio = galWidth / galHeight;
+
+            // Set dots
+            for (var i = 0; i < slideCount; i++) {
+                $dotsContainer.append('<div class="dot dot-js'+(i == currentSlide ? ' active' : '')+'" data-slide-num="'+i+'"></div>')
+            }
+
+            var $dots = $dotsContainer.find('.dot-js');
+
+            // Select slide using dots
+            $dots.click(function() {
+                var $dot = $(this);
+                currentSlide = $dot.data('slide-num');
+
+                $dots.removeClass('active');
+                $dot.addClass('active');
+
+                setImagePositions();
+            });
+
+            // Need to wait for images to load before getting heights and widths
+            $(window).load(function() {
+                // Size and Position slides based on gallery aspect ratio
+                setGalAspectRatio();
+
+                for (var i = 0; i < slideCount; i++) {
+                    var $slide = $($slides[i]);
+                    var $slideImg = $slide.find('.slide-img-js');
+                    var slideImgHeight = $slideImg.height();
+                    var slideImgWidth = $slideImg.width();
+                    var imgAspectRatio = slideImgWidth / slideImgHeight;
+
+                    // Set fixed img aspect ratio
+                    $slideImg.attr('data-aspect-ratio', imgAspectRatio);
+
+                    setImagePosition($slide, i);
+                    setImageSize($slideImg, imgAspectRatio);
+                }
+
+                // When resizing, recalculate gallery aspect ratio and size and position slides
+                $(window).resize(function () {
+                    setGalAspectRatio();
+
+                    for (var i = 0; i < slideCount; i++) {
+                        var $slide = $($slides[i]);
+                        var $slideImg = $slide.find('.slide-img-js');
+                        var imgAspectRatio = $slideImg.data('aspect-ratio');
+
+                        // Set image position
+                        $slide.css('left', ((i - currentSlide) * galWidth) + "px");
+
+                        setImageSize($slideImg, imgAspectRatio);
+                    }
+                });
+
+                // Next button
+                $this.parent().find('.next-button-js').click(function () {
+                    currentSlide += 1;
+                    if (currentSlide >= slideCount) {
+                        currentSlide = 0;
+                    }
+
+                    setImagePositions();
+                });
+
+                // Previous button
+                $this.parent().find('.prev-button-js').click(function () {
+                    currentSlide -= 1;
+                    if (currentSlide < 0) {
+                        currentSlide = slideCount - 1;
+                    }
+
+                    setImagePositions();
+                });
+
+                function setGalAspectRatio() {
+                    galHeight = $this.height();
+                    galWidth = $this.width();
+                    galAspectRatio = galWidth / galHeight;
+                }
+
+                function setImageSize($slideImg, imgAspectRatio) {
+                    if (imgAspectRatio > galAspectRatio) {
+                        // Image is wider than gallery container
+                        $slideImg.css('height', 'auto');
+                        $slideImg.css('width', '100%');
+                    } else {
+                        // Image is tall or same aspect ratio as gallery container
+                        $slideImg.css('height', '100%');
+                        $slideImg.css('width', 'auto');
+                    }
+                }
+            });
+
+            $('.gallery-sidebar-js .full-screen-button-js').click(function(e) {
+                e.preventDefault();
+                var $galleryModal = $(this).parent().parent().parent().next();
+                Kora.Modal.close();
+                Kora.Modal.open($galleryModal);
+            });
+
+            // Set horizontal positioning for single slide
+            function setImagePosition($slide, index) {
+                $dots.removeClass('active');
+                $($dots[currentSlide]).addClass('active');
+                var pos = ((index - currentSlide) * galWidth) + "px";
+                $slide.animate({left: pos}, 100, 'swing');
+            }
+
+            // Set horizontal positioning for all slides
+            function setImagePositions() {
+                for (var i = 0; i < slideCount; i++) {
+                    var $slide = $($slides[i]);
+                    setImagePosition($slide, i);
+                }
+            }
         });
 
         //GEOLOCATOR
@@ -82,7 +198,6 @@ Kora.Records.Show = function() {
             L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png?{foo}', {foo: 'bar'}).addTo(mapRecord);
 
             // Make second map for full screen modal
-            console.log($('#modalmap'+mapID));
             var mapRecordModal = L.map('modalmap'+mapID).setView([firstLoc.attr('loc-x'), firstLoc.attr('loc-y')], 13);
             mapRecordModal.scrollWheelZoom.disable();
             L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png?{foo}', {foo: 'bar'}).addTo(mapRecordModal);
@@ -95,9 +210,7 @@ Kora.Records.Show = function() {
 
         $('.geolocator-map-js .full-screen-button-js').click(function(e) {
             e.preventDefault();
-
-            var $geoModal = $(this).parent().parent().find('.geolocator-map-modal-js');
-            console.log($geoModal);
+            var $geoModal = $(this).parent().parent().parent().find('.geolocator-map-modal-js');
             Kora.Modal.close();
             Kora.Modal.open($geoModal);
         });

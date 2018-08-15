@@ -30,7 +30,7 @@ class AssociatorField extends BaseField {
      */
     const FIELD_OPTIONS_VIEW = "partials.fields.options.associator";
     const FIELD_ADV_OPTIONS_VIEW = "partials.fields.advanced.associator";
-    const e = "partials.records.advanced.associator";
+    const FIELD_ADV_INPUT_VIEW = "partials.records.advanced.associator";
     const FIELD_INPUT_VIEW = "partials.records.input.associator";
     const FIELD_DISPLAY_VIEW = "partials.records.display.associator";
 
@@ -184,13 +184,13 @@ class AssociatorField extends BaseField {
                 $revision = RevisionController::storeRevision($record->rid, Revision::EDIT);
                 $associatorfield->updateRecords($formFieldValue);
                 $associatorfield->save();
-                $revision->oldData = RevisionController::buildDataArray($record);
+                $revision->data = RevisionController::buildDataArray($record);
                 $revision->save();
             }
         } else {
             $this->createNewRecordField($field, $record, $formFieldValue, $request);
             $revision = RevisionController::storeRevision($record->rid, Revision::EDIT);
-            $revision->oldData = RevisionController::buildDataArray($record);
+            $revision->data = RevisionController::buildDataArray($record);
             $revision->save();
         }
     }
@@ -236,10 +236,10 @@ class AssociatorField extends BaseField {
      * @param  bool $exists - Field for record exists
      */
     public function rollbackField($field, Revision $revision, $exists=true) {
-        if(!is_array($revision->data))
-            $revision->data = json_decode($revision->data, true);
+        if(!is_array($revision->oldData))
+            $revision->oldData = json_decode($revision->oldData, true);
 
-        if(is_null($revision->data[Field::_ASSOCIATOR][$field->flid]['data']))
+        if(is_null($revision->oldData[Field::_ASSOCIATOR][$field->flid]['data']))
             return null;
 
         // If the field doesn't exist or was explicitly deleted, we create a new one.
@@ -250,7 +250,7 @@ class AssociatorField extends BaseField {
         }
 
         $this->save();
-        $updated = explode('[!]',$revision->data[Field::_ASSOCIATOR][$field->flid]['data']);
+        $updated = explode('[!]',$revision->oldData[Field::_ASSOCIATOR][$field->flid]['data']);
         $this->updateRecords($updated);
     }
 
@@ -360,11 +360,11 @@ class AssociatorField extends BaseField {
      */
     public function keywordSearchTyped($flid, $arg) {
         $arg = explode('-',$arg);
-        $rid = end($arg);
+        $rid = end($arg); //This way, whether they supply a KID or RID, the RID will always be the last element
         return DB::table(self::SUPPORT_NAME)
             ->select("rid")
             ->where("flid", "=", $flid)
-            ->whereRaw("MATCH (`record`) AGAINST (? IN BOOLEAN MODE)", ["\"" . $rid . "\""])
+            ->where('record','=', $rid)
             ->distinct()
             ->pluck('rid')
             ->toArray();
@@ -375,9 +375,9 @@ class AssociatorField extends BaseField {
      *
      * @param  int $flid - Field ID
      * @param  array $query - The advance search user query
-     * @return Builder - The RIDs that match search
+     * @return array - The RIDs that match search
      */
-    public function getAdvancedSearchQuery($flid, $query) {
+    public function advancedSearchTyped($flid, $query) {
         $inputs = $query[$flid."_input"];
 
         $query = DB::table(self::SUPPORT_NAME)
@@ -386,7 +386,9 @@ class AssociatorField extends BaseField {
 
         self::buildAdvancedAssociatorQuery($query, $inputs);
 
-        return $query->distinct();
+        return $query->distinct()
+            ->pluck('rid')
+            ->toArray();
     }
 
     /**
@@ -398,12 +400,9 @@ class AssociatorField extends BaseField {
     private static function buildAdvancedAssociatorQuery(Builder &$dbQuery, $inputs) {
         $dbQuery->where(function($dbQuery) use ($inputs) {
             foreach($inputs as $input) {
-                $rid = explode('-',$input)[2];
-                if(strlen($rid)<4)
-                    $dbQuery->orWhereRaw("`record`='?'", [$rid]);
-                else
-                    $dbQuery->orWhereRaw("MATCH (`record`) AGAINST (? IN BOOLEAN MODE)",
-                        ["\"" . $rid . "\""]);
+                $ridArr = explode('-', $input);
+                $rid = end($ridArr); //This way, whether they supply a KID or RID, the RID will always be the last element
+                $dbQuery->orWhere('record', '=', $rid);
             }
         });
     }

@@ -102,6 +102,10 @@ class FieldAjaxController extends Controller {
         return FileTypeField::getFileDownload($rid, $flid, $filename);
     }
 
+    public function getZipDownload($rid, $flid, $filename) {
+        return FileTypeField::getZipDownload($rid, $flid, $filename);
+    }
+
     /**
      * Gets the image associated with the Gallery Field of a particular record.
      *

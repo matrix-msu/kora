@@ -124,7 +124,8 @@ class VideoField extends FileTypeField {
             $infoString = '';
             $infoArray = array();
             $newPath = config('app.base_path') . 'storage/app/files/p' . $field->pid . '/f' . $field->fid . '/r' . $record->rid . '/fl' . $field->flid;
-            mkdir($newPath, 0775, true);
+            if(!file_exists($newPath))
+                mkdir($newPath, 0775, true);
             if(file_exists(config('app.base_path') . 'storage/app/tmpFiles/' . $value)) {
                 $types = self::getMimeTypes();
                 foreach(new \DirectoryIterator(config('app.base_path') . 'storage/app/tmpFiles/' . $value) as $file) {
@@ -299,10 +300,10 @@ class VideoField extends FileTypeField {
      * @param  bool $exists - Field for record exists
      */
     public function rollbackField($field, Revision $revision, $exists=true) {
-        if(!is_array($revision->data))
-            $revision->data = json_decode($revision->data, true);
+        if(!is_array($revision->oldData))
+            $revision->oldData = json_decode($revision->oldData, true);
 
-        if(is_null($revision->data[Field::_VIDEO][$field->flid]['data']))
+        if(is_null($revision->oldData[Field::_VIDEO][$field->flid]['data']))
             return null;
 
         // If the field doesn't exist or was explicitly deleted, we create a new one.
@@ -312,7 +313,7 @@ class VideoField extends FileTypeField {
             $this->rid = $revision->rid;
         }
 
-        $this->video = $revision->data[Field::_VIDEO][$field->flid]['data'];
+        $this->video = $revision->oldData[Field::_VIDEO][$field->flid]['data'];
         $this->save();
     }
 
@@ -450,7 +451,7 @@ class VideoField extends FileTypeField {
         return DB::table("video_fields")
             ->select("rid")
             ->where("flid", "=", $flid)
-            ->whereRaw("MATCH (`video`) AGAINST (? IN BOOLEAN MODE)", [$arg])
+            ->where('video','LIKE',"%$arg%")
             ->distinct()
             ->pluck('rid')
             ->toArray();
@@ -461,16 +462,18 @@ class VideoField extends FileTypeField {
      *
      * @param  int $flid - Field ID
      * @param  array $query - The advance search user query
-     * @return Builder - The RIDs that match search
+     * @return array - The RIDs that match search
      */
-    public function getAdvancedSearchQuery($flid, $query) {
-        $processed = $query[$flid."_input"]. "*[Name]";
+    public function advancedSearchTyped($flid, $query) {
+        $arg = $query[$flid."_input"];
 
         return DB::table("video_fields")
             ->select("rid")
             ->where("flid", "=", $flid)
-            ->whereRaw("MATCH (`video`) AGAINST (? IN BOOLEAN MODE)", [$processed])
-            ->distinct();
+            ->where('video','LIKE',"%$arg%")
+            ->distinct()
+            ->pluck('rid')
+            ->toArray();
     }
 
     ///////////////////////////////////////////////END ABSTRACT FUNCTIONS///////////////////////////////////////////////

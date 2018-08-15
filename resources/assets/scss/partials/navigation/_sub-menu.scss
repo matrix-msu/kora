@@ -11,6 +11,7 @@
   transform: translateY(-200%);
   visibility: hidden;
   width: 175px;
+  word-wrap: break-word;
   will-change: transform;
   z-index: -1;
 
@@ -136,4 +137,9 @@
   }
 
   
+}
+
+.nav-textwrap-override {
+  white-space: normal !important;
+  word-wrap:break-word !important;
 }
