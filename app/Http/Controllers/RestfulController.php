@@ -326,6 +326,7 @@ class RestfulController extends Controller {
                                 }
                                 $request->request->add([$fieldModel->flid.'_dropdown' => 'on']);
                                 $request->request->add([$fieldModel->flid.'_valid' => 1]);
+                                $request->request->add([$fieldModel->flid => 1]);
                                 $request = $fieldModel->getTypedField()->setRestfulAdvSearch($data,$fieldModel->flid,$request);
                             }
                             $advSearch = new AdvancedSearchController();
