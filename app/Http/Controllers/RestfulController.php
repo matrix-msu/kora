@@ -1,15 +1,10 @@
 <?php namespace App\Http\Controllers;
 
-use App\DateField;
 use App\Field;
 use App\Form;
-use App\ListField;
-use App\NumberField;
 use App\Record;
 use App\Search;
-use App\TextField;
 use Illuminate\Http\Request;
-use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 
 class RestfulController extends Controller {
@@ -276,6 +271,10 @@ class RestfulController extends Controller {
                                         array_push($minorErrors, "The following field in keyword search is not apart of the requested form: " . $fieldMod->name);
                                         continue;
                                     }
+                                    if(!$fieldMod->isExternalSearchable()) {
+                                        array_push($minorErrors, "The following field in keyword search is not externally searchable: " . $fieldMod->name);
+                                        continue;
+                                    }
                                     array_push($searchFields,$fieldMod);
                                 }
                             } else {
@@ -288,22 +287,20 @@ class RestfulController extends Controller {
                             switch($method) {
                                 case 'OR':
                                     $method = Search::SEARCH_OR;
-                                    $keys = explode(" ",$keys);
                                     break;
                                 case 'AND':
                                     $method = Search::SEARCH_AND;
-                                    $keys = explode(" ",$keys);
                                     break;
                                 case 'EXACT':
                                     $method = Search::SEARCH_EXACT;
-                                    $keys = array($keys);
                                     break;
                                 default:
                                     return response()->json(["status"=>false,"error"=>"Invalid method, ".$method.", provided for keyword search for form: ". $form->name],500);
                                     break;
                             }
                             /// HERES WHERE THE NEW SEARCH WILL HAPPEN
-                            $rids = $this->apiKeywordSearch($searchFields, $keys, $method);
+                            $search = new Search($form->pid,$form->fid,$keys,$method);
+                            $rids = $search->formKeywordSearch($searchFields, true);
 
                             $negative = isset($query->not) ? $query->not : false;
                             if($negative)
@@ -333,8 +330,7 @@ class RestfulController extends Controller {
                             }
                             $advSearch = new AdvancedSearchController();
                             $rids = $advSearch->apisearch($form->pid, $form->fid, $request);
-                            if(is_null($rids))
-                                $rids=[];
+
                             $negative = isset($query->not) ? $query->not : false;
                             if($negative)
                                 $rids = $this->negative_results($form,$rids);
@@ -452,221 +448,6 @@ class RestfulController extends Controller {
             'records' => $resultsGlobal,
             'warnings' => $minorErrors
         ];
-    }
-
-    private function apiKeywordSearch($searchFields, $keys, $method) {
-	    //Laravel freaks out with the select statements, so we go right for the belly of the beast
-	    $con = mysqli_connect(env('DB_HOST'), env('DB_USERNAME'), env('DB_PASSWORD'), env('DB_DATABASE'));
-	    
-        $results = array();
-        foreach($keys as $k) {
-            $selectFinal = [];
-            $k = mysqli_real_escape_string($con,$k);
-
-            foreach($searchFields as $field) {
-                //TODO::modular?
-                switch($field->type) {
-                    case Field::_TEXT:
-                    	if($method==Search::SEARCH_EXACT)
-                    		$key = '"'.$k.'"*';
-                    	else
-                        	$key = $k.'*';
-                        $where = "MATCH (`text`) AGAINST ('$key' IN BOOLEAN MODE)";
-                        $select = "SELECT DISTINCT `rid` from ".env('DB_PREFIX')."text_fields where `flid`=".$field->flid." AND $where";
-                        $selectFinal[] = $select;
-                        break;
-                    case Field::_RICH_TEXT:
-                        if($method==Search::SEARCH_EXACT)
-                    		$key = '"'.$k.'"*';
-                    	else
-                        	$key = $k.'*';
-                        $where = "MATCH (`searchable_rawtext`) AGAINST ('$key' IN BOOLEAN MODE)";
-                        $select = "SELECT DISTINCT `rid` from ".env('DB_PREFIX')."rich_text_fields where `flid`=".$field->flid." AND $where";
-                        $selectFinal[] = $select;
-                        break;
-                    case Field::_NUMBER:
-                        if(!is_numeric($k))
-                            break;
-                        $bottom = $k - NumberField::EPSILON;
-                        $top = $k + NumberField::EPSILON;
-                        $where = "`number` BETWEEN $bottom AND $top";
-                        $select = "SELECT DISTINCT `rid` from ".env('DB_PREFIX')."number_fields where `flid`=".$field->flid." AND $where";
-                        $selectFinal[] = $select;
-                        break;
-                    case Field::_LIST:
-                        if($method==Search::SEARCH_EXACT)
-                    		$key = '"'.$k.'"*';
-                    	else
-                        	$key = $k.'*';
-                        $where = "MATCH (`option`) AGAINST ('$key' IN BOOLEAN MODE)";
-                        $select = "SELECT DISTINCT `rid` from ".env('DB_PREFIX')."list_fields where `flid`=".$field->flid." AND $where";
-                        $selectFinal[] = $select;
-                        break;
-                    case Field::_MULTI_SELECT_LIST:
-                        if($method==Search::SEARCH_EXACT)
-                    		$key = '"'.$k.'"*';
-                    	else
-                        	$key = $k.'*';
-                        $where = "MATCH (`options`) AGAINST ('$key' IN BOOLEAN MODE)";
-                        $select = "SELECT DISTINCT `rid` from ".env('DB_PREFIX')."multi_select_list_fields where `flid`=".$field->flid." AND $where";
-                        $selectFinal[] = $select;
-                        break;
-                    case Field::_GENERATED_LIST:
-                        if($method==Search::SEARCH_EXACT)
-                    		$key = '"'.$k.'"*';
-                    	else
-                        	$key = $k.'*';
-                        $where = "MATCH (`options`) AGAINST ('$key' IN BOOLEAN MODE)";
-                        $select = "SELECT DISTINCT `rid` from ".env('DB_PREFIX')."generated_list_fields where `flid`=".$field->flid." AND $where";
-                        $selectFinal[] = $select;
-                        break;
-                    case Field::_COMBO_LIST:
-                        if(is_numeric($k)) {
-                            $bottom = $k - NumberField::EPSILON;
-                            $top = $k + NumberField::EPSILON;
-                            if ($method == Search::SEARCH_EXACT)
-                                $key = '"' . $k . '"*';
-                            else
-                                $key = $k . '*';
-                            $where = "(MATCH (`data`) AGAINST ('$key' IN BOOLEAN MODE) OR `number` BETWEEN $bottom AND $top)";
-                        } else {
-                            if ($method == Search::SEARCH_EXACT)
-                                $key = '"' . $k . '"*';
-                            else
-                                $key = $k . '*';
-                            $where = "MATCH (`data`) AGAINST ('$key' IN BOOLEAN MODE)";
-                        }
-                        $select = "SELECT DISTINCT `rid` from ".env('DB_PREFIX')."combo_support where `flid`=".$field->flid." AND $where";
-                        $selectFinal[] = $select;
-                        break;
-                    case Field::_DATE:
-                        // Boolean to decide if we should consider circa options.
-                        $circa = explode("[!Circa!]", $field->options)[1] == "Yes";
-                        // Boolean to decide if we should consider era.
-                        $era = explode("[!Era!]", $field->options)[1] == "On";
-                        //Checks to prevent false positives with default mysql values
-                        $intVal = intval($k);
-                        if($intVal == 0)
-                            $intVal = 999999;
-                        $intMonth = intval(DateField::monthToNumber($k));
-                        if($intMonth == 0)
-                            $intMonth = 999999;
-                        $where = "`day`=$intVal OR `year`=$intVal";
-                        if(DateField::isMonth($k))
-                            $where .= " OR `month`=$intMonth";
-                        if($era && DateField::isValidEra($k))
-                            $where .= " OR `era`=".strtoupper($k);
-                        if($circa && DateField::isCirca($k))
-                            $where .= " OR `circa`=1";
-
-                        $select = "SELECT DISTINCT `rid` from ".env('DB_PREFIX')."date_fields where `flid`=".$field->flid." AND ($where)";
-                        $selectFinal[] = $select;
-                        break;
-                    case Field::_SCHEDULE:
-                        if($method==Search::SEARCH_EXACT)
-                    		$key = '"'.$k.'"*';
-                    	else
-                        	$key = $k.'*';
-                        $where = "MATCH (`desc`) AGAINST ('$key' IN BOOLEAN MODE)";
-                        $select = "SELECT DISTINCT `rid` from ".env('DB_PREFIX')."schedule_support where `flid`=".$field->flid." AND $where";
-                        $selectFinal[] = $select;
-                        break;
-                    case Field::_DOCUMENTS:
-                        if($method==Search::SEARCH_EXACT)
-                    		$key = '"'.$k.'"*';
-                    	else
-                        	$key = $k.'*';
-                        $where = "MATCH (`documents`) AGAINST ('$key' IN BOOLEAN MODE)";
-                        $select = "SELECT DISTINCT `rid` from ".env('DB_PREFIX')."documents_fields where `flid`=".$field->flid." AND $where";
-                        $selectFinal[] = $select;
-                        break;
-                    case Field::_GALLERY:
-                        if($method==Search::SEARCH_EXACT)
-                    		$key = '"'.$k.'"*';
-                    	else
-                        	$key = $k.'*';
-                        $where = "MATCH (`images`) AGAINST ('$key' IN BOOLEAN MODE)";
-                        $select = "SELECT DISTINCT `rid` from ".env('DB_PREFIX')."gallery_fields where `flid`=".$field->flid." AND $where";
-                        $selectFinal[] = $select;
-                        break;
-                    case Field::_PLAYLIST:
-                        if($method==Search::SEARCH_EXACT)
-                    		$key = '"'.$k.'"*';
-                    	else
-                        	$key = $k.'*';
-                        $where = "MATCH (`audio`) AGAINST ('$key' IN BOOLEAN MODE)";
-                        $select = "SELECT DISTINCT `rid` from ".env('DB_PREFIX')."playlist_fields where `flid`=".$field->flid." AND $where";
-                        $selectFinal[] = $select;
-                        break;
-                    case Field::_VIDEO:
-                        if($method==Search::SEARCH_EXACT)
-                    		$key = '"'.$k.'"*';
-                    	else
-                        	$key = $k.'*';
-                        $where = "MATCH (`video`) AGAINST ('$key' IN BOOLEAN MODE)";
-                        $select = "SELECT DISTINCT `rid` from ".env('DB_PREFIX')."video_fields where `flid`=".$field->flid." AND $where";
-                        $selectFinal[] = $select;
-                        break;
-                    case Field::_3D_MODEL:
-                        if($method==Search::SEARCH_EXACT)
-                    		$key = '"'.$k.'"*';
-                    	else
-                        	$key = $k.'*';
-                        $where = "MATCH (`model`) AGAINST ('$key' IN BOOLEAN MODE)";
-                        $select = "SELECT DISTINCT `rid` from ".env('DB_PREFIX')."model_fields where `flid`=".$field->flid." AND $where";
-                        $selectFinal[] = $select;
-                        break;
-                    case Field::_GEOLOCATOR:
-                        if($method==Search::SEARCH_EXACT)
-                    		$key = '"'.$k.'"*';
-                    	else
-                        	$key = $k.'*';
-                        $where = "MATCH (`desc`) AGAINST ('$key' IN BOOLEAN MODE) OR MATCH (`address`) AGAINST ('$key' IN BOOLEAN MODE)";
-                        $select = "SELECT DISTINCT `rid` from ".env('DB_PREFIX')."geolocator_support where `flid`=".$field->flid." AND ($where)";
-                        $selectFinal[] = $select;
-                        break;
-                    case Field::_ASSOCIATOR:
-                        $key = explode('-',$k);
-                        $rid = end($key);
-                        if(strlen($rid)<4)
-                            $where = "`record`='$rid'";
-                        else
-                            $where = "MATCH (`record`) AGAINST (\"$rid\" IN BOOLEAN MODE)";
-                        $select = "SELECT DISTINCT `rid` from ".env('DB_PREFIX')."associator_support where `flid`=".$field->flid." AND $where";
-                        $selectFinal[] = $select;
-                        break;
-                    default:
-                        break;
-                }
-            }
-
-            //Union statements together and run SQL statement
-            $selectString = implode(' UNION ', $selectFinal);
-            $ridsUnclean = $con->query($selectString);
-            $rids = [];
-            
-            //Transform objects to array
-            while($rid = $ridsUnclean->fetch_assoc()) {
-                if(!is_null($rid['rid']))
-                    $rids[]=$rid['rid'];
-            }
-            
-            //Apply method
-            if(empty($results)) {
-                $results = array_flip(array_flip($rids));
-            } else {
-                if($method==Search::SEARCH_OR) {
-                    $this->imitateMerge($results,$rids);
-                    $results = array_flip(array_flip($results));
-                } else {
-                    $results = array_flip(array_flip($this->imitateIntersect($results,$rids)));
-                }
-            }
-        }
-
-        mysqli_close($con);
-
-        return $results;
     }
 
     private function imitateMerge(&$array1, &$array2) {
@@ -788,7 +569,7 @@ class RestfulController extends Controller {
             }
         } else {
             $field = FieldController::getField($fieldSlug);
-            if(!$field->isSortable())
+            if(is_null($field) || !$field->isSortable())
                 return false;
 
             $typedField = $field->getTypedField();
@@ -922,7 +703,7 @@ class RestfulController extends Controller {
 
             foreach($fieldSlug as $slug) {
                 $field = FieldController::getField($slug);
-                if (!$field->isSortable())
+                if(is_null($field) || !$field->isSortable())
                     return false;
                 array_push($flids,$field->flid);
                 if($type=='')
@@ -1082,6 +863,10 @@ class RestfulController extends Controller {
 
             $flidString = implode(',',$convertedFlids);
             $flidSQL = " and `flid` in ($flidString)";
+        } else {
+            $flids = Form::find($fid)->fields()->pluck('flid')->toArray();
+            $flidString = implode(',',$flids);
+            $flidSQL = " and `flid` in ($flidString)";
         }
 
         //Doing this for pretty much the same reason as keyword search above
@@ -1098,6 +883,7 @@ class RestfulController extends Controller {
         $msListOccurrences = DB::raw("select `options`, `flid` from ".env('DB_PREFIX')."multi_select_list_fields where `fid`=$fid and `rid` in ($ridString)$flidSQL");
         $genListOccurrences = DB::raw("select `options`, `flid` from ".env('DB_PREFIX')."generated_list_fields where `fid`=$fid and `rid` in ($ridString)$flidSQL");
         $numberOccurrences = DB::raw("select `number`, `flid` from ".env('DB_PREFIX')."number_fields where `fid`=$fid and `rid` in ($ridString)$flidSQL");
+        $dateOccurrences = DB::raw("select `month`, `day`, `year`, `flid` from ".env('DB_PREFIX')."date_fields where `fid`=$fid and `rid` in ($ridString)$flidSQL");
         $assocOccurrences = DB::raw("select s.`flid`, r.`kid` from ".env('DB_PREFIX')."associator_support as s left join kora3_records as r on s.`record`=r.`rid` where s.`fid`=$fid and s.`rid` in ($ridString) and s.`flid` in ($flidString)");
         $rAssocOccurrences = DB::raw("select s.`flid`, r.`kid` from ".env('DB_PREFIX')."associator_support as s left join kora3_records as r on s.`rid`=r.`rid` where s.`fid`=$fid and s.`rid` in ($ridString) and s.`flid` in ($flidString)");
 
@@ -1131,6 +917,27 @@ class RestfulController extends Controller {
                 else
                     $filters[$gsFlid][$opt] += 1;
             }
+        }
+
+        $dateUnclean = $con->query($dateOccurrences);
+        while($occur = $dateUnclean->fetch_assoc()) {
+            $flid = $occur['flid'];
+
+            if($occur['month']==0 && $occur['day']==0)
+                $value = $occur['year'];
+            else if($occur['day']==0 && $occur['year']==0)
+                $value = \DateTime::createFromFormat('m', $occur['month'])->format('F');
+            else if($occur['day']==0)
+                $value = \DateTime::createFromFormat('m', $occur['month'])->format('F').', '.$occur['year'];
+            else if($occur['year']==0)
+                $value = \DateTime::createFromFormat('m', $occur['month'])->format('F').' '.$occur['day'];
+            else
+                $value = $occur['month'].'-'.$occur['day'].'-'.$occur['year'];
+
+            if(!isset($filters[$flid][$value]))
+                $filters[$flid][$value] = 1;
+            else
+                $filters[$flid][$value] += 1;
         }
 
         $textUnclean = $con->query($textOccurrences);

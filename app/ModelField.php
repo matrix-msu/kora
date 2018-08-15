@@ -1,7 +1,6 @@
 <?php namespace App;
 
 use App\Http\Controllers\FieldController;
-use Illuminate\Database\Query\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -438,7 +437,7 @@ class ModelField extends FileTypeField  {
         return DB::table("model_fields")
             ->select("rid")
             ->where("flid", "=", $flid)
-            ->whereRaw("MATCH (`model`) AGAINST (? IN BOOLEAN MODE)", [$arg])
+            ->where('model','LIKE',"%$arg%")
             ->distinct()
             ->pluck('rid')
             ->toArray();
@@ -449,16 +448,18 @@ class ModelField extends FileTypeField  {
      *
      * @param  int $flid - Field ID
      * @param  array $query - The advance search user query
-     * @return Builder - The RIDs that match search
+     * @return array - The RIDs that match search
      */
-    public function getAdvancedSearchQuery($flid, $query) {
-        $processed = $query[$flid."_input"]. "*[Name]";
+    public function advancedSearchTyped($flid, $query) {
+        $arg = $query[$flid."_input"];
 
         return DB::table("model_fields")
             ->select("rid")
             ->where("flid", "=", $flid)
-            ->whereRaw("MATCH (`model`) AGAINST (? IN BOOLEAN MODE)", [$processed])
-            ->distinct();
+            ->where('model','LIKE',"%$arg%")
+            ->distinct()
+            ->pluck('rid')
+            ->toArray();
     }
 
     ///////////////////////////////////////////////END ABSTRACT FUNCTIONS///////////////////////////////////////////////

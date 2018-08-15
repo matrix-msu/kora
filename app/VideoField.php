@@ -451,7 +451,7 @@ class VideoField extends FileTypeField {
         return DB::table("video_fields")
             ->select("rid")
             ->where("flid", "=", $flid)
-            ->whereRaw("MATCH (`video`) AGAINST (? IN BOOLEAN MODE)", [$arg])
+            ->where('video','LIKE',"%$arg%")
             ->distinct()
             ->pluck('rid')
             ->toArray();
@@ -462,16 +462,18 @@ class VideoField extends FileTypeField {
      *
      * @param  int $flid - Field ID
      * @param  array $query - The advance search user query
-     * @return Builder - The RIDs that match search
+     * @return array - The RIDs that match search
      */
-    public function getAdvancedSearchQuery($flid, $query) {
-        $processed = $query[$flid."_input"]. "*[Name]";
+    public function advancedSearchTyped($flid, $query) {
+        $arg = $query[$flid."_input"];
 
         return DB::table("video_fields")
             ->select("rid")
             ->where("flid", "=", $flid)
-            ->whereRaw("MATCH (`video`) AGAINST (? IN BOOLEAN MODE)", [$processed])
-            ->distinct();
+            ->where('video','LIKE',"%$arg%")
+            ->distinct()
+            ->pluck('rid')
+            ->toArray();
     }
 
     ///////////////////////////////////////////////END ABSTRACT FUNCTIONS///////////////////////////////////////////////

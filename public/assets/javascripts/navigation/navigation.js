@@ -1,3 +1,4 @@
+var Kora = Kora || {};
 //The first section handles closing/opening of menus
 var $navBar = $('.navigation-js');
 var $subMenu = $('.navigation-sub-menu-js');
@@ -162,7 +163,7 @@ var $clearResentSearchResults = $('.clear-search-results-js');
 
 $searchResults.parent().attr('style', 'display: none;'); //INITIALIZE HERE
 //Performs quick search on typing
-$searchInput.keydown(function(e) {
+$searchInput.keyup(function(e) {
     var charCode = e.which || e.keyCode;
 
     if(charCode == 9 ) {
@@ -401,3 +402,93 @@ $sideMenu.on('click', '.drawer-sub-menu-toggle-js', function(e) {
     $menu.addClass('active');
   }
 });
+
+function initializeRequestProjectPermissionsModal()
+{
+	var received_data = false;
+	var modal_loaded = false;
+	var open_immediately = false;
+  
+	$(".project-request-perms-js").mouseenter(function() {
+		if (!received_data)
+		{	
+			$.ajax({
+			  url: getProjectPermissionsModal,
+              type: 'POST',
+			  data: {
+		        "_token": CSRFToken,
+              },
+              success: function(result) {
+				$(result).appendTo(document.body); // add the modal to body
+			    load_modal(); // initialize the modal
+				modal_loaded = true;
+			  },
+			  error: function(result) {}
+			});
+	
+			received_data = true;
+		}
+    });
+  
+	$(".project-request-perms-js").click(function() {
+		if (modal_loaded)
+		{
+			Kora.Modal.open($(".nav-request-permissions-modal-js"));
+		}
+		else
+		{
+			open_immediately = true;
+		}
+    });
+   
+	function load_modal()
+	{
+		Kora.Modal.initialize($(".nav-request-permissions-modal-js"));
+	
+		$('.submit-project-request-js').click(function(e) {
+			e.preventDefault();
+   
+			$('.nav-request-error-js').text('');
+   
+			if($('#request_project').val() != null)
+			{ 
+				$.ajax({
+				  url: requestProjectPermissionsURL,
+				  type: 'POST',
+				  data: {
+				    "_token": CSRFToken,
+				    "pids": $('#request_project').val()
+				  },
+				  success: function(result) {},
+				  error: function(result) {}
+			    });
+		
+				// close modal after sending request
+				Kora.Modal.close($(".nav-request-permissions-modal-js"));
+			}
+			else
+				$('.request-error-js').text('Please select a project');
+			}
+		);
+	  
+		$('.multi-select').chosen({
+			width: '100%'
+		});
+	 
+	    $(".modal-toggle-js").click(function(){ // close on clicking X
+			Kora.Modal.close($(".nav-request-permissions-modal-js")); 
+		});
+	 
+	    $(document).on('click', function(event) { // close modal when clicking outside of modal
+			if (event.target.classList.contains("nav-request-permissions-modal-js")) {
+				Kora.Modal.close($(".nav-request-permissions-modal-js")); 
+			}
+		});
+	 
+	 if (open_immediately)
+	 {
+	   Kora.Modal.open($(".nav-request-permissions-modal-js"));
+	 }
+  }
+}
+initializeRequestProjectPermissionsModal();
