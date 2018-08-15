@@ -292,6 +292,7 @@ setInterval(multiselect_placeholder_injection, 451);
 function display_loader() {
 	$("#preloader").css("display", "");
 }
+
 function hide_loader() {
 	$("#preloader").css("display", "none");
 }
@@ -299,16 +300,9 @@ function hide_loader() {
 $( document ).ajaxSend(function(event, xhr, options) {
   
   var url = options.url;
-  // AJAX loader exclusion cases
   var display = true;
   
-  //if (url.substring(url.length - 8) == "validate") { // public/projects/validate (New Project)
-	//display = false;
-  //}
-  //else if (url.substring(options.url.length - 10, url.length - 2) == "validate") { // public/projects/validate/5 (Edit Project/Form/Field)
-	//display = false; // also Create Test Record validation
-  //}
-  
+  // loader exclusion cases for AJAX requests
   if (url.search("validate") != -1)
   {
 	display = false;
@@ -321,47 +315,3 @@ $( document ).ajaxComplete(function() {
   hide_loader();
 });
 
-$(document).ready(function(){
-	//display_loader();
-});
-
-var min_val = 80;
-var max_val = 100;
-var val = min_val;
-var interval = .7;
-var dir = 1;
-
-//setInterval(function(){
-//	val = val + (interval * dir);
-//	//$("#loader").css("animation", 'spin '+speed+'s linear infinite');
-//	//$("#loader").css("-webkit-animation", 'spin '+speed+'s linear infinite');
-//	$("#loader").css("width", val+'px');
-//	$("#loader").css("height", val+'px');
-//	$("#loader").css("margin", (val/2)+'px 0 0 '+(val/2)+'px');
-//	
-//	if (val > max_val)
-//	{
-//		val = max_val - .001;
-//		dir = -1;
-//	}
-//	
-//	if (val < min_val)
-//	{
-//		val = min_val + .001;
-//		dir = 1;
-//	}
-//}, 25);
-
-function speed(ring, num)
-{
-	//$("#loader").css(
-	if (ring == 1)
-	{
-		document.styleSheets[0].addRule('#loader','animation: spin '+num+'s linear infinite');
-		document.styleSheets[0].addRule('#loader','-webkit-animation: spin '+num+'s linear infinite');
-	}
-	else if (ring == 2)
-	{
-		
-	}
-}
