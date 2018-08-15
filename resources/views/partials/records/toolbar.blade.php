@@ -1,5 +1,5 @@
 <div class="toolbar hidden">
-  <div class="left delete-multiple-records-js ml-m">
+  <div class="left delete-multiple-records-js ml-xs">
     <i class="icon icon-trash ml-m"></i>
     <span class="count ml-xxs"></span>
   </div>
