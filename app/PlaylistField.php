@@ -466,6 +466,7 @@ class PlaylistField extends FileTypeField  {
      */
     public function advancedSearchTyped($flid, $query) {
         $arg = $query[$flid."_input"];
+        $arg = Search::prepare($arg);
 
         return DB::table("playlist_fields")
             ->select("rid")

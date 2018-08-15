@@ -465,6 +465,7 @@ class DocumentsField extends FileTypeField {
      */
     public function advancedSearchTyped($flid, $query) {
         $arg = $query[$flid."_input"];
+        $arg = Search::prepare($arg);
 
         return DB::table("documents_fields")
             ->select("rid")

@@ -754,6 +754,7 @@ class ComboListField extends BaseField {
             $prefix = ($prefix == "") ? self::SUPPORT_NAME : substr($prefix, 0, -1);
             $db_query->where(function($db_query) use ($inputs, $prefix, $db_prefix) {
                 foreach($inputs as $input) {
+                    $input = Search::prepare($input);
                     $db_query->orWhereRaw("`" . $db_prefix . $prefix . "`.`data` LIKE %?%", [$input]);
                 }
             });

@@ -321,6 +321,7 @@ class RichTextField extends BaseField {
      */
     public function advancedSearchTyped($flid, $query) {
         $arg = $query[$flid . "_input"];
+        $arg = Search::prepare($arg);
 
         return DB::table("rich_text_fields")
             ->select("rid")
