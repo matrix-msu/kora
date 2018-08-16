@@ -58,6 +58,7 @@
 @import 'partials/user-edit';
 @import 'partials/user-preferences';
 @import 'partials/user-profile';
+@import 'partials/loading-icon';
 
 @media screen and (min-width: $max-tablet-width) and (max-width: $max-with-aside-width) {
   // scss-lint:disable ImportantRule

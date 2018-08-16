@@ -288,3 +288,30 @@ function multiselect_placeholder_injection()
 }
 multiselect_placeholder_injection();
 setInterval(multiselect_placeholder_injection, 451);
+
+function display_loader() {
+	$("#preloader").css("display", "");
+}
+
+function hide_loader() {
+	$("#preloader").css("display", "none");
+}
+
+$( document ).ajaxSend(function(event, xhr, options) {
+  
+  var url = options.url;
+  var display = true;
+  
+  // loader exclusion cases for AJAX requests
+  if (url.search("validate") != -1)
+  {
+	display = false;
+  }
+
+  if (display) { display_loader(); }
+});
+
+$( document ).ajaxComplete(function() {
+  hide_loader();
+});
+
