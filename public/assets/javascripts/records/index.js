@@ -456,14 +456,6 @@ Kora.Records.Index = function() {
           $(this).parent().remove();
           var find = $(this).siblings('span').text();
           if (keywords.indexOf(find) >= 0) {
-<<<<<<< HEAD
-          var index = keywords.indexOf(find);
-          keywords.splice(index, 1);
-          newKeys = keywords.toString();
-          newKeys = newKeys.replace(',',' ');
-          $('.keywords-get-js').val(newKeys);
-          $('.submit-search-js').trigger('click');
-=======
             var index = keywords.indexOf(find);
             keywords.splice(index, 1);
             newKeys = keywords.toString();
@@ -471,7 +463,6 @@ Kora.Records.Index = function() {
             $('.keywords-get-js').val(newKeys);
             window.localStorage.setItem('searchMade', true);
             $('.submit-search-js').trigger('click');
->>>>>>> master
           }
         });
       }
