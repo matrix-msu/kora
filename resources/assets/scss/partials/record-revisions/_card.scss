@@ -1,4 +1,10 @@
 .revision {
+  @media screen and (max-width: 620px) {
+    .header .left span:not(:first-child) {
+      display: none;
+    }
+  }
+
   .description {
     span {
       line-height: 14px;

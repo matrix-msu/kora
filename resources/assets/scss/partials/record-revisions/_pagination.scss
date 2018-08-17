@@ -11,4 +11,10 @@
 
   @import 'pagination/page';
   @import 'pagination/pages';
+
+  @media screen and (max-width: $max-mobile-med-width) {
+    display: block;
+    height: 100px;
+    position: relative;
+  }
 }

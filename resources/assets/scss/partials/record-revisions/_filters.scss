@@ -31,7 +31,6 @@
       }
     }
   }
-
 }
 
 @media screen and (max-width: $max-mobile-width) {
@@ -47,10 +46,32 @@
 
 @media screen and (max-width: $max-mobile-xs-width) {
   .filters {
+    height: 46px;
     margin-left: $mobile-xs-margin-total / 2;
     max-width: $max-mobile-xs-width - $mobile-xs-margin-total;
-    overflow-x: hidden;
+    overflow: visible;
+    position: relative;
     width: calc(100% - #{$mobile-xs-margin-total / 2 });
+
+    .pagination-options {
+      float: none;
+      height: unset;
+      padding: 0;
+
+      .chosen-container {
+        margin: 0;
+
+        &:first-of-type {
+          padding-bottom: 10px;
+        }
+      }
+    }
+
+    .show-options {
+      position: absolute;
+      right: 0;
+      top: 0;
+    }
 
     .search-options {
       @include responsive-scroll();

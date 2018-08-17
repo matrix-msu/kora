@@ -154,6 +154,10 @@
     .page {
       bottom: 0;
       position: absolute;
+
+      a .name {
+        font-size: 10px;
+      }
     }
     
     .page.next {

@@ -82,24 +82,9 @@
   }
 
   @media screen and (max-width: $max-mobile-med-width) {
-    display: block;
-    height: 100px;
-    position: relative;
-    
-    .pages {
-      display: flex;
-      justify-content: center;
-      text-align: center;
-      width: 100%;
-    }
-    
-    .page {
-      bottom: 0;
-      position: absolute;
-    }
-    
-    .page.next {
-      right: 0;
-    }
+    display: flex;
+    justify-content: center;
+    text-align: center;
+    width: 100%;
   }
 }
