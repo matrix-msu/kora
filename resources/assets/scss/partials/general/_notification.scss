@@ -3,7 +3,7 @@
 
   background: gradient(accent, to right);
   border-radius: 5px;
-  box-shadow: 0 2px 42px 0 rgba(4,182,164,0.3);
+  box-shadow: 0 5px 20px 0 rgba(4,182,164,0.3);
   color: palette('white', base);
   font-family: $ubuntu;
   font-size: 14px;
@@ -13,14 +13,18 @@
   top: 70px;
   z-index: 10;
 
+  &.with-aside {
+    right: 270px;
+  }
+
+  &.dismiss {
+    right: -475px;
+  }
+
   .container {
     align-items: center;
     display: flex;
     height: 100%;
-  }
-
-  &.dismiss {
-    right: -375px;
   }
 
   .note {
@@ -130,7 +134,7 @@
     z-index: 10000;
 
     &.dismiss {
-      top: -30px;
+      top: -50px;
     }
 
     .container {

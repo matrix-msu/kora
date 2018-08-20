@@ -62,7 +62,8 @@
 
   @include('partials.user.profileModal')
 
-  @if(!Auth::user()->admin && sizeof($requestableProjects)>0)
+  {{--@if(!Auth::user()->admin && sizeof($requestableProjects)>0)--}}
+  @if(Auth::user()->admin)
     <section class="foot center">
       <p class="permission-information">
           Don't see the project you are looking for? You might not have the permissions...

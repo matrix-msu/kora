@@ -86,12 +86,14 @@ $navBar.on('click', '.side-menu-toggle-js', function(e) {
     $('.center, .floating-buttons').addClass('with-aside');
     $('.field.card').addClass('with-aside');
     $('.allowed-actions').addClass('with-aside');
+    $('.notification').addClass('with-aside');
     if (getBrowserWidth() > 870)
       $('.pre-fixed-js').addClass('pre-fixed-with-aside');
   } else {
     $('.center, .floating-buttons').removeClass('with-aside');
     $('.field.card').removeClass('with-aside');
 	  $('.allowed-actions').removeClass('with-aside');
+    $('.notification').removeClass('with-aside');
     if (getBrowserWidth() > 870)
       $('.pre-fixed-js').removeClass('pre-fixed-with-aside');
 
@@ -451,7 +453,7 @@ function initializeRequestProjectPermissionsModal()
 			$('.nav-request-error-js').text('');
    
 			if($('#request_project').val() != null)
-			{ 
+			{
 				$.ajax({
 				  url: requestProjectPermissionsURL,
 				  type: 'POST',
@@ -459,7 +461,14 @@ function initializeRequestProjectPermissionsModal()
 				    "_token": CSRFToken,
 				    "pids": $('#request_project').val()
 				  },
-				  success: function(result) {},
+				  success: function(result) {
+            $('.note').children('p').text('Project permissions have been requested!');
+            $('.note').children('p').addClass('with-description');
+            $('.note').children('span').text('You will be notified via email once permissions have been granted.');
+            $('.note').children('span').addClass('note-description');
+            $('.notification').addClass('static-js');
+            $('.notification').removeClass('dismiss');
+          },
 				  error: function(result) {}
 			  });
 		

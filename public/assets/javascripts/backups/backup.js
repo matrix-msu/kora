@@ -173,7 +173,7 @@ Kora.Backups.Progress = function() {
           if (!$noteBody.hasClass('static-js')) {
             setTimeout(function(){
               $noteBody.addClass('dismiss');
-            }, 6000);
+            }, 4000);
           }
         }
       }, 200);

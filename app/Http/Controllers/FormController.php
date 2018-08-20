@@ -134,8 +134,8 @@ class FormController extends Controller {
             $notification['message'] = 'Record Successfully Deleted';
           else if ($session == 'all_record_deleted')
             $notification['message'] = 'All Form Records Deleted';
-          else if ($session == 'form_name_updated')
-            $notification['message'] = 'Form Page Name Updated!';
+          //else if ($session == 'form_name_updated')
+            //$notification['message'] = 'Form Page Name Updated!';
           else if ($session == 'old_records_deleted')
             $notification['message'] = 'Old Record Files Deleted';
           else if ($session == 'form_imported')

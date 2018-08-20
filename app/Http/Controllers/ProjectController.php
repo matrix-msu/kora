@@ -106,11 +106,6 @@ class ProjectController extends Controller {
               $notification['message'] = 'Project Successfully Archived!';
             else if ($session == 'project_imported')
               $notification['message'] = 'Project Successfully Imported!';
-            else if ($session == 'project_access_requested') {
-              $notification['message'] = 'Project permissions have been requested!';
-              $notification['description'] = 'You will be notified via email once permissions have been granted.';
-              $notification['static'] = true;
-            }
           } else {
             $session = $request->session()->get('k3_global_error');
             $notification['warning'] = true;
@@ -181,8 +176,8 @@ class ProjectController extends Controller {
                 }
             }
 			
-			// only occurs on form submit, not on AJAX call
-			return redirect('projects')->with('k3_global_success', 'project_access_requested');
+          // only occurs on form submit, not on AJAX call
+          return redirect('projects')->with('k3_global_success', 'project_access_requested');
         }
     }
 

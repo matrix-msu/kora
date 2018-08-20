@@ -107,6 +107,7 @@ $(document).ready(function() {
   if ($sidebarCookie && getBrowserWidth() > 870) {
     $(".center, .floating-buttons").addClass('with-aside');
     $('.field.card').addClass('with-aside');
+    $('.notification').addClass('with-aside');
     $('.pre-fixed-js').addClass('pre-fixed-with-aside');
   } else {
     // the case where we want the aside lock to still work on refresh for larger screens
@@ -233,8 +234,8 @@ $(document).ready(function() {
       if (!$noteBody.hasClass('static-js')) {
         setTimeout(function(){
           $noteBody.addClass('dismiss');
-        $('.view-updates-js').addClass('hidden');
-        }, 6000);
+          $('.view-updates-js').addClass('hidden');
+        }, 4000);
       }
     }
   }, 200);
