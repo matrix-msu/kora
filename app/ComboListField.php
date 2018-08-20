@@ -607,23 +607,27 @@ class ComboListField extends BaseField {
      * @return Request - The update request
      */
     public function setRestfulRecordData($jsonField, $flid, $recRequest, $uToken=null) {
-        $values = array();
+        $oneVals = array();
+        $twoVals = array();
         $field = FieldController::getField($flid);
         $nameone = self::getComboFieldName($field, 'one');
         $nametwo = self::getComboFieldName($field, 'two');
         foreach($jsonField->value as $val) {
-            if(!is_array($val[$nameone]))
-                $fone = '[!f1!]' . $val[$nameone] . '[!f1!]';
+            if(!is_array($val->{$nameone}))
+                $fone = $val->{$nameone};
             else
-                $fone = '[!f1!]' . implode("[!]",$val[$nameone]) . '[!f1!]';
-            if(!is_array($val[$nametwo]))
-                $ftwo = '[!f2!]' . $val[$nametwo] . '[!f2!]';
+                $fone = implode("[!]",$val->{$nameone});
+            if(!is_array($val->{$nametwo}))
+                $ftwo = $val->{$nametwo};
             else
-                $ftwo = '[!f2!]' . implode("[!]",$val[$nametwo]) . '[!f2!]';
-            array_push($values, $fone . $ftwo);
+                $ftwo = implode("[!]",$val->{$nametwo});
+
+            array_push($oneVals, $fone);
+            array_push($twoVals, $ftwo);
         }
         $recRequest[$flid] = '';
-        $recRequest[$flid . '_val'] = $values;
+        $recRequest[$flid . '_combo_one'] = $oneVals;
+        $recRequest[$flid . '_combo_two'] = $twoVals;
 
         return $recRequest;
     }
@@ -754,6 +758,7 @@ class ComboListField extends BaseField {
             $prefix = ($prefix == "") ? self::SUPPORT_NAME : substr($prefix, 0, -1);
             $db_query->where(function($db_query) use ($inputs, $prefix, $db_prefix) {
                 foreach($inputs as $input) {
+                    $input = Search::prepare($input);
                     $db_query->orWhereRaw("`" . $db_prefix . $prefix . "`.`data` LIKE %?%", [$input]);
                 }
             });

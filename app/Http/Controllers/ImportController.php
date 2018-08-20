@@ -315,7 +315,8 @@ class ImportController extends Controller {
                     if(empty($field->Value))
                         return response()->json(["status"=>false,"message"=>"xml_validation_error",
                             "record_validation_error"=>[$request->kid => "$fieldSlug format is incorrect for a Combo List Field"]],500);
-                    $values = array();
+                    $oneVals = array();
+                    $twoVals = array();
                     $nameone = str_replace(" ","_",ComboListField::getComboFieldName(FieldController::getField($flid), 'one'));
                     $nametwo = str_replace(" ","_",ComboListField::getComboFieldName(FieldController::getField($flid), 'two'));
                     foreach($field->Value as $val) {
@@ -323,26 +324,28 @@ class ImportController extends Controller {
                             return response()->json(["status"=>false,"message"=>"xml_validation_error",
                                 "record_validation_error"=>[$request->kid => "$fieldSlug field one format is incorrect for a Combo List Field"]],500);
                         if((string)$val->{$nameone} != '')
-                            $fone = '[!f1!]' . (string)$val->{$nameone} . '[!f1!]';
+                            $fone = (string)$val->{$nameone};
                         else if(sizeof($val->{$nameone}->value) == 1)
-                            $fone = '[!f1!]' . (string)$val->{$nameone}->value . '[!f1!]';
+                            $fone = (string)$val->{$nameone}->value;
                         else
-                            $fone = '[!f1!]' . implode("[!]",(array)$val->{$nameone}->value) . '[!f1!]';
+                            $fone = implode("[!]",(array)$val->{$nameone}->value);
 
                         if(empty($val->{$nametwo}))
                             return response()->json(["status"=>false,"message"=>"xml_validation_error",
                                 "record_validation_error"=>[$request->kid => "$fieldSlug field two format is incorrect for a Combo List Field"]],500);
                         if((string)$val->{$nametwo} != '')
-                            $ftwo = '[!f2!]' . (string)$val->{$nametwo} . '[!f2!]';
+                            $ftwo = (string)$val->{$nametwo};
                         else if(sizeof($val->{$nametwo}->value) == 1)
-                            $ftwo = '[!f2!]' . (string)$val->{$nametwo}->value . '[!f2!]';
+                            $ftwo = (string)$val->{$nametwo}->value;
                         else
-                            $ftwo = '[!f2!]' . implode("[!]",(array)$val->{$nametwo}->value) . '[!f2!]';
+                            $ftwo = implode("[!]",(array)$val->{$nametwo}->value);
 
-                        array_push($values, $fone . $ftwo);
+                        array_push($oneVals, $fone);
+                        array_push($twoVals, $ftwo);
                     }
                     $recRequest[$flid] = '';
-                    $recRequest[$flid . '_val'] = $values;
+                    $recRequest[$flid . '_combo_one'] = $oneVals;
+                    $recRequest[$flid . '_combo_two'] = $twoVals;
                 } else if($type == 'Date') {
                     if($simple) {
                         $dateParts = explode('/',(string)$field);
@@ -605,7 +608,8 @@ class ImportController extends Controller {
                 } else if($type == 'Generated List') {
                     $recRequest[$flid] = $field['value'];
                 } else if($type == 'Combo List') {
-                    $values = array();
+                    $oneVals = array();
+                    $twoVals = array();
                     $nameone = ComboListField::getComboFieldName(FieldController::getField($flid), 'one');
                     $nametwo = ComboListField::getComboFieldName(FieldController::getField($flid), 'two');
                     foreach($field['value'] as $val) {
@@ -617,20 +621,22 @@ class ImportController extends Controller {
                                 "record_validation_error"=>[$request->kid => "$fieldSlug is missing $nametwo index for a value"]],500);
 
                         if(!is_array($val[$nameone]))
-                            $fone = '[!f1!]' . $val[$nameone] . '[!f1!]';
+                            $fone = $val[$nameone];
                         else
-                            $fone = '[!f1!]' . implode("[!]",$val[$nameone]) . '[!f1!]';
+                            $fone = implode("[!]",$val[$nameone]);
 
 
                         if(!is_array($val[$nametwo]))
-                            $ftwo = '[!f2!]' . $val[$nametwo] . '[!f2!]';
+                            $ftwo = $val[$nametwo];
                         else
-                            $ftwo = '[!f2!]' . implode("[!]",$val[$nametwo]) . '[!f2!]';
+                            $ftwo = implode("[!]",$val[$nametwo]);
 
-                        array_push($values, $fone . $ftwo);
+                        array_push($oneVals, $fone);
+                        array_push($twoVals, $ftwo);
                     }
                     $recRequest[$flid] = '';
-                    $recRequest[$flid . '_val'] = $values;
+                    $recRequest[$flid . '_combo_one'] = $oneVals;
+                    $recRequest[$flid . '_combo_two'] = $twoVals;
                 } else if($type == 'Date') {
                     if(!isset($field['value']['month']) && !isset($field['value']['day']) && !isset($field['value']['year']))
                         return response()->json(["status"=>false,"message"=>"json_validation_error",

@@ -466,6 +466,7 @@ class VideoField extends FileTypeField {
      */
     public function advancedSearchTyped($flid, $query) {
         $arg = $query[$flid."_input"];
+        $arg = Search::prepare($arg);
 
         return DB::table("video_fields")
             ->select("rid")

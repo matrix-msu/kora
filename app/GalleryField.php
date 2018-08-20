@@ -542,6 +542,7 @@ class GalleryField extends FileTypeField  {
      */
     public function advancedSearchTyped($flid, $query) {
         $arg = $query[$flid."_input"];
+        $arg = Search::prepare($arg);
 
         return DB::table("gallery_fields")
             ->select("rid")

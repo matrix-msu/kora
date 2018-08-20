@@ -51,7 +51,7 @@ class Search {
     public function __construct($pid, $fid, $arg, $method) {
         $this->pid = $pid;
         $this->fid = $fid;
-        $this->arg = $arg;
+        $this->arg = self::prepare($arg);
         $this->method = $method;
     }
 
@@ -170,6 +170,20 @@ class Search {
     }
 
     /**
+     * Prepares a statement for mysql search. Based on things we found in Kora.
+     *
+     * @param  string $arg - Statement to prepare
+     * @return string - The converted string
+     */
+    public static function prepare($arg) {
+        $arg = addslashes(trim($arg));
+        $arg = str_replace('_','\_',$arg);
+        $arg = str_replace('%','\%',$arg);
+
+        return $arg;
+    }
+
+    /**
      * Converts characters in a string to their close english only non-accented, non-diacritical matches.
      * The actual conversion is not super important, however consistency is, this is used to ensure a word like
      * "manana" matches what the search probably meant, "mañana".
@@ -177,7 +191,7 @@ class Search {
      * @param  string $string - String to convert
      * @return string - The converted string
      */
-    static public function convertCloseChars($string) {
+    public static function convertCloseChars($string) {
         return str_replace(self::$SPECIALS, self::$CLOSE_ASCII, $string);
     }
 
