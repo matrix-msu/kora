@@ -59,6 +59,10 @@
 
   .organization {
     margin-bottom: 30px;
+
+    @media screen and (max-width: 335px) {
+      margin-bottom: 15px;
+    }
   }
 
   .status {
@@ -66,6 +70,10 @@
       display: inline-block;
       margin-right: 20px;
       vertical-align: middle;
+
+      @media screen and (max-width: 335px) {
+        margin-bottom: 5px;
+      }
     }
   }
 }

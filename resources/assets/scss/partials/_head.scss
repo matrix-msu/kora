@@ -183,9 +183,9 @@
         &.active {
           color: palette('green', accent);
         }
-      } 
+      }
     }
-    
+
     .tabs-left,
     .tabs-right {
       @include transition();

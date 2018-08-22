@@ -83,6 +83,10 @@
       height: 34px;
       line-height: 35px;
       color: palette('gray', text);
+
+      @media screen and (max-width: $max-mobile-xs-width) {
+        margin-top: 80px;
+      }
     }
     
     .keywords {
@@ -92,9 +96,9 @@
 
       .keyword {
         background-color: palette('white', base);
-		border: 1px solid rgba(57,67,89,0.1);
+        border: 1px solid rgba(57,67,89,0.1);
         border-radius: 5px;
-		box-shadow: 0 3px 5px 0 rgba(57,67,89,0.05);
+        box-shadow: 0 3px 5px 0 rgba(57,67,89,0.05);
         color: palette('gray', text);
         cursor: default;
         display: inline-block;
@@ -141,18 +145,18 @@
       .back-to-search {
         @include transition();
 
-		background: palette('white', base);
+        background: palette('white', base);
         border: 1px solid rgba(4,182,175,0.6);
         border-radius: 5px;
-		box-shadow: 0 3px 5px 0 rgba(57,67,89,0.05);
+        box-shadow: 0 3px 5px 0 rgba(57,67,89,0.05);
         color: palette('green', accent);
         display: inline-block;
-		float: right;
+        float: right;
         font-family: $ubuntu;
         line-height: 14px;
         padding: 6px 10px;
-		white-space: nowrap;
-		width: min-content;
+        white-space: nowrap;
+        width: min-content;
 
         span {
           padding-right: 5px;
@@ -169,21 +173,21 @@
           will-change: transform;
         }
 		
-		&:hover {
-		  border-color: palette('green', accent);
-		  box-shadow: 0 5px 10px 0 rgba(4,182,175,0.1);
-		  cursor: pointer;
+        &:hover {
+          border-color: palette('green', accent);
+          box-shadow: 0 5px 10px 0 rgba(4,182,175,0.1);
+          cursor: pointer;
 
-		  i {
+          i {
             transform: scale($transform-scale-multiplier) rotate(-90deg);
           }
-		}
+        }
 
-		@media screen and (max-width: $max-mobile-width) {
-		  display: block;
-		  float: none;
-		  margin: 20px 0 0;
-		}
+        @media screen and (max-width: $max-mobile-width) {
+          display: block;
+          float: none;
+          margin: 20px 0 0;
+        }
       }
     }
 

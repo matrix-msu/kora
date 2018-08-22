@@ -56,3 +56,21 @@
     }
   }
 }
+
+@media screen and (max-width: $max-mobile-xs-width) {
+  .filters {
+    height: 46px;
+    margin-bottom: 50px;
+    position: relative;
+
+    .pagination-options > div:first-of-type {
+      padding-bottom: 10px;
+    }
+
+    .show-options {
+      position: absolute;
+      right: 0;
+      top: 0;
+    }
+  }
+}

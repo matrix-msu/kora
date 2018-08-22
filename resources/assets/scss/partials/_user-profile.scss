@@ -12,6 +12,10 @@
     .content-sections {
       a {
         font-size: 16px;
+
+        @media screen and (max-width: $max-mobile-xs-width) {
+          font-size: 90%;
+        }
       }
     }
 

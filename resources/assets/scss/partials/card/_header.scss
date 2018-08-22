@@ -34,6 +34,13 @@
   .chevron-text {
     color: palette('gray', text, .6);
     margin-right: -10px;
+
+    @media screen and (max-width: $max-mobile-xs-width) {
+      max-width: 120px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
   }
 
   .icon-chevron {

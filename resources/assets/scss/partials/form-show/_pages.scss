@@ -31,6 +31,10 @@
     @media screen and (max-width: $max-mobile-l-width) {
       width: calc(100% - 20px);
     }
+
+    @media screen and (max-width: $max-mobile-xs-width) {
+      padding: 40px 0;
+    }
   }
 
   @media screen and (max-width: $max-mobile-width) {

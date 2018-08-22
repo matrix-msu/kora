@@ -319,6 +319,48 @@ Kora.Admin.Users = function() {
       });
     });
   }
+
+  function initializeUserCardEllipsifying() {
+    function adjustCardTitle() {
+      var alphabetical = false;
+      var custom = false;
+      var archived = false;
+
+      if ($(".user-sort-js").hasClass("active")) {
+        alphabetical = true;
+        var cards = $($(".user-sort-js").find(".user.card"));
+      }
+
+      for (i = 0; i < cards.length; i++) {	
+        var card = $(cards[i]);
+        var name_span = $(card.find($(".name")));
+        var chevron = $(card.find($(".icon-chevron")));
+
+        var card_width = card.width();
+        var chevron_width = chevron.outerWidth(); // all types of project cards have chevrons
+        var left_padding = custom ? 0 : 20; // custom projects provide padding from element other than name_span
+        var extra_padding = 10;
+
+        var title_width = (card_width - left_padding) - (chevron_width + extra_padding);
+        if (title_width < 0) {title_width = 0;}
+
+        name_span.css("white-space", "nowrap");
+        name_span.css("overflow", "hidden");
+        name_span.css("max-width", title_width + "px");
+      }
+    }
+
+    $(window).resize(function() {
+      adjustCardTitle();
+    });
+
+    $(document).ready(function() {
+      adjustCardTitle();
+    });
+
+    // Recalculate ellipses when switching project types
+    $("[href='#custom'], [href='#active'], [href='#inactive']").click(function() { adjustProjectCardTitle(); });
+  }
   
   initializeOptionDropdowns();
   initializeFilters();
@@ -326,4 +368,5 @@ Kora.Admin.Users = function() {
   initializeSearch();
   initializeCleanUpModals();
   initializeCardEvents();
+  initializeUserCardEllipsifying();
 };
