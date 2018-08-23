@@ -298,10 +298,10 @@ function hide_loader() {
 }
 
 $( document ).ajaxSend(function(event, xhr, options) {
-  
+
   var url = options.url;
   var display = true;
-  
+
   // loader exclusion cases for AJAX requests
   if (url.search("validate") != -1)
   {

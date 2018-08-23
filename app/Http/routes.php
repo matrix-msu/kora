@@ -14,6 +14,12 @@ Route::group(['middleware' => 'web'], function () {
     Route::resource('projects', 'ProjectController');
     Route::post('projects/request', 'ProjectController@request');
     Route::post('projects/{pid}/archive', 'ProjectController@setArchiveProject');
+    Route::get('/projects/{pid}/importMF', 'ImportMultiFormController@index');
+    Route::post('/projects/{pid}/importMF', 'ImportMultiFormController@beginImport');
+    Route::post('/projects/{pid}/importMFRecord', 'ImportMultiFormController@importRecord');
+    Route::post('/projects/{pid}/importMFAssoc', 'ImportMultiFormController@crossFormAssociations');
+    Route::post('/saveTmpFileMF', 'ImportMultiFormController@saveTmpFile');
+    Route::delete('/deleteTmpFileMF/{filename}', 'ImportMultiFormController@delTmpFile');
     Route::post('projects/validate', 'ProjectController@validateProjectFields');
     Route::patch('projects/validate/{projects}', 'ProjectController@validateProjectFields');
 
