@@ -28,7 +28,7 @@
     white-space: nowrap;
 
     .title & {
-      left: -25px;
+      left: -45px;
     }
 
     .page-header & {
@@ -40,10 +40,10 @@
       top: -30px;
       left: -30px;
     }
-    
+
     .content .footer & {
-      top: -15px;
-      left: -65px;
+      top: -30px;
+      left: -45px;
     }
 
     .project-cleanup & {
@@ -65,6 +65,25 @@
 
     .open-create-regex & {
       left: -140px;
+    }
+    
+    @media screen and (max-width: $max-mobile-xs-width) {
+      .title & {
+        left: -50px;
+      }
+
+      .page-header & {
+        top: 0;
+      }
+
+      .content .footer & {
+        top: -30px;
+        left: -30px;
+      }
+
+      .show-options span:last-child & {
+        left: -90px;
+      }
     }
   }
 

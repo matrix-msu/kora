@@ -359,9 +359,43 @@ Kora.Records.Show = function() {
             // document.addEventListener('MSFullscreenChange', exitFullscreen);
         });
     }
+  
+  function initializeCardTitleEllipsifying() {
+    function adjustProjectCardTitle() {
+      var cards = $($(".view-record").find(".page.card"));
+      
+      for (i = 0; i < cards.length; i++) {	
+        var card = $(cards[i]);
+        var name_span = $(card.find($(".name")));
+        var chevron = $(card.find($(".icon-chevron")));
+
+        var card_width = card.width();
+        var chevron_width = chevron.outerWidth(); // all types of project cards have chevrons
+        var extra_padding = 10;
+
+        var title_width = card_width - (chevron_width + extra_padding);
+        if (title_width < 0) {title_width = 0;}
+
+        name_span.css("text-overflow", "ellipsis");
+        name_span.css("white-space", "nowrap");
+        name_span.css("overflow", "hidden");
+        name_span.css("padding-right", "2px");
+        name_span.css("max-width", title_width + "px");
+      }
+    }
+  	
+    $(window).resize(function() {
+      adjustProjectCardTitle();
+    });
+	
+    $(document).ready(function() {
+      adjustProjectCardTitle();
+    });
+  }
 
     initializeToggle();
     initializeDeleteRecord();
     initializeTypedFieldDisplays();
+    initializeCardTitleEllipsifying();
     Kora.Records.Modal();
 }

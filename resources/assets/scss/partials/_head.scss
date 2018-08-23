@@ -66,6 +66,10 @@
       font-size: 37px;
       margin-right: 10px;
       vertical-align: middle;
+
+      @media screen and (max-width: $max-mobile-xs-width) {
+        margin: 0;
+      }
     }
 
     > span {

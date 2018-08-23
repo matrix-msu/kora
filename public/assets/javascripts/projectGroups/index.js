@@ -502,6 +502,38 @@ Kora.ProjectGroups.Index = function() {
     });
   }
 
+  function initializeUserCardEllipsifying() {
+    function adjustCardTitle() {
+      var cards = $($(".permission-group-js").find(".group-js.card"));
+
+      for (i = 0; i < cards.length; i++) {	
+        var card = $(cards[i]);
+        var name_span = $(card.find($(".name")));
+        var chevron = $(card.find($(".icon-chevron")));
+
+        var card_width = card.width();
+        var chevron_width = chevron.outerWidth(); // all types of project cards have chevrons
+        var extra_padding = 10;
+
+        var title_width = card_width - (chevron_width + extra_padding);
+        if (title_width < 0) {title_width = 0;}
+
+        name_span.css("text-overflow", "ellipsis");
+        name_span.css("white-space", "nowrap");
+        name_span.css("overflow", "hidden");
+        name_span.css("max-width", title_width + "px");
+      }
+    }
+
+    $(window).resize(function() {
+      adjustCardTitle();
+    });
+
+    $(document).ready(function() {
+      adjustCardTitle();
+    });
+  }
+
   Kora.Modal.initialize();
   initializePermissionsToggles();
   initializeNewPermissionModal();
@@ -510,4 +542,5 @@ Kora.ProjectGroups.Index = function() {
   initializeAddUsersModal();
   initializeRemoveUserModal();
   initializeViewUserModal();
+  initializeUserCardEllipsifying();
 }

@@ -32,6 +32,12 @@
         margin-right: 18px;
         padding-bottom: #{ $underline-padding };
         text-decoration: none;
+        
+        @media screen and (max-width: $max-mobile-xs-width) {
+          &:nth-child(2n) {
+            margin-right: 0;
+          }
+        }
       }
 
       .already-preset {

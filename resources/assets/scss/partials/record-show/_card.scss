@@ -13,6 +13,16 @@
       height: 2px;
       width: 100%;
     }
+
+    @media screen and (max-width: $max-mobile-xs-width) {
+      .record-page-title {
+        height: unset;
+      }
+
+      .record-page-spacer {
+        margin-top: 30px;
+      }
+    }
   }
 
   .record-page:first-child {
@@ -40,7 +50,7 @@
 
   .trash-container {
     padding-right: 15px;
-    padding-top: 35px;
+    margin-top: 35px;
 
     .icon-trash {
       color: palette('red', base);
