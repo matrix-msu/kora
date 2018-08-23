@@ -360,22 +360,23 @@ class AdminController extends Controller {
         } else {
             $skipped = 0;
             $created = 0;
+			$user_ids = array();
+			
+            foreach ($emails as $email) {
+				if (filter_var($email, FILTER_VALIDATE_EMAIL)) {
+					$username = explode('@', $email)[0];
+                    $i = 1;
+                    $username_array = array();
+                    $username_array[0] = $username;
 
-            foreach($emails as $email) {
-                if(!self::emailExists($email)) {
-                    if(filter_var($email, FILTER_VALIDATE_EMAIL)) {
-                        $username = explode('@', $email)[0];
-                        $i = 1;
-                        $username_array = array();
-                        $username_array[0] = $username;
-
-                        // Increment a count while the username exists.
-                        while(self::usernameExists($username)) {
-                            $username_array[1] = $i;
-                            $username = implode($username_array);
-                            $i++;
-                        }
-
+                    // Increment a count while the username exists.
+                    while (self::usernameExists($username)) {
+                        $username_array[1] = $i;
+                        $username = implode($username_array);
+                        $i++;
+                    }
+					
+					if(!self::emailExists($email)) {
                         //
                         // Create the new user.
                         //
@@ -388,7 +389,8 @@ class AdminController extends Controller {
                         $token = RegisterController::makeRegToken();
                         $user->regtoken = $token;
                         $user->save();
-
+						array_push($user_ids, $user->id);
+						
                         //
                         // Assign the new user a default set of preferences.
                         //
@@ -420,14 +422,19 @@ class AdminController extends Controller {
                         }
                         $created++;
                     } else {
-                        $skipped++;
+                        if (isset($request->return_user_ids)) { // return user id of existing user
+							$user = User::where('email', '=', $email)->first();
+							array_push($user_ids, $user->id);
+						}
+						$skipped++;
                     }
-                } else {
-                    $skipped++;
-                }
+				}
             }
 
-            return redirect('admin/users')->with('k3_global_success', 'batch_users')->with('batch_users_created', $created)->with('batch_users_skipped', $skipped)->with('notification', $notification);
+			if (isset($request->return_user_ids))
+				return $user_ids;
+			else
+				return redirect('admin/users')->with('k3_global_success', 'batch_users')->with('batch_users_created', $created)->with('batch_users_skipped', $skipped)->with('notification', $notification);;
         }
     }
 
