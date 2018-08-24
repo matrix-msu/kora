@@ -245,8 +245,8 @@ Kora.User.Profile = function() {
         var chevron_width = chevron.outerWidth();
         var extra_padding = 20;
         var left_sect_width = left_sect.outerWidth();
-        var titleSpan_width = title.width();
-        var groupSpan_width = group.width();
+        var titleSpan_width = title.outerWidth();
+        var groupSpan_width = group.outerWidth();
 
         var title_width = card_width - (chevron_width + extra_padding);
         if (title_width < 0) {title_width = 0;}
@@ -255,9 +255,16 @@ Kora.User.Profile = function() {
 
         if (left_sect_width > title_width) {
           var difference = left_sect_width - title_width;
-          var set_overflow = groupSpan_width - difference;
+          var set_overflow = groupSpan_width - difference + 10;
+          if (set_overflow < 16) {set_overflow = 16;}
           group.css("max-width", set_overflow + "px");
+          if (title_width < titleSpan_width) {
+            title.css("max-width", title_width + "px");
+          } else {
+            title.css("max-width", "");
+          }
         } else {
+          title.css("max-width", "");
           group.css("max-width", "");
         }
       }
