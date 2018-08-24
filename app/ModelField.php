@@ -140,7 +140,11 @@ class ModelField extends FileTypeField  {
                             $type = $types[$file->getExtension()];
                         $info = '[Name]' . $file->getFilename() . '[Name][Size]' . $file->getSize() . '[Size][Type]' . $type . '[Type]';
                         $infoArray[$file->getFilename()] = $info;
-                        rename(config('app.base_path') . 'storage/app/tmpFiles/' . $value . '/' . $file->getFilename(),
+                        if(isset($request->mass_creation_num))
+                            copy(config('app.base_path') . 'storage/app/tmpFiles/' . $value . '/' . $file->getFilename(),
+                                $newPath . '/' . $file->getFilename());
+                        else
+                            rename(config('app.base_path') . 'storage/app/tmpFiles/' . $value . '/' . $file->getFilename(),
                             $newPath . '/' . $file->getFilename());
                     }
                 }

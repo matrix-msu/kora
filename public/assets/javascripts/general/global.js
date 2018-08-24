@@ -289,6 +289,7 @@ function multiselect_placeholder_injection()
 multiselect_placeholder_injection();
 setInterval(multiselect_placeholder_injection, 451);
 
+//PRE LOADER STUFF
 function display_loader() {
 	$("#preloader").css("display", "");
 }
@@ -313,5 +314,39 @@ $( document ).ajaxSend(function(event, xhr, options) {
 
 $( document ).ajaxComplete(function() {
   hide_loader();
+});
+
+
+//THIS IS FOR RECORD FILE DATA EXPORTS
+$('.export-begin-files-js').click(function(e) {
+    e.preventDefault();
+
+    $(this).addClass('disabled');
+    $(this).text("Generating zip file...");
+
+    startURL = $(this).attr('startURL');
+    endURL = $(this).attr('endURL');
+    token = $(this).attr('token');
+
+    //Ajax call to prep zip
+    $.ajax({
+        url: startURL,
+        type: 'POST',
+        data: {
+            "_token": token
+        },
+        success: function (data) {
+            //Change text back
+            $('.export-begin-files-js').removeClass('disabled');
+            $('.export-begin-files-js').text("Export Record Files");
+            //Set page to download URL
+            document.location.href = endURL;
+        },
+        error: function (error) {
+            $('.export-begin-files-js').removeClass('disabled');
+            $('.export-begin-files-js').text("Something went wrong :(");
+            console.log(error);
+        }
+    });
 });
 
