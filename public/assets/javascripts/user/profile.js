@@ -212,59 +212,10 @@ Kora.User.Profile = function() {
     });
   }
 
-  function initializeCardEllipsifying() {
-    function adjustCardTitle() {
-      var $cards = $('.card');
-
-      for (var i = 0; i < $cards.length; i++) {
-        var $card = $($cards[i]);
-        var $name = $($card.find(".name"));
-        var $chevron = $($card.find(".icon-chevron"));
-        var $subtitles = $($card.find(".card-toggle-wrap .sub-title"));
-
-        // Ellipsis on title on very small widths
-        var cardWidth = $card.width();
-        var chevronWidth = $chevron.outerWidth();
-        var extra = 20;
-
-        var nameWidth = cardWidth - chevronWidth - extra;
-        if (nameWidth < 0) {nameWidth = 0;}
-
-        $name.css("max-width", nameWidth + "px");
-
-        // Hide sub-titles as chevron slides over element
-        var chevronLeft = $chevron.offset().left;
-
-        for (var j = 0; j < $subtitles.length; j++) {
-          var $subtitle = $($subtitles[j]);
-          var subtitleRight = $subtitle.offset().left + $subtitle.outerWidth();
-          if (subtitleRight > chevronLeft) {
-            $subtitle.css('visibility', 'hidden');
-          } else {
-            $subtitle.css('visibility', 'visible');
-          }
-        }
-      }
-    }
-
-    $(window).resize(function() {
-      adjustCardTitle();
-    });
-
-    $(document).ready(function() {
-      adjustCardTitle();
-
-      $('.select-content-section-js').click(function() {
-        adjustCardTitle();
-      });
-    });
-  }
-
   // Ensure provided pic url matches an existing picture
   function initializeProfilePicValidation() {
     var $imgCont = $('.profile-pic-cont-js');
     var $img = $imgCont.find($('.profile-pic-js'));
-    console.log($img);
     if ($img.length > 0) {
       // Profile pic url provided, check it exists in app
       $.get($img.attr('src'))
@@ -279,6 +230,48 @@ Kora.User.Profile = function() {
     }
   }
 
+  function initializeCardEllipsifying () {
+    function adjustCardTitle() {
+      var cards = $($(".content-sections-scroll").find(".card"));
+
+      for (i = 0; i < cards.length; i++) {
+        var card = $(cards[i]);
+        var left_sect = $(card.find($('.left')));
+        var chevron = $(card.find($('.icon-chevron')));
+        var title = $(left_sect.find($('.title').children()));
+        var group = $(left_sect.find($('.group').children()));
+
+        var card_width = card.width();
+        var chevron_width = chevron.outerWidth();
+        var extra_padding = 20;
+        var left_sect_width = left_sect.outerWidth();
+        var titleSpan_width = title.width();
+        var groupSpan_width = group.width();
+
+        var title_width = card_width - (chevron_width + extra_padding);
+        if (title_width < 0) {title_width = 0;}
+
+        left_sect.css("max-width", title_width + "px");
+
+        if (left_sect_width > title_width) {
+          var difference = left_sect_width - title_width;
+          var set_overflow = groupSpan_width - difference;
+          group.css("max-width", set_overflow + "px");
+        } else {
+          group.css("max-width", "");
+        }
+      }
+    }
+  	
+    $(window).resize(function() {
+      adjustCardTitle();
+    });
+	
+    $(document).ready(function() {
+      adjustCardTitle();
+    });
+  }
+
   initializeOptionDropdowns();
   initializeFilters();
   initializeProjectCards();
@@ -286,4 +279,5 @@ Kora.User.Profile = function() {
   initializePaginationRouting();
   initializeCardEllipsifying();
   initializeProfilePicValidation();
+
 }

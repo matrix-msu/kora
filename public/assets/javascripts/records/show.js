@@ -364,7 +364,7 @@ Kora.Records.Show = function() {
     function adjustProjectCardTitle() {
       var cards = $($(".view-record").find(".page.card"));
       
-      for (i = 0; i < cards.length; i++) {	
+      for (i = 0; i < cards.length; i++) {
         var card = $(cards[i]);
         var name_span = $(card.find($(".name")));
         var chevron = $(card.find($(".icon-chevron")));

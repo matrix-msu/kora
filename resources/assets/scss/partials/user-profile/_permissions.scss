@@ -7,6 +7,17 @@
     }
 
     .header {
+      .left {
+        overflow-x: hidden;
+        white-space: nowrap;
+
+        span {
+          overflow-x: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+      }
+
       .group {
         color: palette('gray', slate, .6);
 
@@ -16,6 +27,12 @@
 
         &:hover {
           color: palette('green', accent);
+        }
+      }
+
+      @media screen and (max-width: $max-mobile-med-width) {
+        .title {
+          margin-right: 10px;
         }
       }
     }
