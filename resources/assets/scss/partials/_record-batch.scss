@@ -1,4 +1,5 @@
-.batch-assign-body {
+.batch-assign-body,
+.batch-assign-selected-body {
   background: palette('gray', background);
   font-family: $ubuntu;
   min-height: 100vh;

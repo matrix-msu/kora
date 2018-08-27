@@ -479,7 +479,7 @@ class RecordController extends Controller {
             $record->delete();
         }
 
-        return redirect()->action('FormController@show', ['pid' => $pid, 'fid' => $fid])->with('k3_global_success', 'multiple_records_deleted');
+        return redirect('projects/' . $pid . '/forms/' . $fid . '/records')->with('k3_global_success', 'multiple_records_deleted');
       }
     }
 
