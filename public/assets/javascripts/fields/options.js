@@ -7,6 +7,7 @@ Kora.Fields.Options = function(fieldType) {
         //Most field option pages need these
         $('.single-select').chosen({
             allow_single_deselect: true,
+            disable_search_threshold: 4,
             width: '100%',
         });
 
