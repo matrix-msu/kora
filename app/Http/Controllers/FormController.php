@@ -134,8 +134,8 @@ class FormController extends Controller {
             $notification['message'] = 'Record Successfully Deleted';
           else if ($session == 'all_record_deleted')
             $notification['message'] = 'All Form Records Deleted';
-          //else if ($session == 'form_name_updated')
-            //$notification['message'] = 'Form Page Name Updated!';
+          else if ($session == 'form_updated')
+            $notification['message'] = 'Form Successfully Updated!';
           else if ($session == 'old_records_deleted')
             $notification['message'] = 'Old Record Files Deleted';
           else if ($session == 'form_imported')
@@ -201,10 +201,7 @@ class FormController extends Controller {
 
         flash()->overlay("Your form has been successfully updated!","Good Job!");
 
-        if ($originalName !== $name)
-          return redirect('projects/'.$form->pid.'/forms/'.$form->fid)->with('k3_global_success', 'form_name_updated');
-        else
-          return redirect('projects/'.$form->pid.'/forms/'.$form->fid);
+        return redirect('projects/'.$form->pid.'/forms/'.$form->fid)->with('k3_global_success', 'form_updated');
 	}
 
     /**

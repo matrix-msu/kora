@@ -80,9 +80,9 @@
     }
   }
 
-  &.warning {
-    background: gradient(warning, to right);
-  }
+  /* &.warning { */
+    /* background: gradient(warning, to right); */
+  /* } */
 
   @media screen and (max-width: $max-mobile-xs-width) {
     @include transition(top);
