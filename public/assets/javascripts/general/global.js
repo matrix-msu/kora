@@ -267,3 +267,86 @@ function resizeend() {
     }
   }
 }
+
+// makes sure multi-select inputs have placeholders after clicking and before typing
+// placeholders are stored in value attribute but otherwise disappear when clicking on the input
+function multiselect_placeholder_injection()
+{
+	var inputs = $(".chosen-search-input");
+	
+	for (i = 0; i < inputs.length; i++)
+	{
+		var jq_input = $(inputs[i]);
+		
+		if (!jq_input.attr("placeholder-injected"))
+		{
+			jq_input.attr("placeholder-injected", 1);
+			jq_input.attr("placeholder", jq_input.attr("value"));
+			
+		}
+	}
+}
+multiselect_placeholder_injection();
+setInterval(multiselect_placeholder_injection, 451);
+
+//PRE LOADER STUFF
+function display_loader() {
+	$("#preloader").css("display", "");
+}
+
+function hide_loader() {
+	$("#preloader").css("display", "none");
+}
+
+$( document ).ajaxSend(function(event, xhr, options) {
+
+  var url = options.url;
+  var display = true;
+
+  // loader exclusion cases for AJAX requests
+  if (url.search("validate") != -1)
+  {
+	display = false;
+  }
+
+  if (display) { display_loader(); }
+});
+
+$( document ).ajaxComplete(function() {
+  hide_loader();
+});
+
+
+//THIS IS FOR RECORD FILE DATA EXPORTS
+$('.export-begin-files-js').click(function(e) {
+    e.preventDefault();
+
+    $(this).addClass('disabled');
+    $(this).text("Generating zip file...");
+
+    startURL = $(this).attr('startURL');
+    endURL = $(this).attr('endURL');
+    token = $(this).attr('token');
+
+    //Ajax call to prep zip
+    $.ajax({
+        url: startURL,
+        type: 'POST',
+        data: {
+            "_token": token
+        },
+        success: function (data) {
+            //Change text back
+            $('.export-begin-files-js').removeClass('disabled');
+            $('.export-begin-files-js').text("Export Record Files");
+            //Set page to download URL
+            document.location.href = endURL;
+        },
+        error: function (error) {
+            $('.export-begin-files-js').removeClass('disabled');
+            $('.export-begin-files-js').text("Something went wrong :(");
+            console.log(error);
+        }
+    });
+});
+

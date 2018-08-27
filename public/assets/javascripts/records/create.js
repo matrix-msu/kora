@@ -5,6 +5,7 @@ Kora.Records.Create = function() {
 
     $('.single-select').chosen({
         allow_single_deselect: true,
+        disable_search_threshold: 4,
         width: '100%',
     });
 

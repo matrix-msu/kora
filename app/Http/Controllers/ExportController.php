@@ -107,13 +107,12 @@ class ExportController extends Controller {
     }
 
     /**
-     * Exports the files associated with the form records being exported.
+     * To speed things up, this function preps record data files into a zip beforehand.
      *
      * @param  int $pid - Project ID
      * @param  int $fid - Form ID
-     * @return string - The html to download the file
      */
-    public function exportRecordFiles($pid, $fid) {
+    public function prepRecordFiles($pid, $fid) {
         if(!FormController::validProjForm($pid, $fid))
             return redirect('projects/'.$pid)->with('k3_global_error', 'form_invalid');
 
@@ -123,14 +122,15 @@ class ExportController extends Controller {
             return redirect('projects/'.$pid)->with('k3_global_error', 'not_form_admin');
 
         $path = config('app.base_path').'storage/app/files/p'.$pid.'/f'.$fid;
-        $zipPath = config('app.base_path').'storage/app/tmpFiles/';
+        $zipPath = config('app.base_path').'storage/app/tmpFiles/'.$form->name.'_preppedZIP_user'.\Auth::user()->id.'.zip';
 
         // Initialize archive object
         $zip = new \ZipArchive();
-        $time = Carbon::now();
-        $zip->open($zipPath.$form->name.'_fileData_'.$time.'.zip', \ZipArchive::CREATE);
+        $zip->open($zipPath, (\ZipArchive::CREATE | \ZipArchive::OVERWRITE));
 
         if(file_exists($path)) {
+            ini_set('max_execution_time',0);
+
             //add files
             $files = new \RecursiveIteratorIterator(
                 new \RecursiveDirectoryIterator($path),
@@ -155,10 +155,78 @@ class ExportController extends Controller {
         // Zip archive will be created only after closing object
         $zip->close();
 
-        header('Content-Disposition: attachment; filename="'.$form->name.'_fileData_'.$time.'.zip"');
+        return 'Success';
+    }
+
+    /**
+     * Exports the files associated with the form records being exported.
+     *
+     * @param  int $pid - Project ID
+     * @param  int $fid - Form ID
+     * @return string - The html to download the file
+     */
+    public function exportRecordFiles($pid, $fid) {
+        if(!FormController::validProjForm($pid, $fid))
+            return redirect('projects/'.$pid)->with('k3_global_error', 'form_invalid');
+
+        $form = FormController::getForm($fid);
+
+        if(!(\Auth::user()->isFormAdmin($form)))
+            return redirect('projects/'.$pid)->with('k3_global_error', 'not_form_admin');
+
+        $path = config('app.base_path').'storage/app/files/p'.$pid.'/f'.$fid;
+        $zipPath = config('app.base_path').'storage/app/tmpFiles/';
+
+        ini_set('max_execution_time',0);
+        ini_set('memory_limit', "11G"); //This will only matter if PHP can override this
+
+        if(file_exists($zipPath.$form->name.'_preppedZIP_user'.\Auth::user()->id.'.zip')) {
+            $subPath = $form->name.'_preppedZIP_user'.\Auth::user()->id.'.zip';
+        } else {
+            $time = Carbon::now();
+            $subPath = $form->name . '_fileData_' . $time . '.zip';
+
+            // Initialize archive object
+            $zip = new \ZipArchive();
+            $zip->open($zipPath . $subPath, \ZipArchive::CREATE);
+
+            if (file_exists($path)) {
+                //add files
+                $files = new \RecursiveIteratorIterator(
+                    new \RecursiveDirectoryIterator($path),
+                    \RecursiveIteratorIterator::LEAVES_ONLY
+                );
+
+                foreach ($files as $name => $file) {
+                    // Skip directories (they would be added automatically)
+                    if (!$file->isDir()) {
+                        // Get real and relative path for current file
+                        $filePath = $file->getRealPath();
+                        $relativePath = substr($filePath, strlen($path) + 1);
+
+                        // Add current file to archive
+                        $zip->addFile($filePath, $relativePath);
+                    }
+                }
+            } else {
+                return redirect('projects/' . $pid . '/forms/' . $fid)->with('k3_global_error', 'no_record_files');
+            }
+
+            // Zip archive will be created only after closing object
+            $zip->close();
+        }
+
+        if(number_format(filesize($zipPath.$subPath) / 1073741824, 2) > 10) {
+            echo "WARNING: File download is too large to download via the browser. Contact your Kora administrator to
+            retrieve the file from the server. If you have file access, you may also retrieve the file in the
+            'KORA/storage/app/tmpFiles/' directory. Filename: $subPath";
+            exit;
+        }
+
+        header('Content-Disposition: attachment; filename="'.$subPath.'"');
         header('Content-Type: application/zip; ');
 
-        readfile($zipPath.$form->name.'_fileData_'.$time.'.zip');
+        readfile($zipPath.$subPath);
         exit;
     }
 
@@ -643,10 +711,6 @@ class ExportController extends Controller {
             case self::KORA:
                 $records = array();
 
-                //So we need to keep track of what fields are used. We have to make sure records that have empty values
-                // for these fields, still have that field represented as blank.
-                $usedFieldNames = array();
-
                 //Check to see if we should bother with options
                 $useOpts = !is_null($options);
 
@@ -670,10 +734,6 @@ class ExportController extends Controller {
                         $slug = str_replace('_'.$data->pid.'_'.$data->fid.'_', '', $data->slug);
                         if(!$useOpts || !$options['under'])
                             $slug = str_replace('_', ' ', $slug); //Now that the tag is gone, remove space fillers
-
-                        //Capture the field index
-                        if(!in_array($slug,$usedFieldNames))
-                            array_push($usedFieldNames,$slug);
 
                         switch($data->type) {
                             case Field::_TEXT:
@@ -749,9 +809,27 @@ class ExportController extends Controller {
                     }
                 }
 
+                $emptyValueSlugs = [];
+
                 //Add those blank values
                 foreach($records as $kid => $data) {
-                    foreach($usedFieldNames as $slug) {
+                    $pid = explode('-',$kid)[0];
+                    $fid = explode('-',$kid)[1];
+
+                    //See if we already fetched these slugs
+                    if(!array_key_exists($fid,$emptyValueSlugs)) {
+                        $slugArray = FormController::getForm($fid)->fields()->pluck('slug')->toArray();
+                        for($i=0;$i<sizeof($slugArray);$i++) {
+                            $slug = $slugArray[$i];
+                            $slugArray[$i] = str_replace('_'.$pid.'_'.$fid.'_', '', $slug);
+                            if(!$useOpts || !$options['under'])
+                                $slugArray[$i] = str_replace('_', ' ', $slugArray[$i]); //Now that the tag is gone, remove space fillers
+                        }
+                    } else {
+                        $slugArray = $emptyValueSlugs[$fid];
+                    }
+
+                    foreach($slugArray as $slug) {
                         if(!isset($data[$slug]))
                             $records[$kid][$slug] = '';
                     }

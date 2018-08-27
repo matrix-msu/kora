@@ -139,7 +139,7 @@ class AssociatorField extends BaseField {
      *
      * @param  Field $field - The field to represent record data
      * @param  Record $record - Record being created
-     * @param  string $value - Data to add
+     * @param  array $value - Data to add
      * @param  Request $request
      */
     public function createNewRecordField($field, $record, $value, $request){
@@ -360,11 +360,11 @@ class AssociatorField extends BaseField {
      */
     public function keywordSearchTyped($flid, $arg) {
         $arg = explode('-',$arg);
-        $rid = end($arg);
+        $rid = end($arg); //This way, whether they supply a KID or RID, the RID will always be the last element
         return DB::table(self::SUPPORT_NAME)
             ->select("rid")
             ->where("flid", "=", $flid)
-            ->whereRaw("MATCH (`record`) AGAINST (? IN BOOLEAN MODE)", ["\"" . $rid . "\""])
+            ->where('record','=', $rid)
             ->distinct()
             ->pluck('rid')
             ->toArray();
@@ -375,9 +375,9 @@ class AssociatorField extends BaseField {
      *
      * @param  int $flid - Field ID
      * @param  array $query - The advance search user query
-     * @return Builder - The RIDs that match search
+     * @return array - The RIDs that match search
      */
-    public function getAdvancedSearchQuery($flid, $query) {
+    public function advancedSearchTyped($flid, $query) {
         $inputs = $query[$flid."_input"];
 
         $query = DB::table(self::SUPPORT_NAME)
@@ -386,7 +386,9 @@ class AssociatorField extends BaseField {
 
         self::buildAdvancedAssociatorQuery($query, $inputs);
 
-        return $query->distinct();
+        return $query->distinct()
+            ->pluck('rid')
+            ->toArray();
     }
 
     /**
@@ -398,12 +400,9 @@ class AssociatorField extends BaseField {
     private static function buildAdvancedAssociatorQuery(Builder &$dbQuery, $inputs) {
         $dbQuery->where(function($dbQuery) use ($inputs) {
             foreach($inputs as $input) {
-                $rid = explode('-',$input)[2];
-                if(strlen($rid)<4)
-                    $dbQuery->orWhereRaw("`record`=?", [$rid]);
-                else
-                    $dbQuery->orWhereRaw("MATCH (`record`) AGAINST (? IN BOOLEAN MODE)",
-                        ["\"" . $rid . "\""]);
+                $ridArr = explode('-', $input);
+                $rid = end($ridArr); //This way, whether they supply a KID or RID, the RID will always be the last element
+                $dbQuery->orWhere('record', '=', $rid);
             }
         });
     }

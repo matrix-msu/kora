@@ -607,23 +607,27 @@ class ComboListField extends BaseField {
      * @return Request - The update request
      */
     public function setRestfulRecordData($jsonField, $flid, $recRequest, $uToken=null) {
-        $values = array();
+        $oneVals = array();
+        $twoVals = array();
         $field = FieldController::getField($flid);
         $nameone = self::getComboFieldName($field, 'one');
         $nametwo = self::getComboFieldName($field, 'two');
         foreach($jsonField->value as $val) {
-            if(!is_array($val[$nameone]))
-                $fone = '[!f1!]' . $val[$nameone] . '[!f1!]';
+            if(!is_array($val->{$nameone}))
+                $fone = $val->{$nameone};
             else
-                $fone = '[!f1!]' . implode("[!]",$val[$nameone]) . '[!f1!]';
-            if(!is_array($val[$nametwo]))
-                $ftwo = '[!f2!]' . $val[$nametwo] . '[!f2!]';
+                $fone = implode("[!]",$val->{$nameone});
+            if(!is_array($val->{$nametwo}))
+                $ftwo = $val->{$nametwo};
             else
-                $ftwo = '[!f2!]' . implode("[!]",$val[$nametwo]) . '[!f2!]';
-            array_push($values, $fone . $ftwo);
+                $ftwo = implode("[!]",$val->{$nametwo});
+
+            array_push($oneVals, $fone);
+            array_push($twoVals, $ftwo);
         }
         $recRequest[$flid] = '';
-        $recRequest[$flid . '_val'] = $values;
+        $recRequest[$flid . '_combo_one'] = $oneVals;
+        $recRequest[$flid . '_combo_two'] = $twoVals;
 
         return $recRequest;
     }
@@ -640,10 +644,9 @@ class ComboListField extends BaseField {
             ->select("rid")
             ->where("flid", "=", $flid)
             ->where(function($query) use ($arg) {
-                $num = $arg = str_replace(["*", "\""], "", $arg);
-                $num = floatval($num);
+                $num = floatval($arg);
 
-                $query->whereRaw("MATCH (`data`) AGAINST (? IN BOOLEAN MODE)", [$arg])
+                $query->where('data','LIKE',"%$arg%")
                     ->orWhereBetween("number", [$num - NumberField::EPSILON, $num + NumberField::EPSILON]);
             })
             ->distinct()
@@ -652,13 +655,13 @@ class ComboListField extends BaseField {
     }
 
     /**
-     * Performs an advanced search on this field and returns any results.
+     * Performs an advanced search on this field and returns any results. TODO::this will work for now, but refactor?
      *
      * @param  int $flid - Field ID
      * @param  array $query - The advance search user query
-     * @return Builder - The RIDs that match search
+     * @return array - The RIDs that match search
      */
-    public function getAdvancedSearchQuery($flid, $query) {
+    public function advancedSearchTyped($flid, $query) {
         $field = Field::where("flid", "=", $flid)->first();
         $type_1 = self::getComboFieldType($field, 'one');
         $type_2 = self::getComboFieldType($field, 'two');
@@ -666,10 +669,8 @@ class ComboListField extends BaseField {
         $one_valid = $query[$flid . "_1_valid"] == "1";
         $two_valid = $query[$flid . "_2_valid"] == "1";
 
-        // Return an impossible query if the two fields are somehow both invalid.
-        // May seem extraneous, but this is required for chaining calls elsewhere.
         if(! ($one_valid || $two_valid)) {
-            return DB::table(self::SUPPORT_NAME)->select("*")->where("id", "<", 0);
+            return array();
         } else if($one_valid && $two_valid) {
             if($query[$flid . "_operator"] == "and") {
                 //
@@ -712,7 +713,9 @@ class ComboListField extends BaseField {
             self::buildAdvancedQueryRoutine($db_query, "2", $flid, $query, $type_2);
         }
 
-        return $db_query->distinct();
+        return $db_query->distinct()
+            ->pluck('rid')
+            ->toArray();
     }
 
     /**
@@ -747,19 +750,16 @@ class ComboListField extends BaseField {
                 isset($query[$flid . "_" . $field_num . "_invert"]),
                 $prefix);
         } else {
-            //TODO::how does date fit into this?
-            if($type == Field::_LIST || $type == Field::_TEXT)
-                $inputs = [$query[$flid . "_" . $field_num . "_input"]];
-            else // Generated, Associator, or Multi-Select List
-                $inputs = $query[$flid . "_" . $field_num . "_input"];
+            //TODO::how does date fit into this? I think just make a date input that matches the format we store in?
+            $inputs = $query[$flid . "_" . $field_num . "_input"];
 
             // Since we're using a raw query, we have to get the database prefix to match our alias.
             $db_prefix = DB::getTablePrefix();
             $prefix = ($prefix == "") ? self::SUPPORT_NAME : substr($prefix, 0, -1);
             $db_query->where(function($db_query) use ($inputs, $prefix, $db_prefix) {
                 foreach($inputs as $input) {
-                    $db_query->orWhereRaw("MATCH (`" . $db_prefix . $prefix . "`.`data`) AGAINST (? IN BOOLEAN MODE)",
-                        ["\"" . $input . "\""]);
+                    $input = Search::prepare($input);
+                    $db_query->orWhereRaw("`" . $db_prefix . $prefix . "`.`data` LIKE %?%", [$input]);
                 }
             });
         }

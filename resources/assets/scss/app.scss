@@ -52,12 +52,14 @@
 @import 'partials/form-import';
 @import 'partials/form-importk2';
 @import 'partials/project';
+@import 'partials/project-importMF';
 @import 'partials/project-permissions';
 @import 'partials/publish';
 @import 'partials/footer';
 @import 'partials/user-edit';
 @import 'partials/user-preferences';
 @import 'partials/user-profile';
+@import 'partials/loading-icon';
 
 @media screen and (min-width: $max-tablet-width) and (max-width: $max-with-aside-width) {
   // scss-lint:disable ImportantRule
