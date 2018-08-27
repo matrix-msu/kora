@@ -6,8 +6,8 @@
                 <i class="icon icon-cancel"></i>
             </a>
         </div>
-        <div class="body">
-            <span class="description">
+        <div class="body record-validation">
+            <span class="description record-validation">
                 <p>There are <span class="error-count-js"></span> more required fields that must be filled out before you can create the record.</p>
                 <p>The missing fields occur on page(s):</p>
                 <div class="error-pages"></div>
