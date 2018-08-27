@@ -232,7 +232,7 @@ Kora.User.Profile = function() {
 
   function initializeCardEllipsifying () {
     function adjustCardTitle() {
-      var cards = $($(".content-sections-scroll").find(".card"));
+      var cards = $($(".content-section.active").find(".card"));
 
       for (i = 0; i < cards.length; i++) {
         var card = $(cards[i]);
