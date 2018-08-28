@@ -16,6 +16,7 @@
   '/assets/javascripts/vendor/slick/slick.js',
   '/assets/javascripts/general/global.js',
   '/assets/javascripts/navigation/navigation.js',
+  '/assets/javascripts/fields/typedFieldDisplays.js',
   '/assets/javascripts/general/modal.js',
   '/assets/javascripts/records/modal.js',
   '/assets/javascripts/records/batch.js',
