@@ -50,10 +50,44 @@ Kora.Records.Toolbar = function() {
   }
 
   function recordSelect () {
-    var $check = $('.check');
+    var $check = $('.record .header .check');
     var $selectAll = $('.select-all');
     var $deselectAll = $('.deselect-all');
     var selected = [];
+    var currentUrl = window.location.href;
+
+    currentUrl = currentUrl.split("/");
+    currentUrl = currentUrl[currentUrl.length - 2];
+
+    if (currentUrl == window.localStorage.getItem('prevUrl')) {
+      if (window.localStorage.getItem('selectedRecords')) {
+        var push = window.localStorage.getItem('selectedRecords').split(',');
+
+        for (var i = 0; i < push.length; i++) {
+          selected.push(push[i]);
+        }
+
+        for (var i = 0; i < selected.length; i++) {
+          var $this = $('.display-records').find('.name:contains(' + selected[i] + ')');
+          $this.parents('.card').addClass('selected');
+        }
+
+        $('.selected').find('.check').addClass('checked');
+
+        if ($('.selected').length > 0) {
+          $('.toolbar').removeClass('hidden');
+          $('.record-index').addClass('with-bottom');
+        }
+
+        // $('.toolbar').removeClass('hidden');
+        // $('.record-index').addClass('with-bottom');
+        count = selected.length;
+        $('span.count').text('(' + count + ')');
+      }
+    } else {
+      window.localStorage.clear();
+      window.localStorage.setItem('prevUrl', currentUrl);
+    }
 
     $('span.count-all').text('('+$check.length+')');
 
@@ -82,19 +116,18 @@ Kora.Records.Toolbar = function() {
         var index = selected.indexOf(removeThisRec);
 
         selected.splice(index, 1);
-        count = selected.length;
-        $('span.count').text('(' + count + ')');
       } else {
         $(this).addClass('checked');
         $card.addClass('selected');
 
         var recordName = $(this).siblings('.left').find('.name').text();
         selected.push(recordName);
-        count = selected.length;
-        $('span.count').text('(' + count + ')');
       }
 
       if (selected.length > 0) {
+        window.localStorage.setItem('selectedRecords', selected);
+        count = selected.length;
+        $('span.count').text('(' + count + ')');
         $('.toolbar').removeClass('hidden');
         $('.record-index').addClass('with-bottom');
       } else {
