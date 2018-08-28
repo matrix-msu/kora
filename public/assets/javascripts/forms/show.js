@@ -340,7 +340,7 @@ Kora.Forms.Show = function() {
 
     $('.delete-page-js').on('click', function(e) {
       e.preventDefault();
-	  if ($(".delete-page-js").length == 1) return;
+      if ($(".delete-page-js").length == 1) return;
 	  
       var page = $(this).data('page');
 
@@ -523,6 +523,7 @@ Kora.Forms.Show = function() {
           'pageID': pageID
         },
         success: function(result) {
+          window.localStorage.setItem('message', 'Form Page Successfully Deleted');
           location.reload();
         }
       });

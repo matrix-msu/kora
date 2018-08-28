@@ -255,7 +255,7 @@ class RecordController extends Controller {
      * @param  int $rid - Record ID
      * @return View
      */
-	public function show($pid, $fid, $rid) {
+	public function show($pid, $fid, $rid, Request $request) {
         if(!self::validProjFormRecord($pid, $fid, $rid))
             return redirect('projects')->with('k3_global_error', 'record_invalid');
 
@@ -268,7 +268,23 @@ class RecordController extends Controller {
         $numRevisions = Revision::where('rid',$rid)->count();
         $alreadyPreset = (RecordPreset::where('rid',$rid)->count() > 0);
 
-        return view('records.show', compact('record', 'form', 'owner', 'numRevisions', 'alreadyPreset'));
+        $notification = array(
+          'message' => '',
+          'description' => '',
+          'warning' => false,
+          'static' => false
+        );
+        $prevUrlArray = $request->session()->get('_previous');
+        $prevUrl = reset($prevUrlArray);
+        if ($prevUrl !== url()->current()) {
+          $session = $request->session()->get('k3_global_success');
+
+          if ($session == 'record_updated') {
+            $notification['message'] = 'Record Successfully Updated!';
+          }
+        }
+
+        return view('records.show', compact('record', 'form', 'owner', 'numRevisions', 'alreadyPreset', 'notification'));
 	}
 
     /**

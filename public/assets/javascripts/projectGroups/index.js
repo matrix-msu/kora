@@ -122,6 +122,7 @@ Kora.ProjectGroups.Index = function() {
         "projectGroup": projectGroup
       },
       success: function(data) {
+        console.log(data);
         // data is supposed to be the Old Group ID
         var userMap = {} // A map of userID to their content
         for (userID of userIDs) {
