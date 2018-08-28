@@ -1,5 +1,6 @@
+<?php $single = (count(explode('[!]',$typedField->images)) <= 1)?>
 <div class="record-data-card">
-    <div class="gallery-field-display gallery-field-display-js">
+    <div class="gallery-field-display gallery-field-display-js {{ ($single ? 'single' : '') }}">
         @foreach(explode('[!]',$typedField->images) as $img)
             @if($img != '')
                 <?php
@@ -13,19 +14,21 @@
         @endforeach
     </div>
 
-    <div class="gallery-controls">
-        <div class="field-btn field-btn-circle prev-button prev-button-js">
-            <i class="icon icon-chevron"></i>
+    @if (!$single)
+        <div class="gallery-controls">
+            <div class="field-btn field-btn-circle prev-button prev-button-js">
+                <i class="icon icon-chevron"></i>
+            </div>
+
+            <div class="dots dots-js"></div>
+
+            <div class="field-btn field-btn-circle next-button next-button-js">
+                <i class="icon icon-chevron"></i>
+            </div>
         </div>
+    @endif
 
-        <div class="dots dots-js"></div>
-
-        <div class="field-btn field-btn-circle next-button next-button-js">
-            <i class="icon icon-chevron"></i>
-        </div>
-    </div>
-
-    <div class="field-sidebar gallery-sidebar gallery-sidebar-js">
+    <div class="field-sidebar gallery-sidebar gallery-sidebar-js {{ ($single ? 'single' : '') }}">
         <div class="top">
             <div class="field-btn external-button-js">
                 <i class="icon icon-external-link"></i>

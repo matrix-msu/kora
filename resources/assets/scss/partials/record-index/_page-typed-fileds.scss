@@ -204,6 +204,10 @@
 
 .gallery-sidebar {
   height: calc(100% - 58px);
+
+  &.single {
+    height: 100%;
+  }
 }
 
 /***** GEOLOCATOR *****/

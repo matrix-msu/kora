@@ -11,24 +11,27 @@ Kora.Fields.TypedFieldDisplays.Initialize = function() {
       var slideCount = $slides.length;
       var currentSlide = 0;
       var galHeight = 300, galWidth = 500, galAspectRatio = galWidth / galHeight;
+      var single = $this.hasClass('single');
 
       // Set dots
-      for (var i = 0; i < slideCount; i++) {
-        $dotsContainer.append('<div class="dot dot-js'+(i == currentSlide ? ' active' : '')+'" data-slide-num="'+i+'"></div>')
+      if (!single) {
+        for (var i = 0; i < slideCount; i++) {
+          $dotsContainer.append('<div class="dot dot-js'+(i == currentSlide ? ' active' : '')+'" data-slide-num="'+i+'"></div>')
+        }
+
+        var $dots = $dotsContainer.find('.dot-js');
+
+        // Select slide using dots
+        $dots.click(function() {
+          var $dot = $(this);
+          currentSlide = $dot.data('slide-num');
+
+          $dots.removeClass('active');
+          $dot.addClass('active');
+
+          setImagePositions();
+        });
       }
-
-      var $dots = $dotsContainer.find('.dot-js');
-
-      // Select slide using dots
-      $dots.click(function() {
-        var $dot = $(this);
-        currentSlide = $dot.data('slide-num');
-
-        $dots.removeClass('active');
-        $dot.addClass('active');
-
-        setImagePositions();
-      });
 
       // Need to wait for images to load before getting heights and widths
       $(window).load(function() {
