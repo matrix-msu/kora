@@ -162,17 +162,30 @@ Kora.Records.Show = function() {
                 }
             });
 
-            $('.gallery-sidebar-js .full-screen-button-js').click(function(e) {
+            // Click full-screen button
+            console.log($this.parent().find('.gallery-sidebar-js .full-screen-button-js'));
+            $this.parent().find('.gallery-sidebar-js .full-screen-button-js').click(function(e) {
                 e.preventDefault();
                 var $galleryModal = $(this).parent().parent().parent().next();
                 Kora.Modal.close();
                 Kora.Modal.open($galleryModal);
             });
 
+            // Click external button
+            $this.parent().find('.gallery-sidebar-js .external-button-js').click(function(e) {
+                e.preventDefault();
+                var $currentSlide = $($slides[currentSlide]).find('.slide-img-js');
+                
+                window.open(window.location+'/fields/'+$currentSlide.data('flid')+'/image/'+$currentSlide.attr('alt'), '_blank');
+            });
+
             // Set horizontal positioning for single slide
             function setImagePosition($slide, index) {
+                // Set corresponding dot
                 $dots.removeClass('active');
                 $($dots[currentSlide]).addClass('active');
+
+                // Slide slides
                 var pos = ((index - currentSlide) * galWidth) + "px";
                 $slide.animate({left: pos}, 100, 'swing');
             }

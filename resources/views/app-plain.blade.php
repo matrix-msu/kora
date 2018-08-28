@@ -7,9 +7,9 @@
 
     <link rel="stylesheet" href="{{config('app.url')}}assets/css/app.css">
 </head>
-<body class="{{ str_hyphenated($page_class) }}-body">
+<body class="single-resource-body {{ str_hyphenated($page_class) }}-body">
 
-<div class="{{ str_hyphenated($page_class) }}">
+<div class="single-resource {{ str_hyphenated($page_class) }}">
     @yield('body')
 </div>
 
