@@ -95,6 +95,10 @@
     margin: 0 map-get($spacing, sm) 0 0;
     padding: 0 0 map-get($spacing, sm);
     text-decoration: none;
+    
+    @media screen and (max-width: $max-mobile-xs-width) {
+      font-size: 11px;
+    }
 
     &:hover {
       color: palette('green', accent, .8);
