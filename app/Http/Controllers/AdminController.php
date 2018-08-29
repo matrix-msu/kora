@@ -113,6 +113,8 @@ class AdminController extends Controller {
             $notification['message'] = 'Password Successfully Updated!';
           else if ($session == 'user_updated')
             $notification['message'] = 'User Successfully Updated!';
+        } else if ($request->session()->get('k3_global_success') == 'batch_users') {
+          $notification['message'] = 'User(s) Successfully Invited!';
         }
 
         return view('admin.users', compact('usersAz', 'usersZa', 'usersNto', 'usersOtn', 'notification'));

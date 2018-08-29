@@ -47,7 +47,15 @@ class ProjectGroupController extends Controller {
         $projectGroups = $project->groups()->get()->sortBy('id');
         $users = User::pluck('username', 'id')->all();
         $all_users = User::all();
-        return view('projectGroups.index', compact('project', 'projectGroups', 'users', 'all_users', 'active'));
+
+        $notification = array(
+          'message' => '',
+          'description' => '',
+          'warning' => false,
+          'static' => false
+        );
+
+        return view('projectGroups.index', compact('project', 'projectGroups', 'users', 'all_users', 'active', 'notification'));
     }
 
     /**
@@ -177,10 +185,10 @@ class ProjectGroupController extends Controller {
           foreach($forms as $form) {
             $defGroup = FormGroup::where('name', '=', $form->name . $tag)->where('fid','=',$form->fid)->get()->first();
             $FGC = new FormGroupController();
-            $request->formGroup = $defGroup->id;
+            $request->formGroup = $defGroup->id; // commenting out this line
             $request->userId = $userID;
             $request->dontLookBack = true;
-            $FGC->addUser($request);
+            $FGC->addUser($request); // and this allows us to 'add users' on the projectGroups page
           }
 
           $this->emailUserProject("added", $userID, $instance->id);
