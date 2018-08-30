@@ -12,7 +12,7 @@
                 <span>My Dashboard</span>
             </h1>
             <div class="content-sections">
-              <div class="content-sections-scroll">
+              <div class="content-sections-scroll dashboard">
                 <a href="#" class="content">
                   <i class="icon icon-block-add"></i>
                   <span>Add a New Block</span>

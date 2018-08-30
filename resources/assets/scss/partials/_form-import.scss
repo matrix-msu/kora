@@ -38,4 +38,14 @@
     padding: 0 20px;
 
   }
+
+  @media screen and (max-width: $max-mobile-xs-width) {
+    .progression-tab {
+      margin-top: 40px;
+    }
+
+    .forminfo-link {
+      margin-right: 0;
+    }
+  }
 }

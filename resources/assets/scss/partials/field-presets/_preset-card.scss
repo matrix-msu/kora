@@ -1,6 +1,10 @@
 .preset {
   font-family: $ubuntu;
 
+  .header {
+    white-space: nowrap;
+  }
+
   .title {
     color: palette('gray', text);
   }

@@ -36,7 +36,7 @@
         -webkit-transform: rotate(90deg) scale(1.25);
       }
     }
-    
+
     @media screen and (max-width: $max-mobile-xs-width) {
       display: none;
     }
@@ -169,6 +169,10 @@
       overflow-y: hidden;
       &::-webkit-scrollbar {
         display: none;
+      }
+
+      &.dashboard {
+        overflow: visible;
       }
 
       .section {

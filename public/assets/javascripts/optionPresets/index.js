@@ -151,9 +151,47 @@ Kora.OptionPresets.Index = function() {
             });
         });
     }
+  
+    function initializePresetCardEllipsifying () {
+      function adjustPresetCardTitle () {
+        var cards = $($(".option-presets-selection").find(".preset.card"));
+
+        for (i = 0; i < cards.length; i++) {	
+          var card = $(cards[i]);
+          var name_span = $(card.find($(".name")));
+          var chevron_text = $(card.find($(".chevron-text")));
+          var chevron = $(card.find($(".icon-chevron")));
+
+          var card_width = card.width();
+          var chevron_text_width = chevron_text.length ? chevron_text.outerWidth() : 0; // if arrow is valid jquery object
+          var chevron_width = chevron.outerWidth(); // all types of project cards have chevrons
+          var extra_padding = 10;
+          
+          var title_width = (card_width) - (chevron_text_width + chevron_width + extra_padding);
+          if (title_width < 0) {title_width = 0;}
+          
+          name_span.css("text-overflow", "ellipsis");
+          name_span.css("white-space", "nowrap");
+          name_span.css("overflow", "hidden");
+          name_span.css("max-width", title_width + "px");
+        }
+      }
+      
+      $(window).resize(function() {
+        adjustPresetCardTitle();
+      });
+    
+      $(document).ready(function() {
+        adjustPresetCardTitle();
+      });
+
+      // Recalculate ellipses when switching project types
+      $("[href='#all'], [href='#project'], [href='#shared'], [href='#stock']").click(function() { adjustPresetCardTitle(); });
+    }
 
     initializeSearch();
     initializeFilters();
     initializeToggle();
     initializeDeletePresetModal();
+    initializePresetCardEllipsifying();
 }

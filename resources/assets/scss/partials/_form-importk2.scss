@@ -52,4 +52,14 @@
       margin: 0 auto 15px;
     }
   }
+
+  @media screen and (max-width: $max-mobile-xs-width) {
+    .progression-tab {
+      margin-top: 40px;
+    }
+
+    .forminfo-link {
+      margin-right: 0;
+    }
+  }
 }

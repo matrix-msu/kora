@@ -81,8 +81,20 @@
         left: -30px;
       }
 
+      .show-options & {
+        left: 0;
+
+        &:last-of-type {
+          left: -35px;
+        }
+      }
+
       .show-options span:last-child & {
         left: -90px;
+      }
+
+      .element-link-container & {
+        left: -10px;
       }
     }
   }
