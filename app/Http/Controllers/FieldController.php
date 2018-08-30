@@ -376,4 +376,19 @@ class FieldController extends Controller {
 
         return true;
     }
+
+    /**
+     * View single image from a record
+     *
+     * @param  int $pid - Project ID
+     * @param  int $fid - Form ID
+     * @param  int $rid - Record ID
+     * @param  int $flid - Field ID
+     * @param  string $filename - Image filename
+     * @return Redirect
+     */
+    public function singleImage($pid, $fid, $rid, $flid, $filename) {
+        $src = (env('STORAGE_URL').'files/p'.$pid.'/f'.$fid.'/r'.$rid.'/fl'.$flid.'/'.$filename);
+        return view('fields.singleImage', compact('filename', 'src'));
+    }
 }

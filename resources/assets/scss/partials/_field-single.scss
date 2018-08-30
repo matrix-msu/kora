@@ -1,0 +1,10 @@
+.single-resource-body {
+
+}
+
+.single-resource {
+  max-width: 100vw;
+  padding: 20px;
+
+  @import 'field-single/image';
+}
