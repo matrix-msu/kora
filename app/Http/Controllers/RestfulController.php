@@ -528,6 +528,8 @@ class RestfulController extends Controller {
         $direction = $sortFields[1];
         $newOrderArray = array();
 
+        //TODO::report errors, not 100% sure how we'll get it up a level
+
         if($fieldSlug=='kora_meta_owner') {
             $userRecords = DB::table('records')->join('users','users.id','=','records.owner')
                 ->select('records.rid','users.username')
@@ -655,6 +657,8 @@ class RestfulController extends Controller {
         $fieldSlug = $sortFields[0];
         $direction = $sortFields[1];
         $newOrderArray = array();
+
+        //TODO::report errors, not 100% sure how we'll get it up a level
 
         if(!is_array($fieldSlug) && $fieldSlug=='kora_meta_owner') {
             $userRecords = DB::table('records')->join('users','users.id','=','records.owner')
