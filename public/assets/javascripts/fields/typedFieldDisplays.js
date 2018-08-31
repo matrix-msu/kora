@@ -8,6 +8,7 @@ Kora.Fields.TypedFieldDisplays.Initialize = function() {
       var $this = $(this);
       var $slides = $this.find('.slide-js');
       var $dotsContainer = $this.next().find('.dots-js');
+      var $dots = $dotsContainer.find('.dot-js');
       var slideCount = $slides.length;
       var currentSlide = 0;
       var galHeight = 300, galWidth = 500, galAspectRatio = galWidth / galHeight;
@@ -18,8 +19,6 @@ Kora.Fields.TypedFieldDisplays.Initialize = function() {
         for (var i = 0; i < slideCount; i++) {
           $dotsContainer.append('<div class="dot dot-js'+(i == currentSlide ? ' active' : '')+'" data-slide-num="'+i+'"></div>')
         }
-
-        var $dots = $dotsContainer.find('.dot-js');
 
         // Select slide using dots
         $dots.click(function() {
@@ -223,8 +222,22 @@ Kora.Fields.TypedFieldDisplays.Initialize = function() {
     });
   }
 
-  function initalizeVideo() {
-    $('.jp-video-js').each(function() {
+  function initializeVideo() {
+    // Event listener for the full-screen button
+    $('.video-field-display-js').each(function() {
+      var $this = $(this);
+      var $video = $this.find('video');
+      var $fullScreenButton = $this.parent().find('.full-screen-button-js');
+      var $externalButton = $this.parent().find('.external-button-js');
+
+      // Full Screen Button
+      $fullScreenButton.click(function() {
+        console.log('full screen');
+      });
+    });
+
+
+    /*$('.jp-video-js').each(function() {
       var videoID = $(this).attr('video-id');
       var videoLink = $(this).attr('video-link');
       var swfpath = $(this).attr('swf-path');
@@ -250,7 +263,7 @@ Kora.Fields.TypedFieldDisplays.Initialize = function() {
         supplied: "m4v, ogv"
       };
       var myPlaylist = new jPlayerPlaylist(cssSelector, playlist, options);
-    });
+    });*/
   }
 
   function initalize3DModel() {
@@ -311,6 +324,7 @@ Kora.Fields.TypedFieldDisplays.Initialize = function() {
   initializeGallery();
   initializeGeolocator();
   intializeAudio();
+  initializeVideo();
   initalizeSchedule();
   initalize3DModel();
 };
