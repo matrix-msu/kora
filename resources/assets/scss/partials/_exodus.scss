@@ -31,6 +31,16 @@
     width: 14px;
   }
 
+  @media screen and (max-width: $max-mobile-xs-width) {
+    .projects-link {
+      margin-right: 0;
+    }
+
+    .progression-tab {
+      margin-top: 40px;
+    }
+  }
+
   .exodus-database,
   .exodus-projects {
     margin: #{map-get($spacing, xxxl)} auto;

@@ -83,10 +83,10 @@
 
       .show-options & {
         left: 0;
+      }
 
-        &:last-of-type {
-          left: -35px;
-        }
+      .filters .show-options span & {
+        left: -50px;
       }
 
       .show-options span:last-child & {
