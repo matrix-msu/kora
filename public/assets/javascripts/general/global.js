@@ -345,7 +345,18 @@ $('.export-begin-files-js').click(function(e) {
         error: function (error) {
             $('.export-begin-files-js').removeClass('disabled');
             $('.export-begin-files-js').text("Something went wrong :(");
-            console.log(error);
+
+            console.log(error.responseJSON.message);
+
+            if(error.responseJSON.message == 'no_record_files') {
+                $('.export-begin-files-js').text("No record files :(");
+                $('.export-files-desc-js').text("There are no record files in this Form. You may still export all form records in the formats of JSON or XML.");
+            }
+
+            if(error.responseJSON.message == 'zip_too_big') {
+                $('.export-begin-files-js').text("Zip too big :(");
+                $('.export-files-desc-js').text("Zipped file is too big. Please use the php artisan command for exporting record files. You may still export all form records in the formats of JSON or XML.");
+            }
         }
     });
 });
