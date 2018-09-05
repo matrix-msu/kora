@@ -344,6 +344,10 @@ class RestfulController extends Controller {
                             $kids = $query->kids;
                             $rids = array();
                             for($i = 0; $i < sizeof($kids); $i++) {
+                                if(!Record::isKIDPattern($kids[$i])) {
+                                    array_push($minorErrors,"Illegal KID ($kids[$i]) in a KID search for form: ". $form->name);
+                                    continue;
+                                }
                                 $rid = explode("-", $kids[$i])[2];
                                 $record = Record::where('rid',$rid)->get()->first();
                                 if($record->fid != $form->fid)
