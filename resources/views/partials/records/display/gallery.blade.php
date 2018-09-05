@@ -1,4 +1,8 @@
-<?php $single = (count(explode('[!]',$typedField->images)) <= 1)?>
+<?php
+$single = (count(explode('[!]',$typedField->images)) <= 1);
+$singleFilename = ($single ? explode('[Name]',$typedField->images)[1] : '');
+?>
+
 <div class="record-data-card">
     <div class="gallery-field-display gallery-field-display-js {{ ($single ? 'single' : '') }}">
         @foreach(explode('[!]',$typedField->images) as $img)
@@ -34,7 +38,8 @@
                 <i class="icon icon-external-link"></i>
             </div>
 
-            <a href="{{ action('FieldAjaxController@getZipDownload', ['flid' => $field->flid, 'rid' => $record->rid, 'filename' => 'gallery']) }}" class="field-btn external-button-js">
+            <a href="{{ ($single ? action('FieldAjaxController@getFileDownload', ['flid' => $field->flid, 'rid' => $record->rid, 'filename' => $singleFilename]) : action('FieldAjaxController@getZipDownload', ['flid' => $field->flid, 'rid' => $record->rid, 'filename' => 'gallery'])) }}"
+               class="field-btn">
                 <i class="icon icon-download"></i>
             </a>
         </div>
@@ -74,7 +79,9 @@
                     <i class="icon icon-chevron"></i>
                 </div>
 
-                <div class="dots dots-js"></div>
+                @if (!$single)
+                    <div class="dots dots-js"></div>
+                @endif
 
                 <div class="field-btn field-btn-circle next-button next-button-js">
                     <i class="icon icon-chevron"></i>
