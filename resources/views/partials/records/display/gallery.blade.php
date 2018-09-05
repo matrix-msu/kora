@@ -8,7 +8,7 @@
                 $link = action('FieldAjaxController@getImgDisplay',['flid' => $field->flid, 'rid' => $record->rid, 'filename' => $name, 'type' => 'medium']);
                 ?>
                 <div class="slide slide-js">
-                    <img class="slide-img slide-img-js" data-flid="{{ $field->flid }}" src="{{$link}}" alt="{{$name}}">
+                    <img class="slide-img slide-img-js" data-pid="{{$record->pid}}" data-fid="{{$record->fid}}" data-rid="{{$record->rid}}" data-flid="{{ $field->flid }}" src="{{$link}}" alt="{{$name}}">
                 </div>
             @endif
         @endforeach
