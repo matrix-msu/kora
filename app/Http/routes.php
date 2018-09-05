@@ -138,7 +138,7 @@ Route::group(['middleware' => 'web'], function () {
     Route::get('/download/{rid}/{flid}/{filename}/zip', 'FieldAjaxController@getZipDownload');
     Route::get('/download/{rid}/{flid}/{filename}/{type}', 'FieldAjaxController@getImgDisplay');
     Route::get("/validateAddress", "FieldAjaxController@validateAddress");
-    Route::get('/projects/{pid}/forms/{fid}/records/{rid}/fields/{flid}/image/{filename}', 'FieldController@singleImage');
+    Route::get('/projects/{pid}/forms/{fid}/records/{rid}/fields/{flid}/{type}/{filename}', 'FieldController@singleResource');
 
 //record preset routes
     Route::get('/projects/{pid}/forms/{fid}/records/presets', 'RecordPresetController@index');

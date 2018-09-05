@@ -247,6 +247,21 @@
   }
 }
 
+/***** VIDEO *****/
+.video-field-display {
+  background: palette('gray', slate);
+  border-radius: 5px;
+  overflow: hidden;
+  width: calc(100% - 44px);
+
+  video {
+    display: block;
+    margin: auto;
+    max-height: 100%;
+    max-width: 100%;
+  }
+}
+
 .jp-center {
   margin: auto;
 }
