@@ -481,4 +481,14 @@ class DocumentsField extends FileTypeField {
     }
 
     ///////////////////////////////////////////////END ABSTRACT FUNCTIONS///////////////////////////////////////////////
+
+    public function formatBytes($bytes) {
+        $units = ['b', 'kb', 'mb', 'gb', 'tb'];
+
+        for ($i = 0; $bytes > 1024; $i++) {
+            $bytes /= 1024;
+        }
+
+        return round($bytes, 1) . ' ' . $units[$i];
+    }
 }
