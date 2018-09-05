@@ -1,0 +1,27 @@
+.multi-import-setup-body {
+  background: palette('gray', background);
+  font-family: $ubuntu;
+  min-height: 100vh;
+}
+
+.multi-import-setup {
+  margin: $navigation-height auto 0;
+  width: 100%;
+
+  .description {
+    a {
+      color: palette('green', accent);
+      font-family: $ubuntu-medium;
+      text-decoration: none;
+    }
+  }
+
+  .recordfile-section,
+  .recordresults-section {
+    margin: #{map-get($spacing, xxxl)} auto;
+    max-width: calc(#{ $max-site-width } - 600px);
+    padding: 0 20px;
+
+    @import 'project-importMF/file-field';
+  }
+}

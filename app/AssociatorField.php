@@ -139,7 +139,7 @@ class AssociatorField extends BaseField {
      *
      * @param  Field $field - The field to represent record data
      * @param  Record $record - Record being created
-     * @param  string $value - Data to add
+     * @param  array $value - Data to add
      * @param  Request $request
      */
     public function createNewRecordField($field, $record, $value, $request){

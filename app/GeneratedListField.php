@@ -379,6 +379,7 @@ class GeneratedListField extends BaseField {
     private static function buildAdvancedGeneratedListQuery(Builder &$db_query, $inputs) {
         $db_query->where(function($db_query) use ($inputs) {
             foreach($inputs as $input) {
+                $input = Search::prepare($input);
                 //since we want to look for the exact term when data is concatenated string
                 $db_query->orWhere('options','LIKE',$input."[!]%"); //is it the first term
                 $db_query->orWhere('options','LIKE',"%[!]".$input); //is it the last term

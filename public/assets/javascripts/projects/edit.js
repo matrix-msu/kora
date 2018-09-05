@@ -19,6 +19,10 @@ Kora.Projects.Edit = function() {
       $cleanupModal.find('.archive-content-js').hide();
       Kora.Modal.open();
     });
+	
+	$('.delete-project-js').click(function(e) {
+	  display_loader();
+	});
 
     $('.project-archive-js').click(function(e) {
       e.preventDefault();

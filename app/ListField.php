@@ -332,6 +332,7 @@ class ListField extends BaseField {
      */
     public function advancedSearchTyped($flid, $query) {
         $arg = $query[$flid . "_input"];
+        $arg = Search::prepare($arg);
 
         return DB::table("list_fields")
             ->select("rid")

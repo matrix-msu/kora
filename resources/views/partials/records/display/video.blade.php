@@ -1,4 +1,36 @@
-<div id="jp_container_{{$field->flid}}_{{$record->rid}}" class="jp-video jp-video-270p jp-video-js jp-center" role="application" aria-label="media player"
+<div class="record-data-card">
+  <div class="video-field-display video-field-display-js">
+    <video height="300" width="auto" controls>
+      @foreach(explode('[!]',$typedField->video) as $key => $vid)
+          @if($vid != '')
+              <?php $filename = explode('[Name]',$vid)[1]; ?>
+              <source data-filename="{{explode('[Name]',$vid)[1]}}" src="{{config('app.storage_url').'files/p'.$form->pid.'/f'.$form->fid.'/r'.$record->rid.'/fl'.$field->flid.'/'.explode('[Name]',$vid)[1]}}" type="{{explode('[Type]',$vid)[1]}}">
+          @endif
+      @endforeach
+      Your browser does not support the video tag.
+    </video>
+  </div>
+
+  <div class="field-sidebar video-sidebar video-sidebar-js">
+      <div class="top">
+          <a href="{{url('projects/'.$form->pid.'/forms/'.$form->fid.'/records/'.$record->rid.'/fields/'.$field->flid.'/video/'.$filename)}}" class="field-btn external-button-js" target="_blank">
+              <i class="icon icon-external-link"></i>
+          </a>
+
+          <a href="" class="field-btn external-button-js">
+              <i class="icon icon-download"></i>
+          </a>
+      </div>
+
+      <div class="bottom">
+          <div class="field-btn full-screen-button-js">
+              <i class="icon icon-maximize"></i>
+          </div>
+      </div>
+  </div>
+</div>
+
+<!--<div id="jp_container_{{$field->flid}}_{{$record->rid}}" class="jp-video jp-video-270p jp-video-js jp-center" role="application" aria-label="media player"
     video-id="{{$field->flid}}_{{$record->rid}}"
     video-link="{{config('app.storage_url').'files/p'.$form->pid.'/f'.$form->fid.'/r'.$record->rid.'/fl'.$field->flid.'/'}}"
     swf-path="{{config('app.base_path')}}public/assets/javascripts/vendor/jplayer/jquery.jplayer.swf">
@@ -47,7 +79,7 @@
         <div class="jp-playlist">
             <ul>
                 <!-- The method Playlist.displayPlaylist() uses this unordered list -->
-                <li></li>
+                <!--<li></li>
             </ul>
         </div>
         <div class="jp-no-solution">
@@ -55,4 +87,4 @@
             To play the media you will need to either update your browser to a recent version or update your <a href="http://get.adobe.com/flashplayer/" target="_blank">Flash plugin</a>.
         </div>
     </div>
-</div>
+</div>-->

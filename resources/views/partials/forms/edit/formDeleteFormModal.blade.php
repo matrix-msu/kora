@@ -16,7 +16,7 @@
               </span>
 
               <div class="form-group">
-                {!! Form::submit('Delete Form',['class' => 'btn warning']) !!}
+                {!! Form::submit('Delete Form',['class' => 'btn warning delete-form-js']) !!}
               </div>
             {!! Form::close() !!}
         </div>
