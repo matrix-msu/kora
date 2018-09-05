@@ -388,7 +388,7 @@ class FieldController extends Controller {
      * @return Redirect
      */
     public function singleResource($pid, $fid, $rid, $flid, $type, $filename) {
-        $src = (env('STORAGE_URL').'files/p'.$pid.'/f'.$fid.'/r'.$rid.'/fl'.$flid.'/'.$filename);
+        $src = (config('app.storage_url').'files/p'.$pid.'/f'.$fid.'/r'.$rid.'/fl'.$flid.'/'.$filename);
 
         if ($type == 'image') {
           return view('fields.singleImage', compact('filename', 'src'));
