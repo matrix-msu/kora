@@ -60,27 +60,22 @@ Kora.Records.Toolbar = function() {
     currentUrl = currentUrl[currentUrl.length - 2];
 
     if (currentUrl == window.localStorage.getItem('prevUrl')) {
-      if (window.localStorage.getItem('selectedRecords')) {
-        var push = window.localStorage.getItem('selectedRecords').split(',');
+      if (window.localStorage.getItem('selectedRecords')) { // get stored values
+        var push = window.localStorage.getItem('selectedRecords').split(','); // turn them into an array
 
         for (var i = 0; i < push.length; i++) {
-          selected.push(push[i]);
+          selected.push(push[i]); // push new values to existing 'selected' array (array of ALL selected records)
         }
 
-        for (var i = 0; i < selected.length; i++) {
+        for (var i = 0; i < selected.length; i++) { // check if anything in /selected/ exists on this page
           var $this = $('.display-records').find('.name:contains(' + selected[i] + ')');
           $this.parents('.card').addClass('selected');
         }
 
         $('.selected').find('.check').addClass('checked');
 
-        if ($('.selected').length > 0) {
-          $('.toolbar').removeClass('hidden');
-          $('.record-index').addClass('with-bottom');
-        }
-
-        // $('.toolbar').removeClass('hidden');
-        // $('.record-index').addClass('with-bottom');
+        $('.toolbar').removeClass('hidden');
+        $('.record-index').addClass('with-bottom');
         count = selected.length;
         $('span.count').text('(' + count + ')');
       }
@@ -101,6 +96,13 @@ Kora.Records.Toolbar = function() {
       e.preventDefault();
 
       $('.checked').trigger('click');
+
+      window.localStorage.removeItem('selectedRecords');
+      selected = [];
+      count = selected.length;
+
+      $('.toolbar').addClass('hidden');
+      $('.record-index').removeClass('with-bottom');
     });
 
     $check.click(function (e) {

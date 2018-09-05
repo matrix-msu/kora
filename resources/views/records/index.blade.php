@@ -102,7 +102,7 @@
                       <span><a href="#" class="collapse-fields-js tooltip" title="Collapse all Records" tooltip="Collapse all Records"><i class="icon icon-condense icon-condense-js"></i></a></span>
                   </div>
               </section>
-
+                
               @foreach($records as $index => $record)
                   @include('partials.records.card')
               @endforeach

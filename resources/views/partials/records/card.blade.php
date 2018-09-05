@@ -1,7 +1,10 @@
 <div class="record card all active form-group" id="{{$record->id}}">
     <div class="header active check-box">
-        <span class="check ml-xxs mt-xxs"></span>
-        <div class="left pl-xxxl">
+    
+        @if (is_null(app('request')->input('projects')))
+          <span class="check ml-xxs mt-xxs"></span>
+        @endif
+        <div class="left @if (is_null(app('request')->input('projects'))) pl-xxxl @else pl-xl @endif">
             <a class="title underline-middle-hover" href="{{ action("RecordController@show",
                 ["pid" => $record->pid, "fid" => $record->fid, "rid" => $record->rid]) }}">
                 <span class="name">{{$record->kid}}</span>
