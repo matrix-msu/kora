@@ -232,12 +232,20 @@ Kora.Fields.TypedFieldDisplays.Initialize = function() {
     $('.video-field-display-js').each(function() {
       var $this = $(this);
       var $video = $this.find('video');
+      var video = $video[0];
       var $fullScreenButton = $this.parent().find('.full-screen-button-js');
       var $externalButton = $this.parent().find('.external-button-js');
 
       // Full Screen Button
       $fullScreenButton.click(function() {
         console.log('full screen');
+        if(video.requestFullScreen){
+          video.requestFullScreen();
+        } else if(video.webkitRequestFullScreen){
+          video.webkitRequestFullScreen();
+        } else if(video.mozRequestFullScreen){
+          video.mozRequestFullScreen();
+        }
       });
     });
 
