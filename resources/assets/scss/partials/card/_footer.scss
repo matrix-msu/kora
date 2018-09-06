@@ -63,6 +63,7 @@
     align-items: flex-start;
     display: flex;
     flex-direction: column;
+    margin-top: 20px;
     text-align: left;
 
     .quick-action {
@@ -70,6 +71,7 @@
 
       .icon,
       span {
+        margin: 0;
         padding-top: 10px;
       }
 
