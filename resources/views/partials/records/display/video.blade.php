@@ -12,11 +12,11 @@
 
           <div class="field-sidebar video-sidebar video-sidebar-js">
               <div class="top">
-                  <a href="{{url('projects/'.$form->pid.'/forms/'.$form->fid.'/records/'.$record->rid.'/fields/'.$field->flid.'/video/'.$filename)}}" class="field-btn external-button-js" target="_blank">
+                  <a href="{{url('projects/'.$form->pid.'/forms/'.$form->fid.'/records/'.$record->rid.'/fields/'.$field->flid.'/video/'.$filename)}}" class="field-btn" target="_blank">
                       <i class="icon icon-external-link"></i>
                   </a>
 
-                  <a href="" class="field-btn external-button-js">
+                  <a href="{{ action('FieldAjaxController@getFileDownload', ['flid' => $field->flid, 'rid' => $record->rid, 'filename' => $filename]) }}" class="field-btn">
                       <i class="icon icon-download"></i>
                   </a>
               </div>
