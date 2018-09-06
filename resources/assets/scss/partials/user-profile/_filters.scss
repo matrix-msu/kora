@@ -82,12 +82,28 @@
       }
     }
   }
+  
+  @media screen and (max-width: $max-mobile-xs-width) {
+    position: relative;
+    
+    .show-options {
+      position: absolute;
+      right: 0;
+      top: 0;
+    }
+  }
 }
 
 .section-filters {
   border-bottom: 2px solid palette('gray', slate, .03);
   font-family: $ubuntu;
   padding: 0 0 map-get($spacing, xs);
+  
+  &.filter-history {
+    display: flex;
+    justify-content: space-between;
+    padding: 0;
+  }
 
   .filter-link {
     color: palette('gray', text, .6);
@@ -96,8 +112,8 @@
     padding: 0 0 map-get($spacing, sm);
     text-decoration: none;
     
-    @media screen and (max-width: $max-mobile-xs-width) {
-      font-size: 11px;
+    &.filter-history {
+      margin: 0;
     }
 
     &:hover {
