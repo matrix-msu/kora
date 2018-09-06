@@ -66,6 +66,7 @@ use App\Http\Requests\ProjectRequest;
   </ul>
     
   <script type="text/javascript">
+    var userPrefs = '{{ action('Auth\UserController@preferences', ['uid' => Auth::user()->id]) }}';
     var globalQuickSearchUrl = '{{ action('ProjectSearchController@globalQuickSearch') }}';
     var globalSearchUrl = '{{action('ProjectSearchController@globalSearch')}}';
     var cacheGlobalSearchUrl = '{{ action('ProjectSearchController@cacheGlobalSearch') }}';
