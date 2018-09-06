@@ -140,6 +140,10 @@
 		  position: absolute;
 		  top: 0;
 		  width: 37%;
+      
+      @media screen and (max-width: $max-mobile-xs-width) {
+        width: 25%;
+      }
 		  
 		  &:last-child {
 		    right: 0;
@@ -192,6 +196,11 @@
 		  &:focus {
 		    outline: none;
 		  }
-		} 
+		}
+
+    @media screen and (max-width: $max-mobile-xs-width) {
+      margin: 0 auto;
+      width: 90%;
+    }
 	}
 }

@@ -232,7 +232,7 @@ Kora.User.Profile = function() {
 
   function initializePermissionsCardEllipsifying () {
     function adjustCardTitle() {
-      var cards = $($(".content-section.active").find(".card"));
+      var cards = $($(".content-section-js").find(".card"));
 
       for (i = 0; i < cards.length; i++) {
         var card = $(cards[i]);
@@ -276,6 +276,10 @@ Kora.User.Profile = function() {
 	
     $(document).ready(function() {
       adjustCardTitle();
+
+      $('.select-content-section-js').click(function() {
+        adjustCardTitle();
+      });
     });
   }
 
@@ -389,6 +393,36 @@ Kora.User.Profile = function() {
         }
     });
   }
+  
+  function filterSpacing () {
+    var url = window.location.href;
+    url = url.split('/');
+    url = url[url.length - 1];
+
+    function adjustFilterSpacing () {
+      if (url.includes("history")) {
+        if ($('.filter-link:last-child').height() > 21 || window.innerWidth < 400) {
+          $('.section-filters').addClass('filter-history');
+          $('.filter-link').addClass('filter-history');
+        } else {
+          $('.section-filters').removeClass('filter-history');
+          $('.filter-link').removeClass('filter-history');
+        }
+      }
+    }
+
+    $(window).resize(function() {
+      adjustFilterSpacing();
+    });
+
+    $(document).ready(function() {
+      adjustFilterSpacing();
+
+      $('.select-content-section-js').click(function() {
+        adjustFilterSpacing();
+      });
+    });
+  }
 
   initializeOptionDropdowns();
   initializeFilters();
@@ -399,4 +433,5 @@ Kora.User.Profile = function() {
   initializeProfilePicValidation();
   initializeHistoryCardEllipsifying();
   navigationTabs();
+  filterSpacing();
 }
