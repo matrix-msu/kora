@@ -8,7 +8,6 @@ Kora.Fields.TypedFieldDisplays.Initialize = function() {
       var $this = $(this);
       var $slides = $this.find('.slide-js');
       var $dotsContainer = $this.next().find('.dots-js');
-      var $dots = $dotsContainer.find('.dot-js');
       var slideCount = $slides.length;
       var currentSlide = 0;
       var galHeight = 300, galWidth = 500, galAspectRatio = galWidth / galHeight;
@@ -19,6 +18,8 @@ Kora.Fields.TypedFieldDisplays.Initialize = function() {
         for (var i = 0; i < slideCount; i++) {
           $dotsContainer.append('<div class="dot dot-js'+(i == currentSlide ? ' active' : '')+'" data-slide-num="'+i+'"></div>')
         }
+
+        var $dots = $dotsContainer.find('.dot-js');
 
         // Select slide using dots
         $dots.click(function() {
@@ -231,12 +232,20 @@ Kora.Fields.TypedFieldDisplays.Initialize = function() {
     $('.video-field-display-js').each(function() {
       var $this = $(this);
       var $video = $this.find('video');
+      var video = $video[0];
       var $fullScreenButton = $this.parent().find('.full-screen-button-js');
       var $externalButton = $this.parent().find('.external-button-js');
 
       // Full Screen Button
       $fullScreenButton.click(function() {
         console.log('full screen');
+        if(video.requestFullScreen){
+          video.requestFullScreen();
+        } else if(video.webkitRequestFullScreen){
+          video.webkitRequestFullScreen();
+        } else if(video.mozRequestFullScreen){
+          video.mozRequestFullScreen();
+        }
       });
     });
 
