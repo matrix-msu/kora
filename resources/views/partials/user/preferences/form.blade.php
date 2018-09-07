@@ -38,10 +38,42 @@
 
 <div class="form-group mt-xxxl">
     <h2 class="sub-title">Projects Page Tab Selection</h2>
-    <p class="description">Select which tab you wish to be displayed when coming to the  Projects page.</p>
+    <p class="description">Select which tab you wish to be displayed when coming to the Projects page.</p>
     @foreach ($projPageTabSelOptions as $key => $name)
         <div class="check-box-half">
             <input type="checkbox" {{ ($preference->proj_page_tab_selection == $key ? 'checked' : '') }} value="{{ $key }}" name="projPageTabSel" class="check-box-input check-box-input-js" />
+            <span class="check"></span>
+            <span class="placeholder">{{ $name }}</span>
+        </div>
+    @endforeach
+</div>
+
+<div class="form-group mt-xxxl">
+    <div class="spacer"></div>
+</div>
+
+<div class="form-group mt-xxxl">
+    <h2 class="sub-title">Single Project Page Tab Selection</h2>
+    <p class="description">Select which tab you wish to be displayed when coming to the a single project main page.</p>
+    @foreach ($singleProjTabSelOptions as $key => $name)
+        <div class="check-box-half">
+            <input type="checkbox" {{ ($preference->single_proj_page_tab_selection == $key ? 'checked' : '') }} value="{{ $key }}" name="singleProjPageTabSel" class="check-box-input check-box-input-js" />
+            <span class="check"></span>
+            <span class="placeholder">{{ $name }}</span>
+        </div>
+    @endforeach
+</div>
+
+<div class="form-group mt-xxxl">
+    <div class="spacer"></div>
+</div>
+
+<div class="form-group mt-xxxl">
+    <h2 class="sub-title">Keep Side Menu Open on Wider Screens?</h2>
+    <p class="description">On wider screens, you can set to have the slide in side menu to remain open, even after clicking off the side menu, and when navigating to different pages. You can also use the Lock symbol found at the bottom of the side menu to keep it open or let is close automatically</p>
+    @foreach ($sideMenuOptions as $key => $name)
+        <div class="check-box-half">
+            <input type="checkbox" {{ ($preference->keep_sidemenu == $key ? 'checked' : '') }} value="{{ $key }}" name="keepSidemenu" class="check-box-input check-box-input-js" />
             <span class="check"></span>
             <span class="placeholder">{{ $name }}</span>
         </div>

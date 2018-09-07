@@ -228,6 +228,8 @@ class UserController extends Controller {
         $preference = Preference::where('user_id', '=' ,$user->id)->first();
         $logoTargetOptions = Preference::logoTargetOptions();
         $projPageTabSelOptions = Preference::projPageTabSelOptions();
+        $singleProjTabSelOptions = Preference::singleProjTabSelOptions();
+        $sideMenuOptions = Preference::sideMenuOptions();
 
         if (is_null($preference)) {
             // Must create user preference
@@ -237,7 +239,7 @@ class UserController extends Controller {
             $preference->save();
         }
 
-        return view('user.preferences', compact('user', 'preference', 'logoTargetOptions', 'projPageTabSelOptions'));
+        return view('user.preferences', compact('user', 'preference', 'logoTargetOptions', 'projPageTabSelOptions', 'singleProjTabSelOptions', 'sideMenuOptions'));
     }
 
     /**
@@ -259,17 +261,21 @@ class UserController extends Controller {
             $preference->user_id = $user->id;
             $preference->created_at = Carbon::now();
         }
-
+// dd($request, $preference);
         $preference->use_dashboard = ($request->useDashboard == "true" ? 1 : 0);
         $preference->logo_target = $request->logoTarget;
         $preference->proj_page_tab_selection = $request->projPageTabSel;
+        //$preference->single_proj_page_tab_selection = $request/*->addSelect('singleProjPageTabSel')*/->singleProjPageTabSel; // this throws SQL error
+        //$preference->keep_sidemenu = ($request->keepSidemenu == "true" ? 1 : 0); // this throws SQL error
 
         $preference->save();
 
         $logoTargetOptions = Preference::logoTargetOptions();
         $projPageTabSelOptions = Preference::projPageTabSelOptions();
+        $singleProjTabSelOptions = Preference::singleProjTabSelOptions();
+        $sideMenuOptions = Preference::sideMenuOptions();
 
-        return view('user.preferences', compact('user', 'preference', 'logoTargetOptions', 'projPageTabSelOptions'));
+        return view('user.preferences', compact('user', 'preference', 'logoTargetOptions', 'projPageTabSelOptions', 'singleProjTabSelOptions', 'sideMenuOptions'));
     }
 
     public function validateUserFields(UserRequest $request) {
