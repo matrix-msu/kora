@@ -79,7 +79,11 @@
 
         <div class="meta-title mt-xxxl">Record Owner</div>
         <section class="meta-data">
-            {{$owner->first_name}} {{$owner->last_name}}
+            @if(!is_null($owner))
+                {{$owner->first_name}} {{$owner->last_name}}
+            @else
+                No owner available
+            @endif
         </section>
         <div class="meta-title mt-m">Created</div>
         <section class="meta-data">
