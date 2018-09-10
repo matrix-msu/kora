@@ -205,6 +205,19 @@ $(document).ready(function() {
     $activePageLink.addClass('head');
   }
 
+  $.ajax({
+    url: userPrefs,
+    type: 'POST',
+    data: {
+      "_token": token
+    },
+    success: function (result) {
+      console.log(result);
+    },
+    error: function (error) {
+      console.log(error);
+    }
+  });
 });
 
 //Quick opens global search menu

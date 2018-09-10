@@ -261,12 +261,12 @@ class UserController extends Controller {
             $preference->user_id = $user->id;
             $preference->created_at = Carbon::now();
         }
-// dd($request, $preference);
+
         $preference->use_dashboard = ($request->useDashboard == "true" ? 1 : 0);
         $preference->logo_target = $request->logoTarget;
         $preference->proj_page_tab_selection = $request->projPageTabSel;
-        //$preference->single_proj_page_tab_selection = $request/*->addSelect('singleProjPageTabSel')*/->singleProjPageTabSel; // this throws SQL error
-        //$preference->keep_sidemenu = ($request->keepSidemenu == "true" ? 1 : 0); // this throws SQL error
+        $preference->single_proj_page_tab_selection = $request->singleProjPageTabSel;
+        $preference->keep_sidemenu = $request->keepSidemenu;
 
         $preference->save();
 
@@ -276,6 +276,29 @@ class UserController extends Controller {
         $sideMenuOptions = Preference::sideMenuOptions();
 
         return view('user.preferences', compact('user', 'preference', 'logoTargetOptions', 'projPageTabSelOptions', 'singleProjTabSelOptions', 'sideMenuOptions'));
+    }
+
+    public function returnUserPrefs ($pref) {
+
+      if (\Auth::user()) { // if user exists - this will prevent errors on login screen
+        $user = \Auth::user();
+        $preference = Preference::where('user_id', '=', $user->id)->first();
+
+        //dd($preference->$pref); // could pass in param to use this for every point where user prefs are needed
+        // should probably use this method
+        
+        $preference = $preference->$pref;
+        
+        // use_dashboard
+        // logo_target
+        // proj_page_tab_selection
+        // single_proj_page_tab_selection
+        // keep_sidemenu
+
+        //$preference = json_encode($preference); // or I could ajax this json response from global.js on every page load and use the response as needed
+
+        return response()->json(["status"=>true, "message"=>$preference]);
+      }
     }
 
     public function validateUserFields(UserRequest $request) {

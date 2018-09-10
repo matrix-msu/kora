@@ -196,6 +196,7 @@ Route::group(['middleware' => 'web'], function () {
     Route::get('/user/{uid}/edit', 'Auth\UserController@editProfile');
     Route::get('/user/{uid}/preferences', 'Auth\UserController@preferences');
     Route::get('/user/{uid}/{section?}', 'Auth\UserController@index');
+    Route::get('/getUserPrefs/{pref}', 'Auth\UserController@returnUserPrefs');
     Route::delete('/user/{uid}/delete', 'Auth\UserController@delete');
     Route::patch('/user/validate/{uid}', 'Auth\UserController@validateUserFields');
     Route::patch('/user/changepw', 'Auth\UserController@changepw');
