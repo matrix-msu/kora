@@ -606,7 +606,7 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
                 $newSeq = $currSeqMax + 1;
             else
                 $newSeq = 0;
-
+			
             DB::table('project_custom')->insert(
                 ['uid' => $this->id, 'pid' => $pid, 'sequence' => $newSeq,
                     "created_at" =>  Carbon::now(),

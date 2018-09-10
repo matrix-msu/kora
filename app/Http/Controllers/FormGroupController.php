@@ -148,31 +148,44 @@ class FormGroupController extends Controller {
      * @param  Request $request
      */
     public function addUser(Request $request) {
-        $instance = FormGroup::where('id', '=', $request->formGroup)->first();
+		if (isset($request->_internal)) { // from PGC::addUsers()
+			$instance = $request->formGroup;
+		} else {
+			$instance = FormGroup::where('id', '=', $request->formGroup)->first();
+		}
+		
+		$inserts = array();
+		$has_inserts = false;
 
-        foreach ($request->userIDs as $userID) {
+        foreach($request->userIDs as $userID) {
             //get any groups the user belongs to
             $currGroups = DB::table('form_group_user')->where('user_id', $userID)->get();
+			$currGroups_ids = array();
+			foreach ($currGroups as $group) {
+				array_push($currGroups_ids, $group->form_group_id);
+			}
+			
             $newUser = true;
             $group = null;
             $idOld = 0;
-
+			
             //foreach of the user's form groups, see if one belongs to the current project
-            foreach($currGroups as $prev) {
-                $group = FormGroup::where('id', '=', $prev->form_group_id)->first();
-                if(!is_null($group) && $group->fid==$instance->fid) {
-                    $newUser = false;
+			$groups = FormGroup::whereIn('id', $currGroups_ids)->get();
+			
+			foreach($groups as $group) {
+				if(!is_null($group) && $group->fid == $instance->fid) {
+					$newUser = false;
                     $idOld = $group->id;
                     break;
-                }
-            }
+				}
+			}
 
             if(!$newUser) {
                 //remove from old group
                 DB::table('form_group_user')->where('user_id', $userID)->where('form_group_id', $idOld)->delete();
 
                 echo $idOld;
-            } else if(!isset($request->dontLookBack)) {
+            } else if(!isset($request->dontLookBack)) { // if coming from PGC::addUser then they've already been added to project
                 //add them to the project if they don't exist
                 $inProj = false;
                 $form = FormController::getForm($instance->fid);
@@ -191,9 +204,10 @@ class FormGroupController extends Controller {
                 //not in project, lets add them
                 if(!$inProj) {
                     $default = ProjectGroup::where('name','=',$proj->name.' Default Group')->first();
-                    DB::table('project_group_user')->insert([
-                        ['project_group_id' => $default->id, 'user_id' => $userID]
+					array_push($inserts, [
+                       ['project_group_id' => $default->id, 'user_id' => $userID]
                     ]);
+					$has_inserts = true;
                 }
             }
 
@@ -203,6 +217,10 @@ class FormGroupController extends Controller {
 
             $instance->users()->attach($userID);
         }
+		
+		if($has_inserts) {
+			DB::table('project_group_user')->insert($inserts);
+		}
     }
 
     /**
