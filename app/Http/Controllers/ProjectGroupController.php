@@ -95,9 +95,9 @@ class ProjectGroupController extends Controller {
                         $FGC->addUser($request);
                     }
 
-                    //$this->emailUserProject("added", $uid, $group->id);
+                    $this->emailUserProject("added", $uid, $group->id);
                 } else {
-                    //$this->emailUserProject("changed", $uid, $group->id);
+                    $this->emailUserProject("changed", $uid, $group->id);
                 }
             }
 			
@@ -133,7 +133,7 @@ class ProjectGroupController extends Controller {
 		
 		
         $instance->users()->detach($request->userId);
-        //$this->emailUserProject("removed",$request->userId,$instance->id);
+        $this->emailUserProject("removed",$request->userId,$instance->id);
     }
 
     /**
@@ -174,7 +174,7 @@ class ProjectGroupController extends Controller {
 			} else {
 				//remove from old group
 				DB::table('project_group_user')->where('user_id', $userID)->where('project_group_id', $idOld)->delete();
-				//$this->emailUserProject("changed", $userID, $instance->id);
+				$this->emailUserProject("changed", $userID, $instance->id);
 				echo $idOld;
 			}
 	
@@ -235,7 +235,7 @@ class ProjectGroupController extends Controller {
             //Remove their custom project connection
             $user->removeCustomProject($instance->pid);
 
-            //$this->emailUserProject("removed", $user->id, $instance->id);
+            $this->emailUserProject("removed", $user->id, $instance->id);
         }
 
         $instance->delete();
@@ -273,7 +273,7 @@ class ProjectGroupController extends Controller {
 		$group = $instance;
         $project = ProjectController::getProject($group->pid);
         foreach($users as $user) {
-            //$this->emailUserProject("changed", $user->id, $group, $project);
+            $this->emailUserProject("changed", $user->id, $group, $project);
         }
     }
 
@@ -340,11 +340,18 @@ class ProjectGroupController extends Controller {
      * @param  ProjectGroup 
 	 * @param  Project
      */
-    private function emailUserProject($type, $uid, $group, $project) {
-		$user_data = DB::table('users')->where('id', $uid)->first();
-        $userMail = $user_data->value('email');
-        $name = $user_data->value('first_name');
-
+    /**
+     * Emails a user when their access to a project has changed.
+     *
+     * @param  string $type - Method to execute
+     * @param  int $uid - User ID
+     * @param  int $pgid - Project Group ID
+     */
+    private function emailUserProject($type, $uid, $pgid) {
+        $userMail = DB::table('users')->where('id', $uid)->value('email');
+        $name = DB::table('users')->where('id', $uid)->value('first_name');
+        $group = ProjectGroup::where('id', '=', $pgid)->first();
+        $project = ProjectController::getProject($group->pid);
         if($type=="added") {
             $email = 'emails.project.added';
         } else if($type=="removed") {
@@ -352,7 +359,6 @@ class ProjectGroupController extends Controller {
         } else if($type=="changed") {
             $email = 'emails.project.changed';
         }
-
         try {
             Mail::send($email, compact('project', 'name', 'group'), function ($message) use ($userMail) {
                 $message->from(config('mail.from.address'));
