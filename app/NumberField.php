@@ -177,20 +177,25 @@ class NumberField extends BaseField {
         //Subtract to get RIDs with no value
         $ridsNoVal = array_diff($rids, $ridsValue);
 
-        //Create data array and store values for no value RIDs
-        $dataArray = [];
-        foreach($ridsNoVal as $rid) {
-            $dataArray[] = [
-                'rid' => $rid,
-                'fid' => $field->fid,
-                'flid' => $field->flid,
-                'number' => $formFieldValue
-            ];
+        foreach(array_chunk($ridsNoVal,1000) as $chunk) {
+            //Create data array and store values for no value RIDs
+            $dataArray = [];
+            foreach($chunk as $rid) {
+                $dataArray[] = [
+                    'rid' => $rid,
+                    'fid' => $field->fid,
+                    'flid' => $field->flid,
+                    'number' => $formFieldValue
+                ];
+            }
+            NumberField::insert($dataArray);
         }
-        NumberField::insert($dataArray);
 
-        if($overwrite)
-            NumberField::where('flid','=',$field->flid)->whereIn('rid', $ridsValue)->update(['number' => $formFieldValue]);
+        if($overwrite) {
+            foreach(array_chunk($ridsValue, 1000) as $chunk) {
+                NumberField::where('flid', '=', $field->flid)->whereIn('rid', $chunk)->update(['number' => $formFieldValue]);
+            }
+        }
     }
 
     /**
@@ -205,17 +210,19 @@ class NumberField extends BaseField {
         //Delete the old data
         NumberField::where('flid','=',$field->flid)->whereIn('rid', $rids)->delete();
 
-        //Create data array and store values for no value RIDs
-        $dataArray = [];
-        foreach($rids as $rid) {
-            $dataArray[] = [
-                'rid' => $rid,
-                'fid' => $field->fid,
-                'flid' => $field->flid,
-                'number' => $formFieldValue
-            ];
+        foreach(array_chunk($rids,1000) as $chunk) {
+            //Create data array and store values for no value RIDs
+            $dataArray = [];
+            foreach($chunk as $rid) {
+                $dataArray[] = [
+                    'rid' => $rid,
+                    'fid' => $field->fid,
+                    'flid' => $field->flid,
+                    'number' => $formFieldValue
+                ];
+            }
+            NumberField::insert($dataArray);
         }
-        NumberField::insert($dataArray);
     }
 
     /**

@@ -139,20 +139,25 @@ class RichTextField extends BaseField {
         //Subtract to get RIDs with no value
         $ridsNoVal = array_diff($rids, $ridsValue);
 
-        //Create data array and store values for no value RIDs
-        $dataArray = [];
-        foreach($ridsNoVal as $rid) {
-            $dataArray[] = [
-                'rid' => $rid,
-                'fid' => $field->fid,
-                'flid' => $field->flid,
-                'rawtext' => $formFieldValue
-            ];
+        foreach(array_chunk($ridsNoVal,1000) as $chunk) {
+            //Create data array and store values for no value RIDs
+            $dataArray = [];
+            foreach($chunk as $rid) {
+                $dataArray[] = [
+                    'rid' => $rid,
+                    'fid' => $field->fid,
+                    'flid' => $field->flid,
+                    'rawtext' => $formFieldValue
+                ];
+            }
+            RichTextField::insert($dataArray);
         }
-        RichTextField::insert($dataArray);
 
-        if($overwrite)
-            RichTextField::where('flid','=',$field->flid)->whereIn('rid', $ridsValue)->update(['rawtext' => $formFieldValue]);
+        if($overwrite) {
+            foreach(array_chunk($ridsValue,1000) as $chunk) {
+                RichTextField::where('flid', '=', $field->flid)->whereIn('rid', $chunk)->update(['rawtext' => $formFieldValue]);
+            }
+        }
     }
 
     /**
@@ -167,17 +172,19 @@ class RichTextField extends BaseField {
         //Delete the old data
         RichTextField::where('flid','=',$field->flid)->whereIn('rid', $rids)->delete();
 
-        //Create data array and store values for no value RIDs
-        $dataArray = [];
-        foreach($rids as $rid) {
-            $dataArray[] = [
-                'rid' => $rid,
-                'fid' => $field->fid,
-                'flid' => $field->flid,
-                'rawtext' => $formFieldValue
-            ];
+        foreach(array_chunk($rids,1000) as $chunk) {
+            //Create data array and store values for no value RIDs
+            $dataArray = [];
+            foreach($chunk as $rid) {
+                $dataArray[] = [
+                    'rid' => $rid,
+                    'fid' => $field->fid,
+                    'flid' => $field->flid,
+                    'rawtext' => $formFieldValue
+                ];
+            }
+            RichTextField::insert($dataArray);
         }
-        RichTextField::insert($dataArray);
     }
 
     /**

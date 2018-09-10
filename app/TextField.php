@@ -154,20 +154,25 @@ class TextField extends BaseField {
         //Subtract to get RIDs with no value
         $ridsNoVal = array_diff($rids, $ridsValue);
 
-        //Create data array and store values for no value RIDs
-        $dataArray = [];
-        foreach($ridsNoVal as $rid) {
-            $dataArray[] = [
-                'rid' => $rid,
-                'fid' => $field->fid,
-                'flid' => $field->flid,
-                'text' => $formFieldValue
-            ];
+        foreach(array_chunk($ridsNoVal,1000) as $chunk) {
+            //Create data array and store values for no value RIDs
+            $dataArray = [];
+            foreach($chunk as $rid) {
+                $dataArray[] = [
+                    'rid' => $rid,
+                    'fid' => $field->fid,
+                    'flid' => $field->flid,
+                    'text' => $formFieldValue
+                ];
+            }
+            TextField::insert($dataArray);
         }
-        TextField::insert($dataArray);
 
-        if($overwrite)
-            TextField::where('flid','=',$field->flid)->whereIn('rid', $ridsValue)->update(['text' => $formFieldValue]);
+        if($overwrite) {
+            foreach(array_chunk($ridsValue,1000) as $chunk) {
+                TextField::where('flid', '=', $field->flid)->whereIn('rid', $chunk)->update(['text' => $formFieldValue]);
+            }
+        }
     }
 
     /**
@@ -182,17 +187,19 @@ class TextField extends BaseField {
         //Delete the old data
         TextField::where('flid','=',$field->flid)->whereIn('rid', $rids)->delete();
 
-        //Create data array and store values for no value RIDs
-        $dataArray = [];
-        foreach($rids as $rid) {
-            $dataArray[] = [
-                'rid' => $rid,
-                'fid' => $field->fid,
-                'flid' => $field->flid,
-                'text' => $formFieldValue
-            ];
+        foreach(array_chunk($rids,1000) as $chunk) {
+            //Create data array and store values for no value RIDs
+            $dataArray = [];
+            foreach($chunk as $rid) {
+                $dataArray[] = [
+                    'rid' => $rid,
+                    'fid' => $field->fid,
+                    'flid' => $field->flid,
+                    'text' => $formFieldValue
+                ];
+            }
+            TextField::insert($dataArray);
         }
-        TextField::insert($dataArray);
     }
 
     /**

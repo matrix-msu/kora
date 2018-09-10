@@ -312,54 +312,20 @@ class ComboListField extends BaseField {
             array_push($newData, $newEntry);
         }
 
-        //Create data array and store values for no value RIDs
-        $fieldArray = [];
-        $dataArray = [];
-        $now = date("Y-m-d H:i:s");
-        $one_is_num = self::getComboFieldType($field, 'one') == 'Number';
-        $two_is_num = self::getComboFieldType($field, 'two') == 'Number';
-        foreach($ridsNoVal as $rid) {
-            $fieldArray[] = [
-                'rid' => $rid,
-                'fid' => $field->fid,
-                'flid' => $field->flid
-            ];
-            $i=0;
-            foreach($newData as $entry) {
-                $dataArray[] = [
-                    'rid' => $rid,
-                    'fid' => $field->fid,
-                    'flid' => $field->flid,
-                    'field_num' => 1,
-                    'list_index' => $i,
-                    'data' => (!$one_is_num) ? $entry[0] : null,
-                    'number' => ($one_is_num) ? $entry[0] : null,
-                    'created_at' => $now,
-                    'updated_at' => $now
-                ];
-                $dataArray[] = [
-                    'rid' => $rid,
-                    'fid' => $field->fid,
-                    'flid' => $field->flid,
-                    'field_num' => 2,
-                    'list_index' => $i,
-                    'data' => (!$two_is_num) ? $entry[1] : null,
-                    'number' => ($two_is_num) ? $entry[1] : null,
-                    'created_at' => $now,
-                    'updated_at' => $now
-                ];
-                $i++;
-            }
-        }
-        ComboListField::insert($fieldArray);
-        DB::table(self::SUPPORT_NAME)->insert($dataArray);
-
-        if($overwrite) {
-            DB::table(self::SUPPORT_NAME)->where('flid','=',$field->flid)->whereIn('rid','in', $ridsValue)->delete();
-
+        foreach(array_chunk($ridsNoVal,1000) as $chunk) {
+            //Create data array and store values for no value RIDs
+            $fieldArray = [];
             $dataArray = [];
-            foreach($ridsValue as $rid) {
-                $i=0;
+            $now = date("Y-m-d H:i:s");
+            $one_is_num = self::getComboFieldType($field, 'one') == 'Number';
+            $two_is_num = self::getComboFieldType($field, 'two') == 'Number';
+            foreach($chunk as $rid) {
+                $fieldArray[] = [
+                    'rid' => $rid,
+                    'fid' => $field->fid,
+                    'flid' => $field->flid
+                ];
+                $i = 0;
                 foreach($newData as $entry) {
                     $dataArray[] = [
                         'rid' => $rid,
@@ -386,8 +352,46 @@ class ComboListField extends BaseField {
                     $i++;
                 }
             }
-
+            ComboListField::insert($fieldArray);
             DB::table(self::SUPPORT_NAME)->insert($dataArray);
+        }
+
+        if($overwrite) {
+            foreach(array_chunk($ridsValue,1000) as $chunk) {
+                DB::table(self::SUPPORT_NAME)->where('flid', '=', $field->flid)->whereIn('rid', 'in', $ridsValue)->delete();
+
+                $dataArray = [];
+                foreach($chunk as $rid) {
+                    $i = 0;
+                    foreach($newData as $entry) {
+                        $dataArray[] = [
+                            'rid' => $rid,
+                            'fid' => $field->fid,
+                            'flid' => $field->flid,
+                            'field_num' => 1,
+                            'list_index' => $i,
+                            'data' => (!$one_is_num) ? $entry[0] : null,
+                            'number' => ($one_is_num) ? $entry[0] : null,
+                            'created_at' => $now,
+                            'updated_at' => $now
+                        ];
+                        $dataArray[] = [
+                            'rid' => $rid,
+                            'fid' => $field->fid,
+                            'flid' => $field->flid,
+                            'field_num' => 2,
+                            'list_index' => $i,
+                            'data' => (!$two_is_num) ? $entry[1] : null,
+                            'number' => ($two_is_num) ? $entry[1] : null,
+                            'created_at' => $now,
+                            'updated_at' => $now
+                        ];
+                        $i++;
+                    }
+                }
+
+                DB::table(self::SUPPORT_NAME)->insert($dataArray);
+            }
         }
     }
 
@@ -415,48 +419,50 @@ class ComboListField extends BaseField {
             array_push($newData, $newEntry);
         }
 
-        //Create data array and store values for no value RIDs
-        $fieldArray = [];
-        $dataArray = [];
-        $now = date("Y-m-d H:i:s");
-        $one_is_num = self::getComboFieldType($field, 'one') == 'Number';
-        $two_is_num = self::getComboFieldType($field, 'two') == 'Number';
-        foreach($rids as $rid) {
-            $fieldArray[] = [
-                'rid' => $rid,
-                'fid' => $field->fid,
-                'flid' => $field->flid
-            ];
-            $i=0;
-            foreach($newData as $entry) {
-                $dataArray[] = [
+        foreach(array_chunk($rids,1000) as $chunk) {
+            //Create data array and store values for no value RIDs
+            $fieldArray = [];
+            $dataArray = [];
+            $now = date("Y-m-d H:i:s");
+            $one_is_num = self::getComboFieldType($field, 'one') == 'Number';
+            $two_is_num = self::getComboFieldType($field, 'two') == 'Number';
+            foreach($chunk as $rid) {
+                $fieldArray[] = [
                     'rid' => $rid,
                     'fid' => $field->fid,
-                    'flid' => $field->flid,
-                    'field_num' => 1,
-                    'list_index' => $i,
-                    'data' => (!$one_is_num) ? $entry[0] : null,
-                    'number' => ($one_is_num) ? $entry[0] : null,
-                    'created_at' => $now,
-                    'updated_at' => $now
+                    'flid' => $field->flid
                 ];
-                $dataArray[] = [
-                    'rid' => $rid,
-                    'fid' => $field->fid,
-                    'flid' => $field->flid,
-                    'field_num' => 2,
-                    'list_index' => $i,
-                    'data' => (!$two_is_num) ? $entry[1] : null,
-                    'number' => ($two_is_num) ? $entry[1] : null,
-                    'created_at' => $now,
-                    'updated_at' => $now
-                ];
-                $i++;
+                $i = 0;
+                foreach($newData as $entry) {
+                    $dataArray[] = [
+                        'rid' => $rid,
+                        'fid' => $field->fid,
+                        'flid' => $field->flid,
+                        'field_num' => 1,
+                        'list_index' => $i,
+                        'data' => (!$one_is_num) ? $entry[0] : null,
+                        'number' => ($one_is_num) ? $entry[0] : null,
+                        'created_at' => $now,
+                        'updated_at' => $now
+                    ];
+                    $dataArray[] = [
+                        'rid' => $rid,
+                        'fid' => $field->fid,
+                        'flid' => $field->flid,
+                        'field_num' => 2,
+                        'list_index' => $i,
+                        'data' => (!$two_is_num) ? $entry[1] : null,
+                        'number' => ($two_is_num) ? $entry[1] : null,
+                        'created_at' => $now,
+                        'updated_at' => $now
+                    ];
+                    $i++;
+                }
             }
-        }
 
-        ComboListField::insert($fieldArray);
-        DB::table(self::SUPPORT_NAME)->insert($dataArray);
+            ComboListField::insert($fieldArray);
+            DB::table(self::SUPPORT_NAME)->insert($dataArray);
+        }
     }
 
     /**

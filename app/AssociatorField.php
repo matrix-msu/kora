@@ -185,35 +185,17 @@ class AssociatorField extends BaseField {
             array_push($newData, explode("-", $record));
         }
 
-        //Create data array and store values for no value RIDs
-        $fieldArray = [];
-        $dataArray = [];
-        $now = date("Y-m-d H:i:s");
-        foreach($ridsNoVal as $rid) {
-            $fieldArray[] = [
-                'rid' => $rid,
-                'fid' => $field->fid,
-                'flid' => $field->flid
-            ];
-            foreach($newData as $record) {
-                $dataArray[] = [
+        foreach(array_chunk($ridsNoVal,1000) as $chunk) {
+            //Create data array and store values for no value RIDs
+            $fieldArray = [];
+            $dataArray = [];
+            $now = date("Y-m-d H:i:s");
+            foreach($chunk as $rid) {
+                $fieldArray[] = [
                     'rid' => $rid,
                     'fid' => $field->fid,
-                    'flid' => $field->flid,
-                    'record' => $record,
-                    'created_at' => $now,
-                    'updated_at' => $now
+                    'flid' => $field->flid
                 ];
-            }
-        }
-        AssociatorField::insert($fieldArray);
-        DB::table(self::SUPPORT_NAME)->insert($dataArray);
-
-        if($overwrite) {
-            DB::table(self::SUPPORT_NAME)->where('flid','=',$field->flid)->whereIn('rid','in', $ridsValue)->delete();
-
-            $dataArray = [];
-            foreach($ridsValue as $rid) {
                 foreach($newData as $record) {
                     $dataArray[] = [
                         'rid' => $rid,
@@ -225,8 +207,30 @@ class AssociatorField extends BaseField {
                     ];
                 }
             }
-
+            AssociatorField::insert($fieldArray);
             DB::table(self::SUPPORT_NAME)->insert($dataArray);
+        }
+
+        if($overwrite) {
+            foreach(array_chunk($ridsValue,1000) as $chunk) {
+                DB::table(self::SUPPORT_NAME)->where('flid', '=', $field->flid)->whereIn('rid', 'in', $ridsValue)->delete();
+
+                $dataArray = [];
+                foreach($chunk as $rid) {
+                    foreach($newData as $record) {
+                        $dataArray[] = [
+                            'rid' => $rid,
+                            'fid' => $field->fid,
+                            'flid' => $field->flid,
+                            'record' => $record,
+                            'created_at' => $now,
+                            'updated_at' => $now
+                        ];
+                    }
+                }
+
+                DB::table(self::SUPPORT_NAME)->insert($dataArray);
+            }
         }
     }
 
@@ -249,30 +253,32 @@ class AssociatorField extends BaseField {
             array_push($newData, explode("-", $record));
         }
 
-        //Create data array and store values for no value RIDs
-        $fieldArray = [];
-        $dataArray = [];
-        $now = date("Y-m-d H:i:s");
-        foreach($rids as $rid) {
-            $fieldArray[] = [
-                'rid' => $rid,
-                'fid' => $field->fid,
-                'flid' => $field->flid
-            ];
-            foreach($newData as $record) {
-                $dataArray[] = [
+        foreach(array_chunk($rids,1000) as $chunk) {
+            //Create data array and store values for no value RIDs
+            $fieldArray = [];
+            $dataArray = [];
+            $now = date("Y-m-d H:i:s");
+            foreach($chunk as $rid) {
+                $fieldArray[] = [
                     'rid' => $rid,
                     'fid' => $field->fid,
-                    'flid' => $field->flid,
-                    'record' => $record,
-                    'created_at' => $now,
-                    'updated_at' => $now
+                    'flid' => $field->flid
                 ];
+                foreach($newData as $record) {
+                    $dataArray[] = [
+                        'rid' => $rid,
+                        'fid' => $field->fid,
+                        'flid' => $field->flid,
+                        'record' => $record,
+                        'created_at' => $now,
+                        'updated_at' => $now
+                    ];
+                }
             }
-        }
 
-        AssociatorField::insert($fieldArray);
-        DB::table(self::SUPPORT_NAME)->insert($dataArray);
+            AssociatorField::insert($fieldArray);
+            DB::table(self::SUPPORT_NAME)->insert($dataArray);
+        }
     }
 
     /**

@@ -219,31 +219,35 @@ class DateField extends BaseField {
         //Subtract to get RIDs with no value
         $ridsNoVal = array_diff($rids, $ridsValue);
 
-        //Create data array and store values for no value RIDs
-        $dataArray = [];
-        $flid = $field->flid;
-        foreach($ridsNoVal as $rid) {
-            $dataArray[] = [
-                'rid' => $rid,
-                'fid' => $field->fid,
-                'flid' => $flid,
-                'circa' => $request->input('circa_' . $flid, ''),
-                'month' => $request->input('month_' . $flid),
-                'day' => $request->input('day_' . $flid),
-                'year' => $request->input('year_' . $flid),
-                'era' => $request->input('era_' . $flid, 'CE')
-            ];
+        foreach(array_chunk($ridsNoVal,1000) as $chunk) {
+            //Create data array and store values for no value RIDs
+            $dataArray = [];
+            $flid = $field->flid;
+            foreach($chunk as $rid) {
+                $dataArray[] = [
+                    'rid' => $rid,
+                    'fid' => $field->fid,
+                    'flid' => $flid,
+                    'circa' => $request->input('circa_' . $flid, ''),
+                    'month' => $request->input('month_' . $flid),
+                    'day' => $request->input('day_' . $flid),
+                    'year' => $request->input('year_' . $flid),
+                    'era' => $request->input('era_' . $flid, 'CE')
+                ];
+            }
+            DateField::insert($dataArray);
         }
-        DateField::insert($dataArray);
 
         if($overwrite) {
-            DateField::where('flid', '=', $field->flid)->whereIn('rid', $ridsValue)->update([
-                'circa' => $request->input('circa_' . $flid, ''),
-                'month' => $request->input('month_' . $flid),
-                'day' => $request->input('day_' . $flid),
-                'year' => $request->input('year_' . $flid),
-                'era' => $request->input('era_' . $flid, 'CE')
-            ]);
+            foreach(array_chunk($ridsValue, 1000) as $chunk) {
+                DateField::where('flid', '=', $field->flid)->whereIn('rid', $chunk)->update([
+                    'circa' => $request->input('circa_' . $flid, ''),
+                    'month' => $request->input('month_' . $flid),
+                    'day' => $request->input('day_' . $flid),
+                    'year' => $request->input('year_' . $flid),
+                    'era' => $request->input('era_' . $flid, 'CE')
+                ]);
+            }
         }
     }
 
@@ -259,22 +263,24 @@ class DateField extends BaseField {
         //Delete the old data
         DateField::where('flid','=',$field->flid)->whereIn('rid', $rids)->delete();
 
-        //Create data array and store values for no value RIDs
-        $dataArray = [];
-        $flid = $field->flid;
-        foreach($rids as $rid) {
-            $dataArray[] = [
-                'rid' => $rid,
-                'fid' => $field->fid,
-                'flid' => $field->flid,
-                'circa' => $request->input('circa_' . $flid, ''),
-                'month' => $request->input('month_' . $flid),
-                'day' => $request->input('day_' . $flid),
-                'year' => $request->input('year_' . $flid),
-                'era' => $request->input('era_' . $flid, 'CE')
-            ];
+        foreach(array_chunk($rids,1000) as $chunk) {
+            //Create data array and store values for no value RIDs
+            $dataArray = [];
+            $flid = $field->flid;
+            foreach($chunk as $rid) {
+                $dataArray[] = [
+                    'rid' => $rid,
+                    'fid' => $field->fid,
+                    'flid' => $field->flid,
+                    'circa' => $request->input('circa_' . $flid, ''),
+                    'month' => $request->input('month_' . $flid),
+                    'day' => $request->input('day_' . $flid),
+                    'year' => $request->input('year_' . $flid),
+                    'era' => $request->input('era_' . $flid, 'CE')
+                ];
+            }
+            DateField::insert($dataArray);
         }
-        DateField::insert($dataArray);
     }
 
     /**
