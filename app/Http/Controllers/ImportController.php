@@ -836,10 +836,14 @@ class ImportController extends Controller {
 
         foreach($failedRecords as $element) {
             $id = $element[0];
-            $messageArray = $element[2]->responseJSON->record_validation_error;
-            foreach($messageArray as $message) {
-                if($message != '' && $message != ' ')
-                    $messages[$id] = $message;
+            if(isset($element[2]->responseJSON->record_validation_error)) {
+                $messageArray = $element[2]->responseJSON->record_validation_error;
+                foreach($messageArray as $message) {
+                    if($message != '' && $message != ' ')
+                        $messages[$id] = $message;
+                }
+            } else {
+                $messages[$id] = "Unable to determine error. This is usually caused by a structure issue in your XML/JSON, or an unexpected bug in Kora3.";
             }
         }
 
