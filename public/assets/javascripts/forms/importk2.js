@@ -81,6 +81,7 @@ Kora.Forms.ImportK2 = function() {
 
     //SImulating just for fun
     function newProfilePic(type, pic, name) {
+        console.log('newProfPic function running with type: ' + type);
         switch(type) {
             case "scheme":
                 schemeFilename.html(name + "<span class='remove-scheme remove ml-xs'><i class='icon icon-cancel'></i></span>");
@@ -193,8 +194,8 @@ Kora.Forms.ImportK2 = function() {
                         newProfilePic('scheme', e.target.result, schemeDroppedFile.name);
                         schemeDroppedFile = e.target.result;
                     };
-
                     drop = true
+                    reader.readAsDataURL(schemeDroppedFile);
                     ajaxData = new FormData(form.get(0));
 
                     ajaxData.delete('form'); // safari does not support this
