@@ -1,0 +1,12 @@
+.single-resource-body {
+
+}
+
+.single-resource {
+  margin: auto;
+  max-width: 100vw;
+  padding: 20px;
+
+  @import 'field-single/image';
+  @import 'field-single/video';
+}

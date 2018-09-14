@@ -1,8 +1,6 @@
 <?php namespace App;
 
 use App\Http\Controllers\FieldController;
-use App\Http\Controllers\RevisionController;
-use Carbon\Carbon;
 use DateTime;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Http\Request;
@@ -158,29 +156,126 @@ class ScheduleField extends BaseField {
      * Takes data from a mass assignment operation and applies it to an individual field.
      *
      * @param  Field $field - The field to represent record data
-     * @param  Record $record - Record being written to
      * @param  String $formFieldValue - The value to be assigned
      * @param  Request $request
      * @param  bool $overwrite - Overwrite if data exists
      */
-    public function massAssignRecordField($field, $record, $formFieldValue, $request, $overwrite=0) {
-        $matching_record_fields = $record->schedulefields()->where("flid", '=', $field->flid)->get();
-        $record->updated_at = Carbon::now();
-        $record->save();
-        if($matching_record_fields->count() > 0) {
-            $schedulefield = $matching_record_fields->first();
-            if($overwrite == true || $schedulefield->hasEvents()) {
-                $revision = RevisionController::storeRevision($record->rid, Revision::EDIT);
-                $schedulefield->updateEvents($formFieldValue);
-                $schedulefield->save();
-                $revision->data = RevisionController::buildDataArray($record);
-                $revision->save();
+    public function massAssignRecordField($field, $formFieldValue, $request, $overwrite=0) {
+        //Get array of all RIDs in form
+        $rids = Record::where('fid','=',$field->fid)->pluck('rid')->toArray();
+        //Get list of RIDs that have the value for that field
+        $ridsValue = ScheduleField::where('flid','=',$field->flid)->pluck('rid')->toArray();
+        //Subtract to get RIDs with no value
+        $ridsNoVal = array_diff($rids, $ridsValue);
+
+        //Modify Data
+        $newData = array();
+        foreach($formFieldValue as $event) {
+            array_push($newData, self::processEvent($event));
+        }
+
+        foreach(array_chunk($ridsNoVal,1000) as $chunk) {
+            //Create data array and store values for no value RIDs
+            $fieldArray = [];
+            $dataArray = [];
+            $now = date("Y-m-d H:i:s");
+            foreach($chunk as $rid) {
+                $fieldArray[] = [
+                    'rid' => $rid,
+                    'fid' => $field->fid,
+                    'flid' => $field->flid
+                ];
+                foreach($newData as $event) {
+                    $dataArray[] = [
+                        'rid' => $rid,
+                        'fid' => $field->fid,
+                        'flid' => $field->flid,
+                        'begin' => $event[0],
+                        'end' => $event[1],
+                        'desc' => $event[2],
+                        'allday' => $event[3],
+                        'created_at' => $now,
+                        'updated_at' => $now
+                    ];
+                }
             }
-        } else {
-            $this->createNewRecordField($field, $record, $formFieldValue, $request);
-            $revision = RevisionController::storeRevision($record->rid, Revision::EDIT);
-            $revision->data = RevisionController::buildDataArray($record);
-            $revision->save();
+            ScheduleField::insert($fieldArray);
+            DB::table(self::SUPPORT_NAME)->insert($dataArray);
+        }
+
+        if($overwrite) {
+            foreach(array_chunk($ridsValue,1000) as $chunk) {
+                DB::table(self::SUPPORT_NAME)->where('flid', '=', $field->flid)->whereIn('rid', 'in', $ridsValue)->delete();
+
+                $dataArray = [];
+                foreach($chunk as $rid) {
+                    foreach($newData as $event) {
+                        $dataArray[] = [
+                            'rid' => $rid,
+                            'fid' => $field->fid,
+                            'flid' => $field->flid,
+                            'begin' => $event[0],
+                            'end' => $event[1],
+                            'desc' => $event[2],
+                            'allday' => $event[3],
+                            'created_at' => $now,
+                            'updated_at' => $now
+                        ];
+                    }
+                }
+
+                DB::table(self::SUPPORT_NAME)->insert($dataArray);
+            }
+        }
+    }
+
+    /**
+     * Takes data from a mass assignment operation and applies it to an individual field for a record subset.
+     *
+     * @param  Field $field - The field to represent record data
+     * @param  String $formFieldValue - The value to be assigned
+     * @param  Request $request
+     * @param  array $rids - Overwrite if data exists
+     */
+    public function massAssignSubsetRecordField($field, $formFieldValue, $request, $rids) {
+        //Delete the old data
+        ScheduleField::where('flid','=',$field->flid)->whereIn('rid', $rids)->delete();
+        DB::table(self::SUPPORT_NAME)->where('flid','=',$field->flid)->whereIn('rid','in', $rids)->delete();
+
+        //Modify Data
+        $newData = array();
+        foreach($formFieldValue as $event) {
+            array_push($newData, self::processEvent($event));
+        }
+
+        foreach(array_chunk($rids,1000) as $chunk) {
+            //Create data array and store values for no value RIDs
+            $fieldArray = [];
+            $dataArray = [];
+            $now = date("Y-m-d H:i:s");
+            foreach($chunk as $rid) {
+                $fieldArray[] = [
+                    'rid' => $rid,
+                    'fid' => $field->fid,
+                    'flid' => $field->flid
+                ];
+                foreach($newData as $event) {
+                    $dataArray[] = [
+                        'rid' => $rid,
+                        'fid' => $field->fid,
+                        'flid' => $field->flid,
+                        'begin' => $event[0],
+                        'end' => $event[1],
+                        'desc' => $event[2],
+                        'allday' => $event[3],
+                        'created_at' => $now,
+                        'updated_at' => $now
+                    ];
+                }
+            }
+
+            ScheduleField::insert($fieldArray);
+            DB::table(self::SUPPORT_NAME)->insert($dataArray);
         }
     }
 

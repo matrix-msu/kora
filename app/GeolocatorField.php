@@ -2,8 +2,6 @@
 
 use App\FieldHelpers\gPoint;
 use App\Http\Controllers\FieldController;
-use App\Http\Controllers\RevisionController;
-use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
@@ -144,28 +142,159 @@ class GeolocatorField extends BaseField {
      * Takes data from a mass assignment operation and applies it to an individual field.
      *
      * @param  Field $field - The field to represent record data
-     * @param  Record $record - Record being written to
      * @param  String $formFieldValue - The value to be assigned
      * @param  Request $request
      * @param  bool $overwrite - Overwrite if data exists
      */
-    public function massAssignRecordField($field, $record, $formFieldValue, $request, $overwrite=0) {
-        $matching_record_fields = $record->geolocatorfields()->where("flid", '=', $field->flid)->get();
-        $record->updated_at = Carbon::now();
-        $record->save();
-        if($matching_record_fields->count() > 0) {
-            $geolocatorfield = $matching_record_fields->first();
-            if($overwrite == true || ! $geolocatorfield->hasLocations()) {
-                $revision = RevisionController::storeRevision($record->rid, Revision::EDIT);
-                $geolocatorfield->updateLocations($formFieldValue);
-                $revision->data = RevisionController::buildDataArray($record);
-                $revision->save();
+    public function massAssignRecordField($field, $formFieldValue, $request, $overwrite=0) {
+        //Get array of all RIDs in form
+        $rids = Record::where('fid','=',$field->fid)->pluck('rid')->toArray();
+        //Get list of RIDs that have the value for that field
+        $ridsValue = GeolocatorField::where('flid','=',$field->flid)->pluck('rid')->toArray();
+        //Subtract to get RIDs with no value
+        $ridsNoVal = array_diff($rids, $ridsValue);
+
+        //Modify Data
+        $newData = array();
+        foreach($formFieldValue as $location) {
+            $newLoc = [];
+            $newLoc['desc'] = explode('[Desc]', $location)[1];
+            $latlon = explode('[LatLon]', $location)[1];
+            $utm = explode('[UTM]', $location)[1];
+            $newLoc['address'] = trim(explode('[Address]', $location)[1]);
+            $newLoc['lat'] = floatval(explode(',', $latlon)[0]);
+            $newLoc['lon'] = floatval(explode(',', $latlon)[1]);
+            $utm_arr = explode(':', $utm);
+            $newLoc['zone'] = $utm_arr[0];
+            $newLoc['easting'] = explode(',', $utm_arr[1])[0];
+            $newLoc['northing'] = explode(',', $utm_arr[1])[1];
+
+            array_push($newData, $newLoc);
+        }
+
+        foreach(array_chunk($ridsNoVal,1000) as $chunk) {
+            //Create data array and store values for no value RIDs
+            $fieldArray = [];
+            $dataArray = [];
+            $now = date("Y-m-d H:i:s");
+            foreach($chunk as $rid) {
+                $fieldArray[] = [
+                    'rid' => $rid,
+                    'fid' => $field->fid,
+                    'flid' => $field->flid
+                ];
+                foreach($newData as $loc) {
+                    $dataArray[] = [
+                        'rid' => $rid,
+                        'fid' => $field->fid,
+                        'flid' => $field->flid,
+                        'desc' => $loc['desc'],
+                        'lat' => $loc['lat'],
+                        'lon' => $loc['lon'],
+                        'zone' => $loc['zone'],
+                        'easting' => $loc['easting'],
+                        'northing' => $loc['northing'],
+                        'address' => $loc['address'],
+                        'created_at' => $now,
+                        'updated_at' => $now
+                    ];
+                }
             }
-        } else {
-            $this->createNewRecordField($field, $record, $formFieldValue, $request);
-            $revision = RevisionController::storeRevision($record->rid, Revision::EDIT);
-            $revision->data = RevisionController::buildDataArray($record);
-            $revision->save();
+            GeolocatorField::insert($fieldArray);
+            DB::table(self::SUPPORT_NAME)->insert($dataArray);
+        }
+
+        if($overwrite) {
+            foreach(array_chunk($ridsValue,1000) as $chunk) {
+                DB::table(self::SUPPORT_NAME)->where('flid', '=', $field->flid)->whereIn('rid', 'in', $ridsValue)->delete();
+
+                $dataArray = [];
+                foreach($chunk as $rid) {
+                    foreach($newData as $loc) {
+                        $dataArray[] = [
+                            'rid' => $rid,
+                            'fid' => $field->fid,
+                            'flid' => $field->flid,
+                            'desc' => $loc['desc'],
+                            'lat' => $loc['lat'],
+                            'lon' => $loc['lon'],
+                            'zone' => $loc['zone'],
+                            'easting' => $loc['easting'],
+                            'northing' => $loc['northing'],
+                            'address' => $loc['address'],
+                            'created_at' => $now,
+                            'updated_at' => $now
+                        ];
+                    }
+                }
+
+                DB::table(self::SUPPORT_NAME)->insert($dataArray);
+            }
+        }
+    }
+
+    /**
+     * Takes data from a mass assignment operation and applies it to an individual field for a record subset.
+     *
+     * @param  Field $field - The field to represent record data
+     * @param  String $formFieldValue - The value to be assigned
+     * @param  Request $request
+     * @param  array $rids - Overwrite if data exists
+     */
+    public function massAssignSubsetRecordField($field, $formFieldValue, $request, $rids) {
+        //Delete the old data
+        GeolocatorField::where('flid','=',$field->flid)->whereIn('rid', $rids)->delete();
+        DB::table(self::SUPPORT_NAME)->where('flid','=',$field->flid)->whereIn('rid','in', $rids)->delete();
+
+        //Modify Data
+        $newData = array();
+        foreach($formFieldValue as $location) {
+            $newLoc = [];
+            $newLoc['desc'] = explode('[Desc]', $location)[1];
+            $latlon = explode('[LatLon]', $location)[1];
+            $utm = explode('[UTM]', $location)[1];
+            $newLoc['address'] = trim(explode('[Address]', $location)[1]);
+            $newLoc['lat'] = floatval(explode(',', $latlon)[0]);
+            $newLoc['lon'] = floatval(explode(',', $latlon)[1]);
+            $utm_arr = explode(':', $utm);
+            $newLoc['zone'] = $utm_arr[0];
+            $newLoc['easting'] = explode(',', $utm_arr[1])[0];
+            $newLoc['northing'] = explode(',', $utm_arr[1])[1];
+
+            array_push($newData, $newLoc);
+        }
+
+        foreach(array_chunk($rids,1000) as $chunk) {
+            //Create data array and store values for no value RIDs
+            $fieldArray = [];
+            $dataArray = [];
+            $now = date("Y-m-d H:i:s");
+            foreach($chunk as $rid) {
+                $fieldArray[] = [
+                    'rid' => $rid,
+                    'fid' => $field->fid,
+                    'flid' => $field->flid
+                ];
+                foreach($newData as $loc) {
+                    $dataArray[] = [
+                        'rid' => $rid,
+                        'fid' => $field->fid,
+                        'flid' => $field->flid,
+                        'desc' => $loc['desc'],
+                        'lat' => $loc['lat'],
+                        'lon' => $loc['lon'],
+                        'zone' => $loc['zone'],
+                        'easting' => $loc['easting'],
+                        'northing' => $loc['northing'],
+                        'address' => $loc['address'],
+                        'created_at' => $now,
+                        'updated_at' => $now
+                    ];
+                }
+            }
+
+            GeolocatorField::insert($fieldArray);
+            DB::table(self::SUPPORT_NAME)->insert($dataArray);
         }
     }
 

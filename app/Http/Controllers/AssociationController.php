@@ -1,12 +1,9 @@
 <?php namespace App\Http\Controllers;
 
 use App\Association;
-use App\AssociatorField;
 use App\Form;
-use App\Record;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\View\View;
@@ -244,26 +241,5 @@ class AssociationController extends Controller {
         }
 
         return response()->json(['k3_global_success' => 'assoc_access_requested']);
-    }
-
-    /**
-     * Gets a list of records that associate to a particular record
-     *
-     * @param  Record $record - The subject record
-     * @return array - Records that associate it
-     */
-    public static function getAssociatedRecords($record) {
-        $assoc = DB::table(AssociatorField::SUPPORT_NAME)
-            ->select("rid")
-            ->distinct()
-            ->where('record','=',$record->rid)->get();
-        $records = array();
-        foreach($assoc as $af) {
-            $rid = $af->rid;
-            $rec = RecordController::getRecord($rid);
-            array_push($records,$rec);
-        }
-
-        return $records;
     }
 }

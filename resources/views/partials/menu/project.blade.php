@@ -73,6 +73,10 @@
       </li>
 
       <li class="link">
+          <a href="{{action('ImportMultiFormController@index', ['pid'=>$pid])}}">Import MF Records Setup</a>
+      </li>
+
+      <li class="link">
         <a href="{{ action('FormController@importFormViewK2',['pid' => $pid]) }}">Kora 2 Scheme Importer</a>
       </li>
 

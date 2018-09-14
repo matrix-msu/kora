@@ -14,6 +14,7 @@ class Kernel extends ConsoleKernel {
 		'App\Console\Commands\Inspire',
 		'App\Console\Commands\ExodusScript',
 		'App\Console\Commands\FinishInstall',
+		'App\Console\Commands\RecordFileZip',
 		'App\Console\Commands\ThumbScript',
 	];
 

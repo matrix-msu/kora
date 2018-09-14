@@ -14,6 +14,12 @@ Route::group(['middleware' => 'web'], function () {
     Route::resource('projects', 'ProjectController');
     Route::post('projects/request', 'ProjectController@request');
     Route::post('projects/{pid}/archive', 'ProjectController@setArchiveProject');
+    Route::get('/projects/{pid}/importMF', 'ImportMultiFormController@index');
+    Route::post('/projects/{pid}/importMF', 'ImportMultiFormController@beginImport');
+    Route::post('/projects/{pid}/importMFRecord', 'ImportMultiFormController@importRecord');
+    Route::post('/projects/{pid}/importMFAssoc', 'ImportMultiFormController@crossFormAssociations');
+    Route::post('/saveTmpFileMF', 'ImportMultiFormController@saveTmpFile');
+    Route::delete('/deleteTmpFileMF/{filename}', 'ImportMultiFormController@delTmpFile');
     Route::post('projects/validate', 'ProjectController@validateProjectFields');
     Route::patch('projects/validate/{projects}', 'ProjectController@validateProjectFields');
 
@@ -102,6 +108,7 @@ Route::group(['middleware' => 'web'], function () {
 
 //export routes
     Route::get('/projects/{pid}/forms/{fid}/exportRecords/{type}', 'ExportController@exportRecords');
+    Route::post('/projects/{pid}/forms/{fid}/prepFiles', 'ExportController@prepRecordFiles');
     Route::get('/projects/{pid}/forms/{fid}/exportFiles', 'ExportController@exportRecordFiles');
     Route::get('/projects/{pid}/forms/{fid}/exportForm', 'ExportController@exportForm');
     Route::get('/projects/{pid}/exportProj', 'ExportController@exportProject');
@@ -175,6 +182,7 @@ Route::group(['middleware' => 'web'], function () {
     Route::delete('projects/{pid}/forms/{fid}/deleteAllRecords', 'RecordController@deleteAllRecords');
     Route::post('/projects/{pid}/forms/{fid}/cleanUp', 'RecordController@cleanUp');
     Route::get('/projects/{pid}/forms/{fid}/clone/{rid}', 'RecordController@cloneRecord');
+    Route::get('/projects/{pid}/forms/{fid}/records/{rid}/fields/{flid}/{type}/{filename}', 'FieldController@singleResource');
 
 //revision routes
     Route::get('/projects/{pid}/forms/{fid}/records/revisions/recent', 'RevisionController@index');
