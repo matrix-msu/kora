@@ -121,13 +121,13 @@ Kora.Auth.Register = function() {
                 values.delete('profile');
                 values.append('profile', droppedPicFile);
             
-                for ( var pair of values.entries() ) {
-                    console.log(pair[0] + ', ' + pair[1]);
-                    //console.log(typeof pair[1]);
-                    if (typeof pair[1] === 'object') {
-                        console.log(pair[1]);
-                    }
-                }
+                // for ( var pair of values.entries() ) {
+                //     console.log(pair[0] + ', ' + pair[1]);
+                //     //console.log(typeof pair[1]);
+                //     if (typeof pair[1] === 'object') {
+                //         console.log(pair[1]);
+                //     }
+                // }
             }
 
             $.ajax({
