@@ -90,7 +90,6 @@
     height: unset;
     left: 0;
     margin: 0 auto;
-    min-height: 125px;
     right: 0;
     top: 70px;
     width: 90%;
@@ -102,7 +101,6 @@
 
     .container {
       display: block;
-      min-height: 125px;
       position: relative;
       width: 100%;
 
@@ -110,17 +108,14 @@
         align-items: center;
         display: flex;
         height: 50%;
-        padding: 10px 50px;
+        padding: 10px;
         justify-content: center;
       }
 
       .toggle-notification {
-        bottom: 0;
         height: unset;
         justify-content: center;
-        padding: 1px 0;
-        position: absolute;
-        width: 100%;
+        padding: 0;
       }
     }
   }
