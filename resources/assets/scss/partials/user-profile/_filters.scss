@@ -85,6 +85,10 @@
   
   @media screen and (max-width: $max-mobile-xs-width) {
     position: relative;
+
+    .chosen-container:not(:first-of-type) {
+      display: block;
+    }
     
     .show-options {
       position: absolute;
@@ -160,5 +164,11 @@
         margin: 0 15px 0 0;
       }
     }
+  }
+}
+
+@media screen and (max-width: $max-mobile-xs-width) {
+  .filters {
+    overflow-x: visible;
   }
 }
