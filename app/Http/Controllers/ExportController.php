@@ -1295,7 +1295,10 @@ SELECT glf.rid as `rid`, glf.options as `value`, NULL as `val2`, NULL as `val3`,
 FROM ".$prefix."generated_list_fields as glf left join ".$prefix."fields as fl on glf.flid=fl.flid where glf.rid in ($ridArray)$slugQL 
 union all
 
-SELECT clf.rid as `rid`, GROUP_CONCAT(if(clf.field_num=1, clf.data, null) SEPARATOR '[!data!]' ) as `value`, GROUP_CONCAT(if(clf.field_num=2, clf.data, null) SEPARATOR '[!data!]' ) as `val2`, GROUP_CONCAT(if(clf.field_num=1, clf.number, null) SEPARATOR '[!data!]' ) as `val3`, GROUP_CONCAT(if(clf.field_num=2, clf.number, null) SEPARATOR '[!data!]' ) as `val4`, fl.options as `val5`, fl.slug, fl.type, fl.pid, fl.fid, fl.flid, fl.name 
+SELECT clf.rid as `rid`, GROUP_CONCAT(if(clf.field_num=1, clf.data, null) ORDER BY clf.list_index ASC SEPARATOR '[!data!]' ) as `value`, 
+GROUP_CONCAT(if(clf.field_num=2, clf.data, null) ORDER BY clf.list_index ASC SEPARATOR '[!data!]' ) as `val2`, 
+GROUP_CONCAT(if(clf.field_num=1, clf.number, null) ORDER BY clf.list_index ASC SEPARATOR '[!data!]' ) as `val3`, 
+GROUP_CONCAT(if(clf.field_num=2, clf.number, null) ORDER BY clf.list_index ASC SEPARATOR '[!data!]' ) as `val4`, fl.options as `val5`, fl.slug, fl.type, fl.pid, fl.fid, fl.flid, fl.name 
 FROM ".$prefix."combo_support as clf left join ".$prefix."fields as fl on clf.flid=fl.flid where clf.rid in ($ridArray)$slugQL group by `rid`, `flid` 
 union all
 
@@ -1303,7 +1306,8 @@ SELECT df.rid as `rid`, df.circa as `value`, df.month as `val2`,df.day as `val3`
 FROM ".$prefix."date_fields as df left join ".$prefix."fields as fl on df.flid=fl.flid where df.rid in ($ridArray)$slugQL 
 union all
 
-SELECT sf.rid as `rid`, GROUP_CONCAT(sf.begin SEPARATOR '[!]') as `value`, GROUP_CONCAT(sf.end SEPARATOR '[!]') as `val2`, GROUP_CONCAT(sf.allday SEPARATOR '[!]') as `val3`, GROUP_CONCAT(sf.desc SEPARATOR '[!]') as `val4`, NULL as `val5`, fl.slug, fl.type, fl.pid, fl.fid, fl.flid, fl.name 
+SELECT sf.rid as `rid`, GROUP_CONCAT(sf.begin SEPARATOR '[!]') as `value`, GROUP_CONCAT(sf.end SEPARATOR '[!]') as `val2`, GROUP_CONCAT(sf.allday SEPARATOR '[!]') as `val3`, 
+GROUP_CONCAT(sf.desc SEPARATOR '[!]') as `val4`, NULL as `val5`, fl.slug, fl.type, fl.pid, fl.fid, fl.flid, fl.name 
 FROM ".$prefix."schedule_support as sf left join ".$prefix."fields as fl on sf.flid=fl.flid where sf.rid in ($ridArray)$slugQL group by `rid`, `flid` 
 union all
 
