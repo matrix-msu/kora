@@ -84,7 +84,7 @@
       line-height: 35px;
       color: palette('gray', text);
     }
-    
+
     .keywords {
       list-style-type: none;
       margin: 0;
@@ -168,7 +168,7 @@
           vertical-align: middle;
           will-change: transform;
         }
-		
+
 		&:hover {
 		  border-color: palette('green', accent);
 		  box-shadow: 0 5px 10px 0 rgba(4,182,175,0.1);
@@ -205,6 +205,6 @@
     @import 'record-index/pagination';
     @import 'record-index/searched-terms';
     @import 'record-index/no-records';
-    @import 'record-index/page-typed-fileds';
+    @import 'record-index/page-typed-fields';
   }
 }
