@@ -38,6 +38,16 @@
 
       .title {
         position: relative;
+
+        .profile-pic-cont .icon-user {
+          @include transition();
+
+          @media screen and (max-width: $max-mobile-xs-width) {
+              font-size: 24px;
+              margin-right: 10px;
+              padding: 12px;
+          }
+        }
       }
     }
   }
