@@ -180,12 +180,21 @@ abstract class BaseField extends Model {
      * Takes data from a mass assignment operation and applies it to an individual field.
      *
      * @param  Field $field - The field to represent record data
-     * @param  Record $record - Record being written to
      * @param  String $formFieldValue - The value to be assigned
      * @param  Request $request
      * @param  bool $overwrite - Overwrite if data exists
      */
-    abstract public function massAssignRecordField($field, $record, $formFieldValue, $request, $overwrite=0);
+    abstract public function massAssignRecordField($field, $formFieldValue, $request, $overwrite=0);
+
+    /**
+     * Takes data from a mass assignment operation and applies it to an individual field for a record subset.
+     *
+     * @param  Field $field - The field to represent record data
+     * @param  String $formFieldValue - The value to be assigned
+     * @param  Request $request
+     * @param  array $rids - Overwrite if data exists
+     */
+    abstract public function massAssignSubsetRecordField($field, $formFieldValue, $request, $rids);
 
     /**
      * For a test record, add test data to field.

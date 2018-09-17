@@ -725,9 +725,7 @@ class RecordController extends Controller {
         //A field may not be required for a record but we want to force validation here so we use forceReq
         $message = $typedField->validateField($field, $request, true);
         if(empty($message)) {
-            foreach (Form::find($fid)->records()->get() as $record) {
-                $typedField->massAssignRecordField($field, $record, $formFieldValue, $request, $overwrite);
-            }
+            $typedField->massAssignRecordField($field, $formFieldValue, $request, $overwrite);
 
             return redirect()->action('RecordController@index', compact('pid', 'fid'))->with('k3_global_success', 'mass_records_updated');
         } else {
@@ -735,6 +733,14 @@ class RecordController extends Controller {
         }
     }
 
+    /**
+     * Validates a mass assign record value.
+     *
+     * @param  int $pid - Project ID
+     * @param  int $fid - Form ID
+     * @param  Request $request
+     * @return JsonResponse
+     */
     public function validateMassRecord($pid, $fid, Request $request) {
         $errors = [];
 
@@ -774,7 +780,7 @@ class RecordController extends Controller {
             return redirect()->back();
         }
 
-        if ($request->has("overwrite"))
+        if($request->has("overwrite"))
             $overwrite = $request->input("overwrite"); //Overwrite field in all records, even if it has data
         else
             $overwrite = 0;
@@ -782,11 +788,8 @@ class RecordController extends Controller {
         $field = FieldController::getField($flid);
         $typedField = $field->getTypedField();
 
-        foreach(Form::find($fid)->records()->whereIn('rid', $request->rids)->get() as $record) {
-            $typedField->massAssignRecordField($field, $record, $formFieldValue, $request, $overwrite);
-        }
+        $typedField->massAssignSubsetRecordField($field, $formFieldValue, $request, $request->rids);
 
-        flash()->overlay(trans('controller_record.recupdate'),trans('controller_record.goodjob'));
         return redirect()->action('RecordController@index',compact('pid','fid'));
     }
 
