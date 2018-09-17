@@ -148,9 +148,26 @@
 
 @media screen and (max-width: $max-mobile-xs-width) {
   .filters {
+    display: flex;
+    height: min-content;
+    justify-content: space-between;
+    margin-bottom: 30px;
     margin-left: $mobile-xs-margin-total / 2;
     max-width: $max-mobile-xs-width - $mobile-xs-margin-total;
     width: calc(100% - #{$mobile-xs-margin-total / 2 });
+
+    .search {
+      padding-bottom: 5px;
+    }
+
+    .search,
+    .pagination-options {
+      white-space: nowrap;
+    }
+
+    .chosen-results {
+      right: 10px;
+    }
 
     .sort-options {
       @include responsive-scroll();

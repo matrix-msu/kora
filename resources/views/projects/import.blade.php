@@ -23,7 +23,7 @@
             <div class="content-sections">
               <div class="content-sections-scroll">
                 <a href="#projectfile" class="projectfile-link underline-middle active">Upload Project File</a>
-                <span class="progression-tab"></span>
+                <div class="tab-wrap"><span class="progression-tab"></span></div>
                 <a href="#projectinfo" class="projectinfo-link">Project Information</a>
               </div>
             </div>

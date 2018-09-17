@@ -14,7 +14,7 @@ $menuTitle.each(function(index) {
   }
 });
 
-$navBar.on('click', '.navigation-toggle-js', function(e) {
+$navBar.on('click touchstart', '.navigation-toggle-js', function(e) {
   e.preventDefault();
 
   var $clicked = $(this).next();

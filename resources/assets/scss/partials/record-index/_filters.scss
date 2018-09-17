@@ -63,8 +63,14 @@
     margin-bottom: 50px;
     position: relative;
 
-    .pagination-options > div:first-of-type {
-      padding-bottom: 10px;
+    .pagination-options {
+      > div:first-of-type {
+        padding-bottom: 10px;
+      }
+
+      .chosen-container {
+        display: block;
+      }
     }
 
     .show-options {
