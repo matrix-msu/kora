@@ -44,7 +44,7 @@
         @include transition();
 
         color: palette('gray', base);
-        
+
         &:hover {
           color: palette('green', accent);
         }

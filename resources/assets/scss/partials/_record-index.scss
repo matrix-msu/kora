@@ -88,7 +88,7 @@
         margin-top: 80px;
       }
     }
-    
+
     .keywords {
       list-style-type: none;
       margin: 0;
@@ -209,5 +209,6 @@
     @import 'record-index/pagination';
     @import 'record-index/searched-terms';
     @import 'record-index/no-records';
+    @import 'record-index/page-typed-fields';
   }
 }

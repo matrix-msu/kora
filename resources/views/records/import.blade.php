@@ -54,7 +54,9 @@
 
         <section class="record-import-section-2 hidden">
             <div class="form-group mt-xxxl">
-                <div class="record-file-title">If you have files that correlate to the XML / JSON File above, upload them below in a zipped file.</div>
+                <div class="record-file-title">If you have files that correlate to the XML / JSON File above, upload
+                    them below in a zipped file. If the zipped file is too large, extract the files manually to
+                    'storage/app/tmpFiles/impU{{\Auth::user()->id}}/'</div>
             </div>
 
             <div class="form-group mt-xxxl">

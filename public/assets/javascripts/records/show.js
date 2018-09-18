@@ -398,4 +398,5 @@ Kora.Records.Show = function() {
     initializeTypedFieldDisplays();
     initializeCardTitleEllipsifying();
     Kora.Records.Modal();
+    Kora.Fields.TypedFieldDisplays.Initialize();
 }
