@@ -1,3 +1,33 @@
+/***** UNIVERSAL *****/
+.field-display {
+  width: calc(100% - 44px);
+}
+
+.field-sidebar {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  justify-content: space-between;
+  padding: 10px;
+  position: absolute;
+  right: 0;
+  top: 0;
+
+  .bottom {
+    .field-btn:not(:first-child) {
+      margin: map-get($spacing, xs) 0 0 0;
+    }
+  }
+
+  .top {
+    .field-btn:not(:last-child) {
+      margin: 0 0 map-get($spacing, xs);
+    }
+  }
+}
+
+/***** COMBO LIST *****/
 .combo-list-display {
   border: 1px solid rgba(21,39,48,0.1);
   border-radius: 5px;
@@ -69,30 +99,6 @@
     border-radius: 18px;
     height: 36px;
     width: 36px;
-  }
-}
-
-.field-sidebar {
-  box-sizing: border-box;
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  justify-content: space-between;
-  padding: 10px;
-  position: absolute;
-  right: 0;
-  top: 0;
-
-  .bottom {
-    .field-btn:not(:first-child) {
-      margin: map-get($spacing, xs) 0 0 0;
-    }
-  }
-
-  .top {
-    .field-btn:not(:last-child) {
-      margin: 0 0 map-get($spacing, xs);
-    }
   }
 }
 
@@ -259,6 +265,75 @@
     margin: auto;
     max-height: 100%;
     max-width: 100%;
+  }
+}
+
+/***** AUDIO *****/
+.audio-field-display {
+  .audio-container {
+    .icon-play {
+      color: palette('green', accent);
+      cursor: pointer;
+      display: inline-block;
+      font-size: 32px;
+      vertical-align: middle;
+    }
+
+    .slider {
+      display: inline-block;
+      position: relative;
+      vertical-align: middle;
+      width: calc(100% - 75px);
+
+      .slider-bar {
+        background: palette('gray', slate, .05);
+        height: 4px;
+        width: 100%;
+      }
+
+      .slider-button {
+        cursor: pointer;
+        left: calc(0% - 17px);
+        padding: 10px;
+        position: absolute;
+        top: -14px;
+        transition: .2s padding ease-in-out;
+
+        .inner-button {
+          background: palette('green', accent);
+          border-radius: 100%;
+          height: 14px;
+          transition: .2s height ease-in-out, .2s width ease-in-out;
+          width: 14px;
+        }
+
+        &:hover {
+          padding: 8px;
+
+          .inner-button {
+            height: 18px;
+            width: 18px;
+          }
+        }
+      }
+
+      .slider-button-container {
+        padding: 10px;
+      }
+
+      .slider-progress-bar {
+        background: palette('green', accent, .3);
+        height: 4px;
+        left: 0;
+        position: absolute;
+        top: 0;
+        width: 0;
+      }
+    }
+  }
+
+  .audio-filename {
+    margin: 10px 0 11px;
   }
 }
 

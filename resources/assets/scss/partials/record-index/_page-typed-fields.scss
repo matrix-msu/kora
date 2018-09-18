@@ -268,6 +268,75 @@
   }
 }
 
+/***** AUDIO *****/
+.audio-field-display {
+  .audio-container {
+    .icon-play {
+      color: palette('green', accent);
+      cursor: pointer;
+      display: inline-block;
+      font-size: 32px;
+      vertical-align: middle;
+    }
+
+    .slider {
+      display: inline-block;
+      position: relative;
+      vertical-align: middle;
+      width: calc(100% - 75px);
+
+      .slider-bar {
+        background: palette('gray', slate, .05);
+        height: 4px;
+        width: 100%;
+      }
+
+      .slider-button {
+        cursor: pointer;
+        left: calc(0% - 17px);
+        padding: 10px;
+        position: absolute;
+        top: -14px;
+        transition: .2s padding ease-in-out;
+
+        .inner-button {
+          background: palette('green', accent);
+          border-radius: 100%;
+          height: 14px;
+          transition: .2s height ease-in-out, .2s width ease-in-out;
+          width: 14px;
+        }
+
+        &:hover {
+          padding: 8px;
+
+          .inner-button {
+            height: 18px;
+            width: 18px;
+          }
+        }
+      }
+
+      .slider-button-container {
+        padding: 10px;
+      }
+
+      .slider-progress-bar {
+        background: palette('green', accent, .3);
+        height: 4px;
+        left: 0;
+        position: absolute;
+        top: 0;
+        width: 0;
+      }
+    }
+  }
+
+  .audio-filename {
+    margin: 10px 0 11px;
+  }
+}
+
 .jp-center {
   margin: auto;
 }
