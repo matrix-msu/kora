@@ -1,5 +1,6 @@
 <?php namespace App;
 
+use App\Http\Controllers\RecordController;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -237,6 +238,55 @@ class Record extends Model {
     public static function isKIDPattern($string) {
         $pattern = "/^([0-9]+)-([0-9]+)-([0-9]+)/"; // Match exactly with KID pattern.
         return preg_match($pattern, $string) != false;
+    }
+
+    /**
+     * Gets a list of records that associate to this record
+     *
+     * @return array - Records that associate it
+     */
+    public function getAssociatedRecords() {
+        $assoc = DB::table(AssociatorField::SUPPORT_NAME)
+            ->select("rid")
+            ->distinct()
+            ->where('record','=',$this->rid)->get();
+        $records = array();
+        foreach($assoc as $af) {
+            $rid = $af->rid;
+            $rec = RecordController::getRecord($rid);
+            array_push($records,$rec);
+        }
+
+        return $records;
+    }
+
+    /**
+     * Gets a preview value for the record when displaying in a reverse association.
+     *
+     * @return string - The preview value
+     */
+    public function getReversePreview() {
+        $form = $this->form()->first();
+
+        $firstPage = Page::where('fid','=',$form->fid)->where('sequence','=',0)->first();
+        $firstField = Field::where('page_id','=',$firstPage->id)->where('sequence','=',0)->first();
+
+        switch($firstField->type) {
+            case 'Text':
+                $typedField = $firstField->getTypedFieldFromRID($this->rid);
+                if(!is_null($typedField))
+                    return $typedField->text;
+                break;
+            case 'List':
+                $typedField = $firstField->getTypedFieldFromRID($this->rid);
+                if(!is_null($typedField))
+                    return $typedField->option;
+                break;
+            default:
+                break;
+        }
+
+        return 'No Preview Field Available';
     }
 }
 

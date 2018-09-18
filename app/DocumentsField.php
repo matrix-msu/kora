@@ -233,12 +233,23 @@ class DocumentsField extends FileTypeField {
      * Takes data from a mass assignment operation and applies it to an individual field.
      *
      * @param  Field $field - The field to represent record data
-     * @param  Record $record - Record being written to
      * @param  String $formFieldValue - The value to be assigned
      * @param  Request $request
      * @param  bool $overwrite - Overwrite if data exists
      */
-    public function massAssignRecordField($field, $record, $formFieldValue, $request, $overwrite=0) {
+    public function massAssignRecordField($field, $formFieldValue, $request, $overwrite=0) {
+        //TODO::mass assign?
+    }
+
+    /**
+     * Takes data from a mass assignment operation and applies it to an individual field for a record subset.
+     *
+     * @param  Field $field - The field to represent record data
+     * @param  String $formFieldValue - The value to be assigned
+     * @param  Request $request
+     * @param  array $rids - Overwrite if data exists
+     */
+    public function massAssignSubsetRecordField($field, $formFieldValue, $request, $rids) {
         //TODO::mass assign?
     }
 
@@ -481,4 +492,14 @@ class DocumentsField extends FileTypeField {
     }
 
     ///////////////////////////////////////////////END ABSTRACT FUNCTIONS///////////////////////////////////////////////
+
+    public function formatBytes($bytes) {
+        $units = ['b', 'kb', 'mb', 'gb', 'tb'];
+
+        for ($i = 0; $bytes > 1024; $i++) {
+            $bytes /= 1024;
+        }
+
+        return round($bytes, 1) . ' ' . $units[$i];
+    }
 }

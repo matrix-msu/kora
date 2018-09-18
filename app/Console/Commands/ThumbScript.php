@@ -30,7 +30,7 @@ class ThumbScript extends Command {
      *
      * @var string
      */
-    protected $description = 'Command description';
+    protected $description = 'Recreates Gallery Fields thumbnails for a Form';
 
     /**
      * Create a new command instance.

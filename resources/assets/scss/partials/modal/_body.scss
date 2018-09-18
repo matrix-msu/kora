@@ -5,6 +5,25 @@
 
   .description {
     font-size: 13px;
+
+    &.record-validation {
+      > p:last-of-type {
+        font-family: $ubuntu-medium;
+      }
+    }
+
+    .validation-errorpage-link {
+      /* @include transition(color); */
+
+      /* color: palette('gray', text); */
+      color: palette('green', accent);
+      font-family: $ubuntu-medium;
+      text-decoration: none;
+
+      /* &:hover { */
+        /* color: palette('green', accent); */
+      /* } */
+    }
   }
 
   .preset-name > label {
@@ -20,6 +39,10 @@
     }
   }
   
+  &.record-validation {
+    margin-top: -10px;
+  }
+
   &.exp-rec {
     .form-group {
       &:first-child {

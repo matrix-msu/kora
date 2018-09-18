@@ -7,7 +7,7 @@
             </a>
         </div>
         <div class="body exp-rec">
-            <div class="form-group">
+            <div class="form-group export-files-desc-js">
                 Export all form records in the formats of JSON or XML. You may also export all record files as a zip.
             </div>
             <div class="form-group mt-m">

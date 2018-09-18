@@ -262,7 +262,7 @@ class FieldController extends Controller {
 
         return response()->json(["status"=>true,"message"=>"field_flag_updated"],200);
     }
-    
+
     /**
      * Delete a field model.
      *
@@ -387,8 +387,14 @@ class FieldController extends Controller {
      * @param  string $filename - Image filename
      * @return Redirect
      */
-    public function singleImage($pid, $fid, $rid, $flid, $filename) {
-        $src = (env('STORAGE_URL').'files/p'.$pid.'/f'.$fid.'/r'.$rid.'/fl'.$flid.'/'.$filename);
-        return view('fields.singleImage', compact('filename', 'src'));
+    public function singleResource($pid, $fid, $rid, $flid, $type, $filename) {
+        $src = (config('app.storage_url').'files/p'.$pid.'/f'.$fid.'/r'.$rid.'/fl'.$flid.'/'.$filename);
+
+        if ($type == 'image') {
+          return view('fields.singleImage', compact('filename', 'src'));
+        } elseif ($type == 'video') {
+          return view('fields.singleVideo', compact('filename', 'src'));
+        }
+
     }
 }

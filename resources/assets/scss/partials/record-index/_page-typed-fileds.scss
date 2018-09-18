@@ -1,3 +1,33 @@
+/***** UNIVERSAL *****/
+.field-display {
+  width: calc(100% - 44px);
+}
+
+.field-sidebar {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  justify-content: space-between;
+  padding: 10px;
+  position: absolute;
+  right: 0;
+  top: 0;
+
+  .bottom {
+    .field-btn:not(:first-child) {
+      margin: map-get($spacing, xs) 0 0 0;
+    }
+  }
+
+  .top {
+    .field-btn:not(:last-child) {
+      margin: 0 0 map-get($spacing, xs);
+    }
+  }
+}
+
+/***** COMBO LIST *****/
 .combo-list-display {
   border: 1px solid rgba(21,39,48,0.1);
   border-radius: 5px;
@@ -69,30 +99,6 @@
     border-radius: 18px;
     height: 36px;
     width: 36px;
-  }
-}
-
-.field-sidebar {
-  box-sizing: border-box;
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  justify-content: space-between;
-  padding: 10px;
-  position: absolute;
-  right: 0;
-  top: 0;
-
-  .bottom {
-    .field-btn:not(:first-child) {
-      margin: map-get($spacing, xs) 0 0 0;
-    }
-  }
-
-  .top {
-    .field-btn:not(:last-child) {
-      margin: 0 0 map-get($spacing, xs);
-    }
   }
 }
 
@@ -244,6 +250,21 @@
 
   .geolocator-modal-map {
     height: 60vh;
+  }
+}
+
+/***** VIDEO *****/
+.video-field-display {
+  background: palette('gray', slate);
+  border-radius: 5px;
+  overflow: hidden;
+  width: calc(100% - 44px);
+
+  video {
+    display: block;
+    margin: auto;
+    max-height: 100%;
+    max-width: 100%;
   }
 }
 

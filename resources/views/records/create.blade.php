@@ -37,6 +37,7 @@
 
 @section('body')
     @include("partials.fields.input-modals")
+    @include("partials.fields.validationModal")
 
     <section class="filters center">
         <div class="record-preset">

@@ -119,8 +119,12 @@ Kora.Fields.TypedFieldDisplays.Initialize = function() {
       $this.parent().find('.gallery-sidebar-js .external-button-js').click(function(e) {
         e.preventDefault();
         var $currentSlide = $($slides[currentSlide]).find('.slide-img-js');
-
-        window.open(window.location+'/fields/'+$currentSlide.data('flid')+'/image/'+$currentSlide.attr('alt'), '_blank');
+        var pid = $currentSlide.data('pid');
+        var fid = $currentSlide.data('fid');
+        var rid = $currentSlide.data('rid');
+        var flid = $currentSlide.data('flid');
+        var imgSrc = $currentSlide.attr('alt');
+        window.open(baseURL+'projects/'+pid+'/forms/'+fid+'/records/'+rid+'/fields/'+flid+'/image/'+imgSrc, '_blank');
       });
 
       // Set horizontal positioning for single slide
@@ -223,8 +227,30 @@ Kora.Fields.TypedFieldDisplays.Initialize = function() {
     });
   }
 
-  function initalizeVideo() {
-    $('.jp-video-js').each(function() {
+  function initializeVideo() {
+    // Event listener for the full-screen button
+    $('.video-field-display-js').each(function() {
+      var $this = $(this);
+      var $video = $this.find('video');
+      var video = $video[0];
+      var $fullScreenButton = $this.parent().find('.full-screen-button-js');
+      var $externalButton = $this.parent().find('.external-button-js');
+
+      // Full Screen Button
+      $fullScreenButton.click(function() {
+        console.log('full screen');
+        if(video.requestFullScreen){
+          video.requestFullScreen();
+        } else if(video.webkitRequestFullScreen){
+          video.webkitRequestFullScreen();
+        } else if(video.mozRequestFullScreen){
+          video.mozRequestFullScreen();
+        }
+      });
+    });
+
+
+    /*$('.jp-video-js').each(function() {
       var videoID = $(this).attr('video-id');
       var videoLink = $(this).attr('video-link');
       var swfpath = $(this).attr('swf-path');
@@ -250,7 +276,7 @@ Kora.Fields.TypedFieldDisplays.Initialize = function() {
         supplied: "m4v, ogv"
       };
       var myPlaylist = new jPlayerPlaylist(cssSelector, playlist, options);
-    });
+    });*/
   }
 
   function initalize3DModel() {
@@ -311,6 +337,7 @@ Kora.Fields.TypedFieldDisplays.Initialize = function() {
   initializeGallery();
   initializeGeolocator();
   intializeAudio();
+  initializeVideo();
   initalizeSchedule();
   initalize3DModel();
 };

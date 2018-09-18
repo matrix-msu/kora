@@ -79,7 +79,11 @@
 
         <div class="meta-title mt-xxxl">Record Owner</div>
         <section class="meta-data">
-            {{$owner->first_name}} {{$owner->last_name}}
+            @if(!is_null($owner))
+                {{$owner->first_name}} {{$owner->last_name}}
+            @else
+                No owner available
+            @endif
         </section>
         <div class="meta-title mt-m">Created</div>
         <section class="meta-data">
@@ -89,11 +93,13 @@
         <section class="meta-data">
             {{$record->updated_at}}
         </section>
-        @if(sizeof(\App\Http\Controllers\AssociationController::getAssociatedRecords($record))>0)
+        @if(sizeof($record->getAssociatedRecords())>0)
             <div class="meta-title mt-m">Associated Records</div>
             <section class="meta-data">
-                @foreach(\App\Http\Controllers\AssociationController::getAssociatedRecords($record) as $aRecord)
-                    <div><a class="meta-link underline-middle-hover" href='{{env('BASE_URL')}}projects/{{$aRecord->pid}}/forms/{{$aRecord->fid}}/records/{{$aRecord->rid}}'>{{$aRecord->kid}}</a></div>
+                @foreach($record->getAssociatedRecords() as $aRecord)
+                    <div><a class="meta-link underline-middle-hover"
+                            href='{{env('BASE_URL')}}projects/{{$aRecord->pid}}/forms/{{$aRecord->fid}}/records/{{$aRecord->rid}}'>{{$aRecord->kid}}
+                        </a> | {{$aRecord->getReversePreview()}}</div>
                 @endforeach
             </section>
         @endif

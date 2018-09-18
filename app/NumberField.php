@@ -1,8 +1,6 @@
 <?php namespace App;
 
 use App\Http\Controllers\FieldController;
-use App\Http\Controllers\RevisionController;
-use Carbon\Carbon;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -167,29 +165,63 @@ class NumberField extends BaseField {
      * Takes data from a mass assignment operation and applies it to an individual field.
      *
      * @param  Field $field - The field to represent record data
-     * @param  Record $record - Record being written to
      * @param  String $formFieldValue - The value to be assigned
      * @param  Request $request
      * @param  bool $overwrite - Overwrite if data exists
      */
-    public function massAssignRecordField($field, $record, $formFieldValue, $request, $overwrite=0) {
-        $matching_record_fields = $record->numberfields()->where("flid", '=', $field->flid)->get();
-        $record->updated_at = Carbon::now();
-        $record->save();
-        if($matching_record_fields->count() > 0) {
-            $numberfield = $matching_record_fields->first();
-            if($overwrite == true || $numberfield->number == "" || is_null($numberfield->number)) {
-                $revision = RevisionController::storeRevision($record->rid, Revision::EDIT);
-                $numberfield->number = $formFieldValue;
-                $numberfield->save();
-                $revision->data = RevisionController::buildDataArray($record);
-                $revision->save();
+    public function massAssignRecordField($field, $formFieldValue, $request, $overwrite=0) {
+        //Get array of all RIDs in form
+        $rids = Record::where('fid','=',$field->fid)->pluck('rid')->toArray();
+        //Get list of RIDs that have the value for that field
+        $ridsValue = NumberField::where('flid','=',$field->flid)->where('number','!=','')->where('number','!=',NULL)->pluck('rid')->toArray();
+        //Subtract to get RIDs with no value
+        $ridsNoVal = array_diff($rids, $ridsValue);
+
+        foreach(array_chunk($ridsNoVal,1000) as $chunk) {
+            //Create data array and store values for no value RIDs
+            $dataArray = [];
+            foreach($chunk as $rid) {
+                $dataArray[] = [
+                    'rid' => $rid,
+                    'fid' => $field->fid,
+                    'flid' => $field->flid,
+                    'number' => $formFieldValue
+                ];
             }
-        } else {
-            $this->createNewRecordField($field, $record, $formFieldValue, $request);
-            $revision = RevisionController::storeRevision($record->rid, Revision::EDIT);
-            $revision->data = RevisionController::buildDataArray($record);
-            $revision->save();
+            NumberField::insert($dataArray);
+        }
+
+        if($overwrite) {
+            foreach(array_chunk($ridsValue, 1000) as $chunk) {
+                NumberField::where('flid', '=', $field->flid)->whereIn('rid', $chunk)->update(['number' => $formFieldValue]);
+            }
+        }
+    }
+
+    /**
+     * Takes data from a mass assignment operation and applies it to an individual field for a record subset.
+     *
+     * @param  Field $field - The field to represent record data
+     * @param  String $formFieldValue - The value to be assigned
+     * @param  Request $request
+     * @param  array $rids - Overwrite if data exists
+     */
+    public function massAssignSubsetRecordField($field, $formFieldValue, $request, $rids) {
+        //Delete the old data
+        NumberField::where('flid','=',$field->flid)->whereIn('rid', $rids)->delete();
+
+        foreach(array_chunk($rids,1000) as $chunk) {
+            //Create data array and store values for no value RIDs
+            $dataArray = [];
+            foreach($chunk as $rid) {
+                $dataArray[] = [
+                    'rid' => $rid,
+                    'fid' => $field->fid,
+                    'flid' => $field->flid,
+                    'number' => $formFieldValue
+                ];
+            }
+            NumberField::insert($dataArray);
         }
     }
 
