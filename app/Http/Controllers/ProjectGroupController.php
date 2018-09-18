@@ -269,11 +269,8 @@ class ProjectGroupController extends Controller {
         $instance->save();
 		
         $users = $instance->users()->get();
-		
-		$group = $instance;
-        $project = ProjectController::getProject($group->pid);
         foreach($users as $user) {
-            $this->emailUserProject("changed", $user->id, $group, $project);
+            $this->emailUserProject("changed", $user->id, $instance->id);
         }
     }
 

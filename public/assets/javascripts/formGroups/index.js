@@ -3,7 +3,6 @@ Kora.FormGroups = Kora.FormGroups || {};
 
 Kora.FormGroups.Index = function() {
   var self = Kora.FormGroups.Index;
-  self.last_cooldown = Date.now();
 
 
   /**
@@ -457,10 +456,6 @@ Kora.FormGroups.Index = function() {
       var data = $(this).data('value');
       var removeUser = function(e) {
         e.preventDefault();
-		if (Date.now() - self.last_cooldown < 150) {
-			return;
-		}
-		self.last_cooldown = Date.now();
         self.removeUser(data[0], data[1], data[2]);
       };
 
