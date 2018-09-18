@@ -103,8 +103,13 @@ function getURLParameter(name) {
 $(document).ready(function() {
   setFixedElement(true);
 
+  var $sidebarPrefs = false;
+  if ($('.keep-sidemenu').hasClass('true')) {
+    $sidebarPrefs = true;
+  }
   var $sidebarCookie = getCookie('sidebar');
-  if ($sidebarCookie && getBrowserWidth() > 870) {
+  if (($sidebarCookie || $sidebarPrefs) && getBrowserWidth() > 870) {
+    $('.side-menu-js').addClass('active');
     $(".center, .floating-buttons").addClass('with-aside');
     $('.field.card').addClass('with-aside');
     $('.pre-fixed-js').addClass('pre-fixed-with-aside');
@@ -204,20 +209,6 @@ $(document).ready(function() {
     $('.content-link-js').removeClass('head');
     $activePageLink.addClass('head');
   }
-
-  $.ajax({
-    url: userPrefs,
-    type: 'POST',
-    data: {
-      "_token": token
-    },
-    success: function (result) {
-      console.log(result);
-    },
-    error: function (error) {
-      console.log(error);
-    }
-  });
 });
 
 //Quick opens global search menu

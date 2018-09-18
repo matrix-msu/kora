@@ -29,12 +29,12 @@ class Preference extends Model {
     );
 
     // Projects Page Tab Selection Options
-    const RECENTLY_MODIFIED = 1;
+    const ARCHIVED = 1;
     const CUSTOM = 2;
     const ALPHABETICAL = 3;
 
     protected static $projPageTabSelOptions = array(
-        self::RECENTLY_MODIFIED => 'Recently Modified',
+        self::ARCHIVED => 'Archived',
         self::CUSTOM  => 'Custom',
         self::ALPHABETICAL => 'Alphabetical'
     );
@@ -45,7 +45,6 @@ class Preference extends Model {
     const SINGLE_ALPHABETICAL = 3;
 
     protected static $singleProjTabSelOptions = array(
-        self::SINGLE_RECENTLY_MODIFIED => 'Recently Modified',
         self::SINGLE_CUSTOM  => 'Custom',
         self::SINGLE_ALPHABETICAL => 'Alphabetical'
     );

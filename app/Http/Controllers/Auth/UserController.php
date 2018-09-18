@@ -278,26 +278,20 @@ class UserController extends Controller {
         return view('user.preferences', compact('user', 'preference', 'logoTargetOptions', 'projPageTabSelOptions', 'singleProjTabSelOptions', 'sideMenuOptions'));
     }
 
-    public function returnUserPrefs ($pref) {
-
+    public static function returnUserPrefs ($pref) {
       if (\Auth::user()) { // if user exists - this will prevent errors on login screen
         $user = \Auth::user();
         $preference = Preference::where('user_id', '=', $user->id)->first();
 
-        //dd($preference->$pref); // could pass in param to use this for every point where user prefs are needed
-        // should probably use this method
-        
         $preference = $preference->$pref;
-        
-        // use_dashboard
-        // logo_target
-        // proj_page_tab_selection
-        // single_proj_page_tab_selection
-        // keep_sidemenu
 
-        //$preference = json_encode($preference); // or I could ajax this json response from global.js on every page load and use the response as needed
+        // use_dashboard :: 0 or 1
+        // logo_target :: 1 or 2
+        // proj_page_tab_selection :: 1, 2, or 3 :: archived//custom//alphabetical
+        // single_proj_page_tab_selection :: 2 or 3 :: custom//alphabetical
+        // keep_sidemenu :: 1 or 2
 
-        return response()->json(["status"=>true, "message"=>$preference]);
+        return $preference;
       }
     }
 

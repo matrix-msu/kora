@@ -28,7 +28,8 @@ use App\Http\Requests\ProjectRequest;
     @else
       @if(isInstalled())
         <li class="logo">
-          <a href="{{ url('/') }}" class="navigation-toggle-js">
+          @php $pref = 'logo_target' @endphp
+          <a href="{{ \App\Http\Controllers\Auth\UserController::returnUserPrefs($pref) == "1" ? url('/dashboard') : url('/projects') }}" class="navigation-toggle-js">
             <i class="icon icon-placeholder"></i>
           </a>
         </li>
@@ -64,15 +65,14 @@ use App\Http\Requests\ProjectRequest;
       @include("partials.menu.sideMenu")
     @endif
   </ul>
-    
+
   <script type="text/javascript">
-    var userPrefs = '{{ action('Auth\UserController@returnUserPrefs', ['pref' => 'use_dashboard']) }}'; // remove this later and only use it where needed - currently it loads globally which breaks everything
     var globalQuickSearchUrl = '{{ action('ProjectSearchController@globalQuickSearch') }}';
     var globalSearchUrl = '{{action('ProjectSearchController@globalSearch')}}';
     var cacheGlobalSearchUrl = '{{ action('ProjectSearchController@cacheGlobalSearch') }}';
     var clearGlobalCacheUrl = '{{ action('ProjectSearchController@clearGlobalCache') }}';
-	var getProjectPermissionsModal = '{{ action('ProjectController@getProjectPermissionsModal') }}';
-	var requestProjectPermissionsURL = '{{ action('ProjectController@request') }}';
+    var getProjectPermissionsModal = '{{ action('ProjectController@getProjectPermissionsModal') }}';
+    var requestProjectPermissionsURL = '{{ action('ProjectController@request') }}';
     var baseURL = '{{ env('BASE_URL') }}';
     var CSRFToken = '{{ csrf_token() }}';
   </script>
