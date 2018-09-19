@@ -8,7 +8,9 @@
                 <p class="audio-filenmame">{{explode('[Name]',$aud)[1]}}</p>
 
                 <div class="audio-container">
-                    <i class="icon icon-play play-button-js"></i>
+                    <i class="icon icon-play audio-button audio-button-js play-button-js active"></i>
+                    <i class="icon icon-pause-big audio-button audio-button-js pause-button-js"></i>
+                    <i class="icon icon-replay-big audio-button audio-button-js replay-button-js"></i>
 
                     <div class="slider ml-m">
                         <div class="slider-button slider-button-js"><div class="inner-button"></div></div>
