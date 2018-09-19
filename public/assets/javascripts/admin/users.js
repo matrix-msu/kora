@@ -240,7 +240,7 @@ Kora.Admin.Users = function() {
       e.preventDefault();
 
       var cleanupModal = $(".users-cleanup-modal-js");
-      cleanupModal.find('.modal-contet-js').hide();
+      cleanupModal.find('.modal-content-js').hide();
       cleanupModal.find('.invite-content-js').show();
       cleanupModal.find('.content').removeClass('small');
       cleanupModal.find('.title-js').html('Invite User(s)');

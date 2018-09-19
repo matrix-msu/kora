@@ -54,6 +54,18 @@
           </a>
         </div>
         <div class="body">
+          <div class="modal-content-js delete-self-1-content-js">
+            @include("partials.user.userSelfDeleteForm")
+          </div>
+
+          {!! Form::open(['method' => 'DELETE', 'action' => ['AdminController@deleteUser', 'id' => ''], 'class' => "modal-content-js delete-self-2-content-js"]) !!}
+            @include("partials.user.userSelfDeleteActualForm")
+          {!! Form::close() !!}
+
+          {!! Form::open(['method' => 'DELETE', 'action' => ['AdminController@deleteUser', 'id' => ''], 'class' => "modal-content-js delete-content-js"]) !!}
+            @include("partials.user.userDeleteForm")
+          {!! Form::close() !!}
+
           {!! Form::open(['method' => 'PATCH', 'action' => 'AdminController@batch', 'class' => 'modal-content-js invite-content-js']) !!}
             @include("partials.admin.userManagement.inviteForm")
           {!! Form::close() !!}
