@@ -1,0 +1,98 @@
+.toolbar {
+  @include transition();
+
+  align-items: center;
+  background: palette('white', base);
+  bottom: 0;
+  box-shadow: 0 -3px 25px 0 rgba(21,39,48,0.15);
+  display: flex;
+  font-family: $ubuntu-medium;
+  font-size: 14px;
+  height: 50px;
+  margin: 0;
+  overflow-x: auto;
+  position: fixed;
+  white-space: nowrap;
+  width: 100%;
+  z-index: 3;
+
+  &.hidden {
+    bottom: -50px;
+  }
+
+  &.with-aside {
+    margin-right: 250px;
+    width: calc(100% - 250px) !important;
+  }
+
+  .line {
+    background: palette('gray', text);
+    height: 2px;
+    margin: 0 30px;
+    opacity: 0.05;
+    width: fill;
+  }
+
+  .left {
+    color: palette('red', base);
+
+    &:hover {
+    cursor: pointer;
+    }
+  }
+
+  .middle {
+    color: palette('green', accent);
+    margin: 0 auto;
+
+    a {
+    color: inherit;
+    text-decoration: none;
+    }
+  }
+
+  .middle,
+  .right {
+    span:hover {
+    cursor: pointer;
+    }
+
+    i {
+    font-size: 13px;
+    }
+  }
+
+  .right {
+    color: palette('gray', slate);
+
+    i {
+    font-size: 11px;
+    }
+  }
+
+  span {
+    @include transition();
+  }
+
+  span:hover {
+    opacity: 0.8;
+  }
+
+  @media screen and (max-width: $max-mobile-width) {
+    .line {
+    margin: 0 10px;
+    }
+
+    .middle {
+    span:first-child {
+      margin-left: 15px;
+    }
+    > span:last-child {
+      margin-right: 15px;
+    }
+    }
+    .right {
+    padding-right: 20px;
+    }
+  }
+}

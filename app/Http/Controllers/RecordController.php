@@ -442,7 +442,8 @@ class RecordController extends Controller {
      * @param  bool $mass - Is deleting mass records
      * @return Redirect
      */
-    public function destroy($pid, $fid, $rid, $mass = false) {
+    public function destroy($pid, $fid, $rid, $mass = false) {;
+
         if(!self::validProjFormRecord($pid, $fid, $rid))
             return redirect('projects')->with('k3_global_error', 'record_invalid');
 
@@ -457,7 +458,30 @@ class RecordController extends Controller {
         $record->delete();
 
         return redirect()->action('FormController@show', ['pid' => $pid, 'fid' => $fid])->with('k3_global_success', 'record_deleted');
-	}
+    }
+    
+    /**
+     * Delete multiple records from a form.
+     */
+    //public function deleteMultipleRecords($pid, $fid, $rid) {
+    public function deleteMultipleRecords($pid, $fid, Request $request) {
+      $form = FormController::getForm($fid);
+      $rid = $request->rid;
+      $rid = explode(',', $rid);
+
+      if(!\Auth::user()->isFormAdmin($form)) {
+        return redirect('projects')->with('k3_global_error', 'not_form_admin');
+      } else {
+        foreach($rid as $rid) {
+          $record = self::getRecord($rid);
+
+          if (!empty($record))
+            $record->delete();
+        }
+
+        return redirect('projects/' . $pid . '/forms/' . $fid . '/records')->with('k3_global_success', 'multiple_records_deleted');
+      }
+    }
 
     /**
      * Delete all records from a form.
@@ -697,8 +721,29 @@ class RecordController extends Controller {
         return view('records.batchAssignment',compact('form','fields','pid','fid'));
     }
 
+    /* Get view for mass assigning selected records. */
+    public function showSelectedAssignmentView($pid,$fid) {
+        if(!FormController::validProjForm($pid, $fid))
+            return redirect('projects/'.$pid)->with('k3_global_error', 'form_invalid');
+
+        if(!self::checkPermissions($fid, 'modify'))
+            return redirect('projects/'.$pid.'/forms/'.$fid)->with('k3_global_error', 'cant_edit_record');
+
+        $form = FormController::getForm($fid);
+        $all_fields = $form->fields()->get();
+        $fields = new Collection();
+        foreach($all_fields as $field) {
+            $type = $field->type;
+            if($type == "Documents" || $type == "Gallery" || $type == "Playlist" || $type == "3D-Model" || $type == 'Video')
+                continue;
+            else
+                $fields->push($field);
+        }
+        return view('records.batchAssignSelected',compact('form','fields','pid','fid'));
+    }
+
     /**
-     * Mass assigns a value to a field in all records.
+     * Mass assigns a value to a field in ALL records.
      *
      * @param  int $pid - Project ID
      * @param  int $fid - Form ID

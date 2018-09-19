@@ -11,6 +11,7 @@ use App\OptionPreset;
 use App\RecordPreset;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Redirect;
+use Illuminate\Http\Request;
 
 class ExportController extends Controller {
 
@@ -93,6 +94,42 @@ class ExportController extends Controller {
             flash()->overlay(trans("records_index.exporterror"), trans("controller_admin.whoops"));
             return redirect("projects/" . $pid . "/forms/" . $fid . "/records");
         }
+    }
+
+    public function exportSelectedRecords($pid, $fid, $type, Request $request) {
+      if(!FormController::validProjForm($pid,$fid))
+        return redirect('projects/'.$pid.'/forms/'.$fid.'/records');
+
+      $form = FormController::getForm($fid);
+
+      if(!\Auth::user()->isFormAdmin($form))
+        return redirect('projects/'.$pid.'/forms/'.$fid.'/records');
+
+      $rids = $request->rid;
+      $rids = array_map('intval', explode(',', $rids));
+      //dd($rids); // array of strings which is no good for exportWithRids()
+
+      //foreach($rid as $rid) {
+        //$records[] = DB::table("records")->where("fid", "=", $fid)->where('rid', '=', $rid)->get(); 
+        // seems to work, I get an array of three StdObjects(?), all contain an array of the record information
+        // not sure I need to do this, only doing it because that is what the above function does
+        // but the above function does this just to get all RIDs from a form, whereas I pass in the requested RIDs directly
+      //}
+
+      $options = ["revAssoc" => true, "meta" => false, "fields" => 'ALL', "data" => true, "realnames" => false, "assoc" => false];
+      $output = $this->exportWithRids($rids, $type, false, $options);
+
+      if(file_exists($output)) { // File exists, so we download it.
+          header("Content-Disposition: attachment; filename=\"" . basename($output) . "\"");
+          header("Content-Type: application/octet-stream");
+          header("Content-Length: " . filesize($output));
+
+          readfile($output);
+          exit;
+      } else { // File does not exist, so some kind of error occurred, and we redirect.
+          flash()->overlay(trans("records_index.exporterror"), trans("controller_admin.whoops"));
+          return redirect("projects/" . $pid . "/forms/" . $fid . "/records");
+      }
     }
 
     /**
