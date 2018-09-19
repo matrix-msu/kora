@@ -33,6 +33,8 @@
 
 @section('body')
     @include("partials.records.modals.deleteRecordModal", ['record' => null])
+    @include("partials.records.modals.deleteMultipleRecordsModal", ['record' => null])
+    @include("partials.records.modals.exportMultipleRecordsModal", ['record' => null])
     <section class="view-records center">
         <section class="search-records">
             <form method="GET" action="{{action('FormSearchController@keywordSearch',['pid' => $form->pid, 'fid' => $form->fid])}}" class="keyword-search-js">
@@ -100,7 +102,7 @@
                       <span><a href="#" class="collapse-fields-js tooltip" title="Collapse all Records" tooltip="Collapse all Records"><i class="icon icon-condense icon-condense-js"></i></a></span>
                   </div>
               </section>
-
+                
               @foreach($records as $index => $record)
                   @include('partials.records.card')
               @endforeach
@@ -109,6 +111,9 @@
             @endif
         </section>
     </section>
+    @if (count($records) > 0)
+      @include('partials.records.toolbar')
+    @endif
 @stop
 
 @section('footer')
@@ -124,5 +129,6 @@
         var deleteRecordURL = "{{action('RecordController@destroy', ['pid' => $form->pid, 'fid' => $form->fid, 'rid' => ''])}}";
 
         Kora.Records.Index();
+        Kora.Records.Toolbar();
     </script>
 @stop

@@ -2,10 +2,15 @@
   @include transition(box-shadow);
 
   background: palette('white', base);
+  border: 2px solid palette('white', base);
   border-radius: 5px;
   box-shadow: 0 3px 5px 0 palette('box-shadow', base, .05);
   margin: 30px auto;
   position: relative;
+
+  &.selected {
+    border: 2px solid palette('green', accent, .5);
+  }
 
   a {
     color: inherit;
