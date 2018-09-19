@@ -29,7 +29,7 @@ use App\Http\Requests\ProjectRequest;
       @if(isInstalled())
         <li class="logo">
           @php $pref = 'logo_target' @endphp
-          <a href="{{ \App\Http\Controllers\Auth\UserController::returnUserPrefs($pref) == "1" ? url('/dashboard') : url('/projects') }}" class="navigation-toggle-js">
+          <a href="{{ \App\Http\Controllers\Auth\UserController::returnUserPrefs($pref) == "1" ? url('/dashboard') : url('/projects') }}">
             <i class="icon icon-placeholder"></i>
           </a>
         </li>
