@@ -15,38 +15,47 @@ Kora.Forms.Edit = function() {
 
             Kora.Modal.open($cleanupModal);
         });
+		
+		$('.delete-form-js').click(function(e) {
+			display_loader();
+		});
 
         $('.delete-records-js').click(function(e) {
-              e.preventDefault();
+            e.preventDefault();
 
-              var $cleanupModal = $('.delete-records-modal-js');
+            var $cleanupModal = $('.delete-records-modal-js');
 
-              Kora.Modal.open($cleanupModal);
+            Kora.Modal.open($cleanupModal);
         });
 
-      $('.delete-files-js').click(function(e) {
-          e.preventDefault();
+        $('.delete-files-js').click(function(e) {
+			e.preventDefault();
 
-          var $cleanupModal = $('.delete-files-modal-js');
+			var $cleanupModal = $('.delete-files-modal-js');
 
-          Kora.Modal.open($cleanupModal);
-      });
+			Kora.Modal.open($cleanupModal);
+        });
+		
+		$('.create-test-records-btn-js, .delete-test-records-btn-js').click(function(e) {
+			console.log("dislaying loader");
+			display_loader();
+        });
 
-      $('.create-test-js').click(function(e) {
-          e.preventDefault();
+		$('.create-test-js').click(function(e) {
+			e.preventDefault();
 
-          var $cleanupModal = $('.create-test-records-js');
+			var $cleanupModal = $('.create-test-records-js');
 
-          Kora.Modal.open($cleanupModal);
-      });
+			Kora.Modal.open($cleanupModal);
+        });
 
-      $('.delete-test-js').click(function(e) {
-          e.preventDefault();
+        $('.delete-test-js').click(function(e) {
+			e.preventDefault();
 
-          var $cleanupModal = $('.delete-test-records-js');
+			var $cleanupModal = $('.delete-test-records-js');
 
-          Kora.Modal.open($cleanupModal);
-      });
+			Kora.Modal.open($cleanupModal);
+        });
   }
 
   function scrollTop (allScrolls) {

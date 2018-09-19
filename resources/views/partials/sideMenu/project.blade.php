@@ -71,6 +71,10 @@
         <a href="{{ action('OptionPresetController@index',['pid' => $pid]) }}">Field Value Presets</a>
       </li>
 
+      <li class="content-link content-link-js" data-page="multi-import-setup">
+          <a href="{{action('ImportMultiFormController@index', ['pid'=>$pid])}}">Import MF Records Setup</a>
+      </li>
+
       <li class="content-link content-link-js" data-page="scheme-import-setup">
         <a href="{{ action('FormController@importFormViewK2',['pid' => $pid]) }}">Kora 2 Scheme Importer</a>
       </li>

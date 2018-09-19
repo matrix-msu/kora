@@ -144,6 +144,66 @@ class ExportController extends Controller {
     }
 
     /**
+     * To speed things up, this function preps record data files into a zip beforehand.
+     *
+     * @param  int $pid - Project ID
+     * @param  int $fid - Form ID
+     */
+    public function prepRecordFiles($pid, $fid) {
+        if(!FormController::validProjForm($pid, $fid))
+            return redirect('projects/'.$pid)->with('k3_global_error', 'form_invalid');
+
+        $form = FormController::getForm($fid);
+
+        if(!(\Auth::user()->isFormAdmin($form)))
+            return redirect('projects/'.$pid)->with('k3_global_error', 'not_form_admin');
+
+        $path = config('app.base_path').'storage/app/files/p'.$pid.'/f'.$fid;
+        $zipPath = config('app.base_path').'storage/app/tmpFiles/'.$form->name.'_preppedZIP_user'.\Auth::user()->id.'.zip';
+
+        $fileSizeCount = 0.0;
+
+        // Initialize archive object
+        $zip = new \ZipArchive();
+        $zip->open($zipPath, (\ZipArchive::CREATE | \ZipArchive::OVERWRITE));
+
+        if(file_exists($path)) {
+            ini_set('max_execution_time',0);
+            ini_set('memory_limit', "6G");
+
+            //add files
+            $files = new \RecursiveIteratorIterator(
+                new \RecursiveDirectoryIterator($path),
+                \RecursiveIteratorIterator::LEAVES_ONLY
+            );
+
+            foreach ($files as $name => $file) {
+                if($fileSizeCount > 5)
+                    return response()->json(["status"=>false,"message"=>"zip_too_big"],500);
+
+                // Skip directories (they would be added automatically)
+                if (!$file->isDir()) {
+                    // Get real and relative path for current file
+                    $filePath = $file->getRealPath();
+                    $relativePath = substr($filePath, strlen($path) + 1);
+
+                    // Add current file to archive
+                    $zip->addFile($filePath, $relativePath);
+
+                    $fileSizeCount += number_format(filesize($filePath) / 1073741824, 2);
+                }
+            }
+        } else {
+            return response()->json(["status"=>false,"message"=>"no_record_files"],500);
+        }
+
+        // Zip archive will be created only after closing object
+        $zip->close();
+
+        return 'Success';
+    }
+
+    /**
      * Exports the files associated with the form records being exported.
      *
      * @param  int $pid - Project ID
@@ -162,40 +222,56 @@ class ExportController extends Controller {
         $path = config('app.base_path').'storage/app/files/p'.$pid.'/f'.$fid;
         $zipPath = config('app.base_path').'storage/app/tmpFiles/';
 
-        // Initialize archive object
-        $zip = new \ZipArchive();
-        $time = Carbon::now();
-        $zip->open($zipPath.$form->name.'_fileData_'.$time.'.zip', \ZipArchive::CREATE);
+        ini_set('max_execution_time',0);
+        ini_set('memory_limit', "6G");
 
-        if(file_exists($path)) {
-            //add files
-            $files = new \RecursiveIteratorIterator(
-                new \RecursiveDirectoryIterator($path),
-                \RecursiveIteratorIterator::LEAVES_ONLY
-            );
+        $fileSizeCount = 0.0;
 
-            foreach ($files as $name => $file) {
-                // Skip directories (they would be added automatically)
-                if (!$file->isDir()) {
-                    // Get real and relative path for current file
-                    $filePath = $file->getRealPath();
-                    $relativePath = substr($filePath, strlen($path) + 1);
-
-                    // Add current file to archive
-                    $zip->addFile($filePath, $relativePath);
-                }
-            }
+        if(file_exists($zipPath.$form->name.'_preppedZIP_user'.\Auth::user()->id.'.zip')) {
+            $subPath = $form->name.'_preppedZIP_user'.\Auth::user()->id.'.zip';
         } else {
-            return redirect('projects/'.$pid.'/forms/'.$fid)->with('k3_global_error', 'no_record_files');
+            $time = Carbon::now();
+            $subPath = $form->name . '_fileData_' . $time . '.zip';
+
+            // Initialize archive object
+            $zip = new \ZipArchive();
+            $zip->open($zipPath . $subPath, \ZipArchive::CREATE);
+
+            if (file_exists($path)) {
+                //add files
+                $files = new \RecursiveIteratorIterator(
+                    new \RecursiveDirectoryIterator($path),
+                    \RecursiveIteratorIterator::LEAVES_ONLY
+                );
+
+                foreach ($files as $name => $file) {
+                    if($fileSizeCount > 5)
+                        return redirect('projects/' . $pid . '/forms/' . $fid)->with('k3_global_error', 'zip_too_big');
+
+                    // Skip directories (they would be added automatically)
+                    if (!$file->isDir()) {
+                        // Get real and relative path for current file
+                        $filePath = $file->getRealPath();
+                        $relativePath = substr($filePath, strlen($path) + 1);
+
+                        // Add current file to archive
+                        $zip->addFile($filePath, $relativePath);
+
+                        $fileSizeCount += number_format(filesize($filePath) / 1073741824, 2);
+                    }
+                }
+            } else {
+                return redirect('projects/' . $pid . '/forms/' . $fid)->with('k3_global_error', 'no_record_files');
+            }
+
+            // Zip archive will be created only after closing object
+            $zip->close();
         }
 
-        // Zip archive will be created only after closing object
-        $zip->close();
-
-        header('Content-Disposition: attachment; filename="'.$form->name.'_fileData_'.$time.'.zip"');
+        header('Content-Disposition: attachment; filename="'.$subPath.'"');
         header('Content-Type: application/zip; ');
 
-        readfile($zipPath.$form->name.'_fileData_'.$time.'.zip');
+        readfile($zipPath.$subPath);
         exit;
     }
 
@@ -680,10 +756,6 @@ class ExportController extends Controller {
             case self::KORA:
                 $records = array();
 
-                //So we need to keep track of what fields are used. We have to make sure records that have empty values
-                // for these fields, still have that field represented as blank.
-                $usedFieldNames = array();
-
                 //Check to see if we should bother with options
                 $useOpts = !is_null($options);
 
@@ -707,10 +779,6 @@ class ExportController extends Controller {
                         $slug = str_replace('_'.$data->pid.'_'.$data->fid.'_', '', $data->slug);
                         if(!$useOpts || !$options['under'])
                             $slug = str_replace('_', ' ', $slug); //Now that the tag is gone, remove space fillers
-
-                        //Capture the field index
-                        if(!in_array($slug,$usedFieldNames))
-                            array_push($usedFieldNames,$slug);
 
                         switch($data->type) {
                             case Field::_TEXT:
@@ -786,9 +854,27 @@ class ExportController extends Controller {
                     }
                 }
 
+                $emptyValueSlugs = [];
+
                 //Add those blank values
                 foreach($records as $kid => $data) {
-                    foreach($usedFieldNames as $slug) {
+                    $pid = explode('-',$kid)[0];
+                    $fid = explode('-',$kid)[1];
+
+                    //See if we already fetched these slugs
+                    if(!array_key_exists($fid,$emptyValueSlugs)) {
+                        $slugArray = FormController::getForm($fid)->fields()->pluck('slug')->toArray();
+                        for($i=0;$i<sizeof($slugArray);$i++) {
+                            $slug = $slugArray[$i];
+                            $slugArray[$i] = str_replace('_'.$pid.'_'.$fid.'_', '', $slug);
+                            if(!$useOpts || !$options['under'])
+                                $slugArray[$i] = str_replace('_', ' ', $slugArray[$i]); //Now that the tag is gone, remove space fillers
+                        }
+                    } else {
+                        $slugArray = $emptyValueSlugs[$fid];
+                    }
+
+                    foreach($slugArray as $slug) {
                         if(!isset($data[$slug]))
                             $records[$kid][$slug] = '';
                     }
@@ -1246,7 +1332,10 @@ SELECT glf.rid as `rid`, glf.options as `value`, NULL as `val2`, NULL as `val3`,
 FROM ".$prefix."generated_list_fields as glf left join ".$prefix."fields as fl on glf.flid=fl.flid where glf.rid in ($ridArray)$slugQL 
 union all
 
-SELECT clf.rid as `rid`, GROUP_CONCAT(if(clf.field_num=1, clf.data, null) SEPARATOR '[!data!]' ) as `value`, GROUP_CONCAT(if(clf.field_num=2, clf.data, null) SEPARATOR '[!data!]' ) as `val2`, GROUP_CONCAT(if(clf.field_num=1, clf.number, null) SEPARATOR '[!data!]' ) as `val3`, GROUP_CONCAT(if(clf.field_num=2, clf.number, null) SEPARATOR '[!data!]' ) as `val4`, fl.options as `val5`, fl.slug, fl.type, fl.pid, fl.fid, fl.flid, fl.name 
+SELECT clf.rid as `rid`, GROUP_CONCAT(if(clf.field_num=1, clf.data, null) ORDER BY clf.list_index ASC SEPARATOR '[!data!]' ) as `value`, 
+GROUP_CONCAT(if(clf.field_num=2, clf.data, null) ORDER BY clf.list_index ASC SEPARATOR '[!data!]' ) as `val2`, 
+GROUP_CONCAT(if(clf.field_num=1, clf.number, null) ORDER BY clf.list_index ASC SEPARATOR '[!data!]' ) as `val3`, 
+GROUP_CONCAT(if(clf.field_num=2, clf.number, null) ORDER BY clf.list_index ASC SEPARATOR '[!data!]' ) as `val4`, fl.options as `val5`, fl.slug, fl.type, fl.pid, fl.fid, fl.flid, fl.name 
 FROM ".$prefix."combo_support as clf left join ".$prefix."fields as fl on clf.flid=fl.flid where clf.rid in ($ridArray)$slugQL group by `rid`, `flid` 
 union all
 
@@ -1254,7 +1343,8 @@ SELECT df.rid as `rid`, df.circa as `value`, df.month as `val2`,df.day as `val3`
 FROM ".$prefix."date_fields as df left join ".$prefix."fields as fl on df.flid=fl.flid where df.rid in ($ridArray)$slugQL 
 union all
 
-SELECT sf.rid as `rid`, GROUP_CONCAT(sf.begin SEPARATOR '[!]') as `value`, GROUP_CONCAT(sf.end SEPARATOR '[!]') as `val2`, GROUP_CONCAT(sf.allday SEPARATOR '[!]') as `val3`, GROUP_CONCAT(sf.desc SEPARATOR '[!]') as `val4`, NULL as `val5`, fl.slug, fl.type, fl.pid, fl.fid, fl.flid, fl.name 
+SELECT sf.rid as `rid`, GROUP_CONCAT(sf.begin SEPARATOR '[!]') as `value`, GROUP_CONCAT(sf.end SEPARATOR '[!]') as `val2`, GROUP_CONCAT(sf.allday SEPARATOR '[!]') as `val3`, 
+GROUP_CONCAT(sf.desc SEPARATOR '[!]') as `val4`, NULL as `val5`, fl.slug, fl.type, fl.pid, fl.fid, fl.flid, fl.name 
 FROM ".$prefix."schedule_support as sf left join ".$prefix."fields as fl on sf.flid=fl.flid where sf.rid in ($ridArray)$slugQL group by `rid`, `flid` 
 union all
 

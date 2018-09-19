@@ -1,8 +1,6 @@
 <?php namespace App;
 
 use App\Http\Controllers\FieldController;
-use App\Http\Controllers\RevisionController;
-use Carbon\Carbon;
 use DateTime;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -209,34 +207,79 @@ class DateField extends BaseField {
      * Takes data from a mass assignment operation and applies it to an individual field.
      *
      * @param  Field $field - The field to represent record data
-     * @param  Record $record - Record being written to
      * @param  String $formFieldValue - The value to be assigned
      * @param  Request $request
      * @param  bool $overwrite - Overwrite if data exists
      */
-    public function massAssignRecordField($field, $record, $formFieldValue, $request, $overwrite=0) {
-        $flid = $field->flid;
-        $matching_record_fields = $record->datefields()->where("flid", '=', $flid)->get();
-        $record->updated_at = Carbon::now();
-        $record->save();
-        if($matching_record_fields->count() > 0) {
-            $datefield = $matching_record_fields->first();
-            if($overwrite == true || $datefield->month == "" || is_null($datefield->month)) {
-                $revision = RevisionController::storeRevision($record->rid, Revision::EDIT);
-                $datefield->circa = $request->input('circa_' . $flid, '');
-                $datefield->month = $request->input('month_' . $flid);
-                $datefield->day = $request->input('day_' . $flid);
-                $datefield->year = $request->input('year_' . $flid);
-                $datefield->era = $request->input('era_' . $flid, 'CE');
-                $datefield->save();
-                $revision->data = RevisionController::buildDataArray($record);
-                $revision->save();
+    public function massAssignRecordField($field, $formFieldValue, $request, $overwrite=0) {
+        //Get array of all RIDs in form
+        $rids = Record::where('fid','=',$field->fid)->pluck('rid')->toArray();
+        //Get list of RIDs that have the value for that field
+        $ridsValue = DateField::where('flid','=',$field->flid)->where('month','!=','')->where('month','!=',NULL)->pluck('rid')->toArray();
+        //Subtract to get RIDs with no value
+        $ridsNoVal = array_diff($rids, $ridsValue);
+
+        foreach(array_chunk($ridsNoVal,1000) as $chunk) {
+            //Create data array and store values for no value RIDs
+            $dataArray = [];
+            $flid = $field->flid;
+            foreach($chunk as $rid) {
+                $dataArray[] = [
+                    'rid' => $rid,
+                    'fid' => $field->fid,
+                    'flid' => $flid,
+                    'circa' => $request->input('circa_' . $flid, ''),
+                    'month' => $request->input('month_' . $flid),
+                    'day' => $request->input('day_' . $flid),
+                    'year' => $request->input('year_' . $flid),
+                    'era' => $request->input('era_' . $flid, 'CE')
+                ];
             }
-        } else {
-            $this->createNewRecordField($field, $record, $formFieldValue, $request);
-            $revision = RevisionController::storeRevision($record->rid, Revision::EDIT);
-            $revision->data = RevisionController::buildDataArray($record);
-            $revision->save();
+            DateField::insert($dataArray);
+        }
+
+        if($overwrite) {
+            foreach(array_chunk($ridsValue, 1000) as $chunk) {
+                DateField::where('flid', '=', $field->flid)->whereIn('rid', $chunk)->update([
+                    'circa' => $request->input('circa_' . $flid, ''),
+                    'month' => $request->input('month_' . $flid),
+                    'day' => $request->input('day_' . $flid),
+                    'year' => $request->input('year_' . $flid),
+                    'era' => $request->input('era_' . $flid, 'CE')
+                ]);
+            }
+        }
+    }
+
+    /**
+     * Takes data from a mass assignment operation and applies it to an individual field for a record subset.
+     *
+     * @param  Field $field - The field to represent record data
+     * @param  String $formFieldValue - The value to be assigned
+     * @param  Request $request
+     * @param  array $rids - Overwrite if data exists
+     */
+    public function massAssignSubsetRecordField($field, $formFieldValue, $request, $rids) {
+        //Delete the old data
+        DateField::where('flid','=',$field->flid)->whereIn('rid', $rids)->delete();
+
+        foreach(array_chunk($rids,1000) as $chunk) {
+            //Create data array and store values for no value RIDs
+            $dataArray = [];
+            $flid = $field->flid;
+            foreach($chunk as $rid) {
+                $dataArray[] = [
+                    'rid' => $rid,
+                    'fid' => $field->fid,
+                    'flid' => $field->flid,
+                    'circa' => $request->input('circa_' . $flid, ''),
+                    'month' => $request->input('month_' . $flid),
+                    'day' => $request->input('day_' . $flid),
+                    'year' => $request->input('year_' . $flid),
+                    'era' => $request->input('era_' . $flid, 'CE')
+                ];
+            }
+            DateField::insert($dataArray);
         }
     }
 

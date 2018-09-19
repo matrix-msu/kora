@@ -326,6 +326,7 @@ class RestfulController extends Controller {
                                 }
                                 $request->request->add([$fieldModel->flid.'_dropdown' => 'on']);
                                 $request->request->add([$fieldModel->flid.'_valid' => 1]);
+                                $request->request->add([$fieldModel->flid => 1]);
                                 $request = $fieldModel->getTypedField()->setRestfulAdvSearch($data,$fieldModel->flid,$request);
                             }
                             $advSearch = new AdvancedSearchController();
@@ -343,6 +344,10 @@ class RestfulController extends Controller {
                             $kids = $query->kids;
                             $rids = array();
                             for($i = 0; $i < sizeof($kids); $i++) {
+                                if(!Record::isKIDPattern($kids[$i])) {
+                                    array_push($minorErrors,"Illegal KID ($kids[$i]) in a KID search for form: ". $form->name);
+                                    continue;
+                                }
                                 $rid = explode("-", $kids[$i])[2];
                                 $record = Record::where('rid',$rid)->get()->first();
                                 if($record->fid != $form->fid)
@@ -527,6 +532,8 @@ class RestfulController extends Controller {
         $direction = $sortFields[1];
         $newOrderArray = array();
 
+        //TODO::report errors, not 100% sure how we'll get it up a level
+
         if($fieldSlug=='kora_meta_owner') {
             $userRecords = DB::table('records')->join('users','users.id','=','records.owner')
                 ->select('records.rid','users.username')
@@ -654,6 +661,8 @@ class RestfulController extends Controller {
         $fieldSlug = $sortFields[0];
         $direction = $sortFields[1];
         $newOrderArray = array();
+
+        //TODO::report errors, not 100% sure how we'll get it up a level
 
         if(!is_array($fieldSlug) && $fieldSlug=='kora_meta_owner') {
             $userRecords = DB::table('records')->join('users','users.id','=','records.owner')
