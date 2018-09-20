@@ -58,10 +58,7 @@ Route::group(['middleware' => 'web'], function () {
     Route::get('/exodus/progress', 'ExodusController@checkProgress');
     Route::post('/exodus/user/unlock', 'ExodusController@unlockUsers');
     Route::post('/exodus/start', 'ExodusController@startExodus');
-    Route::post('/exodus/finish', 'ExodusController@finishExodus'); //
-
-//Kora Publisher
-    Route::get('/publish', 'PublishController@index');
+    Route::post('/exodus/finish', 'ExodusController@finishExodus');
 
 //token routes
     Route::get('/tokens', 'TokenController@index');
