@@ -4,7 +4,6 @@ use App\User;
 use App\Project;
 use App\ProjectGroup;
 use App\Http\Requests\ProjectRequest;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;

@@ -5,8 +5,6 @@ use App\Http\Controllers\FieldController;
 use App\Http\Controllers\RecordController;
 use Illuminate\Http\Request;
 use ZipArchive;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\File;
 
 abstract class FileTypeField extends BaseField {
 

@@ -30,7 +30,7 @@ class BackupController extends Controller {
     */
 
     /**
-     * @var string- Sets the backup directory relative to laravel/storage/app
+     * @var string- Sets the backup directory relative to Kora3/storage/app
      */
     private $BACKUP_DIRECTORY = "backups";
 
