@@ -2,6 +2,7 @@
 
 use App\AssociatorField;
 use App\Field;
+use App\FileTypeField;
 use App\RecordPreset;
 use App\Revision;
 use App\User;
@@ -712,8 +713,8 @@ class RecordController extends Controller {
         $all_fields = $form->fields()->get();
         $fields = new Collection();
         foreach($all_fields as $field) {
-            $type = $field->type;
-            if($type == "Documents" || $type == "Gallery" || $type == "Playlist" || $type == "3D-Model" || $type == 'Video')
+            //We don't want File Fields to be mass assignable because of the processing expense with large data sets
+            if($field->getTypedField() instanceof FileTypeField)
                 continue;
             else
                 $fields->push($field);
@@ -733,8 +734,8 @@ class RecordController extends Controller {
         $all_fields = $form->fields()->get();
         $fields = new Collection();
         foreach($all_fields as $field) {
-            $type = $field->type;
-            if($type == "Documents" || $type == "Gallery" || $type == "Playlist" || $type == "3D-Model" || $type == 'Video')
+            //We don't want File Fields to be mass assignable because of the processing expense with large data sets
+            if($field->getTypedField() instanceof FileTypeField)
                 continue;
             else
                 $fields->push($field);
@@ -824,11 +825,6 @@ class RecordController extends Controller {
             flash()->overlay(trans('controller_record.provide'),trans('controller_record.whoops'));
             return redirect()->back();
         }
-
-        if($request->has("overwrite"))
-            $overwrite = $request->input("overwrite"); //Overwrite field in all records, even if it has data
-        else
-            $overwrite = 0;
 
         $field = FieldController::getField($flid);
         $typedField = $field->getTypedField();
