@@ -81,12 +81,10 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
         $recaptcha = new ReCaptcha(config('auth.recap_private'));
         $resp = $recaptcha->verify($request['g-recaptcha-response'], $_SERVER['REMOTE_ADDR']);
 
-        if($resp->isSuccess()) {
+        if($resp->isSuccess())
             return true;
-        } else {
-            //TODO:: test error and make better
+        else
             return false;
-        }
     }
 
     /** REGISTRATION

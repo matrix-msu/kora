@@ -2,7 +2,7 @@
 
 use Illuminate\Console\Command;
 
-class FieldConvertScript extends Command //TODO::Build this out
+class FieldConvertScript extends Command //TODO::Build this out, and update documentation
 {
     /**
      * The name and signature of the console command.
