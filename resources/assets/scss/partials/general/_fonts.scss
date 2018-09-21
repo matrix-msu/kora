@@ -103,6 +103,27 @@ i {
   text-transform: none;
 }
 
+.icon-replay {
+  &:before {
+    content: $icon-replay;
+  }
+}
+.icon-replay-big {
+  &:before {
+    content: $icon-replay-big;
+  }
+}
+.icon-pause {
+  &:before {
+    content: $icon-pause;
+  }
+}
+.icon-pause-big {
+  &:before {
+    content: $icon-pause-big;
+  }
+}
+
 .icon-arrow-right,
 .icon-arrow-left,
 .icon-arrow-up,
@@ -679,5 +700,11 @@ i {
 .icon-record-EmptyState {
   &:before {
     content: $icon-record-EmptyState; 
+  }
+}
+.icon-zap-toolbar {
+  &:before {
+    content: $icon-zap-toolbar;     
+    color: #04b6af;
   }
 }

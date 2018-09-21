@@ -1,7 +1,7 @@
 @foreach(explode('[!]',$typedField->video) as $key => $vid)
     @if($vid != '')
         <div class="record-data-card">
-          <div class="video-field-display video-field-display-js">
+          <div class="field-display video-field-display video-field-display-js">
             <video height="300" width="auto" controls>
               <?php $filename = explode('[Name]',$vid)[1]; ?>
               <source data-filename="{{explode('[Name]',$vid)[1]}}" src="{{config('app.storage_url').'files/p'.$form->pid.'/f'.$form->fid.'/r'.$record->rid.'/fl'.$field->flid.'/'.explode('[Name]',$vid)[1]}}" type="{{explode('[Type]',$vid)[1]}}">

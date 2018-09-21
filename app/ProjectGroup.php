@@ -31,7 +31,7 @@ class ProjectGroup extends Model {
      * @return BelongsToMany
      */
     public function users() {
-        return $this->belongsToMany('App\User');
+		return $this->belongsToMany('App\User');
     }
 
     /**
@@ -88,24 +88,29 @@ class ProjectGroup extends Model {
         $adminGroup->name = $groupName;
         $adminGroup->pid = $project->pid;
         $adminGroup->save();
+		
+		$users_to_add = array();
 
         if(!is_null($request) && !is_null($request->admins)) {
             $adminGroup->users()->attach($request->admins);
+			
             foreach($request->admins as $uid) {
-                $user = User::where("id","=",$uid)->first();
-                $user->addCustomProject($adminGroup->pid);
+				array_push($users_to_add, $uid);
                 self::emailProjectAdmin($uid, $adminGroup->id);
             }
         }
 
         $adminGroup->users()->attach(array(\Auth::user()->id));
-        \Auth::user()->addCustomProject($adminGroup->pid);
+		array_push($users_to_add, \Auth::user()->id);
 
         //We want to now give this project to the custom list of all system admins
         $admins = User::where("admin","=",1)->get();
         foreach($admins as $admin) {
-            $admin->addCustomProject($adminGroup->pid);
+			array_push($users_to_add, $admin->id);
         }
+		
+		$proj = ProjectController::getProject($adminGroup->pid);
+		$proj->batchAddUsersAsCustom($users_to_add);
 
         $adminGroup->create = 1;
         $adminGroup->edit = 1;

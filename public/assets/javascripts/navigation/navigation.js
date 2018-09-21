@@ -83,6 +83,7 @@ $navBar.on('click', '.side-menu-toggle-js', function(e) {
     $icon.addClass('active');
 
     setCookie('sidebar', 1);
+    $('.toolbar').addClass('with-aside');
     $('.center, .floating-buttons').addClass('with-aside');
     $('.field.card').addClass('with-aside');
     $('.allowed-actions').addClass('with-aside');
@@ -90,6 +91,7 @@ $navBar.on('click', '.side-menu-toggle-js', function(e) {
     if (getBrowserWidth() > 870)
       $('.pre-fixed-js').addClass('pre-fixed-with-aside');
   } else {
+    $('.toolbar').removeClass('with-aside');
     $('.center, .floating-buttons').removeClass('with-aside');
     $('.field.card').removeClass('with-aside');
 	  $('.allowed-actions').removeClass('with-aside');

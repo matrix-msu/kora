@@ -58,10 +58,7 @@ Route::group(['middleware' => 'web'], function () {
     Route::get('/exodus/progress', 'ExodusController@checkProgress');
     Route::post('/exodus/user/unlock', 'ExodusController@unlockUsers');
     Route::post('/exodus/start', 'ExodusController@startExodus');
-    Route::post('/exodus/finish', 'ExodusController@finishExodus'); //
-
-//Kora Publisher
-    Route::get('/publish', 'PublishController@index');
+    Route::post('/exodus/finish', 'ExodusController@finishExodus');
 
 //token routes
     Route::get('/tokens', 'TokenController@index');
@@ -108,6 +105,7 @@ Route::group(['middleware' => 'web'], function () {
 
 //export routes
     Route::get('/projects/{pid}/forms/{fid}/exportRecords/{type}', 'ExportController@exportRecords');
+    Route::get('/projects/{pid}/forms/{fid}/exportSelectedRecords/{type}', 'ExportController@exportSelectedRecords');
     Route::post('/projects/{pid}/forms/{fid}/prepFiles', 'ExportController@prepRecordFiles');
     Route::get('/projects/{pid}/forms/{fid}/exportFiles', 'ExportController@exportRecordFiles');
     Route::get('/projects/{pid}/forms/{fid}/exportForm', 'ExportController@exportForm');
@@ -162,6 +160,7 @@ Route::group(['middleware' => 'web'], function () {
     Route::get('/projects/{pid}/forms/{fid}/records', 'RecordController@index');
     Route::post('/projects/{pid}/forms/{fid}/records/createTest', 'RecordController@createTest');
     Route::get('projects/{pid}/forms/{fid}/records/massAssignRecords', 'RecordController@showMassAssignmentView');
+    Route::get('projects/{pid}/forms/{fid}/records/showSelectedAssignmentView', 'RecordController@showSelectedAssignmentView');//this
     Route::post('projects/{pid}/forms/{fid}/records/massAssignRecords', 'RecordController@massAssignRecords');
     Route::post('projects/{pid}/forms/{fid}/records/massAssignRecordSet', 'RecordController@massAssignRecordSet');
     Route::patch('/projects/{pid}/forms/{fid}/records/{rid}', 'RecordController@update');
@@ -175,10 +174,11 @@ Route::group(['middleware' => 'web'], function () {
     Route::post('/projects/{pid}/forms/{fid}/records/importReasonsFailed', 'ImportController@downloadFailedReasons');
     Route::get('/projects/{pid}/forms/{fid}/importExample/{type}', 'ImportController@exportSample');
     Route::get('/projects/{pid}/forms/{fid}/records/{rid}', 'RecordController@show');
-    Route::delete('/projects/{pid}/forms/{fid}/records/{rid}', 'RecordController@destroy');
     Route::get('/projects/{pid}/forms/{fid}/records/{rid}/edit', 'RecordController@edit');
     Route::post('/projects/{pid}/forms/{fid}/records', 'RecordController@store');
     Route::delete('projects/{pid}/forms/{fid}/deleteTestRecords', 'RecordController@deleteTestRecords');
+    Route::delete('projects/{pid}/forms/{fid}/records/deleteMultipleRecords', 'RecordController@deleteMultipleRecords');
+    Route::delete('projects/{pid}/forms/{fid}/records/{rid}', 'RecordController@destroy');
     Route::delete('projects/{pid}/forms/{fid}/deleteAllRecords', 'RecordController@deleteAllRecords');
     Route::post('/projects/{pid}/forms/{fid}/cleanUp', 'RecordController@cleanUp');
     Route::get('/projects/{pid}/forms/{fid}/clone/{rid}', 'RecordController@cloneRecord');

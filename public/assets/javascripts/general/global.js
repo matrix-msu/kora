@@ -109,6 +109,7 @@ $(document).ready(function() {
     $('.field.card').addClass('with-aside');
     $('.notification').addClass('with-aside');
     $('.pre-fixed-js').addClass('pre-fixed-with-aside');
+    $('.toolbar').addClass('with-aside');
   } else {
     // the case where we want the aside lock to still work on refresh for larger screens
     // but not on mobile.
