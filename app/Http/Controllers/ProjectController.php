@@ -73,11 +73,9 @@ class ProjectController extends Controller {
         ksort($custom);
 
         //TODO::Update stuff
-        /*$c = new UpdateController();
-        $updateNotification = false;
-        if($c->checkVersion() && !session('notified_of_update')) {
-            session(['notified_of_update' => true]);
-            $updateNotification = true;
+        /*$current = new UpdateController();
+        if ($current->checkVersion()) {
+          $notification['message'] = 'Update Available!';
         }*/
 
         // should probably make a global notificationsController
@@ -87,11 +85,6 @@ class ProjectController extends Controller {
           'warning' => false,
           'static' => false
         );
-
-        $current = new UpdateController();
-        if ($current->checkVersion()) {
-          $notification['message'] = 'Update Available!';
-        }
 
         $prevUrlArray = $request->session()->get('_previous');
         $prevUrl = reset($prevUrlArray);
