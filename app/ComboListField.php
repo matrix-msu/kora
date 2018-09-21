@@ -192,14 +192,16 @@ class ComboListField extends BaseField {
                 $options .= '[!Options!]';
 
                 $reqOpts = $request->{"options_".$seq};
-                $options .= implode("[!]",$reqOpts);
+                if(!is_null($reqOpts))
+                    $options .= implode("[!]",$reqOpts);
                 $options .= '[!Options!]';
                 break;
             case Field::_GENERATED_LIST:
                 $options .= '[!Options!]';
 
                 $reqOpts = $request->{"options_".$seq};
-                $options .= implode("[!]",$reqOpts);
+                if(!is_null($reqOpts))
+                    $options .= implode("[!]",$reqOpts);
                 $options .= '[!Options!]';
                 $options .= '[!Regex!]'.$request->{"regex_".$seq}.'[!Regex!]';
                 break;
