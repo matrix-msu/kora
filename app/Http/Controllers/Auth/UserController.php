@@ -62,13 +62,37 @@ class UserController extends Controller {
 
         $admin = $user->admin;
 
+        $notification = array(
+          'message' => '',
+          'description' => '',
+          'warning' => false,
+          'static' => false
+        );
+
+        $prevUrlArray = $request->session()->get('_previous');
+        $prevUrl = reset($prevUrlArray);
+
+        if ($prevUrl !== url()->current()) {
+          $session = $request->session()->get('k3_global_success');
+          $changes = $request->session()->get('user_changes');
+
+          if ($session == 'user_updated') {
+            if (in_array('password', $changes)) {
+              $notification['message'] = 'Password Successfully Reset!';
+              $notification['static'] = true;
+            } else {
+              $notification['message'] = 'Profile Successfully Updated!';
+            }
+          }
+        }
+
         if ($section == 'permissions') {
             if($admin) {
-                return view('user/profile-permissions',compact('user', 'admin',  'section'));
+                return view('user/profile-permissions',compact('user', 'admin',  'section', 'notification'));
             } else {
                 $projects = self::buildProjectsArray($user);
                 $forms = self::buildFormsArray($user);
-                return view('user/profile-permissions',compact('user', 'admin', 'projects', 'forms', 'section'));
+                return view('user/profile-permissions',compact('user', 'admin', 'projects', 'forms', 'section', 'notification'));
             }
         } elseif ($section == 'history') {
             // Record History revisions
@@ -94,9 +118,9 @@ class UserController extends Controller {
                 ->orderBy($mcr_order_type, $mcr_order_direction)
                 ->paginate($pagination);
 
-            return view('user/profile-record-history',compact('user', 'admin', 'userRevisions', 'userOwnedRevisions', 'userCreatedRecords', 'section', 'sec'));
+            return view('user/profile-record-history',compact('user', 'admin', 'userRevisions', 'userOwnedRevisions', 'userCreatedRecords', 'section', 'sec', 'notification'));
         } else {
-            return view('user/profile',compact('user', 'admin', 'section'));
+            return view('user/profile',compact('user', 'admin', 'section', 'notification'));
         }
     }
 

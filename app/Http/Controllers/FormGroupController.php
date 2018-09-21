@@ -48,7 +48,15 @@ class FormGroupController extends Controller {
         $formGroups = $form->groups()->get();
         $users = User::pluck('username', 'id')->all();
         $all_users = User::all();
-        return view('formGroups.index', compact('form', 'formGroups', 'users', 'all_users', 'project'));
+
+        $notification = array(
+          'message' => '',
+          'description' => '',
+          'warning' => false,
+          'static' => false
+        );
+
+        return view('formGroups.index', compact('form', 'formGroups', 'users', 'all_users', 'project', 'notification'));
     }
 
     /**

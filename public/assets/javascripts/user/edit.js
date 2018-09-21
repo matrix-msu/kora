@@ -279,7 +279,7 @@ Kora.User.Edit = function() {
 
           e.preventDefault();
 
-          if (drop = 0) {
+          if (drop == false) {
             values = {};
             $.each($('.user-form').serializeArray(), function(i, field) {
                 values[field.name] = field.value;

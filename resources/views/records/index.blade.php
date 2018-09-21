@@ -33,6 +33,7 @@
 
 @section('body')
     @include("partials.records.modals.deleteRecordModal", ['record' => null])
+    @include('partials.projects.notification')
     @include("partials.records.modals.deleteMultipleRecordsModal", ['record' => null])
     @include("partials.records.modals.exportMultipleRecordsModal", ['record' => null])
     <section class="view-records center">

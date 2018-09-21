@@ -47,7 +47,15 @@ class ProjectGroupController extends Controller {
         $projectGroups = $project->groups()->get()->sortBy('id');
         $users = User::pluck('username', 'id')->all();
         $all_users = User::all();
-        return view('projectGroups.index', compact('project', 'projectGroups', 'users', 'all_users', 'active'));
+
+        $notification = array(
+          'message' => '',
+          'description' => '',
+          'warning' => false,
+          'static' => false
+        );
+
+        return view('projectGroups.index', compact('project', 'projectGroups', 'users', 'all_users', 'active', 'notification'));
     }
 
     /**

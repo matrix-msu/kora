@@ -44,7 +44,7 @@ class RecordController extends Controller {
      * @param  int $fid - Form ID
      * @return View
      */
-	public function index($pid, $fid) {
+	public function index($pid, $fid, Request $request) {
         if(!FormController::validProjForm($pid, $fid))
             return redirect('projects/'.$pid)->with('k3_global_error', 'form_invalid');
 
@@ -61,7 +61,30 @@ class RecordController extends Controller {
 
         $total = Record::where('fid', '=', $fid)->count();
 
-        return view('records.index', compact('form', 'records', 'total'));
+        $notification = array(
+          'message' => '',
+          'description' => '',
+          'warning' => false,
+          'static' => false
+        );
+        $prevUrlArray = $request->session()->get('_previous');
+        $prevUrl = reset($prevUrlArray);
+        if ($prevUrl !== url()->current()) {
+          $session = $request->session()->get('k3_global_success');
+
+          if ($session == 'record_created')
+            $notification['message'] = 'Record Successfully Created!';
+          else if ($session == 'record_duplicated')
+            $notification['message'] = 'Record Successfully Duplicated!';
+          else if ($session == 'mass_records_updated')
+            $notification['message'] = 'Batch Assign Successful!';
+          else if ($session == 'test_records_created') { 
+            $numRecs = $request->session()->get('num_test_recs');
+            $notification['message'] = $numRecs.' Test Records Created!'; 
+          }
+        }
+
+        return view('records.index', compact('form', 'records', 'total', 'notification'));
 	}
 
     /**
@@ -214,8 +237,13 @@ class RecordController extends Controller {
             }
         }
 
+        $prevUrlArray = $request->session()->get('_previous');
+        $prevUrl = reset($prevUrlArray);
+
         if($request->api)
             return response()->json(["status"=>true,"message"=>"record_created","kid"=>$record->kid],200);
+        else if (strpos($prevUrl, 'clone') !== false && $request->mass_creation_num > 0)
+            return redirect('projects/' . $pid . '/forms/' . $fid . '/records')->with('k3_global_success', 'record_duplicated');
         else
             return redirect('projects/' . $pid . '/forms/' . $fid . '/records')->with('k3_global_success', 'record_created');
 	}
@@ -228,7 +256,7 @@ class RecordController extends Controller {
      * @param  int $rid - Record ID
      * @return View
      */
-	public function show($pid, $fid, $rid) {
+	public function show($pid, $fid, $rid, Request $request) {
         if(!self::validProjFormRecord($pid, $fid, $rid))
             return redirect('projects')->with('k3_global_error', 'record_invalid');
 
@@ -241,7 +269,23 @@ class RecordController extends Controller {
         $numRevisions = Revision::where('rid',$rid)->count();
         $alreadyPreset = (RecordPreset::where('rid',$rid)->count() > 0);
 
-        return view('records.show', compact('record', 'form', 'owner', 'numRevisions', 'alreadyPreset'));
+        $notification = array(
+          'message' => '',
+          'description' => '',
+          'warning' => false,
+          'static' => false
+        );
+        $prevUrlArray = $request->session()->get('_previous');
+        $prevUrl = reset($prevUrlArray);
+        if ($prevUrl !== url()->current()) {
+          $session = $request->session()->get('k3_global_success');
+
+          if ($session == 'record_updated') {
+            $notification['message'] = 'Record Successfully Updated!';
+          }
+        }
+
+        return view('records.show', compact('record', 'form', 'owner', 'numRevisions', 'alreadyPreset', 'notification'));
 	}
 
     /**
@@ -870,7 +914,7 @@ class RecordController extends Controller {
             }
         }
 
-        return redirect()->action('RecordController@index',compact('pid','fid'))->with('k3_global_success', 'test_records_created');
+        return redirect()->action('RecordController@index',compact('pid','fid'))->with('k3_global_success', 'test_records_created')->with('num_test_recs', $numRecs);
     }
 
     /**

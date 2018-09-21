@@ -225,6 +225,7 @@ Kora.Admin.Users = function() {
               if (selfDelete) {
                 window.location = loginUrl;
               } else {
+                window.localStorage.setItem('message', 'User Successfully Deleted');
                 location.reload();
               }
             }

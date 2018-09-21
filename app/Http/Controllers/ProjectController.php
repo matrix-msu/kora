@@ -36,7 +36,7 @@ class ProjectController extends Controller {
      *
      * @return View
      */
-	public function index() {
+	public function index(Request $request) {
         $projectCollections = Project::all()->sortBy("name", SORT_NATURAL|SORT_FLAG_CASE);
 
         $projects = array();
@@ -80,7 +80,42 @@ class ProjectController extends Controller {
             $updateNotification = true;
         }*/
 
-        return view('projects.index', compact('projects', 'inactive', 'custom', 'pSearch', 'hasProjects', 'requestableProjects'));
+        // should probably make a global notificationsController
+        $notification = array(
+          'message' => '',
+          'description' => '',
+          'warning' => false,
+          'static' => false
+        );
+
+        $current = new UpdateController();
+        if ($current->checkVersion()) {
+          $notification['message'] = 'Update Available!';
+        }
+
+        $prevUrlArray = $request->session()->get('_previous');
+        $prevUrl = reset($prevUrlArray);
+        // we do not need to see notification every time we reload the page
+        if ($prevUrl !== url()->current()) {
+          $session = $request->session()->get('k3_global_success');
+          if ($session) {
+            if ($session == 'project_deleted')
+              $notification['message'] = 'Project Successfully Deleted';
+            else if ($session == 'project_archived')
+              $notification['message'] = 'Project Successfully Archived!';
+            else if ($session == 'project_imported')
+              $notification['message'] = 'Project Successfully Imported!';
+          } else {
+            $session = $request->session()->get('k3_global_error');
+            $notification['warning'] = true;
+            $notification['static'] = true;
+            if (strpos($session, 'cant') !== false || strpos($session, 'admin') !== false) {
+              $notification['message'] = 'Insufficient Permissions';
+            }
+          }
+        }
+
+        return view('projects.index', compact('projects', 'inactive', 'custom', 'pSearch', 'hasProjects', 'requestableProjects', 'notification'));
 	}
 	
 	/**
@@ -140,8 +175,8 @@ class ProjectController extends Controller {
                 }
             }
 			
-			// only occurs on form submit, not on AJAX call
-			return redirect('projects')->with('k3_global_success', 'project_access_requested');
+          // only occurs on form submit, not on AJAX call
+          return redirect('projects')->with('k3_global_success', 'project_access_requested');
         }
     }
 
@@ -180,7 +215,7 @@ class ProjectController extends Controller {
         $project->active = 1;
         $project->save();
 
-        return redirect('projects')->with('k3_global_success', 'project_created');
+        return redirect('projects/'.$project->pid)->with('k3_global_success', 'project_created');
 	}
 
     /**
@@ -189,7 +224,7 @@ class ProjectController extends Controller {
      * @param  int $id - Project ID
      * @return View
      */
-	public function show($id) {
+	public function show($id, Request $request) {
         if(!self::validProj($id))
             return redirect('projects')->with('k3_global_error', 'project_invalid');
 
@@ -216,7 +251,37 @@ class ProjectController extends Controller {
         //We need to sort the custom array
         ksort($custom);
 
-        return view('projects.show', compact('project','forms', 'custom'));
+        $notification = array(
+          'message' => '',
+          'description' => '',
+          'warning' => false,
+          'static' => false
+        );
+        $prevUrlArray = $request->session()->get('_previous');
+        $prevUrl = reset($prevUrlArray);
+        // we do not need to see notification every time we reload the page
+        if ($prevUrl !== url()->current()) {
+          $session = $request->session()->get('k3_global_success');
+          if ($session) {
+            if ($session == 'project_updated')
+              $notification['message'] = 'Project Sucessfully Updated!';
+            else if ($session == 'project_created')
+              $notification['message'] = 'Project Successfully Created!';
+            else if ($session == 'form_deleted')
+              $notification['message'] = 'Form Successfully Deleted!';
+            else if ($session == 'form_imported')
+              $notification['message'] = 'Form Successfully Imported!';
+          } else {
+            $session = $request->session()->get('k3_global_error');
+            $notification['warning'] = true;
+            $notification['static'] = true;
+            if (strpos($session, 'cant') !== false || strpos($session, 'admin') !== false) {
+              $notification['message'] = 'Insufficient Permissions';
+            }
+          }
+        }
+
+        return view('projects.show', compact('project','forms', 'custom', 'notification'));
 	}
 
     /**
@@ -257,7 +322,7 @@ class ProjectController extends Controller {
 
         ProjectGroupController::updateMainGroupNames($project);
 
-        return redirect('projects')->with('k3_global_success', 'project_updated');
+        return redirect('projects/'.$id)->with('k3_global_success', 'project_updated');
 	}
 
     /**
