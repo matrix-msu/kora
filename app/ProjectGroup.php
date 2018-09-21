@@ -141,7 +141,6 @@ class ProjectGroup extends Model {
                 $message->subject('Kora Project Permissions');
             });
         } catch(\Swift_TransportException $e) {
-            //TODO::email error response
             //Log for now
             Log::info('Project admin email failed');
         }
