@@ -1,6 +1,4 @@
-<?php
-
-namespace App\Http\Controllers;
+<?php namespace App\Http\Controllers;
 
 use Illuminate\View\View;
 
@@ -13,7 +11,7 @@ class HelpController extends Controller {
     |
     | Will probably use for more, but now just returns the help page for search
     |
-    */
+    */ //TODO::Is this class used, and do we need it? If so, add to the tech doc
 
     /**
      * Constructs controller and makes sure user is authenticated.

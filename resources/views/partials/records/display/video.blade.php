@@ -1,7 +1,7 @@
 @foreach(explode('[!]',$typedField->video) as $key => $vid)
     @if($vid != '')
         <div class="record-data-card">
-          <div class="video-field-display video-field-display-js">
+          <div class="field-display video-field-display video-field-display-js">
             <video height="300" width="auto" controls>
               <?php $filename = explode('[Name]',$vid)[1]; ?>
               <source data-filename="{{explode('[Name]',$vid)[1]}}" src="{{config('app.storage_url').'files/p'.$form->pid.'/f'.$form->fid.'/r'.$record->rid.'/fl'.$field->flid.'/'.explode('[Name]',$vid)[1]}}" type="{{explode('[Type]',$vid)[1]}}">
@@ -12,11 +12,11 @@
 
           <div class="field-sidebar video-sidebar video-sidebar-js">
               <div class="top">
-                  <a href="{{url('projects/'.$form->pid.'/forms/'.$form->fid.'/records/'.$record->rid.'/fields/'.$field->flid.'/video/'.$filename)}}" class="field-btn external-button-js" target="_blank">
+                  <a href="{{url('projects/'.$form->pid.'/forms/'.$form->fid.'/records/'.$record->rid.'/fields/'.$field->flid.'/video/'.$filename)}}" class="field-btn" target="_blank">
                       <i class="icon icon-external-link"></i>
                   </a>
 
-                  <a href="" class="field-btn external-button-js">
+                  <a href="{{ action('FieldAjaxController@getFileDownload', ['flid' => $field->flid, 'rid' => $record->rid, 'filename' => $filename]) }}" class="field-btn">
                       <i class="icon icon-download"></i>
                   </a>
               </div>

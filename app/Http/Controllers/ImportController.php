@@ -505,7 +505,7 @@ class ImportController extends Controller {
                         if (file_exists($currDir . '/thumbnail'))
                             copy($currDir . '/thumbnail/' . $name, $newDir . '/thumbnail/' . $name);
                         else {
-                            $smallParts = explode('x', FieldController::getFieldOption($field, 'ThumbSmall'));
+                            $smallParts = explode('x', FieldController::getFieldOption(FieldController::getField($flid), 'ThumbSmall'));
                             $tImage = new \Imagick($newDir . '/' . $name);
                             $tImage->thumbnailImage($smallParts[0], $smallParts[1], true);
                             $tImage->writeImage($newDir . '/thumbnail/' . $name);
@@ -513,7 +513,7 @@ class ImportController extends Controller {
                         if (file_exists($currDir . '/medium'))
                             copy($currDir . '/medium/' . $name, $newDir . '/medium/' . $name);
                         else {
-                            $largeParts = explode('x', FieldController::getFieldOption($field, 'ThumbLarge'));
+                            $largeParts = explode('x', FieldController::getFieldOption(FieldController::getField($flid), 'ThumbLarge'));
                             $mImage = new \Imagick($newDir . '/' . $name);
                             $mImage->thumbnailImage($largeParts[0], $largeParts[1], true);
                             $mImage->writeImage($newDir . '/medium/' . $name);
@@ -539,7 +539,7 @@ class ImportController extends Controller {
                             if (file_exists($currDir . '/thumbnail'))
                                 copy($currDir . '/thumbnail/' . $name, $newDir . '/thumbnail/' . $name);
                             else {
-                                $smallParts = explode('x', FieldController::getFieldOption($field, 'ThumbSmall'));
+                                $smallParts = explode('x', FieldController::getFieldOption(FieldController::getField($flid), 'ThumbSmall'));
                                 $tImage = new \Imagick($newDir . '/' . $name);
                                 $tImage->thumbnailImage($smallParts[0], $smallParts[1], true);
                                 $tImage->writeImage($newDir . '/thumbnail/' . $name);
@@ -547,7 +547,7 @@ class ImportController extends Controller {
                             if (file_exists($currDir . '/medium'))
                                 copy($currDir . '/medium/' . $name, $newDir . '/medium/' . $name);
                             else {
-                                $largeParts = explode('x', FieldController::getFieldOption($field, 'ThumbLarge'));
+                                $largeParts = explode('x', FieldController::getFieldOption(FieldController::getField($flid), 'ThumbLarge'));
                                 $mImage = new \Imagick($newDir . '/' . $name);
                                 $mImage->thumbnailImage($largeParts[0], $largeParts[1], true);
                                 $mImage->writeImage($newDir . '/medium/' . $name);
@@ -752,7 +752,7 @@ class ImportController extends Controller {
                         if(file_exists($currDir . '/thumbnail'))
                             copy($currDir . '/thumbnail/' . $name, $newDir . '/thumbnail/' . $name);
                         else {
-                            $smallParts = explode('x',FieldController::getFieldOption($field,'ThumbSmall'));
+                            $smallParts = explode('x',FieldController::getFieldOption(FieldController::getField($flid),'ThumbSmall'));
                             $tImage = new \Imagick($newDir . '/' . $name);
                             $tImage->thumbnailImage($smallParts[0],$smallParts[1],true);
                             $tImage->writeImage($newDir . '/thumbnail/' . $name);
@@ -760,7 +760,7 @@ class ImportController extends Controller {
                         if(file_exists($currDir . '/medium'))
                             copy($currDir . '/medium/' . $name, $newDir . '/medium/' . $name);
                         else {
-                            $largeParts = explode('x',FieldController::getFieldOption($field,'ThumbLarge'));
+                            $largeParts = explode('x',FieldController::getFieldOption(FieldController::getField($flid),'ThumbLarge'));
                             $mImage = new \Imagick($newDir . '/' . $name);
                             $mImage->thumbnailImage($largeParts[0],$largeParts[1],true);
                             $mImage->writeImage($newDir . '/medium/' . $name);
@@ -836,10 +836,14 @@ class ImportController extends Controller {
 
         foreach($failedRecords as $element) {
             $id = $element[0];
-            $messageArray = $element[2]->responseJSON->record_validation_error;
-            foreach($messageArray as $message) {
-                if($message != '' && $message != ' ')
-                    $messages[$id] = $message;
+            if(isset($element[2]->responseJSON->record_validation_error)) {
+                $messageArray = $element[2]->responseJSON->record_validation_error;
+                foreach($messageArray as $message) {
+                    if($message != '' && $message != ' ')
+                        $messages[$id] = $message;
+                }
+            } else {
+                $messages[$id] = "Unable to determine error. This is usually caused by a structure issue in your XML/JSON, or an unexpected bug in Kora3.";
             }
         }
 
@@ -995,7 +999,7 @@ class ImportController extends Controller {
 
         flash()->overlay("Your form has been successfully created!","Good job!");
 
-        return redirect('projects/'.$form->pid);
+        return redirect('projects/'.$pid)->with('k3_global_success', 'form_imported');
     }
 
     /**
@@ -1716,6 +1720,6 @@ class ImportController extends Controller {
             $this->importFormNoFile($proj->pid,$form);
         }
 
-        return redirect('projects')->with('k3_global_success', 'project_created');
+        return redirect('projects')->with('k3_global_success', 'project_imported');
     }
 }

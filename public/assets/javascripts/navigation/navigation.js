@@ -83,15 +83,19 @@ $navBar.on('click', '.side-menu-toggle-js', function(e) {
     $icon.addClass('active');
 
     setCookie('sidebar', 1);
+    $('.toolbar').addClass('with-aside');
     $('.center, .floating-buttons').addClass('with-aside');
     $('.field.card').addClass('with-aside');
     $('.allowed-actions').addClass('with-aside');
+    $('.notification').addClass('with-aside');
     if (getBrowserWidth() > 870)
       $('.pre-fixed-js').addClass('pre-fixed-with-aside');
   } else {
+    $('.toolbar').removeClass('with-aside');
     $('.center, .floating-buttons').removeClass('with-aside');
     $('.field.card').removeClass('with-aside');
 	  $('.allowed-actions').removeClass('with-aside');
+    $('.notification').removeClass('with-aside');
     if (getBrowserWidth() > 870)
       $('.pre-fixed-js').removeClass('pre-fixed-with-aside');
 
@@ -451,7 +455,7 @@ function initializeRequestProjectPermissionsModal()
 			$('.nav-request-error-js').text('');
    
 			if($('#request_project').val() != null)
-			{ 
+			{
 				$.ajax({
 				  url: requestProjectPermissionsURL,
 				  type: 'POST',
@@ -459,18 +463,24 @@ function initializeRequestProjectPermissionsModal()
 				    "_token": CSRFToken,
 				    "pids": $('#request_project').val()
 				  },
-				  success: function(result) {},
+				  success: function(result) {
+            $('.note').children('p').text('Project permissions have been requested!');
+            $('.note').children('p').addClass('with-description');
+            $('.note').children('span').text('You will be notified via email once permissions have been granted.');
+            $('.note').children('span').addClass('note-description');
+            $('.notification').addClass('static-js');
+            $('.notification').removeClass('dismiss');
+          },
 				  error: function(result) {}
-			    });
+			  });
 		
 				// close modal after sending request
 				Kora.Modal.close($(".nav-request-permissions-modal-js"));
 			}
 			else
 				$('.request-error-js').text('Please select a project');
-			}
-		);
-	  
+    });
+
 		$('.multi-select').chosen({
 			width: '100%'
 		});

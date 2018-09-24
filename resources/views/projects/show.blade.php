@@ -33,6 +33,9 @@
 @stop
 
 @section('body')
+  @if($notification)
+    @include('partials.projects.notification')
+  @endif
   @if (count($forms) > 0)
   <section class="filters center">
       <div class="underline-middle search search-js">

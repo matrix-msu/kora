@@ -112,7 +112,9 @@ $(document).ready(function() {
     $('.side-menu-js').addClass('active');
     $(".center, .floating-buttons").addClass('with-aside');
     $('.field.card').addClass('with-aside');
+    $('.notification').addClass('with-aside');
     $('.pre-fixed-js').addClass('pre-fixed-with-aside');
+    $('.toolbar').addClass('with-aside');
   } else {
     // the case where we want the aside lock to still work on refresh for larger screens
     // but not on mobile.
@@ -209,6 +211,50 @@ $(document).ready(function() {
     $('.content-link-js').removeClass('head');
     $activePageLink.addClass('head');
   }
+<<<<<<< HEAD
+=======
+
+  var $noteBody = $('.notification');
+  var $note = $('.note').children('p');
+  var $noteDesc = $('.note').children('span');
+
+  var message = window.localStorage.getItem('message');
+
+  if (message) {
+    $note.text(message);
+    window.localStorage.clear();
+  }
+
+  setTimeout(function(){
+    if ($note.text() != '') {
+      if ($note.text() === 'Update Available!') {
+        $('.view-updates-js').removeClass('hidden');
+      }
+
+      if ($noteDesc.text() != '') {
+        $noteDesc.addClass('note-description');
+        $note.addClass('with-description');
+      }
+
+      $noteBody.removeClass('dismiss');
+      $('.welcome-body').addClass('with-notification');
+
+      if (!$noteBody.hasClass('static-js')) {
+        setTimeout(function(){
+          $noteBody.addClass('dismiss');
+          $('.view-updates-js').addClass('hidden');
+        }, 4000);
+      }
+    }
+  }, 200);
+
+  $('.toggle-notification-js').click(function(e) {
+    e.preventDefault();
+
+    $noteBody.addClass('dismiss');
+    $('.welcome-body').removeClass('with-notification');
+  });
+>>>>>>> master
 });
 
 //Quick opens global search menu

@@ -28,8 +28,16 @@ trait RegistersUsers
      */
     public function register(Request $request)
     {
-        if(!\App\User::verifyRegisterRecaptcha($request,$this))
-            return redirect("/register")->withInput()->with('k3_global_error', 'recaptcha_failed')->send();
+        if(!\App\User::verifyRegisterRecaptcha($request)) {
+            $notification = array(
+                'message' => 'ReCaptcha validation error',
+                'description' => '',
+                'warning' => true,
+                'static' => true
+            );
+
+            return redirect("/register")->withInput()->with('notification', $notification)->send();
+        }
 
         $this->validator($request->all())->validate();
 
@@ -37,10 +45,14 @@ trait RegistersUsers
 
         $this->guard()->login($user);
 
-        \App\User::finishRegistration($request);
+        if(\App\User::finishRegistration($request))
+            $status = 'activation_email_sent';
+        else
+            $status = 'activation_email_failed';
+
 
         return $this->registered($request, $user)
-                        ?: redirect($this->redirectPath());
+                        ?: redirect($this->redirectPath())->with('status', $status);
     }
 
     /**
