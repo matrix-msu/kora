@@ -22,6 +22,7 @@ class WelcomeController extends Controller {
      * @return View
      */
 	public function index() {
+	    //dd(\Auth::user());
 	    if(!isInstalled())
         	return redirect('/helloworld');
         else if(\Auth::guest()) {
@@ -33,19 +34,45 @@ class WelcomeController extends Controller {
           );
 
           $session = session()->get('status');
-          if ($session == 'We have e-mailed your password reset link!') {
+          if($session == 'We have e-mailed your password reset link!') {
             $notification['message'] = 'Check your email! The password reset link has succesfully been sent!';
             $notification['static'] = true;
-          } else if ($session == 'user_activate_resent') {
+          } else if($session == 'user_activate_resent') {
             $notification['message'] = 'Another email has been sent!';
             $notification['static'] = true;
+          } else if($session == 'activation_email_sent') {
+              $notification['message'] = 'Registration successful! Activation email sent.';
+              $notification['static'] = true;
+          } else if($session == 'activation_email_failed') {
+              $notification['message'] ='Registration successful, but activation email failed.';
+              $notification['description'] ='Have the activation email resent, or contact your Kora3 administrator for help.';
+              $notification['warning'] = true;
+              $notification['static'] = true;
           }
 
           return view('/welcome', compact('notification'));
         }
-        else if (!\Auth::user()->active)
-          return view('/auth/activate');
-        else if(\Auth::user()->dash)
+        else if (!\Auth::user()->active) {
+            $notification = array(
+                'message' => '',
+                'description' => '',
+                'warning' => false,
+                'static' => false
+            );
+
+            $session = session()->get('status');
+            if($session == 'activation_email_sent') {
+                $notification['message'] = 'Registration successful! Activation email sent.';
+                $notification['static'] = false;
+            } else if($session == 'activation_email_failed') {
+                $notification['message'] ='Registration successful, but activation email failed.';
+                $notification['description'] ='Have the activation email resent, or contact your Kora3 administrator for help.';
+                $notification['warning'] = true;
+                $notification['static'] = true;
+            }
+
+            return view('/auth/activate', compact('notification'));
+        } else if(\Auth::user()->dash)
         	return redirect('/dashboard');
         else
         	return redirect('/projects');

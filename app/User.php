@@ -69,15 +69,14 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
 
     ////THESE FUNCTIONS WILL HANDLE MODIFICATIONS TO AUTHENTICATION IN LARAVEL//////////////////////////////////////////
 
-    ////NOTE: You may to fix some of these when updating to newer versions of laravel, so test them!!
+    ////NOTE: You may have to fix re-implement these functions when updating to newer versions of laravel, so test them!!
 
     /** RECAPTCHA
-     * Verifies recaptcha token on register.
+     * Verifies recaptcha token on register. Happens in registration before we verify the other User request data.
      *
      * @param  Request $request - The registration request data
-     * @param  RegistersUsers $regUsers - The model that runs registration, need reference for error throwing
      */
-    public static function verifyRegisterRecaptcha($request, $regUsers) {
+    public static function verifyRegisterRecaptcha($request) {
         $recaptcha = new ReCaptcha(config('auth.recap_private'));
         $resp = $recaptcha->verify($request['g-recaptcha-response'], $_SERVER['REMOTE_ADDR']);
 
@@ -85,17 +84,31 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
             return true;
         else
             return false;
+
+        //NOTE::When you re-implement this function in the laravel Register system, use this fail state:
+//        if(!\App\User::verifyRegisterRecaptcha($request,$this)) {
+//            $notification = array(
+//                'message' => 'ReCaptcha validation error',
+//                'description' => '',
+//                'warning' => true,
+//                'static' => true
+//            );
+//
+//            return redirect("/register")->withInput()->with('notification', $notification)->send();
+//        }
     }
 
     /** REGISTRATION
-     * Finishes the registration process by submitting user photo and sending activation email.
+     * Finishes the registration process by submitting user photo and sending activation email. Happens in registration
+     * right after logging in the newly created user.
      *
      * @param  Request $request - The registration request data
+     * @return bool - Success of activation email
      */
     public static function finishRegistration($request) {
         $token = \Auth::user()->token;
 
-        if( !is_null($request->file('profile')) ) {
+        if(!is_null($request->file('profile'))) {
             //get the file object
             $file = $request->file('profile');
             $filename = $file->getClientOriginalName();
@@ -115,11 +128,23 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
                 $message->to(\Auth::user()->email);
                 $message->subject('Kora Account Activation');
             });
+
+            return true;
         } catch(\Swift_TransportException $e) {
-            //TODO::email error response
             //Log for now
             Log::info('Activation email failed');
+            return false;
         }
+
+        //NOTE::When you re-implement this function in the laravel Register system, use this fail state:
+//        if(\App\User::finishRegistration($request))
+//            $status = 'activation_email_sent';
+//        else
+//            $status = 'activation_email_failed';
+//
+//
+//        return $this->registered($request, $user)
+//            ?: redirect($this->redirectPath())->with('status', $status)->send();
     }
 
     /** PASSWORD RESET
@@ -140,14 +165,14 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
                 $message->subject('Kora Password Reset');
             });
         } catch(\Swift_TransportException $e) {
-            //TODO::email error response
             //Log for now
             Log::info('Password reset email failed');
         }
     }
 
     /** LOGIN
-     * Filters login results to allow login with either username or email.
+     * Filters login results to allow login with either username or email. Happens in the authentication system login
+     * attempt function.
      *
      * @param  array $credentials - The login credentials
      * @return array - The filtered credentials
