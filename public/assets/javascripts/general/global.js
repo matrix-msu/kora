@@ -211,8 +211,6 @@ $(document).ready(function() {
     $('.content-link-js').removeClass('head');
     $activePageLink.addClass('head');
   }
-<<<<<<< HEAD
-=======
 
   var $noteBody = $('.notification');
   var $note = $('.note').children('p');
@@ -254,7 +252,6 @@ $(document).ready(function() {
     $noteBody.addClass('dismiss');
     $('.welcome-body').removeClass('with-notification');
   });
->>>>>>> master
 });
 
 //Quick opens global search menu
