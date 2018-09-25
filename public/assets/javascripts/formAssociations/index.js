@@ -17,8 +17,10 @@ Kora.FormAssociations.Index = function() {
         "_token": CSRFToken,
         "rfid": rfid
       },
-      success: function() {
+      success: function(response) {
+        window.localStorage.setItem('message', 'Form Associations Requested');     
         Kora.Modal.close();
+        location.reload();
       }
     });
   }

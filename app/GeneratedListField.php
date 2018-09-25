@@ -169,20 +169,25 @@ class GeneratedListField extends BaseField {
         //Subtract to get RIDs with no value
         $ridsNoVal = array_diff($rids, $ridsValue);
 
-        //Create data array and store values for no value RIDs
-        $dataArray = [];
-        foreach($ridsNoVal as $rid) {
-            $dataArray[] = [
-                'rid' => $rid,
-                'fid' => $field->fid,
-                'flid' => $field->flid,
-                'options' => implode("[!]", $formFieldValue)
-            ];
+        foreach(array_chunk($ridsNoVal,1000) as $chunk) {
+            //Create data array and store values for no value RIDs
+            $dataArray = [];
+            foreach($chunk as $rid) {
+                $dataArray[] = [
+                    'rid' => $rid,
+                    'fid' => $field->fid,
+                    'flid' => $field->flid,
+                    'options' => implode("[!]", $formFieldValue)
+                ];
+            }
+            GeneratedListField::insert($dataArray);
         }
-        GeneratedListField::insert($dataArray);
 
-        if($overwrite)
-            GeneratedListField::where('flid','=',$field->flid)->whereIn('rid', $ridsValue)->update(['options' => implode("[!]", $formFieldValue)]);
+        if($overwrite) {
+            foreach(array_chunk($ridsValue, 1000) as $chunk) {
+                GeneratedListField::where('flid', '=', $field->flid)->whereIn('rid', $chunk)->update(['options' => implode("[!]", $formFieldValue)]);
+            }
+        }
     }
 
     /**
@@ -197,17 +202,19 @@ class GeneratedListField extends BaseField {
         //Delete the old data
         GeneratedListField::where('flid','=',$field->flid)->whereIn('rid', $rids)->delete();
 
-        //Create data array and store values for no value RIDs
-        $dataArray = [];
-        foreach($rids as $rid) {
-            $dataArray[] = [
-                'rid' => $rid,
-                'fid' => $field->fid,
-                'flid' => $field->flid,
-                'options' => implode("[!]", $formFieldValue)
-            ];
+        foreach(array_chunk($rids,1000) as $chunk) {
+            //Create data array and store values for no value RIDs
+            $dataArray = [];
+            foreach($chunk as $rid) {
+                $dataArray[] = [
+                    'rid' => $rid,
+                    'fid' => $field->fid,
+                    'flid' => $field->flid,
+                    'options' => implode("[!]", $formFieldValue)
+                ];
+            }
+            GeneratedListField::insert($dataArray);
         }
-        GeneratedListField::insert($dataArray);
     }
 
     /**

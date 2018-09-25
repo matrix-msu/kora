@@ -1,17 +1,20 @@
 @extends('app', ['page_title' => 'Sign Up', 'page_class' => 'register'])
 
 @section('body')
+    @if(session()->has('notification'))
+        @include('partials.projects.notification', ['notification' => session('notification')])
+    @endif
 <div class="content">
   <div class="form-container center">
     <section class="head">
       <h1 class="title">Sign Up</h1>
     </section>
 
-    @if (count($errors) > 0)
+    @if(count($errors) > 0)
       <div class="alert alert-danger">
         <strong>Whoops!</strong> There were some problems with your input.<br><br>
         <ul>
-          @foreach ($errors->all() as $error)
+          @foreach($errors->all() as $error)
             <li>{{ $error }}</li>
           @endforeach
         </ul>

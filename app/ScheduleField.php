@@ -174,38 +174,17 @@ class ScheduleField extends BaseField {
             array_push($newData, self::processEvent($event));
         }
 
-        //Create data array and store values for no value RIDs
-        $fieldArray = [];
-        $dataArray = [];
-        $now = date("Y-m-d H:i:s");
-        foreach($ridsNoVal as $rid) {
-            $fieldArray[] = [
-                'rid' => $rid,
-                'fid' => $field->fid,
-                'flid' => $field->flid
-            ];
-            foreach($newData as $event) {
-                $dataArray[] = [
+        foreach(array_chunk($ridsNoVal,1000) as $chunk) {
+            //Create data array and store values for no value RIDs
+            $fieldArray = [];
+            $dataArray = [];
+            $now = date("Y-m-d H:i:s");
+            foreach($chunk as $rid) {
+                $fieldArray[] = [
                     'rid' => $rid,
                     'fid' => $field->fid,
-                    'flid' => $field->flid,
-                    'begin' => $event[0],
-                    'end' => $event[1],
-                    'desc' => $event[2],
-                    'allday' => $event[3],
-                    'created_at' => $now,
-                    'updated_at' => $now
+                    'flid' => $field->flid
                 ];
-            }
-        }
-        ScheduleField::insert($fieldArray);
-        DB::table(self::SUPPORT_NAME)->insert($dataArray);
-
-        if($overwrite) {
-            DB::table(self::SUPPORT_NAME)->where('flid','=',$field->flid)->whereIn('rid','in', $ridsValue)->delete();
-
-            $dataArray = [];
-            foreach($ridsValue as $rid) {
                 foreach($newData as $event) {
                     $dataArray[] = [
                         'rid' => $rid,
@@ -220,8 +199,33 @@ class ScheduleField extends BaseField {
                     ];
                 }
             }
-
+            ScheduleField::insert($fieldArray);
             DB::table(self::SUPPORT_NAME)->insert($dataArray);
+        }
+
+        if($overwrite) {
+            foreach(array_chunk($ridsValue,1000) as $chunk) {
+                DB::table(self::SUPPORT_NAME)->where('flid', '=', $field->flid)->whereIn('rid', 'in', $ridsValue)->delete();
+
+                $dataArray = [];
+                foreach($chunk as $rid) {
+                    foreach($newData as $event) {
+                        $dataArray[] = [
+                            'rid' => $rid,
+                            'fid' => $field->fid,
+                            'flid' => $field->flid,
+                            'begin' => $event[0],
+                            'end' => $event[1],
+                            'desc' => $event[2],
+                            'allday' => $event[3],
+                            'created_at' => $now,
+                            'updated_at' => $now
+                        ];
+                    }
+                }
+
+                DB::table(self::SUPPORT_NAME)->insert($dataArray);
+            }
         }
     }
 
@@ -244,33 +248,35 @@ class ScheduleField extends BaseField {
             array_push($newData, self::processEvent($event));
         }
 
-        //Create data array and store values for no value RIDs
-        $fieldArray = [];
-        $dataArray = [];
-        $now = date("Y-m-d H:i:s");
-        foreach($rids as $rid) {
-            $fieldArray[] = [
-                'rid' => $rid,
-                'fid' => $field->fid,
-                'flid' => $field->flid
-            ];
-            foreach($newData as $event) {
-                $dataArray[] = [
+        foreach(array_chunk($rids,1000) as $chunk) {
+            //Create data array and store values for no value RIDs
+            $fieldArray = [];
+            $dataArray = [];
+            $now = date("Y-m-d H:i:s");
+            foreach($chunk as $rid) {
+                $fieldArray[] = [
                     'rid' => $rid,
                     'fid' => $field->fid,
-                    'flid' => $field->flid,
-                    'begin' => $event[0],
-                    'end' => $event[1],
-                    'desc' => $event[2],
-                    'allday' => $event[3],
-                    'created_at' => $now,
-                    'updated_at' => $now
+                    'flid' => $field->flid
                 ];
+                foreach($newData as $event) {
+                    $dataArray[] = [
+                        'rid' => $rid,
+                        'fid' => $field->fid,
+                        'flid' => $field->flid,
+                        'begin' => $event[0],
+                        'end' => $event[1],
+                        'desc' => $event[2],
+                        'allday' => $event[3],
+                        'created_at' => $now,
+                        'updated_at' => $now
+                    ];
+                }
             }
-        }
 
-        ScheduleField::insert($fieldArray);
-        DB::table(self::SUPPORT_NAME)->insert($dataArray);
+            ScheduleField::insert($fieldArray);
+            DB::table(self::SUPPORT_NAME)->insert($dataArray);
+        }
     }
 
     /**

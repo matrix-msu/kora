@@ -12,10 +12,10 @@ Kora.Auth.Register = function() {
     var droppedPicFile = false;
 
     function initializeChosen() {
-        $(".chosen-select").chosen({
-        disable_search_threshold: 4,
+      $(".chosen-select").chosen({
+        disable_search_threshold: 10,
         width: '100%'
-        });
+      });
     }
 
     // Remove selected profile pic

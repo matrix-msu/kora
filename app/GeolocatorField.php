@@ -172,41 +172,17 @@ class GeolocatorField extends BaseField {
             array_push($newData, $newLoc);
         }
 
-        //Create data array and store values for no value RIDs
-        $fieldArray = [];
-        $dataArray = [];
-        $now = date("Y-m-d H:i:s");
-        foreach($ridsNoVal as $rid) {
-            $fieldArray[] = [
-                'rid' => $rid,
-                'fid' => $field->fid,
-                'flid' => $field->flid
-            ];
-            foreach($newData as $loc) {
-                $dataArray[] = [
+        foreach(array_chunk($ridsNoVal,1000) as $chunk) {
+            //Create data array and store values for no value RIDs
+            $fieldArray = [];
+            $dataArray = [];
+            $now = date("Y-m-d H:i:s");
+            foreach($chunk as $rid) {
+                $fieldArray[] = [
                     'rid' => $rid,
                     'fid' => $field->fid,
-                    'flid' => $field->flid,
-                    'desc' => $loc['desc'],
-                    'lat' => $loc['lat'],
-                    'lon' => $loc['lon'],
-                    'zone' => $loc['zone'],
-                    'easting' => $loc['easting'],
-                    'northing' => $loc['northing'],
-                    'address' => $loc['address'],
-                    'created_at' => $now,
-                    'updated_at' => $now
+                    'flid' => $field->flid
                 ];
-            }
-        }
-        GeolocatorField::insert($fieldArray);
-        DB::table(self::SUPPORT_NAME)->insert($dataArray);
-
-        if($overwrite) {
-            DB::table(self::SUPPORT_NAME)->where('flid','=',$field->flid)->whereIn('rid','in', $ridsValue)->delete();
-
-            $dataArray = [];
-            foreach($ridsValue as $rid) {
                 foreach($newData as $loc) {
                     $dataArray[] = [
                         'rid' => $rid,
@@ -224,8 +200,36 @@ class GeolocatorField extends BaseField {
                     ];
                 }
             }
-
+            GeolocatorField::insert($fieldArray);
             DB::table(self::SUPPORT_NAME)->insert($dataArray);
+        }
+
+        if($overwrite) {
+            foreach(array_chunk($ridsValue,1000) as $chunk) {
+                DB::table(self::SUPPORT_NAME)->where('flid', '=', $field->flid)->whereIn('rid', 'in', $ridsValue)->delete();
+
+                $dataArray = [];
+                foreach($chunk as $rid) {
+                    foreach($newData as $loc) {
+                        $dataArray[] = [
+                            'rid' => $rid,
+                            'fid' => $field->fid,
+                            'flid' => $field->flid,
+                            'desc' => $loc['desc'],
+                            'lat' => $loc['lat'],
+                            'lon' => $loc['lon'],
+                            'zone' => $loc['zone'],
+                            'easting' => $loc['easting'],
+                            'northing' => $loc['northing'],
+                            'address' => $loc['address'],
+                            'created_at' => $now,
+                            'updated_at' => $now
+                        ];
+                    }
+                }
+
+                DB::table(self::SUPPORT_NAME)->insert($dataArray);
+            }
         }
     }
 
@@ -260,36 +264,38 @@ class GeolocatorField extends BaseField {
             array_push($newData, $newLoc);
         }
 
-        //Create data array and store values for no value RIDs
-        $fieldArray = [];
-        $dataArray = [];
-        $now = date("Y-m-d H:i:s");
-        foreach($rids as $rid) {
-            $fieldArray[] = [
-                'rid' => $rid,
-                'fid' => $field->fid,
-                'flid' => $field->flid
-            ];
-            foreach($newData as $loc) {
-                $dataArray[] = [
+        foreach(array_chunk($rids,1000) as $chunk) {
+            //Create data array and store values for no value RIDs
+            $fieldArray = [];
+            $dataArray = [];
+            $now = date("Y-m-d H:i:s");
+            foreach($chunk as $rid) {
+                $fieldArray[] = [
                     'rid' => $rid,
                     'fid' => $field->fid,
-                    'flid' => $field->flid,
-                    'desc' => $loc['desc'],
-                    'lat' => $loc['lat'],
-                    'lon' => $loc['lon'],
-                    'zone' => $loc['zone'],
-                    'easting' => $loc['easting'],
-                    'northing' => $loc['northing'],
-                    'address' => $loc['address'],
-                    'created_at' => $now,
-                    'updated_at' => $now
+                    'flid' => $field->flid
                 ];
+                foreach($newData as $loc) {
+                    $dataArray[] = [
+                        'rid' => $rid,
+                        'fid' => $field->fid,
+                        'flid' => $field->flid,
+                        'desc' => $loc['desc'],
+                        'lat' => $loc['lat'],
+                        'lon' => $loc['lon'],
+                        'zone' => $loc['zone'],
+                        'easting' => $loc['easting'],
+                        'northing' => $loc['northing'],
+                        'address' => $loc['address'],
+                        'created_at' => $now,
+                        'updated_at' => $now
+                    ];
+                }
             }
-        }
 
-        GeolocatorField::insert($fieldArray);
-        DB::table(self::SUPPORT_NAME)->insert($dataArray);
+            GeolocatorField::insert($fieldArray);
+            DB::table(self::SUPPORT_NAME)->insert($dataArray);
+        }
     }
 
     /**

@@ -101,11 +101,77 @@ class ComboListField extends BaseField {
      * @return array - The options array
      */
     public function getOptionsArray(Field $field) {
-        //TODO::Finish this
         $options = array();
+        $oneOpts = array();
+        $twoOpts = array();
 
-//        $options['Regex'] = FieldController::getFieldOption($field, 'Regex');
-//        $options['MultiLine'] = FieldController::getFieldOption($field, 'MultiLine');
+        $nameone = self::getComboFieldName($field,'one');
+        $nametwo = self::getComboFieldName($field,'two');
+        $typeone = self::getComboFieldType($field,'one');
+        $typetwo = self::getComboFieldType($field,'two');
+
+        switch($typeone) {
+            case 'Text':
+                $oneOpts['Regex'] = self::getComboFieldOption($field,'Regex','one');
+                $oneOpts['MultiLine'] = self::getComboFieldOption($field,'Regex','one');
+                break;
+            case 'Number':
+                $oneOpts['MaxValue'] = self::getComboFieldOption($field,'Max','one');
+                $oneOpts['MinValue'] = self::getComboFieldOption($field,'Min','one');
+                $oneOpts['Increment'] = self::getComboFieldOption($field,'Increment','one');
+                $oneOpts['UnitOfMeasure'] = self::getComboFieldOption($field,'Unit','one');
+                break;
+            case 'Date':
+                $oneOpts['StartYear'] = self::getComboFieldOption($field,'Start','one');
+                $oneOpts['EndYear'] = self::getComboFieldOption($field,'End','one');
+                $oneOpts['DateFormat'] = self::getComboFieldOption($field,'Format','one');
+                break;
+            case 'List':
+                $oneOpts['Options'] = explode('[!]',self::getComboFieldOption($field,'Options','one'));
+                break;
+            case 'Multi-Select List':
+                $oneOpts['Options'] = explode('[!]',self::getComboFieldOption($field,'Options','one'));
+                break;
+            case 'Generated List':
+                $oneOpts['Regex'] = self::getComboFieldOption($field,'Regex','one');
+                $oneOpts['Options'] = explode('[!]',self::getComboFieldOption($field,'Options','one'));
+                break;
+            default:
+                break;
+        }
+
+        switch($typetwo) {
+            case 'Text':
+                $twoOpts['Regex'] = self::getComboFieldOption($field,'Regex','two');
+                $twoOpts['MultiLine'] = self::getComboFieldOption($field,'Regex','two');
+                break;
+            case 'Number':
+                $twoOpts['MaxValue'] = self::getComboFieldOption($field,'Max','two');
+                $twoOpts['MinValue'] = self::getComboFieldOption($field,'Min','two');
+                $twoOpts['Increment'] = self::getComboFieldOption($field,'Increment','two');
+                $twoOpts['UnitOfMeasure'] = self::getComboFieldOption($field,'Unit','two');
+                break;
+            case 'Date':
+                $twoOpts['StartYear'] = self::getComboFieldOption($field,'Start','two');
+                $twoOpts['EndYear'] = self::getComboFieldOption($field,'End','two');
+                $twoOpts['DateFormat'] = self::getComboFieldOption($field,'Format','two');
+                break;
+            case 'List':
+                $twoOpts['Options'] = explode('[!]',self::getComboFieldOption($field,'Options','two'));
+                break;
+            case 'Multi-Select List':
+                $twoOpts['Options'] = explode('[!]',self::getComboFieldOption($field,'Options','two'));
+                break;
+            case 'Generated List':
+                $twoOpts['Regex'] = self::getComboFieldOption($field,'Regex','two');
+                $twoOpts['Options'] = explode('[!]',self::getComboFieldOption($field,'Options','two'));
+                break;
+            default:
+                break;
+        }
+
+        $options[$nameone] = $oneOpts;
+        $options[$nametwo] = $twoOpts;
 
         return $options;
     }
@@ -192,14 +258,16 @@ class ComboListField extends BaseField {
                 $options .= '[!Options!]';
 
                 $reqOpts = $request->{"options_".$seq};
-                $options .= implode("[!]",$reqOpts);
+                if(!is_null($reqOpts))
+                    $options .= implode("[!]",$reqOpts);
                 $options .= '[!Options!]';
                 break;
             case Field::_GENERATED_LIST:
                 $options .= '[!Options!]';
 
                 $reqOpts = $request->{"options_".$seq};
-                $options .= implode("[!]",$reqOpts);
+                if(!is_null($reqOpts))
+                    $options .= implode("[!]",$reqOpts);
                 $options .= '[!Options!]';
                 $options .= '[!Regex!]'.$request->{"regex_".$seq}.'[!Regex!]';
                 break;
@@ -312,54 +380,20 @@ class ComboListField extends BaseField {
             array_push($newData, $newEntry);
         }
 
-        //Create data array and store values for no value RIDs
-        $fieldArray = [];
-        $dataArray = [];
-        $now = date("Y-m-d H:i:s");
-        $one_is_num = self::getComboFieldType($field, 'one') == 'Number';
-        $two_is_num = self::getComboFieldType($field, 'two') == 'Number';
-        foreach($ridsNoVal as $rid) {
-            $fieldArray[] = [
-                'rid' => $rid,
-                'fid' => $field->fid,
-                'flid' => $field->flid
-            ];
-            $i=0;
-            foreach($newData as $entry) {
-                $dataArray[] = [
-                    'rid' => $rid,
-                    'fid' => $field->fid,
-                    'flid' => $field->flid,
-                    'field_num' => 1,
-                    'list_index' => $i,
-                    'data' => (!$one_is_num) ? $entry[0] : null,
-                    'number' => ($one_is_num) ? $entry[0] : null,
-                    'created_at' => $now,
-                    'updated_at' => $now
-                ];
-                $dataArray[] = [
-                    'rid' => $rid,
-                    'fid' => $field->fid,
-                    'flid' => $field->flid,
-                    'field_num' => 2,
-                    'list_index' => $i,
-                    'data' => (!$two_is_num) ? $entry[1] : null,
-                    'number' => ($two_is_num) ? $entry[1] : null,
-                    'created_at' => $now,
-                    'updated_at' => $now
-                ];
-                $i++;
-            }
-        }
-        ComboListField::insert($fieldArray);
-        DB::table(self::SUPPORT_NAME)->insert($dataArray);
-
-        if($overwrite) {
-            DB::table(self::SUPPORT_NAME)->where('flid','=',$field->flid)->whereIn('rid','in', $ridsValue)->delete();
-
+        foreach(array_chunk($ridsNoVal,1000) as $chunk) {
+            //Create data array and store values for no value RIDs
+            $fieldArray = [];
             $dataArray = [];
-            foreach($ridsValue as $rid) {
-                $i=0;
+            $now = date("Y-m-d H:i:s");
+            $one_is_num = self::getComboFieldType($field, 'one') == 'Number';
+            $two_is_num = self::getComboFieldType($field, 'two') == 'Number';
+            foreach($chunk as $rid) {
+                $fieldArray[] = [
+                    'rid' => $rid,
+                    'fid' => $field->fid,
+                    'flid' => $field->flid
+                ];
+                $i = 0;
                 foreach($newData as $entry) {
                     $dataArray[] = [
                         'rid' => $rid,
@@ -386,8 +420,46 @@ class ComboListField extends BaseField {
                     $i++;
                 }
             }
-
+            ComboListField::insert($fieldArray);
             DB::table(self::SUPPORT_NAME)->insert($dataArray);
+        }
+
+        if($overwrite) {
+            foreach(array_chunk($ridsValue,1000) as $chunk) {
+                DB::table(self::SUPPORT_NAME)->where('flid', '=', $field->flid)->whereIn('rid', 'in', $ridsValue)->delete();
+
+                $dataArray = [];
+                foreach($chunk as $rid) {
+                    $i = 0;
+                    foreach($newData as $entry) {
+                        $dataArray[] = [
+                            'rid' => $rid,
+                            'fid' => $field->fid,
+                            'flid' => $field->flid,
+                            'field_num' => 1,
+                            'list_index' => $i,
+                            'data' => (!$one_is_num) ? $entry[0] : null,
+                            'number' => ($one_is_num) ? $entry[0] : null,
+                            'created_at' => $now,
+                            'updated_at' => $now
+                        ];
+                        $dataArray[] = [
+                            'rid' => $rid,
+                            'fid' => $field->fid,
+                            'flid' => $field->flid,
+                            'field_num' => 2,
+                            'list_index' => $i,
+                            'data' => (!$two_is_num) ? $entry[1] : null,
+                            'number' => ($two_is_num) ? $entry[1] : null,
+                            'created_at' => $now,
+                            'updated_at' => $now
+                        ];
+                        $i++;
+                    }
+                }
+
+                DB::table(self::SUPPORT_NAME)->insert($dataArray);
+            }
         }
     }
 
@@ -415,48 +487,50 @@ class ComboListField extends BaseField {
             array_push($newData, $newEntry);
         }
 
-        //Create data array and store values for no value RIDs
-        $fieldArray = [];
-        $dataArray = [];
-        $now = date("Y-m-d H:i:s");
-        $one_is_num = self::getComboFieldType($field, 'one') == 'Number';
-        $two_is_num = self::getComboFieldType($field, 'two') == 'Number';
-        foreach($rids as $rid) {
-            $fieldArray[] = [
-                'rid' => $rid,
-                'fid' => $field->fid,
-                'flid' => $field->flid
-            ];
-            $i=0;
-            foreach($newData as $entry) {
-                $dataArray[] = [
+        foreach(array_chunk($rids,1000) as $chunk) {
+            //Create data array and store values for no value RIDs
+            $fieldArray = [];
+            $dataArray = [];
+            $now = date("Y-m-d H:i:s");
+            $one_is_num = self::getComboFieldType($field, 'one') == 'Number';
+            $two_is_num = self::getComboFieldType($field, 'two') == 'Number';
+            foreach($chunk as $rid) {
+                $fieldArray[] = [
                     'rid' => $rid,
                     'fid' => $field->fid,
-                    'flid' => $field->flid,
-                    'field_num' => 1,
-                    'list_index' => $i,
-                    'data' => (!$one_is_num) ? $entry[0] : null,
-                    'number' => ($one_is_num) ? $entry[0] : null,
-                    'created_at' => $now,
-                    'updated_at' => $now
+                    'flid' => $field->flid
                 ];
-                $dataArray[] = [
-                    'rid' => $rid,
-                    'fid' => $field->fid,
-                    'flid' => $field->flid,
-                    'field_num' => 2,
-                    'list_index' => $i,
-                    'data' => (!$two_is_num) ? $entry[1] : null,
-                    'number' => ($two_is_num) ? $entry[1] : null,
-                    'created_at' => $now,
-                    'updated_at' => $now
-                ];
-                $i++;
+                $i = 0;
+                foreach($newData as $entry) {
+                    $dataArray[] = [
+                        'rid' => $rid,
+                        'fid' => $field->fid,
+                        'flid' => $field->flid,
+                        'field_num' => 1,
+                        'list_index' => $i,
+                        'data' => (!$one_is_num) ? $entry[0] : null,
+                        'number' => ($one_is_num) ? $entry[0] : null,
+                        'created_at' => $now,
+                        'updated_at' => $now
+                    ];
+                    $dataArray[] = [
+                        'rid' => $rid,
+                        'fid' => $field->fid,
+                        'flid' => $field->flid,
+                        'field_num' => 2,
+                        'list_index' => $i,
+                        'data' => (!$two_is_num) ? $entry[1] : null,
+                        'number' => ($two_is_num) ? $entry[1] : null,
+                        'created_at' => $now,
+                        'updated_at' => $now
+                    ];
+                    $i++;
+                }
             }
-        }
 
-        ComboListField::insert($fieldArray);
-        DB::table(self::SUPPORT_NAME)->insert($dataArray);
+            ComboListField::insert($fieldArray);
+            DB::table(self::SUPPORT_NAME)->insert($dataArray);
+        }
     }
 
     /**
@@ -795,7 +869,7 @@ class ComboListField extends BaseField {
     }
 
     /**
-     * Performs an advanced search on this field and returns any results. TODO::this will work for now, but refactor?
+     * Performs an advanced search on this field and returns any results.
      *
      * @param  int $flid - Field ID
      * @param  array $query - The advance search user query
@@ -890,7 +964,6 @@ class ComboListField extends BaseField {
                 isset($query[$flid . "_" . $field_num . "_invert"]),
                 $prefix);
         } else {
-            //TODO::how does date fit into this? I think just make a date input that matches the format we store in?
             $inputs = $query[$flid . "_" . $field_num . "_input"];
 
             // Since we're using a raw query, we have to get the database prefix to match our alias.

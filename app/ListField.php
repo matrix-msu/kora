@@ -148,20 +148,25 @@ class ListField extends BaseField {
         //Subtract to get RIDs with no value
         $ridsNoVal = array_diff($rids, $ridsValue);
 
-        //Create data array and store values for no value RIDs
-        $dataArray = [];
-        foreach($ridsNoVal as $rid) {
-            $dataArray[] = [
-                'rid' => $rid,
-                'fid' => $field->fid,
-                'flid' => $field->flid,
-                'option' => $formFieldValue
-            ];
+        foreach(array_chunk($ridsNoVal,1000) as $chunk) {
+            //Create data array and store values for no value RIDs
+            $dataArray = [];
+            foreach($chunk as $rid) {
+                $dataArray[] = [
+                    'rid' => $rid,
+                    'fid' => $field->fid,
+                    'flid' => $field->flid,
+                    'option' => $formFieldValue
+                ];
+            }
+            ListField::insert($dataArray);
         }
-        ListField::insert($dataArray);
 
-        if($overwrite)
-            ListField::where('flid','=',$field->flid)->whereIn('rid', $ridsValue)->update(['option' => $formFieldValue]);
+        if($overwrite) {
+            foreach(array_chunk($ridsValue, 1000) as $chunk) {
+                ListField::where('flid', '=', $field->flid)->whereIn('rid', $chunk)->update(['option' => $formFieldValue]);
+            }
+        }
     }
 
     /**
@@ -176,17 +181,19 @@ class ListField extends BaseField {
         //Delete the old data
         ListField::where('flid','=',$field->flid)->whereIn('rid', $rids)->delete();
 
-        //Create data array and store values for no value RIDs
-        $dataArray = [];
-        foreach($rids as $rid) {
-            $dataArray[] = [
-                'rid' => $rid,
-                'fid' => $field->fid,
-                'flid' => $field->flid,
-                'option' => $formFieldValue
-            ];
+        foreach(array_chunk($rids,1000) as $chunk) {
+            //Create data array and store values for no value RIDs
+            $dataArray = [];
+            foreach($chunk as $rid) {
+                $dataArray[] = [
+                    'rid' => $rid,
+                    'fid' => $field->fid,
+                    'flid' => $field->flid,
+                    'option' => $formFieldValue
+                ];
+            }
+            ListField::insert($dataArray);
         }
-        ListField::insert($dataArray);
     }
 
     /**

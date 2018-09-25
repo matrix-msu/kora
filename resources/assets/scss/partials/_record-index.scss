@@ -12,6 +12,10 @@
   margin: $navigation-height auto 0;
   width: 100%;
 
+  &.with-bottom {
+    margin: $navigation-height auto 20px;
+  }
+
   .view-records {
     margin: #{map-get($spacing, xxxl)} auto;
     max-width: calc(#{ $max-site-width } - 600px);
@@ -84,7 +88,7 @@
       line-height: 35px;
       color: palette('gray', text);
     }
-    
+
     .keywords {
       list-style-type: none;
       margin: 0;
@@ -92,9 +96,9 @@
 
       .keyword {
         background-color: palette('white', base);
-		border: 1px solid rgba(57,67,89,0.1);
+        border: 1px solid rgba(57,67,89,0.1);
         border-radius: 5px;
-		box-shadow: 0 3px 5px 0 rgba(57,67,89,0.05);
+        box-shadow: 0 3px 5px 0 rgba(57,67,89,0.05);
         color: palette('gray', text);
         cursor: default;
         display: inline-block;
@@ -141,18 +145,18 @@
       .back-to-search {
         @include transition();
 
-		background: palette('white', base);
+        background: palette('white', base);
         border: 1px solid rgba(4,182,175,0.6);
         border-radius: 5px;
-		box-shadow: 0 3px 5px 0 rgba(57,67,89,0.05);
+        box-shadow: 0 3px 5px 0 rgba(57,67,89,0.05);
         color: palette('green', accent);
         display: inline-block;
-		float: right;
+        float: right;
         font-family: $ubuntu;
         line-height: 14px;
         padding: 6px 10px;
-		white-space: nowrap;
-		width: min-content;
+        white-space: nowrap;
+        width: min-content;
 
         span {
           padding-right: 5px;
@@ -168,7 +172,7 @@
           vertical-align: middle;
           will-change: transform;
         }
-		
+
 		&:hover {
 		  border-color: palette('green', accent);
 		  box-shadow: 0 5px 10px 0 rgba(4,182,175,0.1);
@@ -205,6 +209,7 @@
     @import 'record-index/pagination';
     @import 'record-index/searched-terms';
     @import 'record-index/no-records';
-    @import 'record-index/page-typed-fileds';
+    @import 'record-index/page-typed-fields';
   }
 }
+@import 'record-index/toolbar';
