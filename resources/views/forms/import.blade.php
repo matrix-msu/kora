@@ -32,7 +32,7 @@
 @stop
 
 @section('body')
-    {!! Form::open(['url' => action('ImportController@importForm', ['pid' => $proj->pid]),'enctype' => 'multipart/form-data']) !!}
+    {!! Form::open(['url' => action('ImportController@importForm', ['pid' => $proj->pid]),'enctype' => 'multipart/form-data', 'class' => 'form-file-input']) !!}
 
     <section class="formfile-section">
         <div class="form-group">
@@ -74,6 +74,7 @@
 
         <div class="form-group mt-xxxl mb-max">
             {!! Form::submit('Import Form & Information', ['class' => 'btn']) !!}
+            <!-- <button class="submit btn">Import Form & Information</button> -->
         </div>
     </section>
 
