@@ -101,11 +101,77 @@ class ComboListField extends BaseField {
      * @return array - The options array
      */
     public function getOptionsArray(Field $field) {
-        //TODO::Finish this
         $options = array();
+        $oneOpts = array();
+        $twoOpts = array();
 
-//        $options['Regex'] = FieldController::getFieldOption($field, 'Regex');
-//        $options['MultiLine'] = FieldController::getFieldOption($field, 'MultiLine');
+        $nameone = self::getComboFieldName($field,'one');
+        $nametwo = self::getComboFieldName($field,'two');
+        $typeone = self::getComboFieldType($field,'one');
+        $typetwo = self::getComboFieldType($field,'two');
+
+        switch($typeone) {
+            case 'Text':
+                $oneOpts['Regex'] = self::getComboFieldOption($field,'Regex','one');
+                $oneOpts['MultiLine'] = self::getComboFieldOption($field,'Regex','one');
+                break;
+            case 'Number':
+                $oneOpts['MaxValue'] = self::getComboFieldOption($field,'Max','one');
+                $oneOpts['MinValue'] = self::getComboFieldOption($field,'Min','one');
+                $oneOpts['Increment'] = self::getComboFieldOption($field,'Increment','one');
+                $oneOpts['UnitOfMeasure'] = self::getComboFieldOption($field,'Unit','one');
+                break;
+            case 'Date':
+                $oneOpts['StartYear'] = self::getComboFieldOption($field,'Start','one');
+                $oneOpts['EndYear'] = self::getComboFieldOption($field,'End','one');
+                $oneOpts['DateFormat'] = self::getComboFieldOption($field,'Format','one');
+                break;
+            case 'List':
+                $oneOpts['Options'] = explode('[!]',self::getComboFieldOption($field,'Options','one'));
+                break;
+            case 'Multi-Select List':
+                $oneOpts['Options'] = explode('[!]',self::getComboFieldOption($field,'Options','one'));
+                break;
+            case 'Generated List':
+                $oneOpts['Regex'] = self::getComboFieldOption($field,'Regex','one');
+                $oneOpts['Options'] = explode('[!]',self::getComboFieldOption($field,'Options','one'));
+                break;
+            default:
+                break;
+        }
+
+        switch($typetwo) {
+            case 'Text':
+                $twoOpts['Regex'] = self::getComboFieldOption($field,'Regex','two');
+                $twoOpts['MultiLine'] = self::getComboFieldOption($field,'Regex','two');
+                break;
+            case 'Number':
+                $twoOpts['MaxValue'] = self::getComboFieldOption($field,'Max','two');
+                $twoOpts['MinValue'] = self::getComboFieldOption($field,'Min','two');
+                $twoOpts['Increment'] = self::getComboFieldOption($field,'Increment','two');
+                $twoOpts['UnitOfMeasure'] = self::getComboFieldOption($field,'Unit','two');
+                break;
+            case 'Date':
+                $twoOpts['StartYear'] = self::getComboFieldOption($field,'Start','two');
+                $twoOpts['EndYear'] = self::getComboFieldOption($field,'End','two');
+                $twoOpts['DateFormat'] = self::getComboFieldOption($field,'Format','two');
+                break;
+            case 'List':
+                $twoOpts['Options'] = explode('[!]',self::getComboFieldOption($field,'Options','two'));
+                break;
+            case 'Multi-Select List':
+                $twoOpts['Options'] = explode('[!]',self::getComboFieldOption($field,'Options','two'));
+                break;
+            case 'Generated List':
+                $twoOpts['Regex'] = self::getComboFieldOption($field,'Regex','two');
+                $twoOpts['Options'] = explode('[!]',self::getComboFieldOption($field,'Options','two'));
+                break;
+            default:
+                break;
+        }
+
+        $options[$nameone] = $oneOpts;
+        $options[$nametwo] = $twoOpts;
 
         return $options;
     }
@@ -803,7 +869,7 @@ class ComboListField extends BaseField {
     }
 
     /**
-     * Performs an advanced search on this field and returns any results. TODO::this will work for now, but refactor?
+     * Performs an advanced search on this field and returns any results.
      *
      * @param  int $flid - Field ID
      * @param  array $query - The advance search user query
