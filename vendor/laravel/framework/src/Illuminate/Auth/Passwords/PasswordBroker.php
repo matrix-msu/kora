@@ -4,7 +4,6 @@ namespace Illuminate\Auth\Passwords;
 
 use Closure;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Facades\Log;
 use UnexpectedValueException;
 use Illuminate\Contracts\Auth\UserProvider;
 use Illuminate\Contracts\Auth\PasswordBroker as PasswordBrokerContract;
