@@ -858,10 +858,16 @@ class RecordController extends Controller {
             return redirect()->back();
         }
 
+        if($request->rids) {
+            $rids = explode(',', $request->rids);
+        } else {
+            $rids = array();
+        }
+      
         $field = FieldController::getField($flid);
         $typedField = $field->getTypedField();
 
-        $typedField->massAssignSubsetRecordField($field, $formFieldValue, $request, $request->rids);
+        $typedField->massAssignSubsetRecordField($field, $formFieldValue, $request, $rids);
 
         return redirect()->action('RecordController@index',compact('pid','fid'));
     }

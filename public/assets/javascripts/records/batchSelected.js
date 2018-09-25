@@ -13,9 +13,22 @@ Kora.Records.BatchSelected = function() {
     });
 
     function initializePage () {
-      var count = window.localStorage.getItem('count');
+      let count = window.localStorage.getItem('count');
+      let rids = window.localStorage.getItem('selectedRecords');
+      let $form = $('.batch-form');
+
+      if (rids) {
+          rids = rids.split(',');
+
+          for (let i = 0; i < rids.length; i++) {
+            rids[i] = rids[i].substr(rids[i].length - 4);
+          }
+          $form.append('<input type="hidden" name="rids" value="' + rids + '">');
+      }
+
       if (count) {
-        $('span.count').text(''+count+'');
+        $('span.count').text('' + count + '');
+        Kora.Records.Batch();
       }
     }
 
