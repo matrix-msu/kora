@@ -143,7 +143,6 @@ class UserController extends Controller {
     public function update(Request $request) {
       if (!\Auth::user()->admin && \Auth::user()->id != $request->uid) {
         return response()->json(["status" => false, "message" => "cannot_update_user"], 200);
-        // return redirect('user/'.\Auth::user()->id)->with('k3_global_error', 'cannot_update_profile');
       }
 
       $message = array();
@@ -152,7 +151,6 @@ class UserController extends Controller {
       $newLastName = $request->last_name;
       $newProfilePic = $request->profile;
       $newOrganization = $request->organization;
-      $newLanguage = $request->language;
       $newPass = $request->password;
       $confirm = $request->password_confirmation;
 
@@ -170,13 +168,6 @@ class UserController extends Controller {
       if (!empty($newOrganization) && $newOrganization != $user->organization) {
         $user->organization = $newOrganization;
         array_push($message, "organization");
-      }
-
-      // TODO: When multiple languages implemented, update language change
-      // Need to test comparing language code vs language name (en vs English)
-      if (!empty($newLanguage) && $newLanguage != $user->language) {
-        //$user->language = $newLanguage;
-        //array_push($message, "language");
       }
 
       // Handle password change cases.
@@ -329,69 +320,6 @@ class UserController extends Controller {
     }
 
     /**
-     * Change user profile information.
-     *
-     * @param  Request $request
-     * @return JsonResponse - Status of update
-     */
-    public function changeprofile(Request $request) {
-        //TODO:: I want to restructure this when we get to profiles
-        $user = Auth::user();
-        $type = $request->input("type");
-
-        switch($type) {
-            case "lang":
-                $lang = $request->input("field");
-
-                if(empty($lang)) {
-                    return response()->json(["status"=>false,"message"=>"language_missing"],500);
-                } else {
-                    $user->language = $lang;
-                    $user->save();
-                    return response()->json(["status"=>true,"message"=>"language_updated"],200);
-                }
-                break;
-            case "dash":
-                $dash = $request->input("field");
-
-                if($dash != "0" && $dash != "1") {
-                    return response()->json(["status"=>false,"message"=>"homepage_missing"],500);
-                } else {
-                    $user->dash = $dash;
-                    $user->save();
-                    return response()->json(["status"=>true,"message"=>"homepage_updated"],200);
-                }
-                break;
-            case "name":
-                //TODO::Big thing to do during said restructure
-                $realname = $request->input("field");
-
-                if(empty($realname)) {
-                    return response()->json(["status"=>false,"message"=>"name_missing"],500);
-                } else {
-                    $user->name = $realname;
-                    $user->save();
-                    return response()->json(["status"=>true,"message"=>"name_updated"],200);
-                }
-                break;
-            case "org":
-                $organization = $request->input("field");
-
-                if(empty($organization)) {
-                    return response()->json(["status"=>false,"message"=>"organization_missing"],500);
-                } else {
-                    $user->organization = $organization;
-                    $user->save();
-                    return response()->json(["status"=>true,"message"=>"organization_updated"],200);
-                }
-                break;
-            default:
-                return response()->json(["status"=>false,"message"=>"profile_field_missing"],500);
-                break;
-        }
-    }
-
-    /**
      * Validates and changes user password.
      *
      * @param  Request $request
@@ -447,12 +375,12 @@ class UserController extends Controller {
                 $message->subject('Kora Account Activation');
             });
         } catch(\Swift_TransportException $e) {
-            //TODO::email error response
             //Log for now
             Log::info('Resend activation email failed');
+            return redirect('/')->with('status', 'activation_email_failed');
         }
 
-        return redirect('auth/activate')->with('k3_global_success', 'user_activate_resent');
+        return redirect('/')->with('status', 'user_activate_resent');
     }
 
     /**
@@ -476,9 +404,9 @@ class UserController extends Controller {
 
             $this->makeDefaultProject($user);
 
-            return redirect('/')->with('k3_global_success', 'user_activated');
+            return redirect('/');
         } else {
-            return redirect('auth/activate')->with('k3_global_error', 'bad_activation_token');
+            return redirect('/')->with('status', 'bad_activation_token');
         }
     }
 
@@ -499,14 +427,14 @@ class UserController extends Controller {
         \Auth::login($user);
 
         if($token != $user->regtoken) {
-            return redirect('/')->with('k3_global_error', 'bad_activation_token');
+            return redirect('/')->with('status', 'bad_activation_token');
         } else {
             $user->active = 1;
             $user->save();
 
             $this->makeDefaultProject($user);
 
-            return redirect('/')->with('k3_global_success', 'user_activated');
+            return redirect('/');
         }
     }
 

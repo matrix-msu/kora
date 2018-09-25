@@ -964,7 +964,6 @@ class ComboListField extends BaseField {
                 isset($query[$flid . "_" . $field_num . "_invert"]),
                 $prefix);
         } else {
-            //TODO::how does date fit into this? I think just make a date input that matches the format we store in?
             $inputs = $query[$flid . "_" . $field_num . "_input"];
 
             // Since we're using a raw query, we have to get the database prefix to match our alias.
