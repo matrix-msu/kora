@@ -52,9 +52,9 @@
   <section class="project-selection center project-js project-selection-js">
     @if ( count($projects) > 0 )
     
-      @include("partials.projects.index.active", ['isCustom' => false, 'active' => true, 'archived' => false])
-      @include("partials.projects.index.inactive", ['isCustom' => false, 'active' => false, 'archived' => true])
-      @include("partials.projects.index.custom", ['isCustom' => true, 'active' => false, 'archived' => false])
+      @include("partials.projects.index.active", ['isCustom' => false, 'active' => \App\Http\Controllers\Auth\UserController::returnUserPrefs($pref) == "3" ? true : false, 'archived' => false])
+      @include("partials.projects.index.inactive", ['isCustom' => false, 'active' => \App\Http\Controllers\Auth\UserController::returnUserPrefs($pref) == "1" ? true : false, 'archived' => true])
+      @include("partials.projects.index.custom", ['isCustom' => true, 'active' => \App\Http\Controllers\Auth\UserController::returnUserPrefs($pref) == "2" ? true : false, 'archived' => false])
     
     @else
       @include('partials.projects.index.no-projects')

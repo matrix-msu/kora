@@ -48,15 +48,6 @@ class Preference extends Model {
         self::SINGLE_ALPHABETICAL => 'Alphabetical'
     );
 
-    // Side Menu on Wider Screens
-    const KEEP_OPEN = 1;
-    const LET_CLOSE = 2;
-
-    protected static $sideMenuOptions = array(
-        self::KEEP_OPEN => 'Keep Side Menu Open',
-        self::LET_CLOSE => 'Let Side Menu Close Automatically'
-    );
-
     /**
      * @var array - Attributes that cannot be mass assigned to model
      */
@@ -72,9 +63,5 @@ class Preference extends Model {
 
     public static function singleProjTabSelOptions() {
         return static::$singleProjTabSelOptions;
-    }
-
-    public static function sideMenuOptions() {
-        return static::$sideMenuOptions;
     }
 }

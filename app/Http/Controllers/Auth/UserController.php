@@ -263,7 +263,14 @@ class UserController extends Controller {
             $preference->save();
         }
 
-        return view('user.preferences', compact('user', 'preference', 'logoTargetOptions', 'projPageTabSelOptions', 'singleProjTabSelOptions', 'sideMenuOptions'));
+        $notification = array(
+            'message' => '',
+            'description' => '',
+            'warning' => false,
+            'static' => false
+        );
+
+        return view('user.preferences', compact('user', 'preference', 'logoTargetOptions', 'projPageTabSelOptions', 'singleProjTabSelOptions', 'sideMenuOptions', 'notification'));
     }
 
     /**
@@ -290,20 +297,25 @@ class UserController extends Controller {
         $preference->logo_target = $request->logoTarget;
         $preference->proj_page_tab_selection = $request->projPageTabSel;
         $preference->single_proj_page_tab_selection = $request->singleProjPageTabSel;
-        $preference->keep_sidemenu = $request->keepSidemenu;
 
         $preference->save();
 
         $logoTargetOptions = Preference::logoTargetOptions();
         $projPageTabSelOptions = Preference::projPageTabSelOptions();
         $singleProjTabSelOptions = Preference::singleProjTabSelOptions();
-        $sideMenuOptions = Preference::sideMenuOptions();
 
-        return view('user.preferences', compact('user', 'preference', 'logoTargetOptions', 'projPageTabSelOptions', 'singleProjTabSelOptions', 'sideMenuOptions'));
+        $notification = array(
+            'message' => 'Preferences Successfully Updated!',
+            'description' => '',
+            'warning' => false,
+            'static' => false
+        );
+
+        return view('user.preferences', compact('user', 'preference', 'logoTargetOptions', 'projPageTabSelOptions', 'singleProjTabSelOptions', 'sideMenuOptions', 'notification'));
     }
 
     public static function returnUserPrefs ($pref) {
-      if (\Auth::user()) { // if user exists - this will prevent errors on login screen
+      if (\Auth::user()) {
         $user = \Auth::user();
         $preference = Preference::where('user_id', '=', $user->id)->first();
 
@@ -313,7 +325,6 @@ class UserController extends Controller {
         // logo_target :: 1 or 2
         // proj_page_tab_selection :: 1, 2, or 3 :: archived//custom//alphabetical
         // single_proj_page_tab_selection :: 2 or 3 :: custom//alphabetical
-        // keep_sidemenu :: 1 or 2
 
         return $preference;
       }

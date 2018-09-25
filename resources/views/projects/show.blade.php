@@ -61,8 +61,8 @@
   </section>
 
   <section class="form-selection center form-js form-selection-js">
-    @include("partials.projects.show.alphabetical", ['isCustom' => false, 'active' => true])
-    @include("partials.projects.show.custom", ['isCustom' => true, 'active' => false])
+    @include("partials.projects.show.alphabetical", ['isCustom' => false, 'active' => \App\Http\Controllers\Auth\UserController::returnUserPrefs($pref) == "3" ? true : false])
+    @include("partials.projects.show.custom", ['isCustom' => true, 'active' => \App\Http\Controllers\Auth\UserController::returnUserPrefs($pref) == "2" ? true : false])
   </section>
 @stop
 
