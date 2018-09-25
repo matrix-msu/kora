@@ -5,7 +5,6 @@ Route::group(['middleware' => 'web'], function () {
     Route::get('/home', 'WelcomeController@index');
     Route::post('/language', 'WelcomeController@setTemporaryLanguage');
     Route::get('/dashboard', 'DashboardController@dashboard');
-    Route::get('/email', 'HelpController@emailTest'); //TEST ROUTE
 
 //project routes
     Route::get('/projects/import', 'ProjectController@importProjectView');
@@ -259,9 +258,6 @@ Route::group(['middleware' => 'web'], function () {
 //advanced search routes
     Route::get("/projects/{pid}/forms/{fid}/advancedSearch/results", "AdvancedSearchController@recent");
     Route::post("/projects/{pid}/forms/{fid}/advancedSearch/results", "AdvancedSearchController@search");
-
-// help routes
-    Route::get("/help/search", "HelpController@search");
 
 //twitter routes
     Route::get("/twitter", "TwitterController@index");
