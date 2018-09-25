@@ -22,6 +22,8 @@
 @stop
 
 @section('body')
+  @include('partials.projects.notification')
+
   @if (count($projects) > 0 or count($inactive) > 0)
   <section class="filters center">
       <div class="underline-middle search search-js">

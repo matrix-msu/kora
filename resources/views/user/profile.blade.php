@@ -9,6 +9,7 @@
 @stop
 
 @section('body')
+  @include('partials.projects.notification')
     <section class="center profile page-section page-section-js {{($section == 'profile' ? 'active' : '')}}" id="profile">
         <div class="attr mt-xl">
             <span class="title">First Name: </span>

@@ -41,6 +41,7 @@
     </section>
 
     <section class="backup-finish center hidden">
+        @include('partials.projects.notification')
         <div class="form-group half">
             <input type="button" class="btn download-file-js" value="Download Backup File (16TBGB)">
         </div>

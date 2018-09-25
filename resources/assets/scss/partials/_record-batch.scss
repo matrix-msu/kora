@@ -1,20 +1,31 @@
-.batch-assign-body {
+.batch-assign-body,
+.batch-assign-selected-body {
   background: palette('gray', background);
   font-family: $ubuntu;
   min-height: 100vh;
 }
 
-.batch-assign {
+.batch-assign,
+.batch-assign-selected {
   margin: $navigation-height auto 0;
   width: 100%;
 
-  .head .description a {
-    color: palette('green', accent);
-    font-family: $ubuntu-medium;
-    text-decoration: none;
+  .head {
+
+    .heading-count {
+      display: block;
+      font-size: 28px;
+    }
+
+    .description a {
+      color: palette('green', accent);
+      font-family: $ubuntu-medium;
+      text-decoration: none;
+    }
   }
 
-  .record-batch {
+  .record-batch,
+  .record-batch-selected {
     margin: #{map-get($spacing, xxxl)} auto;
     max-width: calc(#{ $max-site-width } - 600px);
     width: $max-site-width;

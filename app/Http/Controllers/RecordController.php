@@ -2,6 +2,7 @@
 
 use App\AssociatorField;
 use App\Field;
+use App\FileTypeField;
 use App\RecordPreset;
 use App\Revision;
 use App\User;
@@ -43,7 +44,7 @@ class RecordController extends Controller {
      * @param  int $fid - Form ID
      * @return View
      */
-	public function index($pid, $fid) {
+	public function index($pid, $fid, Request $request) {
         if(!FormController::validProjForm($pid, $fid))
             return redirect('projects/'.$pid)->with('k3_global_error', 'form_invalid');
 
@@ -60,7 +61,30 @@ class RecordController extends Controller {
 
         $total = Record::where('fid', '=', $fid)->count();
 
-        return view('records.index', compact('form', 'records', 'total'));
+        $notification = array(
+          'message' => '',
+          'description' => '',
+          'warning' => false,
+          'static' => false
+        );
+        $prevUrlArray = $request->session()->get('_previous');
+        $prevUrl = reset($prevUrlArray);
+        if ($prevUrl !== url()->current()) {
+          $session = $request->session()->get('k3_global_success');
+
+          if ($session == 'record_created')
+            $notification['message'] = 'Record Successfully Created!';
+          else if ($session == 'record_duplicated')
+            $notification['message'] = 'Record Successfully Duplicated!';
+          else if ($session == 'mass_records_updated')
+            $notification['message'] = 'Batch Assign Successful!';
+          else if ($session == 'test_records_created') { 
+            $numRecs = $request->session()->get('num_test_recs');
+            $notification['message'] = $numRecs.' Test Records Created!'; 
+          }
+        }
+
+        return view('records.index', compact('form', 'records', 'total', 'notification'));
 	}
 
     /**
@@ -213,8 +237,13 @@ class RecordController extends Controller {
             }
         }
 
+        $prevUrlArray = $request->session()->get('_previous');
+        $prevUrl = reset($prevUrlArray);
+
         if($request->api)
             return response()->json(["status"=>true,"message"=>"record_created","kid"=>$record->kid],200);
+        else if (strpos($prevUrl, 'clone') !== false && $request->mass_creation_num > 0)
+            return redirect('projects/' . $pid . '/forms/' . $fid . '/records')->with('k3_global_success', 'record_duplicated');
         else
             return redirect('projects/' . $pid . '/forms/' . $fid . '/records')->with('k3_global_success', 'record_created');
 	}
@@ -227,7 +256,7 @@ class RecordController extends Controller {
      * @param  int $rid - Record ID
      * @return View
      */
-	public function show($pid, $fid, $rid) {
+	public function show($pid, $fid, $rid, Request $request) {
         if(!self::validProjFormRecord($pid, $fid, $rid))
             return redirect('projects')->with('k3_global_error', 'record_invalid');
 
@@ -240,7 +269,23 @@ class RecordController extends Controller {
         $numRevisions = Revision::where('rid',$rid)->count();
         $alreadyPreset = (RecordPreset::where('rid',$rid)->count() > 0);
 
-        return view('records.show', compact('record', 'form', 'owner', 'numRevisions', 'alreadyPreset'));
+        $notification = array(
+          'message' => '',
+          'description' => '',
+          'warning' => false,
+          'static' => false
+        );
+        $prevUrlArray = $request->session()->get('_previous');
+        $prevUrl = reset($prevUrlArray);
+        if ($prevUrl !== url()->current()) {
+          $session = $request->session()->get('k3_global_success');
+
+          if ($session == 'record_updated') {
+            $notification['message'] = 'Record Successfully Updated!';
+          }
+        }
+
+        return view('records.show', compact('record', 'form', 'owner', 'numRevisions', 'alreadyPreset', 'notification'));
 	}
 
     /**
@@ -303,7 +348,6 @@ class RecordController extends Controller {
      * @param  int $fid - Form ID
      * @return array - The records that were removed
      *
-     * TODO::Revisions don't record mass deletes, so it might be helpful to have this not rely on revisions
      */
     public function cleanUp($pid, $fid) {
         $form = FormController::getForm($fid);
@@ -311,46 +355,35 @@ class RecordController extends Controller {
         if(!(\Auth::user()->isFormAdmin($form)))
             return response()->json(["status"=>false,"message"=>"not_form_admin"],500);
 
-        //
-        // Using revisions, if a record's most recent change is a deletion,
-        // we remove the file directory associated with that record.
-        // More specifically, if the record no longer exists we
-        // intend to clean up the files associated with it.
-        //
-        $all_revisions = Revision::where('fid', '=', $fid)->get();
-        $rids = array();
+        $existingRIDS = Record::where('fid','=',$fid)->pluck('rid')->toArray();
 
-        foreach($all_revisions as $revision) {
-            $rids[] = $revision->rid;
-        }
-        $rids = array_unique($rids);
+        $basePath = config('app.base_path').'storage/app/files/p'.$pid.'/f'.$fid;
 
-        $revisions = array(); // To be filled with revisions with records that do not exist.
-        foreach($rids as $rid) {
-            // If a record's most recent revision is a deletion...
-            $revision = Revision::where('rid', '=', $rid)->orderBy('created_at', 'desc')->first();
-            if($revision->type == Revision::DELETE)
-                $revisions[] = $revision; // ... add to the array.
-        }
+        //for each 'r###' directory in $basePath
+        foreach (new \DirectoryIterator($basePath) as $rDir) {
+            if($rDir->isDot()) continue;
 
-        $base_path = config('app.base_path').'storage/app/files/p'.$pid.'/f'.$fid;
+            $rid = substr($rDir->getFilename(),1);
 
-        //
-        // For each revision, delete it's associated record's files.
-        //
-        foreach($revisions as $revision) {
-            $path = $base_path . "/r" . $revision->rid;
-            if(is_dir($path)) {
-                $it = new RecursiveDirectoryIterator($path, RecursiveDirectoryIterator::SKIP_DOTS);
-                $files = new RecursiveIteratorIterator($it,
-                    RecursiveIteratorIterator::CHILD_FIRST);
-                foreach($files as $file) {
-                    if($file->isDir())
-                        rmdir($file->getRealPath());
-                    else
-                        unlink($file->getRealPath());
+            //if record does not exist in $existingRIDS
+            if(!in_array($rid,$existingRIDS)) {
+                //recursively delete record files
+                $path = $basePath . "/r" . $rid;
+                if(is_dir($path)) {
+                    $it = new RecursiveDirectoryIterator($path, RecursiveDirectoryIterator::SKIP_DOTS);
+                    $files = new RecursiveIteratorIterator($it,
+                        RecursiveIteratorIterator::CHILD_FIRST);
+                    foreach($files as $file) {
+                        if($file->isDir())
+                            rmdir($file->getRealPath());
+                        else
+                            unlink($file->getRealPath());
+                    }
+                    rmdir($path);
                 }
-                rmdir($path);
+
+                //prevent rollback revisions for that record if any exist
+                Revision::where('rid','=',$rid)->update(['rollback' => 0]);
             }
         }
 
@@ -442,7 +475,8 @@ class RecordController extends Controller {
      * @param  bool $mass - Is deleting mass records
      * @return Redirect
      */
-    public function destroy($pid, $fid, $rid, $mass = false) {
+    public function destroy($pid, $fid, $rid, $mass = false) {;
+
         if(!self::validProjFormRecord($pid, $fid, $rid))
             return redirect('projects')->with('k3_global_error', 'record_invalid');
 
@@ -457,7 +491,30 @@ class RecordController extends Controller {
         $record->delete();
 
         return redirect()->action('FormController@show', ['pid' => $pid, 'fid' => $fid])->with('k3_global_success', 'record_deleted');
-	}
+    }
+    
+    /**
+     * Delete multiple records from a form.
+     */
+    //public function deleteMultipleRecords($pid, $fid, $rid) {
+    public function deleteMultipleRecords($pid, $fid, Request $request) {
+      $form = FormController::getForm($fid);
+      $rid = $request->rid;
+      $rid = explode(',', $rid);
+
+      if(!\Auth::user()->isFormAdmin($form)) {
+        return redirect('projects')->with('k3_global_error', 'not_form_admin');
+      } else {
+        foreach($rid as $rid) {
+          $record = self::getRecord($rid);
+
+          if (!empty($record))
+            $record->delete();
+        }
+
+        return redirect('projects/' . $pid . '/forms/' . $fid . '/records')->with('k3_global_success', 'multiple_records_deleted');
+      }
+    }
 
     /**
      * Delete all records from a form.
@@ -688,8 +745,8 @@ class RecordController extends Controller {
         $all_fields = $form->fields()->get();
         $fields = new Collection();
         foreach($all_fields as $field) {
-            $type = $field->type;
-            if($type == "Documents" || $type == "Gallery" || $type == "Playlist" || $type == "3D-Model" || $type == 'Video')
+            //We don't want File Fields to be mass assignable because of the processing expense with large data sets
+            if($field->getTypedField() instanceof FileTypeField)
                 continue;
             else
                 $fields->push($field);
@@ -697,8 +754,29 @@ class RecordController extends Controller {
         return view('records.batchAssignment',compact('form','fields','pid','fid'));
     }
 
+    /* Get view for mass assigning selected records. */
+    public function showSelectedAssignmentView($pid,$fid) {
+        if(!FormController::validProjForm($pid, $fid))
+            return redirect('projects/'.$pid)->with('k3_global_error', 'form_invalid');
+
+        if(!self::checkPermissions($fid, 'modify'))
+            return redirect('projects/'.$pid.'/forms/'.$fid)->with('k3_global_error', 'cant_edit_record');
+
+        $form = FormController::getForm($fid);
+        $all_fields = $form->fields()->get();
+        $fields = new Collection();
+        foreach($all_fields as $field) {
+            //We don't want File Fields to be mass assignable because of the processing expense with large data sets
+            if($field->getTypedField() instanceof FileTypeField)
+                continue;
+            else
+                $fields->push($field);
+        }
+        return view('records.batchAssignSelected',compact('form','fields','pid','fid'));
+    }
+
     /**
-     * Mass assigns a value to a field in all records.
+     * Mass assigns a value to a field in ALL records.
      *
      * @param  int $pid - Project ID
      * @param  int $fid - Form ID
@@ -780,11 +858,6 @@ class RecordController extends Controller {
             return redirect()->back();
         }
 
-        if($request->has("overwrite"))
-            $overwrite = $request->input("overwrite"); //Overwrite field in all records, even if it has data
-        else
-            $overwrite = 0;
-
         $field = FieldController::getField($flid);
         $typedField = $field->getTypedField();
 
@@ -829,7 +902,7 @@ class RecordController extends Controller {
             }
         }
 
-        return redirect()->action('RecordController@index',compact('pid','fid'))->with('k3_global_success', 'test_records_created');
+        return redirect()->action('RecordController@index',compact('pid','fid'))->with('k3_global_success', 'test_records_created')->with('num_test_recs', $numRecs);
     }
 
     /**
