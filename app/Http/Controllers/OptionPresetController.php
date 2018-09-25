@@ -275,25 +275,6 @@ class OptionPresetController extends Controller {
     }
 
     /**
-     * Used by combo list to see if one of it's sub field types supports presets.
-     *
-     * @param  string $type - Field type to compare
-     * @return bool - Result of the comparison
-     */
-    public static function supportsPresets($type) { //TODO::Evaluate Usage
-        $preset_field_compatibility = collect([
-            'Text'=>'Text',
-            'List'=>'List',
-            'Multi-Select List'=>'List',
-            'Generated List'=>'List',
-            'Geolocator'=>'Geolocator',
-            'Schedule'=>'Schedule'
-        ]);
-
-        return $preset_field_compatibility->has($type);
-    }
-
-    /**
      * Gets list of supported presets for a particular field.
      *
      * @param  int $pid - Project ID
