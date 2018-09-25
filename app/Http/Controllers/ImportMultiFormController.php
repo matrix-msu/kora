@@ -15,7 +15,8 @@ class ImportMultiFormController extends Controller {
     | Import Multi Form Controller
     |--------------------------------------------------------------------------
     |
-    | This controller handles the import process for multi form record imports
+    | This controller handles the import process for importing records into multiple
+    | Forms
     |
     */
 

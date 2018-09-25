@@ -1,6 +1,4 @@
-<?php
-
-namespace App\Console\Commands;
+<?php namespace App\Console\Commands;
 
 use App\Http\Controllers\InstallController;
 use App\Http\Requests\InstallRequest;

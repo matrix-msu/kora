@@ -35,14 +35,32 @@ class OptionPresetController extends Controller {
      * @param  int $pid - Project ID
      * @return View
      */
-    public function index($pid) {
+    public function index($pid, Request $request) {
         $project = ProjectController::getProject($pid);
 
         if(!\Auth::user()->isProjectAdmin($project))
             return redirect('projects')->with('k3_global_error', 'not_project_admin');
 
         $all_presets = $this->getPresetsIndex($pid);
-        return view('optionPresets/index', compact('project', 'all_presets'));
+
+        $notification = array(
+          'message' => '',
+          'description' => '',
+          'warning' => false,
+          'static' => false
+        );
+        $prevUrlArray = $request->session()->get('_previous');
+        $prevUrl = reset($prevUrlArray);
+        if ($prevUrl !== url()->current()) {
+          $session = $request->session()->get('k3_global_success');
+
+          if ($session == 'field_preset_created')
+            $notification['message'] = 'Field Value Preset Created!';
+          else if ($session == 'field_preset_edited')
+            $notification['message'] = 'Field Value Preset Updated!';
+        }
+
+        return view('optionPresets/index', compact('project', 'all_presets', 'notification'));
     }
 
     /**

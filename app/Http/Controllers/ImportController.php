@@ -999,7 +999,7 @@ class ImportController extends Controller {
 
         flash()->overlay("Your form has been successfully created!","Good job!");
 
-        return redirect('projects/'.$form->pid);
+        return redirect('projects/'.$pid)->with('k3_global_success', 'form_imported');
     }
 
     /**
@@ -1720,6 +1720,6 @@ class ImportController extends Controller {
             $this->importFormNoFile($proj->pid,$form);
         }
 
-        return redirect('projects')->with('k3_global_success', 'project_created');
+        return redirect('projects')->with('k3_global_success', 'project_imported');
     }
 }
