@@ -148,7 +148,7 @@ class ProjectController extends Controller {
         }
 
         if(sizeof($projects)==0) {
-            return redirect('projects')->with('k3_global_error', 'no_project_requested');
+            return response()->json(["status"=>false, "message"=>"project_access_empty", 500]);
         } else {
             foreach($projects as $project) {
                 $admins = $this->getProjectAdminNames($project);
@@ -161,15 +161,14 @@ class ProjectController extends Controller {
                             $message->subject('Kora Project Request');
                         });
                     } catch(\Swift_TransportException $e) {
-                        //TODO::email error response
                         //Log for now
-                        Log::info('Project request email failed');
+                        return response()->json(["status"=>false, "message"=>"project_access_failed", 500]);
                     }
                 }
             }
 			
-          // only occurs on form submit, not on AJAX call
-          return redirect('projects')->with('k3_global_success', 'project_access_requested');
+            // only occurs on form submit, not on AJAX call
+            return response()->json(["status"=>true, "message"=>"project_access_requested", 200]);
         }
     }
 
