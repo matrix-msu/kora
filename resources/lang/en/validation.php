@@ -12,7 +12,9 @@ return [
     | as the size rules. Feel free to tweak each of these messages here.
     |
     */
-
+    // Custom Validation message.
+    'alpha_dash_spaces'         => 'The :attribute may only contain letters, numbers, hyphens, underscores, and spaces.',
+    // End Custom
     'accepted'             => 'The :attribute must be accepted.',
     'active_url'           => 'The :attribute is not a valid URL.',
     'after'                => 'The :attribute must be a date after :date.',

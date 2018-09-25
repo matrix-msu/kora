@@ -149,7 +149,8 @@ class BackupController extends Controller {
      */
     public function startBackup(Request $request) {
         $this->validate($request,[
-            'backupLabel'=>'required|alpha_dash',
+            // 'backupLabel'=>'required|alpha_dash',
+            'backupLabel'=>'required|alpha_dash_spaces',
         ]);
         $backupLabel = $request->backupLabel.'___'.Carbon::now()->toDateTimeString();
 
