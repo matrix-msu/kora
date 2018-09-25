@@ -4,6 +4,7 @@ namespace Illuminate\Auth\Passwords;
 
 use Closure;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Log;
 use UnexpectedValueException;
 use Illuminate\Contracts\Auth\UserProvider;
 use Illuminate\Contracts\Auth\PasswordBroker as PasswordBrokerContract;
@@ -66,9 +67,12 @@ class PasswordBroker implements PasswordBrokerContract
         // Once we have the reset token, we are ready to send the message out to this
         // user with a link to reset their password. We will then redirect back to
         // the current URI having nothing set in the session to indicate errors.
+		$my_token = $this->tokens->create($user);
+		
         $user->sendPasswordResetNotification(
-            $this->tokens->create($user)
+            $my_token
         );
+		
 
         return static::RESET_LINK_SENT;
     }
