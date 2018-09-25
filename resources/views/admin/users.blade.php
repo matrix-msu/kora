@@ -18,6 +18,8 @@
 @stop
 
 @section('body')
+  @include('partials.projects.notification')
+
   <section class="filters center">
     <div class="underline-middle search search-js">
       <i class="icon icon-search"></i>

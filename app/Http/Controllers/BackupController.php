@@ -30,7 +30,7 @@ class BackupController extends Controller {
     */
 
     /**
-     * @var string- Sets the backup directory relative to laravel/storage/app
+     * @var string- Sets the backup directory relative to Kora3/storage/app
      */
     private $BACKUP_DIRECTORY = "backups";
 
@@ -130,7 +130,14 @@ class BackupController extends Controller {
             });
         }
 
-        return view('backups.index',compact('savedBackups'));
+        $notification = array(
+          'message' => '',
+          'description' => '',
+          'warning' => false,
+          'static' => false
+        );
+
+        return view('backups.index',compact('savedBackups', 'notification'));
     }
 
 
@@ -157,7 +164,14 @@ class BackupController extends Controller {
         //We store this to know if we auto download backup file after backup
         $autoDownload = isset($request->backupDownload) ? true : false;
 
-        return view('backups.backup',compact('backupLabel','metadata','files','autoDownload'));
+        $notification = array(
+          'message' => '',
+          'description' => '',
+          'warning' => false,
+          'static' => false
+        );
+
+        return view('backups.backup',compact('backupLabel','metadata','files','autoDownload', 'notification'));
     }
 
     /**

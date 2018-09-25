@@ -30,11 +30,10 @@ class ExodusController extends Controller {
     */
 
     /**
-     * @var string - Views for the typed field options
+     * @var string - Storage folders for association conversions
      */
     const EXODUS_CONVERSION_PATH = "storage/app/exodusAssoc/conversions/";
     const EXODUS_DATA_PATH = "storage/app/exodusAssoc/data/";
-    const EXODUS_FIELDOPT_PATH = "storage/app/exodusAssoc/fieldopt/";
 
     /**
      * Constructs controller and makes sure user is the root installation user.

@@ -58,10 +58,7 @@ Route::group(['middleware' => 'web'], function () {
     Route::get('/exodus/progress', 'ExodusController@checkProgress');
     Route::post('/exodus/user/unlock', 'ExodusController@unlockUsers');
     Route::post('/exodus/start', 'ExodusController@startExodus');
-    Route::post('/exodus/finish', 'ExodusController@finishExodus'); //
-
-//Kora Publisher
-    Route::get('/publish', 'PublishController@index');
+    Route::post('/exodus/finish', 'ExodusController@finishExodus');
 
 //token routes
     Route::get('/tokens', 'TokenController@index');
@@ -206,7 +203,6 @@ Route::group(['middleware' => 'web'], function () {
     Route::patch('/user/{uid}/preferences', 'Auth\UserController@updatePreferences');
     Route::post('/auth/resendActivate', 'Auth\UserController@resendActivation');
     Route::post('/auth/activator', 'Auth\UserController@activator');
-    Route::post('/user/profile', 'Auth\UserController@changeprofile');
     Route::post('/user/picture', 'Auth\UserController@changepicture');
     Route::post('/user/validate', 'Auth\RegisterController@validateUserFields');
 

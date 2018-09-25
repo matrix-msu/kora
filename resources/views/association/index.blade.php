@@ -29,6 +29,7 @@
 @stop
 
 @section('body')
+    @include('partials.projects.notification')
     @include("partials.formAssociations.newPermissionModal")
     @include("partials.formAssociations.requestPermissionModal")
     @include("partials.formAssociations.deletePermissionModal")

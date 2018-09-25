@@ -29,7 +29,8 @@ Kora.Auth.Register = function() {
               method: 'POST',
               data: values,
               success: function(data) {
-                  $('.user-form').submit();
+                console.log(data);
+                $('.user-form').submit();
               },
               error: function(err) {
                   $('.error-message').text('');
