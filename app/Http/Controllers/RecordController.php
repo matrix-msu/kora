@@ -348,7 +348,6 @@ class RecordController extends Controller {
      * @param  int $fid - Form ID
      * @return array - The records that were removed
      *
-     * TODO::Revisions don't record mass deletes, so it might be helpful to have this not rely on revisions
      */
     public function cleanUp($pid, $fid) {
         $form = FormController::getForm($fid);
@@ -356,46 +355,35 @@ class RecordController extends Controller {
         if(!(\Auth::user()->isFormAdmin($form)))
             return response()->json(["status"=>false,"message"=>"not_form_admin"],500);
 
-        //
-        // Using revisions, if a record's most recent change is a deletion,
-        // we remove the file directory associated with that record.
-        // More specifically, if the record no longer exists we
-        // intend to clean up the files associated with it.
-        //
-        $all_revisions = Revision::where('fid', '=', $fid)->get();
-        $rids = array();
+        $existingRIDS = Record::where('fid','=',$fid)->pluck('rid')->toArray();
 
-        foreach($all_revisions as $revision) {
-            $rids[] = $revision->rid;
-        }
-        $rids = array_unique($rids);
+        $basePath = config('app.base_path').'storage/app/files/p'.$pid.'/f'.$fid;
 
-        $revisions = array(); // To be filled with revisions with records that do not exist.
-        foreach($rids as $rid) {
-            // If a record's most recent revision is a deletion...
-            $revision = Revision::where('rid', '=', $rid)->orderBy('created_at', 'desc')->first();
-            if($revision->type == Revision::DELETE)
-                $revisions[] = $revision; // ... add to the array.
-        }
+        //for each 'r###' directory in $basePath
+        foreach (new \DirectoryIterator($basePath) as $rDir) {
+            if($rDir->isDot()) continue;
 
-        $base_path = config('app.base_path').'storage/app/files/p'.$pid.'/f'.$fid;
+            $rid = substr($rDir->getFilename(),1);
 
-        //
-        // For each revision, delete it's associated record's files.
-        //
-        foreach($revisions as $revision) {
-            $path = $base_path . "/r" . $revision->rid;
-            if(is_dir($path)) {
-                $it = new RecursiveDirectoryIterator($path, RecursiveDirectoryIterator::SKIP_DOTS);
-                $files = new RecursiveIteratorIterator($it,
-                    RecursiveIteratorIterator::CHILD_FIRST);
-                foreach($files as $file) {
-                    if($file->isDir())
-                        rmdir($file->getRealPath());
-                    else
-                        unlink($file->getRealPath());
+            //if record does not exist in $existingRIDS
+            if(!in_array($rid,$existingRIDS)) {
+                //recursively delete record files
+                $path = $basePath . "/r" . $rid;
+                if(is_dir($path)) {
+                    $it = new RecursiveDirectoryIterator($path, RecursiveDirectoryIterator::SKIP_DOTS);
+                    $files = new RecursiveIteratorIterator($it,
+                        RecursiveIteratorIterator::CHILD_FIRST);
+                    foreach($files as $file) {
+                        if($file->isDir())
+                            rmdir($file->getRealPath());
+                        else
+                            unlink($file->getRealPath());
+                    }
+                    rmdir($path);
                 }
-                rmdir($path);
+
+                //prevent rollback revisions for that record if any exist
+                Revision::where('rid','=',$rid)->update(['rollback' => 0]);
             }
         }
 
