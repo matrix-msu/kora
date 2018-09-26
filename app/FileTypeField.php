@@ -5,8 +5,6 @@ use App\Http\Controllers\FieldController;
 use App\Http\Controllers\RecordController;
 use Illuminate\Http\Request;
 use ZipArchive;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\File;
 
 abstract class FileTypeField extends BaseField {
 
@@ -68,7 +66,7 @@ abstract class FileTypeField extends BaseField {
      * @param  int $flid - File field that record file will be loaded to
      * @param  Request $request
      */
-    public static function saveTmpFile($flid) { //TODO:: Need to error out when file error is not 0
+    public static function saveTmpFile($flid) {
         $field = FieldController::getField($flid);
         $uid = \Auth::user()->id;
         $dir = config('app.base_path').'storage/app/tmpFiles/f'.$flid.'u'.$uid;

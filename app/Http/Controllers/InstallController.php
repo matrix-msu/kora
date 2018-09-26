@@ -20,7 +20,7 @@ class InstallController extends Controller {
 	|--------------------------------------------------------------------------
 	|
 	| This controller handles generating the .env file and running the artisan
-	| migration so the rest of the controllers can function.  It also creates the
+	| migration so the rest of the controllers can function. It also creates the
 	| first user. And sets the application key, and creates needed folders
 	*/
 

@@ -10,15 +10,26 @@ Kora.Inputs.File = function() {
   var filename = $(".filename");
   var instruction = $(".instruction");
   var droppedFile = false;
+  var droppedFormFile = false;
+
+  var redirectUrl = window.location.href;
+  redirectUrl = redirectUrl.slice(0, redirectUrl.indexOf('/forms'));
 
   // Remove selected profile pic
   function resetFileInput() {
     fileInput.replaceWith(fileInput.val('').clone(true));
-    filename.html("Add a photo to help others identify you");
     instruction.removeClass("photo-selected");
     picCont.html("<i class='icon icon-user'></i>");
     droppedFile = false;
-  };
+
+    if (window.location.href.includes('forms')) {
+      filename.html("Drag & Drop the Form File Here");
+      Kora.Forms.Import();
+    } else {
+      filename.html("Drag & Drop the Project File Here");
+      Kora.Projects.Import();
+    }
+  }
 
   // Profile pic is added, populate profile pic label, set up remove event
   function newProfilePic(pic, name) {
@@ -53,7 +64,7 @@ Kora.Inputs.File = function() {
       fileInput.focus();
     });
 
-    // For clicking on input to select an image
+    // For non drag'n'drop
     fileInput.change(function(event) {
       event.preventDefault();
 
@@ -95,6 +106,7 @@ Kora.Inputs.File = function() {
           droppedFile = e.target.result;
         };
         reader.readAsDataURL(droppedFile);
+        droppedFormFile = droppedFile;
       });
 
       form.submit(function(e) {
@@ -102,9 +114,22 @@ Kora.Inputs.File = function() {
 
         var ajaxData = new FormData(form.get(0)); // not supported by safari
 
-        if (droppedFile) {
-          ajaxData.delete('profile'); // not supported by safari
-          ajaxData.append("profile", droppedFile);
+        if (droppedFormFile && window.location.href.includes('forms')) {
+          ajaxData.delete('form'); // not supported by safari
+          ajaxData.append('form', droppedFormFile);
+        } else if (droppedFormFile) {
+          ajaxData.delete('project');
+          ajaxData.append('project', droppedFormFile);
+        } else {
+          ajaxData.append('form', $('.file-input-js')[0].files[0]);
+        }
+
+        for ( var pair of ajaxData.entries() ) {
+          console.log(pair[0] + ', ' + pair[1]);
+          //console.log(typeof pair[1]);
+          if (typeof pair[1] === 'object') {
+            console.log(pair[1]);
+          }
         }
 
         $.ajax({
@@ -116,14 +141,14 @@ Kora.Inputs.File = function() {
           contentType: false,
           processData: false,
           success: function(response) {
-            // Will never reach this point because laravel redirecting is actually an error
-            location.reload();
+            window.location.href = redirectUrl;
           },
           error: function(error) {
             // TODO: Handle errors. Currently can get all errors, just need to display them
-
+            console.log('error');
+            console.log(error);
             if (error.status == 200) {
-              location.reload();
+              window.location.href = redirectUrl;
             } else {
               console.log(error);
               var responseJson = error.responseJSON;

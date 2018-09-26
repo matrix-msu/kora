@@ -90,13 +90,34 @@ class AdminController extends Controller {
      *
      * @return View
      */
-    public function users() {
+    public function users(Request $request) {
         $usersAz = User::orderBy('first_name')->get();
         $usersZa = User::orderBy('first_name', 'desc')->get();
         $usersNto = User::latest()->get();
         $usersOtn = User::orderBy('created_at')->get();
 
-        return view('admin.users', compact('usersAz', 'usersZa', 'usersNto', 'usersOtn'));
+        $notification = array(
+          'message' => '',
+          'description' => '',
+          'warning' => false,
+          'static' => false
+        );
+        $prevUrlArray = $request->session()->get('_previous');
+        $prevUrl = reset($prevUrlArray);
+        $profChangesArray = $request->session()->get('user_changes');
+        if ($profChangesArray) $profChanges = reset($profChangesArray);
+        if ($prevUrl !== url()->current()) {
+          $session = $request->session()->get('k3_global_success');
+
+          if ($session == 'user_updated' && $profChanges == 'password')
+            $notification['message'] = 'Password Successfully Updated!';
+          else if ($session == 'user_updated')
+            $notification['message'] = 'User Successfully Updated!';
+        } else if ($request->session()->get('k3_global_success') == 'batch_users') {
+          $notification['message'] = 'User(s) Successfully Invited!';
+        }
+
+        return view('admin.users', compact('usersAz', 'usersZa', 'usersNto', 'usersOtn', 'notification'));
     }
 
     /**

@@ -29,11 +29,14 @@ Kora.Records.Batch = function() {
     }
 
     function initializeSelectBatchField() {
-        $('.field-to-batch-js').on('change', function(e) {
-            var flid = $(this).val();
+        $('.field-to-batch-js').on('change', function(e) { // instead of 'on change' it should be 'on change if field is populated'
+            var flid = $(this).val(); // otherwise in the case of loading the page with this already populated, deselecting the current option activates the button
 
             //MAKE BUTTON WORK
-            $('.batch-submit-js').removeClass('disabled');
+            if (flid != '')
+                $('.batch-submit-js, .batch-selected-submit-js').removeClass('disabled');
+            else
+                $('.batch-submit-js, .batch-selected-submit-js').addClass('disabled');
 
             $('.batch-field-section-js').each(function() {
                var divID = $(this).attr('id');
