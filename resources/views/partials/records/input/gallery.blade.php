@@ -33,22 +33,23 @@
     }
 
     //If this is an edit, we need to move things around
-    if($editRecord && $hasData){
+    if($editRecord && $hasData) {
         $names = explode('[!]',$typedField->images);
-        foreach($names as $key => $file){
-            $names[$key] = explode('[Name]',$file)[1];
+        foreach($names as $key => $file) {
+            $name = explode('[Name]',$file)[1];
+            $names[$key] = $name;
+            array_push($value,$name);
         }
         //move things over from storage to tmp
         $dir = config('app.base_path').'storage/app/files/p'.$record->pid.'/f'.$record->fid.'/r'.$record->rid.'/fl'.$field->flid;
         if(file_exists($dir)) {
-            foreach (new \DirectoryIterator($dir) as $file) {
-                if ($file->isFile() && in_array($file->getFilename(),$names)) {
+            foreach(new \DirectoryIterator($dir) as $file) {
+                if($file->isFile() && in_array($file->getFilename(),$names)) {
                     copy($dir.'/'.$file->getFilename(),$dirTmp.'/'.$file->getFilename());
                     if(file_exists($dir.'/medium/'.$file->getFilename()))
                         copy($dir.'/medium/'.$file->getFilename(),$dirTmp.'/medium/'.$file->getFilename());
                     if(file_exists($dir.'/thumbnail/'.$file->getFilename()))
                         copy($dir.'/thumbnail/'.$file->getFilename(),$dirTmp.'/thumbnail/'.$file->getFilename());
-                    array_push($value,$file->getFilename());
                 }
             }
         }
