@@ -23,7 +23,7 @@
             </div>
         </div>
 
-        <div class="form-group mt-m mb-m hidden">
+        <div class="form-group mt-m mb-xl hidden">
             {!! Form::label('preview_'.$f->fid, 'Preview Value') !!}
             {!! Form::select('preview_'.$f->fid, $formFields, null, $selectArray) !!}
         </div>
