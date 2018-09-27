@@ -12,7 +12,7 @@
                 Are you sure you want to restore these fields back to the edits made on <span class="date-time"></span>? 
                 Don't worry, you can always restore them back to their current state as well.
             </p>
-            <div class="form-group mt-xxl">
+            <div class="form-group mt-m">
                 <a href="{{$url}}" class="btn restore-fields-button-js">Restore Fields to Before</a>
             </div>
         </div>
