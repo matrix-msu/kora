@@ -622,6 +622,8 @@ class AssociatorField extends BaseField {
             }
         }
 
+        $form = \App\Http\Controllers\PageController::getFormLayout($fid);
+        $form = $form[0]["fields"];
         //grab the preview fields associated with the form of this kid
         //make sure one is selected first
         $preview = array();
@@ -630,12 +632,24 @@ class AssociatorField extends BaseField {
             foreach($details['flids'] as $flid => $type) {
                 if($type == Field::_TEXT) {
                     $text = TextField::where("flid", "=", $flid)->where("rid", "=", $rid)->first();
+
+                    foreach ($form as $field) {
+                        if ($field->type == 'Text')
+                            array_push($preview, $field->name);
+                    }
+
                     if(!is_null($text) && $text->text != '')
                         array_push($preview, $text->text);
                     else
                         array_push($preview, "Preview Field Empty");
                 } else if($type == Field::_LIST) {
                     $list = ListField::where("flid", "=", $flid)->where("rid", "=", $rid)->first();
+
+                    foreach ($form as $field) {
+                        if ($field->type == 'List')
+                            array_push($preview, $field->name);
+                    }
+
                     if(!is_null($list) && $list->option != '')
                         array_push($preview, $list->option);
                     else
@@ -646,11 +660,13 @@ class AssociatorField extends BaseField {
             array_push($preview, "No Preview Field Available");
         }
 
-        $html = "<a class='mt-xxxs documents-link underline-middle-hover' href='".config('app.url')."projects/".$pid."/forms/".$fid."/records/".$rid."'>".$kid."</a>";
+        $html = "<div class='header'><a class='mt-xxxs documents-link underline-middle-hover' href='".config('app.url')."projects/".$pid."/forms/".$fid."/records/".$rid."'>".$kid."</a><div class='card-toggle-wrap'><a class='card-toggle assoc-card-toggle-js'><i class='icon icon-chevron active'></i></a></div></div><div class='body'><div class='overlay'></div>";
 
         foreach($preview as $val) {
-            $html .= " | ".$val;
+            $html .= "<div>".$val."</div>";
         }
+
+        $html = $html .= "</div>";
 
         return $html;
     }

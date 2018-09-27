@@ -60,8 +60,41 @@ Kora.Records.Show = function() {
         });
     }
 
+    function initializeAssociatorCardToggle () {
+        $('.assoc-card-toggle-js').click(function (e) {
+            e.preventDefault();
+
+            let $card = $(this).parent().parent().parent();
+            let $cardBody = $card.find('.body');
+
+            $(this).children().toggleClass('active');
+
+            if ($(this).children().hasClass('active')) {
+                //$card.css('height', '');
+                $card.animate({
+                    height: $card.height() + $cardBody.outerHeight() + 'px'
+                }, 230);
+                $cardBody.effect('slide', {
+                    direction: 'up',
+                    mode: 'show',
+                    duration: 240
+                });
+            } else {
+                $card.animate({
+                    height: '49px'
+                }, 230);
+                $cardBody.effect('slide', {
+                    direction: 'up',
+                    mode: 'hide',
+                    duration: 240
+                });
+            }
+        });
+    }
+
     initializeToggle();
     initializeDeleteRecord();
+    initializeAssociatorCardToggle();
     Kora.Records.Modal();
     Kora.Fields.TypedFieldDisplays.Initialize();
 }
