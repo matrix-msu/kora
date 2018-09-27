@@ -6,6 +6,7 @@ Kora.Records.ImportMF = function () {
     var failedRecords = [];
     var assocTagConvert = {};
     var crossFormAssoc = {};
+    var comboCrossAssoc = {};
 
     function initializeSelects() {
         $('.multi-select').chosen({
@@ -113,6 +114,7 @@ Kora.Records.ImportMF = function () {
 
                                     assocTagConvert[data['assocTag']] = data['kid'];
                                     crossFormAssoc[data['kid']] = data['assocArray'];
+                                    comboCrossAssoc[data['kid']] = data['comboAssocArray'];
 
                                     if(done == total)
                                         finishImport(succ, total);
@@ -150,7 +152,8 @@ Kora.Records.ImportMF = function () {
                 data: {
                     "_token": CSRFToken,
                     "assocTagConvert": JSON.stringify(assocTagConvert),
-                    "crossFormAssoc": JSON.stringify(crossFormAssoc)
+                    "crossFormAssoc": JSON.stringify(crossFormAssoc),
+                    "comboCrossAssoc": JSON.stringify(comboCrossAssoc)
                 },
                 success: function (data) {
                     $('.progress-text-js').html(succ + ' of ' + total + ' records successfully imported!');
