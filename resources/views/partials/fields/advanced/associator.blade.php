@@ -15,15 +15,15 @@
 
         $selectArray = ['class' => 'single-select', "data-placeholder" => "Select field preview value", 'disabled'];
         ?>
-        <div class="form-group">
+        <div class="form-group mb-m">
             <div class="check-box-half">
                 <input type="checkbox" value="1" id="active" class="check-box-input association-check-js" name="checkbox_{{$f->fid}}"/>
                 <span class="check"></span>
-                <span class="placeholder">Search through {{$f->name}}?</span>
+                <span class="placeholder">Search through "{{$f->name}}"?</span>
             </div>
         </div>
 
-        <div class="form-group mt-m hidden">
+        <div class="form-group mt-m mb-m hidden">
             {!! Form::label('preview_'.$f->fid, 'Preview Value') !!}
             {!! Form::select('preview_'.$f->fid, $formFields, null, $selectArray) !!}
         </div>
