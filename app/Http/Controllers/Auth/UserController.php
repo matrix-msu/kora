@@ -253,7 +253,6 @@ class UserController extends Controller {
         $logoTargetOptions = Preference::logoTargetOptions();
         $projPageTabSelOptions = Preference::projPageTabSelOptions();
         $singleProjTabSelOptions = Preference::singleProjTabSelOptions();
-        $sideMenuOptions = Preference::sideMenuOptions();
 
         if (is_null($preference)) {
             // Must create user preference
