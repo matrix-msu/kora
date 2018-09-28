@@ -305,19 +305,37 @@ class UserController extends Controller {
     }
 
     public static function returnUserPrefs ($pref) {
-      if (\Auth::user()) {
-        $user = \Auth::user();
-        $preference = Preference::where('user_id', '=', $user->id)->first();
+        if (\Auth::user()) {
+            $user = \Auth::user();
+            $preference = Preference::where('user_id', '=', $user->id)->first();
 
-        $preference = $preference->$pref;
+            if (is_null($preference)) {
+                $preference->use_dashboard = 1;
+                $preference->logo_target = 1;
+                $preference->proj_page_tab_selection = 3;
+                $preference->single_proj_page_tab_selection = 3;
+            }
 
-        // use_dashboard :: 0 or 1
-        // logo_target :: 1 or 2
-        // proj_page_tab_selection :: 1, 2, or 3 :: archived//custom//alphabetical
-        // single_proj_page_tab_selection :: 2 or 3 :: custom//alphabetical
+            $preference = $preference->$pref;
 
-        return $preference;
-      }
+            // use_dashboard :: 0 or 1
+            // logo_target :: 1 or 2
+            // proj_page_tab_selection :: 1, 2, or 3 :: archived//custom//alphabetical
+            // single_proj_page_tab_selection :: 2 or 3 :: custom//alphabetical
+
+            return $preference;
+        } else if (\Auth::guest()) {
+            // if user is guest, create default set of preferences
+            $preference = new Preference;
+            $preference->use_dashboard = 1;
+            $preference->logo_target = 1;
+            $preference->proj_page_tab_selection = 3;
+            $preference->single_proj_page_tab_selection = 3;
+
+            $preference = $preference->$pref;
+
+            return $preference;
+        }
     }
 
     public function validateUserFields(UserRequest $request) {
