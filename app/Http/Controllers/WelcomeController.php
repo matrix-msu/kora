@@ -34,8 +34,22 @@ class WelcomeController extends Controller {
 
           $session = session()->get('status');
           if($session == 'We have e-mailed your password reset link!') {
-            $notification['message'] = 'Check your email! The password reset link has succesfully been sent!';
+            $notification['message'] = 'Check your email!';
+			$notification['description'] ='The password reset link has successfully been sent!';
             $notification['static'] = true;
+			//return view('/welcome', compact('notification'))->with('use_welcome_styling', "testing123");
+			//return view('/welcome', compact('notification'));
+          } else if($session == 'user_activate_resent') {
+            $notification['message'] = 'Another email has been sent!';
+            $notification['static'] = true;
+          } else if($session == 'activation_email_sent') {
+              $notification['message'] = 'Registration successful! Activation email sent.';
+              $notification['static'] = true;
+          } else if($session == 'activation_email_failed') {
+              $notification['message'] ='Registration successful, but activation email failed.';
+              $notification['description'] ='Have the activation email resent, or contact your Kora3 administrator for help.';
+              $notification['warning'] = true;
+              $notification['static'] = true;
           }
 
           return view('/welcome', compact('notification'));
