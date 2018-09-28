@@ -35,5 +35,17 @@
       margin-top: 10px;
       width: calc(100%);
     }
+
+    .advanced-options-associator {
+      background-color: palette('gray', page, 1);
+      border: 1px solid palette('box-shadow', base, 0.05);
+      border-radius: 5px;
+      box-shadow: 0 40px 85px 0 palette('box-shadow', base, 0.05);
+      padding: 40px 40px 20px;
+
+      div:last-of-type {
+        margin-bottom: 20px;
+      }
+    }
   }
 }
