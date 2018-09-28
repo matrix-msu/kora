@@ -138,7 +138,7 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
 
         //Send email
         try {
-            Mail::send('emails.activation', compact('token'), function($message) {
+            Mail::send('emails.activation', compact('token'), function($message) use ($user) {
                 $message->from(env('MAIL_FROM_ADDRESS'));
                 $message->to($user->email);
                 $message->subject('Kora Account Activation');
@@ -565,6 +565,7 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
         DB::table("form_custom")->where("uid", "=", $this->id)->delete();
         DB::table("backup_support")->where("user_id", "=", $this->id)->delete();
         DB::table("global_cache")->where("user_id", "=", $this->id)->delete();
+        DB::table("preferences")->where("user_id", "=", $this->id)->delete();
 
         //Delete dashboard stuff
         $sections = DB::table("dashboard_sections")->where("uid", "=", $this->id)->get();
