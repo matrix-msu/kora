@@ -249,6 +249,10 @@ class UserController extends Controller {
             // Must create user preference
             $preference = new Preference;
             $preference->user_id = $user->id;
+            $preference->use_dashboard = 1;
+            $preference->logo_target = 1;
+            $preference->proj_page_tab_selection = 3;
+            $preference->single_proj_page_tab_selection = 3;
             $preference->created_at = Carbon::now();
             $preference->save();
         }
