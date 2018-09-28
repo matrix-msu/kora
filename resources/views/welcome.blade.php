@@ -87,6 +87,9 @@
 
     $('.pass-reset-js').click(function(e) {
         e.preventDefault();
+		
+		// add unique class to note which overrides .welcome stuff
+		$('.notification').addClass('unwelcome');
 
         var email = $('.pass-email-js').val();
 
