@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Project;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -70,5 +71,48 @@ class ResetPasswordController extends Controller
         return view('auth.passwords.reset')->with(
             ['token' => $token, 'email' => $request->email]
         );
+    }
+	
+	public function sendResetResponse($response)
+    {
+		$projectCollections = Project::all()->sortBy("name", SORT_NATURAL|SORT_FLAG_CASE);
+        $projects = array();
+        $inactive = array();
+        $custom = array();
+        $pSearch = array();
+        $hasProjects = false;
+        $requestableProjects = array();
+        foreach($projectCollections as $project) {
+            if(\Auth::user()->admin || \Auth::user()->inAProjectGroup($project)) {
+                if($project->active) {
+                    array_push($projects, $project);
+                    array_push($pSearch, $project);
+                    $seq = \Auth::user()->getCustomProjectSequence($project->pid);
+                    if($seq == null) {
+                        \Auth::user()->addCustomProject($project->pid);
+                        $seq = \Auth::user()->getCustomProjectSequence($project->pid);
+                    }
+                    $custom[$seq] = $project;
+                } else {
+                    array_push($inactive, $project);
+                    array_push($pSearch, $project);
+                }
+                $hasProjects = true;
+            } else if($project->active) {
+                $requestableProjects[$project->pid] = $project->name. " (" . $project->slug.")";
+            }
+        }
+		
+        //We need to sort the custom array
+        ksort($custom);
+        // should probably make a global notificationsController
+        $notification = array(
+          'message' => 'Password Successfully Reset!',
+          'description' => '',
+          'warning' => false,
+          'static' => false
+        );
+
+        return view('projects.index', compact('projects', 'inactive', 'custom', 'pSearch', 'hasProjects', 'requestableProjects', 'notification'));
     }
 }
