@@ -3,6 +3,7 @@
 use App\Form;
 use App\FormGroup;
 use App\Http\Controllers\Auth\RegisterController;
+use App\Preference;
 use App\Project;
 use App\ProjectGroup;
 use App\User;
