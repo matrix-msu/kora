@@ -124,7 +124,7 @@ Kora.Fields.TypedFieldDisplays.Initialize = function() {
                 var rid = $currentSlide.data('rid');
                 var flid = $currentSlide.data('flid');
                 var imgSrc = $currentSlide.attr('alt');
-                window.open(baseURL+'projects/'+pid+'/forms/'+fid+'/records/'+rid+'/fields/'+flid+'/image/'+imgSrc, '_blank');
+                window.open(baseURL+'projects/'+pid+'/forms/'+fid+'/records/'+rid+'/fields/'+flid+'/'+imgSrc, '_blank');
             });
 
             // Set horizontal positioning for single slide

@@ -143,7 +143,6 @@ class UserController extends Controller {
     public function update(Request $request) {
       if (!\Auth::user()->admin && \Auth::user()->id != $request->uid) {
         return response()->json(["status" => false, "message" => "cannot_update_user"], 200);
-        // return redirect('user/'.\Auth::user()->id)->with('k3_global_error', 'cannot_update_profile');
       }
 
       $message = array();
@@ -152,7 +151,6 @@ class UserController extends Controller {
       $newLastName = $request->last_name;
       $newProfilePic = $request->profile;
       $newOrganization = $request->organization;
-      $newLanguage = $request->language;
       $newPass = $request->password;
       $confirm = $request->password_confirmation;
 
@@ -170,13 +168,6 @@ class UserController extends Controller {
       if (!empty($newOrganization) && $newOrganization != $user->organization) {
         $user->organization = $newOrganization;
         array_push($message, "organization");
-      }
-
-      // TODO: When multiple languages implemented, update language change
-      // Need to test comparing language code vs language name (en vs English)
-      if (!empty($newLanguage) && $newLanguage != $user->language) {
-        //$user->language = $newLanguage;
-        //array_push($message, "language");
       }
 
       // Handle password change cases.
@@ -252,6 +243,7 @@ class UserController extends Controller {
         $preference = Preference::where('user_id', '=' ,$user->id)->first();
         $logoTargetOptions = Preference::logoTargetOptions();
         $projPageTabSelOptions = Preference::projPageTabSelOptions();
+        $singleProjTabSelOptions = Preference::singleProjTabSelOptions();
 
         if (is_null($preference)) {
             // Must create user preference
@@ -261,7 +253,14 @@ class UserController extends Controller {
             $preference->save();
         }
 
-        return view('user.preferences', compact('user', 'preference', 'logoTargetOptions', 'projPageTabSelOptions'));
+        $notification = array(
+            'message' => '',
+            'description' => '',
+            'warning' => false,
+            'static' => false
+        );
+
+        return view('user.preferences', compact('user', 'preference', 'logoTargetOptions', 'projPageTabSelOptions', 'singleProjTabSelOptions', 'sideMenuOptions', 'notification'));
     }
 
     /**
@@ -287,13 +286,57 @@ class UserController extends Controller {
         $preference->use_dashboard = ($request->useDashboard == "true" ? 1 : 0);
         $preference->logo_target = $request->logoTarget;
         $preference->proj_page_tab_selection = $request->projPageTabSel;
+        $preference->single_proj_page_tab_selection = $request->singleProjPageTabSel;
 
         $preference->save();
 
         $logoTargetOptions = Preference::logoTargetOptions();
         $projPageTabSelOptions = Preference::projPageTabSelOptions();
+        $singleProjTabSelOptions = Preference::singleProjTabSelOptions();
 
-        return view('user.preferences', compact('user', 'preference', 'logoTargetOptions', 'projPageTabSelOptions'));
+        $notification = array(
+            'message' => 'Preferences Successfully Updated!',
+            'description' => '',
+            'warning' => false,
+            'static' => false
+        );
+
+        return view('user.preferences', compact('user', 'preference', 'logoTargetOptions', 'projPageTabSelOptions', 'singleProjTabSelOptions', 'sideMenuOptions', 'notification'));
+    }
+
+    public static function returnUserPrefs ($pref) {
+        if (\Auth::user()) {
+            $user = \Auth::user();
+            $preference = Preference::where('user_id', '=', $user->id)->first();
+
+            if (is_null($preference)) {
+                $preference = new Preference();
+                $preference->use_dashboard = 1;
+                $preference->logo_target = 1;
+                $preference->proj_page_tab_selection = 3;
+                $preference->single_proj_page_tab_selection = 3;
+            }
+
+            $preference = $preference->$pref;
+
+            // use_dashboard :: 0 or 1
+            // logo_target :: 1 or 2
+            // proj_page_tab_selection :: 1, 2, or 3 :: archived//custom//alphabetical
+            // single_proj_page_tab_selection :: 2 or 3 :: custom//alphabetical
+
+            return $preference;
+        } else if (\Auth::guest()) {
+            // if user is guest, create default set of preferences
+            $preference = new Preference;
+            $preference->use_dashboard = 1;
+            $preference->logo_target = 1;
+            $preference->proj_page_tab_selection = 3;
+            $preference->single_proj_page_tab_selection = 3;
+
+            $preference = $preference->$pref;
+
+            return $preference;
+        }
     }
 
     public function validateUserFields(UserRequest $request) {
@@ -326,69 +369,6 @@ class UserController extends Controller {
         $file->move($pDir, $newFilename);
 
         return json_encode(["status"=>true,"message"=>"profile_pic_updated","pic_url"=>$pURL.$newFilename],200);
-    }
-
-    /**
-     * Change user profile information.
-     *
-     * @param  Request $request
-     * @return JsonResponse - Status of update
-     */
-    public function changeprofile(Request $request) {
-        //TODO:: I want to restructure this when we get to profiles
-        $user = Auth::user();
-        $type = $request->input("type");
-
-        switch($type) {
-            case "lang":
-                $lang = $request->input("field");
-
-                if(empty($lang)) {
-                    return response()->json(["status"=>false,"message"=>"language_missing"],500);
-                } else {
-                    $user->language = $lang;
-                    $user->save();
-                    return response()->json(["status"=>true,"message"=>"language_updated"],200);
-                }
-                break;
-            case "dash":
-                $dash = $request->input("field");
-
-                if($dash != "0" && $dash != "1") {
-                    return response()->json(["status"=>false,"message"=>"homepage_missing"],500);
-                } else {
-                    $user->dash = $dash;
-                    $user->save();
-                    return response()->json(["status"=>true,"message"=>"homepage_updated"],200);
-                }
-                break;
-            case "name":
-                //TODO::Big thing to do during said restructure
-                $realname = $request->input("field");
-
-                if(empty($realname)) {
-                    return response()->json(["status"=>false,"message"=>"name_missing"],500);
-                } else {
-                    $user->name = $realname;
-                    $user->save();
-                    return response()->json(["status"=>true,"message"=>"name_updated"],200);
-                }
-                break;
-            case "org":
-                $organization = $request->input("field");
-
-                if(empty($organization)) {
-                    return response()->json(["status"=>false,"message"=>"organization_missing"],500);
-                } else {
-                    $user->organization = $organization;
-                    $user->save();
-                    return response()->json(["status"=>true,"message"=>"organization_updated"],200);
-                }
-                break;
-            default:
-                return response()->json(["status"=>false,"message"=>"profile_field_missing"],500);
-                break;
-        }
     }
 
     /**
@@ -447,12 +427,12 @@ class UserController extends Controller {
                 $message->subject('Kora Account Activation');
             });
         } catch(\Swift_TransportException $e) {
-            //TODO::email error response
             //Log for now
             Log::info('Resend activation email failed');
+            return redirect('/')->with('status', 'activation_email_failed');
         }
 
-        return redirect('auth/activate')->with('k3_global_success', 'user_activate_resent');
+        return redirect('/')->with('status', 'user_activate_resent');
     }
 
     /**
@@ -476,9 +456,9 @@ class UserController extends Controller {
 
             $this->makeDefaultProject($user);
 
-            return redirect('/')->with('k3_global_success', 'user_activated');
+            return redirect('/');
         } else {
-            return redirect('auth/activate')->with('k3_global_error', 'bad_activation_token');
+            return redirect('/')->with('status', 'bad_activation_token');
         }
     }
 
@@ -499,14 +479,14 @@ class UserController extends Controller {
         \Auth::login($user);
 
         if($token != $user->regtoken) {
-            return redirect('/')->with('k3_global_error', 'bad_activation_token');
+            return redirect('/')->with('status', 'bad_activation_token');
         } else {
             $user->active = 1;
             $user->save();
 
             $this->makeDefaultProject($user);
 
-            return redirect('/')->with('k3_global_success', 'user_activated');
+            return redirect('/');
         }
     }
 

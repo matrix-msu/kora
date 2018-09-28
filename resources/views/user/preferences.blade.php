@@ -18,6 +18,8 @@
 @stop
 
 @section('body')
+    @include('partials.projects.notification')
+
     <section class="edit-preferences center">
         {!! Form::open(['method' => 'PATCH', 'url' => action('Auth\UserController@updatePreferences', ['uid' => $user->id]), 'enctype' => 'multipart/form-data', 'class' => ['edit-preferences-form']]) !!}
             @include('partials.user.preferences.form')

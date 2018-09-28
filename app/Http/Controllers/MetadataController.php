@@ -20,7 +20,7 @@ class MetadataController extends Controller {
     | displaying all records with their field's metadata, and changing the visibility
     | of metadata to the public, and mass assigning metadata
     |
-    */ //TODO::DEPRECATE?
+    */
 
     /**
      * Constructs controller and makes sure user is authenticated.

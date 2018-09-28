@@ -464,14 +464,22 @@ function initializeRequestProjectPermissionsModal()
 				    "pids": $('#request_project').val()
 				  },
 				  success: function(result) {
-            $('.note').children('p').text('Project permissions have been requested!');
-            $('.note').children('p').addClass('with-description');
-            $('.note').children('span').text('You will be notified via email once permissions have been granted.');
-            $('.note').children('span').addClass('note-description');
-            $('.notification').addClass('static-js');
-            $('.notification').removeClass('dismiss');
-          },
-				  error: function(result) {}
+                    $('.note').children('p').text('Project permissions have been requested!');
+                    $('.note').children('p').addClass('with-description');
+                    $('.note').children('span').text('You will be notified via email once permissions have been granted.');
+                    $('.note').children('span').addClass('note-description');
+                    $('.notification').addClass('static-js');
+                    $('.notification').removeClass('dismiss');
+                  },
+				  error: function(result) {
+                      $('.note').children('p').text('Project permissions request failed!');
+                      $('.note').children('p').addClass('with-description');
+                      $('.note').children('span').text('Please contact your Kora3 administrator.');
+                      $('.note').children('span').addClass('note-description');
+                      $('.notification').addClass('static-js');
+                      $('.notification').addClass('warning');
+                      $('.notification').removeClass('dismiss');
+                  }
 			  });
 		
 				// close modal after sending request
