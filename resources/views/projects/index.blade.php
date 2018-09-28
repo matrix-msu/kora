@@ -86,6 +86,7 @@
     var CSRFToken = '{{ csrf_token() }}';
     var saveCustomOrderUrl = '{{ action('Auth\UserController@saveProjectCustomOrder') }}';
 	var archiveURL = '{{ action('ProjectController@setArchiveProject', ['pid' => ""] ) }}';
+	var updateURL = '{{ action('UpdateController@index') }}';
     Kora.Projects.Index();
   </script>
 @stop

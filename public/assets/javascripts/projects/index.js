@@ -365,10 +365,17 @@ Kora.Projects.Index = function() {
 	$("[href='#custom'], [href='#active'], [href='#inactive']").click(function() { adjustProjectCardTitle(); });
   }
 
+  function initializeUpdateSequence() {
+      $('.view-updates-js').click(function(e) {
+          document.location.href = updateURL;
+      });
+  }
+
   initializeCustomSort();
   initializeFilters();
   initializeSearch();
   initializeUserProfileModal();
   initializeUnarchive();
   initializeProjectCardEllipsifying();
+  initializeUpdateSequence();
 }

@@ -130,9 +130,99 @@ Kora.Install.Create = function() {
         }
     });
 
+    var form = $('#install_form');
+    var photoInput = $(".profile-input");
+    var photoButton = $(".profile-label");
+    var picCont = $(".profile-label .icon-user-cont");
+    var photoFilename = $(".filename");
+    var photoInstruction = $(".instruction");
+    var photoDroppedFile = false;
+
+    //Resets file input
+    function resetFileInput() {
+        photoInput.replaceWith(photoInput.val('').clone(true));
+        photoFilename.html("Add a photo to help others identify you");
+        picCont.html("<i class='icon icon-user'></i>");
+        photoInstruction.removeClass("photo-selected");
+        photoDroppedFile = false;
+    }
+
+    function newProfilePic(type, pic, name) {
+        photoFilename.html(name + "<span class='remove-photo remove ml-xs'><i class='icon icon-cancel'></i></span>");
+        photoInstruction.addClass("photo-selected");
+        picCont.html("<img src='"+pic+"' alt='Profile Picture'>");
+        photoDroppedFile = pic;
+        $(".remove-photo").click(function(event) {
+            event.preventDefault();
+            resetFileInput();
+        });
+    }
+
+    // Check for Drag and Drop Support on the browser //TODO::fix drag and drop....
+    var isAdvancedUpload = function() {
+        var div = document.createElement('div');
+        return (('draggable' in div) || ('ondragstart' in div && 'ondrop' in div)) && 'FormData' in window && 'FileReader' in window;
+    }();
+
+    //We're basically replicating what profile pic does, just for 3 file inputs on a single page
+    function initializeFileUpload() {
+        // When hovering over input, hitting enter or space opens the menu
+        photoButton.keydown(function(event) {
+            if( event.keyCode == 13 || event.keyCode == 32 )
+                photoInput.focus();
+        });
+
+        // Clicking input opens menu
+        photoButton.click(function(event) { photoInput.focus(); });
+
+        // For clicking on input to select an image
+        photoInput.change(function(event) {
+            event.preventDefault();
+
+            if (this.files && this.files[0]) {
+                var name = this.value.substring(this.value.lastIndexOf('\\') + 1);
+                var reader = new FileReader();
+                reader.onload = function (e) { newProfilePic("profile",e.target.result, name); };
+                reader.readAsDataURL(this.files[0]);
+            }
+        });
+    }
+
+    // Drag and Drop
+    // detect and disable if we are on Safari
+    if (isAdvancedUpload && window.safari == undefined && navigator.vendor != 'Apple Computer, Inc.') {
+        photoButton.addClass('has-advanced-upload');
+
+        photoButton.on('drag dragstart dragend dragover dragenter dragleave drop', function(e) { e.preventDefault(); e.stopPropagation(); })
+            .on('dragover dragenter', function() { photoButton.addClass('is-dragover'); })
+            .on('dragleave dragend drop', function() { photoButton.removeClass('is-dragover'); })
+            .on('drop', function(e) {
+                e.stopPropagation();
+                e.preventDefault();
+
+                photoDroppedFile = e.originalEvent.dataTransfer.files[0];
+                var reader = new FileReader();
+                reader.onload = function (e) {
+                    newProfilePic('profile', e.target.result, photoDroppedFile.name);
+                    photoDroppedFile = e.target.result;
+                };
+                reader.readAsDataURL(photoDroppedFile);
+            });
+    }
+
     $('#install_submit').on('click', function() {
         //gather the form data
-        var data = $('#install_form').serialize();
+        if (!photoDroppedFile && photoInput.val() != '') { // if there was no dropped photo and if no photo was added by default 
+            var data = $('#install_form').serialize();
+        } else {
+            var data = new FormData(form.get());
+            data.delete('profile');
+            if (photoDroppedFile) {
+                data.append('profile', photoDroppedFile);
+            } else {
+                data.append('profile', photoInput[0].files[0]);
+            }
+        }
 
         //make ajax call to save env
         $.ajax({
@@ -152,6 +242,7 @@ Kora.Install.Create = function() {
     navbar.className += " install-nav";
     languageSelector.style.display = 'none';
 
+    initializeFileUpload();
     initializeInstallToggles();
 }
 

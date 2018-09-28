@@ -28,7 +28,7 @@ trait RegistersUsers
      */
     public function register(Request $request)
     {
-        if(!\App\User::verifyRegisterRecaptcha($request,$this)) {
+        if(!\App\User::verifyRegisterRecaptcha($request)) {
             $notification = array(
                 'message' => 'ReCaptcha validation error',
                 'description' => '',
@@ -45,10 +45,14 @@ trait RegistersUsers
 
         $this->guard()->login($user);
 
-        \App\User::finishRegistration($request);
+        if(\App\User::finishRegistration($request))
+            $status = 'activation_email_sent';
+        else
+            $status = 'activation_email_failed';
+
 
         return $this->registered($request, $user)
-                        ?: redirect($this->redirectPath());
+                        ?: redirect($this->redirectPath())->with('status', $status);
     }
 
     /**

@@ -317,8 +317,9 @@ class ImportController extends Controller {
                             "record_validation_error"=>[$request->kid => "$fieldSlug format is incorrect for a Combo List Field"]],500);
                     $oneVals = array();
                     $twoVals = array();
-                    $nameone = str_replace(" ","_",ComboListField::getComboFieldName(FieldController::getField($flid), 'one'));
-                    $nametwo = str_replace(" ","_",ComboListField::getComboFieldName(FieldController::getField($flid), 'two'));
+                    $cf = FieldController::getField($flid);
+                    $nameone = Field::xmlTagClear(ComboListField::getComboFieldName($cf, 'one'));
+                    $nametwo = Field::xmlTagClear(ComboListField::getComboFieldName($cf, 'two'));
                     foreach($field->Value as $val) {
                         if(empty($val->{$nameone}))
                             return response()->json(["status"=>false,"message"=>"xml_validation_error",
@@ -610,8 +611,9 @@ class ImportController extends Controller {
                 } else if($type == 'Combo List') {
                     $oneVals = array();
                     $twoVals = array();
-                    $nameone = ComboListField::getComboFieldName(FieldController::getField($flid), 'one');
-                    $nametwo = ComboListField::getComboFieldName(FieldController::getField($flid), 'two');
+                    $cf = FieldController::getField($flid);
+                    $nameone = Field::xmlTagClear(ComboListField::getComboFieldName($cf, 'one'));
+                    $nametwo = Field::xmlTagClear(ComboListField::getComboFieldName($cf, 'two'));
                     foreach($field['value'] as $val) {
                         if(!isset($val[$nameone]))
                             return response()->json(["status"=>false,"message"=>"json_validation_error",

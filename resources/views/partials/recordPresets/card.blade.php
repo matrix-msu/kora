@@ -99,7 +99,7 @@
         </div>
 
         <div class="footer">
-            <a class="quick-action trash-container left danger delete-preset-js" presetid="{{$preset->id}}" href="#">
+            <a class="quick-action trash-container left danger delete-preset-js tooltip" presetid="{{$preset->id}}" href="#" tooltip="Delete Preset">
                 <i class="icon icon-trash"></i>
             </a>
 

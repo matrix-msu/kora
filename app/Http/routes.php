@@ -5,7 +5,6 @@ Route::group(['middleware' => 'web'], function () {
     Route::get('/home', 'WelcomeController@index');
     Route::post('/language', 'WelcomeController@setTemporaryLanguage');
     Route::get('/dashboard', 'DashboardController@dashboard');
-    Route::get('/email', 'HelpController@emailTest'); //TEST ROUTE
 
 //project routes
     Route::get('/projects/import', 'ProjectController@importProjectView');
@@ -182,7 +181,7 @@ Route::group(['middleware' => 'web'], function () {
     Route::delete('projects/{pid}/forms/{fid}/deleteAllRecords', 'RecordController@deleteAllRecords');
     Route::post('/projects/{pid}/forms/{fid}/cleanUp', 'RecordController@cleanUp');
     Route::get('/projects/{pid}/forms/{fid}/clone/{rid}', 'RecordController@cloneRecord');
-    Route::get('/projects/{pid}/forms/{fid}/records/{rid}/fields/{flid}/{type}/{filename}', 'FieldController@singleResource');
+    Route::get('/projects/{pid}/forms/{fid}/records/{rid}/fields/{flid}/{filename}', 'FieldController@singleResource');
 
 //revision routes
     Route::get('/projects/{pid}/forms/{fid}/records/revisions/recent', 'RevisionController@index');
@@ -203,7 +202,6 @@ Route::group(['middleware' => 'web'], function () {
     Route::patch('/user/{uid}/preferences', 'Auth\UserController@updatePreferences');
     Route::post('/auth/resendActivate', 'Auth\UserController@resendActivation');
     Route::post('/auth/activator', 'Auth\UserController@activator');
-    Route::post('/user/profile', 'Auth\UserController@changeprofile');
     Route::post('/user/picture', 'Auth\UserController@changepicture');
     Route::post('/user/validate', 'Auth\RegisterController@validateUserFields');
 
@@ -260,9 +258,6 @@ Route::group(['middleware' => 'web'], function () {
 //advanced search routes
     Route::get("/projects/{pid}/forms/{fid}/advancedSearch/results", "AdvancedSearchController@recent");
     Route::post("/projects/{pid}/forms/{fid}/advancedSearch/results", "AdvancedSearchController@search");
-
-// help routes
-    Route::get("/help/search", "HelpController@search");
 
 //twitter routes
     Route::get("/twitter", "TwitterController@index");

@@ -31,7 +31,7 @@
 @section('body')
     @include("partials.fields.input-modals")
 
-    <form method="post" action="{{-- action('RecordController@massAssignRecords',compact('pid','fid')) --}}" class="batch-form">
+    <form method="post" action="{{ action('RecordController@massAssignRecordSet',compact('pid','fid')) }}" class="batch-form">
         <input type="hidden" name="_token" value="{{csrf_token()}}">
         <section class="record-batch-selected center">
             <div class="form-group">
@@ -61,18 +61,7 @@
             </div>
 
             <div class="form-group mt-xxxl">
-                <label for="searchable">Overwrite All Previously Inputted Fields?</label>
-                <div class="check-box">
-                    <input type="checkbox" value="1" id="preset" class="check-box-input" name="overwrite"/>
-                    <div class="check-box-background"></div>
-                    <span class="check"></span>
-                    <span class="placeholder">Inputted fields will keep their value</span>
-                    <span class="placeholder-alt">Inputted fields will be overwritten</span>
-                </div>
-            </div>
-
-            <div class="form-group mt-xxxl">
-                {!! Form::submit('Batch Assigned Field Values',['class' => 'btn disabled batch-submit-js']) !!}
+                {!! Form::submit('Batch Assigned Field Values',['class' => 'btn disabled batch-selected-submit-js']) !!}
             </div>
         </section>
     </form>
