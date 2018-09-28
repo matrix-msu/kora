@@ -598,6 +598,7 @@ class AssociatorField extends BaseField {
         //get the preview flid structure of this associator
         $activeForms = array();
         $field = FieldController::getField($this->flid);
+        print_r($field);
         $option = FieldController::getFieldOption($field,'SearchForms');
         if($option!='') {
             $options = explode('[!]',$option);
@@ -629,6 +630,7 @@ class AssociatorField extends BaseField {
         $preview = array();
         if(isset($activeForms[$fid])) {
             $details = $activeForms[$fid];
+//print_r($details);
             foreach($details['flids'] as $flid => $type) {
                 if($type == Field::_TEXT) {
                     $text = TextField::where("flid", "=", $flid)->where("rid", "=", $rid)->first();
