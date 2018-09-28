@@ -49,15 +49,17 @@ class ImportHelper extends Command {
     public function handle()
     {
         $fileInfo = $this->argument('filePath');
-        $parts = explode('/',$fileInfo);
+
+        $parts = explode('/',$fileInfo); //For figuring out name
+        $parts2 = explode('.', $fileInfo); //For figuring out extention
         if(sizeof($parts) > 1) {
-            $path = $parts[0] . '/';
-            $name = str_replace('.utf8','',$parts[1]);
-            $ext = end(explode('.', $fileInfo));
+            $name = end($parts);
+            $path = str_replace($name,'',$fileInfo);
+            $ext = end($parts2);
         } else {
+            $name = end($parts);
+            $ext = end($parts2);
             $path = '';
-            $name = str_replace('.utf8','',$parts[0]);
-            $ext = end(explode('.', $fileInfo));
         }
 
         if($ext != 'utf8') {

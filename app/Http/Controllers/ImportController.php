@@ -1742,6 +1742,7 @@ class ImportController extends Controller {
 
         if($handle) {
             while(($line = fgets($handle)) !== false) {
+                $line = trim($line);
                 if(mb_substr($line, 0, 6) == "Record") {
                     //get kid if applicable
                     $parts = explode(' ', $line);
@@ -1759,14 +1760,12 @@ class ImportController extends Controller {
                     }
 
                     $state = "record";
-
-                    break;
                 } else if(mb_substr($line, 0, 7) == "<field>") {
                     $slug = explode('<field>', $line)[1];
 
-                    if($state == "record")
+                    if($state == "record") {
                         $records .= "<$slug>";
-                    else {
+                    } else {
                         $records .= self::processUtf8Data($currField, $currData);
                         $currData = array();
                         $records .= "</$currField><$slug>"; //End last field before moving on to next field
@@ -1775,7 +1774,6 @@ class ImportController extends Controller {
                     $currField = $slug;
 
                     $state = "field";
-                    break;
                 } else {
                     //We are gathering data
                     $currData[] = $line;
