@@ -310,7 +310,7 @@ class UserController extends Controller {
             $preference = Preference::where('user_id', '=', $user->id)->first();
 
             if (is_null($preference)) {
-                $preference = new Preference;
+                $preference = new Preference();
                 $preference->use_dashboard = 1;
                 $preference->logo_target = 1;
                 $preference->proj_page_tab_selection = 3;
