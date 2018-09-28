@@ -32,7 +32,6 @@ class ProjectController extends Controller {
 
     /**
      * Gets the view for the main projects page.
-     * TODO::later sort initial pull by recent
      *
      * @return View
      */
@@ -72,12 +71,6 @@ class ProjectController extends Controller {
         //We need to sort the custom array
         ksort($custom);
 
-        //TODO::Update stuff
-        /*$current = new UpdateController();
-        if ($current->checkVersion()) {
-          $notification['message'] = 'Update Available!';
-        }*/
-
         // should probably make a global notificationsController
         $notification = array(
           'message' => '',
@@ -85,6 +78,13 @@ class ProjectController extends Controller {
           'warning' => false,
           'static' => false
         );
+
+        //TODO::Update stuff
+//        if(\Auth::user()->admin) {
+//            $current = new UpdateController();
+//            if($current->checkVersion())
+//                $notification['message'] = 'Update Available!';
+//        }
 
         $prevUrlArray = $request->session()->get('_previous');
         $prevUrl = reset($prevUrlArray);
