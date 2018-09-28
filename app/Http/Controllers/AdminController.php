@@ -62,6 +62,7 @@ class AdminController extends Controller {
         ['name' => 'plugin_menus', 'backup' => 'SavePluginMenusTable'],
         ['name' => 'plugin_settings', 'backup' => 'SavePluginSettingsTable'],
         ['name' => 'plugin_users', 'backup' => 'SavePluginUsersTable'],
+        ['name' => 'preferences', 'backup' => 'SavePreferencesTable'],
         ['name' => 'project_custom', 'backup' => 'SaveProjectCustomTable'],
         ['name' => 'project_groups', 'backup' => 'SaveProjectGroupsTable'],
         ['name' => 'project_group_user', 'backup' => 'SaveProjectGroupUsersTable'],
