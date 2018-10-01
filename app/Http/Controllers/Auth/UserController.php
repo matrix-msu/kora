@@ -243,6 +243,7 @@ class UserController extends Controller {
         $preference = Preference::where('user_id', '=' ,$user->id)->first();
         $logoTargetOptions = Preference::logoTargetOptions();
         $projPageTabSelOptions = Preference::projPageTabSelOptions();
+        $singleProjTabSelOptions = Preference::singleProjTabSelOptions();
 
         if (is_null($preference)) {
             // Must create user preference
@@ -252,7 +253,14 @@ class UserController extends Controller {
             $preference->save();
         }
 
-        return view('user.preferences', compact('user', 'preference', 'logoTargetOptions', 'projPageTabSelOptions'));
+        $notification = array(
+            'message' => '',
+            'description' => '',
+            'warning' => false,
+            'static' => false
+        );
+
+        return view('user.preferences', compact('user', 'preference', 'logoTargetOptions', 'projPageTabSelOptions', 'singleProjTabSelOptions', 'sideMenuOptions', 'notification'));
     }
 
     /**
@@ -278,13 +286,56 @@ class UserController extends Controller {
         $preference->use_dashboard = ($request->useDashboard == "true" ? 1 : 0);
         $preference->logo_target = $request->logoTarget;
         $preference->proj_page_tab_selection = $request->projPageTabSel;
+        $preference->single_proj_page_tab_selection = $request->singleProjPageTabSel;
 
         $preference->save();
 
         $logoTargetOptions = Preference::logoTargetOptions();
         $projPageTabSelOptions = Preference::projPageTabSelOptions();
+        $singleProjTabSelOptions = Preference::singleProjTabSelOptions();
 
-        return view('user.preferences', compact('user', 'preference', 'logoTargetOptions', 'projPageTabSelOptions'));
+        $notification = array(
+            'message' => 'Preferences Successfully Updated!',
+            'description' => '',
+            'warning' => false,
+            'static' => false
+        );
+
+        return view('user.preferences', compact('user', 'preference', 'logoTargetOptions', 'projPageTabSelOptions', 'singleProjTabSelOptions', 'sideMenuOptions', 'notification'));
+    }
+
+    public static function returnUserPrefs ($pref) {
+        if (\Auth::user()) {
+            $user = \Auth::user();
+            $preference = Preference::where('user_id', '=', $user->id)->first();
+
+            if (is_null($preference)) {
+                $preference->use_dashboard = 1;
+                $preference->logo_target = 1;
+                $preference->proj_page_tab_selection = 3;
+                $preference->single_proj_page_tab_selection = 3;
+            }
+
+            $preference = $preference->$pref;
+
+            // use_dashboard :: 0 or 1
+            // logo_target :: 1 or 2
+            // proj_page_tab_selection :: 1, 2, or 3 :: archived//custom//alphabetical
+            // single_proj_page_tab_selection :: 2 or 3 :: custom//alphabetical
+
+            return $preference;
+        } else if (\Auth::guest()) {
+            // if user is guest, create default set of preferences
+            $preference = new Preference;
+            $preference->use_dashboard = 1;
+            $preference->logo_target = 1;
+            $preference->proj_page_tab_selection = 3;
+            $preference->single_proj_page_tab_selection = 3;
+
+            $preference = $preference->$pref;
+
+            return $preference;
+        }
     }
 
     public function validateUserFields(UserRequest $request) {

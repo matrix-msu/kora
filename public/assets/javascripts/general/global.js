@@ -103,8 +103,13 @@ function getURLParameter(name) {
 $(document).ready(function() {
   setFixedElement(true);
 
+  var $sidebarPrefs = false;
+  if ($('.keep-sidemenu').hasClass('true')) {
+    $sidebarPrefs = true;
+  }
   var $sidebarCookie = getCookie('sidebar');
-  if ($sidebarCookie && getBrowserWidth() > 870) {
+  if (($sidebarCookie || $sidebarPrefs) && getBrowserWidth() > 870) {
+    $('.side-menu-js').addClass('active');
     $(".center, .floating-buttons").addClass('with-aside');
     $('.field.card').addClass('with-aside');
     $('.notification').addClass('with-aside');

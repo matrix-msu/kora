@@ -181,7 +181,7 @@ Route::group(['middleware' => 'web'], function () {
     Route::delete('projects/{pid}/forms/{fid}/deleteAllRecords', 'RecordController@deleteAllRecords');
     Route::post('/projects/{pid}/forms/{fid}/cleanUp', 'RecordController@cleanUp');
     Route::get('/projects/{pid}/forms/{fid}/clone/{rid}', 'RecordController@cloneRecord');
-    Route::get('/projects/{pid}/forms/{fid}/records/{rid}/fields/{flid}/{type}/{filename}', 'FieldController@singleResource');
+    Route::get('/projects/{pid}/forms/{fid}/records/{rid}/fields/{flid}/{filename}', 'FieldController@singleResource');
 
 //revision routes
     Route::get('/projects/{pid}/forms/{fid}/records/revisions/recent', 'RevisionController@index');
@@ -193,13 +193,14 @@ Route::group(['middleware' => 'web'], function () {
     Route::get('/auth/activate', 'Auth\UserController@activateshow');
     Route::get('/user/activate/{token}', 'Auth\UserController@activate');
     Route::get('/user/{uid}/edit', 'Auth\UserController@editProfile');
-    Route::get('/user/{uid}/preferences', 'Auth\UserController@preferences');
+    Route::get('/user/{uid}/preferences', 'Auth\UserController@preferences'); // get all user prefs
     Route::get('/user/{uid}/{section?}', 'Auth\UserController@index');
+    Route::get('/returnUserPrefs/{pref}', 'Auth\UserController@returnUserPrefs'); // get individual user pref
     Route::delete('/user/{uid}/delete', 'Auth\UserController@delete');
     Route::patch('/user/validate/{uid}', 'Auth\UserController@validateUserFields');
     Route::patch('/user/changepw', 'Auth\UserController@changepw');
     Route::patch('/user/{uid}/update', 'Auth\UserController@update');
-    Route::patch('/user/{uid}/preferences', 'Auth\UserController@updatePreferences');
+    Route::patch('/user/{uid}/preferences', 'Auth\UserController@updatePreferences'); // edit user prefs from user prefs page
     Route::post('/auth/resendActivate', 'Auth\UserController@resendActivation');
     Route::post('/auth/activator', 'Auth\UserController@activator');
     Route::post('/user/picture', 'Auth\UserController@changepicture');

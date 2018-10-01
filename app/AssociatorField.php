@@ -594,15 +594,18 @@ class AssociatorField extends BaseField {
         $fid = $recModel->fid;
         $rid = $recModel->rid;
         $kid = $recModel->kid;
+// dd($recModel);
+// dd($this);
+// dd($this->flid);
 
         //get the preview flid structure of this associator
         $activeForms = array();
         $field = FieldController::getField($this->flid);
-        print_r($field);
+// dd($field); // the 'options' section of this does not include all flids needed here, should be 2, there only is 1
         $option = FieldController::getFieldOption($field,'SearchForms');
         if($option!='') {
             $options = explode('[!]',$option);
-
+dd($options);
             foreach($options as $opt) {
                 $opt_fid = explode('[fid]',$opt)[1];
                 $opt_search = explode('[search]',$opt)[1];
@@ -630,7 +633,7 @@ class AssociatorField extends BaseField {
         $preview = array();
         if(isset($activeForms[$fid])) {
             $details = $activeForms[$fid];
-//print_r($details);
+// print_r($details);
             foreach($details['flids'] as $flid => $type) {
                 if($type == Field::_TEXT) {
                     $text = TextField::where("flid", "=", $flid)->where("rid", "=", $rid)->first();

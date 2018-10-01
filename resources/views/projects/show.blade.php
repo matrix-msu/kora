@@ -44,9 +44,10 @@
         <i class="icon icon-cancel icon-cancel-js"></i>
       </div>
       <div class="sort-options sort-options-js">
+          @php $pref = 'single_proj_page_tab_selection' @endphp
           <!-- <a href="modified" class="option underline-middle">Recently Modified</a> -->
-          <a href="#custom" class="option underline-middle underline-middle-hover">Custom</a>
-          <a href="#active" class="option underline-middle underline-middle-hover active">Alphabetical</a>
+          <a href="#custom" class="option underline-middle underline-middle-hover {{ \App\Http\Controllers\Auth\UserController::returnUserPrefs($pref) == "2" ? 'active' : ''}}">Custom</a>
+          <a href="#active" class="option underline-middle underline-middle-hover {{ \App\Http\Controllers\Auth\UserController::returnUserPrefs($pref) == "3" ? 'active' : ''}}">Alphabetical</a>
       </div>
   </section>
   @endif
@@ -60,8 +61,8 @@
   </section>
 
   <section class="form-selection center form-js form-selection-js">
-    @include("partials.projects.show.alphabetical", ['isCustom' => false, 'active' => true])
-    @include("partials.projects.show.custom", ['isCustom' => true, 'active' => false])
+    @include("partials.projects.show.alphabetical", ['isCustom' => false, 'active' => \App\Http\Controllers\Auth\UserController::returnUserPrefs($pref) == "3" ? true : false])
+    @include("partials.projects.show.custom", ['isCustom' => true, 'active' => \App\Http\Controllers\Auth\UserController::returnUserPrefs($pref) == "2" ? true : false])
   </section>
 @stop
 
