@@ -1,6 +1,6 @@
 <?php $url = action('RevisionController@rollback'); ?>
 <div class="modal modal-js modal-mask restore-fields-modal-js">
-    <div class="content">
+    <div class="content small">
         <div class="header">
             <span class="title">Restore Fields to Before?</span>
             <a href="#" class="modal-toggle modal-toggle-js">
