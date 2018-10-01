@@ -18,13 +18,15 @@
     }
 ?>
 <div class="form-group mt-xxxl">
+    <label class="associator-label mb-xs">Associator</label>
+</div>
+<div class="form-group associator">
     <div class="form-group">
         <label>@if($field->required==1)<span class="oval-icon"></span> @endif{{$field->name}}</label>
         <span class="error-message"></span>
         {!! Form::select($field->flid.'[]', $listOpts, $selected, ['class' => 'multi-select assoc-default-records-js preset-clear-chosen-js',
             'multiple', "data-placeholder" => "Search below to add associated records", 'id' => $field->flid]) !!}
     </div>
-
     <div class="form-group mt-xs">
         {!! Form::label('search','Search Associations') !!}
         <input type="text" class="text-input assoc-search-records-js" placeholder="Enter search term or KID to find associated records (populated below)"
