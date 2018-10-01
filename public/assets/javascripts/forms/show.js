@@ -296,6 +296,7 @@ Kora.Forms.Show = function() {
     pageTitles = document.getElementsByClassName('page-title-js');
     for (var i = 0; i < pageTitles.length; i++) {
       $pageTitle = $(pageTitles[i]);
+      window.localStorage.setItem('pageTitle', pageTitles[i].placeholder);
       $pageTitle.attr('size',
         $pageTitle.attr('placeholder').length);
       
@@ -310,8 +311,18 @@ Kora.Forms.Show = function() {
               'method': renameMethod,
               'pageID': $this.attr('pageid'),
               'updatedName': $this.val()
+            },
+            success: function () {
+              newTitle = window.localStorage.getItem('pageTitle');
+              if (newTitle !== $this[0].placeholder) {
+                $('.note').children('p').text('Form Page Name Changed Successfully!');
+                $('.notification').removeClass('dismiss');
+                setTimeout(function(){
+                  $('.notification').addClass('dismiss');
+                }, 4000);
+              }
             }
-          })
+          });
           $this.attr('placeholder', $this.val());
           $this.attr('size', $this.val().length)
           $this.val('');
@@ -329,7 +340,7 @@ Kora.Forms.Show = function() {
 
     $('.delete-page-js').on('click', function(e) {
       e.preventDefault();
-	  if ($(".delete-page-js").length == 1) return;
+      if ($(".delete-page-js").length == 1) return;
 	  
       var page = $(this).data('page');
 
@@ -512,6 +523,7 @@ Kora.Forms.Show = function() {
           'pageID': pageID
         },
         success: function(result) {
+          window.localStorage.setItem('message', 'Form Page Successfully Deleted');
           location.reload();
         }
       });
@@ -530,6 +542,7 @@ Kora.Forms.Show = function() {
           '_method': 'delete'
         },
         success: function(result) {
+          window.localStorage.setItem('message', 'Field Successfully Deleted');
           location.reload();
         }
       })

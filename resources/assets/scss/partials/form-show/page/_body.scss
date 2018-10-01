@@ -15,8 +15,6 @@
   width: calc(100% - 80px);
 
   .quick-action.delete-field {
-    padding-top: 35px;
-
     .icon {
       @include transition();
 
@@ -50,7 +48,7 @@
   }
 
   .id {
-    margin-bottom: 5px;
+    margin-bottom: 15px;
   }
 
   .allowed-actions {

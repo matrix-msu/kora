@@ -103,11 +103,18 @@ function getURLParameter(name) {
 $(document).ready(function() {
   setFixedElement(true);
 
+  var $sidebarPrefs = false;
+  if ($('.keep-sidemenu').hasClass('true')) {
+    $sidebarPrefs = true;
+  }
   var $sidebarCookie = getCookie('sidebar');
-  if ($sidebarCookie && getBrowserWidth() > 870) {
+  if (($sidebarCookie || $sidebarPrefs) && getBrowserWidth() > 870) {
+    $('.side-menu-js').addClass('active');
     $(".center, .floating-buttons").addClass('with-aside');
     $('.field.card').addClass('with-aside');
+    $('.notification').addClass('with-aside');
     $('.pre-fixed-js').addClass('pre-fixed-with-aside');
+    $('.toolbar').addClass('with-aside');
   } else {
     // the case where we want the aside lock to still work on refresh for larger screens
     // but not on mobile.
@@ -205,6 +212,46 @@ $(document).ready(function() {
     $activePageLink.addClass('head');
   }
 
+  var $noteBody = $('.notification');
+  var $note = $('.note').children('p');
+  var $noteDesc = $('.note').children('span');
+
+  var message = window.localStorage.getItem('message');
+
+  if (message) {
+    $note.text(message);
+    window.localStorage.clear();
+  }
+
+  setTimeout(function(){
+    if ($note.text() != '') {
+      if ($note.text() === 'Update Available!') {
+        $('.view-updates-js').removeClass('hidden');
+      }
+
+      if ($noteDesc.text() != '') {
+        $noteDesc.addClass('note-description');
+        $note.addClass('with-description');
+      }
+
+      $noteBody.removeClass('dismiss');
+      $('.welcome-body').addClass('with-notification');
+
+      if (!$noteBody.hasClass('static-js')) {
+        setTimeout(function(){
+          $noteBody.addClass('dismiss');
+          $('.view-updates-js').addClass('hidden');
+        }, 4000);
+      }
+    }
+  }, 200);
+
+  $('.toggle-notification-js').click(function(e) {
+    e.preventDefault();
+
+    $noteBody.addClass('dismiss');
+    $('.welcome-body').removeClass('with-notification');
+  });
 });
 
 //Quick opens global search menu

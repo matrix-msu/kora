@@ -8,7 +8,9 @@
                 <p class="audio-filenmame">{{explode('[Name]',$aud)[1]}}</p>
 
                 <div class="audio-container">
-                    <i class="icon icon-play play-button-js"></i>
+                    <i class="icon icon-play audio-button audio-button-js play-button-js active"></i>
+                    <i class="icon icon-pause-big audio-button audio-button-js pause-button-js"></i>
+                    <i class="icon icon-replay-big audio-button audio-button-js replay-button-js"></i>
 
                     <div class="slider ml-m">
                         <div class="slider-button slider-button-js"><div class="inner-button"></div></div>
@@ -26,7 +28,7 @@
 
             <div class="field-sidebar audio-sidebar audio-sidebar-js">
                 <div class="top">
-                    <a href="{{url('projects/'.$form->pid.'/forms/'.$form->fid.'/records/'.$record->rid.'/fields/'.$field->flid.'/video/'.$filename)}}" class="field-btn" target="_blank">
+                    <a href="{{url('projects/'.$form->pid.'/forms/'.$form->fid.'/records/'.$record->rid.'/fields/'.$field->flid.'/'.$filename)}}" class="field-btn" target="_blank">
                         <i class="icon icon-external-link"></i>
                     </a>
 

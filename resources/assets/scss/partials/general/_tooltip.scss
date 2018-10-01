@@ -36,14 +36,39 @@
       left: 4px;
     }
 
-    .footer & {
-      top: -30px;
-      left: -30px;
+    .backup .footer & {
+      top: 0;
+      left: -35px;
     }
 
     .content .footer & {
       top: -30px;
       left: -45px;
+    }
+
+    .field .footer & {
+      top: 0;
+      left: -30px;
+    }
+
+    .token .footer & {
+      top: 0;
+      left: -35px;
+    }
+
+    .user .footer & {
+      top: 0;
+      left: -35px;
+    }
+
+    .record .footer & {
+      top: 0;
+      left: -35px;
+    }
+
+    .preset .footer & {
+      top: 0;
+      left: -35px;
     }
 
     .project-cleanup & {

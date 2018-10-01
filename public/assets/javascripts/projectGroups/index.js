@@ -24,6 +24,11 @@ Kora.ProjectGroups.Index = function() {
         "pid": pid
       },
       success: function() {
+        $('.note').children('p').text('User Successfully Removed from Group');
+        $('.notification').removeClass('dismiss');
+        setTimeout(function(){
+          $('.notification').addClass('dismiss');
+        }, 4000);
         var $user = $("#list-element" + projectGroup + userID);
         var $parent = $user.parent();
         var userName = $user.children('.view-user-js').html();
@@ -122,6 +127,11 @@ Kora.ProjectGroups.Index = function() {
         "projectGroup": projectGroup
       },
       success: function(data) {
+        $('.note').children('p').text('User(s) Successfully Added to Permissions Group!');
+        $('.notification').removeClass('dismiss');
+        setTimeout(function(){
+          $('.notification').addClass('dismiss');
+        }, 4000);
         // data is supposed to be the Old Group ID
         var userMap = {} // A map of userID to their content
         for (userID of userIDs) {
@@ -209,6 +219,9 @@ Kora.ProjectGroups.Index = function() {
           initializeViewUserModal();
 
         });
+      },
+      error: function (err) {
+        console.log(err);
       }
     });
   }

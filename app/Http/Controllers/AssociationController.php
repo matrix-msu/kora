@@ -35,7 +35,7 @@ class AssociationController extends Controller {
      * @param  int $fid - Form ID
      * @return View
      */
-	public function index($pid, $fid) {
+	public function index($pid, $fid, Request $request) {
         if(!FormController::validProjForm($pid, $fid))
             return redirect('projects/'.$pid)->with('k3_global_error', 'form_invalid');
 
@@ -51,11 +51,19 @@ class AssociationController extends Controller {
 		$associatedForms = array();
 		foreach($assocs as $a) {
 			array_push($associatedForms, FormController::getForm($a->assocForm));
-        }
-        $associatable_forms = Form::all();
-        $available_associations = self::getAvailableAssociations($fid);
-        $requestable_associations = self::getRequestableAssociations($fid);
-		return view('association.index', compact('form', 'assocs', 'associatedForms', 'project', 'available_associations', 'requestable_associations', 'associatable_forms'));
+    }
+    $associatable_forms = Form::all();
+    $available_associations = self::getAvailableAssociations($fid);
+    $requestable_associations = self::getRequestableAssociations($fid);
+
+    $notification = array(
+      'message' => '',
+      'description' => '',
+      'warning' => false,
+      'static' => true /* the only notification to appear on this page will be static */
+    );
+
+		return view('association.index', compact('form', 'assocs', 'associatedForms', 'project', 'available_associations', 'requestable_associations', 'associatable_forms', 'notification'));
 	}
 
     /**

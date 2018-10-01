@@ -77,7 +77,7 @@ class RecordFileZip extends Command {
                 }
             }
         } else {
-            echo "No record files in form: $form->name\n";
+            $this->info("No record files in form: $form->name");
 ;
             return '';
         }
@@ -85,6 +85,6 @@ class RecordFileZip extends Command {
         // Zip archive will be created only after closing object
         $zip->close();
 
-        echo "Success! File located at storage/app/tmpFiles/".$form->name."_preppedZIP_CLI.zip\n";
+        $this->info("Success! File located at storage/app/tmpFiles/".$form->name."_preppedZIP_CLI.zip");
     }
 }

@@ -7,6 +7,8 @@ use App\Http\Requests\FieldRequest;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\File;
 use Illuminate\View\View;
 
 class FieldController extends Controller {
@@ -43,8 +45,8 @@ class FieldController extends Controller {
         if(!self::checkPermissions($fid, 'create'))
             return redirect('projects/'.$pid.'/forms/'.$fid.'/fields')->with('k3_global_error', 'cant_create_field');
 
-		$form = FormController::getForm($fid);
-		$validFieldTypes = Field::$validFieldTypes;
+        $form = FormController::getForm($fid);
+        $validFieldTypes = Field::$validFieldTypes;
         $validComboListFieldTypes = ComboListField::$validComboListFieldTypes;
 
         return view('fields.create', compact('form','rootPage', 'validFieldTypes', 'validComboListFieldTypes'));
@@ -207,7 +209,9 @@ class FieldController extends Controller {
         //A field has been changed, so current record rollbacks become invalid.
         RevisionController::wipeRollbacks($fid);
 
-        return $field->getTypedField()->updateOptions($field, $request);
+        $field->getTypedField()->updateOptions($field, $request);
+
+        return redirect('projects/'.$pid.'/forms/'.$fid)->with('k3_global_success', 'field_updated');
     }
 
     /**
@@ -290,6 +294,7 @@ class FieldController extends Controller {
             return response()->json(["status"=>true, "message"=>"deleted"], 200);
 	}
 
+	//TODO::is this needed or used?
     public function validateFieldFields(FieldRequest $request) {
         return response()->json(["status"=>true, "message"=>"Form Valid", 200]);
     }
@@ -387,14 +392,47 @@ class FieldController extends Controller {
      * @param  string $filename - Image filename
      * @return Redirect
      */
-    public function singleResource($pid, $fid, $rid, $flid, $type, $filename) {
-        $src = (config('app.storage_url').'files/p'.$pid.'/f'.$fid.'/r'.$rid.'/fl'.$flid.'/'.$filename);
+    public function singleResource($pid, $fid, $rid, $flid, $filename) {
+        $relative_src = 'files/p'.$pid.'/f'.$fid.'/r'.$rid.'/fl'.$flid.'/'.$filename;
+        $src = config('app.storage_url') . $relative_src;
 
-        if ($type == 'image') {
-          return view('fields.singleImage', compact('filename', 'src'));
-        } elseif ($type == 'video') {
-          return view('fields.singleVideo', compact('filename', 'src'));
+        if (!file_exists('app/'.$relative_src)) {
+            // File does not exist
+            dd($filename . ' not found');
         }
 
+        $mime = Storage::mimeType('files/p'.$pid.'/f'.$fid.'/r'.$rid.'/fl'.$flid.'/'.$filename);
+
+        if (strpos($mime, 'image') !== false || strpos($mime, 'jpeg') !== false || strpos($mime, 'png') !== false) {
+            // Image
+            return view('fields.singleImage', compact('filename', 'src'));
+        } elseif (strpos($mime, 'video') !== false || strpos($mime, 'mp4') !== false) {
+            // Video
+            return view('fields.singleVideo', compact('filename', 'src'));
+        } elseif (strpos($mime, 'audio') !== false || strpos($mime, 'mpeg') !== false || strpos($mime, 'mp3') !== false) {
+            // Audio
+            return view('fields.singleAudio', compact('filename', 'src'));
+        }
+
+        // Attempting to open generic document
+        $ext = File::extension($src);
+
+        if ($ext=='pdf'){
+            $content_types='application/pdf';
+        } elseif ($ext=='doc') {
+            $content_types='application/msword';
+        } elseif ($ext=='docx') {
+            $content_types='application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+        } elseif ($ext=='xls') {
+            $content_types='application/vnd.ms-excel';
+        } elseif ($ext=='xlsx') {
+            $content_types='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+        } elseif ($ext=='txt') {
+            $content_types='application/octet-stream';
+        }
+
+        return response()->file('app/'.$relative_src, [
+            'Content-Type' => $content_types
+        ]);
     }
 }

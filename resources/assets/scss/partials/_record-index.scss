@@ -12,6 +12,10 @@
   margin: $navigation-height auto 0;
   width: 100%;
 
+  &.with-bottom {
+    margin: $navigation-height auto 20px;
+  }
+
   .view-records {
     margin: #{map-get($spacing, xxxl)} auto;
     max-width: calc(#{ $max-site-width } - 600px);
@@ -212,3 +216,4 @@
     @import 'record-index/page-typed-fields';
   }
 }
+@import 'record-index/toolbar';

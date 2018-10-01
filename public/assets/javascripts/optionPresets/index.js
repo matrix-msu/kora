@@ -146,7 +146,8 @@ Kora.OptionPresets.Index = function() {
                     "presetId": currentPreset
                 },
                 success: function (result) {
-                    location.reload();
+                  window.localStorage.setItem('message', 'Field Value Preset Deleted');
+                  location.reload();
                 }
             });
         });

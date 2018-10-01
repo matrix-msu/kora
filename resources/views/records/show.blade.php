@@ -70,6 +70,7 @@
 @stop
 
 @section('body')
+    @include("partials.projects.notification")
     @include("partials.records.modals.deleteRecordModal")
 
     <section class="view-record center">

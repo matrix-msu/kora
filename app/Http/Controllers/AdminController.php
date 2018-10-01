@@ -3,9 +3,11 @@
 use App\Form;
 use App\FormGroup;
 use App\Http\Controllers\Auth\RegisterController;
+use App\Preference;
 use App\Project;
 use App\ProjectGroup;
 use App\User;
+use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -60,6 +62,7 @@ class AdminController extends Controller {
         ['name' => 'plugin_menus', 'backup' => 'SavePluginMenusTable'],
         ['name' => 'plugin_settings', 'backup' => 'SavePluginSettingsTable'],
         ['name' => 'plugin_users', 'backup' => 'SavePluginUsersTable'],
+        ['name' => 'preferences', 'backup' => 'SavePreferencesTable'],
         ['name' => 'project_custom', 'backup' => 'SaveProjectCustomTable'],
         ['name' => 'project_groups', 'backup' => 'SaveProjectGroupsTable'],
         ['name' => 'project_group_user', 'backup' => 'SaveProjectGroupUsersTable'],
@@ -90,13 +93,34 @@ class AdminController extends Controller {
      *
      * @return View
      */
-    public function users() {
+    public function users(Request $request) {
         $usersAz = User::orderBy('first_name')->get();
         $usersZa = User::orderBy('first_name', 'desc')->get();
         $usersNto = User::latest()->get();
         $usersOtn = User::orderBy('created_at')->get();
 
-        return view('admin.users', compact('usersAz', 'usersZa', 'usersNto', 'usersOtn'));
+        $notification = array(
+          'message' => '',
+          'description' => '',
+          'warning' => false,
+          'static' => false
+        );
+        $prevUrlArray = $request->session()->get('_previous');
+        $prevUrl = reset($prevUrlArray);
+        $profChangesArray = $request->session()->get('user_changes');
+        if ($profChangesArray) $profChanges = reset($profChangesArray);
+        if ($prevUrl !== url()->current()) {
+          $session = $request->session()->get('k3_global_success');
+
+          if ($session == 'user_updated' && $profChanges == 'password')
+            $notification['message'] = 'Password Successfully Updated!';
+          else if ($session == 'user_updated')
+            $notification['message'] = 'User Successfully Updated!';
+        } else if ($request->session()->get('k3_global_success') == 'batch_users') {
+          $notification['message'] = 'User(s) Successfully Invited!';
+        }
+
+        return view('admin.users', compact('usersAz', 'usersZa', 'usersNto', 'usersOtn', 'notification'));
     }
 
     /**
@@ -357,6 +381,18 @@ class AdminController extends Controller {
                         $token = RegisterController::makeRegToken();
                         $user->regtoken = $token;
                         $user->save();
+
+                        //
+                        // Assign the new user a default set of preferences.
+                        //
+                        $preference = new Preference;
+                        $preference->user_id = $user->id;
+                        $preference->created_at = Carbon::now();
+                        $preference->use_dashboard = 1;
+                        $preference->logo_target = 1;
+                        $preference->proj_page_tab_selection = 3;
+                        $preference->single_proj_page_tab_selection = 3;
+                        $preference->save();
 
                         //
                         // Send a confirmation email.

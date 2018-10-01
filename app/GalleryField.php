@@ -293,7 +293,7 @@ class GalleryField extends FileTypeField  {
      * @param  bool $overwrite - Overwrite if data exists
      */
     public function massAssignRecordField($field, $formFieldValue, $request, $overwrite=0) {
-        //TODO::mass assign?
+        //We don't allow so do nothing
     }
 
     /**
@@ -305,7 +305,7 @@ class GalleryField extends FileTypeField  {
      * @param  array $rids - Overwrite if data exists
      */
     public function massAssignSubsetRecordField($field, $formFieldValue, $request, $rids) {
-        //TODO::mass assign?
+        //We don't allow so do nothing
     }
 
     /**

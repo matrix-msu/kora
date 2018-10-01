@@ -124,7 +124,7 @@ Kora.Fields.TypedFieldDisplays.Initialize = function() {
                 var rid = $currentSlide.data('rid');
                 var flid = $currentSlide.data('flid');
                 var imgSrc = $currentSlide.attr('alt');
-                window.open(baseURL+'projects/'+pid+'/forms/'+fid+'/records/'+rid+'/fields/'+flid+'/image/'+imgSrc, '_blank');
+                window.open(baseURL+'projects/'+pid+'/forms/'+fid+'/records/'+rid+'/fields/'+flid+'/'+imgSrc, '_blank');
             });
 
             // Set horizontal positioning for single slide
@@ -169,10 +169,15 @@ Kora.Fields.TypedFieldDisplays.Initialize = function() {
             var $audio = $(this);
             var $audioClip = $audio.find('.audio-clip-js');
             var audioClip = $audioClip[0];
-            var $playButton = $audio.find('.play-button-js');
             var $sliderButton = $audio.find('.slider-button-js');
             var $sliderBar = $audio.find('.slider-bar-js');
             var $progressBar = $audio.find('.slider-progress-bar-js');
+
+            // Main buttons
+            var $audioButtons = $audio.find('.audio-button-js');
+            var $playButton = $audio.find('.play-button-js');
+            var $pauseButton = $audio.find('.pause-button-js');
+            var $replayButton = $audio.find('.replay-button-js');
 
             // Audio & Slider vars
             var playing = false;
@@ -183,16 +188,32 @@ Kora.Fields.TypedFieldDisplays.Initialize = function() {
 
             // Play Button
             $playButton.click(function() {
-                if (audioClip.paused) {
-                    // Audio clip paused, play audio
-                    playing = true;
-                    audioClip.play();
-                    playSlider(true);
-                } else {
-                    // Audio clip playing, pause audio
-                    playing = false;
-                    audioClip.pause();
-                }
+                playing = true;
+                audioClip.play();
+                playSlider(true);
+
+                $audioButtons.removeClass('active');
+                $pauseButton.addClass('active');
+            });
+
+            // Pause Button
+            $pauseButton.click(function() {
+                playing = false;
+                audioClip.pause();
+
+                $audioButtons.removeClass('active');
+                $playButton.addClass('active');
+            });
+
+            // Replay Button
+            $replayButton.click(function() {
+                audioClip.currentTime = 0;
+                playing = true;
+                audioClip.play();
+                playSlider(true);
+
+                $audioButtons.removeClass('active');
+                $playButton.addClass('active');
             });
 
             // Dragging slider
@@ -232,6 +253,8 @@ Kora.Fields.TypedFieldDisplays.Initialize = function() {
                         // Audio ends
                         if (audioClip.ended) {
                             playing = false;
+                            $audioButtons.removeClass('active');
+                            $replayButton.addClass('active');
                             return;
                         }
 
@@ -257,6 +280,11 @@ Kora.Fields.TypedFieldDisplays.Initialize = function() {
                     var seconds = audioLength * slideTimePercentage;
                     seconds = seconds.toFixed(3);
                     audioClip.currentTime = seconds;
+
+                    if (audioClip.currentTime != audioClip.duration) {
+                        $audioButtons.removeClass('active');
+                        $playButton.addClass('active');
+                    }
                 }
             }
 

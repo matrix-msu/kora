@@ -3,8 +3,7 @@
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\FormController;
 use App\Http\Controllers\ProjectController;
-use App\Project;
-use App\Form;
+use App\Preference;
 use Carbon\Carbon;
 use Illuminate\Auth\Authenticatable;
 use Illuminate\Database\Eloquent\Model;
@@ -71,59 +70,96 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
 
     ////THESE FUNCTIONS WILL HANDLE MODIFICATIONS TO AUTHENTICATION IN LARAVEL//////////////////////////////////////////
 
-    ////NOTE: You may to fix some of these when updating to newer versions of laravel, so test them!!
+    ////NOTE: You may have to fix re-implement these functions when updating to newer versions of laravel, so test them!!
 
     /** RECAPTCHA
-     * Verifies recaptcha token on register.
+     * Verifies recaptcha token on register. Happens in registration before we verify the other User request data.
      *
      * @param  Request $request - The registration request data
-     * @param  RegistersUsers $regUsers - The model that runs registration, need reference for error throwing
      */
-    public static function verifyRegisterRecaptcha($request, $regUsers) {
+    public static function verifyRegisterRecaptcha($request) {
         $recaptcha = new ReCaptcha(config('auth.recap_private'));
         $resp = $recaptcha->verify($request['g-recaptcha-response'], $_SERVER['REMOTE_ADDR']);
 
-        if($resp->isSuccess()) {
+        if($resp->isSuccess())
             return true;
-        } else {
-            //TODO:: test error and make better
+        else
             return false;
-        }
+
+        //NOTE::When you re-implement this function in the laravel Register system, use this fail state:
+//        if(!\App\User::verifyRegisterRecaptcha($request,$this)) {
+//            $notification = array(
+//                'message' => 'ReCaptcha validation error',
+//                'description' => '',
+//                'warning' => true,
+//                'static' => true
+//            );
+//
+//            return redirect("/register")->withInput()->with('notification', $notification)->send();
+//        }
     }
 
     /** REGISTRATION
-     * Finishes the registration process by submitting user photo and sending activation email.
+     * Finishes the registration process by submitting user photo and sending activation email. Happens in registration
+     * right after logging in the newly created user.
      *
      * @param  Request $request - The registration request data
+     * @return bool - Success of activation email
      */
     public static function finishRegistration($request) {
-        $token = \Auth::user()->token;
+        $user = \Auth::user();
+        $token = $user->token;
 
-        if( !is_null($request->file('profile')) ) {
+        if(!is_null($request->file('profile'))) {
             //get the file object
             $file = $request->file('profile');
             $filename = $file->getClientOriginalName();
             //path where file will be stored
-            $destinationPath = env('BASE_PATH') . 'storage/app/profiles/'.\Auth::user()->id.'/';
+            $destinationPath = env('BASE_PATH') . 'storage/app/profiles/'.$user->id.'/';
             //store filename in user model
-            \Auth::user()->profile = $filename;
-            \Auth::user()->save();
+            $user->profile = $filename;
+            $user->save();
             //move the file
             $file->move($destinationPath,$filename);
         }
 
+        //Assign new user preferences
+        $preference = Preference::where('user_id', '=' ,$user->id)->first();
+        if (is_null($preference)) {
+            $preference = new Preference;
+            $preference->user_id = $user->id;
+            $preference->created_at = Carbon::now();
+            $preference->use_dashboard = 1;
+            $preference->logo_target = 1;
+            $preference->proj_page_tab_selection = 3;
+            $preference->single_proj_page_tab_selection = 3;
+            $preference->save();
+        }
+
         //Send email
         try {
-            Mail::send('emails.activation', compact('token'), function($message) {
+            Mail::send('emails.activation', compact('token'), function($message) use ($user) {
                 $message->from(env('MAIL_FROM_ADDRESS'));
-                $message->to(\Auth::user()->email);
+                $message->to($user->email);
                 $message->subject('Kora Account Activation');
             });
+
+            return true;
         } catch(\Swift_TransportException $e) {
-            //TODO::email error response
             //Log for now
             Log::info('Activation email failed');
+            return false;
         }
+
+        //NOTE::When you re-implement this function in the laravel Register system, use this fail state:
+//        if(\App\User::finishRegistration($request))
+//            $status = 'activation_email_sent';
+//        else
+//            $status = 'activation_email_failed';
+//
+//
+//        return $this->registered($request, $user)
+//            ?: redirect($this->redirectPath())->with('status', $status)->send();
     }
 
     /** PASSWORD RESET
@@ -144,14 +180,14 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
                 $message->subject('Kora Password Reset');
             });
         } catch(\Swift_TransportException $e) {
-            //TODO::email error response
             //Log for now
             Log::info('Password reset email failed');
         }
     }
 
     /** LOGIN
-     * Filters login results to allow login with either username or email.
+     * Filters login results to allow login with either username or email. Happens in the authentication system login
+     * attempt function.
      *
      * @param  array $credentials - The login credentials
      * @return array - The filtered credentials
@@ -529,6 +565,7 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
         DB::table("form_custom")->where("uid", "=", $this->id)->delete();
         DB::table("backup_support")->where("user_id", "=", $this->id)->delete();
         DB::table("global_cache")->where("user_id", "=", $this->id)->delete();
+        DB::table("preferences")->where("user_id", "=", $this->id)->delete();
 
         //Delete dashboard stuff
         $sections = DB::table("dashboard_sections")->where("uid", "=", $this->id)->get();
@@ -606,7 +643,7 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
                 $newSeq = $currSeqMax + 1;
             else
                 $newSeq = 0;
-
+			
             DB::table('project_custom')->insert(
                 ['uid' => $this->id, 'pid' => $pid, 'sequence' => $newSeq,
                     "created_at" =>  Carbon::now(),

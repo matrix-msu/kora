@@ -1,6 +1,5 @@
 <?php namespace App;
 
-use App\Http\Controllers\FormController;
 use App\Http\Controllers\RevisionController;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;

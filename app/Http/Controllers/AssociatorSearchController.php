@@ -14,7 +14,7 @@ class AssociatorSearchController extends Controller {
     | Associator Search Controller
     |--------------------------------------------------------------------------
     |
-    | This controller handles recording searching for individual associator
+    | This controller handles record searching for individual associator
     | fields in record creation
     |
     */

@@ -271,12 +271,25 @@
 /***** AUDIO *****/
 .audio-field-display {
   .audio-container {
-    .icon-play {
+    .audio-button {
       color: palette('green', accent);
       cursor: pointer;
-      display: inline-block;
+      display: none;
       font-size: 32px;
+      height: 32px;
       vertical-align: middle;
+      width: 32px;
+
+      &.active {
+        display: inline-block;
+      }
+
+      &.icon-replay-big {
+        font-size: 24px;
+        height: 24px;
+        padding: 4px;
+        width: 24px;
+      }
     }
 
     .slider {

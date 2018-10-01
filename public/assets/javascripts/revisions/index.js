@@ -126,6 +126,9 @@ Kora.Revisions.Index = function() {
                         revision: revision
                     },
                     success: function(d) {
+                        if ('modified_kid' in d) {
+                          window.localStorage.setItem('message', 'Record Fields Restored!');
+                        }
                         location.reload();
                     },
                     error: function(e) {
@@ -156,6 +159,7 @@ Kora.Revisions.Index = function() {
                         revision: revision
                     },
                     success: function(d) {
+                        window.localStorage.setItem('message', 'Record Re-Activated!');
                         location.reload();
                     },
                     error: function(e) {

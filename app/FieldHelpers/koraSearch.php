@@ -153,7 +153,7 @@ class kora3ApiExternalTool {
         return array($queryObj1,$operator,$queryObj2);
     }
 
-    /** TODO::Make sure that this allows you to represent all parameters, then update API doc
+    /**
      * Takes queries and other information to build the full forms string value in an array.
      *
      * @param  string $fid - Form ID
@@ -178,6 +178,7 @@ class kora3ApiExternalTool {
         $form["meta"] = in_array("meta",$flags) ? in_array("meta",$flags) : false;
         $form["size"] = in_array("size",$flags) ? in_array("size",$flags) : false;
         $form["assoc"] = in_array("assoc",$flags) ? in_array("assoc",$flags) : false;
+        $form["revAssoc"] = in_array("revAssoc",$flags) ? in_array("revAssoc",$flags) : false;
         $form["filters"] = in_array("filters",$flags) ? in_array("filters",$flags) : false;
         $form["realnames"] = in_array("realnames",$flags) ? in_array("realnames",$flags) : false;
         $form["under"] = in_array("under",$flags) ? in_array("under",$flags) : false;

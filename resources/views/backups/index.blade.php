@@ -100,7 +100,7 @@
                         </div>
 
                         <div class="footer">
-                            <a class="quick-action trash-container left danger delete-backup-open-js" href="#" backup-label="{{$backup["label"]}}">
+                            <a class="quick-action trash-container left danger delete-backup-open-js tooltip" href="#" backup-label="{{$backup["label"]}}" tooltip="Delete Backup">
                                 <i class="icon icon-trash"></i>
                             </a>
                             <a class="quick-action underline-middle-hover" href="{{action("BackupController@download",['path'=>$backup["label"]])}}">

@@ -32,7 +32,7 @@
 @stop
 
 @section('body')
-    {!! Form::open(['url' => action('ImportController@importProject'),'enctype' => 'multipart/form-data']) !!}
+    {!! Form::open(['url' => action('ImportController@importProject'),'enctype' => 'multipart/form-data', 'class' => 'form-file-input']) !!}
 
     <section class="projectfile-section">
         <div class="form-group">

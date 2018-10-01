@@ -62,6 +62,18 @@
         }
       }
     }
+
+    @media screen and (max-width: 590px) {
+      >div:first-of-type {
+        margin-right: 40px;
+      }
+    }
+
+    @media screen and (max-width: $max-mobile-xs-width) {
+      >div:first-of-type {
+        padding-bottom: 10px;
+      }
+    }
   }
 
   .show-options {

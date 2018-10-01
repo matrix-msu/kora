@@ -1,5 +1,9 @@
 @extends('app', ['page_title' => (Auth::user()->id == $user->id ? 'My Profile' : $user->username), 'page_class' => 'user-profile'])
 
+@section('aside-content')
+  @include('partials.sideMenu.dashboard', ['openDashboardDrawer' => false, 'openProjectDrawer' => false])
+@stop
+
 @section('header')
     @include('partials.user.profile.head')
 @stop
