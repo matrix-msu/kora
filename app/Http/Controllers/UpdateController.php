@@ -11,7 +11,7 @@ class UpdateController extends Controller {
 
     /*
     |--------------------------------------------------------------------------
-    | Update Controller (TODO::Refactor updates)
+    | Update Controller
     |--------------------------------------------------------------------------
     |
     | This controller handles version management of Kora3

@@ -79,7 +79,6 @@ class ProjectController extends Controller {
           'static' => false
         );
 
-        //TODO::Update stuff
         if(\Auth::user()->admin) {
             $current = new UpdateController();
             if($current->checkVersion())
