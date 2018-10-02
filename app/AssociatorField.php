@@ -605,7 +605,7 @@ class AssociatorField extends BaseField {
         $option = FieldController::getFieldOption($field,'SearchForms');
         if($option!='') {
             $options = explode('[!]',$option);
-dd($options);
+// print_r($options);
             foreach($options as $opt) {
                 $opt_fid = explode('[fid]',$opt)[1];
                 $opt_search = explode('[search]',$opt)[1];
@@ -633,7 +633,7 @@ dd($options);
         $preview = array();
         if(isset($activeForms[$fid])) {
             $details = $activeForms[$fid];
-// print_r($details);
+print_r($details);
             foreach($details['flids'] as $flid => $type) {
                 if($type == Field::_TEXT) {
                     $text = TextField::where("flid", "=", $flid)->where("rid", "=", $rid)->first();
