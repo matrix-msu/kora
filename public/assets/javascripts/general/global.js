@@ -235,7 +235,6 @@ $(document).ready(function() {
       }
 
       $noteBody.removeClass('dismiss');
-      $('.welcome-body').addClass('with-notification');
 
       if (!$noteBody.hasClass('static-js')) {
         setTimeout(function(){
