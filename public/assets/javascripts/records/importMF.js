@@ -111,8 +111,8 @@ Kora.Records.ImportMF = function () {
                                         percent = 7;
                                     progressFill.attr('style', 'width:' + percent + '%');
                                     progressText.text(succ + ' of ' + total + ' Records Submitted');
-
-                                    assocTagConvert[data['assocTag']] = data['kid'];
+                                    if(data['assocTag']!=null)
+                                        assocTagConvert[data['assocTag']] = data['kid'];
                                     crossFormAssoc[data['kid']] = data['assocArray'];
                                     comboCrossAssoc[data['kid']] = data['comboAssocArray'];
 
