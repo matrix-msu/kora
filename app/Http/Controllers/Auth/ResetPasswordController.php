@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\User;
 use App\Http\Controllers\Controller;
 use App\Project;
 use Illuminate\Http\Request;
@@ -10,6 +11,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Foundation\Auth\ResetsPasswords;
 use Illuminate\Contracts\Hashing;
+use Illuminate\Support\Facades\Validator;
 
 class ResetPasswordController extends Controller
 {
@@ -105,7 +107,6 @@ class ResetPasswordController extends Controller
 		
         //We need to sort the custom array
         ksort($custom);
-        // should probably make a global notificationsController
         $notification = array(
           'message' => 'Password Successfully Reset!',
           'description' => '',
@@ -115,4 +116,23 @@ class ResetPasswordController extends Controller
 
         return view('projects.index', compact('projects', 'inactive', 'custom', 'pSearch', 'hasProjects', 'requestableProjects', 'notification'));
     }
+	
+    public function checkEmailInDB(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+           'email' => 'required|email',
+        ]);
+        
+        if ($validator->fails()) {
+            return "Invalid";
+        }
+		
+		$user = User::where('email', '=', $request->email)->first();
+		if ($user !== null) {
+			return "Exists";
+		} else {
+			return "Not Exists";
+		}
+    }
+	
 }

@@ -75,6 +75,11 @@
 
 @section('javascripts')
   @include('partials.auth.javascripts')
+  
+  <script type="text/javascript">
+    var CSRFToken = '{{ csrf_token() }}';
+    var emailURL = '{{ action('Auth\ResetPasswordController@checkEmailInDB') }}';
+  </script>
 
   <script>
     Kora.Modal.initialize();
@@ -87,9 +92,6 @@
 
     $('.pass-reset-js').click(function(e) {
         e.preventDefault();
-		
-		// add unique class to note which overrides .welcome stuff
-		$('.notification').addClass('unwelcome');
 
         var email = $('.pass-email-js').val();
 
@@ -100,7 +102,28 @@
             $('.pass-error-js').text('The email must be a valid email address.');
             $('.pass-email-js').addClass('error');
         } else {
-            $('.pass-form-js').submit();
+			$.ajax({
+				url: emailURL,
+				method: 'POST',
+				data: {
+					"_token": CSRFToken,
+					"email": email
+				},
+				success: function(response) {
+					if (response == "Exists") {
+						$('.pass-error-js').text('');
+						setTimeout(function(){
+							$('.pass-form-js').submit();
+						}, 10);
+					} else if (response == "Invalid") {
+						$('.pass-error-js').text('The email must be a valid email address.');
+						$('.pass-email-js').addClass('error');
+					} else if (response == "Not Exists") {
+						$('.pass-error-js').text('There is no user associated with that email');
+						$('.pass-email-js').addClass('error');
+					}
+				}
+			});
         }
     });
 

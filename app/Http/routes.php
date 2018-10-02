@@ -267,6 +267,9 @@ Route::group(['middleware' => 'web'], function () {
 
 //twitter routes
     Route::get("/twitter", "TwitterController@index");
+	
+//reset password routes
+	Route::post("/reset/checkemail", "Auth\ResetPasswordController@checkEmailInDB");
 
 //user auth
     Auth::routes();
