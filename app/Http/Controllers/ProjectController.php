@@ -80,11 +80,11 @@ class ProjectController extends Controller {
         );
 
         //TODO::Update stuff
-//        if(\Auth::user()->admin) {
-//            $current = new UpdateController();
-//            if($current->checkVersion())
-//                $notification['message'] = 'Update Available!';
-//        }
+        if(\Auth::user()->admin) {
+            $current = new UpdateController();
+            if($current->checkVersion())
+                $notification['message'] = 'Update Available!';
+        }
 
         $prevUrlArray = $request->session()->get('_previous');
         $prevUrl = reset($prevUrlArray);

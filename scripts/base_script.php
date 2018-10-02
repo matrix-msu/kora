@@ -1,4 +1,2 @@
 <?php 
-
-// This is purposefully empty.
-
+    //Put DB updates here
