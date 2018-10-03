@@ -31,7 +31,7 @@
         {!! Form::label('search','Association Results') !!}
         {!! Form::select('search[]', [], null, ['class' => 'multi-select assoc-select-records-js', 'multiple',
             "data-placeholder" => "Select a record association to add to defaults"]) !!}
-        <p class="sub-text">Once records are populated, they will appear in this field's dropdown. Selecting records will then add them to the "Default Associations" field below.</p>
+        <p class="sub-text">Once records are populated, they will appear in this field's dropdown. Selecting records will then add them to the "Selected Associations" field below.</p>
     </div>
     <div class="form-group mt-xs mb-xl">
         <label>@if($field->required==1)<span class="oval-icon"></span> @endif Selected Associations</label>
