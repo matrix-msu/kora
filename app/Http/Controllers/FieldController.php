@@ -346,7 +346,7 @@ class FieldController extends Controller {
      */
     public static function getFieldOption($field, $key) {
         $options = $field->options;
-        $tag = '[!'.$key.'!]'; // [!SearchForms!]
+        $tag = '[!'.$key.'!]';
         $value = explode($tag,$options)[1];
 
         return $value;

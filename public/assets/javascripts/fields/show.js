@@ -323,9 +323,20 @@ Kora.Fields.Show = function() {
             e.preventDefault();
 
             values = {};
+            previews = [];
+            let str = '';
             $.each($('.edit-form').serializeArray(), function(i, field) {
-                values[field.name] = field.value;
+                if (field.name.includes('preview_')) {
+                    previews.push(field.value);
+                } else {
+                    values[field.name] = field.value;
+                }
             });
+            str = previews.toString();
+            str = str.replace(/,/g, '-');
+            $('input[name="flids"]').val(str);
+
+            values[$('.assoc-preview-js').attr('id')] = str;
             values['_method'] = 'PATCH';
 
             $.ajax({

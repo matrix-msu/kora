@@ -116,7 +116,8 @@ class AssociatorField extends BaseField {
         foreach($request->all() as $key=>$value) {
             if(substr( $key, 0, 8 ) === "checkbox") {
                 $fid = explode('_',$key)[1];
-                $preview = $request->input("preview_".$fid);
+                // $preview = $request->input("preview_".$fid);
+                $preview = $request->input("flids");
                 $val = "[fid]{$fid}[fid][search]1[search][flids]{$preview}[flids]";
 
                 array_push($searchForms,$val);
@@ -594,18 +595,14 @@ class AssociatorField extends BaseField {
         $fid = $recModel->fid;
         $rid = $recModel->rid;
         $kid = $recModel->kid;
-// dd($recModel);
-// dd($this);
-// dd($this->flid);
 
         //get the preview flid structure of this associator
         $activeForms = array();
         $field = FieldController::getField($this->flid);
-// dd($field); // the 'options' section of this does not include all flids needed here, should be 2, there only is 1
         $option = FieldController::getFieldOption($field,'SearchForms');
         if($option!='') {
             $options = explode('[!]',$option);
-// print_r($options);
+
             foreach($options as $opt) {
                 $opt_fid = explode('[fid]',$opt)[1];
                 $opt_search = explode('[search]',$opt)[1];
@@ -628,18 +625,18 @@ class AssociatorField extends BaseField {
 
         $form = \App\Http\Controllers\PageController::getFormLayout($fid);
         $form = $form[0]["fields"];
+
         //grab the preview fields associated with the form of this kid
         //make sure one is selected first
         $preview = array();
         if(isset($activeForms[$fid])) {
             $details = $activeForms[$fid];
-print_r($details);
             foreach($details['flids'] as $flid => $type) {
                 if($type == Field::_TEXT) {
                     $text = TextField::where("flid", "=", $flid)->where("rid", "=", $rid)->first();
 
                     foreach ($form as $field) {
-                        if ($field->type == 'Text')
+                        if ($field->type == 'Text' && $field->flid == $flid)
                             array_push($preview, $field->name);
                     }
 
@@ -651,7 +648,7 @@ print_r($details);
                     $list = ListField::where("flid", "=", $flid)->where("rid", "=", $rid)->first();
 
                     foreach ($form as $field) {
-                        if ($field->type == 'List')
+                        if ($field->type == 'List' && $field->flid == $flid)
                             array_push($preview, $field->name);
                     }
 
