@@ -342,14 +342,6 @@ class ProjectGroupController extends Controller {
      *
      * @param  string $type - Method to execute
      * @param  int $uid - User ID
-     * @param  ProjectGroup 
-	 * @param  Project
-     */
-    /**
-     * Emails a user when their access to a project has changed.
-     *
-     * @param  string $type - Method to execute
-     * @param  int $uid - User ID
      * @param  int $pgid - Project Group ID
      */
     private function emailUserProject($type, $uid, $pgid) {
@@ -371,7 +363,6 @@ class ProjectGroupController extends Controller {
                 $message->subject('Kora Project Permissions');
             });
         } catch(\Swift_TransportException $e) {
-            //TODO::email error response
             //Log for now
             Log::info('Access change email failed');
         }

@@ -347,6 +347,13 @@ class AdminController extends Controller {
         $emails = array_unique(explode(' ', $emails));
         $personal_message = $request->message;
 
+        $notification = array(
+            'message' => '',
+            'description' => '',
+            'warning' => false,
+            'static' => false
+        );
+
         // The user hasn't entered anything.
         if($emails[0] == "") {
             return redirect('admin/users')->with('k3_global_error', 'batch_no_data');
@@ -404,7 +411,10 @@ class AdminController extends Controller {
                                 $message->subject('Kora Account Activation');
                             });
                         } catch(\Swift_TransportException $e) {
-                            //TODO::email error response
+                            $notification['warning'] = true;
+                            $notification['static'] = true;
+                            $notification['message'] = 'Emails failed to send!';
+                            $notification['description'] = 'Please check your mailing configuration and try again.';
                             //Log for now
                             Log::info('Batch invite email failed');
                         }
@@ -417,7 +427,7 @@ class AdminController extends Controller {
                 }
             }
 
-            return redirect('admin/users')->with('k3_global_success', 'batch_users')->with('batch_users_created', $created)->with('batch_users_skipped', $skipped);
+            return redirect('admin/users')->with('k3_global_success', 'batch_users')->with('batch_users_created', $created)->with('batch_users_skipped', $skipped)->with('notification', $notification);
         }
     }
 
