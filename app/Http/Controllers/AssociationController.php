@@ -224,7 +224,6 @@ class AssociationController extends Controller {
                     $message->subject('Kora Form Association Request');
                 });
             } catch(\Swift_TransportException $e) {
-                //TODO::email error response
                 //Log for now
                 Log::info('Request access email failed');
             }

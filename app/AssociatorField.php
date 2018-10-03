@@ -628,19 +628,7 @@ class AssociatorField extends BaseField {
         if(isset($activeForms[$fid])) {
             $details = $activeForms[$fid];
             foreach($details['flids'] as $flid => $type) {
-                if($type == Field::_TEXT) {
-                    $text = TextField::where("flid", "=", $flid)->where("rid", "=", $rid)->first();
-                    if(!is_null($text) && $text->text != '')
-                        array_push($preview, $text->text);
-                    else
-                        array_push($preview, "Preview Field Empty");
-                } else if($type == Field::_LIST) {
-                    $list = ListField::where("flid", "=", $flid)->where("rid", "=", $rid)->first();
-                    if(!is_null($list) && $list->option != '')
-                        array_push($preview, $list->option);
-                    else
-                        array_push($preview, "Preview Field Empty");
-                }
+                array_push($preview, self::previewData($flid, $rid, $type));
             }
         } else {
             array_push($preview, "No Preview Field Available");
@@ -653,5 +641,50 @@ class AssociatorField extends BaseField {
         }
 
         return $html;
+    }
+
+    /**
+     * The tool that gets all the data. Used in several places related to association.
+     *
+     * @param  int $flid - Field ID
+     * @param  int $rid - Record ID
+     * @param  int $type - Field type
+     * @return string - The displayed value for the record and field
+     */
+    public static function previewData($flid, $rid, $type) {
+        //TODO::Modular?
+        switch($type) {
+            case Field::_TEXT:
+                $text = TextField::where("flid", "=", $flid)->where("rid", "=", $rid)->first();
+                if(!is_null($text) && $text->text != '')
+                    return $text->text;
+                else
+                    return "Preview Field Empty";
+                break;
+            case Field::_LIST:
+                $list = ListField::where("flid", "=", $flid)->where("rid", "=", $rid)->first();
+                if(!is_null($list) && $list->option != '')
+                    return $list->option;
+                else
+                    return "Preview Field Empty";
+                break;
+            case Field::_NUMBER:
+                $num = NumberField::where("flid", "=", $flid)->where("rid", "=", $rid)->first();
+                if(!is_null($num) && $num->Number != '')
+                    return $num->number;
+                else
+                    return "Preview Field Empty";
+                break;
+            case Field::_DATE:
+                $date = DateField::where("flid", "=", $flid)->where("rid", "=", $rid)->first();
+                if(!is_null($date))
+                    return $date->displayDate();
+                else
+                    return "Preview Field Empty";
+                break;
+            default:
+                return "Invalid Preview Field";
+                break;
+        }
     }
 }
