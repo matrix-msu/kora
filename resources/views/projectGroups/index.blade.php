@@ -148,13 +148,17 @@
             @foreach($users as $user)
               <div class="user user-js" id="list-element{{$projectGroup->id}}{{$user->id}}">
                 <a href="#" class="name view-user-js"
-                   data-name="{{$user->getFullNameAttribute()}}"
+				   @if($user->getNameOrUsername() !== $user->username)
+                   data-name="{{$user->getNameOrUsername()}}"
+				   @else
+				   data-name="N/A"
+				   @endif
                    data-username="{{$user->username}}"
                    data-email="{{$user->email}}"
                    data-organization="{{$user->organization}}"
                    data-profile="{{$user->getProfilePicUrl()}}"
                    data-profile-url="{{action('Auth\UserController@index', ['uid' => $user->id])}}">
-                    {{$user->getFullNameAttribute()}}
+                   {{$user->getNameOrUsername()}}
                 </a>
 
                 @if (\Auth::user()->id != $user->id)

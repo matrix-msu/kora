@@ -1031,4 +1031,30 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
         else
             return 'blank_profile.jpg';
     }
+	
+	/**
+     * Returns full name if both first name and last name are defined,
+	 * otherwise return first or last name (whichever one is defined),
+	 * otherwise return username
+     *
+     * @return string identifier for user
+     */
+	public function getNameOrUsername()
+	{
+		$has_first = $this->first_name !== '';
+		$has_last = $this->last_name !== '';
+		
+		if ($has_first && $has_last) {
+			return $this->first_name . " " . $this->last_name;
+		}
+		else if (!$has_first && !$has_last) {
+			return $this->username;
+		}
+		else if ($has_first) {
+			return $this->first_name;
+		}
+		else {
+			return $this->last_name;
+		}
+	}
 }

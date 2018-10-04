@@ -68,6 +68,19 @@ class ProjectGroupController extends Controller {
     public function create($pid, Request $request) {
         if($request->name == "")
             return redirect('projects/'.$pid.'/manage/projectgroups')->with('k3_global_error', 'group_name_missing');
+		
+		// send invite emails & create new users
+	    if (is_string($request->emails) && $request->emails !== '') {
+		  $request->return_user_ids = true;
+		  $user_ids = (new AdminController())->batch($request); // this action creates the new users in db and sends invite emails
+		  
+		  if (is_array($request->users))
+		    $request->users = array_merge($request->users, $user_ids);
+		  else
+		    $request->users = $user_ids;
+		
+		  // $request->users is the ids of newly created invited users, and existing users
+	    }
 
         $group = self::buildGroup($pid, $request);
 
@@ -99,7 +112,7 @@ class ProjectGroupController extends Controller {
                         $defGroup = FormGroup::where('name', '=', $form->name . ' Default Group')->get()->first();
                         $FGC = new FormGroupController();
                         $request->formGroup = $defGroup->id;
-                        $request->userIDs = array($uid);
+						$request->userIDs = array($uid);
                         $FGC->addUser($request);
                     }
 
@@ -150,6 +163,17 @@ class ProjectGroupController extends Controller {
      * @param  Request $request
      */
     public function addUsers(Request $request) {
+		if (is_string($request->emails) && $request->emails !== '') {
+			$request->return_user_ids = true;
+			// returns new & existing users' ids
+			$user_ids = (new AdminController())->batch($request); // this action creates the new users in db
+			
+			if (is_array($request->userIDs))
+			$request->userIDs = array_merge($request->userIDs, $user_ids);
+			else
+			$request->userIDs = $user_ids;
+	    }
+
 		$instance = ProjectGroup::where('id', '=', $request->projectGroup)->first();
 
 		$new_users = array();
