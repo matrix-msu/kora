@@ -9,11 +9,11 @@
         <div class="inner-wrap center">
             <h1 class="title">
                 <i class="icon icon-dashboard"></i>
-                <span>My Dashboard</span>
+                <span>Your Dashboard</span>
             </h1>
             <div class="content-sections">
               <div class="content-sections-scroll">
-                <a href="#" class="content">
+                <a href="#" class="content create-block-js">
                   <i class="icon icon-block-add"></i>
                   <span>Add a New Block</span>
                 </a>
@@ -29,6 +29,7 @@
 
 
 @section('body')
+    @include("partials.dashboard.modals")
   <!-- <php var_dump($sections); ?> -->
   <div class="floating-buttons">
     <div class="form-group">
@@ -42,7 +43,6 @@
       </a>
     </div>
   </div>
-  @if (count($sections) > 0)
     @foreach($sections as $section)
       <section class="grid center">
         <h1 class="header">
@@ -53,37 +53,50 @@
         </h1>
         <div class="container">
           @foreach($section['blocks'] as $block)
-              <div class="element">
-                <div class="title-container">
-                  <i class="icon icon-project"></i>
-                  <a class="name underline-middle-hover" href="{{ action('ProjectController@show',['pid' => $block['pid']]) }}">
-                    <span>{{ $block['name'] }}</span>
-                    <i class="icon icon-arrow-right"></i>
-                  </a>
-                </div>
-                <p class="description">
-                  {{ $block['description'] }}
-                </p>
-                <div class="element-link-container">
-                  @foreach($block['displayedOpts'] as $link)
-                    <a target="_blank" href="{{ $link['href'] }}" class="element-link tooltip" tooltip="{{ $link['tooltip'] }}">
-                      <i class="icon {{ $link['icon-class']}}"></i>
-                    </a>
-                  @endforeach
-                  <a target="_blank" href="https://github.com/SpartaHack/SpartaHack-API" class="element-link right">
-                    <i class="icon icon-more"></i>
-                  </a>
-                </div>
-              </div>
+              @if($block["type"]=="Project")
+                  <div class="element">
+                    <div class="title-container">
+                      <i class="icon icon-project"></i>
+                      <a class="name underline-middle-hover" href="{{ action('ProjectController@show',['pid' => $block['pid']]) }}">
+                        <span>{{ $block['name'] }}</span>
+                        <i class="icon icon-arrow-right"></i>
+                      </a>
+                    </div>
+                    <p class="description">
+                      {{ $block['description'] }}
+                    </p>
+                    <div class="element-link-container">
+                      @foreach($block['displayedOpts'] as $link)
+                        <a target="_blank" href="{{ $link['href'] }}" class="element-link tooltip" tooltip="{{ $link['tooltip'] }}">
+                          <i class="icon {{ $link['icon-class']}}"></i>
+                        </a>
+                      @endforeach
+                      <a target="_blank" href="#" class="element-link right options-modal-js">
+                        <i class="icon icon-more"></i>
+                      </a>
+                    </div>
+                  </div>
+              @elseif($block["type"]=="Quote")
+                    <div class="element">
+                        <div class="title-container">
+                            <i class="icon icon-project"></i>
+                            <span>Today's Inspiration</span>
+                        </div>
+                        <p class="description">
+                            {{ $block['quote'] }}
+                        </p>
+                    </div>
+              @endif
           @endforeach
         </div>
       </section>
     @endforeach
-  @else
-      @include('partials.dashboard.no-projects')
-  @endif
 @stop
 
 @section('javascripts')
-  @include('partials.dashboard.javascripts')
+    @include('partials.dashboard.javascripts')
+
+    <script>
+        Kora.Dashboard.Index();
+    </script>
 @stop

@@ -71,7 +71,14 @@ class RevisionController extends Controller {
                 $records[$temp[$i]] = $pid . '-' . $form->fid . '-' . $temp[$i];
         }
 
-        return view('revisions.index', compact('revisions', 'records', 'form', [
+        $notification = array(
+          'message' => '',
+          'description' => '',
+          'warning' => false,
+          'static' => false
+        );
+
+        return view('revisions.index', compact('revisions', 'records', 'form', 'notification', [
             'revisions' => $revisions->appends(Input::except('page'))
         ]));
     }
@@ -116,7 +123,14 @@ class RevisionController extends Controller {
         }
         $record = RecordController::getRecord($rid);
 
-        return view('revisions.index', compact('revisions', 'records', 'form', 'message', 'record', 'rid'))->render();
+        $notification = array(
+          'message' => '',
+          'description' => '',
+          'warning' => false,
+          'static' => false
+        );
+
+        return view('revisions.index', compact('revisions', 'records', 'form', 'message', 'record', 'rid', 'notification'))->render();
     }
 
     /**

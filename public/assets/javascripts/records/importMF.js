@@ -6,6 +6,7 @@ Kora.Records.ImportMF = function () {
     var failedRecords = [];
     var assocTagConvert = {};
     var crossFormAssoc = {};
+    var comboCrossAssoc = {};
 
     function initializeSelects() {
         $('.multi-select').chosen({
@@ -110,9 +111,10 @@ Kora.Records.ImportMF = function () {
                                         percent = 7;
                                     progressFill.attr('style', 'width:' + percent + '%');
                                     progressText.text(succ + ' of ' + total + ' Records Submitted');
-
-                                    assocTagConvert[data['assocTag']] = data['kid'];
+                                    if(data['assocTag']!=null)
+                                        assocTagConvert[data['assocTag']] = data['kid'];
                                     crossFormAssoc[data['kid']] = data['assocArray'];
+                                    comboCrossAssoc[data['kid']] = data['comboAssocArray'];
 
                                     if(done == total)
                                         finishImport(succ, total);
@@ -134,6 +136,8 @@ Kora.Records.ImportMF = function () {
                             });
                         }
                     }
+                }, error: function (error) {
+                    console.log(error);
                 }
             });
         });
@@ -148,7 +152,8 @@ Kora.Records.ImportMF = function () {
                 data: {
                     "_token": CSRFToken,
                     "assocTagConvert": JSON.stringify(assocTagConvert),
-                    "crossFormAssoc": JSON.stringify(crossFormAssoc)
+                    "crossFormAssoc": JSON.stringify(crossFormAssoc),
+                    "comboCrossAssoc": JSON.stringify(comboCrossAssoc)
                 },
                 success: function (data) {
                     $('.progress-text-js').html(succ + ' of ' + total + ' records successfully imported!');

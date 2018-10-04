@@ -193,8 +193,8 @@ Kora.Forms.ImportK2 = function() {
                         newProfilePic('scheme', e.target.result, schemeDroppedFile.name);
                         schemeDroppedFile = e.target.result;
                     };
-
                     drop = true
+                    reader.readAsDataURL(schemeDroppedFile);
                     ajaxData = new FormData(form.get(0));
 
                     ajaxData.delete('form'); // safari does not support this

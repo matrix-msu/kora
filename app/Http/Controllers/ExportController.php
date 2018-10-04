@@ -1,6 +1,5 @@
 <?php namespace App\Http\Controllers;
 
-use App\DownloadTracker;
 use App\Field;
 use App\Form;
 use App\Record;
@@ -69,11 +68,6 @@ class ExportController extends Controller {
             return $obj->rid;
         }, $rids);
 
-        // Download tracker to stop the loading bar when finished.
-        $tracker = new DownloadTracker();
-        $tracker->fid = $form->fid;
-        $tracker->save(); //TODO:: is this doing anything?
-
         //most of these are included to not break JSON, revAssoc is the only one that matters to us for this so we can get
         // the reverse associations. The others are only relevant to the API
         $options = ["revAssoc" => true, "meta" => false, "fields" => 'ALL', "data" => true, "realnames" => false, "assoc" => false];
@@ -85,13 +79,8 @@ class ExportController extends Controller {
             header("Content-Length: " . filesize($output));
 
             readfile($output);
-
-            $tracker->delete();
             exit;
         } else { // File does not exist, so some kind of error occurred, and we redirect.
-            $tracker->delete();
-
-            flash()->overlay(trans("records_index.exporterror"), trans("controller_admin.whoops"));
             return redirect("projects/" . $pid . "/forms/" . $fid . "/records");
         }
     }

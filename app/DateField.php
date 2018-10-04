@@ -693,6 +693,39 @@ class DateField extends BaseField {
     }
 
     /**
+     * Formatted display of a date field value.
+     *
+     * @return string - The formatted string
+     */
+    public function displayDate() {
+        $dateString = '';
+        $fieldPreviewMod = FieldController::getField($this->flid);
+
+        if($this->circa==1 && FieldController::getFieldOption($fieldPreviewMod,'Circa')=='Yes')
+            $dateString .= 'circa ';
+
+        if($this->month==0 && $this->day==0)
+            $dateString .= $this->year;
+        else if($this->day==0 && $this->year==0)
+            $dateString .= \DateTime::createFromFormat('m', $this->month)->format('F');
+        else if($this->day==0)
+            $dateString .= \DateTime::createFromFormat('m', $this->month)->format('F').', '.$this->year;
+        else if($this->year==0)
+            $dateString .= \DateTime::createFromFormat('m', $this->month)->format('F').' '.$this->day;
+        else if(FieldController::getFieldOption($fieldPreviewMod,'Format')=='MMDDYYYY')
+            $dateString .= $this->month.'-'.$this->day.'-'.$this->year;
+        else if(FieldController::getFieldOption($fieldPreviewMod,'Format')=='DDMMYYYY')
+            $dateString .= $this->day.'-'.$this->month.'-'.$this->year;
+        else if(FieldController::getFieldOption($fieldPreviewMod,'Format')=='YYYYMMDD')
+            $dateString .= $this->year.'-'.$this->month.'-'.$this->day;
+
+        if(\App\Http\Controllers\FieldController::getFieldOption($fieldPreviewMod,'Era')=='Yes')
+            $dateString .= ' '.$this->era;
+
+        return $dateString;
+    }
+
+    /**
      * Overwrites model save to save the record data as a date object that search will use.
      *
      * @param  array $options - Record data to save
@@ -701,15 +734,15 @@ class DateField extends BaseField {
     public function save(array $options = array()) {
         $dT = new DateTime();
         if($this->year=='')
-            $year = 1;
+            $year = 0;
         else
             $year = $this->year;
         if($this->month=='')
-            $month = 1;
+            $month = 0;
         else
             $month = $this->month;
         if($this->day=='')
-            $day = 1;
+            $day = 0;
         else
             $day = $this->day;
         $date = $dT->setDate($year,$month,$day);

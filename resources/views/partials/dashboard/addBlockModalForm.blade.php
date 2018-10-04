@@ -1,0 +1,81 @@
+<div class="form-group mt-xxs">
+    <label for="block_type">Dashboard Block Type</label>
+    <span class="error-message"></span>
+    <select class="single-select block-type-selected-js" id="block_type" name="block_type">
+        <option></option>
+        <option value="Project">Project</option>
+        <option value="Form">Form</option>
+        <option value="Record">Record</option>
+        <option value="Quote">Quote</option>
+        <option value="Twitter">Twitter</option>
+        <option value="Note">Note</option>
+    </select>
+</div>
+
+<section class="project-block-fields-js hidden">
+    <div class="form-group mt-xl">
+        <label for="block_project">Select Project</label>
+        <span class="error-message"></span>
+        <select class="single-select" id="block_project" name="block_project">
+            <option></option>
+            @foreach($userProjects as $proj)
+                <option value="{{$proj->pid}}">{{$proj->name}}</option>
+            @endforeach
+        </select>
+    </div>
+</section>
+
+<section class="form-block-fields-js hidden">
+    <div class="form-group mt-xl">
+        <label for="block_form">Select Form</label>
+        <span class="error-message"></span>
+        <select class="single-select" id="block_form" name="block_form">
+            <option></option>
+            @foreach($userForms as $form)
+                <option value="{{$form->fid}}">{{$form->name}}</option>
+            @endforeach
+        </select>
+    </div>
+</section>
+
+<section class="record-block-fields-js hidden">
+    <div class="form-group mt-xl">
+        <label for="block_record">Select Record</label>
+        <span class="error-message"></span>
+        <select class="single-select" id="block_record" name="block_record">
+            <option></option>
+            @foreach($userRecords as $rec)
+                <option value="{{$rec}}">{{$rec}}</option>
+            @endforeach
+        </select>
+    </div>
+</section>
+
+<section class="note-block-fields-js hidden">
+    <div class="form-group mt-xl">
+        <label for="block_note_title">Note Title</label>
+        <span class="error-message"></span>
+        <input class="text-input" placeholder="Enter note title here" type="text" id="block_note_title" name="block_note_title" value="">
+    </div>
+
+    <div class="form-group mt-xl">
+        <label for="block_note_content">Note Content</label>
+        <span class="error-message"></span>
+        <textarea class="text-area" placeholder="Enter note content here" id="block_note_content" name="block_note_content"></textarea>
+    </div>
+</section>
+
+<div class="form-group mt-xl">
+    <label for="section_to_add">Add to Section</label>
+    <span class="error-message"></span>
+    <select class="single-select section-to-add-js" id="section_to_add" name="section_to_add" disabled>
+        <option></option>
+        @foreach($sections as $section)
+            <option value="{{$section['id']}}">{{$section['title']}}</option>
+        @endforeach
+    </select>
+</div>
+
+<div class="form-group mt-xxl">
+    {!! Form::submit('Add New Dashboard Block',['class' => 'btn disabled add-block-submit-js']) !!}
+</div>

@@ -20,6 +20,14 @@
     margin: #{map-get($spacing, xxxl)} auto;
     max-width: calc(#{ $max-site-width } - 600px);
     width: $max-site-width;
+
+    .associator-section {
+      background-color: palette('gray', page, 1);
+      border: 1px solid palette('box-shadow', base, 0.05);
+      border-radius: 5px;
+      box-shadow: 0 40px 85px 0 palette('box-shadow', base, 0.05);
+      padding: 10px 40px 40px;
+    }
   }
 
   .form-group {

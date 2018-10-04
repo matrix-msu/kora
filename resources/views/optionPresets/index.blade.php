@@ -28,6 +28,7 @@
 
 @section('body')
     @include('partials.optionPresets.deletePresetModal')
+    @include('partials.projects.notification')
 
     @if (count($all_presets["Project"]) > 0)
       <section class="filters center">

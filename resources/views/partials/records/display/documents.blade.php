@@ -16,9 +16,9 @@
 
         <div class="field-sidebar document-sidebar document-sidebar-js">
             <div class="top">
-                <div class="field-btn external-button-js">
+                <a class="field-btn external-button-js" target="_blank" href="{{url('projects/'.$form->pid.'/forms/'.$form->fid.'/records/'.$record->rid.'/fields/'.$field->flid.'/'.$name)}}">
                     <i class="icon icon-external-link"></i>
-                </div>
+                </a>
 
                 <a href="{{action('FieldAjaxController@getFileDownload', ['flid' => $field->flid, 'rid' => $record->rid, 'filename' => $name])}}"
                    class="field-btn">

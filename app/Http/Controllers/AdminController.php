@@ -3,9 +3,11 @@
 use App\Form;
 use App\FormGroup;
 use App\Http\Controllers\Auth\RegisterController;
+use App\Preference;
 use App\Project;
 use App\ProjectGroup;
 use App\User;
+use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -60,6 +62,7 @@ class AdminController extends Controller {
         ['name' => 'plugin_menus', 'backup' => 'SavePluginMenusTable'],
         ['name' => 'plugin_settings', 'backup' => 'SavePluginSettingsTable'],
         ['name' => 'plugin_users', 'backup' => 'SavePluginUsersTable'],
+        ['name' => 'preferences', 'backup' => 'SavePreferencesTable'],
         ['name' => 'project_custom', 'backup' => 'SaveProjectCustomTable'],
         ['name' => 'project_groups', 'backup' => 'SaveProjectGroupsTable'],
         ['name' => 'project_group_user', 'backup' => 'SaveProjectGroupUsersTable'],
@@ -90,13 +93,34 @@ class AdminController extends Controller {
      *
      * @return View
      */
-    public function users() {
+    public function users(Request $request) {
         $usersAz = User::orderBy('first_name')->get();
         $usersZa = User::orderBy('first_name', 'desc')->get();
         $usersNto = User::latest()->get();
         $usersOtn = User::orderBy('created_at')->get();
 
-        return view('admin.users', compact('usersAz', 'usersZa', 'usersNto', 'usersOtn'));
+        $notification = array(
+          'message' => '',
+          'description' => '',
+          'warning' => false,
+          'static' => false
+        );
+        $prevUrlArray = $request->session()->get('_previous');
+        $prevUrl = reset($prevUrlArray);
+        $profChangesArray = $request->session()->get('user_changes');
+        if ($profChangesArray) $profChanges = reset($profChangesArray);
+        if ($prevUrl !== url()->current()) {
+          $session = $request->session()->get('k3_global_success');
+
+          if ($session == 'user_updated' && $profChanges == 'password')
+            $notification['message'] = 'Password Successfully Updated!';
+          else if ($session == 'user_updated')
+            $notification['message'] = 'User Successfully Updated!';
+        } else if ($request->session()->get('k3_global_success') == 'batch_users') {
+          $notification['message'] = 'User(s) Successfully Invited!';
+        }
+
+        return view('admin.users', compact('usersAz', 'usersZa', 'usersNto', 'usersOtn', 'notification'));
     }
 
     /**
@@ -323,28 +347,36 @@ class AdminController extends Controller {
         $emails = array_unique(explode(' ', $emails));
         $personal_message = $request->message;
 
+        $notification = array(
+            'message' => '',
+            'description' => '',
+            'warning' => false,
+            'static' => false
+        );
+
         // The user hasn't entered anything.
         if($emails[0] == "") {
             return redirect('admin/users')->with('k3_global_error', 'batch_no_data');
         } else {
             $skipped = 0;
             $created = 0;
+			$user_ids = array();
+			
+            foreach ($emails as $email) {
+				if (filter_var($email, FILTER_VALIDATE_EMAIL)) {
+					$username = explode('@', $email)[0];
+                    $i = 1;
+                    $username_array = array();
+                    $username_array[0] = $username;
 
-            foreach($emails as $email) {
-                if(!self::emailExists($email)) {
-                    if(filter_var($email, FILTER_VALIDATE_EMAIL)) {
-                        $username = explode('@', $email)[0];
-                        $i = 1;
-                        $username_array = array();
-                        $username_array[0] = $username;
-
-                        // Increment a count while the username exists.
-                        while(self::usernameExists($username)) {
-                            $username_array[1] = $i;
-                            $username = implode($username_array);
-                            $i++;
-                        }
-
+                    // Increment a count while the username exists.
+                    while (self::usernameExists($username)) {
+                        $username_array[1] = $i;
+                        $username = implode($username_array);
+                        $i++;
+                    }
+					
+					if(!self::emailExists($email)) {
                         //
                         // Create the new user.
                         //
@@ -357,6 +389,19 @@ class AdminController extends Controller {
                         $token = RegisterController::makeRegToken();
                         $user->regtoken = $token;
                         $user->save();
+						array_push($user_ids, $user->id);
+						
+                        //
+                        // Assign the new user a default set of preferences.
+                        //
+                        $preference = new Preference;
+                        $preference->user_id = $user->id;
+                        $preference->created_at = Carbon::now();
+                        $preference->use_dashboard = 1;
+                        $preference->logo_target = 1;
+                        $preference->proj_page_tab_selection = 3;
+                        $preference->single_proj_page_tab_selection = 3;
+                        $preference->save();
 
                         //
                         // Send a confirmation email.
@@ -368,20 +413,28 @@ class AdminController extends Controller {
                                 $message->subject('Kora Account Activation');
                             });
                         } catch(\Swift_TransportException $e) {
-                            //TODO::email error response
+                            $notification['warning'] = true;
+                            $notification['static'] = true;
+                            $notification['message'] = 'Emails failed to send!';
+                            $notification['description'] = 'Please check your mailing configuration and try again.';
                             //Log for now
                             Log::info('Batch invite email failed');
                         }
                         $created++;
                     } else {
-                        $skipped++;
+                        if (isset($request->return_user_ids)) { // return user id of existing user
+							$user = User::where('email', '=', $email)->first();
+							array_push($user_ids, $user->id);
+						}
+						$skipped++;
                     }
-                } else {
-                    $skipped++;
-                }
+				}
             }
 
-            return redirect('admin/users')->with('k3_global_success', 'batch_users')->with('batch_users_created', $created)->with('batch_users_skipped', $skipped);
+			if (isset($request->return_user_ids))
+				return $user_ids;
+			else
+				return redirect('admin/users')->with('k3_global_success', 'batch_users')->with('batch_users_created', $created)->with('batch_users_skipped', $skipped)->with('notification', $notification);;
         }
     }
 

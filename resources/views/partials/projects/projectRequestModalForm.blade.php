@@ -19,12 +19,12 @@
 		'id' => 'request_project'
 		]) !!}
 	</div>
-	
+
 	<div class="form-group request-permissions-submit mt-xxl">
 		{!! Form::submit('Request Project Permissions',['class' => 'btn submit-project-request-js']) !!}
 	</div>
 	{!! Form::close() !!}
-	
+
 	</div>
   </div>
 </div>

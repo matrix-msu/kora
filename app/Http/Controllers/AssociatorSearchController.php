@@ -1,7 +1,10 @@
 <?php namespace App\Http\Controllers;
 
+use App\AssociatorField;
 use App\ComboListField;
+use App\DateField;
 use App\ListField;
+use App\NumberField;
 use App\Record;
 use App\Search;
 use App\TextField;
@@ -14,7 +17,7 @@ class AssociatorSearchController extends Controller {
     | Associator Search Controller
     |--------------------------------------------------------------------------
     |
-    | This controller handles recording searching for individual associator
+    | This controller handles record searching for individual associator
     | fields in record creation
     |
     */
@@ -91,18 +94,7 @@ class AssociatorSearchController extends Controller {
                 $kid = $form->pid.'-'.$fid.'-'.$rid;
                 $preview = array();
                 foreach($details['flids'] as $flid=>$type) {
-                    //TODO:: add more previews
-                    if($type=='Text') {
-                        $text = TextField::where("flid", "=", $flid)->where("rid", "=", $rid)->first();
-                        if(!is_null($text) && $text->text != '')
-                            array_push($preview,$text->text);
-                    } else if($type=='List') {
-                        $list = ListField::where("flid", "=", $flid)->where("rid", "=", $rid)->first();
-                        if(!is_null($list) && $list->option != '')
-                            array_push($preview,$list->option);
-                    } else {
-                        array_push($preview, 'Invalid Preview Field');
-                    }
+                    array_push($preview, AssociatorField::previewData($flid, $rid, $type));
                 }
 
                 $results[$kid] = $preview;

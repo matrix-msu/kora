@@ -1,0 +1,23 @@
+.create-block-modal {
+  .title {
+    text-align: left;
+  }
+}
+
+.btn-faded {
+  opacity: .3 !important;
+}
+
+.btn-faded:hover {
+  opacity: .3 !important;
+}
+
+@media screen and (max-width: $max-mobile-med-width) {
+  .create-block-modal {
+  }
+}
+
+@media screen and (max-width: $max-mobile-xs-width) {
+  .create-block-modal {
+  }
+}

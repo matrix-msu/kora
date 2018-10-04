@@ -1,5 +1,6 @@
 <?php namespace App;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -76,6 +77,54 @@ class Project extends Model {
     public function optionPresets() {
         return $this->hasMany('App\OptionPreset','pid');
     }
+	
+	
+	/**
+     * Adds a project to multiple users' custom lists
+     *
+     * @param  array $user_ids - User IDs
+	 * @param  
+     */
+	public function batchAddUsersAsCustom($user_ids) {
+		$user_ids = array_unique($user_ids); // remove dupes
+		$inserts = array();
+		$now = Carbon::now();
+		// get all users' custom projects
+		$batch_projects = DB::table("project_custom")->whereIn("uid", $user_ids)->get();
+		$has_inserts = false;
+		
+		$sequence_maxes = array();
+		$found = array();
+		foreach($user_ids as $id) {
+			$sequence_maxes[$id] = -1;
+			$found[$id] = false;
+		}
+		 
+		foreach($batch_projects as $entry) {
+			if($this->pid == $entry->pid) {
+				$found[$entry->uid] = true;
+			}
+			else {
+				if($entry->sequence > $sequence_maxes[$entry->uid]) {
+					$sequence_maxes[$entry->uid] = $entry->sequence;
+				}
+			}
+		}
+		
+		foreach($user_ids as $id) {
+			$new_sequence = $sequence_maxes[$id] + 1;
+			if(!$found[$id]) {
+				array_push($inserts, ['uid' => $id, 'pid' => $this->pid, 'sequence' => $new_sequence,
+                    "created_at" =>  $now,
+                    "updated_at" =>  $now]);
+				$has_inserts = true;
+			}
+		}
+		
+		if($has_inserts) {
+			DB::table('project_custom')->insert($inserts);
+		}
+	}
 
     /**
      * Deletes all data belonging to the project, then deletes self.
