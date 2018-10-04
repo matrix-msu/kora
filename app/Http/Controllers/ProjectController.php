@@ -79,12 +79,11 @@ class ProjectController extends Controller {
           'static' => false
         );
 
-        //TODO::Update stuff
-//        if(\Auth::user()->admin) {
-//            $current = new UpdateController();
-//            if($current->checkVersion())
-//                $notification['message'] = 'Update Available!';
-//        }
+        if(\Auth::user()->admin) {
+            $current = new UpdateController();
+            if($current->checkVersion())
+                $notification['message'] = 'Update Available!';
+        }
 
         $prevUrlArray = $request->session()->get('_previous');
         $prevUrl = reset($prevUrlArray);
@@ -324,13 +323,13 @@ class ProjectController extends Controller {
      * @return Redirect
      */
 	public function destroy($id) {
-        if(!\Auth::user()->admin)
-            return redirect('projects')->with('k3_global_error', 'not_admin');
-
         if(!self::validProj($id))
             return redirect()->action('ProjectController@index')->with('k3_global_error', 'project_invalid');
 
         $project = self::getProject($id);
+
+        if(!\Auth::user()->isProjectAdmin($project))
+            return redirect('projects')->with('k3_global_error', 'not_project_admin');
 
         $project->delete();
 

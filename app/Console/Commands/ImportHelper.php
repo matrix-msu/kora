@@ -1,6 +1,5 @@
 <?php namespace App\Console\Commands;
 
-use App\Http\Controllers\FormController;
 use App\Http\Controllers\ImportController;
 use Illuminate\Console\Command;
 

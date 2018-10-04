@@ -48,6 +48,15 @@
     width: 90%;
     will-change: transform;
 
+    .record-revisions & {
+      overflow: hidden;
+
+      .body p {
+        margin: 0 0 -15px;
+      }
+    }
+    
+    
     &.small {
       max-width: 340px;
     }
@@ -62,8 +71,19 @@
   }
 }
 
-/* @media screen and (max-width: $max-mobile-xs-width) { */
-  /* .modal .content { */
-    /* height: 90%; */
-  /* } */
-/* } */
+@media screen and (max-width: $max-mobile-xs-width) {
+  .modal {
+    .content {
+      height: 90%;
+
+      .record-revisions & {
+        height: unset;
+        width: 90%;
+      }
+    }
+    
+    &.record-validation-modal-js .content {
+      height: unset;
+    }
+  }
+}

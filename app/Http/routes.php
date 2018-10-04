@@ -5,6 +5,7 @@ Route::group(['middleware' => 'web'], function () {
     Route::get('/home', 'WelcomeController@index');
     Route::post('/language', 'WelcomeController@setTemporaryLanguage');
     Route::get('/dashboard', 'DashboardController@dashboard');
+    Route::post('/dashboard/addBlock/{sec}', 'DashboardController@addBlock');
 
 //project routes
     Route::get('/projects/import', 'ProjectController@importProjectView');

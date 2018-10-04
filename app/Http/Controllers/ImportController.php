@@ -289,13 +289,13 @@ class ImportController extends Controller {
                 }
 
                 $fieldSlug = $matchup[$key];
-                $flid = Field::where('slug', '=', $fieldSlug)->get()->first()->flid;
-                $type = $field->attributes()->type;
+                $fieldMod = Field::where('slug', '=', $fieldSlug)->get()->first();
+                if(is_null($fieldMod))
+                    return response()->json(["status"=>false,"message"=>"xml_validation_error",
+                        "record_validation_error"=>[$request->kid => "Invalid provided field, $fieldSlug"]],500);
+                $flid = $fieldMod->flid;
+                $type = $fieldMod->type;
                 $simple = !is_null($field->attributes()->simple);
-
-                //Type wasnt provided so we have to hunt for it
-                if(is_null($type))
-                    $type = Field::where('slug', '=', $fieldSlug)->get()->first()->type;
 
                 //TODO::modular?
 
