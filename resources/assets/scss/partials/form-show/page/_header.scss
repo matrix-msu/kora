@@ -41,6 +41,10 @@
       color: palette('gray', slate, .6);
       transform: rotate(90deg) scale($transform-scale-multiplier);
     }
+    
+    @media screen and (max-width: $max-mobile-xs-width) {
+      height: 50px;
+    }
   }
   
   .cancel-container-disabled {
@@ -92,6 +96,15 @@
   
   .delete-disabled {
     opacity: .65;
-	cursor: not-allowed !important;
+    cursor: not-allowed !important;
+  }
+
+  @media screen and (max-width: $max-mobile-xs-width) {
+    height: 55px;
+    margin-bottom: 0;
+
+    .cancel-container-disabled {
+      height: 50px;
+    }
   }
 }

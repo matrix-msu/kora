@@ -39,19 +39,31 @@
       .icon {
         @include transition();
 
+      .content {
         color: palette('green', accent);
-        display: inline-block;
-        font-size: 25px;
-        vertical-align: middle;
-      }
+        text-decoration: none;
 
-      span {
-        padding-left: 15px;
-      }
+        &:last-child {
+          padding-left: 45px;
+        }
 
-      &:hover {
         .icon {
-          transform: scale($transform-scale-multiplier);
+          @include transition();
+
+          color: palette('green', accent);
+          display: inline-block;
+          font-size: 25px;
+          vertical-align: middle;
+        }
+
+        span {
+          padding-left: 15px;
+        }
+
+        &:hover {
+          .icon {
+            transform: scale($transform-scale-multiplier);
+          }
         }
       }
     }

@@ -49,10 +49,39 @@
     .pagination-options {
       margin-bottom: 20px;
       width: 100%;
+
+      > div:first-of-type {
+        margin-right: 40px;
+      }
     }
+
     .show-options {
       display: inline-block;
       text-align: left;
+    }
+  }
+}
+
+@media screen and (max-width: $max-mobile-xs-width) {
+  .filters {
+    height: 46px;
+    margin-bottom: 50px;
+    position: relative;
+
+    .pagination-options {
+      > div:first-of-type {
+        padding-bottom: 15px;
+      }
+
+      .chosen-container {
+        display: block;
+      }
+    }
+
+    .show-options {
+      position: absolute;
+      right: 0;
+      top: 0;
     }
   }
 }

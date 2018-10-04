@@ -1,4 +1,4 @@
-<div class="no-backups pt-xxxl pb-xxxl">
+<div class="no-backups center pt-xxxl pb-xxxl">
   <div class="top pb-xxxl">
     <div class="line"></div>
     <i class="icon icon-backup"></i>

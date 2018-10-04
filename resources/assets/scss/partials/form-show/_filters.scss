@@ -95,7 +95,9 @@
 
 @media screen and (max-width: $max-mobile-xs-width) {
   .filters {
+    height: 45px;
     margin-left: $mobile-xs-margin-total / 2;
+    margin-top: 30px;
     max-width: $max-mobile-xs-width - $mobile-xs-margin-total;
     overflow-x: hidden;
     width: calc(100% - #{$mobile-xs-margin-total / 2 });

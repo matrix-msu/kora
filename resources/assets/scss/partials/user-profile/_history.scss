@@ -1,10 +1,6 @@
 &#recordHistory {
   font-size: 14px;
 
-  .collapse-fields::after {
-    left: -54px;
-  }
-
   .edit-section {
     border: 1px solid palette('gray', slate, .1);
     border-radius: 5px;
@@ -15,10 +11,6 @@
     &:first-of-type {
       margin-bottom: 30px;
     }
-  }
-
-  .expand-fields::after {
-    left: -52px;
   }
 
   .field {

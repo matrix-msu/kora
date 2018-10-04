@@ -36,6 +36,7 @@
 
         .profile {
           font-size: 16px;
+          overflow: hidden;
 
           img {
             border-radius: 50%;
@@ -55,13 +56,22 @@
 
   .organization {
     margin-bottom: 30px;
+
+    @media screen and (max-width: 335px) {
+      margin-bottom: 15px;
+    }
   }
 
   .status {
+    margin-bottom: 15px;
     span {
       display: inline-block;
       margin-right: 20px;
       vertical-align: middle;
+
+      @media screen and (max-width: 335px) {
+        margin-bottom: 5px;
+      }
     }
   }
 }

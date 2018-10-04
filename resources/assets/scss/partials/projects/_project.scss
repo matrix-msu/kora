@@ -1,5 +1,8 @@
 .id {
   margin-bottom: 20px;
+  @media screen and (max-width: $max-mobile-xs-width) {
+    margin-bottom: 0;
+  }
 }
 
 .admins {
@@ -15,6 +18,7 @@
 }
 
 .forms {
+  margin-bottom: 20px;
   .attribute {
     padding-right: 14px;
   }

@@ -96,5 +96,9 @@
         transform: scale($transform-scale-multiplier);
       }
     }
+
+    @media screen and (max-width: $max-mobile-xs-width) {
+      padding: 0 5px;
+    }
   }
 }
