@@ -1,7 +1,10 @@
 <?php namespace App\Http\Controllers;
 
 use App\Field;
+use App\Http\Requests\BlockRequest;
 use App\Page;
+use App\Record;
+use App\User;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -32,34 +35,21 @@ class DashboardController extends Controller {
      * @return View
      */
     public function dashboard() {
-        if(Auth::guest()) {
+        if(Auth::guest())
             return redirect('/');
-        }
+
         //gather all sections for the dashboard and their blocks
         $sections = array();
 
         $results = DB::table('dashboard_sections')->where('uid','=',Auth::user()->id)->orderBy('order')->get();
 
-        // Create a section and block if there isn't already one
-        if (count($results) == 0) {
-          $sec_id = DB::table('dashboard_sections')->insertGetId(
-            ['uid' => Auth::User()->id, 'title' => 'Projects', 'order' => 0]
-          );
+        // Create a section and block if there isn't already one and we have a project to add
 
-          $proj_id = Auth::User()->allowedProjects()[0]->pid;
-          $options_string = '{"pid": ' . $proj_id .
-            ', "displayed": ["edit", "search", "form-new", "form-import", "permissions", "presets"]' .
-            ', "hidden": ["importForm"]}';
-
-          DB::table('dashboard_blocks')->insert(
-            [
-              'sec_id' => $sec_id,
-              'type' => 'Project',
-              'order' => 0,
-              'options' => $options_string]
-          );
-
-          $results = DB::table('dashboard_sections')->where('uid','=',Auth::user()->id)->orderBy('order')->get();
+        if(count($results) == 0) {
+            if(sizeof(Auth::User()->allowedProjects()) > 0)
+                $this->makeDefaultBlock('Project');
+            else
+                $this->makeDefaultBlock('Fun'); // If no projects, make an inspiration quote
         }
 
         foreach($results as $sec) {
@@ -129,11 +119,10 @@ class DashboardController extends Controller {
                         $firstField = Field::where("page_id","=",$firstPage->id)->where("sequence","=",0)->first();
                         $typedField = $firstField->getTypedFieldFromRID($rid);
 
-                        $b['rid'] = $rid;
+                        $b['kid'] = $record->kid;
                         $b['projName'] = $project->name;
                         $b['formName'] = $form->name;
-                        $b['fieldName'] = $firstField->name;
-                        $b['fieldType'] = $firstField->type;
+                        $b['field'] = $firstField;
                         $b['dataField'] = $typedField;
                         break;
                     case 'Quote':
@@ -163,7 +152,66 @@ class DashboardController extends Controller {
             array_push($sections,$s);
         }
 
-        return view('dashboard', compact('sections'));
+        $userProjects = Auth::user()->allowedProjects();
+        $userForms = array();
+        $userRecords = array();
+        foreach($userProjects as $p) {
+            $userForms = array_merge($userForms, Auth::user()->allowedForms($p->pid));
+            $projRecs = Record::where('pid','=',$p->pid)->pluck('kid')->toArray();
+            $userRecords = array_merge($userRecords, $projRecs);
+        }
+
+        return view('dashboard', compact('sections', 'userProjects', 'userForms', 'userRecords'));
+    }
+
+    private function makeDefaultBlock($type) {
+        switch($type) {
+            case "Project":
+                $sec_id = DB::table('dashboard_sections')->insertGetId(
+                    ['uid' => Auth::User()->id, 'title' => 'Projects', 'order' => 0]
+                );
+
+                $proj_id = Auth::User()->allowedProjects()[0]->pid;
+                $options_string = '{"pid": ' . $proj_id .
+                    ', "displayed": ["edit", "search", "form-new", "form-import", "permissions", "presets"]' .
+                    ', "hidden": ["importForm"]}';
+
+                DB::table('dashboard_blocks')->insert([
+                    'sec_id' => $sec_id,
+                    'type' => 'Project',
+                    'order' => 0,
+                    'options' => $options_string
+                ]);
+
+                return DB::table('dashboard_sections')->where('uid','=',Auth::user()->id)->orderBy('order')->get();
+                break;
+            case "Fun":
+                $sec_id = DB::table('dashboard_sections')->insertGetId(
+                    ['uid' => Auth::User()->id, 'title' => 'Example', 'order' => 0]
+                );
+
+                $options_string = '{}';
+
+                DB::table('dashboard_blocks')->insert([
+                    'sec_id' => $sec_id,
+                    'type' => 'Quote',
+                    'order' => 0,
+                    'options' => $options_string
+                ]);
+
+                return DB::table('dashboard_sections')->where('uid','=',Auth::user()->id)->orderBy('order')->get();
+                break;
+        }
+
+        return array();
+    }
+
+    public function addSection($request) {
+
+    }
+
+    public function addBlock(BlockRequest $request) {
+
     }
 
     /**
@@ -171,10 +219,20 @@ class DashboardController extends Controller {
      *
      * @param  $secID - Section ID
      */
-    public static function deleteSection($secID) {
-        DB::table("dashboard_blocks")->where("sec_id", "=", $secID)->delete();
+    public function deleteSection($request) {
+        $secID = $request->secID;
 
+        $validCnt = DB::table("dashboard_sections")
+            ->where("id", "=", $secID)
+            ->where("uid", "=", Auth::user()->id)
+            ->count();
+        if($validCnt == 0)
+            return redirect('projects')->with('k3_global_error', 'not_dashboard_owner');
+
+        DB::table("dashboard_blocks")->where("sec_id", "=", $secID)->delete();
         DB::table("dashboard_sections")->where("id", "=", $secID)->delete();
+
+        return response()->json(["status"=>true, "message"=>"Section destroyed", 200]);
     }
 
     /**
@@ -182,7 +240,22 @@ class DashboardController extends Controller {
      *
      * @param  $blkID - Block ID
      */
-    public static function deleteBlock($blkID) {
-        DB::table("dashboard_blocks")->where("id", "=", $blkID)->delete();
+    public function deleteBlock($request) {
+        $blkID = $request->blkID;
+        $secID = $request->secID;
+
+        $validCnt = DB::table("dashboard_sections")
+            ->where("id", "=", $secID)
+            ->where("uid", "=", Auth::user()->id)
+            ->count();
+        if($validCnt == 0)
+            return redirect('projects')->with('k3_global_error', 'not_dashboard_owner');
+
+        DB::table("dashboard_blocks")
+            ->where("id", "=", $blkID)
+            ->where("sec_id", "=", $secID)
+            ->delete();
+
+        return response()->json(["status"=>true, "message"=>"Block destroyed", 200]);
     }
 }
