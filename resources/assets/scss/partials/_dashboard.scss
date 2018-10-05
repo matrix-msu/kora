@@ -10,6 +10,17 @@
 
   @import 'dashboard/modals';
 
+  //Hide header links
+  @media screen and (max-width: 541px) {
+    .content-sections {
+      padding: 0 !important;
+
+      a {
+        display: none;
+      }
+    }
+  }
+
   .title {
     text-align: center;
 

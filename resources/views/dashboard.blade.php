@@ -43,7 +43,7 @@
         </div>
     </div>
     @foreach($sections as $section)
-        <section class="grid center">
+        <section class="grid">
             <h1 class="header">
                 <span class="left title">{{ $section['title'] }}</span>
                 <div class="line-container">
