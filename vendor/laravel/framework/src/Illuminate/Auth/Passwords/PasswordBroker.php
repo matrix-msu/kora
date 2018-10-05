@@ -8,6 +8,7 @@ use UnexpectedValueException;
 use Illuminate\Contracts\Auth\UserProvider;
 use Illuminate\Contracts\Auth\PasswordBroker as PasswordBrokerContract;
 use Illuminate\Contracts\Auth\CanResetPassword as CanResetPasswordContract;
+use Illuminate\Support\Facades\Log;
 
 class PasswordBroker implements PasswordBrokerContract
 {
@@ -67,6 +68,9 @@ class PasswordBroker implements PasswordBrokerContract
         // user with a link to reset their password. We will then redirect back to
         // the current URI having nothing set in the session to indicate errors.
 		$my_token = $this->tokens->create($user);
+		
+		Log::info("Go to this URL to reset password: .../Kora3/public/password/reset/" . $my_token);
+		
 		
         $user->sendPasswordResetNotification(
             $my_token
