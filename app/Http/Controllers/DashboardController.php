@@ -185,7 +185,10 @@ class DashboardController extends Controller {
             $userRecords = array_merge($userRecords, $projRecs);
         }
 
-        return view('dashboard', compact('sections', 'userProjects', 'userForms', 'userRecords', 'notification'));
+        //Check if were using a special menu link
+        $state = isset($request->state) ? $request->state: 0;
+
+        return view('dashboard', compact('sections', 'userProjects', 'userForms', 'userRecords', 'notification', 'state'));
     }
 
     /**

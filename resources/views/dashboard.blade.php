@@ -175,6 +175,7 @@
 
     <script>
         var validationUrl = '{{ action('DashboardController@validateBlockFields') }}';
+        var state = {{$state}};
 
         Kora.Dashboard.Index();
     </script>

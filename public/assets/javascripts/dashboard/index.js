@@ -18,6 +18,9 @@ Kora.Dashboard.Index = function() {
 
             Kora.Modal.open($('.create-block-modal-js'));
         });
+
+        if(state == 1)
+            Kora.Modal.open($('.create-block-modal-js'));
     }
 
     function initializeAddBlockFunctions() {
