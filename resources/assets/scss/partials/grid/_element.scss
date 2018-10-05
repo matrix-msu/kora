@@ -11,7 +11,8 @@
   transition: all .2s linear;
   width: calc(25% - 10px);
 
-  .icon-project {
+  .icon-project,
+  .icon-form {
     font-size: 20px;
     margin-left: 20px;
     vertical-align: middle;
@@ -20,6 +21,12 @@
   .title-container {
     display: inline-block;
     margin-top: 15px;
+
+    .no-link-no-icon {
+      font-family: $ubuntu;
+      font-size: 14px;
+      margin-left: 20px;
+    }
   }
 
   .name {

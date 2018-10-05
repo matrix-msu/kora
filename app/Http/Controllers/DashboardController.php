@@ -1,11 +1,13 @@
 <?php namespace App\Http\Controllers;
 
+use App\AssociatorField;
 use App\Field;
 use App\Http\Requests\BlockRequest;
 use App\Page;
 use App\Record;
-use App\User;
 use Illuminate\Foundation\Inspiring;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
@@ -34,9 +36,23 @@ class DashboardController extends Controller {
      *
      * @return View
      */
-    public function dashboard() {
+    public function dashboard(Request $request) {
         if(Auth::guest())
             return redirect('/');
+
+        // should probably make a global notificationsController
+        $notification = array(
+            'message' => '',
+            'description' => '',
+            'warning' => false,
+            'static' => false
+        );
+
+        $session = $request->session()->get('k3_global_success');
+        if($session) {
+            if($session == 'block_added')
+                $notification['message'] = 'Block added successfully!';
+        }
 
         //gather all sections for the dashboard and their blocks
         $sections = array();
@@ -93,8 +109,10 @@ class DashboardController extends Controller {
                         $hidOpts = $options['hidden'];
 
                         $form = FormController::getForm($fid);
+                        $b['projName'] = ProjectController::getProject($form->pid)->name;
 
                         $b['fid'] = $fid;
+                        $b['pid'] = $form->pid;
                         $b['name'] = $form->name;
                         if (strlen($form->description) > 206) {
                           $b['description'] = substr($form->description, 0, 206) . "..." ;
@@ -109,7 +127,7 @@ class DashboardController extends Controller {
                         $b['hiddenOpts'] = $hidOpts;
                         break;
                     case 'Record':
-                        $rid = $options[0];
+                        $rid = $options['rid'];
 
                         $record = RecordController::getRecord($rid);
                         $project = ProjectController::getProject($record->pid);
@@ -117,28 +135,34 @@ class DashboardController extends Controller {
 
                         $firstPage = Page::where("fid","=",$record->fid)->where("sequence","=",0)->first();
                         $firstField = Field::where("page_id","=",$firstPage->id)->where("sequence","=",0)->first();
-                        $typedField = $firstField->getTypedFieldFromRID($rid);
 
                         $b['kid'] = $record->kid;
+                        $b['rid'] = $rid;
+                        $b['fid'] = $record->fid;
+                        $b['pid'] = $record->pid;
                         $b['projName'] = $project->name;
                         $b['formName'] = $form->name;
-                        $b['field'] = $firstField;
-                        $b['dataField'] = $typedField;
+                        $b['fieldName'] = $firstField->name;
+                        $b['fieldData'] = AssociatorField::previewData($firstField->flid,$rid,$firstField->type);
+                        $b['displayedOpts'] = getDashboardRecordBlockLink($record);
                         break;
                     case 'Quote':
                         $quote = Inspiring::quote();
 
-                        $b["quote"] = $quote;
+                        $parts = explode('-', $quote);
+
+                        $b["quote"] = $parts[0];
+                        $b["author"] = '-'.$parts[1];
                         break;
                     case 'Twitter':
                         //TODO::Kora Twitter
                         break;
                     case 'Note':
-                        $title = $options[0];
-                        $text = $options[1];
+                        $title = $options['title'];
+                        $content = $options['content'];
 
                         $b['title'] = $title;
-                        $b['text'] = $text;
+                        $b['content'] = $content;
                         break;
                     default:
                         break;
@@ -161,9 +185,15 @@ class DashboardController extends Controller {
             $userRecords = array_merge($userRecords, $projRecs);
         }
 
-        return view('dashboard', compact('sections', 'userProjects', 'userForms', 'userRecords'));
+        return view('dashboard', compact('sections', 'userProjects', 'userForms', 'userRecords', 'notification'));
     }
 
+    /**
+     * Adds a block to a section.
+     *
+     * @param  string $type - Type of default block to make
+     * @return array - Array with the new block
+     */
     private function makeDefaultBlock($type) {
         switch($type) {
             case "Project":
@@ -174,7 +204,7 @@ class DashboardController extends Controller {
                 $proj_id = Auth::User()->allowedProjects()[0]->pid;
                 $options_string = '{"pid": ' . $proj_id .
                     ', "displayed": ["edit", "search", "form-new", "form-import", "permissions", "presets"]' .
-                    ', "hidden": ["importForm"]}';
+                    ', "hidden": []}';
 
                 DB::table('dashboard_blocks')->insert([
                     'sec_id' => $sec_id,
@@ -210,14 +240,76 @@ class DashboardController extends Controller {
 
     }
 
+    /**
+     * Adds a block to a section.
+     *
+     * @param  BlockRequest $request
+     */
     public function addBlock(BlockRequest $request) {
+        $secID = $request->section_to_add;
+        $type = $request->block_type;
+        $optString = '{}';
+        $order = 0;
+        $lastBlkInSec = DB::table('dashboard_blocks')->where('sec_id','=',$secID)->orderBy('order','desc')->first();
+        if(!is_null($lastBlkInSec))
+            $order = $lastBlkInSec->order + 1;
 
+        switch($type) {
+            case 'Project':
+                $pid = $request->block_project;
+                $optString = '{"pid": ' . $pid .
+                    ', "displayed": ["edit", "search", "form-new", "form-import", "permissions", "presets"]' .
+                    ', "hidden": []}';
+                break;
+            case 'Form':
+                $fid = $request->block_form;
+                $optString = '{"fid": ' . $fid .
+                    ', "displayed": ["edit", "search", "record-new", "field-new", "permissions", "revisions"]' .
+                    ', "hidden": []}';
+                break;
+            case 'Record':
+                $kid = $request->block_record;
+                $rid = end(explode('-',$kid));
+                $optString = '{"rid": ' . $rid . '}';
+                break;
+            case 'Quote':
+                break;
+            case 'Twitter':
+                break;
+            case 'Note':
+                $title = $request->block_note_title;
+                $content = $request->block_note_content;
+                $optString = '{"title": "' . $title . '", "content": "' . $content . '"}';
+                break;
+            default:
+                break;
+        }
+
+        DB::table('dashboard_blocks')->insert([
+            'sec_id' => $secID,
+            'type' => $type,
+            'order' => $order,
+            'options' => $optString
+        ]);
+
+        return redirect('dashboard')->with('k3_global_success', 'block_added');
+    }
+
+    /**
+     * Validates a block request.
+     *
+     * @param  BlockRequest $request
+     * @return JsonResponse
+     */
+    public function validateBlockFields(BlockRequest $request) {
+        return response()->json(["status"=>true, "message"=>"Block Valid", 200]);
     }
 
     /**
      * Deletes a dashboard section along with its blocks.
      *
-     * @param  $secID - Section ID
+     * @param  int $secID - Section ID
+     * @return JsonResponse
      */
     public function deleteSection($request) {
         $secID = $request->secID;
@@ -238,7 +330,8 @@ class DashboardController extends Controller {
     /**
      * Deletes a dashboard block.
      *
-     * @param  $blkID - Block ID
+     * @param  int $blkID - Block ID
+     * @return JsonResponse
      */
     public function deleteBlock($request) {
         $blkID = $request->blkID;
@@ -255,6 +348,8 @@ class DashboardController extends Controller {
             ->where("id", "=", $blkID)
             ->where("sec_id", "=", $secID)
             ->delete();
+
+        //TODO::reorder blocks in section
 
         return response()->json(["status"=>true, "message"=>"Block destroyed", 200]);
     }

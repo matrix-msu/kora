@@ -4,8 +4,11 @@ Route::group(['middleware' => 'web'], function () {
     Route::get('/', 'WelcomeController@index');
     Route::get('/home', 'WelcomeController@index');
     Route::post('/language', 'WelcomeController@setTemporaryLanguage');
+
+//dashboard routes
     Route::get('/dashboard', 'DashboardController@dashboard');
-    Route::post('/dashboard/addBlock/{sec}', 'DashboardController@addBlock');
+    Route::post('/dashboard/addBlock', 'DashboardController@addBlock');
+    Route::post('/dashboard/addBlock/validate', 'DashboardController@validateBlockFields');
 
 //project routes
     Route::get('/projects/import', 'ProjectController@importProjectView');

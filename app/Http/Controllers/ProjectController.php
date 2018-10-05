@@ -412,6 +412,11 @@ class ProjectController extends Controller {
         return redirect()->action('ProjectController@index')->with('k3_global_success', $message);
     }
 
+    /**
+     * Validates a project request.
+     *
+     * @param  ProjectRequest $request
+     */
     public function validateProjectFields(ProjectRequest $request) {
         return response()->json(["status"=>true, "message"=>"Project Valid", 200]);
     }

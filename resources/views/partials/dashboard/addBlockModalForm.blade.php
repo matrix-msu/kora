@@ -1,3 +1,5 @@
+{!! csrf_field() !!}
+
 <div class="form-group mt-xxs">
     <label for="block_type">Dashboard Block Type</label>
     <span class="error-message"></span>
@@ -7,7 +9,7 @@
         <option value="Form">Form</option>
         <option value="Record">Record</option>
         <option value="Quote">Quote</option>
-        <option value="Twitter">Twitter</option>
+        <option value="Twitter">Kora Twitter</option>
         <option value="Note">Note</option>
     </select>
 </div>
@@ -55,13 +57,13 @@
     <div class="form-group mt-xl">
         <label for="block_note_title">Note Title</label>
         <span class="error-message"></span>
-        <input class="text-input" placeholder="Enter note title here" type="text" id="block_note_title" name="block_note_title" value="">
+        <input class="text-input" placeholder="Enter note title here (max 30 characters)" type="text" id="block_note_title" name="block_note_title" value="" maxlength="30">
     </div>
 
     <div class="form-group mt-xl">
         <label for="block_note_content">Note Content</label>
         <span class="error-message"></span>
-        <textarea class="text-area" placeholder="Enter note content here" id="block_note_content" name="block_note_content"></textarea>
+        <textarea class="text-area" placeholder="Enter note content here (max 300 characters)" id="block_note_content" name="block_note_content" maxlength="300"></textarea>
     </div>
 </section>
 

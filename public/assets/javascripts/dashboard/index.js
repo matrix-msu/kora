@@ -58,7 +58,7 @@ Kora.Dashboard.Index = function() {
     }
 
     function initializeValidation() {
-        $('.validate-project-js').on('click', function(e) {
+        $('.add-block-submit-js').on('click', function(e) {
             var $this = $(this);
 
             e.preventDefault();
@@ -73,7 +73,7 @@ Kora.Dashboard.Index = function() {
                 method: 'POST',
                 data: values,
                 success: function(data) {
-                    //$('#block_create_form').submit();
+                    $('#block_create_form').submit();
                 },
                 error: function(err) {
                     $('.error-message').text('');

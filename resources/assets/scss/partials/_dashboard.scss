@@ -39,32 +39,66 @@
       .icon {
         @include transition();
 
-      .content {
         color: palette('green', accent);
-        text-decoration: none;
+        display: inline-block;
+        font-size: 25px;
+        vertical-align: middle;
+      }
 
-        &:last-child {
-          padding-left: 45px;
-        }
+      span {
+        padding-left: 15px;
+      }
 
+      &:hover {
         .icon {
-          @include transition();
-
-          color: palette('green', accent);
-          display: inline-block;
-          font-size: 25px;
-          vertical-align: middle;
+          transform: scale($transform-scale-multiplier);
         }
+      }
+    }
+  }
 
-        span {
-          padding-left: 15px;
-        }
+  .grid {
+    .element {
+      .fp-style {
+        height: auto;
+        margin: 0 20px 0;
+      }
 
-        &:hover {
-          .icon {
-            transform: scale($transform-scale-multiplier);
-          }
-        }
+      .fp-style:first-of-type {
+        margin-top: 16px;
+      }
+
+      .fp-style:last-of-type {
+        height: 53px;
+        margin: 16px 20px 10px;
+      }
+
+      .fp-header {
+        font-family: $ubuntu-bold;
+      }
+
+      .form-desc {
+        height: 73px;
+        margin: 16px 20px 10px;
+      }
+
+      .quote-text {
+        font-family: $ubuntu-light-italic;
+        font-size: 14px;
+        height: 20px;
+        margin: 76px 20px 0;
+      }
+
+      .quote-author {
+        font-family: $ubuntu-light-italic;
+        font-size: 14px;
+        height: 20px;
+        margin: 14px 20px 0;
+      }
+
+      .note-desc {
+        height: 150px;
+        margin: 20px 20px 10px;
       }
     }
   }

@@ -1,19 +1,23 @@
-<?php
+<?php namespace App\Http\Requests;
 
-namespace App\Http\Requests;
+class BlockRequest extends Request {
 
-use Illuminate\Foundation\Http\FormRequest;
+    /*
+    |--------------------------------------------------------------------------
+    | Block Request
+    |--------------------------------------------------------------------------
+    |
+    | This request handles validation of request inputs for Dashboard Blocks
+    |
+    */
 
-class BlockRequest extends FormRequest
-{
     /**
      * Determine if the user is authorized to make this request.
      *
      * @return bool
      */
-    public function authorize()
-    {
-        return false;
+    public function authorize() {
+        return true;
     }
 
     /**
@@ -21,10 +25,15 @@ class BlockRequest extends FormRequest
      *
      * @return array
      */
-    public function rules()
-    {
+    public function rules() {
         return [
-            //
+            'block_type' => 'required',
+            'block_project' => 'required_if:block_type,Project',
+            'block_form' => 'required_if:block_type,Form',
+            'block_record' => 'required_if:block_type,Record',
+            'block_note_title' => 'required_if:block_type,Note|max:30',
+            'block_note_content' => 'required_if:block_type,Note|max:300',
+            'section_to_add' => 'required'
         ];
     }
 }
