@@ -235,6 +235,18 @@ $(document).ready(function() {
       }
 
       $noteBody.removeClass('dismiss');
+	  var welcome_notification = $('.welcome-body').find(".notification");
+	  if (welcome_notification.length > 0) {
+		welcome_notification.addClass('welcome-align');
+		
+		var welcome_note = welcome_notification.find('.container').find('.note');
+		if (welcome_note.length > 0) {
+			welcome_note.addClass('welcome-stack-note');
+		}
+	  }
+	  
+	  
+	  
 
       if (!$noteBody.hasClass('static-js')) {
         setTimeout(function(){
