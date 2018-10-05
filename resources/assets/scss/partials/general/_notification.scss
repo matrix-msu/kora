@@ -120,3 +120,19 @@
     }
   }
 }
+
+.welcome-align {
+  @media screen and (max-width: $max-mobile-xs-width) {
+	text-align: center !important;
+  }
+  
+  text-align: left !important;
+}
+
+.welcome-stack-note {
+  @media screen and (max-width: $max-mobile-xs-width) {
+	display: block !important;
+  }
+
+  display: unset;
+}
