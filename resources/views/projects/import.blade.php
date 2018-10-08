@@ -19,7 +19,6 @@
             <p class="description">Upload your .k3proj project file below in order to import it into this kora
                 intstallation. After uploading, you will supply the according project information on the next page.
                 For more information and help with this process, refer to the [Importing a Project Setup - Kora Documentation].</p>
-            {{--TODO::Fill this link in--}}
             <div class="content-sections">
               <div class="content-sections-scroll">
                 <a href="#projectfile" class="projectfile-link underline-middle active">Upload Project File</a>

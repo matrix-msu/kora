@@ -136,8 +136,6 @@
             @include('partials.fields.combo.options.associator',['field'=>$field,'fnum'=>'two'])
         @endif
     </section>
-
-    {{--//TODO::PRESETS--}}
 @stop
 
 @section('fieldOptionsJS')

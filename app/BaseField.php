@@ -1,5 +1,6 @@
 <?php namespace App;
 
+use App\Http\Controllers\FieldController;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Http\Request;
@@ -17,7 +18,7 @@ abstract class BaseField extends Model {
     */
 
     /**
-     * @var array - Maps field constant names to table names (Used with the DB::table method)
+     * @var array - Maps field constant names to table names
      */
     public static $MAPPED_FIELD_TYPES = [
         Field::_TEXT => "text_fields",
@@ -39,12 +40,48 @@ abstract class BaseField extends Model {
     ];
 
     /**
+     * @var array - Maps field constant names to their support table names
+     */
+    public static $MAPPED_SUPPORT_FIELD_TYPES = [
+        Field::_COMBO_LIST => ComboListField::SUPPORT_NAME,
+        Field::_SCHEDULE => ScheduleField::SUPPORT_NAME,
+        Field::_GEOLOCATOR => GeolocatorField::SUPPORT_NAME,
+        Field::_ASSOCIATOR => AssociatorField::SUPPORT_NAME
+    ];
+
+    /**
      * Record that the field belongs to.
      *
      * @return BelongsTo
      */
     public function record() {
         return $this->belongsTo('App\Record');
+    }
+
+    /**
+     * Find every record that does not have data for this field.
+     *
+     * @param  int $flid - Field ID
+     * @return array - The RIDs that are empty
+     */
+    public function getEmptyFieldRecords($flid) {
+        $field = FieldController::getField($flid);
+
+        //If field uses a support table, we want to scan that one
+        if(array_key_exists($field->type, self::$MAPPED_SUPPORT_FIELD_TYPES))
+            $table = self::$MAPPED_SUPPORT_FIELD_TYPES[$field->type];
+        else
+            $table = self::$MAPPED_FIELD_TYPES[$field->type];
+
+        $allRIDs = Record::where('fid', '=', $field->fid)->pluck('rid')->toArray();
+        $withValueRIDs = DB::table($table)
+            ->select("rid")
+            ->where("flid", "=", $flid)
+            ->distinct()
+            ->pluck('rid')
+            ->toArray();
+
+        return array_diff($allRIDs,$withValueRIDs);
     }
 
     /**
@@ -93,9 +130,7 @@ abstract class BaseField extends Model {
         }
 
         // Delete support tables.
-        $support_tables = [ScheduleField::SUPPORT_NAME, GeolocatorField::SUPPORT_NAME, ComboListField::SUPPORT_NAME, AssociatorField::SUPPORT_NAME];
-
-        foreach($support_tables as $support_table) {
+        foreach(self::$MAPPED_SUPPORT_FIELD_TYPES as $support_table) {
             DB::table($support_table)->where("rid", "=", $rid)->delete();
         }
     }
@@ -111,9 +146,7 @@ abstract class BaseField extends Model {
         }
 
         // Delete support tables.
-        $support_tables = [ScheduleField::SUPPORT_NAME, GeolocatorField::SUPPORT_NAME, ComboListField::SUPPORT_NAME, AssociatorField::SUPPORT_NAME];
-
-        foreach($support_tables as $support_table) {
+        foreach(self::$MAPPED_SUPPORT_FIELD_TYPES as $support_table) {
             DB::table($support_table)->where("flid", "=", $flid)->delete();
         }
     }
