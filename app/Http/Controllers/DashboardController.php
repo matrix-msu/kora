@@ -155,7 +155,7 @@ class DashboardController extends Controller {
                         $b["author"] = '-'.$parts[1];
                         break;
                     case 'Twitter':
-                        //TODO::Kora Twitter
+                        //Need to implement this
                         break;
                     case 'Note':
                         $title = $options['title'];
@@ -352,7 +352,16 @@ class DashboardController extends Controller {
             ->where("sec_id", "=", $secID)
             ->delete();
 
-        //TODO::reorder blocks in section
+        //reorder remaining blocks in section
+        $blocks = DB::table("dashboard_blocks")->where("sec_id", "=", $secID)->orderBy('order','asc')->get();
+        $int = 0;
+        foreach($blocks as $block) {
+            DB::table('dashboard_blocks')
+                ->where('id', $block->id)
+                ->update(['order' => $int]);
+
+            $int++;
+        }
 
         return response()->json(["status"=>true, "message"=>"Block destroyed", 200]);
     }
