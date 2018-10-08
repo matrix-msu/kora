@@ -161,11 +161,10 @@ class AdminController extends Controller {
           array_push($message, "organization");
         }
 
-        // TODO: When multiple languages implemented, update language change
         // Need to test comparing language code vs language name (en vs English)
         if (!empty($newLanguage) && $newLanguage != $user->language) {
-          //$user->language = $newLanguage;
-          //array_push($message, "language");
+          $user->language = $newLanguage;
+          array_push($message, "language");
         }
 
         // Handle password change cases.

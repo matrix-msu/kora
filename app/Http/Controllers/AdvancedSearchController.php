@@ -221,7 +221,7 @@ class AdvancedSearchController extends Controller {
                             if(isset($request[$flid.'_end_era']))
                                 $processed[$flid][$flid.'_end_era'] = $request[$flid.'_end_era'];
                         } else {
-                            //TODO::advanced error
+                            //advanced error
                         }
                         break;
                     case 'Number':
@@ -231,7 +231,7 @@ class AdvancedSearchController extends Controller {
                             if(isset($request[$flid.'_invert']))
                                 $processed[$flid][$flid.'_invert'] = $request[$flid.'_invert'];
                         } else {
-                            //TODO::advanced error
+                            //advanced error
                         }
                         break;
                     default:
