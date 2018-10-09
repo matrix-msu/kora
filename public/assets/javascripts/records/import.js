@@ -15,7 +15,7 @@ Kora.Records.Import = function () {
         });
     }
 
-    function initializeImportRecords() { //TODO::Refactor
+    function initializeImportRecords() {
         $('.upload-record-btn-js').click(function (e) {
             e.preventDefault();
 

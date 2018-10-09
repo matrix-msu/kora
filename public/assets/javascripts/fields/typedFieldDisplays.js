@@ -433,7 +433,6 @@ Kora.Fields.TypedFieldDisplays.Initialize = function() {
 
             var canvas = document.getElementById('cvfs'+modelID);
 
-            //TODO:: We need to rebuild this?
             // function fullscreen() {
             //     var el = document.getElementById('cv'+modelID);
             //
