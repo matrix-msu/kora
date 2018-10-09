@@ -88,6 +88,7 @@
     </section>
 
     <section class="new-object-button form-group mt-xxxl">
+        <span class="error-message combo-error-js"></span>
         <input class="add-combo-value-js" type="button" value="Create new Default value">
     </section>
 

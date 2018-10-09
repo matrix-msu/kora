@@ -114,7 +114,7 @@ Kora.User.Edit = function() {
     }
   }
 
-  function initializeForm() { //TODO::drag and drop (check validation function)
+  function initializeForm() {
     // For profile pic functionality
     var form = $(".form-file-input");
     var fileInput = $(".profile-input");

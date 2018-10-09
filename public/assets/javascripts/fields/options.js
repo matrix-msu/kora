@@ -67,7 +67,9 @@ Kora.Fields.Options = function(fieldType) {
         listOpt.trigger("chosen:updated");
 
         listOpt.chosen().change(function() {
-            //TODO::figure out this
+            //When option de-selected, we delete it from list
+            listOpt.find('option').not(':selected').remove();
+            listOpt.trigger("chosen:updated");
         });
 
         listOpt.bind("DOMSubtreeModified",function(){
@@ -104,7 +106,9 @@ Kora.Fields.Options = function(fieldType) {
         listOpt.trigger("chosen:updated");
 
         listOpt.chosen().change(function() {
-            //TODO::figure out this
+            //When option de-selected, we delete it from list
+            listOpt.find('option').not(':selected').remove();
+            listOpt.trigger("chosen:updated");
         });
 
         listOpt.bind("DOMSubtreeModified",function(){
@@ -135,7 +139,9 @@ Kora.Fields.Options = function(fieldType) {
         listOpt.trigger("chosen:updated");
 
         listOpt.chosen().change(function() {
-            //figure out this
+            //When option de-selected, we delete it from list
+            listOpt.find('option').not(':selected').remove();
+            listOpt.trigger("chosen:updated");
         });
 
         listOpt.bind("DOMSubtreeModified",function(){
@@ -470,11 +476,10 @@ Kora.Fields.Options = function(fieldType) {
             defaultDiv = $('.combo-value-div-js');
 
             if(val1=='' | val2=='' | val1==null | val2==null | val1=='//'| val2=='//') {
-                //TODO::Error out
-                console.log(val1);
-                console.log(val2);
-                console.log('Both fields must be filled out');
+                $('.combo-error-js').text('Both fields must be filled out');
             } else {
+                $('.combo-error-js').text('');
+
                 //Remove empty div if applicable
                 var border = true;
                 if(defaultDiv.children('.combo-list-empty').length) {

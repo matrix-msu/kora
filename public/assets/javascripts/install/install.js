@@ -158,7 +158,7 @@ Kora.Install.Create = function() {
         });
     }
 
-    // Check for Drag and Drop Support on the browser //TODO::fix drag and drop....
+    // Check for Drag and Drop Support on the browser
     var isAdvancedUpload = function() {
         var div = document.createElement('div');
         return (('draggable' in div) || ('ondragstart' in div && 'ondrop' in div)) && 'FormData' in window && 'FileReader' in window;
