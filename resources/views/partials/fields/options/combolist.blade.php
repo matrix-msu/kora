@@ -51,7 +51,6 @@
             <label>Field Options for "{{ $twoName }}"</label>
             <div class="spacer"></div>
         </div>
-        {{--
         @if($twoType=='Text')
             @include('partials.fields.combo.options.text',['field'=>$field,'fnum'=>'two'])
         @elseif($twoType=='Number')
@@ -67,60 +66,20 @@
         @elseif($twoType=='Associator')
             @include('partials.fields.combo.options.associator',['field'=>$field,'fnum'=>'two'])
         @endif
-        --}}
     </section>
-
-    <div class="form-group mt-xxxl">
-        <label>List options</label>
-        <div class="container">
-            <p class="description-text">Add List Options below, and order them via drag & drop or their arrow icons.</p>
-            <!-- card template -->
-            <div class="card">
-                <div class="header">
-                    <div class="left">
-                        <div class="move-actions">
-                            <a class="action move-action-js up-js">
-                                <i class="icon icon-arrow-up"></i>
-                            </a>
-                            <a class="action move-action-js down-js">
-                                <i class="icon icon-arrow-down"></i>
-                            </a>
-                        </div>
-                        <span class="title">Farmer</span>
-                    </div>
-                    <div class="card-toggle-wrap">
-                        <a class="quick-action delete-option delete-option-js tooltip" tooltip="Delete Option">
-                            <i class="icon icon-trash"></i>
-                        </a>
-                    </div>
-                </div>
-            </div>
-            <!-- end card template -->
-            <div class="input-section">
-                <input type="text" class="add-options" placeholder='Type here and hit the enter key or "Add" to add new list options'>
-                <div class="submit">Add</div>
-            </div>
-        </div>
-    </div>
-
-    <div class="form-group mt-xxxl">
-        <div class="spacer"></div>
-    </div>
 
     <section class="combo-list-defaults">
         {!! Form::label('default', 'Default Combo List Values') !!}
         <div class="container">
             <div class="form-group combo-list-display combo-value-div-js">
-                <div>
+                <div class="combo-list-title">
                     <span class="combo-column combo-title">{{$oneName}}</span>
                     <span class="combo-column combo-title">{{$twoName}}</span>
                 </div>
+				
                 @if($defs!=null && $defs!='')
                     @for($i=0;$i<sizeof($defArray);$i++)
-                        <div class="combo-value-item-js">
-                            @if($i!=0)
-                                <span class="combo-border-small"> </span>
-                            @endif
+                        <div class="card combo-value-item-js">
                             @if($oneType=='Text' | $oneType=='List' | $oneType=='Number' | $oneType=='Date')
                                 <?php $value = explode('[!f1!]',$defArray[$i])[1]; ?>
                                 {!! Form::hidden("default_combo_one[]",$value) !!}
@@ -147,16 +106,21 @@
                                 <span class="combo-column">{{implode(' | ',$value)}}</span>
                             @endif
 
-                            <span class="combo-delete delete-combo-value-js"><a class="underline-middle-hover">[X]</a></span>
+                            <span class="combo-delete delete-combo-value-js">
+								<a class="quick-action delete-option delete-option-js tooltip" tooltip="Delete Default Value">
+									<i class="icon icon-trash"></i>
+								</a>
+							</span>
                         </div>
                     @endfor
                 @else
                     <!--<div class="combo-list-empty"><span class="combo-column">Add Values to Combo List Below</span></div>-->
                 @endif
+				
             </div>
 
             <section class="new-object-button form-group">
-                <input class="add-combo-value-js" type="button" value="Create new Default value">
+                <input class="add-combo-value-js" type="button" value="Add a new Default Value">
             </section>
         </div>
     </section>
