@@ -699,11 +699,18 @@ Kora.Fields.Options = function(fieldType) {
 			var newValue = $('.add-list-option-js');
 
 			$('.list-options-container-js .submit').on('click', function () {
-				if ($('.add-list-option-js').val() != '') {
+                let input = $('.add-list-option-js').val();
+				if (input != '') {
+                    // add the card
 					let card = '<div class="card ui-sortable-handle"><div class="header"><div class="left"><div class="move-actions"><a class="action move-action-js up-js"><i class="icon icon-arrow-up"></i></a><a class="action move-action-js down-js"><i class="icon icon-arrow-down"></i></a></div><span class="title">';
-					card += "" + $('.add-list-option-js').val() + "";
+                    card += "" + input + "";
+                    //<input type="hidden" value="'+ $(".add-list-option-js").val() +'">
 					card += '</span></div><div class="card-toggle-wrap"><a class="quick-action delete-option delete-option-js tooltip" tooltip="Delete Option"><i class="icon icon-trash"></i></a></div></div></div>';
                     $('.list-options-js').html($('.list-options-js').html()+card);
+                    // add the select option
+                    let option = '<option value="'+input+'">'+input+'</option>';
+                    $('.list-select-js').html($('.list-select-js').html()+option);
+                    // clear the input
                     $('.add-list-option-js').val('');
 				}
             });

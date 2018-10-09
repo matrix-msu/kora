@@ -25,6 +25,11 @@
 					</div>
 				</div>
 			@endforeach
+			<select name="options_{{$fnum}}[]" class="hidden list-select-js">
+				@foreach(\App\ComboListField::getComboList($field,false,$fnum) as $opt)
+					<option value="{{$opt}}">{{$opt}}</option>
+				@endforeach
+			</select>
 		</div>
 		<div class="input-section">
 			<input type="text" class="add-options add-list-option-js" placeholder='Type here and hit the enter key or "Add" to add new list options'>
