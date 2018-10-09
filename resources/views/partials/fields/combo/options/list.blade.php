@@ -25,9 +25,9 @@
 					</div>
 				</div>
 			@endforeach
-			<select name="options_{{$fnum}}[]" class="hidden list-select-js">
+			<select multiple name="options_{{$fnum}}[]" class="hidden list-select-js">
 				@foreach(\App\ComboListField::getComboList($field,false,$fnum) as $opt)
-					<option value="{{$opt}}">{{$opt}}</option>
+					<option selected value="{{$opt}}">{{$opt}}</option>
 				@endforeach
 			</select>
 		</div>
