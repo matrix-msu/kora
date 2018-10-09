@@ -692,7 +692,14 @@ Kora.Fields.Options = function(fieldType) {
 				  // });
 			  });
 		  }
-		});
+        });
+        
+        $('.list-options-js').on('click', '.delete-option-js', function(){
+            let $this = $(this).parent().parent().parent();
+            let $thisOpt = $('.list-select-js option').get($this.index());
+            $thisOpt.remove();
+            $this.remove();
+        });
 
 		if ($('.list-options-container-js')) {
 			var listOpt = $('.list-options-container-js');
@@ -704,7 +711,6 @@ Kora.Fields.Options = function(fieldType) {
                     // add the card
 					let card = '<div class="card ui-sortable-handle"><div class="header"><div class="left"><div class="move-actions"><a class="action move-action-js up-js"><i class="icon icon-arrow-up"></i></a><a class="action move-action-js down-js"><i class="icon icon-arrow-down"></i></a></div><span class="title">';
                     card += "" + input + "";
-                    //<input type="hidden" value="'+ $(".add-list-option-js").val() +'">
 					card += '</span></div><div class="card-toggle-wrap"><a class="quick-action delete-option delete-option-js tooltip" tooltip="Delete Option"><i class="icon icon-trash"></i></a></div></div></div>';
                     $('.list-options-js').html($('.list-options-js').html()+card);
                     // add the select option
