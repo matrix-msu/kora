@@ -39,7 +39,11 @@
 
     .documents-link {
       float: left;
-      font-size: 18px;
+      font-size: 16px;
+    }
+
+    .card-toggle-wrap:hover {
+      cursor: pointer;
     }
 
     .icon-chevron {
@@ -54,6 +58,7 @@
 
     .overlay {
       background: linear-gradient(to bottom, rgba(255,255,255,0) 0%, #FFFFFF 100%);
+      border-radius: 5px;
       height: 100%;
       left: 0;
       position: absolute;

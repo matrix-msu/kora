@@ -10,6 +10,10 @@
   margin: 0 auto;
   width: calc(100% - 80px);
 
+  .header .left .title .name {
+    font-family: $ubuntu-medium;
+  }
+
   .quick-action.delete-field {
     .icon {
       @include transition();
