@@ -167,7 +167,7 @@
 	  }
 	  
 	  .combo-delete {
-          color: palette('red', warning, 1);
+      color: palette('red', warning, 1);
 		  position: absolute;
 		  right: 0;
 		  
@@ -194,10 +194,6 @@
   
   .card:last-of-type {
 	  margin-bottom: 0;
-  }
-
-  & + section {
-    margin-top: 40px;
   }
 }
 

@@ -446,6 +446,20 @@ Kora.Fields.Options = function(fieldType) {
             parentDiv.remove();
         });
 
+        $('.combolist-add-new-list-value-modal-js').click(function(e){
+            e.preventDefault();
+
+            Kora.Modal.open($('.combolist-add-list-value-modal-js'));
+        });
+
+        $('.default-input-js').on('blur', function(e) {
+            e.preventDefault();
+
+            if ($('.combo-list-input-one input, .combo-list-input-one select').val() != '' && $('.combo-list-input-two input, .combo-list-input-two select').val() != '') {
+                $('.add-combo-value-js').removeClass('disabled');
+            }
+        });
+
         $('.add-combo-value-js').click(function() {
             if(type1=='Date') {
                 monthOne = $('#month_one');
@@ -503,11 +517,14 @@ Kora.Fields.Options = function(fieldType) {
                     div += '<span class="combo-column">'+val2.join(' | ')+'</span>';
                 }
 
-                div += '<span class="combo-delete delete-combo-value-js"><a class="quick-action delete-option delete-option-js tooltip" tooltip="Delete Default Value"><i class="icon icon-trash"></i></a></span>';
+                div += '<span class="combo-delete delete-combo-value-js"><a class="quick-action delete-option delete-default-js tooltip" tooltip="Delete Default Value"><i class="icon icon-trash"></i></a></span>';
 
                 div += '</div>';
 
+                Kora.Modal.close();
                 defaultDiv.html(defaultDiv.html()+div);
+                $('.combo-value-div-js').removeClass('hidden');
+                $('.combolist-add-new-list-value-modal-js').addClass('mt-xxl');
 
                 if(type1=='Multi-Select List' | type1=='Generated List' | type1=='List' | type1=='Associator') {
                     inputOne.val('');
@@ -699,6 +716,15 @@ Kora.Fields.Options = function(fieldType) {
             let $thisOpt = $('.list-select-js option').get($this.index());
             $thisOpt.remove();
             $this.remove();
+        });
+
+        $('.combo-value-div-js').on('click', '.delete-default-js', function(e){
+            e.preventDefault();
+
+            if ($('.combo-value-div-js .card').length == 1) {
+                $('.combo-value-div-js').addClass('hidden');
+                $('.combolist-add-new-list-value-modal-js').removeClass('mt-xxl');
+            }
         });
 
 		if ($('.list-options-container-js')) {

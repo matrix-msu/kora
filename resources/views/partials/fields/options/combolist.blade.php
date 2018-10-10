@@ -68,14 +68,15 @@
         @endif
     </section>
 
+    @include('partials.fields.modals.addDefaultValue')
     <section class="combo-list-defaults">
         {!! Form::label('default', 'Default Combo List Values') !!}
         <div class="container">
-            <div class="form-group combo-list-display combo-value-div-js">
-                <div class="combo-list-title">
-                    <span class="combo-column combo-title">{{$oneName}}</span>
-                    <span class="combo-column combo-title">{{$twoName}}</span>
-                </div>
+            <div class="form-group combo-list-display combo-value-div-js hidden">
+                    <div class="combo-list-title">
+                        <span class="combo-column combo-title">{{$oneName}}</span>
+                        <span class="combo-column combo-title">{{$twoName}}</span>
+                    </div>
 				
                 @if($defs!=null && $defs!='')
                     @for($i=0;$i<sizeof($defArray);$i++)
@@ -107,30 +108,20 @@
                             @endif
 
                             <span class="combo-delete delete-combo-value-js">
-								<a class="quick-action delete-option delete-option-js tooltip" tooltip="Delete Default Value">
+								<a class="quick-action delete-option delete-default-js tooltip" tooltip="Delete Default Value">
 									<i class="icon icon-trash"></i>
 								</a>
 							</span>
                         </div>
                     @endfor
-                @else
-                    <!--<div class="combo-list-empty"><span class="combo-column">Add Values to Combo List Below</span></div>-->
                 @endif
 				
             </div>
 
             <section class="new-object-button form-group">
-                <input class="add-combo-value-js" type="button" value="Add a new Default Value">
+                <input class="combolist-add-new-list-value-modal-js" type="button" value="Add a new Default Value">
             </section>
         </div>
-    </section>
-
-
-    <section class="combo-list-input-one hidden">
-        @include('partials.fields.combo.inputs.defaults',['field'=>$field, 'type'=>$oneType, 'cfName'=>$oneName, 'fnum'=>'one'])
-    </section>
-    <section class="combo-list-input-two hidden">
-        @include('partials.fields.combo.inputs.defaults',['field'=>$field, 'type'=>$twoType, 'cfName'=>$twoName, 'fnum'=>'two'])
     </section>
 
     {{--//TODO::PRESETS--}}
