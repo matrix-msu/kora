@@ -2,7 +2,7 @@
 
 @section('body')
 <div class="content reset-page">
-  <div class="form-container ma-xl">
+  <div class="form-container center ma-xl">
 		<section class="title-bottom-margin">
 			<p class="title">Enter your new password</p>
 		</section>
