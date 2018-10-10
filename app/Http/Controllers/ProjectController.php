@@ -97,6 +97,8 @@ class ProjectController extends Controller {
               $notification['message'] = 'Project Successfully Archived!';
             else if ($session == 'project_imported')
               $notification['message'] = 'Project Successfully Imported!';
+		    else if ($session == "password_reset")
+				$notification['message'] = 'Password Successfully Reset!';
           } else {
             $session = $request->session()->get('k3_global_error');
             $notification['warning'] = true;

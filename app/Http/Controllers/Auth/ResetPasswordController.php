@@ -77,7 +77,7 @@ class ResetPasswordController extends Controller
 	
 	public function sendResetResponse($response)
     {
-		return redirect()->action('ProjectController@index');
+		return redirect()->action('ProjectController@index')->with('k3_global_success', 'password_reset');;
     }
 	
     public function checkEmailInDB(Request $request)
