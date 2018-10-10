@@ -20,8 +20,8 @@
             <a href="{{ action('InstallController@editEnvConfigs') }}">Kora Configuration File</a>
         </li>
 
-        <li class="content-link content-link-js" data-page=""> <!-- THIS NEEDS TO MATCH THE PAGE_CLASS-->
-            <a href="#">Update Kora Installation</a>
+        <li class="content-link content-link-js" data-page="update">
+            <a href="{{ action('UpdateController@index') }}">Update Kora Installation</a>
         </li>
 
         @if (null !== \Auth::user() && \Auth::user()->id == 1)

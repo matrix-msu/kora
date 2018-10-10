@@ -17,7 +17,14 @@
                         <span class="sub-text">(“Negative” Returns records that do not meet this search)</span>
                     </div>
                 </div>
-                {{--TODO::Make a empty function. Here?--}}
+                <div class="form-group mt-sm">
+                    <div class="check-box-half">
+                        <input type="checkbox" value="1" id="active" class="check-box-input" name="{{$field->flid}}_empty" />
+                        <span class="check"></span>
+                        <span class="placeholder">Empty</span>
+                        <span class="sub-text">(“Empty” Returns records that do not have a value for this field and behaves independent of the search field above)</span>
+                    </div>
+                </div>
             @endif
         @endif
     @endforeach

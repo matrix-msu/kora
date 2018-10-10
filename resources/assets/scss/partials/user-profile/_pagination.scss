@@ -146,4 +146,10 @@
       right: 0;
     }
   }
+
+  @media screen and (max-width: $max-mobile-xs-width) {
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    width: 100% !important;
+  }
 }

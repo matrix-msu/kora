@@ -10,3 +10,9 @@
     width: unset;
   }
 }
+
+@media screen and (max-width: $max-mobile-xs-width) {
+  .error-message {
+    padding: 0 0 10px;
+  }
+}

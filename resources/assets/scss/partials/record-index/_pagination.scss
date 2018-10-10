@@ -139,7 +139,7 @@
     }
   }
 
-  @media screen and (max-width: $max-mobile-med-width) {
+  @media screen and (max-width: $max-mobile-l-width) {
     display: block;
     height: 100px;
     position: relative;
@@ -154,6 +154,10 @@
     .page {
       bottom: 0;
       position: absolute;
+
+      a .name {
+        font-size: 10px;
+      }
     }
     
     .page.next {

@@ -17,6 +17,10 @@
     }
   }
 
+  @media screen and (max-width: $max-mobile-xs-width) {
+    margin: 60px auto;
+  }
+
   @import 'attributes';
   @import 'history';
   @import 'permissions';

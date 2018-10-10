@@ -271,22 +271,12 @@ class Record extends Model {
         $firstPage = Page::where('fid','=',$form->fid)->where('sequence','=',0)->first();
         $firstField = Field::where('page_id','=',$firstPage->id)->where('sequence','=',0)->first();
 
-        switch($firstField->type) {
-            case 'Text':
-                $typedField = $firstField->getTypedFieldFromRID($this->rid);
-                if(!is_null($typedField))
-                    return $typedField->text;
-                break;
-            case 'List':
-                $typedField = $firstField->getTypedFieldFromRID($this->rid);
-                if(!is_null($typedField))
-                    return $typedField->option;
-                break;
-            default:
-                break;
-        }
+        $value = AssociatorField::previewData($firstField->flid, $this->rid, $firstField->type);
 
-        return 'No Preview Field Available';
+        if(!is_null($value) && $value!='')
+            return $value;
+        else
+            return 'No Preview Field Available';
     }
 }
 
