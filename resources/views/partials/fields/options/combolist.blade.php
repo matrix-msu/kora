@@ -72,7 +72,7 @@
     <section class="combo-list-defaults">
         {!! Form::label('default', 'Default Combo List Values') !!}
         <div class="container">
-            <div class="form-group combo-list-display combo-value-div-js hidden">
+            <div class="form-group combo-list-display combo-value-div-js {{ $defs != null || '' ? '' : 'hidden' }}">
                     <div class="combo-list-title">
                         <span class="combo-column combo-title">{{$oneName}}</span>
                         <span class="combo-column combo-title">{{$twoName}}</span>
@@ -119,7 +119,7 @@
             </div>
 
             <section class="new-object-button form-group">
-                <input class="combolist-add-new-list-value-modal-js" type="button" value="Add a new Default Value">
+                <input class="combolist-add-new-list-value-modal-js {{ $defs != null || '' ? 'mt-xxl' : '' }}" type="button" value="Add a new Default Value">
             </section>
         </div>
     </section>
