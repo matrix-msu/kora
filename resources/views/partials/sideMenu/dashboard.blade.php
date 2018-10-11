@@ -16,7 +16,7 @@
     </li>
 
     <li class="content-link content-link-js">
-        <a href="#">Add Dashboard Block</a>
+        <a href="{{ url('/dashboard?state=1') }}">Add Dashboard Block</a>
     </li>
   </ul>
 </div>

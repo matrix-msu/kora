@@ -87,6 +87,10 @@
       height: 34px;
       line-height: 35px;
       color: palette('gray', text);
+
+      @media screen and (max-width: $max-mobile-xs-width) {
+        margin-top: 80px;
+      }
     }
 
     .keywords {
@@ -172,22 +176,22 @@
           vertical-align: middle;
           will-change: transform;
         }
+		
+        &:hover {
+          border-color: palette('green', accent);
+          box-shadow: 0 5px 10px 0 rgba(4,182,175,0.1);
+          cursor: pointer;
 
-		&:hover {
-		  border-color: palette('green', accent);
-		  box-shadow: 0 5px 10px 0 rgba(4,182,175,0.1);
-		  cursor: pointer;
-
-		  i {
+          i {
             transform: scale($transform-scale-multiplier) rotate(-90deg);
           }
-		}
+        }
 
-		@media screen and (max-width: $max-mobile-width) {
-		  display: block;
-		  float: none;
-		  margin: 20px 0 0;
-		}
+        @media screen and (max-width: $max-mobile-width) {
+          display: block;
+          float: none;
+          margin: 20px 0 0;
+        }
       }
     }
 

@@ -139,11 +139,10 @@ Kora.Records.Create = function() {
             defaultDiv = $('.combo-value-div-js-'+flid);
 
             if(val1=='' | val2=='' | val1==null | val2==null | val1=='//'| val2=='//') {
-                //TODO::Error out
-                console.log(val1);
-                console.log(val2);
-                console.log('Both fields must be filled out');
+                $('.combo-error-'+flid+'-js').text('Both fields must be filled out');
             } else {
+                $('.combo-error-'+flid+'-js').text('');
+
                 //Remove empty div if applicable
                 var border = true;
                 if(defaultDiv.find('.combo-list-empty').length) {
@@ -212,8 +211,8 @@ Kora.Records.Create = function() {
             e.preventDefault();
 
             flid = $(this).attr('flid');
-            start_year = $(this).attr('start'); //TODO::do this
-            end_year = $(this).attr('end'); //TODO::do this
+            start_year = $(this).attr('start');
+            end_year = $(this).attr('end');
 
             Kora.Modal.open($('.schedule-add-event-modal-js'));
         });

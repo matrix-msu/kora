@@ -32,7 +32,6 @@ class ProjectController extends Controller {
 
     /**
      * Gets the view for the main projects page.
-     * TODO::later sort initial pull by recent
      *
      * @return View
      */
@@ -72,12 +71,6 @@ class ProjectController extends Controller {
         //We need to sort the custom array
         ksort($custom);
 
-        //TODO::Update stuff
-        /*$current = new UpdateController();
-        if ($current->checkVersion()) {
-          $notification['message'] = 'Update Available!';
-        }*/
-
         // should probably make a global notificationsController
         $notification = array(
           'message' => '',
@@ -85,6 +78,12 @@ class ProjectController extends Controller {
           'warning' => false,
           'static' => false
         );
+
+        if(\Auth::user()->admin) {
+            $current = new UpdateController();
+            if($current->checkVersion())
+                $notification['message'] = 'Update Available!';
+        }
 
         $prevUrlArray = $request->session()->get('_previous');
         $prevUrl = reset($prevUrlArray);
@@ -324,13 +323,13 @@ class ProjectController extends Controller {
      * @return Redirect
      */
 	public function destroy($id) {
-        if(!\Auth::user()->admin)
-            return redirect('projects')->with('k3_global_error', 'not_admin');
-
         if(!self::validProj($id))
             return redirect()->action('ProjectController@index')->with('k3_global_error', 'project_invalid');
 
         $project = self::getProject($id);
+
+        if(!\Auth::user()->isProjectAdmin($project))
+            return redirect('projects')->with('k3_global_error', 'not_project_admin');
 
         $project->delete();
 
@@ -413,6 +412,11 @@ class ProjectController extends Controller {
         return redirect()->action('ProjectController@index')->with('k3_global_success', $message);
     }
 
+    /**
+     * Validates a project request.
+     *
+     * @param  ProjectRequest $request
+     */
     public function validateProjectFields(ProjectRequest $request) {
         return response()->json(["status"=>true, "message"=>"Project Valid", 200]);
     }

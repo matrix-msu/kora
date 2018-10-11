@@ -19,11 +19,10 @@
             <p class="description">Upload your .k3form form file below in order to import it into this kora
                 intstallation. After uploading, you will supply the according form information on the next page.
                 For more information and help with this process, refer to the [Importing a Form Setup - Kora Documentation].</p>
-            {{--TODO::Fill this link in--}}
             <div class="content-sections">
               <div class="content-sections-scroll">
                 <a href="#formfile" class="formfile-link underline-middle active">Upload Form File</a>
-                <span class="progression-tab"></span>
+                <div class="tab-wrap"><span class="progression-tab"></span></div>
                 <a href="#forminfo" class="forminfo-link">Form Information</a>
               </div>
             </div>

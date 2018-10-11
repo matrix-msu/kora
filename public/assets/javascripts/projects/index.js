@@ -330,16 +330,16 @@ Kora.Projects.Index = function() {
         var name_span = $(card.find($(".name")));
         var arrow = $(card.find($(".icon-arrow-right")));
         var chevron = $(card.find($(".icon-chevron")));
-		var up_arrow = $(card.find($(".move-action-js.up-js")));
-		var down_arrow = $(card.find($(".move-action-js.down-js")));
+        var up_arrow = $(card.find($(".move-action-js.up-js")));
+        var down_arrow = $(card.find($(".move-action-js.down-js")));
         
         var card_width = card.width();
         var arrow_width = arrow.length ? arrow.outerWidth() : 0; // if arrow is valid jquery object
-		var up_arrow_width = up_arrow.length ? up_arrow.outerWidth() : 0;
-		var down_arrow_width = down_arrow.length ? down_arrow.outerWidth() : 0;
+        var up_arrow_width = up_arrow.length ? up_arrow.outerWidth() : 0;
+        var down_arrow_width = down_arrow.length ? down_arrow.outerWidth() : 0;
         var chevron_width = chevron.outerWidth(); // all types of project cards have chevrons
         var left_padding = custom ? 0 : 20; // custom projects provide padding from element other than name_span
-		var extra_padding = 10;
+        var extra_padding = 10;
         
         var title_width = (card_width - left_padding) - (arrow_width + up_arrow_width + down_arrow_width + chevron_width + extra_padding);
         if (title_width < 0) {title_width = 0;}
@@ -365,10 +365,17 @@ Kora.Projects.Index = function() {
 	$("[href='#custom'], [href='#active'], [href='#inactive']").click(function() { adjustProjectCardTitle(); });
   }
 
+  function initializeUpdateSequence() {
+      $('.view-updates-js').click(function(e) {
+          document.location.href = updateURL;
+      });
+  }
+
   initializeCustomSort();
   initializeFilters();
   initializeSearch();
   initializeUserProfileModal();
   initializeUnarchive();
   initializeProjectCardEllipsifying();
+  initializeUpdateSequence();
 }

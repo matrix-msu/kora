@@ -1,0 +1,47 @@
+.update-body {
+  background: palette('gray', background);
+  font-family: $ubuntu-medium;
+  min-height: 100vh;
+}
+
+.update {
+  margin: $navigation-height auto 0;
+  width: 100%;
+
+  .update-text {
+    font-family: $ubuntu;
+    margin: 60px auto 0;
+    max-width: calc(#{ $max-site-width } - 600px);
+
+    .update-button {
+      height: 65px;
+      margin: 100px auto 85px;
+      padding: 0;
+
+      .update-submit {
+        margin: 0 auto 15px;
+      }
+    }
+  }
+
+  .update-version {
+    font-size: 20px;
+    line-height: 24px;
+  }
+
+  .update-notes {
+    font-size: 14px;
+    margin-top: 60px;
+    line-height: 24px;
+
+    .note-header {
+      font-size: 18px;
+      line-height: 22px;
+    }
+
+    ul {
+      padding-left: 15px;
+      margin-top: 0;
+    }
+  }
+}

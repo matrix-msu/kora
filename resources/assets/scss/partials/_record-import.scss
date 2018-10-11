@@ -29,14 +29,20 @@
     }
   }
 
-  .progression-tab {
-    border: 1px solid palette('gray', text);
-    box-sizing: border-box;
-    height: 1px;
+  .tab-wrap {
     margin-right: 10px;
-    margin-top: 27px;
-    opacity: .1;
+    position: relative;
     width: 14px;
+
+    .progression-tab {
+      border: 1px solid palette('gray', text);
+      box-sizing: border-box;
+      height: 1px;
+      opacity: .1;
+      position: absolute;
+      top: 50%;
+      width: 100%;
+    }
   }
 
   .recordfile-section,

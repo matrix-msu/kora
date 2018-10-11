@@ -4,7 +4,11 @@ Route::group(['middleware' => 'web'], function () {
     Route::get('/', 'WelcomeController@index');
     Route::get('/home', 'WelcomeController@index');
     Route::post('/language', 'WelcomeController@setTemporaryLanguage');
+
+//dashboard routes
     Route::get('/dashboard', 'DashboardController@dashboard');
+    Route::post('/dashboard/addBlock', 'DashboardController@addBlock');
+    Route::post('/dashboard/addBlock/validate', 'DashboardController@validateBlockFields');
 
 //project routes
     Route::get('/projects/import', 'ProjectController@importProjectView');
@@ -194,13 +198,14 @@ Route::group(['middleware' => 'web'], function () {
     Route::get('/auth/activate', 'Auth\UserController@activateshow');
     Route::get('/user/activate/{token}', 'Auth\UserController@activate');
     Route::get('/user/{uid}/edit', 'Auth\UserController@editProfile');
-    Route::get('/user/{uid}/preferences', 'Auth\UserController@preferences');
+    Route::get('/user/{uid}/preferences', 'Auth\UserController@preferences'); // get all user prefs
     Route::get('/user/{uid}/{section?}', 'Auth\UserController@index');
+    Route::get('/returnUserPrefs/{pref}', 'Auth\UserController@returnUserPrefs'); // get individual user pref
     Route::delete('/user/{uid}/delete', 'Auth\UserController@delete');
     Route::patch('/user/validate/{uid}', 'Auth\UserController@validateUserFields');
     Route::patch('/user/changepw', 'Auth\UserController@changepw');
     Route::patch('/user/{uid}/update', 'Auth\UserController@update');
-    Route::patch('/user/{uid}/preferences', 'Auth\UserController@updatePreferences');
+    Route::patch('/user/{uid}/preferences', 'Auth\UserController@updatePreferences'); // edit user prefs from user prefs page
     Route::post('/auth/resendActivate', 'Auth\UserController@resendActivation');
     Route::post('/auth/activator', 'Auth\UserController@activator');
     Route::post('/user/picture', 'Auth\UserController@changepicture');

@@ -40,4 +40,13 @@
       }
     }
   }
+
+  @media screen and (max-width: $max-mobile-med-width) {
+    bottom: 0;
+    position: absolute;
+
+    &.next {
+      right: 0;
+    }
+  }
 }

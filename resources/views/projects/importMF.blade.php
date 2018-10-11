@@ -16,7 +16,6 @@
                 <i class="icon icon-record-import"></i>
                 <span class="header-text-js">Import Multi Form Records</span>
             </h1>
-            {{--TODO::Add documentation link to paragraph--}}
             <p class="description desc-text-js">You can import records for multiple Forms via XML or JSON Files. Upload
                 one file for each Form, and then enter the forms in order in the list below. Compared to the records
                 import page, there is no matchup sequence so file field names must match the expected Unique Field

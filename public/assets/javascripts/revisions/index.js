@@ -20,6 +20,7 @@ Kora.Revisions.Index = function() {
 
     function initializeRecordSelect() {
         $('#record-select').chosen({
+            disable_search_threshold: 4,
             width: '100%'
         }).change(function() {
             if ($(this).val() === "View All Records") {

@@ -3,6 +3,8 @@
   if (isset($_COOKIE['sidebar']) && $_COOKIE['sidebar'] == "1") { $sidebarCookie = true; }
 ?>
 
+@php $pref = 'keep_sidemenu' @endphp
+<div class="hidden keep-sidemenu {{ \App\Http\Controllers\Auth\UserController::returnUserPrefs($pref) == "1" ? 'true' : '' }}"></div>
 <div class="side-menu side-menu-js <?php if ($sidebarCookie) { echo 'active'; } ?>">
   <div class="blanket blanket-js"></div>
   <aside class="aside-content">

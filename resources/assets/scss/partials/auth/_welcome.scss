@@ -14,6 +14,11 @@
       display: inline-block;
       float: right;
       vertical-align: middle;
+
+      @media screen and (max-width: $max-mobile-xs-width) {
+        font-size: 95%;
+        padding-top: 3px;
+      }
 		}
 	}
 

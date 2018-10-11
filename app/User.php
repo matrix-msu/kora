@@ -3,6 +3,7 @@
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\FormController;
 use App\Http\Controllers\ProjectController;
+use App\Preference;
 use Carbon\Carbon;
 use Illuminate\Auth\Authenticatable;
 use Illuminate\Database\Eloquent\Model;
@@ -106,26 +107,40 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
      * @return bool - Success of activation email
      */
     public static function finishRegistration($request) {
-        $token = \Auth::user()->token;
+        $user = \Auth::user();
+        $token = $user->token;
 
         if(!is_null($request->file('profile'))) {
             //get the file object
             $file = $request->file('profile');
             $filename = $file->getClientOriginalName();
             //path where file will be stored
-            $destinationPath = env('BASE_PATH') . 'storage/app/profiles/'.\Auth::user()->id.'/';
+            $destinationPath = env('BASE_PATH') . 'storage/app/profiles/'.$user->id.'/';
             //store filename in user model
-            \Auth::user()->profile = $filename;
-            \Auth::user()->save();
+            $user->profile = $filename;
+            $user->save();
             //move the file
             $file->move($destinationPath,$filename);
         }
 
+        //Assign new user preferences
+        $preference = Preference::where('user_id', '=' ,$user->id)->first();
+        if (is_null($preference)) {
+            $preference = new Preference;
+            $preference->user_id = $user->id;
+            $preference->created_at = Carbon::now();
+            $preference->use_dashboard = 1;
+            $preference->logo_target = 1;
+            $preference->proj_page_tab_selection = 3;
+            $preference->single_proj_page_tab_selection = 3;
+            $preference->save();
+        }
+
         //Send email
         try {
-            Mail::send('emails.activation', compact('token'), function($message) {
+            Mail::send('emails.activation', compact('token'), function($message) use ($user) {
                 $message->from(env('MAIL_FROM_ADDRESS'));
-                $message->to(\Auth::user()->email);
+                $message->to($user->email);
                 $message->subject('Kora Account Activation');
             });
 
@@ -550,11 +565,13 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
         DB::table("form_custom")->where("uid", "=", $this->id)->delete();
         DB::table("backup_support")->where("user_id", "=", $this->id)->delete();
         DB::table("global_cache")->where("user_id", "=", $this->id)->delete();
+        DB::table("preferences")->where("user_id", "=", $this->id)->delete();
 
         //Delete dashboard stuff
         $sections = DB::table("dashboard_sections")->where("uid", "=", $this->id)->get();
         foreach($sections as $sec) {
-            DashboardController::deleteSection($sec->id);
+            DB::table("dashboard_blocks")->where("sec_id", "=", $sec->id)->delete();
+            DB::table("dashboard_sections")->where("id", "=", $sec->id)->delete();
         }
 
         parent::delete();
@@ -1014,4 +1031,30 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
         else
             return 'blank_profile.jpg';
     }
+	
+	/**
+     * Returns full name if both first name and last name are defined,
+	 * otherwise return first or last name (whichever one is defined),
+	 * otherwise return username
+     *
+     * @return string identifier for user
+     */
+	public function getNameOrUsername()
+	{
+		$has_first = $this->first_name !== '';
+		$has_last = $this->last_name !== '';
+		
+		if ($has_first && $has_last) {
+			return $this->first_name . " " . $this->last_name;
+		}
+		else if (!$has_first && !$has_last) {
+			return $this->username;
+		}
+		else if ($has_first) {
+			return $this->first_name;
+		}
+		else {
+			return $this->last_name;
+		}
+	}
 }

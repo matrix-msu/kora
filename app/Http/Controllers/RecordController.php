@@ -237,12 +237,9 @@ class RecordController extends Controller {
             }
         }
 
-        $prevUrlArray = $request->session()->get('_previous');
-        $prevUrl = reset($prevUrlArray);
-
         if($request->api)
             return response()->json(["status"=>true,"message"=>"record_created","kid"=>$record->kid],200);
-        else if (strpos($prevUrl, 'clone') !== false && $request->mass_creation_num > 0)
+        else if($request->mass_creation_num > 0)
             return redirect('projects/' . $pid . '/forms/' . $fid . '/records')->with('k3_global_success', 'record_duplicated');
         else
             return redirect('projects/' . $pid . '/forms/' . $fid . '/records')->with('k3_global_success', 'record_created');

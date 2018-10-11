@@ -121,7 +121,9 @@
 
 @media screen and (max-width: $max-mobile-xs-width) {
   .filters {
+    margin-bottom: 20px;
     margin-left: $mobile-xs-margin-total / 2;
+    margin-top: 20px;
     max-width: $max-mobile-xs-width - $mobile-xs-margin-total;
     width: calc(100% - #{$mobile-xs-margin-total / 2 });
 

@@ -1,4 +1,24 @@
 .revision {
+  @media screen and (max-width: 620px) {
+    .header {
+      > .left {
+        align-items: center;
+        display: flex;
+        justify-content: center;
+      }
+
+      .card-toggle-wrap .left {
+        > span:first-child {
+          padding: 0;
+        }
+
+        > span:not(:first-child) {
+          display: none;
+        }
+      }
+    }
+  }
+
   .description {
     span {
       line-height: 14px;

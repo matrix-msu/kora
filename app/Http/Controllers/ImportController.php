@@ -289,13 +289,13 @@ class ImportController extends Controller {
                 }
 
                 $fieldSlug = $matchup[$key];
-                $flid = Field::where('slug', '=', $fieldSlug)->get()->first()->flid;
-                $type = $field->attributes()->type;
+                $fieldMod = Field::where('slug', '=', $fieldSlug)->get()->first();
+                if(is_null($fieldMod))
+                    return response()->json(["status"=>false,"message"=>"xml_validation_error",
+                        "record_validation_error"=>[$request->kid => "Invalid provided field, $fieldSlug"]],500);
+                $flid = $fieldMod->flid;
+                $type = $fieldMod->type;
                 $simple = !is_null($field->attributes()->simple);
-
-                //Type wasnt provided so we have to hunt for it
-                if(is_null($type))
-                    $type = Field::where('slug', '=', $fieldSlug)->get()->first()->type;
 
                 //TODO::modular?
 
@@ -317,8 +317,9 @@ class ImportController extends Controller {
                             "record_validation_error"=>[$request->kid => "$fieldSlug format is incorrect for a Combo List Field"]],500);
                     $oneVals = array();
                     $twoVals = array();
-                    $nameone = str_replace(" ","_",ComboListField::getComboFieldName(FieldController::getField($flid), 'one'));
-                    $nametwo = str_replace(" ","_",ComboListField::getComboFieldName(FieldController::getField($flid), 'two'));
+                    $cf = FieldController::getField($flid);
+                    $nameone = Field::xmlTagClear(ComboListField::getComboFieldName($cf, 'one'));
+                    $nametwo = Field::xmlTagClear(ComboListField::getComboFieldName($cf, 'two'));
                     foreach($field->Value as $val) {
                         if(empty($val->{$nameone}))
                             return response()->json(["status"=>false,"message"=>"xml_validation_error",
@@ -610,8 +611,9 @@ class ImportController extends Controller {
                 } else if($type == 'Combo List') {
                     $oneVals = array();
                     $twoVals = array();
-                    $nameone = ComboListField::getComboFieldName(FieldController::getField($flid), 'one');
-                    $nametwo = ComboListField::getComboFieldName(FieldController::getField($flid), 'two');
+                    $cf = FieldController::getField($flid);
+                    $nameone = Field::xmlTagClear(ComboListField::getComboFieldName($cf, 'one'));
+                    $nametwo = Field::xmlTagClear(ComboListField::getComboFieldName($cf, 'two'));
                     foreach($field['value'] as $val) {
                         if(!isset($val[$nameone]))
                             return response()->json(["status"=>false,"message"=>"json_validation_error",
@@ -1721,5 +1723,318 @@ class ImportController extends Controller {
         }
 
         return redirect('projects')->with('k3_global_success', 'project_imported');
+    }
+
+    /**
+     * Takes a custom utf8 format file, and converts it into an XML file for import. TODO::Modularize?
+     *
+     * @param  string $filePath - Path to utf8 file
+     * @return string - The system path to the exported file
+     */
+    public static function utf8ToXML($filePath) {
+        $records = '<?xml version="1.0" encoding="utf-8"?><Records>';
+
+        $handle = fopen($filePath, "r");
+
+        $state = "start";
+        $currField = "";
+        $currData = array();
+
+        if($handle) {
+            while(($line = fgets($handle)) !== false) {
+                $line = trim($line);
+                if(mb_substr($line, 0, 6) == "Record") {
+                    //get kid if applicable
+                    $parts = explode(' ', $line);
+                    if(sizeof($parts) == 2)
+                        $kid = $parts[1];
+                    else
+                        $kid = "";
+
+                    if($state == "start")
+                        $records .= "<Record kid='$kid'>";
+                    else {
+                        $records .= self::processUtf8Data($currField, $currData);
+                        $currData = array();
+                        $records .= "</$currField></Record><Record kid='$kid'>"; //End last field and record before starting over
+                    }
+
+                    $state = "record";
+                } else if(mb_substr($line, 0, 7) == "<field>") {
+                    $slug = explode('<field>', $line)[1];
+
+                    if($state == "record") {
+                        $records .= "<$slug>";
+                    } else {
+                        $records .= self::processUtf8Data($currField, $currData);
+                        $currData = array();
+                        $records .= "</$currField><$slug>"; //End last field before moving on to next field
+                    }
+
+                    $currField = $slug;
+
+                    $state = "field";
+                } else {
+                    //We are gathering data
+                    $currData[] = $line;
+
+                    $state = "data";
+                }
+            }
+
+            if($state == "data") {
+                $records .= self::processUtf8Data($currField, $currData);
+                $records .= "</$currField></Record>"; //End last field and record
+            }
+
+            $records .= '</Records>';
+
+            fclose($handle);
+
+            return $records;
+        } else {
+            return "invalid_file";
+        }
+    }
+
+    private static function processUtf8Data($slug, $dataArray) {
+        if(sizeof($dataArray)==1)
+            $data = $dataArray[0];
+        else
+            $data = implode("\n",$dataArray);
+
+        if($slug=="reverseAssociations")
+            $type = "reverseAssociations";
+        else {
+            $field = FieldController::getField($slug);
+            $type = $field->type;
+        }
+
+        switch($type) {
+            case Field::_TEXT:
+                return htmlspecialchars($data, ENT_XML1, 'UTF-8');
+                break;
+            case Field::_RICH_TEXT:
+                return htmlspecialchars($data, ENT_XML1, 'UTF-8');
+                break;
+            case Field::_NUMBER:
+                return htmlspecialchars((float)$data, ENT_XML1, 'UTF-8');
+                break;
+            case Field::_LIST:
+                return htmlspecialchars($data, ENT_XML1, 'UTF-8');
+                break;
+            case Field::_MULTI_SELECT_LIST:
+                $opts = explode('[!]', $data);
+                $fieldxml = '';
+                foreach ($opts as $opt) {
+                    $fieldxml .= '<value>' . htmlspecialchars($opt, ENT_XML1, 'UTF-8') . '</value>';
+                }
+                return $fieldxml;
+                break;
+            case Field::_GENERATED_LIST:
+                $opts = explode('[!]', $data);
+                $fieldxml = '';
+                foreach ($opts as $opt) {
+                    $fieldxml .= '<value>' . htmlspecialchars($opt, ENT_XML1, 'UTF-8') . '</value>';
+                }
+                return $fieldxml;
+                break;
+            case Field::_COMBO_LIST:
+                $rows = explode('[!val!]', $data);
+                $fieldxml = '';
+
+                $nameone = Field::xmlTagClear(ComboListField::getComboFieldName($field, 'one'));
+                $nametwo = Field::xmlTagClear(ComboListField::getComboFieldName($field, 'two'));
+                $typeone = ComboListField::getComboFieldType($field, 'one');
+                $typetwo = ComboListField::getComboFieldType($field, 'two');
+
+                foreach($rows as $row) {
+                    $rowParts = explode('[!data!]', $row);
+
+                    switch($typeone) {
+                        case Field::_MULTI_SELECT_LIST:
+                        case Field::_GENERATED_LIST:
+                            $valone = '';
+                            $vals = explode('[!]', $rowParts[0]);
+                            foreach ($vals as $v) {
+                                $valone .= '<value>' . htmlspecialchars($v, ENT_XML1, 'UTF-8') . '</value>';
+                            }
+                            break;
+                        case Field::_NUMBER:
+                            $valone = htmlspecialchars((float)$rowParts[0], ENT_XML1, 'UTF-8');
+                            break;
+                        default:
+                            $valone = htmlspecialchars($rowParts[0], ENT_XML1, 'UTF-8');
+                            break;
+                    }
+
+                    switch ($typetwo) {
+                        case Field::_MULTI_SELECT_LIST:
+                        case Field::_GENERATED_LIST:
+                            $valtwo = '';
+                            $vals = explode('[!]', $rowParts[1]);
+                            foreach ($vals as $v) {
+                                $valtwo .= '<value>' . htmlspecialchars($v, ENT_XML1, 'UTF-8') . '</value>';
+                            }
+                            break;
+                        case Field::_NUMBER:
+                            $valtwo = htmlspecialchars((float)$rowParts[1], ENT_XML1, 'UTF-8');
+                            break;
+                        default:
+                            $valtwo = htmlspecialchars($rowParts[1], ENT_XML1, 'UTF-8');
+                            break;
+                    }
+
+
+                    $fieldxml .= '<Value><' . $nameone . '>' . $valone . '</' . $nameone . '><' . $nametwo . '>' . $valtwo . '</' . $nametwo . '></Value>';
+                }
+
+                return $fieldxml;
+                break;
+            case Field::_DATE:
+                $circa = 0; $era = 'CE';
+                $m=''; $d=''; $y='';
+
+                $dateData = explode(' ',$data);
+                foreach($dateData as $dd) {
+                    switch ($dd) {
+                        case "circa":
+                            $circa = 1;
+                            break;
+                        case "BCE" | "CE":
+                            $era = $dd;
+                            break;
+                        default:
+                            $parts = explode('/',$dd);
+                            $m=$parts[0];$d=$parts[1];$y=$parts[2];
+                    }
+                }
+
+                return '<Circa>' . $circa . '</Circa><Month>' . $m . '</Month><Day>' . $d . '</Day><Year>' . $y . '</Year><Era>' . $era . '</Era>';
+                break;
+            case Field::_SCHEDULE:
+                $events = explode('[!val!]',$data);
+                $fieldxml = '';
+
+                foreach($events as $event) {
+                    $parts = explode('[!]',$event);
+
+                    $desc = $parts[0];
+                    $begin = $parts[1];
+                    $end = $parts[2];
+                    $allday = 0;
+
+                    if(isset($parts[3])) {
+                        $allday = 1;
+                        $formatBegin = date("m/d/Y", strtotime($begin));
+                        $formatEnd = date("m/d/Y", strtotime($end));
+                    } else {
+                        $formatBegin = date("m/d/Y h:i A", strtotime($begin));
+                        $formatEnd = date("m/d/Y h:i A", strtotime($end));
+                    }
+                    $fieldxml .= '<Event>';
+                    $fieldxml .= '<Title>' . htmlspecialchars($desc, ENT_XML1, 'UTF-8') . '</Title>';
+                    $fieldxml .= '<Begin>' . htmlspecialchars($formatBegin, ENT_XML1, 'UTF-8') . '</Begin>';
+                    $fieldxml .= '<End>' . htmlspecialchars($formatEnd, ENT_XML1, 'UTF-8') . '</End>';
+                    $fieldxml .= '<All_Day>' . htmlspecialchars($allday, ENT_XML1, 'UTF-8') . '</All_Day>';
+                    $fieldxml .= '</Event>';
+                }
+
+                return $fieldxml;
+                break;
+            case Field::_GEOLOCATOR:
+                $locations = explode('[!val!]',$data);
+                $fieldxml = '';
+
+                foreach($locations as $loc) {
+                    $parts = explode('[!]',$loc);
+
+                    $desc = $parts[0];
+                    $locType = $parts[1];
+                    $value = $parts[2];
+
+                    $fieldxml .= '<Location>';
+                    $fieldxml .= '<Desc>' . $desc . '</Desc>';
+
+                    switch($locType) {
+                        case "latlon":
+                            $ll = explode(',', $value);
+                            $fieldxml .= '<Lat>' . $ll[0] . '</Lat>';
+                            $fieldxml .= '<Lon>' . $ll[1] . '</Lon>';
+                        break;
+                        case "utm":
+                            $utm = explode(':', $value)[0];
+                            $fieldxml .= '<Zone>' . $utm[0] . '</Zone>';
+                            $fieldxml .= '<East>' . explode(',', $utm[1])[0] . '</East>';
+                            $fieldxml .= '<North>' . explode(',', $utm[1])[1] . '</North>';
+                            break;
+                        case "address":
+                            $fieldxml .= '<Address>' . htmlspecialchars($value, ENT_XML1, 'UTF-8') . '</Address>';
+                            break;
+                    }
+
+                    $fieldxml .= '</Location>';
+                }
+
+                return $fieldxml;
+                break;
+            case Field::_DOCUMENTS:
+                $files = explode('[!]', $data);
+                $fieldxml = '';
+                foreach ($files as $file) {
+                    $fieldxml .= '<File><Name>' . htmlspecialchars($file, ENT_XML1, 'UTF-8') . '</Name></File>';
+                }
+                return $fieldxml;
+                break;
+            case Field::_GALLERY:
+                $files = explode('[!]', $data);
+                $fieldxml = '';
+                foreach ($files as $file) {
+                    $fieldxml .= '<File><Name>' . htmlspecialchars($file, ENT_XML1, 'UTF-8') . '</Name></File>';
+                }
+                return $fieldxml;
+                break;
+            case Field::_PLAYLIST:
+                $files = explode('[!]', $data);
+                $fieldxml = '';
+                foreach ($files as $file) {
+                    $fieldxml .= '<File><Name>' . htmlspecialchars($file, ENT_XML1, 'UTF-8') . '</Name></File>';
+                }
+                return $fieldxml;
+                break;
+            case Field::_VIDEO:
+                $files = explode('[!]', $data);
+                $fieldxml = '';
+                foreach ($files as $file) {
+                    $fieldxml .= '<File><Name>' . htmlspecialchars($file, ENT_XML1, 'UTF-8') . '</Name></File>';
+                }
+                return $fieldxml;
+                break;
+            case Field::_3D_MODEL:
+                $files = explode('[!]', $data);
+                $fieldxml = '';
+                foreach ($files as $file) {
+                    $fieldxml .= '<File><Name>' . htmlspecialchars($file, ENT_XML1, 'UTF-8') . '</Name></File>';
+                }
+                return $fieldxml;
+                break;
+            case Field::_ASSOCIATOR:
+                $aRecs = explode('[!]', $data);
+                return '<Record>' . implode('</Record><Record>', $aRecs) . '</Record>';
+                break;
+            case "reverseAssociations":
+                $aRecs = explode('[!]', $data);
+                $fieldxml = '';
+                foreach($aRecs as $aRec) {
+                    $parts = explode(':', $data);
+                    $fieldxml .= "<Record flid='$parts[0]'>$parts[1]</Record>";
+                }
+                return $fieldxml;
+                break;
+            default:
+                break;
+        }
+
+        return '';
     }
 }

@@ -19,6 +19,9 @@ Kora.Records.Modal = function() {
           var preset_name = $('.preset-name-js').val();
 
           if(preset_name.length > 3) {
+              $('.preset-error-js').text('');
+              $('.preset-name-js').removeClass('error');
+
               $.ajax({
                   url: makeRecordPresetURL,
                   type: 'POST',
@@ -39,7 +42,8 @@ Kora.Records.Modal = function() {
                   }
               });
           } else {
-              //TODO::error
+              $('.preset-error-js').text('Present name must be 4+ characters');
+              $('.preset-name-js').addClass('error');
           }
       });
   }

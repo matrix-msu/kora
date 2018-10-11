@@ -21,7 +21,7 @@ class Kernel extends HttpKernel {
             'language' => \App\Http\Middleware\SetLanguage::class,
         ],
         'api' => [
-            //'throttle:60,1', //TODO::Will need to install if we want to use this
+            //'throttle:60,1',
             'bindings',
         ],
     ];

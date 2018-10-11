@@ -36,7 +36,7 @@
         -webkit-transform: rotate(90deg) scale(1.25);
       }
     }
-    
+
     @media screen and (max-width: $max-mobile-xs-width) {
       display: none;
     }
@@ -66,6 +66,10 @@
       font-size: 37px;
       margin-right: 10px;
       vertical-align: middle;
+
+      @media screen and (max-width: $max-mobile-xs-width) {
+        margin: 0;
+      }
     }
 
     > span {
@@ -74,6 +78,10 @@
       padding: 0 0 0 10px;
       vertical-align: middle;
 
+    }
+
+    @media screen and (max-width: $max-mobile-xs-width){
+      padding: 35px 0 20px;
     }
   }
 
@@ -121,6 +129,10 @@
     span:first-child {
       font-family: $ubuntu-medium;
     }
+
+    @media screen and (max-width: $max-mobile-xs-width){
+      margin: 0 0 10px;
+    }
   }
 
   .description {
@@ -132,6 +144,16 @@
     
     .record-clone & {
       padding-bottom: 20px !important;
+    }
+
+    @media screen and (max-width: $max-mobile-xs-width){
+      padding: 0 0 30px;
+    }
+  }
+
+  .form-quick-options {
+    @media screen and (max-width: $max-mobile-xs-width) {
+      padding: 0 0 35px;
     }
   }
 
@@ -149,6 +171,10 @@
         display: none;
       }
 
+      &.dashboard {
+        overflow: visible;
+      }
+
       .section {
         @include transition();
 
@@ -156,7 +182,7 @@
         margin-right: 20px;
         padding: 20px 0;
         text-decoration: none;
-        white-space: nowrap; // this
+        white-space: nowrap;
 
         &:hover {
           color: palette('green', accent);
@@ -165,9 +191,9 @@
         &.active {
           color: palette('green', accent);
         }
-      } 
+      }
     }
-    
+
     .tabs-left,
     .tabs-right {
       @include transition();

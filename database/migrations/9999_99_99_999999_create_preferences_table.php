@@ -21,6 +21,7 @@ class CreatePreferencesTable extends Migration {
             $table->boolean('use_dashboard')->default(1);
             $table->unsignedTinyInteger('logo_target')->default(1);
             $table->unsignedTinyInteger('proj_page_tab_selection')->default(1);
+            $table->unsignedTinyInteger('single_proj_page_tab_selection')->default(1);
             $table->timestamps();
 
             $table->foreign('user_id')

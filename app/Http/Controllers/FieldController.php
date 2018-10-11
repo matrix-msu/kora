@@ -294,8 +294,13 @@ class FieldController extends Controller {
             return response()->json(["status"=>true, "message"=>"deleted"], 200);
 	}
 
-	//TODO::is this needed or used?
+    /**
+     * Validates a field and its basic options.
+     *
+     * @return JsonResponse
+     */
     public function validateFieldFields(FieldRequest $request) {
+        //Note:: This does work. The FieldRequest class validates the field itself, and if we get here, we return all clear!
         return response()->json(["status"=>true, "message"=>"Form Valid", 200]);
     }
 

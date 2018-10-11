@@ -107,7 +107,7 @@ function getDashboardProjectBlockLink($block, $link_type) {
 
 function getDashboardFormBlockLink($block, $link_type) {
   $options = json_decode($block->options, true);
-  $form = FormController::getForm($options['fid']);
+  $form = \App\Http\Controllers\FormController::getForm($options['fid']);
   switch ($link_type) {
       case 'edit':
           return [
@@ -120,18 +120,18 @@ function getDashboardFormBlockLink($block, $link_type) {
           return [
             'tooltip' => 'Search Form Records',
             'icon-class' => 'icon-search',
-            'href' => action('FormSearchController@keywordSearch', ['pid' => $form->pid, 'fid' => $form->fid])
+            'href' => action('RecordController@index', ['pid' => $form->pid, 'fid' => $form->fid])
           ];
           break;
       case 'record-new':
           return [
             'tooltip' => 'Create New Record',
-            'icon-class' => 'icon-form-import-little',
+            'icon-class' => 'icon-record-new-little',
             'href' => action('RecordController@create',['pid' => $form->pid, 'fid' => $form->fid])
           ];
           break;
       case 'field-new':
-          $lastPage = Page::where('fid','=',$form->fid)->orderBy('sequence','desc')->first();
+          $lastPage = \App\Page::where('fid','=',$form->fid)->orderBy('sequence','desc')->first();
           return [
             'tooltip' => 'Create New Field',
             'icon-class' => 'icon-form-new-little',
@@ -155,4 +155,24 @@ function getDashboardFormBlockLink($block, $link_type) {
       default:
         return [];
   }
+}
+
+function getDashboardRecordBlockLink($record) {
+    return array(
+        [
+            'tooltip' => 'Edit Record',
+            'icon-class' => 'icon-edit-little',
+            'href' => action('RecordController@edit', ['pid' => $record->pid, 'fid' => $record->fid, 'rid' => $record->rid])
+        ],
+        [
+            'tooltip' => 'Duplicate Record',
+            'icon-class' => 'icon-duplicate-little',
+            'href' => action('RecordController@cloneRecord', ['pid' => $record->pid, 'fid' => $record->fid, 'rid' => $record->rid])
+        ],
+        [
+            'tooltip' => 'View Revisions',
+            'icon-class' => 'icon-clock-little',
+            'href' => action('RevisionController@show', ['pid' => $record->pid, 'fid' => $record->fid, 'rid' => $record->rid])
+        ]
+    );
 }

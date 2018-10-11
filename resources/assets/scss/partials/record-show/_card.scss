@@ -13,6 +13,12 @@
       height: 2px;
       width: 100%;
     }
+
+    @media screen and (max-width: $max-mobile-xs-width) {
+      .record-page-title {
+        height: unset;
+      }
+    }
   }
 
   .record-page:first-child {

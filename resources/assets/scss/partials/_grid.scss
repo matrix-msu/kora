@@ -1,6 +1,7 @@
 .grid {
   margin: 60px auto 55px;
-  max-width: calc(#{ $max-site-width } - 100px);
+  max-width: $max-site-width;
+  padding: 0 50px;
 
   .header {
     color: palette('gray');

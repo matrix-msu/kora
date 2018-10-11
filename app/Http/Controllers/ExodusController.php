@@ -6,6 +6,7 @@ use App\Form;
 use App\FormGroup;
 use App\Http\Controllers\Auth\RegisterController;
 use App\OptionPreset;
+use App\Preference;
 use App\Project;
 use App\ProjectGroup;
 use App\Token;
@@ -174,6 +175,18 @@ class ExodusController extends Controller {
                     $token = RegisterController::makeRegToken();
                     $user->regtoken = $token;
                     $user->save();
+
+                    //
+                    // Assign the new user a default set of preferences.
+                    //
+                    $preference = new Preference();
+                    $preference->user_id = $user->id;
+                    $preference->created_at = Carbon::now();
+                    $preference->use_dashboard = 1;
+                    $preference->logo_target = 1;
+                    $preference->proj_page_tab_selection = 3;
+                    $preference->single_proj_page_tab_selection = 3;
+                    $preference->save();
 
                     //add user to conversion array with new id
                     $userArray[$u['uid']] = $user->id;
