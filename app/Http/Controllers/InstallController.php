@@ -1,6 +1,7 @@
 <?php namespace App\Http\Controllers;
 
 use App\Http\Requests\InstallRequest;
+use App\OptionPreset;
 use App\Version;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
@@ -33,17 +34,17 @@ class InstallController extends Controller {
      * @var array - Directories that will be created upon installation.
      */
     public $DIRECTORIES = [
-        "storage/app/backups",
-		"storage/app/backups/user_upload",
-        "storage/app/exodusAssoc",
-        "storage/app/exodusAssoc/conversions",
-        "storage/app/exodusAssoc/data",
-        "storage/app/exports",
-        "storage/app/files",
-        "storage/app/plugins",
-        "storage/app/presetFiles",
-        "storage/app/profiles",
-		"storage/app/tmpFiles",
+        "app/backups",
+		"app/backups/user_upload",
+        "app/exodusAssoc",
+        "app/exodusAssoc/conversions",
+        "app/exodusAssoc/data",
+        "app/exports",
+        "app/files",
+        "app/plugins",
+        "app/presetFiles",
+        "app/profiles",
+		"app/tmpFiles",
 	];
 
     /**
@@ -64,7 +65,7 @@ class InstallController extends Controller {
      * @return View
      */
     public function helloworld() {
-        if(file_exists("../.env"))
+        if(file_exists(base_path(".env")))
             return redirect('/');
 
         return view('install.helloworld');
@@ -76,7 +77,7 @@ class InstallController extends Controller {
      * @return View
      */
 	public function index() {
-		if(file_exists("../.env"))
+        if(file_exists(base_path(".env")))
 			return redirect('/');
 
 		return view('install.install');
@@ -96,10 +97,10 @@ class InstallController extends Controller {
         try {
             Log::info("Beginning ENV Write");
             
-            $envfile = fopen($request->basepath.".env", "w");
+            $envfile = fopen(base_path(".env"), "w");
             fwrite($envfile, $envData);
             fclose($envfile);
-            chmod($request->basepath.".env",0660);
+            chmod(base_path(".env"),0660);
 			
             Log::info("Ending ENV Write ");
         } catch(\Exception $e) { //Most likely if the file is owned by another user or PHP doesn't have permission
@@ -123,21 +124,8 @@ class InstallController extends Controller {
         $dbc = null;
         try{
             Log::info("Beginning DB Test");
-            switch(env('DB_DEFAULT')) {
-                case "mysql":
-                    $dbc = new \PDO('mysql:host='.env('DB_HOST').';dbname='.env('DB_DATABASE'), env('DB_USERNAME'), env('DB_PASSWORD'));
-                    break;
-                case "pgsql":
-                    $dbc = new \PDO('pgsql:host='.env('DB_HOST').';dbname='.env('DB_DATABASE'), env('DB_USERNAME'), env('DB_PASSWORD'));
-                    break;
-                case "sqlsrv":
-                    $dbc = new \PDO('pgsql:Server='.env('DB_HOST').';Databasee='.env('DB_DATABASE'), env('DB_USERNAME'), env('DB_PASSWORD'));
-                    break;
-                default:
-                    Log::info("Default type is missing. This is most likely an issue with Laravel failing to read the new ENV file.");
-                    $this->resetInstall($dbc);
-                    return redirect('/install')->withInput(Input::all())->with('k3_global_error', 'database_env_issue');
-            }
+            $dbc = new \PDO('mysql:host='.config('database.connections.mysql.host').';dbname='.config('database.connections.mysql.database'),
+                config('database.connections.mysql.username'), config('database.connections.mysql.password'));
             Log::info("Ending DB Test");
         } catch(\PDOException $e) {
             Log::info($e);
@@ -198,7 +186,7 @@ class InstallController extends Controller {
                 $preset = $info['preset'];
                 $created_at = $updated_at = Carbon::now();
 
-                \App\OptionPreset::create(compact("name","pid","type","preset","created_at","updated_at"));
+                OptionPreset::create(compact("name","pid","type","preset","created_at","updated_at"));
             }
             Log::info("Ending Preset Creation");
         } catch(\Exception $e) {
@@ -221,15 +209,6 @@ class InstallController extends Controller {
      * @return string - The text to write to file
      */
     private function envBuilder(InstallRequest $request){
-        $baseurl = $request->baseurl_url;
-        //Check if http:// is included in the base URL, and add it if missing
-        if(!preg_match("/(https)(.*)/",$baseurl))
-            $baseurl = "https://".$baseurl;
-
-        //Check for trailing slashes
-        if(substr($baseurl,-1) != "/")
-            $baseurl = $baseurl."/";
-            
         Log::info("Generating App Key");
         //We are basically replicating what the artisan command does to generate the cipher in php
         $key = 'base64:'.base64_encode(
@@ -245,7 +224,6 @@ class InstallController extends Controller {
             "DB_DATABASE=" . $request->db_database . "\n" .
             "DB_USERNAME=" . $request->db_username . "\n" .
             "DB_PASSWORD=" . $request->db_password . "\n" .
-            "DB_DEFAULT=" . $request->db_driver . "\n" .
             "DB_PREFIX=" . $request->db_prefix . "\n\n" .
 
             "MAIL_HOST=" . $request->mail_host . "\n" .
@@ -256,9 +234,6 @@ class InstallController extends Controller {
 
             "CACHE_DRIVER=file\n".
             "SESSION_DRIVER=file\n\n".
-
-            "BASE_URL=" . $baseurl . "\n" .
-            "BASE_PATH=" . $request->basepath . "\n\n" .
 
             "RECAPTCHA_PUBLIC_KEY=" . $request->recaptcha_public_key . "\n" .
             "RECAPTCHA_PRIVATE_KEY=" . $request->recaptcha_private_key;
@@ -273,9 +248,9 @@ class InstallController extends Controller {
      */
     private function createDirectories() {
         foreach($this->DIRECTORIES as $dir) {
-            if(!file_exists(config('app.base_path').$dir)) {
+            if(!file_exists(storage_path($dir))) {
                 try {
-                    mkdir(config('app.base_path') . $dir, 0775); //Notice the permission that is set and if it's OK!
+                    mkdir(storage_path($dir), 0775); //Notice the permission that is set and if it's OK!
                 } catch(\Exception $e) {
                     return false;
                 }
@@ -306,7 +281,7 @@ class InstallController extends Controller {
 
         if(!is_null($request->file('user_profile'))) {
             $file = $request->file('user_profile');
-            $pDir = config('app.base_path') . 'storage/app/profiles/1/';
+            $pDir = storage_path('app/profiles/1/');
 
             $newFilename = $file->getClientOriginalName();
             $newuser->profile = $newFilename;
@@ -324,8 +299,8 @@ class InstallController extends Controller {
      */
     private function resetInstall(\PDO $dbc = null) {
         //Delete the ENV
-        if(file_exists("../.env"))
-            unlink("../.env");
+        if(file_exists(base_path(".env")))
+            unlink(base_path(".env"));
 
         //Empty the Database
         if(!is_null($dbc)) {
@@ -349,10 +324,8 @@ class InstallController extends Controller {
         if(!Auth::check())
             return redirect("/");
 
-        if(!Auth::user()->admin) {
-            flash()->overlay("You must be an admin to see this","Whoops");
+        if(!Auth::user()->admin)
             return redirect("/");
-        }
 
         $configs = array(
             ['title'=>'Recaptcha Private Key', 'slug'=>'recaptcha_private', 'value'=>config('auth.recap_private')],
@@ -386,12 +359,11 @@ class InstallController extends Controller {
             "APP_DEBUG=" . $debug . "\n".
             "APP_KEY=" . config('app.key') . "\n\n".
 
-            "DB_HOST=" . env('DB_HOST') . "\n" .
-            "DB_DATABASE=" . env('DB_DATABASE') . "\n" .
-            "DB_USERNAME=" . env('DB_USERNAME') . "\n" .
-            "DB_PASSWORD=" . env('DB_PASSWORD') . "\n" .
-            "DB_DEFAULT=" . env('DB_DEFAULT') . "\n" .
-            "DB_PREFIX=" . env('DB_PREFIX') . "\n\n" .
+            "DB_HOST=" . config('database.connections.mysql.host') . "\n" .
+            "DB_DATABASE=" . config('database.connections.mysql.database') . "\n" .
+            "DB_USERNAME=" . config('database.connections.mysql.username') . "\n" .
+            "DB_PASSWORD=" . config('database.connections.mysql.password') . "\n" .
+            "DB_PREFIX=" . config('database.connections.mysql.prefix') . "\n\n" .
 
             "MAIL_HOST=" . $request->mail_host . "\n" .
             "MAIL_FROM_ADDRESS=" . $request->mail_address . "\n" .
@@ -402,20 +374,17 @@ class InstallController extends Controller {
             "CACHE_DRIVER=" . config('cache.default') . "\n".
             "SESSION_DRIVER=" . config('session.driver') . "\n\n".
 
-            "BASE_URL=" . config('app.url') . "\n" .
-            "BASE_PATH=" . config('app.base_path') . "\n\n" .
-
             "RECAPTCHA_PUBLIC_KEY=" . $request->recaptcha_public . "\n" .
             "RECAPTCHA_PRIVATE_KEY=" . $request->recaptcha_private;
 
         try {
             Log::info("Beginning ENV Write");
-            $envfile = fopen("../.env", "w");
+            $envfile = fopen(base_path(".env"), "w");
 
             fwrite($envfile, $layout);
 
             fclose($envfile);
-            chmod("../.env",0660);
+            chmod(base_path(".env"),0660);
             Log::info("Ending ENV Write");
         } catch(\Exception $e) { //Most likely if the file is owned by another user or PHP doesn't have permission
             Log::info($e);

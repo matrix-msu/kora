@@ -620,7 +620,7 @@ class ExodusHelperController extends Controller {
 
                             if($localname!='') {
                                 //Make folder
-                                $newPath = config('app.base_path') . 'storage/app/files/p' . $newForm->pid . '/f' . $newForm->fid . '/r' . $recModel->rid . '/fl' . $field->flid.'/';
+                                $newPath = storage_path('app/files/p' . $newForm->pid . '/f' . $newForm->fid . '/r' . $recModel->rid . '/fl' . $field->flid.'/');
                                 mkdir($newPath, 0775, true);
 
                                 $oldDir = $filePath.'/'.$oldPid.'/'.$ogSid.'/';
@@ -663,7 +663,7 @@ class ExodusHelperController extends Controller {
 
                             if($localname!='') {
                                 //Make folder
-                                $newPath = config('app.base_path') . 'storage/app/files/p' . $newForm->pid . '/f' . $newForm->fid . '/r' . $recModel->rid . '/fl' . $field->flid.'/';
+                                $newPath = storage_path('app/files/p' . $newForm->pid . '/f' . $newForm->fid . '/r' . $recModel->rid . '/fl' . $field->flid.'/');
                                 $newPathM = $newPath.'medium/';
                                 $newPathT = $newPath.'thumbnail/';
                                 mkdir($newPath, 0775, true);
@@ -778,7 +778,7 @@ class ExodusHelperController extends Controller {
                             //This prevents the array from getting too big. We will just create the files in parts
                             if(sizeof($assocFile)>self::EXODUS_CONVERSION_SIZE) {
                                 $dataToWrite = json_encode($assocFile);
-                                $filename = config('app.base_path').ExodusController::EXODUS_DATA_PATH.'assoc_'.$ogSid.'_'.$filePartNum.'.json';
+                                $filename = storage_path(ExodusController::EXODUS_DATA_PATH.'assoc_'.$ogSid.'_'.$filePartNum.'.json');
                                 file_put_contents($filename,$dataToWrite);
 
                                 //Reset the variables
@@ -804,7 +804,7 @@ class ExodusHelperController extends Controller {
 
         //We want to save the Typed Field that will have the data eventually, matched to its values in Kora 2 KID form
         $dataToWrite = json_encode($assocFile);
-        $filename = config('app.base_path').ExodusController::EXODUS_DATA_PATH.'assoc_'.$ogSid.'_'.$filePartNum.'.json';
+        $filename = storage_path(ExodusController::EXODUS_DATA_PATH.'assoc_'.$ogSid.'_'.$filePartNum.'.json');
         file_put_contents($filename,$dataToWrite);
 
         //We want to save the conversion array of Kora 2 KIDs to Kora 3 RIDs for this scheme
@@ -812,7 +812,7 @@ class ExodusHelperController extends Controller {
         $partIndex = 0;
         foreach($ridChunks as $ridc) {
             $dataToWrite = json_encode($ridc);
-            $filename = env('BASE_PATH').ExodusController::EXODUS_CONVERSION_PATH.'kid_to_rid_'.$ogSid.'_'.$partIndex.'.json';
+            $filename = storage_path(ExodusController::EXODUS_CONVERSION_PATH.'kid_to_rid_'.$ogSid.'_'.$partIndex.'.json');
             file_put_contents($filename,$dataToWrite);
             $partIndex++;
         }
@@ -897,7 +897,7 @@ class ExodusHelperController extends Controller {
      * @param  int $id - Preset ID
      */
     public function moveFilesToPreset($rid, $id) {
-        $presets_path = config('app.base_path').'storage/app/presetFiles';
+        $presets_path = storage_path('app/presetFiles');
 
         //
         // Create the presets file path if it does not exist.
@@ -913,7 +913,7 @@ class ExodusHelperController extends Controller {
         // Build the record's directory.
         $record = RecordController::getRecord($rid);
 
-        $record_path = config('app.base_path') . 'storage/app/files/p' . $record->pid . '/f' . $record->fid . '/r' . $record->rid;
+        $record_path = storage_path('app/files/p' . $record->pid . '/f' . $record->fid . '/r' . $record->rid);
 
         //
         // Recursively copy the record's file directory.

@@ -121,18 +121,18 @@ class ModelField extends FileTypeField  {
      * @param  Request $request
      */
     public function createNewRecordField($field, $record, $value, $request) {
-        if(glob(config('app.base_path') . 'storage/app/tmpFiles/' . $value . '/*.*') != false){
+        if(glob(storage_path('app/tmpFiles/' . $value . '/*.*')) != false) {
             $this->flid = $field->flid;
             $this->rid = $record->rid;
             $this->fid = $field->fid;
             $infoString = '';
             $infoArray = array();
-            $newPath = config('app.base_path') . 'storage/app/files/p' . $field->pid . '/f' . $field->fid . '/r' . $record->rid . '/fl' . $field->flid;
+            $newPath = storage_path('app/files/p' . $field->pid . '/f' . $field->fid . '/r' . $record->rid . '/fl' . $field->flid);
             if(!file_exists($newPath))
                 mkdir($newPath, 0775, true);
-            if(file_exists(config('app.base_path') . 'storage/app/tmpFiles/' . $value)) {
+            if(file_exists(storage_path('app/tmpFiles/' . $value))) {
                 $types = self::getMimeTypes();
-                foreach(new \DirectoryIterator(config('app.base_path') . 'storage/app/tmpFiles/' . $value) as $file) {
+                foreach(new \DirectoryIterator(storage_path('app/tmpFiles/' . $value)) as $file) {
                     if($file->isFile()) {
                         if(!array_key_exists($file->getExtension(), $types))
                             $type = 'application/octet-stream';
@@ -141,10 +141,10 @@ class ModelField extends FileTypeField  {
                         $info = '[Name]' . $file->getFilename() . '[Name][Size]' . $file->getSize() . '[Size][Type]' . $type . '[Type]';
                         $infoArray[$file->getFilename()] = $info;
                         if(isset($request->mass_creation_num))
-                            copy(config('app.base_path') . 'storage/app/tmpFiles/' . $value . '/' . $file->getFilename(),
+                            copy(storage_path('app/tmpFiles/' . $value . '/' . $file->getFilename()),
                                 $newPath . '/' . $file->getFilename());
                         else
-                            rename(config('app.base_path') . 'storage/app/tmpFiles/' . $value . '/' . $file->getFilename(),
+                            rename(storage_path('app/tmpFiles/' . $value . '/' . $file->getFilename()),
                             $newPath . '/' . $file->getFilename());
                     }
                 }
@@ -169,7 +169,7 @@ class ModelField extends FileTypeField  {
      * @param  Request $request
      */
     public function editRecordField($value, $request) {
-        if(glob(config('app.base_path').'storage/app/tmpFiles/'.$value.'/*.*') != false){
+        if(glob(storage_path('app/tmpFiles/' . $value . '/*.*')) != false) {
             $mod_files_exist = false; // if this remains false, then the files were deleted and row should be removed from table
 
             //clear the old files before moving the update over
@@ -177,23 +177,23 @@ class ModelField extends FileTypeField  {
             //we keep old files around for revision purposes
             $newNames = array();
             //scan the tmpFile as these will be the "new ones"
-            if(file_exists(config('app.base_path') . 'storage/app/tmpFiles/' . $value)) {
-                foreach(new \DirectoryIterator(config('app.base_path') . 'storage/app/tmpFiles/' . $value) as $file) {
+            if(file_exists(storage_path('app/tmpFiles/' . $value))) {
+                foreach(new \DirectoryIterator(storage_path('app/tmpFiles/' . $value)) as $file) {
                     array_push($newNames,$file->getFilename());
                 }
             }
             //actually clear them
             $field = FieldController::getField($this->flid);
-            foreach(new \DirectoryIterator(config('app.base_path').'storage/app/files/p'.$field->pid.'/f'.$field->fid.'/r'.$this->rid.'/fl'.$field->flid) as $file) {
+            foreach(new \DirectoryIterator(storage_path('app/files/p'.$field->pid.'/f'.$field->fid.'/r'.$this->rid.'/fl'.$field->flid)) as $file) {
                 if($file->isFile() and in_array($file->getFilename(),$newNames))
-                    unlink(config('app.base_path').'storage/app/files/p'.$field->pid.'/f'.$field->fid.'/r'.$this->rid.'/fl'.$field->flid.'/'.$file->getFilename());
+                    unlink(storage_path('app/files/p'.$field->pid.'/f'.$field->fid.'/r'.$this->rid.'/fl'.$field->flid.'/'.$file->getFilename()));
             }
             //build new stuff
             $infoString = '';
             $infoArray = array();
-            if(file_exists(config('app.base_path') . 'storage/app/tmpFiles/' . $value)) {
+            if(file_exists(storage_path('app/tmpFiles/' . $value))) {
                 $types = self::getMimeTypes();
-                foreach(new \DirectoryIterator(config('app.base_path') . 'storage/app/tmpFiles/' . $value) as $file) {
+                foreach(new \DirectoryIterator(storage_path('app/tmpFiles/' . $value)) as $file) {
                     if($file->isFile()) {
                         if(!array_key_exists($file->getExtension(),$types))
                             $type = 'application/octet-stream';
@@ -201,8 +201,8 @@ class ModelField extends FileTypeField  {
                             $type =  $types[$file->getExtension()];
                         $info = '[Name]' . $file->getFilename() . '[Name][Size]' . $file->getSize() . '[Size][Type]' . $type . '[Type]';
                         $infoArray[$file->getFilename()] = $info;
-                        rename(config('app.base_path') . 'storage/app/tmpFiles/' . $value . '/' . $file->getFilename(),
-                            config('app.base_path').'storage/app/files/p'.$field->pid.'/f'.$field->fid.'/r'.$this->rid.'/fl'.$field->flid . '/' . $file->getFilename());
+                        rename(storage_path('app/tmpFiles/' . $value . '/' . $file->getFilename()),
+                            storage_path('app/files/p'.$field->pid.'/f'.$field->fid.'/r'.$this->rid.'/fl'.$field->flid . '/' . $file->getFilename()));
                         $mod_files_exist = true;
                     }
                 }
@@ -224,10 +224,9 @@ class ModelField extends FileTypeField  {
         } else {
             //DELETE THE FILES SINCE WE REMOVED THEM
             $field = FieldController::getField($this->flid);
-            foreach(new \DirectoryIterator(config('app.base_path').'storage/app/files/p'.$field->pid.'/f'.$field->fid.'/r'.$this->rid.'/fl'.$field->flid) as $file) {
-                if($file->isFile()) {
-                    unlink(config('app.base_path').'storage/app/files/p'.$field->pid.'/f'.$field->fid.'/r'.$this->rid.'/fl'.$field->flid.'/'.$file->getFilename());
-                }
+            foreach(new \DirectoryIterator(storage_path('app/files/p'.$field->pid.'/f'.$field->fid.'/r'.$this->rid.'/fl'.$field->flid)) as $file) {
+                if($file->isFile())
+                    unlink(storage_path('app/files/p'.$field->pid.'/f'.$field->fid.'/r'.$this->rid.'/fl'.$field->flid.'/'.$file->getFilename()));
             }
 
             $this->delete();
@@ -268,7 +267,7 @@ class ModelField extends FileTypeField  {
         $this->flid = $field->flid;
         $this->rid = $record->rid;
         $this->fid = $field->fid;
-        $newPath = config('app.base_path') . 'storage/app/files/p' . $field->pid . '/f' . $field->fid . '/r' . $record->rid . '/fl' . $field->flid;
+        $newPath = storage_path('app/files/p' . $field->pid . '/f' . $field->fid . '/r' . $record->rid . '/fl' . $field->flid);
         mkdir($newPath, 0775, true);
 
         $types = self::getMimeTypes();
@@ -277,7 +276,7 @@ class ModelField extends FileTypeField  {
         else
             $type = $types['stl'];
         $infoString = '[Name]model.stl[Name][Size]9484[Size][Type]' . $type . '[Type]';
-        copy(config('app.base_path') . 'public/assets/testFiles/model.stl',
+        copy(public_path('assets/testFiles/model.stl'),
             $newPath . '/model.stl');
 
         $this->model = $infoString;
@@ -300,7 +299,7 @@ class ModelField extends FileTypeField  {
             $value = 'f'.$field->flid.'u'.Auth::user()->id;
 
         if($req==1 | $forceReq) {
-            if(glob(config('app.base_path').'storage/app/tmpFiles/'.$value.'/*.*') == false)
+            if(glob(storage_path('app/tmpFiles/' . $value . '/*.*')) == false)
                 return [$field->flid => $field->name.' is required'];
         }
 
@@ -418,8 +417,8 @@ class ModelField extends FileTypeField  {
      */
     public function setRestfulRecordData($jsonField, $flid, $recRequest, $uToken=null) {
         $files = array();
-        $currDir = config('app.base_path') . 'storage/app/tmpFiles/impU' . $uToken;
-        $newDir = config('app.base_path') . 'storage/app/tmpFiles/f' . $flid . 'u' . $uToken;
+        $currDir = storage_path('app/tmpFiles/impU' . $uToken);
+        $newDir = storage_path('app/tmpFiles/f' . $flid . 'u' . $uToken);
         if(file_exists($newDir)) {
             foreach(new \DirectoryIterator($newDir) as $file) {
                 if($file->isFile())

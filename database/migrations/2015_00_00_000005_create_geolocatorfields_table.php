@@ -46,8 +46,8 @@ class CreateGeolocatorfieldsTable extends Migration {
 			$table->timestamps();
 		});
 
-		DB::statement("ALTER TABLE ". env("DB_PREFIX") ."geolocator_support ADD FULLTEXT search_geo_desc(`desc`)");
-		DB::statement("ALTER TABLE ". env("DB_PREFIX") ."geolocator_support ADD FULLTEXT search_geo_address(`address`)");
+		DB::statement("ALTER TABLE ". config('database.connections.mysql.prefix') ."geolocator_support ADD FULLTEXT search_geo_desc(`desc`)");
+		DB::statement("ALTER TABLE ". config('database.connections.mysql.prefix') ."geolocator_support ADD FULLTEXT search_geo_address(`address`)");
 	}
 
 	/**

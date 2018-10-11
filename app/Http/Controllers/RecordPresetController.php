@@ -125,7 +125,7 @@ class RecordPresetController extends Controller {
         //
         // Delete the preset's file directory.
         //
-        $path = config('app.base_path').'storage/app/presetFiles/preset'. $id;
+        $path = storage_path('app/presetFiles/preset'. $id);
 
         if(is_dir($path)) {
             $it = new RecursiveDirectoryIterator($path, RecursiveDirectoryIterator::SKIP_DOTS);
@@ -208,7 +208,7 @@ class RecordPresetController extends Controller {
      * @param  int $preID - Preset ID
      */
     public function moveFilesToPreset($rid, $preID) {
-        $presets_path = config('app.base_path').'storage/app/presetFiles';
+        $presets_path = storage_path('app/presetFiles');
 
         //
         // Create the presets file path if it does not exist.
@@ -224,7 +224,7 @@ class RecordPresetController extends Controller {
         // Build the record's directory.
         $record = RecordController::getRecord($rid);
 
-        $record_path = config('app.base_path') . 'storage/app/files/p' . $record->pid . '/f' . $record->fid . '/r' . $record->rid;
+        $record_path = storage_path('app/files/p' . $record->pid . '/f' . $record->fid . '/r' . $record->rid);
 
         //
         // Recursively copy the record's file directory.
@@ -242,8 +242,8 @@ class RecordPresetController extends Controller {
         $flid = $request->flid;
         $userID = $request->userID;
 
-        $presetPath = config('app.base_path') . 'storage/app/presetFiles/preset' . $presetID . '/fl' . $flid;
-        $tempPath = config('app.base_path') . 'storage/app/tmpFiles/f'. $flid . 'u' . $userID;
+        $presetPath = storage_path('app/presetFiles/preset' . $presetID . '/fl' . $flid);
+        $tempPath = storage_path('app/tmpFiles/f'. $flid . 'u' . $userID);
 
         //
         // If the temp directory exists for the user, clear out the existing files.

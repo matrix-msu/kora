@@ -634,7 +634,7 @@ class AssociatorField extends BaseField {
             array_push($preview, "No Preview Field Available");
         }
 
-        $html = "<a class='mt-xxxs documents-link underline-middle-hover' href='".config('app.url')."projects/".$pid."/forms/".$fid."/records/".$rid."'>".$kid."</a>";
+        $html = "<a class='mt-xxxs documents-link underline-middle-hover' href='".url("projects/".$pid."/forms/".$fid."/records/".$rid)."'>".$kid."</a>";
 
         foreach($preview as $val) {
             $html .= " | ".$val;

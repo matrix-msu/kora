@@ -22,7 +22,6 @@ class WelcomeController extends Controller {
      * @return View
      */
 	public function index() {
-	    //dd(\Auth::user());
 	    if(!isInstalled())
         	return redirect('/helloworld');
         else if(\Auth::guest()) {

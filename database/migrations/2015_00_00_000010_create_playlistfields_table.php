@@ -29,7 +29,7 @@ class CreatePlaylistfieldsTable extends Migration {
 			$table->foreign('flid')->references('flid')->on('fields')->onDelete('cascade');
 		});
 
-		DB::statement("ALTER TABLE ". env("DB_PREFIX") ."playlist_fields ADD FULLTEXT search_ply(`audio`)");
+		DB::statement("ALTER TABLE ". config('database.connections.mysql.prefix') ."playlist_fields ADD FULLTEXT search_ply(`audio`)");
 	}
 
 	/**

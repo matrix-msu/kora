@@ -42,7 +42,7 @@ class CreateComboListFieldsTable extends Migration {
 			$table->timestamps();
 		});
 
-		DB::statement("ALTER TABLE " . env('DB_PREFIX') . "combo_support ADD FULLTEXT search_sup(`data`)");
+		DB::statement("ALTER TABLE " . config('database.connections.mysql.prefix') . "combo_support ADD FULLTEXT search_sup(`data`)");
 	}
 
 	/**

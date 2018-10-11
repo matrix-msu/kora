@@ -45,9 +45,9 @@ class UploadHandler
     function __construct($options = null, $initialize = true, $error_messages = null) {
         $this->response = array();
         $this->options = array(
-            'script_url' => config('app.url').'index.php',
-            'upload_dir' => config('app.base_path').'storage/app/tmpFiles/'.$options['flid'].'/',
-            'upload_url' => config('app.storage_url').'tmpFiles/'.$options['flid'].'/',
+            'script_url' => url('index.php'),
+            'upload_dir' => storage_path('app/tmpFiles/'.$options['flid'].'/'),
+            'upload_url' => url('app/tmpFiles/'.$options['flid']).'/',
             'user_dirs' => false,
             'mkdir_mode' => 0775,
             'param_name' => 'file'.explode('f',explode('u',$options['flid'])[0])[1],
@@ -264,7 +264,7 @@ class UploadHandler
     }
 
     protected function set_additional_file_properties($file) {
-        $file->deleteUrl = config('app.url').'deleteTmpFile/'.$this->options['flid'].'/'.urlencode($file->name);
+        $file->deleteUrl = url('deleteTmpFile/'.$this->options['flid'].'/'.urlencode($file->name));
         $file->deleteType = $this->options['delete_type'];
         if ($file->deleteType !== 'DELETE') {
             $file->deleteUrl .= '&_method=DELETE';

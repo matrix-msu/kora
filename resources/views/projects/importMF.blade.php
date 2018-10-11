@@ -45,7 +45,7 @@
             <div class="form-group new-object-button low-margin">
                 <input type="button" class="kora-file-button-js" value="Add New File">
                 <input type="file" name="file0[]" class="kora-file-upload-js hidden"
-                       data-url="{{ config('app.url') }}saveTmpFileMF"
+                       data-url="{{ url('saveTmpFileMF') }}"
                        multiple accept=".xml,.json">
             </div>
 
@@ -96,10 +96,10 @@
 
     <script type="text/javascript">
         var CSRFToken = '{{ csrf_token() }}';
-        var deleteFileUrl = '{{ config('app.url') }}deleteTmpFileMF/';
-        var mfrInputURL = '{{ config('app.url') }}projects/{{$project->pid}}/importMF';
-        var importRecordUrl = '{{ config('app.url') }}projects/{{$project->pid}}/importMFRecord';
-        var crossAssocURL = '{{ config('app.url') }}projects/{{$project->pid}}/importMFAssoc';
+        var deleteFileUrl = '{{ url('deleteTmpFileMF') }}/';
+        var mfrInputURL = '{{ url('projects/'.$project->pid.'/importMF') }}';
+        var importRecordUrl = '{{ url('projects/'.$project->pid.'/importMFRecord') }}';
+        var crossAssocURL = '{{ url('projects/'.$project->pid.'/importMFAssoc') }}';
 
         Kora.Records.ImportMF();
     </script>

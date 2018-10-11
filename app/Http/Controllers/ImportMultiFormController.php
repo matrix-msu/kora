@@ -52,7 +52,7 @@ class ImportMultiFormController extends Controller {
             return redirect('projects')->with('k3_global_error', 'not_project_admin');
 
         //Clear import directory
-        $dir = config('app.base_path').'storage/app/tmpFiles/MFf0u'.\Auth::user()->id;
+        $dir = storage_path('app/tmpFiles/MFf0u'.\Auth::user()->id);
         if(file_exists($dir)) {
             //clear import directory
             $files = new \RecursiveIteratorIterator(
@@ -125,7 +125,7 @@ class ImportMultiFormController extends Controller {
             $zip = new \ZipArchive();
             $res = $zip->open($request->file('files'));
             if($res) {
-                $dir = config('app.base_path').'storage/app/tmpFiles/impU'.\Auth::user()->id;
+                $dir = storage_path('app/tmpFiles/impU'.\Auth::user()->id);
                 if(file_exists($dir)) {
                     //clear import directory
                     $files = new \RecursiveIteratorIterator(
@@ -160,7 +160,7 @@ class ImportMultiFormController extends Controller {
             $data = [];
 
             $fid = $fids[$order[$i]];
-            $records = config('app.base_path').'storage/app/tmpFiles/MFf0u'.\Auth::user()->id.'/'.$recordSets[$i];
+            $records = storage_path('app/tmpFiles/MFf0u'.\Auth::user()->id.'/'.$recordSets[$i]);
             $type = strtoupper($fileTypes[$i]);
 
             $recordObjs = array();
@@ -375,10 +375,10 @@ class ImportMultiFormController extends Controller {
                 } else if($type == 'Documents' | $type == 'Playlist' | $type == 'Video' | $type == '3D-Model') {
                     $files = array();
                     if(is_null($originRid))
-                        $currDir = config('app.base_path') . 'storage/app/tmpFiles/impU' . \Auth::user()->id;
+                        $currDir = storage_path('app/tmpFiles/impU' . \Auth::user()->id);
                     else
-                        $currDir = config('app.base_path') . 'storage/app/tmpFiles/impU' . \Auth::user()->id . '/r' . $originRid . '/fl' . $flid;
-                    $newDir = config('app.base_path') . 'storage/app/tmpFiles/f' . $flid . 'u' . \Auth::user()->id . '/r' . $request->kid;
+                        $currDir = storage_path('app/tmpFiles/impU' . \Auth::user()->id . '/r' . $originRid . '/fl' . $flid);
+                    $newDir = storage_path('app/tmpFiles/f' . $flid . 'u' . \Auth::user()->id . '/r' . $request->kid);
                     if(file_exists($newDir)) {
                         foreach(new \DirectoryIterator($newDir) as $file) {
                             if($file->isFile()) {
@@ -394,7 +394,7 @@ class ImportMultiFormController extends Controller {
                         if(!file_exists($currDir . '/' . $name)) {
                             //Before we fail, let's see first if it's just failing because the originRid was specified
                             // and not because the file doesn't actually exist. We will now force look into the ZIPs root folder
-                            $currDir = config('app.base_path') . 'storage/app/tmpFiles/impU' . \Auth::user()->id;
+                            $currDir = storage_path('app/tmpFiles/impU' . \Auth::user()->id);
                             if(!file_exists($currDir . '/' . $name))
                                 return response()->json(["status" => false, "message" => "xml_validation_error",
                                     "record_validation_error" => [$request->kid => "$fieldSlug: trouble finding file $name"]], 500);
@@ -412,7 +412,7 @@ class ImportMultiFormController extends Controller {
                             if(!file_exists($currDir . '/' . $name)) {
                                 //Before we fail, let's see first if it's just failing because the originRid was specified
                                 // and not because the file doesn't actually exist. We will now force look into the ZIPs root folder
-                                $currDir = config('app.base_path') . 'storage/app/tmpFiles/impU' . \Auth::user()->id;
+                                $currDir = storage_path('app/tmpFiles/impU' . \Auth::user()->id);
                                 if(!file_exists($currDir . '/' . $name))
                                     return response()->json(["status" => false, "message" => "xml_validation_error",
                                         "record_validation_error" => [$request->kid => "$fieldSlug: trouble finding file $name"]], 500);
@@ -427,10 +427,10 @@ class ImportMultiFormController extends Controller {
                 } else if($type == 'Gallery') {
                     $files = array();
                     if(is_null($originRid))
-                        $currDir = config('app.base_path') . 'storage/app/tmpFiles/impU' . \Auth::user()->id;
+                        $currDir = storage_path('app/tmpFiles/impU' . \Auth::user()->id);
                     else
-                        $currDir = config('app.base_path') . 'storage/app/tmpFiles/impU' . \Auth::user()->id . '/r' . $originRid . '/fl' . $flid;
-                    $newDir = config('app.base_path') . 'storage/app/tmpFiles/f' . $flid . 'u' . \Auth::user()->id . '/r' . $request->kid;
+                        $currDir = storage_path('app/tmpFiles/impU' . \Auth::user()->id . '/r' . $originRid . '/fl' . $flid);
+                    $newDir = storage_path('app/tmpFiles/f' . $flid . 'u' . \Auth::user()->id . '/r' . $request->kid);
                     if(file_exists($newDir)) {
                         foreach(new \DirectoryIterator($newDir) as $file) {
                             if($file->isFile())
@@ -459,7 +459,7 @@ class ImportMultiFormController extends Controller {
                         if(!file_exists($currDir . '/' . $name)) {
                             //Before we fail, let's see first if it's just failing because the originRid was specified
                             // and not because the file doesn't actually exist. We will now force look into the ZIPs root folder
-                            $currDir = config('app.base_path') . 'storage/app/tmpFiles/impU' . \Auth::user()->id;
+                            $currDir = storage_path('app/tmpFiles/impU' . \Auth::user()->id);
                             if(!file_exists($currDir . '/' . $name))
                                 return response()->json(["status" => false, "message" => "xml_validation_error",
                                     "record_validation_error" => [$request->kid => "$fieldSlug: trouble finding file $name"]], 500);
@@ -493,7 +493,7 @@ class ImportMultiFormController extends Controller {
                             if(!file_exists($currDir . '/' . $name)) {
                                 //Before we fail, let's see first if it's just failing because the originRid was specified
                                 // and not because the file doesn't actually exist. We will now force look into the ZIPs root folder
-                                $currDir = config('app.base_path') . 'storage/app/tmpFiles/impU' . \Auth::user()->id;
+                                $currDir = storage_path('app/tmpFiles/impU' . \Auth::user()->id);
                                 if(!file_exists($currDir . '/' . $name))
                                     return response()->json(["status" => false, "message" => "xml_validation_error",
                                         "record_validation_error" => [$request->kid => "$fieldSlug: trouble finding file $name"]], 500);
@@ -671,10 +671,10 @@ class ImportMultiFormController extends Controller {
                 } else if($type == 'Documents' | $type == 'Playlist' | $type == 'Video' | $type == '3D-Model') {
                     $files = array();
                     if(is_null($originRid))
-                        $currDir = config('app.base_path') . 'storage/app/tmpFiles/impU' . \Auth::user()->id;
+                        $currDir = storage_path('app/tmpFiles/impU' . \Auth::user()->id);
                     else
-                        $currDir = config('app.base_path') . 'storage/app/tmpFiles/impU' . \Auth::user()->id . '/r' . $originRid . '/fl' . $flid;
-                    $newDir = config('app.base_path') . 'storage/app/tmpFiles/f' . $flid . 'u' . \Auth::user()->id . '/r' . $request->kid;
+                        $currDir = storage_path('app/tmpFiles/impU' . \Auth::user()->id . '/r' . $originRid . '/fl' . $flid);
+                    $newDir = storage_path('app/tmpFiles/f' . $flid . 'u' . \Auth::user()->id . '/r' . $request->kid);
                     if(file_exists($newDir)) {
                         foreach(new \DirectoryIterator($newDir) as $file) {
                             if($file->isFile()) {
@@ -699,10 +699,10 @@ class ImportMultiFormController extends Controller {
                 } else if($type == 'Gallery') {
                     $files = array();
                     if(is_null($originRid))
-                        $currDir = config('app.base_path') . 'storage/app/tmpFiles/impU' . \Auth::user()->id;
+                        $currDir = storage_path('app/tmpFiles/impU' . \Auth::user()->id);
                     else
-                        $currDir = config('app.base_path') . 'storage/app/tmpFiles/impU' . \Auth::user()->id . '/r' . $originRid . '/fl' . $flid;
-                    $newDir = config('app.base_path') . 'storage/app/tmpFiles/f' . $flid . 'u' . \Auth::user()->id . '/r' . $request->kid;
+                        $currDir = storage_path('app/tmpFiles/impU' . \Auth::user()->id . '/r' . $originRid . '/fl' . $flid);
+                    $newDir = storage_path('app/tmpFiles/f' . $flid . 'u' . \Auth::user()->id . '/r' . $request->kid);
                     if(file_exists($newDir)) {
                         foreach(new \DirectoryIterator($newDir) as $file) {
                             if($file->isFile())

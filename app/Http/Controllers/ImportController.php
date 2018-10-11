@@ -128,7 +128,7 @@ class ImportController extends Controller {
             $zip = new \ZipArchive();
             $res = $zip->open($request->file('files'));
             if($res) {
-                $dir = config('app.base_path').'storage/app/tmpFiles/impU'.\Auth::user()->id;
+                $dir = storage_path('app/tmpFiles/impU'.\Auth::user()->id);
                 if(file_exists($dir)) {
                     //clear import directory
                     $files = new \RecursiveIteratorIterator(
@@ -413,10 +413,10 @@ class ImportController extends Controller {
                 } else if($type == 'Documents' | $type == 'Playlist' | $type == 'Video' | $type == '3D-Model') {
                     $files = array();
                     if(is_null($originRid))
-                        $currDir = config('app.base_path') . 'storage/app/tmpFiles/impU' . \Auth::user()->id;
+                        $currDir = storage_path( 'app/tmpFiles/impU' . \Auth::user()->id);
                     else
-                        $currDir = config('app.base_path') . 'storage/app/tmpFiles/impU' . \Auth::user()->id . '/r' . $originRid . '/fl' . $flid;
-                    $newDir = config('app.base_path') . 'storage/app/tmpFiles/f' . $flid . 'u' . \Auth::user()->id . '/r' . $request->kid;
+                        $currDir = storage_path('app/tmpFiles/impU' . \Auth::user()->id . '/r' . $originRid . '/fl' . $flid);
+                    $newDir = storage_path('app/tmpFiles/f' . $flid . 'u' . \Auth::user()->id . '/r' . $request->kid);
                     if(file_exists($newDir)) {
                         foreach(new \DirectoryIterator($newDir) as $file) {
                             if($file->isFile()) {
@@ -432,7 +432,7 @@ class ImportController extends Controller {
                         if(!file_exists($currDir . '/' . $name)) {
                             //Before we fail, let's see first if it's just failing because the originRid was specified
                             // and not because the file doesn't actually exist. We will now force look into the ZIPs root folder
-                            $currDir = config('app.base_path') . 'storage/app/tmpFiles/impU' . \Auth::user()->id;
+                            $currDir = storage_path( 'app/tmpFiles/impU' . \Auth::user()->id);
                             if(!file_exists($currDir . '/' . $name))
                                 return response()->json(["status" => false, "message" => "xml_validation_error",
                                     "record_validation_error" => [$request->kid => "$fieldSlug: trouble finding file $name"]], 500);
@@ -450,7 +450,7 @@ class ImportController extends Controller {
                             if(!file_exists($currDir . '/' . $name)) {
                                 //Before we fail, let's see first if it's just failing because the originRid was specified
                                 // and not because the file doesn't actually exist. We will now force look into the ZIPs root folder
-                                $currDir = config('app.base_path') . 'storage/app/tmpFiles/impU' . \Auth::user()->id;
+                                $currDir = storage_path( 'app/tmpFiles/impU' . \Auth::user()->id);
                                 if(!file_exists($currDir . '/' . $name))
                                     return response()->json(["status" => false, "message" => "xml_validation_error",
                                         "record_validation_error" => [$request->kid => "$fieldSlug: trouble finding file $name"]], 500);
@@ -465,10 +465,10 @@ class ImportController extends Controller {
                 } else if($type == 'Gallery') {
                     $files = array();
                     if(is_null($originRid))
-                        $currDir = config('app.base_path') . 'storage/app/tmpFiles/impU' . \Auth::user()->id;
+                        $currDir = storage_path( 'app/tmpFiles/impU' . \Auth::user()->id);
                     else
-                        $currDir = config('app.base_path') . 'storage/app/tmpFiles/impU' . \Auth::user()->id . '/r' . $originRid . '/fl' . $flid;
-                    $newDir = config('app.base_path') . 'storage/app/tmpFiles/f' . $flid . 'u' . \Auth::user()->id . '/r' . $request->kid;
+                        $currDir = storage_path('app/tmpFiles/impU' . \Auth::user()->id . '/r' . $originRid . '/fl' . $flid);
+                    $newDir = storage_path('app/tmpFiles/f' . $flid . 'u' . \Auth::user()->id . '/r' . $request->kid);
                     if(file_exists($newDir)) {
                         foreach(new \DirectoryIterator($newDir) as $file) {
                             if($file->isFile())
@@ -497,7 +497,7 @@ class ImportController extends Controller {
                         if(!file_exists($currDir . '/' . $name)) {
                             //Before we fail, let's see first if it's just failing because the originRid was specified
                             // and not because the file doesn't actually exist. We will now force look into the ZIPs root folder
-                            $currDir = config('app.base_path') . 'storage/app/tmpFiles/impU' . \Auth::user()->id;
+                            $currDir = storage_path( 'app/tmpFiles/impU' . \Auth::user()->id);
                             if(!file_exists($currDir . '/' . $name))
                                 return response()->json(["status" => false, "message" => "xml_validation_error",
                                     "record_validation_error" => [$request->kid => "$fieldSlug: trouble finding file $name"]], 500);
@@ -531,7 +531,7 @@ class ImportController extends Controller {
                             if(!file_exists($currDir . '/' . $name)) {
                                 //Before we fail, let's see first if it's just failing because the originRid was specified
                                 // and not because the file doesn't actually exist. We will now force look into the ZIPs root folder
-                                $currDir = config('app.base_path') . 'storage/app/tmpFiles/impU' . \Auth::user()->id;
+                                $currDir = storage_path( 'app/tmpFiles/impU' . \Auth::user()->id);
                                 if(!file_exists($currDir . '/' . $name))
                                     return response()->json(["status" => false, "message" => "xml_validation_error",
                                         "record_validation_error" => [$request->kid => "$fieldSlug: trouble finding file $name"]], 500);
@@ -690,10 +690,10 @@ class ImportController extends Controller {
                 } else if($type == 'Documents' | $type == 'Playlist' | $type == 'Video' | $type == '3D-Model') {
                     $files = array();
                     if(is_null($originRid))
-                        $currDir = config('app.base_path') . 'storage/app/tmpFiles/impU' . \Auth::user()->id;
+                        $currDir = storage_path( 'app/tmpFiles/impU' . \Auth::user()->id);
                     else
-                        $currDir = config('app.base_path') . 'storage/app/tmpFiles/impU' . \Auth::user()->id . '/r' . $originRid . '/fl' . $flid;
-                    $newDir = config('app.base_path') . 'storage/app/tmpFiles/f' . $flid . 'u' . \Auth::user()->id . '/r' . $request->kid;
+                        $currDir = storage_path('app/tmpFiles/impU' . \Auth::user()->id . '/r' . $originRid . '/fl' . $flid);
+                    $newDir = storage_path('app/tmpFiles/f' . $flid . 'u' . \Auth::user()->id . '/r' . $request->kid);
                     if(file_exists($newDir)) {
                         foreach(new \DirectoryIterator($newDir) as $file) {
                             if($file->isFile()) {
@@ -718,10 +718,10 @@ class ImportController extends Controller {
                 } else if($type == 'Gallery') {
                     $files = array();
                     if(is_null($originRid))
-                        $currDir = config('app.base_path') . 'storage/app/tmpFiles/impU' . \Auth::user()->id;
+                        $currDir = storage_path( 'app/tmpFiles/impU' . \Auth::user()->id);
                     else
-                        $currDir = config('app.base_path') . 'storage/app/tmpFiles/impU' . \Auth::user()->id . '/r' . $originRid . '/fl' . $flid;
-                    $newDir = config('app.base_path') . 'storage/app/tmpFiles/f' . $flid . 'u' . \Auth::user()->id . '/r' . $request->kid;
+                        $currDir = storage_path('app/tmpFiles/impU' . \Auth::user()->id . '/r' . $originRid . '/fl' . $flid);
+                    $newDir = storage_path('app/tmpFiles/f' . $flid . 'u' . \Auth::user()->id . '/r' . $request->kid);
                     if(file_exists($newDir)) {
                         foreach(new \DirectoryIterator($newDir) as $file) {
                             if($file->isFile())
@@ -1258,7 +1258,7 @@ class ImportController extends Controller {
         if(!is_null($request->file('records'))) {
             $file = $request->file('records');
             $records = simplexml_load_file($file);
-            $zipDir = config('app.base_path').'storage/app/tmpFiles/f'.$form->fid.'u'.\Auth::user()->id.'/';
+            $zipDir = storage_path('app/tmpFiles/f'.$form->fid.'u'.\Auth::user()->id.'/');
             $filesProvided = false;
 
             if(!is_null($request->file('files'))) {
@@ -1405,7 +1405,7 @@ class ImportController extends Controller {
                                     $docs->flid = $field->flid;
 
                                     //Make folder
-                                    $newPath = config('app.base_path') . 'storage/app/files/p' . $form->pid . '/f' . $form->fid . '/r' . $recModel->rid . '/fl' . $field->flid.'/';
+                                    $newPath = storage_path('app/files/p' . $form->pid . '/f' . $form->fid . '/r' . $recModel->rid . '/fl' . $field->flid.'/');
                                     mkdir($newPath, 0775, true);
 
                                     //Move file
@@ -1445,7 +1445,7 @@ class ImportController extends Controller {
                                     $gal->flid = $field->flid;
 
                                     //Make folder
-                                    $newPath = config('app.base_path') . 'storage/app/files/p' . $form->pid . '/f' . $form->fid . '/r' . $recModel->rid . '/fl' . $field->flid.'/';
+                                    $newPath = storage_path('app/files/p' . $form->pid . '/f' . $form->fid . '/r' . $recModel->rid . '/fl' . $field->flid.'/');
                                     $newPathM = $newPath.'medium/';
                                     $newPathT = $newPath.'thumbnail/';
                                     mkdir($newPath, 0775, true);
