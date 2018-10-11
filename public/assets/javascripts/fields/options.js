@@ -628,7 +628,7 @@ Kora.Fields.Options = function(fieldType) {
         $(".list-options-js").sortable({
             helper: 'clone',
             revert: true,
-            containment: ".list-options-js"/*,
+            containment: ".field-show"/*,
             update: function(event, ui) {
               pidsArray = $(".project-custom-js").sortable("toArray");*/
 
