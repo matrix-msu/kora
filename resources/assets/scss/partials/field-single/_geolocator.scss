@@ -1,0 +1,8 @@
+&.field-single-geolocator {
+  width: 100%;
+  max-width: 750px;
+
+  .field-geolocator {
+    height: calc(100vh - 40px);
+  }
+}

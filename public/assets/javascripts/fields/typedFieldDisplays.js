@@ -150,6 +150,8 @@ Kora.Fields.TypedFieldDisplays.Initialize = function() {
 
     function initializeGeolocator() {
         $('.geolocator-map-js').each(function() {
+            var $geolocator = $(this);
+            var $geolocatorModal = $geolocator.find('.geolocator-map-modal-js');
             var mapID = $(this).attr('map-id');
 
             var firstLoc = $(this).children('.geolocator-location-js').first();
@@ -157,9 +159,26 @@ Kora.Fields.TypedFieldDisplays.Initialize = function() {
             mapRecord.scrollWheelZoom.disable();
             L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png?{foo}', {foo: 'bar'}).addTo(mapRecord);
 
+            // Set map for modal
+            var modalMapRecord = L.map('modalmap'+mapID).setView([firstLoc.attr('loc-x'), firstLoc.attr('loc-y')], 13);
+            modalMapRecord.scrollWheelZoom.disable();
+            L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png?{foo}', {foo: 'bar'}).addTo(modalMapRecord);
+
             $(this).children('.geolocator-location-js').each(function() {
                 var marker = L.marker([$(this).attr('loc-x'), $(this).attr('loc-y')]).addTo(mapRecord);
+                var marker = L.marker([$(this).attr('loc-x'), $(this).attr('loc-y')]).addTo(modalMapRecord);
                 marker.bindPopup($(this).attr('loc-desc'));
+            });
+
+            // External Button Clicked
+            $geolocator.find('.external-button-js').click(function() {
+                console.log('external');
+            });
+
+            // Full Screen Button Clicked
+            $geolocator.find('.full-screen-button-js').click(function() {
+                Kora.Modal.close();
+                Kora.Modal.open($geolocatorModal);
             });
         });
     }

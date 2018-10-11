@@ -6,6 +6,7 @@
     <title>Kora 3 - {{ $page_title }}</title>
 
     <link rel="stylesheet" href="{{url('assets/css/app.css')}}">
+    <link rel="stylesheet" type="text/css" href="{{ url('assets/css/vendor/leaflet/leaflet.css') }}"/>
 </head>
 <body class="single-resource-body {{ str_hyphenated($page_class) }}-body">
 
