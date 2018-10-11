@@ -68,6 +68,10 @@
         @endif
     </section>
 
+    <div class="form-group mt-xxxl">
+        <div class="spacer"></div>
+    </div>
+
     @include('partials.fields.modals.addDefaultValue')
     <section class="combo-list-defaults">
         {!! Form::label('default', 'Default Combo List Values') !!}

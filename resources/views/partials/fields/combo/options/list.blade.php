@@ -44,7 +44,3 @@
     </select>
 -->
 </div>
-
-<div class="form-group mt-xxxl">
-	<div class="spacer"></div>
-</div>

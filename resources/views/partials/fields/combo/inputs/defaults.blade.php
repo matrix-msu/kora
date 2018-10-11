@@ -15,7 +15,7 @@
                 '7' => '07 - '.date("F", mktime(0, 0, 0, 7, 10)), '8' => '08 - '.date("F", mktime(0, 0, 0, 8, 10)),
                 '9' => '09 - '.date("F", mktime(0, 0, 0, 9, 10)), '10' => '10 - '.date("F", mktime(0, 0, 0, 10, 10)),
                 '11' => '11 - '.date("F", mktime(0, 0, 0, 11, 10)), '12' => '12 - '.date("F", mktime(0, 0, 0, 12, 10))],
-                null, ['class' => 'single-select', 'data-placeholder'=>"Select a Month"]) !!}
+                null, ['class' => 'single-select default-input-js', 'data-placeholder'=>"Select a Month"]) !!}
         </div>
         <div class="form-group mt-sm">
             {!! Form::label('day_'.$fnum,'Day: ') !!}

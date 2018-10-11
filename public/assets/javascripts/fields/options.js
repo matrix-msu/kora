@@ -452,12 +452,18 @@ Kora.Fields.Options = function(fieldType) {
             Kora.Modal.open($('.combolist-add-list-value-modal-js'));
         });
 
-        $('.default-input-js').on('blur', function(e) {
+        $('.default-input-js').on('blur change', function(e) {
             e.preventDefault();
 
-            if ($('.combo-list-input-one input, .combo-list-input-one select').val() != '' && $('.combo-list-input-two input, .combo-list-input-two select').val() != '') {
-                $('.add-combo-value-js').removeClass('disabled');
-            }
+			$.each($('.default-input-js'), function(){
+				if ($(this).val() == '') {
+					if (!$('.add-combo-value-js').hasClass('disabled'))
+						$('.add-combo-value-js').addClass('disabled');
+					return false;
+				} else {
+					$('.add-combo-value-js').removeClass('disabled');
+				}
+			});
         });
 
         $('.add-combo-value-js').click(function() {
