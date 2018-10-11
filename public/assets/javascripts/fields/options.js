@@ -624,7 +624,26 @@ Kora.Fields.Options = function(fieldType) {
         listOpt.find('option').prop('selected', true);
         listOpt.trigger("chosen:updated");
 		
-		// (new) LIST OPTIONS
+        // (new) LIST OPTIONS
+        $(".list-options-js").sortable({
+            helper: 'clone',
+            revert: true,
+            containment: ".list-options-js"/*,
+            update: function(event, ui) {
+              pidsArray = $(".project-custom-js").sortable("toArray");*/
+
+            //   $.ajax({
+            //     url: saveCustomOrderUrl,
+            //     type: 'POST',
+            //     data: {
+            //       "_token": CSRFToken,
+            //       "pids": pidsArray,
+            //     },
+            //     success: function(result) {}
+            //   });
+            // }
+        });
+        
 		$('.list-options-js').on('click', '.move-action-js', function(e) {
 		  e.preventDefault();
 
