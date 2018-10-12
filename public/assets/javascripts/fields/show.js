@@ -49,8 +49,6 @@ Kora.Fields.Show = function() {
 
             if(newRegex!='')
                 Kora.Modal.open(createRegexModal);
-            //else
-            //TODO::error out
         });
 
         $('.create-regex-preset-js').click(function(e) {
@@ -127,8 +125,6 @@ Kora.Fields.Show = function() {
 
             if(newList!=[])
                 Kora.Modal.open(createListModal);
-            //else
-            //TODO::error out
         });
 
         $('.create-list-preset-js').click(function(e) {
@@ -200,8 +196,6 @@ Kora.Fields.Show = function() {
 
             if(newLocation!=[])
                 Kora.Modal.open(createLocationModal);
-            //else
-            //TODO::error out
         });
 
         $('.create-location-preset-js').click(function(e) {
@@ -273,8 +267,6 @@ Kora.Fields.Show = function() {
 
             if(newEvent!=[])
                 Kora.Modal.open(createEventModal);
-            //else
-            //TODO::error out
         });
 
         $('.create-event-preset-js').click(function(e) {
@@ -303,7 +295,7 @@ Kora.Fields.Show = function() {
     }
 
     function initializeComboPresetModals() {
-        //TODO::Allow application of presets for individual field types in a combo list
+        //Allow application of presets for individual field types in a combo list
     }
 
     function scrollTop (allScrolls) {

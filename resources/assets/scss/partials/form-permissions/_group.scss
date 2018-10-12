@@ -26,9 +26,9 @@
   .content {
     .allowed-actions {
       max-width: 350px;
-      .action:last-of-type {
+      .action:not(:first-of-type) {
         display: block;
-        padding: 15px 0 0;
+        padding: 0 0 15px;
       }
     }
   }
@@ -40,9 +40,8 @@
       padding-bottom: 25px;
 
       .action {
-        &:first-of-type {
-          padding-top: 0;
-        }
+        display: block;
+        padding: 0 0 15px;
       }
     }
   }

@@ -16,7 +16,7 @@
           <ul class="drawer-deep-menu drawer-deep-menu-js">
             @foreach($plugin->menus() as $menu)
               <li class="drawer-deep-menu-link">
-                <a class="padding-fix" href="{{ config('app.url').'plugins/'.$plugin->url.'/loadView/'.$menu->url }}">
+                <a class="padding-fix" href="{{ url('plugins/'.$plugin->url.'/loadView/'.$menu->url) }}">
                   <span>{{ $menu->name }}</span>
                 </a>
               </li>

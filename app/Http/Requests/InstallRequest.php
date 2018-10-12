@@ -29,11 +29,10 @@ class InstallRequest extends Request {
     public function rules()
     {
         return [
-            'db_driver'=>'required|in:mysql,pgsql,sqlsrv,sqlite',
-            'db_host'=>'required_if:db_driver,mysql,pgsql,sqlsrv',
-            'db_database'=>'required_if:db_driver,mysql,pgsql,sqlsrv|alpha_dash',
-            'db_username'=>'required_if:db_driver,mysql,pgsql,sqlsrv',
-            'db_password'=>'required_if:db_driver,mysql,pgsql,sqlsrv',
+            'db_host'=>'required',
+            'db_database'=>'required|alpha_dash',
+            'db_username'=>'required',
+            'db_password'=>'required',
             'db_prefix'=>'required|alpha_dash',
             'user_username'=>'required|alpha_dash',
             'user_email'=>'required|email',
@@ -50,9 +49,7 @@ class InstallRequest extends Request {
             'mail_username'=>'required',
             'mail_password'=>'required',
             'recaptcha_public_key'=>'required',
-            'recaptcha_private_key'=>'required',
-            'baseurl_url'=>'required',
-            'basepath'=>'required'
+            'recaptcha_private_key'=>'required'
         ];
     }
 }

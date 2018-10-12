@@ -43,7 +43,7 @@ class CreateSchedulefieldsTable extends Migration {
 			$table->timestamps();
 		});
 
-		DB::statement("ALTER TABLE ". env("DB_PREFIX") ."schedule_support ADD FULLTEXT search_supp(`desc`)");
+		DB::statement("ALTER TABLE ". config('database.connections.mysql.prefix') ."schedule_support ADD FULLTEXT search_supp(`desc`)");
 	}
 
 	/**

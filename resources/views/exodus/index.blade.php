@@ -19,7 +19,7 @@
             <div class="content-sections">
               <div class="content-sections-scroll">
                 <a href="#database" class="database-link underline-middle active">Database Information</a>
-                <span class="progression-tab"></span>
+                <div class="tab-wrap"><span class="progression-tab"></span></div>
                 <a href="#projects" class="projects-link">Project Selection</a>
               </div>
             </div>
@@ -28,7 +28,7 @@
 @stop
 
 @section('body')
-    {!! Form::open(['url' => action('ExodusController@migrate'), 'id' => 'k2_form']) !!}
+    {!! Form::open(['url' => action('ExodusController@migrate'), 'id' => 'k2_form', 'class' => 'center']) !!}
         <section class="exodus-database">
             <div class="form-group">
                 {!! Form::label('host', 'Kora 2 Database Host') !!}

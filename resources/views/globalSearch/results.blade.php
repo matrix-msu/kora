@@ -9,11 +9,11 @@
 @stop
 
 @section('stylesheets')
-    <link rel="stylesheet" type="text/css" href="{{ config('app.url') }}assets/css/vendor/fullcalendar/fullcalendar.css"/>
-    <link rel="stylesheet" type="text/css" href="{{ config('app.url') }}assets/css/vendor/leaflet/leaflet.css"/>
-    <link rel="stylesheet" type="text/css" href="{{ config('app.url') }}assets/css/vendor/slick/slick.css"/>
-    <link rel="stylesheet" type="text/css" href="{{ config('app.url') }}assets/css/vendor/slick/slick-theme.css"/>
-    <link rel="stylesheet" type="text/css" href="{{ config('app.url') }}assets/css/vendor/jplayer/pink.flag/css/jplayer.pink.flag.min.css"/>
+    <link rel="stylesheet" type="text/css" href="{{ url('assets/css/vendor/fullcalendar/fullcalendar.css') }}"/>
+    <link rel="stylesheet" type="text/css" href="{{ url('assets/css/vendor/leaflet/leaflet.css') }}"/>
+    <link rel="stylesheet" type="text/css" href="{{ url('assets/css/vendor/slick/slick.css') }}"/>
+    <link rel="stylesheet" type="text/css" href="{{ url('assets/css/vendor/slick/slick-theme.css') }}"/>
+    <link rel="stylesheet" type="text/css" href="{{ url('assets/css/vendor/jplayer/pink.flag/css/jplayer.pink.flag.min.css') }}"/>
 @stop
 
 @section('header')
@@ -97,13 +97,13 @@
                 @endforeach
 
                 @include('partials.records.pagination')
+
+                <div class="form-group search-button-container mt-xxxl">
+                  <a class="btn half-sub-btn to-top">Try Another Search</a>
+                </div>
             @else
               @include('partials.records.no-records')
             @endif
-
-			<div class="form-group search-button-container mt-xxxl">
-				<a class="btn half-sub-btn to-top">Try Another Search</a>
-			</div>
 
         </section>
     </section>
@@ -116,7 +116,7 @@
 @section('javascripts')
     @include('partials.records.javascripts')
 
-    <script src="{{ config('app.url') }}assets/javascripts/vendor/leaflet/leaflet.js"></script>
+    <script src="{{ url('assets/javascripts/vendor/leaflet/leaflet.js') }}"></script>
 
     <script type="text/javascript">
         var deleteRecordURL = "";

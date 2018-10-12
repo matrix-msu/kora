@@ -60,7 +60,17 @@
             @endforeach
           </select>
         </div>
-
+		
+		<div class="form-group mt-xxl">
+		  <label for="emails">Not Listed Above? Invite Users Via Email</label>
+		  <input type="text" class="text-input" id="emails-new-perm-group" name="emails" placeholder="Enter invitee email(s) here. Seperate multiple emails with a space or a comma.">
+		</div>
+		
+		<div class="form-group mt-xxl">
+		  <label for="message">Include a Personal Message?</label>
+		  <textarea class="text-area" id="message-new-perm-group" name="message" placeholder="Provide further details to be sent to added and invited users. Including a personal message is optional."></textarea>
+		</div>
+		
         <div class="form-group mt-xxl add-users-submit add-users-submit-js">
           {!! Form::submit('Create New Permissions Group',['class' => 'btn']) !!}
         </div>

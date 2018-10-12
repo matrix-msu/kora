@@ -249,6 +249,10 @@ class UserController extends Controller {
             // Must create user preference
             $preference = new Preference;
             $preference->user_id = $user->id;
+            $preference->use_dashboard = 1;
+            $preference->logo_target = 1;
+            $preference->proj_page_tab_selection = 3;
+            $preference->single_proj_page_tab_selection = 3;
             $preference->created_at = Carbon::now();
             $preference->save();
         }
@@ -310,6 +314,7 @@ class UserController extends Controller {
             $preference = Preference::where('user_id', '=', $user->id)->first();
 
             if (is_null($preference)) {
+                $preference = new Preference();
                 $preference->use_dashboard = 1;
                 $preference->logo_target = 1;
                 $preference->proj_page_tab_selection = 3;
@@ -350,8 +355,8 @@ class UserController extends Controller {
      */
     public function changepicture(Request $request, $user) {
         $file = $request->profile;
-        $pDir = config('app.base_path') . 'storage/app/profiles/'.$user->id.'/';
-        $pURL = config('app.storage_url') . 'profiles/'.$user->id.'/';
+        $pDir = storage_path('app/profiles/'.$user->id.'/');
+        $pURL = url('app/profiles/'.$user->id).'/';
 
         //remove old pic
         $oldFile = $pDir.$user->profile;

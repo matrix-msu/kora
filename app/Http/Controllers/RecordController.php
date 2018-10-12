@@ -354,7 +354,7 @@ class RecordController extends Controller {
 
         $existingRIDS = Record::where('fid','=',$fid)->pluck('rid')->toArray();
 
-        $basePath = config('app.base_path').'storage/app/files/p'.$pid.'/f'.$fid;
+        $basePath = storage_path('app/files/p'.$pid.'/f'.$fid);
 
         //for each 'r###' directory in $basePath
         foreach (new \DirectoryIterator($basePath) as $rDir) {
@@ -650,7 +650,7 @@ class RecordController extends Controller {
         $pid = $form->pid;
         $filesize = 0;
 
-        $basedir = config('app.base_path') . "storage/app/files/p".$pid."/f".$fid;
+        $basedir = storage_path('app/files/p'.$pid.'/f'.$fid);
         $filesize += self::dirCrawl($basedir);
 
         $filesize = self::fileSizeConvert($filesize);

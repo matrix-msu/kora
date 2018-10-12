@@ -156,7 +156,7 @@
 
 <div class="email">
     <div class="header max-width-large">
-        <img src="{{ config('app.url') }}assets/logos/k3Dummy.jpg" alt="Logo" title="Logo">
+        <img src="{{ url('assets/logos/k3Dummy.jpg') }}" alt="Logo" title="Logo">
     </div>
 
     <div class="content max-width-regular">
@@ -181,7 +181,6 @@
         <div class="footer-text">@yield('footer-text')</div>
 
         <div class="footer-email">
-            {{--(username, <a class="bold-highlight" href="mailto:useremail@msu.edu">useremail@example.com</a>)--}}
             @yield('footer-email')
         </div>
     </div>

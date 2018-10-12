@@ -1,4 +1,4 @@
-<div class="no-presets pt-xxxl">
+<div class="no-presets pt-xxxl pb-xxxl center">
   <div class="top pb-xxxl">
     <div class="line"></div>
     <i class="icon icon-formAssociations---EmptyState"></i>

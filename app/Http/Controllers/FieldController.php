@@ -281,7 +281,7 @@ class FieldController extends Controller {
         if(!self::checkPermissions($fid, 'delete'))
             return redirect()->action('FormController@show', ['pid' => $pid, 'fid' => $fid])->with('k3_global_error', 'cant_delete_field');
 
-        $field = self::getField($flid);
+        $field = FieldController::getField($flid);
         $pageID = $field->page_id; //capture before delete
         $field->delete();
 
@@ -294,8 +294,13 @@ class FieldController extends Controller {
             return response()->json(["status"=>true, "message"=>"deleted"], 200);
 	}
 
-	//TODO::is this needed or used?
+    /**
+     * Validates a field and its basic options.
+     *
+     * @return JsonResponse
+     */
     public function validateFieldFields(FieldRequest $request) {
+        //Note:: This does work. The FieldRequest class validates the field itself, and if we get here, we return all clear!
         return response()->json(["status"=>true, "message"=>"Form Valid", 200]);
     }
 
@@ -383,7 +388,7 @@ class FieldController extends Controller {
     }
 
     /**
-     * View single image from a record
+     * View single image/video/audio/document from a record
      *
      * @param  int $pid - Project ID
      * @param  int $fid - Form ID
@@ -394,9 +399,9 @@ class FieldController extends Controller {
      */
     public function singleResource($pid, $fid, $rid, $flid, $filename) {
         $relative_src = 'files/p'.$pid.'/f'.$fid.'/r'.$rid.'/fl'.$flid.'/'.$filename;
-        $src = config('app.storage_url') . $relative_src;
+        $src = url('app/'.$relative_src);
 
-        if (!file_exists('app/'.$relative_src)) {
+        if (!file_exists(storage_path('app/'.$relative_src))) {
             // File does not exist
             dd($filename . ' not found');
         }
@@ -434,5 +439,25 @@ class FieldController extends Controller {
         return response()->file('app/'.$relative_src, [
             'Content-Type' => $content_types
         ]);
+    }
+
+    /**
+     * View single image/video/audio/document from a record
+     *
+     * @param  int $pid - Project ID
+     * @param  int $fid - Form ID
+     * @param  int $rid - Record ID
+     * @param  int $flid - Field ID
+     * @param  string $filename - Image filename
+     * @return Redirect
+     */
+    public function singleGeolocator($pid, $fid, $rid, $flid) {
+        $field = self::getField($flid);
+        $record = RecordController::getRecord($rid);
+        $typedField = $field->getTypedFieldFromRID($rid);
+
+        //dd($typedField);
+
+        return view('fields.singleGeolocator', compact('field', 'record', 'typedField'));
     }
 }

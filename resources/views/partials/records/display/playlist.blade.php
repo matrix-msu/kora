@@ -20,7 +20,7 @@
                     </div>
 
                     <audio class="audio-clip audio-clip-js">
-                        <source src="{{config('app.storage_url').'files/p'.$form->pid.'/f'.$form->fid.'/r'.$record->rid.'/fl'.$field->flid.'/'.$filename}}" type="{{explode('[Type]',$aud)[1]}}">
+                        <source src="{{url('app/files/p'.$form->pid.'/f'.$form->fid.'/r'.$record->rid.'/fl'.$field->flid.'/'.$filename)}}" type="{{explode('[Type]',$aud)[1]}}">
                         Your browser does not support the audio element
                     </audio>
                 </div>
@@ -44,8 +44,8 @@
 
 <!--<div id="jp_container_{{$field->flid}}_{{$record->rid}}" class="jp-video jp-video-270p jp-audio-js jp-center" role="application" aria-label="media player"
     audio-id="{{$field->flid}}_{{$record->rid}}"
-    audio-link="{{config('app.storage_url').'files/p'.$form->pid.'/f'.$form->fid.'/r'.$record->rid.'/fl'.$field->flid.'/'}}"
-    swf-path="{{config('app.base_path')}}public/assets/javascripts/vendor/jplayer/jquery.jplayer.swf">
+    audio-link="{{url('app/files/p'.$form->pid.'/f'.$form->fid.'/r'.$record->rid.'/fl'.$field->flid).'/'}}"
+    swf-path="{{public_path('assets/javascripts/vendor/jplayer/jquery.jplayer.swf')}}">
     @foreach(explode('[!]',$typedField->audio) as $key => $aud)
         @if($aud != '')
             <span class="jp-audio-file-js hidden" audio-name="{{explode('[Name]',$aud)[1]}}" audio-type="{{explode('[Type]',$aud)[1]}}"></span>

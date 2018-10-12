@@ -29,7 +29,7 @@ class CreateGalleryfieldsTable extends Migration {
 			$table->foreign('flid')->references('flid')->on('fields')->onDelete('cascade');
 		});
 
-		DB::statement("ALTER TABLE ". env("DB_PREFIX") ."gallery_fields ADD FULLTEXT search_gal(`images`)");
+		DB::statement("ALTER TABLE ". config('database.connections.mysql.prefix') ."gallery_fields ADD FULLTEXT search_gal(`images`)");
 	}
 
 	/**

@@ -11,7 +11,7 @@ class UpdateController extends Controller {
 
     /*
     |--------------------------------------------------------------------------
-    | Update Controller (TODO::Refactor updates)
+    | Update Controller
     |--------------------------------------------------------------------------
     |
     | This controller handles version management of Kora3
@@ -39,12 +39,15 @@ class UpdateController extends Controller {
      */
     public function index() {
         //Determine if the user installed Kora 3 using Git (.git directory exists)
-        $git = is_dir( config('app.base_path'). DIRECTORY_SEPARATOR . '.git');
+        $git = is_dir( base_path('.git'));
 
         //Determine if an update is needed (this is determined independent of how Kora was acquired).
         $update = self::checkVersion();
+        $notes = self::getCurrentNotes();
+        $ready = self::hasPulled();
+        $currVer = self::getCurrentVersion();
 
-        return view('update.index', compact('git', 'update'));
+        return view('update.index', compact('git', 'update', 'notes', 'ready', 'currVer'));
     }
 
     /**
@@ -79,7 +82,25 @@ class UpdateController extends Controller {
         $pos = strpos($sub, "<");
 
         //Current version of Kora 3
-        return substr($sub, 0, $pos);
+        return trim(substr($sub, 0, $pos));
+    }
+
+    /**
+     * Fetches the version number from Github.
+     *
+     * @return string - Version number
+     */
+    static public function getCurrentNotes() {
+        //
+        // Get the html of the github page, then find the patch notes in the html.
+        //
+        $html = file_get_contents(self::UPDATE_PAGE);
+
+        $parts = explode("<!--PATCH_START-->\n\t\t\t", $html)[1];
+        $notes = explode("\n\t\t\t<!--PATCH_END-->", $parts)[0];
+
+        //Current version of Kora 3
+        return $notes;
     }
 
 
@@ -94,46 +115,24 @@ class UpdateController extends Controller {
         set_time_limit(1200);
 
         //
-        // Make new entries in the scripts table for
-        // those that do not exist yet (ignores '.' and '..')
+        // Run scripts that have not yet been run.
         //
-        $scriptNames = array_diff(scandir(config('app.base_path'). "scripts"), array('..', '.'));
-        foreach($scriptNames as $scriptName) {
-            if(is_null(Script::where('filename', '=', $scriptName)->first())) {
-                $script = new Script();
-                $script->hasRun = false;
-                $script->filename = $scriptName;
+        foreach(Script::all() as $script) {
+            if(!$script->hasRun) {
+                $includeString = base_path('scripts/' . $script->filename);
+                include $includeString;
+                $script->hasRun = true;
                 $script->save();
             }
         }
+        self::refresh();
+        self::storeVersion();
 
-        if(self::hasPulled()) {
-            //
-            // Run scripts that have not yet been run.
-            //
-            foreach(Script::all() as $script) {
-                if(!$script->hasRun) {
-                    $includeString = config('app.base_path') . 'scripts' . DIRECTORY_SEPARATOR . $script->filename;
-                    include $includeString;
-                    $script->hasRun = true;
-                    $script->save();
-                }
-            }
-            self::refresh();
-            self::storeVersion();
-
-            //
-            // Inform the user they have successfully updated.
-            //
-            ignore_user_abort(false);
-            return redirect('update')->with('k3_global_success', 'k3_updated');
-        } else {
-            //
-            // Inform the user they have not successfully executed a git pull.
-            //
-            ignore_user_abort(false);
-            return redirect('update')->with('k3_global_error', 'k3_update_gitfail');
-        }
+        //
+        // Inform the user they have successfully updated.
+        //
+        ignore_user_abort(false);
+        return redirect('update')->with('k3_global_success', 'k3_updated');
     }
 
     /**
@@ -143,7 +142,7 @@ class UpdateController extends Controller {
         //
         // Clear cached views.
         //
-        $viewsPath = config('app.base_path') . DIRECTORY_SEPARATOR . 'storage' . DIRECTORY_SEPARATOR . 'framework' . DIRECTORY_SEPARATOR . 'views';
+        $viewsPath = storage_path('framework/views');
         $views = array_diff(scandir($viewsPath), array('..', '.', '.gitignore'));
 
         foreach($views as $view)
@@ -153,14 +152,13 @@ class UpdateController extends Controller {
         // Clear Laravel's caches.
         //
         Artisan::call('clear-compiled');
-        Artisan::call('optimize');
     }
 
     /**
      * Stores the newly updated version into the local DB.
      */
     private function storeVersion() {
-        $v = new Version();
+        $v = Version::all()->first();
         $v->version = self::getCurrentVersion();
         $v->save();
     }
@@ -171,6 +169,18 @@ class UpdateController extends Controller {
      * @return bool - Are executed
      */
     private function hasPulled() {
+        //Add missing files first
+        $scriptNames = array_diff(scandir(base_path("scripts")), array('..', '.', 'base_script.php'));
+        foreach($scriptNames as $scriptName) {
+            if(is_null(Script::where('filename', '=', $scriptName)->first())) {
+                $script = new Script();
+                $script->hasRun = false;
+                $script->filename = $scriptName;
+                $script->save();
+            }
+        }
+
+        //Then check if any havent run
         foreach(Script::all() as $script) {
             if(!$script->hasRun)   // We have found a script that has not run, hence the user has executed a git pull successfully.
                 return true;

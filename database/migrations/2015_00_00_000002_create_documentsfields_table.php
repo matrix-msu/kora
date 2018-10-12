@@ -29,7 +29,7 @@ class CreateDocumentsfieldsTable extends Migration {
 			$table->foreign('flid')->references('flid')->on('fields')->onDelete('cascade');
 		});
 
-		DB::statement("ALTER TABLE ". env("DB_PREFIX") ."documents_fields ADD FULLTEXT search_doc(`documents`)");
+		DB::statement("ALTER TABLE ". config('database.connections.mysql.prefix') ."documents_fields ADD FULLTEXT search_doc(`documents`)");
 	}
 
 	/**

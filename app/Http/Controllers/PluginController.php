@@ -41,9 +41,9 @@ class PluginController extends Controller {
     public function index() {
         $newPlugs = array();
 
-        foreach(new \DirectoryIterator(config('app.base_path') . 'storage/app/plugins/') as $folder) {
+        foreach(new \DirectoryIterator(storage_path('app/plugins/')) as $folder) {
             if($folder->isDir() && $folder->getFilename()!='.' && $folder->getFilename()!='..') {
-                $results = DB::select("select * from ".env('DB_PREFIX')."plugins where name = :name", ['name'=>$folder->getFilename()]);
+                $results = DB::select("select * from ".config('database.connections.mysql.prefix')."plugins where name = :name", ['name'=>$folder->getFilename()]);
                 if(sizeof($results)==0)
                     array_push($newPlugs,$folder->getFilename());
             }
@@ -64,7 +64,7 @@ class PluginController extends Controller {
         $values = array();
         $menus = array();
         $options = array();
-        $handle = fopen(config('app.base_path') . 'storage/app/plugins/' . $name . '/k3plugin.config', "r");
+        $handle = fopen(storage_path('app/plugins/' . $name . '/k3plugin.config'), "r");
         if($handle) {
             $values['name'] = $name;
             while(($buffer = fgets($handle, 4096)) !== false) {
@@ -143,24 +143,24 @@ class PluginController extends Controller {
 
         //plugin menus
         foreach($menus as $menu) {
-            DB::insert("insert into ".env('DB_PREFIX')."plugin_menus (plugin_id, name, url, `order`) values (?, ?, ?, ?)",
+            DB::insert("insert into ".config('database.connections.mysql.prefix')."plugin_menus (plugin_id, name, url, `order`) values (?, ?, ?, ?)",
                 [$plugin->id, $menu['name'], $menu['url'], $menu['order']]);
         }
 
         //plugin menus
         foreach($options as $option) {
-            DB::insert("insert into ".env('DB_PREFIX')."plugin_settings (plugin_id, `option`, value) values (?, ?, ?)",
+            DB::insert("insert into ".config('database.connections.mysql.prefix')."plugin_settings (plugin_id, `option`, value) values (?, ?, ?)",
                 [$plugin->id, $option['option'], $option['value']]);
         }
 
         //assign project group to plugin
-        DB::insert("insert into ".env('DB_PREFIX')."plugin_users (plugin_id, gid) values (?, ?)",
+        DB::insert("insert into ".config('database.connections.mysql.prefix')."plugin_users (plugin_id, gid) values (?, ?)",
             [$plugin->id, $proj->adminGID]);
 
         //import forms associated with plugin
-        foreach(new \DirectoryIterator(config('app.base_path') . 'storage/app/plugins/'.$name.'/Forms/') as $file) {
+        foreach(new \DirectoryIterator(storage_path('app/plugins/'.$name.'/Forms/')) as $file) {
             if($file->isFile())
-                $this->importForm($plugin->pid,config('app.base_path') . 'storage/app/plugins/'.$name.'/Forms/'.$file->getFilename());
+                $this->importForm($plugin->pid,storage_path('app/plugins/'.$name.'/Forms/'.$file->getFilename()));
         }
 
         return response()->json(["status"=>true,"message"=>"plugin_install_success"],200);
@@ -184,15 +184,15 @@ class PluginController extends Controller {
         //Update each option
         if(!is_null($options)) {
             foreach($options as $key=>$opt) {
-                DB::update("update ".env('DB_PREFIX')."plugin_settings set value=? where `option`= ?", [$opt,$key]);
+                DB::update("update ".config('database.connections.mysql.prefix')."plugin_settings set value=? where `option`= ?", [$opt,$key]);
             }
         }
 
         //Clear users in group and re-add
-        DB::delete("delete from ".env('DB_PREFIX')."project_group_user where project_group_id=? and user_id!=1",[$gid]);
+        DB::delete("delete from ".config('database.connections.mysql.prefix')."project_group_user where project_group_id=? and user_id!=1",[$gid]);
         if(!is_null($users)) {
             foreach($users as $uid) {
-                DB::insert("insert into ".env('DB_PREFIX')."project_group_user (project_group_id, user_id) values (?, ?)",
+                DB::insert("insert into ".config('database.connections.mysql.prefix')."project_group_user (project_group_id, user_id) values (?, ?)",
                     [$gid, $uid]);
             }
         }
@@ -441,7 +441,7 @@ class PluginController extends Controller {
     public function loadView($name, $view) {
         $fullName = Plugin::where('url','=',$name)->first()->name;
 
-        include(config('app.base_path').'storage/app/plugins/'.$fullName.'/'.$name.'.php');
+        include(storage_path('app/plugins/'.$fullName.'/'.$name.'.php'));
 
         $namespace = "App\\Http\\Controllers\\";
         $nameClass = "{$namespace}".$name;
@@ -462,7 +462,7 @@ class PluginController extends Controller {
     public function action($name, $action, Request $request) {
         $fullName = Plugin::where('url','=',$name)->first()->name;
 
-        include(config('app.base_path').'storage/app/plugins/'.$fullName.'/'.$name.'.php');
+        include(storage_path('app/plugins/'.$fullName.'/'.$name.'.php'));
 
         $namespace = "App\\Http\\Controllers\\";
         $nameClass = "{$namespace}".$name;

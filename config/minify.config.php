@@ -81,5 +81,5 @@ return array(
     |
     */
 
-	'base_url' => rtrim(env('BASE_URL'), '/')
+	'base_url' => url('').'/'
 );

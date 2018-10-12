@@ -103,6 +103,11 @@
     right: 0;
     text-align: center;
     top: 17px;
+
+    @media screen and (max-width: $max-mobile-xs-width) {
+      font-size: 80%;
+      margin-left: 30px;
+    }
   }
 
   .placeholder-alt {

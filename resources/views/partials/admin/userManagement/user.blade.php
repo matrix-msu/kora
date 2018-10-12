@@ -12,7 +12,7 @@
           </span>
           @if ($user->first_name) <span class="mr-xxs firstname">{{$user->first_name}}</span> @endif
           @if ($user->last_name) <span class="mr-m lastname">{{$user->last_name}}</span> @endif
-          @if ($user->username) <span class="mr-m username">{{$user->username}}</span> @endif
+          @if ($user->username) <span class="username">{{$user->username}}</span> @endif
         </span>
       </span>
     </div>

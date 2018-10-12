@@ -68,6 +68,9 @@
     .chosen-container-single {
       cursor: pointer;
       display: inline-block;
+      position: absolute;
+      right: 0;
+      top: 0;
 
       .chosen-single {
         span {
@@ -98,8 +101,10 @@
         max-height: 0;
         overflow: hidden;
         padding: 0 20px;
-        position: fixed;
+        position: absolute;
+        right: -10px;
         text-align: center;
+        width: 120px;
         z-index: 999;
 
         .active-result {

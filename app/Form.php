@@ -112,9 +112,7 @@ class Form extends Model {
         }
 
         // Delete support tables.
-        $support_tables = [ScheduleField::SUPPORT_NAME, GeolocatorField::SUPPORT_NAME, ComboListField::SUPPORT_NAME, AssociatorField::SUPPORT_NAME];
-
-        foreach($support_tables as $support_table) {
+        foreach(BaseField::$MAPPED_SUPPORT_FIELD_TYPES as $support_table) {
             DB::table($support_table)->where("fid", "=", $this->fid)->delete();
         }
 

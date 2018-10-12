@@ -28,7 +28,7 @@
     white-space: nowrap;
 
     .title & {
-      left: -25px;
+      left: -45px;
     }
 
     .page-header & {
@@ -39,6 +39,11 @@
     .backup .footer & {
       top: 0;
       left: -35px;
+    }
+
+    .content .footer & {
+      top: -30px;
+      left: -45px;
     }
 
     .field .footer & {
@@ -85,6 +90,43 @@
 
     .open-create-regex & {
       left: -140px;
+    }
+    
+    @media screen and (max-width: $max-mobile-xs-width) {
+      .title & {
+        left: -50px;
+      }
+
+      .page-header & {
+        top: 0;
+      }
+
+      .content .footer & {
+        top: -30px;
+        left: -30px;
+      }
+
+      .show-options & {
+        left: 0;
+      }
+
+      .filters .show-options span & {
+        left: -50px;
+      }
+
+      .show-options span:last-child & {
+        left: -90px;
+      }
+
+      .element-link-container & {
+        left: -10px;
+      }
+
+      .open-create-regex & {
+        left: 0;
+        top: -50px;
+        white-space: normal;
+      }
     }
   }
 

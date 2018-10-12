@@ -1,4 +1,4 @@
-<div class="no-revisions pt-xxxl">
+<div class="no-revisions center pt-xxxl">
   <div class="top pb-xxxl">
     <div class="line"></div>
     <i class="icon icon-recordRevisions-clock-EmptyState"></i>

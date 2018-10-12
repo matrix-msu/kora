@@ -115,7 +115,7 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
             $file = $request->file('profile');
             $filename = $file->getClientOriginalName();
             //path where file will be stored
-            $destinationPath = env('BASE_PATH') . 'storage/app/profiles/'.$user->id.'/';
+            $destinationPath = storage_path('app/profiles/'.$user->id.'/');
             //store filename in user model
             $user->profile = $filename;
             $user->save();
@@ -138,7 +138,7 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
 
         //Send email
         try {
-            Mail::send('emails.activation', compact('token'), function($message) {
+            Mail::send('emails.activation', compact('token'), function($message) use ($user) {
                 $message->from(env('MAIL_FROM_ADDRESS'));
                 $message->to($user->email);
                 $message->subject('Kora Account Activation');
@@ -565,11 +565,13 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
         DB::table("form_custom")->where("uid", "=", $this->id)->delete();
         DB::table("backup_support")->where("user_id", "=", $this->id)->delete();
         DB::table("global_cache")->where("user_id", "=", $this->id)->delete();
+        DB::table("preferences")->where("user_id", "=", $this->id)->delete();
 
         //Delete dashboard stuff
         $sections = DB::table("dashboard_sections")->where("uid", "=", $this->id)->get();
         foreach($sections as $sec) {
-            DashboardController::deleteSection($sec->id);
+            DB::table("dashboard_blocks")->where("sec_id", "=", $sec->id)->delete();
+            DB::table("dashboard_sections")->where("id", "=", $sec->id)->delete();
         }
 
         parent::delete();
@@ -1013,9 +1015,9 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
      */
     public function getProfilePicUrl() {
         if(!is_null($this->profile))
-            return config('app.storage_url') . 'profiles/'.$this->id.'/'.$this->profile;
+            return url('app/profiles/'.$this->id.'/'.$this->profile);
         else
-            return config('app.url') . 'assets/images/blank_profile.jpg';
+            return url('assets/images/blank_profile.jpg');
     }
 
     /**
@@ -1029,4 +1031,30 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
         else
             return 'blank_profile.jpg';
     }
+	
+	/**
+     * Returns full name if both first name and last name are defined,
+	 * otherwise return first or last name (whichever one is defined),
+	 * otherwise return username
+     *
+     * @return string identifier for user
+     */
+	public function getNameOrUsername()
+	{
+		$has_first = $this->first_name !== '';
+		$has_last = $this->last_name !== '';
+		
+		if ($has_first && $has_last) {
+			return $this->first_name . " " . $this->last_name;
+		}
+		else if (!$has_first && !$has_last) {
+			return $this->username;
+		}
+		else if ($has_first) {
+			return $this->first_name;
+		}
+		else {
+			return $this->last_name;
+		}
+	}
 }

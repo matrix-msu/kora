@@ -45,11 +45,19 @@ class AdvancedSearchController extends Controller {
         $processed = $this->processRequest($request->all());
         foreach($processed as $flid => $query) {
             $field = FieldController::getField($flid);
-            $result = $field->getTypedField()->advancedSearchTyped($flid, $query);
+            if(array_diff(array_keys($query),array($flid.'_negative',$flid.'_empty')) == [])
+                $result = [];
+            else
+                $result = $field->getTypedField()->advancedSearchTyped($flid, $query);
 
             //This is a negative search so we want the opposite results of what the search would produce
             if(isset($request[$flid."_negative"]))
                 $result = array_diff($notRids,$result);
+
+            if(isset($request[$flid."_empty"])) {
+                $empty = $field->getTypedField()->getEmptyFieldRecords($flid);
+                $this->imitateMerge($result, $empty);
+            }
 
             $results[] = $result;
         }
@@ -79,6 +87,12 @@ class AdvancedSearchController extends Controller {
         $form = FormController::getForm($fid);
 
         return view('advancedSearch.results', compact("form", "records", "total"));
+    }
+
+    private function imitateMerge(&$array1, &$array2) {
+        foreach($array2 as $i) {
+            $array1[] = $i;
+        }
     }
 
     private function imitateIntersect($s1,$s2) {
@@ -207,7 +221,7 @@ class AdvancedSearchController extends Controller {
                             if(isset($request[$flid.'_end_era']))
                                 $processed[$flid][$flid.'_end_era'] = $request[$flid.'_end_era'];
                         } else {
-                            //TODO::advanced error
+                            //advanced error
                         }
                         break;
                     case 'Number':
@@ -217,7 +231,7 @@ class AdvancedSearchController extends Controller {
                             if(isset($request[$flid.'_invert']))
                                 $processed[$flid][$flid.'_invert'] = $request[$flid.'_invert'];
                         } else {
-                            //TODO::advanced error
+                            //advanced error
                         }
                         break;
                     default:
@@ -228,6 +242,9 @@ class AdvancedSearchController extends Controller {
 
                 if(isset($request[$flid.'_negative']))
                     $processed[$flid][$flid.'_negative'] = $request[$flid.'_negative'];
+
+                if(isset($request[$flid.'_empty']))
+                    $processed[$flid][$flid.'_empty'] = $request[$flid.'_empty'];
             }
         }
 

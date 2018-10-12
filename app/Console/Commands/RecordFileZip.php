@@ -49,8 +49,8 @@ class RecordFileZip extends Command {
 
         $form = FormController::getForm($fid);
 
-        $path = config('app.base_path').'storage/app/files/p'.$form->pid.'/f'.$fid;
-        $zipPath = config('app.base_path').'storage/app/tmpFiles/'.$form->name.'_preppedZIP_CLI.zip';
+        $path = storage_path('app/files/p'.$form->pid.'/f'.$fid);
+        $zipPath = storage_path('app/tmpFiles/'.$form->name.'_preppedZIP_CLI.zip');
 
         // Initialize archive object
         $zip = new \ZipArchive();
@@ -77,7 +77,7 @@ class RecordFileZip extends Command {
                 }
             }
         } else {
-            echo "No record files in form: $form->name\n";
+            $this->info("No record files in form: $form->name");
 ;
             return '';
         }
@@ -85,6 +85,6 @@ class RecordFileZip extends Command {
         // Zip archive will be created only after closing object
         $zip->close();
 
-        echo "Success! File located at storage/app/tmpFiles/".$form->name."_preppedZIP_CLI.zip\n";
+        $this->info("Success! File located at storage/app/tmpFiles/".$form->name."_preppedZIP_CLI.zip");
     }
 }

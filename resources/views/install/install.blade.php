@@ -13,7 +13,6 @@
                 <a href="#admin" class="admin-link section underline-middle underline-middle-hover toggle-by-name">Admin</a>
                 <a href="#mail" class="mail-link section underline-middle underline-middle-hover toggle-by-name">Mail</a>
                 <a href="#recaptcha" class="recaptcha-link section underline-middle underline-middle-hover toggle-by-name">Recaptcha</a>
-                <a href="#base" class="base-link section underline-middle underline-middle-hover toggle-by-name">Base</a>
               </div>
             </div>
         </div>
@@ -39,7 +38,6 @@
             <a href="#admin" class="page-link admin-link">2</a>
             <a href="#mail" class="page-link mail-link">3</a>
             <a href="#recaptcha" class="page-link recaptcha-link">4</a>
-            <a href="#base" class="page-link base-link">5</a>
         </div>
         <div class="next page">
             <a href="#">

@@ -25,7 +25,7 @@
             <div class="content-sections sections-remove-js">
               <div class="content-sections-scroll">
                 <a href="#recordfile" class="recordfile-link underline-middle active">Upload Record Files</a>
-                <span class="progression-tab"></span>
+                <div class="tab-wrap"><span class="progression-tab"></span></div>
                 <a href="#recordmatch" class="recordmatch-link">Field Matching</a>
               </div>
             </div>

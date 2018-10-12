@@ -39,9 +39,7 @@ return [
 	|
 	*/
 
-	'url' => env('BASE_URL'),
-    'storage_url' => env('BASE_URL').'app/',
-    'base_path' => env('BASE_PATH'),
+	'url' => url('').'/',
 
 	/*
 	|--------------------------------------------------------------------------
@@ -79,9 +77,7 @@ return [
     |
     */
     'locales_supported' => collect([
-        ['en','English'],
-        //['fr','Français'],
-        //['es','Español']
+        ['en','English']
     ]),
 
 	/*
@@ -150,7 +146,6 @@ return [
 		'Illuminate\View\ViewServiceProvider',
 		'Collective\Html\HtmlServiceProvider',
 		'Illuminate\Broadcasting\BroadcastServiceProvider',
-		//'Chumper\Zipper\ZipperServiceProvider',
 
 		/*
 		 * Application Service Providers...
@@ -216,7 +211,6 @@ return [
 		'Flash'     => 'Laracasts\Flash\Flash',
 		'Geocoder'  => 'Toin0u\Geocoder\Facade\Geocoder',
         'Minify'    => 'Devfactory\Minify\Facades\MinifyFacade',
-		// 'Zipper'	=> 'Chumper\Zipper\Zipper'
 	],
 
 ];

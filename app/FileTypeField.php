@@ -69,7 +69,7 @@ abstract class FileTypeField extends BaseField {
     public static function saveTmpFile($flid) {
         $field = FieldController::getField($flid);
         $uid = \Auth::user()->id;
-        $dir = config('app.base_path').'storage/app/tmpFiles/f'.$flid.'u'.$uid;
+        $dir = storage_path('app/tmpFiles/f'.$flid.'u'.$uid);
 
         $maxFileNum = FieldController::getFieldOption($field, 'MaxFiles');
         $fileNumRequest = sizeof($_FILES['file'.$flid]['name']);
@@ -161,7 +161,7 @@ abstract class FileTypeField extends BaseField {
         $field = FieldController::getField($flid);
 
         // Check if file exists in app/storage/file folder
-        $file_path = config('app.base_path').'storage/app/files/p'.$record->pid.'/f'.$record->fid.'/r'.$record->rid.'/fl'.$field->flid . '/' . $filename;
+        $file_path = storage_path('app/files/p'.$record->pid.'/f'.$record->fid.'/r'.$record->rid.'/fl'.$field->flid . '/' . $filename);
         if(file_exists($file_path)) {
             // Send Download
             return response()->download($file_path, $filename, [
@@ -185,10 +185,10 @@ abstract class FileTypeField extends BaseField {
         $field = FieldController::getField($flid);
 
         // Check if directory app/storage/file folder exists
-        $dir_path = config('app.base_path').'storage/app/files/p'.$record->pid.'/f'.$record->fid.'/r'.$record->rid.'/fl'.$field->flid;
+        $dir_path = storage_path('app/files/p'.$record->pid.'/f'.$record->fid.'/r'.$record->rid.'/fl'.$field->flid);
         if(file_exists($dir_path)) {
             $zip_name = $filename . '_export' . date("Y_m_d_His") . '.zip';
-            $zip_dir = config('app.base_path').'storage/app/' . ($filename != '' ? $filename : 'zip_exports');
+            $zip_dir = storage_path('app/' . ($filename != '' ? $filename : 'zip_exports'));
             $zip = new ZipArchive;
 
             if ($zip->open($zip_dir . '/' . $zip_name, ZipArchive::CREATE) === TRUE) {
