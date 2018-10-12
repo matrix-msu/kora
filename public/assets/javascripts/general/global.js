@@ -347,7 +347,6 @@ function multiselect_placeholder_injection()
 multiselect_placeholder_injection();
 setInterval(multiselect_placeholder_injection, 451);
 
-//PRE LOADER STUFF
 function display_loader() {
 	$("#preloader").css("display", "");
 }
@@ -362,7 +361,7 @@ $( document ).ajaxSend(function(event, xhr, options) {
   var display = true;
 
   // loader exclusion cases for AJAX requests
-  if (url.search("validate") != -1)
+  if (url.search("validate") != -1) // exclude validation requests
   {
 	display = false;
   }
@@ -370,8 +369,18 @@ $( document ).ajaxSend(function(event, xhr, options) {
   if (display) { display_loader(); }
 });
 
-$( document ).ajaxComplete(function() {
-  hide_loader();
+$( document ).ajaxComplete(function(event, xhr, options) {
+  var url = options.url;
+  var hide = true;
+  
+  // hide loader exclusion cases for AJAX requests
+  if (url.search("validate") != -1) { // exclude validation requests
+	hide = false;
+  }
+  
+  if (hide) {
+    hide_loader();
+  }
 });
 
 
