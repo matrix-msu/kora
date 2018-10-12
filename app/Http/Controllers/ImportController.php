@@ -1741,9 +1741,10 @@ class ImportController extends Controller {
         $currData = array();
 
         if($handle) {
+            echo "Processing file...\n";
             while(($line = fgets($handle)) !== false) {
                 $line = trim($line);
-                if(mb_substr($line, 0, 6) == "Record") {
+                if(mb_substr($line, 0, 8) == "<Record>") {
                     //get kid if applicable
                     $parts = explode(' ', $line);
                     if(sizeof($parts) == 2)
@@ -1754,9 +1755,16 @@ class ImportController extends Controller {
                     if($state == "start")
                         $records .= "<Record kid='$kid'>";
                     else {
-                        $records .= self::processUtf8Data($currField, $currData);
+                        $processed = self::processUtf8Data($currField, $currData);
                         $currData = array();
-                        $records .= "</$currField></Record><Record kid='$kid'>"; //End last field and record before starting over
+                        if(!$processed) {
+                            //Data blank so remove start tag for last field, the finish record
+                            $records = preg_replace('/<'.$currField.'>$/', '', $records);
+                            $records .= "</Record><Record kid='$kid'>";
+                        } else {
+                            $records .= $processed;
+                            $records .= "</$currField></Record><Record kid='$kid'>"; //End last field and record before starting over
+                        }
                     }
 
                     $state = "record";
@@ -1766,9 +1774,16 @@ class ImportController extends Controller {
                     if($state == "record") {
                         $records .= "<$slug>";
                     } else {
-                        $records .= self::processUtf8Data($currField, $currData);
+                        $processed = self::processUtf8Data($currField, $currData);
                         $currData = array();
-                        $records .= "</$currField><$slug>"; //End last field before moving on to next field
+                        if(!$processed) {
+                            //Data blank so remove start tag for last field, then start next field
+                            $records = preg_replace('/<'.$currField.'>$/', '', $records);
+                            $records .= "<$slug>";
+                        } else {
+                            $records .= $processed;
+                            $records .= "</$currField><$slug>"; //End last field before moving on to next field
+                        }
                     }
 
                     $currField = $slug;
@@ -1776,18 +1791,32 @@ class ImportController extends Controller {
                     $state = "field";
                 } else {
                     //We are gathering data
-                    $currData[] = $line;
+                    $currData[] = trim($line);
 
                     $state = "data";
                 }
             }
 
-            if($state == "data") {
-                $records .= self::processUtf8Data($currField, $currData);
-                $records .= "</$currField></Record>"; //End last field and record
+            echo "Cleaning up XML...\n";
+
+            switch($state) {
+                case "data":
+                    $records .= self::processUtf8Data($currField, $currData);
+                    $records .= "</$currField></Record>"; //End last field and record
+                    break;
+                case "field":
+                    $records = preg_replace('/<'.$slug.'>$/', '', $records);
+                    $records .= "</Record>"; //End last record
+                    break;
+                default:
+                    break;
             }
 
             $records .= '</Records>';
+
+            //remove bad records
+            $records = str_replace("<Record kid=''></Record>","",$records);
+            $records = str_replace("<Record kid=''>","<Record>",$records);
 
             fclose($handle);
 
@@ -1801,7 +1830,7 @@ class ImportController extends Controller {
         if(sizeof($dataArray)==1)
             $data = $dataArray[0];
         else
-            $data = implode("\n",$dataArray);
+            $data = implode(PHP_EOL,$dataArray);
 
         if($slug=="reverseAssociations")
             $type = "reverseAssociations";
@@ -1809,6 +1838,9 @@ class ImportController extends Controller {
             $field = FieldController::getField($slug);
             $type = $field->type;
         }
+
+        if($data == "")
+            return false;
 
         switch($type) {
             case Field::_TEXT:
