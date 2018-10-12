@@ -1,5 +1,11 @@
 <?php
 
+try {
+    $url = url('').'/';
+} catch (Error $e) {
+    $url = '/';
+}
+
 return array(
 
     /*
@@ -81,5 +87,5 @@ return array(
     |
     */
 
-	'base_url' => url('').'/'
+	'base_url' => $url
 );
