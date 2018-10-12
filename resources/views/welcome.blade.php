@@ -78,7 +78,7 @@
   
   <script type="text/javascript">
     var CSRFToken = '{{ csrf_token() }}';
-    var emailURL = '{{ action('Auth\ResetPasswordController@checkEmailInDB') }}';
+    var emailURL = '{{ action('Auth\ResetPasswordController@preValidateEmail') }}';
   </script>
 
   <script>
@@ -102,6 +102,8 @@
             $('.pass-error-js').text('The email must be a valid email address.');
             $('.pass-email-js').addClass('error');
         } else {
+			display_loader();
+			
 			$.ajax({
 				url: emailURL,
 				method: 'POST',
