@@ -456,7 +456,7 @@ Kora.Fields.Options = function(fieldType) {
             e.preventDefault();
 
 			$.each($('.default-input-js'), function(){
-				if ($(this).val() == '') {
+				if ($(this).val() == ('' || null)) {
 					if (!$('.add-combo-value-js').hasClass('disabled'))
 						$('.add-combo-value-js').addClass('disabled');
 					return false;
