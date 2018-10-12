@@ -77,24 +77,24 @@ class ResetPasswordController extends Controller
 	
 	public function sendResetResponse($response)
     {
-		return redirect()->action('ProjectController@index')->with('k3_global_success', 'password_reset');;
+		return redirect()->action('ProjectController@index')->with('k3_global_success', 'password_reset');
     }
 	
-    public function checkEmailInDB(Request $request)
+    public function preValidateEmail(Request $request)
     {
         $validator = Validator::make($request->all(), [
            'email' => 'required|email',
         ]);
         
         if ($validator->fails()) {
-            return "Invalid";
+			return response()->json(['user' => ''], 422);
         }
 		
 		$user = User::where('email', '=', $request->email)->first();
 		if ($user !== null) {
-			return "Exists";
+			return response()->json(['response' => 'Found'], 200);
 		} else {
-			return "Not Exists";
+			return response()->json(['response' => 'Not Found'], 200);
 		}
     }
 	

@@ -111,19 +111,24 @@
 					"_token": CSRFToken,
 					"email": email
 				},
-				success: function(response) {
-					if (response == "Exists") {
+				success: function(data) {
+					var response = data.response
+					
+					if (response == "Found") {
 						$('.pass-error-js').text('');
 						setTimeout(function(){
 							$('.pass-form-js').submit();
 						}, 10);
-					} else if (response == "Invalid") {
-						$('.pass-error-js').text('The email must be a valid email address.');
-						$('.pass-email-js').addClass('error');
-					} else if (response == "Not Exists") {
+					} else if (response == "Not Found") {
+						hide_loader();
 						$('.pass-error-js').text('There is no user associated with that email');
 						$('.pass-email-js').addClass('error');
 					}
+				},
+				error: function(response) {
+					$('.pass-error-js').text('The email must be a valid email address.');
+					$('.pass-email-js').addClass('error');
+					hide_loader();
 				}
 			});
         }
