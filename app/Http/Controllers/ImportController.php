@@ -1746,11 +1746,7 @@ class ImportController extends Controller {
                 $line = trim($line);
                 if(mb_substr($line, 0, 8) == "<Record>") {
                     //get kid if applicable
-                    $parts = explode(' ', $line);
-                    if(sizeof($parts) == 2)
-                        $kid = $parts[1];
-                    else
-                        $kid = "";
+                    $kid = explode('<Record>', $line)[1];
 
                     if($state == "start")
                         $records .= "<Record kid='$kid'>";
