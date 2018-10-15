@@ -103,6 +103,10 @@
     margin-top: 40px;
     padding: 15px 20px;
 
+    &:hover {
+    	background: palette('white', base, 0.9);
+    }
+
     .add-options {
       background: transparent;
       border: none;
