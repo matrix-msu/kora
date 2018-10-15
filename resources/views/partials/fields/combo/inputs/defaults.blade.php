@@ -35,10 +35,11 @@
             <select id="year_{{$fnum}}" name="year_{{$fnum}}" class="single-select preset-clear-chosen-js default-input-js" data-placeholder="Select a Year">
                 <option value=""></option>
                 <?php
-                $currYear=0;
-                if($field->default!='' && explode('[Y]',$field->default)[1]=='0'){
-                    $currYear=\Carbon\Carbon::now()->year;
-                }
+                //$currYear=0;
+                //if($field->default!='' && explode('[Y]',$field->default)[1]=='0'){
+                //    $currYear=\Carbon\Carbon::now()->year;
+		//}
+		
                 $i = \App\ComboListField::getComboFieldOption($field, "Start", $fnum);
                 $j = \App\ComboListField::getComboFieldOption($field, "End", $fnum);
                 while ($i <= $j) {
