@@ -29,7 +29,7 @@ class CreateVideofieldsTable extends Migration {
 			$table->foreign('flid')->references('flid')->on('fields')->onDelete('cascade');
 		});
 
-		DB::statement("ALTER TABLE ". env("DB_PREFIX") ."video_fields ADD FULLTEXT search_vid(`video`)");
+		DB::statement("ALTER TABLE ". config('database.connections.mysql.prefix') ."video_fields ADD FULLTEXT search_vid(`video`)");
 	}
 
 	/**

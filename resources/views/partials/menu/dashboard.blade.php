@@ -17,7 +17,7 @@
               <a href="#">Edit Dashboard</a>
           </li>
           <li class="link">
-              <a href="#">Add Dashboard Block</a>
+              <a href="{{ url('/dashboard?state=1') }}">Add Dashboard Block</a>
           </li>
       </ul>
   </li>

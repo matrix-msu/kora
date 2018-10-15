@@ -43,8 +43,14 @@
       box-shadow: 0 40px 85px 0 palette('box-shadow', base, 0.05);
       padding: 40px 40px 20px;
 
-      div:last-of-type {
+      > div:last-of-type {
         margin-bottom: 20px;
+      }
+    }
+
+    @media screen and (max-width: $max-mobile-xs-width) {
+      .error-message {
+        padding: 0 0 10px;
       }
     }
   }

@@ -16,6 +16,10 @@
     margin: #{map-get($spacing, xxxl)} auto;
     max-width: calc(#{ $max-site-width } - 600px);
     width: $max-site-width;
+
+    @media screen and (max-width: $max-mobile-xs-width) {
+      margin-top: 30px;
+    }
   }
 
   .required-tip {

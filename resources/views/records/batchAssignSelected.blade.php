@@ -11,7 +11,7 @@
 @stop
 
 @section('stylesheets')
-    <link rel="stylesheet" href="{{ config('app.url') }}assets/css/vendor/datetimepicker/jquery.datetimepicker.min.css" />
+    <link rel="stylesheet" href="{{ url('assets/css/vendor/datetimepicker/jquery.datetimepicker.min.css') }}" />
 @stop
 
 @section('header')
@@ -70,7 +70,7 @@
 @section('footer')
     @include('partials.records.javascripts')
 
-    <script src="{{ config('app.url') }}assets/javascripts/vendor/ckeditor/ckeditor.js"></script>
+    <script src="{{ url('assets/javascripts/vendor/ckeditor/ckeditor.js') }}"></script>
 
     <script>
         geoConvertUrl = '{{ action('FieldAjaxController@geoConvert',['pid' => $form->pid, 'fid' => $form->fid, 'flid' => 0]) }}';

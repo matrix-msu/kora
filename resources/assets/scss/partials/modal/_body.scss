@@ -30,6 +30,16 @@
     display: block;
   }
 
+  @media screen and (max-width: $max-mobile-xs-width) {
+    .actions .action {
+      padding: 0 0 10px;
+
+      &:last-of-type {
+        padding: 0;
+      }
+    }
+  }
+
   .designated {
     white-space: normal;
 

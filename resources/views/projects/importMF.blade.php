@@ -16,7 +16,6 @@
                 <i class="icon icon-record-import"></i>
                 <span class="header-text-js">Import Multi Form Records</span>
             </h1>
-            {{--TODO::Add documentation link to paragraph--}}
             <p class="description desc-text-js">You can import records for multiple Forms via XML or JSON Files. Upload
                 one file for each Form, and then enter the forms in order in the list below. Compared to the records
                 import page, there is no matchup sequence so file field names must match the expected Unique Field
@@ -46,7 +45,7 @@
             <div class="form-group new-object-button low-margin">
                 <input type="button" class="kora-file-button-js" value="Add New File">
                 <input type="file" name="file0[]" class="kora-file-upload-js hidden"
-                       data-url="{{ config('app.url') }}saveTmpFileMF"
+                       data-url="{{ url('saveTmpFileMF') }}"
                        multiple accept=".xml,.json">
             </div>
 
@@ -97,10 +96,10 @@
 
     <script type="text/javascript">
         var CSRFToken = '{{ csrf_token() }}';
-        var deleteFileUrl = '{{ config('app.url') }}deleteTmpFileMF/';
-        var mfrInputURL = '{{ config('app.url') }}projects/{{$project->pid}}/importMF';
-        var importRecordUrl = '{{ config('app.url') }}projects/{{$project->pid}}/importMFRecord';
-        var crossAssocURL = '{{ config('app.url') }}projects/{{$project->pid}}/importMFAssoc';
+        var deleteFileUrl = '{{ url('deleteTmpFileMF') }}/';
+        var mfrInputURL = '{{ url('projects/'.$project->pid.'/importMF') }}';
+        var importRecordUrl = '{{ url('projects/'.$project->pid.'/importMFRecord') }}';
+        var crossAssocURL = '{{ url('projects/'.$project->pid.'/importMFAssoc') }}';
 
         Kora.Records.ImportMF();
     </script>

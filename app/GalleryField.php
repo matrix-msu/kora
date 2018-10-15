@@ -138,13 +138,13 @@ class GalleryField extends FileTypeField  {
      * @param  Request $request
      */
     public function createNewRecordField($field, $record, $value, $request) {
-        if(glob(config('app.base_path') . 'storage/app/tmpFiles/' . $value . '/*.*') != false) {
+        if(glob(storage_path('app/tmpFiles/' . $value . '/*.*')) != false) {
             $this->flid = $field->flid;
             $this->rid = $record->rid;
             $this->fid = $field->fid;
             $infoString = '';
             $infoArray = array();
-            $newPath = config('app.base_path') . 'storage/app/files/p' . $field->pid . '/f' . $field->fid . '/r' . $record->rid . '/fl' . $field->flid;
+            $newPath = storage_path('app/files/p' . $field->pid . '/f' . $field->fid . '/r' . $record->rid . '/fl' . $field->flid);
             //make the three directories
             if(!file_exists($newPath))
                 mkdir($newPath, 0775, true);
@@ -153,9 +153,9 @@ class GalleryField extends FileTypeField  {
             if(!file_exists($newPath . '/medium'))
                 mkdir($newPath . '/medium', 0775, true);
 
-            if(file_exists(config('app.base_path') . 'storage/app/tmpFiles/' . $value)) {
+            if(file_exists(storage_path('app/tmpFiles/' . $value))) {
                 $types = self::getMimeTypes();
-                foreach(new \DirectoryIterator(config('app.base_path') . 'storage/app/tmpFiles/' . $value) as $file) {
+                foreach(new \DirectoryIterator(storage_path('app/tmpFiles/' . $value)) as $file) {
                     if($file->isFile()) {
                         if(!array_key_exists($file->getExtension(), $types))
                             $type = 'application/octet-stream';
@@ -164,22 +164,22 @@ class GalleryField extends FileTypeField  {
                         $info = '[Name]' . $file->getFilename() . '[Name][Size]' . $file->getSize() . '[Size][Type]' . $type . '[Type]';
                         $infoArray[$file->getFilename()] = $info;
                         if(isset($request->mass_creation_num))
-                            copy(config('app.base_path') . 'storage/app/tmpFiles/' . $value . '/' . $file->getFilename(),
+                            copy(storage_path('app/tmpFiles/' . $value . '/' . $file->getFilename()),
                                 $newPath . '/' . $file->getFilename());
                         else
-                            rename(config('app.base_path') . 'storage/app/tmpFiles/' . $value . '/' . $file->getFilename(),
+                            rename(storage_path('app/tmpFiles/' . $value . '/' . $file->getFilename()),
                             $newPath . '/' . $file->getFilename());
                         if(isset($request->mass_creation_num))
-                            copy(config('app.base_path') . 'storage/app/tmpFiles/' . $value . '/thumbnail/' . $file->getFilename(),
+                            copy(storage_path('app/tmpFiles/' . $value . '/thumbnail/' . $file->getFilename()),
                                 $newPath . '/' . $file->getFilename());
                         else
-                            rename(config('app.base_path') . 'storage/app/tmpFiles/' . $value . '/thumbnail/' . $file->getFilename(),
+                            rename(storage_path('app/tmpFiles/' . $value . '/thumbnail/' . $file->getFilename()),
                             $newPath . '/thumbnail/' . $file->getFilename());
                         if(isset($request->mass_creation_num))
-                            copy(config('app.base_path') . 'storage/app/tmpFiles/' . $value . '/medium/' . $file->getFilename(),
+                            copy(storage_path('app/tmpFiles/' . $value . '/medium/' . $file->getFilename()),
                                 $newPath . '/' . $file->getFilename());
                         else
-                            rename(config('app.base_path') . 'storage/app/tmpFiles/' . $value . '/medium/' . $file->getFilename(),
+                            rename(storage_path('app/tmpFiles/' . $value . '/medium/' . $file->getFilename()),
                             $newPath . '/medium/' . $file->getFilename());
                     }
                 }
@@ -204,7 +204,7 @@ class GalleryField extends FileTypeField  {
      * @param  Request $request
      */
     public function editRecordField($value, $request) {
-        if(glob(config('app.base_path').'storage/app/tmpFiles/'.$value.'/*.*') != false) {
+        if(glob(storage_path('app/tmpFiles/' . $value . '/*.*')) != false) {
             $gal_files_exist = false; // if this remains false, then the files were deleted and row should be removed from table
 
             //clear the old files before moving the update over
@@ -212,14 +212,14 @@ class GalleryField extends FileTypeField  {
             //we keep old files around for revision purposes
             $newNames = array();
             //scan the tmpFile as these will be the "new ones"
-            if(file_exists(config('app.base_path') . 'storage/app/tmpFiles/' . $value)) {
-                foreach(new \DirectoryIterator(config('app.base_path') . 'storage/app/tmpFiles/' . $value) as $file) {
+            if(file_exists(storage_path('app/tmpFiles/' . $value))) {
+                foreach(new \DirectoryIterator(storage_path('app/tmpFiles/' . $value)) as $file) {
                     array_push($newNames,$file->getFilename());
                 }
             }
             //actually clear them
             $field = FieldController::getField($this->flid);
-            $fileBase = config('app.base_path').'storage/app/files/p'.$field->pid.'/f'.$field->fid.'/r'.$this->rid.'/fl'.$field->flid;
+            $fileBase = storage_path('app/files/p'.$field->pid.'/f'.$field->fid.'/r'.$this->rid.'/fl'.$field->flid);
             foreach(new \DirectoryIterator($fileBase) as $file) {
                 if($file->isFile() and in_array($file->getFilename(),$newNames)) {
                     unlink($fileBase.'/'.$file->getFilename());
@@ -232,9 +232,9 @@ class GalleryField extends FileTypeField  {
             //build new stuff
             $infoString = '';
             $infoArray = array();
-            if(file_exists(config('app.base_path') . 'storage/app/tmpFiles/' . $value)) {
+            if(file_exists(storage_path('app/tmpFiles/' . $value))) {
                 $types = self::getMimeTypes();
-                foreach(new \DirectoryIterator(config('app.base_path') . 'storage/app/tmpFiles/' . $value) as $file) {
+                foreach(new \DirectoryIterator(storage_path('app/tmpFiles/' . $value)) as $file) {
                     if($file->isFile()) {
                         if(!array_key_exists($file->getExtension(),$types))
                             $type = 'application/octet-stream';
@@ -242,11 +242,11 @@ class GalleryField extends FileTypeField  {
                             $type =  $types[$file->getExtension()];
                         $info = '[Name]' . $file->getFilename() . '[Name][Size]' . $file->getSize() . '[Size][Type]' . $type . '[Type]';
                         $infoArray[$file->getFilename()] = $info;
-                        rename(config('app.base_path') . 'storage/app/tmpFiles/' . $value . '/' . $file->getFilename(),
+                        rename(storage_path('app/tmpFiles/' . $value . '/' . $file->getFilename()),
                             $fileBase . '/' . $file->getFilename());
-                        rename(config('app.base_path') . 'storage/app/tmpFiles/' . $value . '/thumbnail/' . $file->getFilename(),
+                        rename(storage_path('app/tmpFiles/' . $value . '/thumbnail/' . $file->getFilename()),
                             $fileBase . '/thumbnail/' . $file->getFilename());
-                        rename(config('app.base_path') . 'storage/app/tmpFiles/' . $value . '/medium/' . $file->getFilename(),
+                        rename(storage_path('app/tmpFiles/' . $value . '/medium/' . $file->getFilename()),
                             $fileBase . '/medium/' . $file->getFilename());
 
                         $gal_files_exist = true;
@@ -269,7 +269,7 @@ class GalleryField extends FileTypeField  {
         } else {
             //DELETE THE FILES SINCE WE REMOVED THEM
             $field = FieldController::getField($this->flid);
-            $fileBase = config('app.base_path').'storage/app/files/p'.$field->pid.'/f'.$field->fid.'/r'.$this->rid.'/fl'.$field->flid;
+            $fileBase = storage_path('app/files/p'.$field->pid.'/f'.$field->fid.'/r'.$this->rid.'/fl'.$field->flid);
             foreach(new \DirectoryIterator($fileBase) as $file) {
                 if($file->isFile()) {
                     unlink($fileBase.'/'.$file->getFilename());
@@ -321,7 +321,7 @@ class GalleryField extends FileTypeField  {
         $infoArray = array();
         $maxfiles = FieldController::getFieldOption($field,'MaxFiles');
         if($maxfiles==0) {$maxfiles=1;}
-        $newPath = config('app.base_path') . 'storage/app/files/p' . $field->pid . '/f' . $field->fid . '/r' . $record->rid . '/fl' . $field->flid;
+        $newPath = storage_path('app/files/p' . $field->pid . '/f' . $field->fid . '/r' . $record->rid . '/fl' . $field->flid);
         //make the three directories
         mkdir($newPath, 0775, true);
         mkdir($newPath . '/thumbnail', 0775, true);
@@ -334,11 +334,11 @@ class GalleryField extends FileTypeField  {
                 $type = $types['png'];
             $info = '[Name]gallery' . $q . '.png[Name][Size]54827[Size][Type]' . $type . '[Type]';
             $infoArray['gallery' . $q . '.png'] = $info;
-            copy(config('app.base_path') . 'public/assets/testFiles/gallery.png',
+            copy(public_path('assets/testFiles/gallery.png'),
                 $newPath . '/gallery' . $q . '.png');
-            copy(config('app.base_path') . 'public/assets/testFiles/medium/gallery.png',
+            copy(public_path('assets/testFiles/medium/gallery.png'),
                 $newPath . '/medium/gallery' . $q . '.png');
-            copy(config('app.base_path') . 'public/assets/testFiles/thumbnail/gallery.png',
+            copy(public_path('assets/testFiles/thumbnail/gallery.png'),
                 $newPath . '/thumbnail/gallery' . $q . '.png');
         }
         $infoString = implode('[!]',$infoArray);
@@ -362,7 +362,7 @@ class GalleryField extends FileTypeField  {
             $value = 'f'.$field->flid.'u'.Auth::user()->id;
 
         if($req==1 | $forceReq) {
-            if(glob(config('app.base_path').'storage/app/tmpFiles/'.$value.'/*.*') == false)
+            if(glob(storage_path('app/tmpFiles/' . $value . '/*.*')) == false)
                 return [$field->flid => $field->name.' is required'];
         }
 
@@ -493,8 +493,8 @@ class GalleryField extends FileTypeField  {
      */
     public function setRestfulRecordData($jsonField, $flid, $recRequest, $uToken=null) {
         $files = array();
-        $currDir = config('app.base_path') . 'storage/app/tmpFiles/impU' . $uToken;
-        $newDir = config('app.base_path') . 'storage/app/tmpFiles/f' . $flid . 'u' . $uToken;
+        $currDir = storage_path('app/tmpFiles/impU' . $uToken);
+        $newDir = storage_path('app/tmpFiles/f' . $flid . 'u' . $uToken);
         if(file_exists($newDir)) {
             foreach(new \DirectoryIterator($newDir) as $file) {
                 if($file->isFile())
@@ -588,9 +588,9 @@ class GalleryField extends FileTypeField  {
      */
     public function getImgDisplay($pid, $filename, $type) {
         if($type == 'thumbnail' | $type == 'medium')
-            $file_path = config('app.base_path').'storage/app/files/p'.$pid.'/f'.$this->fid.'/r'.$this->rid.'/fl'.$this->flid.'/'.$type.'/'. $filename;
+            $file_path = storage_path('app/files/p'.$pid.'/f'.$this->fid.'/r'.$this->rid.'/fl'.$this->flid.'/'.$type.'/'. $filename);
         else
-            $file_path = config('app.base_path').'storage/app/files/p'.$pid.'/f'.$this->fid.'/r'.$this->rid.'/fl'.$this->flid . '/' . $filename;
+            $file_path = storage_path('app/files/p'.$pid.'/f'.$this->fid.'/r'.$this->rid.'/fl'.$this->flid . '/' . $filename);
 
         if(file_exists($file_path)) {
             // Send Download

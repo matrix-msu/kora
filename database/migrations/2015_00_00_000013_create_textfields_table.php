@@ -29,7 +29,7 @@ class CreateTextfieldsTable extends Migration {
             $table->foreign('flid')->references('flid')->on('fields')->onDelete('cascade');
 		});
 
-		DB::statement("ALTER TABLE ". env("DB_PREFIX") ."text_fields ADD FULLTEXT search(`text`)");
+		DB::statement("ALTER TABLE ". config('database.connections.mysql.prefix') ."text_fields ADD FULLTEXT search(`text`)");
 	}
 
 	/**

@@ -355,8 +355,8 @@ class UserController extends Controller {
      */
     public function changepicture(Request $request, $user) {
         $file = $request->profile;
-        $pDir = config('app.base_path') . 'storage/app/profiles/'.$user->id.'/';
-        $pURL = config('app.storage_url') . 'profiles/'.$user->id.'/';
+        $pDir = storage_path('app/profiles/'.$user->id.'/');
+        $pURL = url('app/profiles/'.$user->id).'/';
 
         //remove old pic
         $oldFile = $pDir.$user->profile;

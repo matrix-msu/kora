@@ -53,7 +53,7 @@ Kora.Install.Create = function() {
             $('.previous.page').addClass('disabled');
         else
             $('.previous.page').removeClass('disabled');
-        if(active=="#base")
+        if(active=="#recaptcha")
             $('.next.page').addClass('disabled');
         else
             $('.next.page').removeClass('disabled');
@@ -66,7 +66,6 @@ Kora.Install.Create = function() {
             $('.admin-section').addClass('hidden');
             $('.mail-section').addClass('hidden');
             $('.recaptcha-section').addClass('hidden');
-            $('.base-section').addClass('hidden');
         } else if(active == "#admin") {
             $('.admin-link').addClass('active');
 
@@ -74,7 +73,6 @@ Kora.Install.Create = function() {
             $('.admin-section').removeClass('hidden');
             $('.mail-section').addClass('hidden');
             $('.recaptcha-section').addClass('hidden');
-            $('.base-section').addClass('hidden');
         } else if(active == "#mail") {
             $('.mail-link').addClass('active');
 
@@ -82,7 +80,6 @@ Kora.Install.Create = function() {
             $('.admin-section').addClass('hidden');
             $('.mail-section').removeClass('hidden');
             $('.recaptcha-section').addClass('hidden');
-            $('.base-section').addClass('hidden');
         } else if(active == "#recaptcha") {
             $('.recaptcha-link').addClass('active');
 
@@ -90,15 +87,6 @@ Kora.Install.Create = function() {
             $('.admin-section').addClass('hidden');
             $('.mail-section').addClass('hidden');
             $('.recaptcha-section').removeClass('hidden');
-            $('.base-section').addClass('hidden');
-        } else if(active == "#base") {
-            $('.base-link').addClass('active');
-
-            $('.database-section').addClass('hidden');
-            $('.admin-section').addClass('hidden');
-            $('.mail-section').addClass('hidden');
-            $('.recaptcha-section').addClass('hidden');
-            $('.base-section').removeClass('hidden');
         } else {
             $('.database-link').addClass('active');
 
@@ -106,28 +94,11 @@ Kora.Install.Create = function() {
             $('.admin-section').addClass('hidden');
             $('.mail-section').addClass('hidden');
             $('.recaptcha-section').addClass('hidden');
-            $('.base-section').addClass('hidden');
         }
     }
 
     $('.single-select').chosen({
         width: '100%',
-    });
-
-    $('.install-input-js').change(function() {
-        if (this.checked) {
-            $('.install-select-container-js').animate({
-                height: 75
-            }, function() {
-                $('.install-select-js').fadeIn();
-            });
-        } else {
-            $('.install-select-js').fadeOut(function() {
-                $('.install-select-container-js').animate({
-                    height: 0
-                });
-            });
-        }
     });
 
     var form = $('#install_form');
@@ -158,7 +129,7 @@ Kora.Install.Create = function() {
         });
     }
 
-    // Check for Drag and Drop Support on the browser //TODO::fix drag and drop....
+    // Check for Drag and Drop Support on the browser
     var isAdvancedUpload = function() {
         var div = document.createElement('div');
         return (('draggable' in div) || ('ondragstart' in div && 'ondrop' in div)) && 'FormData' in window && 'FileReader' in window;

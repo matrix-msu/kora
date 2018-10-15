@@ -69,4 +69,10 @@
       }
     }
   }
+
+  @media screen and (max-width: $max-mobile-xs-width) {
+    .top .line {
+      width: 24%;
+    }
+  }
 }

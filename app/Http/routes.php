@@ -4,7 +4,11 @@ Route::group(['middleware' => 'web'], function () {
     Route::get('/', 'WelcomeController@index');
     Route::get('/home', 'WelcomeController@index');
     Route::post('/language', 'WelcomeController@setTemporaryLanguage');
+
+//dashboard routes
     Route::get('/dashboard', 'DashboardController@dashboard');
+    Route::post('/dashboard/addBlock', 'DashboardController@addBlock');
+    Route::post('/dashboard/addBlock/validate', 'DashboardController@validateBlockFields');
 
 //project routes
     Route::get('/projects/import', 'ProjectController@importProjectView');
@@ -181,6 +185,7 @@ Route::group(['middleware' => 'web'], function () {
     Route::delete('projects/{pid}/forms/{fid}/deleteAllRecords', 'RecordController@deleteAllRecords');
     Route::post('/projects/{pid}/forms/{fid}/cleanUp', 'RecordController@cleanUp');
     Route::get('/projects/{pid}/forms/{fid}/clone/{rid}', 'RecordController@cloneRecord');
+    Route::get('/projects/{pid}/forms/{fid}/records/{rid}/fields/{flid}/geolocator', 'FieldController@singleGeolocator');
     Route::get('/projects/{pid}/forms/{fid}/records/{rid}/fields/{flid}/{filename}', 'FieldController@singleResource');
 
 //revision routes

@@ -6,12 +6,13 @@
   box-sizing: border-box;
   height: 210px;
   margin: 5px;
-  min-width: 260px;
+  min-width: 303px;
   text-align: left;
   transition: all .2s linear;
   width: calc(25% - 10px);
 
-  .icon-project {
+  .icon-project,
+  .icon-form {
     font-size: 20px;
     margin-left: 20px;
     vertical-align: middle;
@@ -20,6 +21,12 @@
   .title-container {
     display: inline-block;
     margin-top: 15px;
+
+    .no-link-no-icon {
+      font-family: $ubuntu;
+      font-size: 14px;
+      margin-left: 20px;
+    }
   }
 
   .name {
@@ -95,6 +102,10 @@
       .icon {
         transform: scale($transform-scale-multiplier);
       }
+    }
+
+    @media screen and (max-width: $max-mobile-xs-width) {
+      padding: 0 5px;
     }
   }
 }

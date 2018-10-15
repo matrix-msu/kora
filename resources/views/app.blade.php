@@ -9,7 +9,7 @@
             @yield('stylesheets')
         @endif
 
-        <link rel="stylesheet" href="{{config('app.url')}}assets/css/app.css">
+        <link rel="stylesheet" href="{{url('assets/css/app.css')}}">
     </head>
     <body class="{{ str_hyphenated($page_class) }}-body {{ ((Auth::guest() || !Auth::user()->active) && isInstalled()) ? 'auth-body' : '' }}">
       @include('partials.nav')
@@ -50,7 +50,7 @@
           Kora.Auth.Auth();
         </script>
       @endif
-       <script src="{{ config('app.url') }}/assets/javascripts/navigation/breadcrumbs.js"></script>
+       <script src="{{ url('assets/javascripts/navigation/breadcrumbs.js') }}"></script>
 	   <div id="preloader" style="display:none;">
          <div id="loader-background">
 		   <div id="loader">

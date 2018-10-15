@@ -29,7 +29,7 @@ class CreateListfieldsTable extends Migration {
 			$table->foreign('flid')->references('flid')->on('fields')->onDelete('cascade');
 		});
 
-		DB::statement("ALTER TABLE ". env("DB_PREFIX") ."list_fields ADD FULLTEXT search(`option`)");
+		DB::statement("ALTER TABLE ". config('database.connections.mysql.prefix') ."list_fields ADD FULLTEXT search(`option`)");
 	}
 
 	/**

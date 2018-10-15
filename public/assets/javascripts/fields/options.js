@@ -67,7 +67,9 @@ Kora.Fields.Options = function(fieldType) {
         listOpt.trigger("chosen:updated");
 
         listOpt.chosen().change(function() {
-            //TODO::figure out this
+            //When option de-selected, we delete it from list
+            listOpt.find('option').not(':selected').remove();
+            listOpt.trigger("chosen:updated");
         });
 
         listOpt.bind("DOMSubtreeModified",function(){
@@ -104,7 +106,9 @@ Kora.Fields.Options = function(fieldType) {
         listOpt.trigger("chosen:updated");
 
         listOpt.chosen().change(function() {
-            //TODO::figure out this
+            //When option de-selected, we delete it from list
+            listOpt.find('option').not(':selected').remove();
+            listOpt.trigger("chosen:updated");
         });
 
         listOpt.bind("DOMSubtreeModified",function(){
@@ -135,7 +139,9 @@ Kora.Fields.Options = function(fieldType) {
         listOpt.trigger("chosen:updated");
 
         listOpt.chosen().change(function() {
-            //figure out this
+            //When option de-selected, we delete it from list
+            listOpt.find('option').not(':selected').remove();
+            listOpt.trigger("chosen:updated");
         });
 
         listOpt.bind("DOMSubtreeModified",function(){
@@ -490,11 +496,10 @@ Kora.Fields.Options = function(fieldType) {
             defaultDiv = $('.combo-value-div-js');
 
             if(val1=='' | val2=='' | val1==null | val2==null | val1=='//'| val2=='//') {
-                //TODO::Error out
-                console.log(val1);
-                console.log(val2);
-                console.log('Both fields must be filled out');
+                $('.combo-error-js').text('Both fields must be filled out');
             } else {
+                $('.combo-error-js').text('');
+
                 //Remove empty div if applicable
                 var border = true;
                 if(defaultDiv.children('.combo-list-empty').length) {
@@ -738,7 +743,7 @@ Kora.Fields.Options = function(fieldType) {
         
         $('.list-options-js').on('click', '.delete-option-js', function(){
             let $this = $(this).parent().parent().parent();
-            let $thisOpt = $('.list-select-js option').get($this.index());
+            let $thisOpt = $('.list-select-js option').get($this.index()-1);
             $thisOpt.remove();
             $this.remove();
         });
@@ -752,34 +757,32 @@ Kora.Fields.Options = function(fieldType) {
             }
         });
 
-		if ($('.list-options-container-js')) {
-			var listOpt = $('.list-options-container-js');
-			var newValue = $('.add-list-option-js');
+	var listOpt = $('.list-options-container-js');
+	var newValue = $('.add-list-option-js');
 
-			$('.list-options-container-js .submit').on('click', function () {
-                let input = $('.add-list-option-js').val();
-				if (input != '') {
-                    // add the card
-					let card = '<div class="card ui-sortable-handle"><div class="header"><div class="left"><div class="move-actions"><a class="action move-action-js up-js"><i class="icon icon-arrow-up"></i></a><a class="action move-action-js down-js"><i class="icon icon-arrow-down"></i></a></div><span class="title">';
-                    card += "" + input + "";
-					card += '</span></div><div class="card-toggle-wrap"><a class="quick-action delete-option delete-option-js tooltip" tooltip="Delete Option"><i class="icon icon-trash"></i></a></div></div></div>';
-                    $('.list-options-js').html($('.list-options-js').html()+card);
-                    // add the select option
-                    let option = '<option selected value="'+input+'">'+input+'</option>';
-                    $('.list-select-js').html($('.list-select-js').html()+option);
-                    // clear the input
-                    $('.add-list-option-js').val('');
-				}
-            });
-
-            $(".list-options-container-js").on('keypress', function(event) {
-                var keyCode = event.keyCode || event.which;
-                if (keyCode === 13) {
-                    event.preventDefault();
-                    $(".list-options-container-js .submit").click();
-                }
-            });
+	$('.list-options-container-js .submit').on('click', function () {
+        	let input = $('.add-list-option-js').val();
+		if (input != '') {
+                	// add the card
+			let card = '<div class="card ui-sortable-handle"><div class="header"><div class="left"><div class="move-actions"><a class="action move-action-js up-js"><i class="icon icon-arrow-up"></i></a><a class="action move-action-js down-js"><i class="icon icon-arrow-down"></i></a></div><span class="title">';
+                	card += "" + input + "";
+			card += '</span></div><div class="card-toggle-wrap"><a class="quick-action delete-option delete-option-js tooltip" tooltip="Delete Option"><i class="icon icon-trash"></i></a></div></div></div>';
+                    	$('.list-options-js').html($('.list-options-js').html()+card);
+                    	// add the select option
+                    	let option = '<option selected value="'+input+'">'+input+'</option>';
+                    	$('.list-select-js').html($('.list-select-js').html()+option);
+                    	// clear the input
+                    	$('.add-list-option-js').val('');
 		}
+	});
+
+	$(".list-options-container-js").on('keypress', function(event) {
+        	var keyCode = event.keyCode || event.which;
+                if (keyCode === 13) {
+                	event.preventDefault();
+                	$(".list-options-container-js .submit").click();
+                }
+	});
     }
 
     function initializeTextFields() {

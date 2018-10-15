@@ -1,7 +1,7 @@
 @extends('fields.show')
 
 @section('stylesheets')
-    <link rel="stylesheet" href="{{ config('app.url') }}assets/css/vendor/datetimepicker/jquery.datetimepicker.min.css" />
+    <link rel="stylesheet" href="{{ url('assets/css/vendor/datetimepicker/jquery.datetimepicker.min.css') }}" />
 @stop
 
 @section('presetModal')

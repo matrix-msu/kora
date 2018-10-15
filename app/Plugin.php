@@ -1,7 +1,6 @@
 <?php namespace App;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 
 class Plugin extends Model {
@@ -28,10 +27,10 @@ class Plugin extends Model {
     /**
      * Returns all of the option settings for a plugin.
      *
-     * @return Collection - The option set
+     * @return array - The option set
      */
     public function options() {
-        return DB::select("select * from ".env('DB_PREFIX')."plugin_settings where plugin_id=?", [$this->id]);
+        return DB::select("select * from ".config('database.connections.mysql.prefix')."plugin_settings where plugin_id=?", [$this->id]);
     }
 
     /**
@@ -41,8 +40,8 @@ class Plugin extends Model {
      */
     public function users() {
         $users = array();
-        $gid = DB::select("select gid from ".env('DB_PREFIX')."plugin_users where plugin_id=?", [$this->id])[0]->gid;
-        $uids = DB::select("select user_id from ".env('DB_PREFIX')."project_group_user where project_group_id=?", [$gid]);
+        $gid = DB::select("select gid from ".config('database.connections.mysql.prefix')."plugin_users where plugin_id=?", [$this->id])[0]->gid;
+        $uids = DB::select("select user_id from ".config('database.connections.mysql.prefix')."project_group_user where project_group_id=?", [$gid]);
         foreach($uids as $uid) {
             $user = User::where('id','=',$uid->user_id)->get()->first();
             if($user->id!=1)
@@ -72,10 +71,10 @@ class Plugin extends Model {
     /**
      * Returns the menu URIs that belong to the plugin.
      *
-     * @return Collection - The menu items
+     * @return array - The menu items
      */
     public function menus(){
-        return DB::select("select name,url from ".env('DB_PREFIX')."plugin_menus where plugin_id=? order by `order` ASC", [$this->id]);
+        return DB::select("select name,url from ".config('database.connections.mysql.prefix')."plugin_menus where plugin_id=? order by `order` ASC", [$this->id]);
     }
 
     /**

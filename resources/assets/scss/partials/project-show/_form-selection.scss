@@ -28,6 +28,10 @@
           top: 0;
           width: 37%;
 
+          @media screen and (max-width: $max-mobile-xs-width) {
+            width: 25%;
+          }
+
           &:last-child {
             right: 0;
           }

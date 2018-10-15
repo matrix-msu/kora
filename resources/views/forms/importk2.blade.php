@@ -24,7 +24,7 @@
             <div class="content-sections">
               <div class="content-sections-scroll">
                 <a href="#formfile" class="formfile-link underline-middle active">Upload Form File</a>
-                <span class="progression-tab"></span>
+                <div class="tab-wrap"><span class="progression-tab"></span></div>
                 <a href="#forminfo" class="forminfo-link">Form Information</a>
               </div>
             </div>

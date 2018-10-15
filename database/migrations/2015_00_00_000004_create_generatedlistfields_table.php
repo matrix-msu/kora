@@ -29,7 +29,7 @@ class CreateGeneratedlistfieldsTable extends Migration {
 			$table->foreign('flid')->references('flid')->on('fields')->onDelete('cascade');
 		});
 
-		DB::statement("ALTER TABLE ". env("DB_PREFIX") ."generated_list_fields ADD FULLTEXT search_gen(`options`)");
+		DB::statement("ALTER TABLE ". config('database.connections.mysql.prefix') ."generated_list_fields ADD FULLTEXT search_gen(`options`)");
 	}
 
 	/**

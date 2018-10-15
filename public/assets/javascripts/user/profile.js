@@ -212,7 +212,78 @@ Kora.User.Profile = function() {
     });
   }
 
-  function initializeCardEllipsifying() {
+  // Ensure provided pic url matches an existing picture
+  function initializeProfilePicValidation() {
+    var $imgCont = $('.profile-pic-cont-js');
+    var $img = $imgCont.find($('.profile-pic-js'));
+    if ($img.length > 0) {
+      // Profile pic url provided, check it exists in app
+      $.get($img.attr('src'))
+          .done(function() {
+            // Image exists
+            console.log("img exists");
+          })
+          .fail(function() {
+            console.log("img does not exist");
+            $imgCont.html('<i class="icon icon-user">');
+          });
+    }
+  }
+
+  function initializePermissionsCardEllipsifying () {
+    function adjustCardTitle() {
+      var cards = $($(".content-section-js").find(".card"));
+
+      for (i = 0; i < cards.length; i++) {
+        var card = $(cards[i]);
+        var left_sect = $(card.find($('.left')));
+        var chevron = $(card.find($('.icon-chevron')));
+        var title = $(left_sect.find($('.title').children()));
+        var group = $(left_sect.find($('.group').children()));
+
+        var card_width = card.width();
+        var chevron_width = chevron.outerWidth();
+        var extra_padding = 20;
+        var left_sect_width = left_sect.outerWidth();
+        var titleSpan_width = title.outerWidth();
+        var groupSpan_width = group.outerWidth();
+
+        var title_width = card_width - (chevron_width + extra_padding);
+        if (title_width < 0) {title_width = 0;}
+
+        left_sect.css("max-width", title_width + "px");
+
+        if (left_sect_width > title_width) {
+          var difference = left_sect_width - title_width;
+          var set_overflow = groupSpan_width - difference + 10;
+          if (set_overflow < 16) {set_overflow = 16;}
+          group.css("max-width", set_overflow + "px");
+          if (title_width < titleSpan_width) {
+            title.css("max-width", title_width + "px");
+          } else {
+            title.css("max-width", "");
+          }
+        } else {
+          title.css("max-width", "");
+          group.css("max-width", "");
+        }
+      }
+    }
+  	
+    $(window).resize(function() {
+      adjustCardTitle();
+    });
+	
+    $(document).ready(function() {
+      adjustCardTitle();
+
+      $('.select-content-section-js').click(function() {
+        adjustCardTitle();
+      });
+    });
+  }
+
+  function initializeHistoryCardEllipsifying() {
     function adjustCardTitle() {
       var $cards = $('.card');
 
@@ -260,23 +331,97 @@ Kora.User.Profile = function() {
     });
   }
 
-  // Ensure provided pic url matches an existing picture
-  function initializeProfilePicValidation() {
-    var $imgCont = $('.profile-pic-cont-js');
-    var $img = $imgCont.find($('.profile-pic-js'));
-    console.log($img);
-    if ($img.length > 0) {
-      // Profile pic url provided, check it exists in app
-      $.get($img.attr('src'))
-          .done(function() {
-            // Image exists
-            console.log("img exists");
-          })
-          .fail(function() {
-            console.log("img does not exist");
-            $imgCont.html('<i class="icon icon-user">');
-          });
+  function navigationTabs () {
+    var isOverflow = document.querySelector('.content-sections-scroll');
+    var isAppended = false
+    var scrollPos
+
+    window.setInterval(function() {
+      if (isOverflow.offsetWidth < isOverflow.scrollWidth && isAppended === false) {
+        $('<i class="icon icon-chevron tabs-right"></i>').appendTo('.content-sections');
+        $('<i class="icon icon-chevron tabs-left hidden"></i>').appendTo('.content-sections');
+        isAppended = true
+      } else if (isOverflow.offsetWidth == isOverflow.scrollWidth && isAppended === true) {
+        $('.tabs-right').remove();
+        $('.tabs-left').remove();
+        isAppended = false
+      }
+    }, 200);
+
+    $('.content-sections').on('click', '.tabs-left', function (e) {
+      e.stopPropagation();
+      scrollPos = $('.content-sections-scroll').scrollLeft();
+      scrollPos = scrollPos - 250
+      scroll ()
+    });
+
+    $('.content-sections').on('click', '.tabs-right', function (e) {
+      e.stopPropagation();
+      scrollPos = $('.content-sections-scroll').scrollLeft();
+      scrollPos = scrollPos + 250
+      scroll ()
+    });
+
+    var scrollWidth
+    var viewWidth
+    var maxScroll
+    function scroll () {
+      scrollWidth = isOverflow.scrollWidth
+      viewWidth = isOverflow.offsetWidth
+      maxScroll = scrollWidth - viewWidth
+      if (scrollPos > maxScroll) {
+        scrollPos = maxScroll
+      } else if (scrollPos < 0) {
+        scrollPos = 0
+      }
+      $('.content-sections-scroll').animate({
+        scrollLeft: scrollPos
+      }, 80);
     }
+
+    $('.content-sections-scroll').scroll(function () {
+        var fb = $('.content-sections-scroll');
+        if (fb.scrollLeft() + fb.innerWidth() >= fb[0].scrollWidth) {
+            $('.tabs-right').addClass('hidden');
+        } else {
+            $('.tabs-right').removeClass('hidden');
+        }
+        if (fb.scrollLeft() <= 20) {
+            $('.tabs-left').addClass('hidden');
+        } else {
+            $('.tabs-left').removeClass('hidden');
+        }
+    });
+  }
+  
+  function filterSpacing () {
+    var url = window.location.href;
+    url = url.split('/');
+    url = url[url.length - 1];
+
+    function adjustFilterSpacing () {
+      if (url.includes("history")) {
+        if ($('.filter-link:last-child').height() > 21 || window.innerWidth < 400) {
+          $('.section-filters').addClass('filter-history');
+          $('.filter-link').addClass('filter-history');
+        } else {
+          $('.section-filters').removeClass('filter-history');
+          $('.filter-link').removeClass('filter-history');
+        }
+      }
+    }
+
+    $(window).resize(function() {
+      adjustFilterSpacing();
+    });
+
+    $(document).ready(function() {
+      adjustFilterSpacing();
+
+      $('.select-content-section-js').click(function() {
+        adjustFilterSpacing();
+      });
+    });
   }
 
   initializeOptionDropdowns();
@@ -284,6 +429,9 @@ Kora.User.Profile = function() {
   initializeProjectCards();
   initializeModals();
   initializePaginationRouting();
-  initializeCardEllipsifying();
+  initializePermissionsCardEllipsifying();
   initializeProfilePicValidation();
+  initializeHistoryCardEllipsifying();
+  navigationTabs();
+  filterSpacing();
 }

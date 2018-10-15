@@ -1,5 +1,6 @@
 .page {
   .content {
+    padding-bottom: 20px;
     padding-top: 0;
   }
 
@@ -17,6 +18,10 @@
     font-size: 18px;
     height: 20px;
     line-height: 21px;
+
+    @media screen and (max-width: $max-mobile-xs-width) {
+      height: unset;
+    }
   }
 
   .no-field {

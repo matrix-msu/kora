@@ -29,7 +29,7 @@ class CreateModelfieldsTable extends Migration {
 			$table->foreign('flid')->references('flid')->on('fields')->onDelete('cascade');
 		});
 
-		DB::statement("ALTER TABLE ". env("DB_PREFIX") ."model_fields ADD FULLTEXT search_mdl(`model`)");
+		DB::statement("ALTER TABLE ". config('database.connections.mysql.prefix') ."model_fields ADD FULLTEXT search_mdl(`model`)");
 	}
 
 	/**

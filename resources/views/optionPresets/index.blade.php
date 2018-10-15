@@ -94,7 +94,6 @@
                                     @endforeach
                                 @endif
                             </div>
-
                             <div class="footer">
                                 @if($key == "Stock" && Auth::user()->admin == 1 )
                                     <a class="quick-action trash-container left danger delete-preset-open-js tooltip" href="#" preset-id="{{$preset->id}}" tooltip="Delete Preset">

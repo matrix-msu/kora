@@ -5,14 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
     <title>Kora 3 - Install Success</title>
 
-    <link rel="stylesheet" href="{{config('app.url')}}assets/css/app.css">
+    <link rel="stylesheet" href="{{url('assets/css/app.css')}}">
 </head>
 <body class="install-success-body">
 
 <div class="install-success">
     <section class="last-steps">
         <div class="last-desc">
-            <img class="logo mt-xxxl" src="{{ config('app.url') }}assets/logos/koraiii-logo-blue.svg">
+            <img class="logo mt-xxxl" src="{{ url('assets/logos/koraiii-logo-blue.svg') }}">
             <div class="title mt-xxxl">Kora 3</div>
             <div class="sub-title mt-xl">Initialization Complete</div>
             <div class="description mt-m">
@@ -36,7 +36,7 @@
                 <div class="solid-box">Kora3/public/assets/javascripts/production/</div>
             </div>
             <div class="form-group mt-xxxl">
-                <a href="{{config('app.url')}}" class="btn">Start Using Kora</a>
+                <a href="{{url('')}}" class="btn">Start Using Kora</a>
             </div>
         </div>
     </section>

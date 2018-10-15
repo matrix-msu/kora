@@ -495,7 +495,12 @@ class RestfulController extends Controller {
 	    $ridString = implode(',',$rids);
 	    
 	    //Doing this for pretty much the same reason as keyword search above
-	    $con = mysqli_connect(env('DB_HOST'), env('DB_USERNAME'), env('DB_PASSWORD'), env('DB_DATABASE'));
+	    $con = mysqli_connect(
+	        config('database.connections.mysql.host'),
+            config('database.connections.mysql.username'),
+            config('database.connections.mysql.password'),
+            config('database.connections.mysql.database')
+        );
 	    
 	    //We want to make sure we are doing things in utf8 for special characters
 		if(!mysqli_set_charset($con, "utf8")) {
@@ -504,9 +509,9 @@ class RestfulController extends Controller {
 		}
 		
 		if($ridString!="")
-			$select = "SELECT `rid` from ".env('DB_PREFIX')."records WHERE `fid`=".$form->fid." AND `rid` NOT IN ($ridString)";
+			$select = "SELECT `rid` from ".config('database.connections.mysql.prefix')."records WHERE `fid`=".$form->fid." AND `rid` NOT IN ($ridString)";
 		else
-			$select = "SELECT `rid` from ".env('DB_PREFIX')."records WHERE `fid`=".$form->fid;
+			$select = "SELECT `rid` from ".config('database.connections.mysql.prefix')."records WHERE `fid`=".$form->fid;
 			
 		$negUnclean = $con->query($select);
 		
@@ -532,7 +537,7 @@ class RestfulController extends Controller {
         $direction = $sortFields[1];
         $newOrderArray = array();
 
-        //TODO::report errors, not 100% sure how we'll get it up a level
+        //report errors, not 100% sure how we'll get it up a level
 
         if($fieldSlug=='kora_meta_owner') {
             $userRecords = DB::table('records')->join('users','users.id','=','records.owner')
@@ -662,7 +667,7 @@ class RestfulController extends Controller {
         $direction = $sortFields[1];
         $newOrderArray = array();
 
-        //TODO::report errors, not 100% sure how we'll get it up a level
+        //report errors, not 100% sure how we'll get it up a level
 
         if(!is_array($fieldSlug) && $fieldSlug=='kora_meta_owner') {
             $userRecords = DB::table('records')->join('users','users.id','=','records.owner')
@@ -867,7 +872,7 @@ class RestfulController extends Controller {
             //In case slugs are provided, we need flids
             $convertedFlids = array();
             foreach($flids as $fl) {
-                array_push($convertedFlids, FieldController::getField($fl)->flid); //TODO::error bad fields, not 100% sure how we'll get it up a level
+                array_push($convertedFlids, FieldController::getField($fl)->flid); //error bad fields, not 100% sure how we'll get it up a level
             }
 
             $flidString = implode(',',$convertedFlids);
@@ -879,7 +884,12 @@ class RestfulController extends Controller {
         }
 
         //Doing this for pretty much the same reason as keyword search above
-        $con = mysqli_connect(env('DB_HOST'), env('DB_USERNAME'), env('DB_PASSWORD'), env('DB_DATABASE'));
+        $con = mysqli_connect(
+            config('database.connections.mysql.host'),
+            config('database.connections.mysql.username'),
+            config('database.connections.mysql.password'),
+            config('database.connections.mysql.database')
+        );
 
         //We want to make sure we are doing things in utf8 for special characters
         if(!mysqli_set_charset($con, "utf8")) {
@@ -887,14 +897,14 @@ class RestfulController extends Controller {
             exit();
         }
 
-        $textOccurrences = DB::raw("select `text`, `flid` from ".env('DB_PREFIX')."text_fields where `fid`=$fid and `rid` in ($ridString)$flidSQL");
-        $listOccurrences = DB::raw("select `option`, `flid` from ".env('DB_PREFIX')."list_fields where `fid`=$fid and `rid` in ($ridString)$flidSQL");
-        $msListOccurrences = DB::raw("select `options`, `flid` from ".env('DB_PREFIX')."multi_select_list_fields where `fid`=$fid and `rid` in ($ridString)$flidSQL");
-        $genListOccurrences = DB::raw("select `options`, `flid` from ".env('DB_PREFIX')."generated_list_fields where `fid`=$fid and `rid` in ($ridString)$flidSQL");
-        $numberOccurrences = DB::raw("select `number`, `flid` from ".env('DB_PREFIX')."number_fields where `fid`=$fid and `rid` in ($ridString)$flidSQL");
-        $dateOccurrences = DB::raw("select `month`, `day`, `year`, `flid` from ".env('DB_PREFIX')."date_fields where `fid`=$fid and `rid` in ($ridString)$flidSQL");
-        $assocOccurrences = DB::raw("select s.`flid`, r.`kid` from ".env('DB_PREFIX')."associator_support as s left join kora3_records as r on s.`record`=r.`rid` where s.`fid`=$fid and s.`rid` in ($ridString) and s.`flid` in ($flidString)");
-        $rAssocOccurrences = DB::raw("select s.`flid`, r.`kid` from ".env('DB_PREFIX')."associator_support as s left join kora3_records as r on s.`rid`=r.`rid` where s.`fid`=$fid and s.`rid` in ($ridString) and s.`flid` in ($flidString)");
+        $textOccurrences = DB::raw("select `text`, `flid` from ".config('database.connections.mysql.prefix')."text_fields where `fid`=$fid and `rid` in ($ridString)$flidSQL");
+        $listOccurrences = DB::raw("select `option`, `flid` from ".config('database.connections.mysql.prefix')."list_fields where `fid`=$fid and `rid` in ($ridString)$flidSQL");
+        $msListOccurrences = DB::raw("select `options`, `flid` from ".config('database.connections.mysql.prefix')."multi_select_list_fields where `fid`=$fid and `rid` in ($ridString)$flidSQL");
+        $genListOccurrences = DB::raw("select `options`, `flid` from ".config('database.connections.mysql.prefix')."generated_list_fields where `fid`=$fid and `rid` in ($ridString)$flidSQL");
+        $numberOccurrences = DB::raw("select `number`, `flid` from ".config('database.connections.mysql.prefix')."number_fields where `fid`=$fid and `rid` in ($ridString)$flidSQL");
+        $dateOccurrences = DB::raw("select `month`, `day`, `year`, `flid` from ".config('database.connections.mysql.prefix')."date_fields where `fid`=$fid and `rid` in ($ridString)$flidSQL");
+        $assocOccurrences = DB::raw("select s.`flid`, r.`kid` from ".config('database.connections.mysql.prefix')."associator_support as s left join kora3_records as r on s.`record`=r.`rid` where s.`fid`=$fid and s.`rid` in ($ridString) and s.`flid` in ($flidString)");
+        $rAssocOccurrences = DB::raw("select s.`flid`, r.`kid` from ".config('database.connections.mysql.prefix')."associator_support as s left join kora3_records as r on s.`rid`=r.`rid` where s.`fid`=$fid and s.`rid` in ($ridString) and s.`flid` in ($flidString)");
 
         //Because of the complex data in MS List, we break stuff up and then format
         $msListUnclean = $con->query($msListOccurrences);
@@ -1045,11 +1055,11 @@ class RestfulController extends Controller {
         $recRequest['userId'] = $uToken; //the new record will ultimately be owned by the root/sytem
         if( !is_null($request->file("zipFile")) ) {
             $file = $request->file("zipFile");
-            $zipPath = $file->move(config('app.base_path') . 'storage/app/tmpFiles/impU' . $uToken);
+            $zipPath = $file->move(storage_path('app/tmpFiles/impU' . $uToken));
             $zip = new \ZipArchive();
             $res = $zip->open($zipPath);
             if($res === TRUE) {
-                $zip->extractTo(config('app.base_path') . 'storage/app/tmpFiles/impU' . $uToken);
+                $zip->extractTo(storage_path('app/tmpFiles/impU' . $uToken));
                 $zip->close();
             } else {
                 return response()->json(["status"=>false,"error"=>"There was an error extracting the provided zip"],500);
@@ -1129,11 +1139,11 @@ class RestfulController extends Controller {
         $fieldsToEditArray = array(); //These are the fields that are allowed to be editted if we are doing keepfields
         if( !is_null($request->file("zipFile")) ) {
             $file = $request->file("zipFile");
-            $zipPath = $file->move(config('app.base_path') . 'storage/app/tmpFiles/impU' . $uToken);
+            $zipPath = $file->move(storage_path('app/tmpFiles/impU' . $uToken));
             $zip = new \ZipArchive();
             $res = $zip->open($zipPath);
             if($res === TRUE) {
-                $zip->extractTo(config('app.base_path') . 'storage/app/tmpFiles/impU' . $uToken);
+                $zip->extractTo(storage_path('app/tmpFiles/impU' . $uToken));
                 $zip->close();
             } else {
                 return response()->json(["status"=>false,"error"=>"There was an issue extracting the provided file zip"],500);

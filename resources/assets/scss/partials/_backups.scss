@@ -13,6 +13,10 @@
     margin: #{map-get($spacing, xxxl)} auto;
     max-width: calc(#{ $max-site-width } - 600px);
 
+    @media screen and (max-width: $max-mobile-xs-width) {
+      margin: 40px auto;
+    }
+
     @import 'backups/filters';
     @import 'backups/backup-card';
     @import 'backups/no-backups';
