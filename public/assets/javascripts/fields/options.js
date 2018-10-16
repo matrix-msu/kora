@@ -536,6 +536,20 @@ Kora.Fields.Options = function(fieldType) {
             }
         });
 
+	$('.open-regex-modal-js').click(function (e) {
+		e.preventDefault();
+
+		let $this = $(this).parent().parent().find('label').attr('for');
+		$this = $this.substr(-3);
+		if ($this == 'one') {
+			$('.add-regex-one').next().show();
+			$('.add-regex-two').next().hide();
+		} else {
+			$('.add-regex-one').next().hide();
+			$('.add-regex-two').next().show();
+		}
+	});
+
         //ASSOCIATOR OPTIONS
         //Sets up association configurations
         $('.association-check-js').click(function() {
