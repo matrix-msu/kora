@@ -116,8 +116,7 @@ class AssociatorField extends BaseField {
         foreach($request->all() as $key=>$value) {
             if(substr( $key, 0, 8 ) === "checkbox") {
                 $fid = explode('_',$key)[1];
-                // $preview = $request->input("preview_".$fid);
-                $preview = $request->input("flids");
+                $preview = $request->input("preview_".$fid);
                 $val = "[fid]{$fid}[fid][search]1[search][flids]{$preview}[flids]";
 
                 array_push($searchForms,$val);
@@ -623,49 +622,24 @@ class AssociatorField extends BaseField {
             }
         }
 
-        $form = \App\Http\Controllers\PageController::getFormLayout($fid);
-        $form = $form[0]["fields"];
-
         //grab the preview fields associated with the form of this kid
         //make sure one is selected first
-        $preview = array();
+	$preview = array();
+	$prevField = array();
         if(isset($activeForms[$fid])) {
             $details = $activeForms[$fid];
             foreach($details['flids'] as $flid => $type) {
-                if($type == Field::_TEXT) {
-                    $text = TextField::where("flid", "=", $flid)->where("rid", "=", $rid)->first();
-
-                    foreach ($form as $field) {
-                        if ($field->type == 'Text' && $field->flid == $flid)
-                            array_push($preview, $field->name);
-                    }
-
-                    if(!is_null($text) && $text->text != '')
-                        array_push($preview, $text->text);
-                    else
-                        array_push($preview, "Preview Field Empty");
-                } else if($type == Field::_LIST) {
-                    $list = ListField::where("flid", "=", $flid)->where("rid", "=", $rid)->first();
-
-                    foreach ($form as $field) {
-                        if ($field->type == 'List' && $field->flid == $flid)
-                            array_push($preview, $field->name);
-                    }
-
-                    if(!is_null($list) && $list->option != '')
-                        array_push($preview, $list->option);
-                    else
-                        array_push($preview, "Preview Field Empty");
-                }
+		array_push($prevField, FieldController::getField($flid)->name);
+		array_push($preview, self::previewData($flid, $rid, $type));
             }
         } else {
             array_push($preview, "No Preview Field Available");
-        }
+	}
 
         $html = "<div class='header'><a class='mt-xxxs documents-link underline-middle-hover' href='".url("projects/".$pid."/forms/".$fid."/records/".$rid)."'>".$kid."</a><div class='card-toggle-wrap'><a class='card-toggle assoc-card-toggle-js'><i class='icon icon-chevron active'></i></a></div></div><div class='body'><div class='overlay'></div>";
 
-        foreach($preview as $val) {
-            $html .= "<div>".$val."</div>";
+        foreach($preview as $i=>$val) {
+            $html .= "<div>".$prevField[$i]."</div><div>".$val."</div>";
         }
 
         $html = $html .= "</div>";
