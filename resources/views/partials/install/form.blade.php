@@ -1,3 +1,5 @@
+{!! csrf_field() !!}
+
 <!-- Section 1 -->
 <section class="database-section">
     <div class="section-title">Database Setup</div>

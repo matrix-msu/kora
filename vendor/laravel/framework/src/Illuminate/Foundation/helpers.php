@@ -953,9 +953,6 @@ if (! function_exists('url')) {
             return app(UrlGenerator::class);
         }
 
-        if(config('app.env') == 'production')
-            $secure = true;
-
         return app(UrlGenerator::class)->to($path, $parameters, $secure);
     }
 }

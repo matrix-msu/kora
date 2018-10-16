@@ -183,15 +183,15 @@ Kora.Install.Create = function() {
 
     $('#install_submit').on('click', function() {
         //gather the form data
-        if (!photoDroppedFile && photoInput.val() != '') { // if there was no dropped photo and if no photo was added by default 
-            var data = $('#install_form').serialize();
+        if (!photoDroppedFile && photoInput.val() != '') { // if there was no dropped photo and if no photo was added by default
+            var data = form.serialize();
         } else {
-            var data = new FormData(form.get());
-            data.delete('profile');
+            var data = new FormData(form[0]);
+            data.delete('user_profile');
             if (photoDroppedFile) {
-                data.append('profile', photoDroppedFile);
+                data.append('user_profile', photoDroppedFile);
             } else {
-                data.append('profile', photoInput[0].files[0]);
+                data.append('user_profile', photoInput[0].files[0]);
             }
         }
 
@@ -200,6 +200,8 @@ Kora.Install.Create = function() {
             type: "POST",
             url: installPartOneURL,
             data: data,
+            contentType: false,
+            processData: false,
             success: function(data) {
                 //Submit the form
                 $('#install_form').submit();

@@ -90,7 +90,7 @@ class InstallController extends Controller {
      * @return JsonResponse
      */
 	public function install(InstallRequest $request) {
-        Log::info("Beginning Installation");
+	    Log::info("Beginning Installation");
 
         //Write the env file
         $envData = $this->envBuilder($request);
