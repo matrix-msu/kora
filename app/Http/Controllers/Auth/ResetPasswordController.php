@@ -97,7 +97,7 @@ class ResetPasswordController extends Controller
 		} elseif ($user->active) {
 			return response()->json(['response' => 'Found'], 200);
 		} else {
-			return response()->json(['response' => 'Please authenticate your account before resetting your password'], 403);
+			return response()->json(['response' => 'Please activate your account before resetting your password'], 403);
 		}
     }
 	
