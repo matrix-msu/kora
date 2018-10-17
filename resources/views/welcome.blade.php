@@ -112,6 +112,7 @@
 					"email": email
 				},
 				success: function(data) {
+					console.log(data.response);
 					var response = data.response
 					
 					if (response == "Found") {
@@ -119,14 +120,12 @@
 						setTimeout(function(){
 							$('.pass-form-js').submit();
 						}, 10);
-					} else if (response == "Not Found") {
-						hide_loader();
-						$('.pass-error-js').text('There is no user associated with that email');
-						$('.pass-email-js').addClass('error');
 					}
 				},
-				error: function(response) {
-					$('.pass-error-js').text('The email must be a valid email address.');
+				error: function(data) {
+					var response = data.responseJSON.response;
+					
+					$('.pass-error-js').text(response);
 					$('.pass-email-js').addClass('error');
 					hide_loader();
 				}
