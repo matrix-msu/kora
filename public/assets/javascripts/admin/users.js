@@ -363,6 +363,32 @@ Kora.Admin.Users = function() {
     $("[href='#custom'], [href='#active'], [href='#inactive']").click(function() { adjustProjectCardTitle(); });
   }
   
+  function initializeInviteUserValidation()
+  {
+	function validateEmail() {
+	  var email_text_input = $("#emails.text-input");
+	  var email = email_text_input.val();
+      var re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+      if (!re.test(String(email).toLowerCase())) {
+		email_text_input.prev().text("Your email is invalid");
+		return false;
+	  } else {
+		email_text_input.prev().text("");
+		return true;
+	  }
+    }
+	  
+    $("#emails.text-input").blur(function() {
+	  validateEmail();
+	});
+	
+	$( "input[name='sendButton']" ).click(function(e) {
+	  if (!validateEmail()) {
+	    e.preventDefault();
+	  }
+	})
+  }
+  
   initializeOptionDropdowns();
   initializeFilters();
   initializeCards();
@@ -370,4 +396,5 @@ Kora.Admin.Users = function() {
   initializeCleanUpModals();
   initializeCardEvents();
   initializeUserCardEllipsifying();
+  initializeInviteUserValidation();
 };
