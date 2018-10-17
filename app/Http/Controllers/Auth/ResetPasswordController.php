@@ -91,10 +91,13 @@ class ResetPasswordController extends Controller
         }
 		
 		$user = User::where('email', '=', $request->email)->first();
-		if ($user !== null) {
+		
+		if ($user === null) {
+			return response()->json(['response' => 'There is no user associated with that email'], 422);
+		} elseif ($user->active) {
 			return response()->json(['response' => 'Found'], 200);
 		} else {
-			return response()->json(['response' => 'Not Found'], 200);
+			return response()->json(['response' => 'Please authenticate your account before resetting your password'], 403);
 		}
     }
 	
