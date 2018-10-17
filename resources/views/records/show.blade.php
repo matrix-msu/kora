@@ -114,7 +114,7 @@
 @section('javascripts')
     @include('partials.records.javascripts')
 
-    <script src="{{ app('assets/javascripts/vendor/leaflet/leaflet.js') }}"></script>
+    <script src="{{ url('assets/javascripts/vendor/leaflet/leaflet.js') }}"></script>
 
     <script type="text/javascript">
         makeRecordPresetURL = '{{action('RecordPresetController@presetRecord')}}';
