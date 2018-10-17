@@ -168,68 +168,122 @@ Kora.Backups.Index = function() {
         });
     }
 
-  function headerTabs () {    
-    var isOverflow = document.querySelector('.content-sections-scroll');
-    var isAppended = false
-    var scrollPos
-
-    window.setInterval(function() {
-      if (isOverflow.offsetWidth < isOverflow.scrollWidth && isAppended === false) {
-        $('<i class="icon icon-chevron tabs-right"></i>').appendTo('.content-sections');
-        $('<i class="icon icon-chevron tabs-left hidden"></i>').appendTo('.content-sections');
-        isAppended = true
-      } else if (isOverflow.offsetWidth == isOverflow.scrollWidth && isAppended === true) {
-        $('.tabs-right').remove();
-        $('.tabs-left').remove();
-        isAppended = false
+    function headerTabs () {    
+      var isOverflow = document.querySelector('.content-sections-scroll');
+      var isAppended = false
+      var scrollPos
+      
+      window.setInterval(function() {
+        if (isOverflow.offsetWidth < isOverflow.scrollWidth && isAppended === false) {
+          $('<i class="icon icon-chevron tabs-right"></i>').appendTo('.content-sections');
+          $('<i class="icon icon-chevron tabs-left hidden"></i>').appendTo('.content-sections');
+          isAppended = true
+        } else if (isOverflow.offsetWidth == isOverflow.scrollWidth && isAppended === true) {
+          $('.tabs-right').remove();
+          $('.tabs-left').remove();
+          isAppended = false
+        }
+      }, 200);
+      
+      $('.content-sections').on('click', '.tabs-left', function (e) {
+        e.stopPropagation();
+        scrollPos = $('.content-sections-scroll').scrollLeft();
+        scrollPos = scrollPos - 250
+        scroll ()
+      });
+      
+      $('.content-sections').on('click', '.tabs-right', function (e) {
+        e.stopPropagation();
+        scrollPos = $('.content-sections-scroll').scrollLeft();
+        scrollPos = scrollPos + 250
+        scroll ()
+      });
+      
+      var scrollWidth
+      var viewWidth
+      var maxScroll
+      function scroll () {
+        scrollWidth = isOverflow.scrollWidth
+        viewWidth = isOverflow.offsetWidth
+        maxScroll = scrollWidth - viewWidth
+        if (scrollPos > maxScroll) {
+          scrollPos = maxScroll
+        } else if (scrollPos < 0) {
+          scrollPos = 0
+        }
+        $('.content-sections-scroll').animate({
+          scrollLeft: scrollPos
+        }, 80);
       }
-    }, 200);
-
-    $('.content-sections').on('click', '.tabs-left', function (e) {
-      e.stopPropagation();
-      scrollPos = $('.content-sections-scroll').scrollLeft();
-      scrollPos = scrollPos - 250
-      scroll ()
-    });
-
-    $('.content-sections').on('click', '.tabs-right', function (e) {
-      e.stopPropagation();
-      scrollPos = $('.content-sections-scroll').scrollLeft();
-      scrollPos = scrollPos + 250
-      scroll ()
-    });
-
-    var scrollWidth
-    var viewWidth
-    var maxScroll
-    function scroll () {
-      scrollWidth = isOverflow.scrollWidth
-      viewWidth = isOverflow.offsetWidth
-      maxScroll = scrollWidth - viewWidth
-      if (scrollPos > maxScroll) {
-        scrollPos = maxScroll
-      } else if (scrollPos < 0) {
-        scrollPos = 0
-      }
-      $('.content-sections-scroll').animate({
-        scrollLeft: scrollPos
-      }, 80);
+      
+      $('.content-sections-scroll').scroll(function () {
+          var fb = $('.content-sections-scroll');
+          if (fb.scrollLeft() + fb.innerWidth() >= fb[0].scrollWidth) {
+              $('.tabs-right').addClass('hidden');
+          } else {
+              $('.tabs-right').removeClass('hidden');
+          }
+          if (fb.scrollLeft() <= 20) {
+              $('.tabs-left').addClass('hidden');
+          } else {
+              $('.tabs-left').removeClass('hidden');
+          }
+      });
     }
-
-    $('.content-sections-scroll').scroll(function () {
-        var fb = $('.content-sections-scroll');
-        if (fb.scrollLeft() + fb.innerWidth() >= fb[0].scrollWidth) {
-            $('.tabs-right').addClass('hidden');
-        } else {
-            $('.tabs-right').removeClass('hidden');
-        }
-        if (fb.scrollLeft() <= 20) {
-            $('.tabs-left').addClass('hidden');
-        } else {
-            $('.tabs-left').removeClass('hidden');
-        }
-    });
-  }
+	
+	function initializeValidation() {
+		
+	  function validateFileName() {
+	    var filename_input = $("input[name='backupLabel']");
+		var filename = filename_input.val();
+		
+		if (filename == "") {
+		  filename_input.prev().text("This field is required");
+		  return false;
+		}
+		
+		for (var i = 0; i < filename.length; i++) {
+		  var code = filename.charAt(i).charCodeAt();
+			
+		  if (!(code >= 48 && code <= 57) && !(code >= 65 && code <= 90) && !(code >= 97 && code <= 122)) {
+			filename_input.prev().text("Invalid characters in name");
+		    return false;
+		  }
+		}
+		
+		filename_input.prev().text("");
+		return true;
+	  }
+	  
+	  function validateBackupOptions() {
+	    var metadata_checkbox = $("input[name='backupData']");
+		var files_checkbox = $("input[name='backupFiles']");
+		var error_span = $("label[for=backupData]").next($("span"));
+		
+		if (!metadata_checkbox.prop("checked") && !files_checkbox.prop("checked"))
+		{
+			error_span.text("Select at least one backup option");
+			return false;
+		}
+		
+		error_span.text('');
+		return true;
+	  }
+	  
+	  $("input[name='backupLabel']").blur(function(e) {
+	    validateFileName();
+	  })
+	  
+	  $("input[value='Start Backup']").click(function(e) {
+		// separate vars so no short circuit, so both functions executed
+		var valid_name = validateFileName();
+		var valid_options = validateBackupOptions();
+		
+	    if (!valid_name || !valid_options) {
+	      e.preventDefault();
+	    }
+	  })
+	}
 
 
     initializeSearch();
@@ -239,5 +293,6 @@ Kora.Backups.Index = function() {
     initializeToggle();
     initializeDeleteBackupModal();
     initializeRestoreBackup();
+	initializeValidation()
     headerTabs();
 }

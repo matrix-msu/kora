@@ -190,4 +190,5 @@ Kora.Backups.Progress = function() {
     initializeCheckProgress();
     initializeUnlockUsers();
     initializeDownload();
+	initializeValidation();
 }
