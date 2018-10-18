@@ -236,18 +236,54 @@ Kora.Admin.Users = function() {
       Kora.Modal.open();
     });
 
-    // Inviting new users
-    $('.new-object-button-js').click(function(e) {
-      e.preventDefault();
+  // Inviting new users
+  $('.new-object-button-js').click(function(e) {
+    e.preventDefault();
 
-      var cleanupModal = $(".users-cleanup-modal-js");
-      cleanupModal.find('.modal-content-js').hide();
-      cleanupModal.find('.invite-content-js').show();
-      cleanupModal.find('.content').removeClass('small');
-      cleanupModal.find('.title-js').html('Invite User(s)');
+    var cleanupModal = $(".users-cleanup-modal-js");
+    cleanupModal.find('.modal-content-js').hide();
+    cleanupModal.find('.invite-content-js').show();
+    cleanupModal.find('.content').removeClass('small');
+    cleanupModal.find('.title-js').html('Invite User(s)');
 
-      Kora.Modal.open();
+    Kora.Modal.open();
+  });
+
+  function setError (err) {
+    $('.text-input#emails').addClass('error');
+    for (let i = 0; i < err.length; i++) {
+      if (i == err.length - 1) {
+        $('.error-message.emails').html($('.error-message.emails').html() + err[i] + ' already exist!');
+      } else if (i == 0) {
+        $('.error-message.emails').html($('.error-message.emails').html() + 'Emails: ' + err[i] + ', ');
+      } else {
+        $('.error-message.emails').html($('.error-message.emails').html() + err[i] + ' ');
+      }
+    }
+  }
+
+  // check if any entered emails already exist in the system
+  $('.text-input#emails').on('blur', function (e) {
+    e.preventDefault();
+
+    let $formData = $('.invite-content-js :not(input[name="_method"])').serialize();
+    $.ajax({
+      url: validateEmailsUrl,
+      type: 'POST',
+      data: $formData,
+      success: function (data) {
+        if (data.message.length >= 1) {
+          setError(data.message);
+        } else {
+          $('.text-input#emails').removeClass('error');
+        }
+      },
+      error: function (err) {
+        console.log('Error:');
+        console.log(err);
+      }
     });
+  });
 
 	$('.invite-content-js .btn-primary').click(function(e) {
 		e.preventDefault();

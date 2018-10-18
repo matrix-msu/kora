@@ -85,6 +85,7 @@
     var CSRFToken = '{{ csrf_token() }}';
     var adminId = '{{ \Auth::user()->id }}';
     var loginUrl = '{{ url('/') }}';
+    var validateEmailsUrl = '{{ url('/') }}/admin/users/validateEmails';
 
     Kora.Admin.Users();
 

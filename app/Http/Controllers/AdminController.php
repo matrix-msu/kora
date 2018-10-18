@@ -333,6 +333,28 @@ class AdminController extends Controller {
 		
         return response()->json(["status" => true, "message" => $message, "action" => $action], 200);
       }
+      
+    /**
+      * Checks whether the email is already taken.
+      *
+      * @param  string $email - Email to compare
+      * @return bool - The result of its existence
+      */
+    public function validateEmails(Request $request) {
+        $emails = str_replace(',', ' ', $request->emails);
+        $emails = preg_replace('!\s+!', ' ', $emails);
+        $emails = array_unique(explode(' ', $emails));
+
+        $existingEmails = array();
+        foreach ($emails as $email) {
+            if (self::emailExists($email)) {
+                array_push($existingEmails, $email);
+            }
+        }
+
+        // return json response of all emails that already exist
+        return response()->json(["status" => true, "message" => $existingEmails], 200);
+    }
 
     /**
      * Batch invites users to Kora3 using list of emails.
@@ -362,8 +384,8 @@ class AdminController extends Controller {
 			$user_ids = array();
 			
             foreach ($emails as $email) {
-				if (filter_var($email, FILTER_VALIDATE_EMAIL)) {
-					$username = explode('@', $email)[0];
+                if (filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                    $username = explode('@', $email)[0];
                     $i = 1;
                     $username_array = array();
                     $username_array[0] = $username;
@@ -374,12 +396,12 @@ class AdminController extends Controller {
                         $username = implode($username_array);
                         $i++;
                     }
-					
-					if(!self::emailExists($email)) {
+
+                    if(!self::emailExists($email)) {
                         //
                         // Create the new user.
                         //
-                        $user = new User();
+                        $user = new User;
                         $user->username = $username;
                         $user->email = $email;
                         $password = self::passwordGen();
@@ -387,9 +409,9 @@ class AdminController extends Controller {
                         $user->language = 'en';
                         $token = RegisterController::makeRegToken();
                         $user->regtoken = $token;
-                        $user->save();
-						array_push($user_ids, $user->id);
-						
+                        $user->save(); // foreach starts over if it reaches this line
+                        array_push($user_ids, $user->id);
+
                         //
                         // Assign the new user a default set of preferences.
                         //
@@ -422,12 +444,12 @@ class AdminController extends Controller {
                         $created++;
                     } else {
                         if (isset($request->return_user_ids)) { // return user id of existing user
-							$user = User::where('email', '=', $email)->first();
-							array_push($user_ids, $user->id);
-						}
-						$skipped++;
+                            $user = User::where('email', '=', $email)->first();
+                            array_push($user_ids, $user->id);
+                        }
+                        $skipped++;
                     }
-				}
+		        }
             }
 
 			if (isset($request->return_user_ids))
