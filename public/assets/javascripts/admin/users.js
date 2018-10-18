@@ -248,6 +248,26 @@ Kora.Admin.Users = function() {
 
       Kora.Modal.open();
     });
+
+	$('.invite-content-js .btn-primary').click(function(e) {
+		e.preventDefault();
+
+		let $form = $('.invite-content-js');
+		let $formUrl = $form.prop('action');
+		let $formData = $('.invite-content-js').serialize();
+
+		$.ajax({
+			url: $formUrl,
+			type: 'POST',
+			data: $formData,
+			success: function (data) {
+				$form.submit();
+			},
+			error: function (err) {
+				console.log(err);
+			}
+		});
+	});
   }
 
   /**

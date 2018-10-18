@@ -433,7 +433,7 @@ class AdminController extends Controller {
 			if (isset($request->return_user_ids))
 				return $user_ids;
 			else
-				return redirect('admin/users')->with('k3_global_success', 'batch_users')->with('batch_users_created', $created)->with('batch_users_skipped', $skipped)->with('notification', $notification);;
+				return redirect('admin/users')->with('k3_global_success', 'batch_users')->with('batch_users_created', $created)->with('batch_users_skipped', $skipped)->with('notification', $notification);
         }
     }
 
