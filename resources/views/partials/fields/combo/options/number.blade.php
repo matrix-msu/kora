@@ -1,4 +1,4 @@
-<div class="form-group mt-xl">
+<div class="form-group mt-xxl">
     {!! Form::label('min_'.$fnum,'Minimum Value') !!}
     <input type="number" name="min_{{$fnum}}" class="text-input" step="any" id="min"
            value="{{ \App\ComboListField::getComboFieldOption($field, "Min", $fnum) }}">

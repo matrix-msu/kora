@@ -1,5 +1,5 @@
 @if (count(\App\Http\Controllers\AssociationController::getAvailableAssociations($field->fid)) >= 1)
-	<div class="form-group mt-xxxl">{!! Form::label('','Search Configuration') !!}</div>
+	<div class="form-group mt-xxl">{!! Form::label('','Search Configuration') !!}</div>
 	@foreach(\App\Http\Controllers\AssociationController::getAvailableAssociations($field->fid) as $a)
     	<?php
     	$f = \App\Http\Controllers\FormController::getForm($a->dataForm);
@@ -36,5 +36,5 @@
     	</div>
     	@endforeach
 @else
-	<div class="form-group mt-xxxl">{!! Form::label('','No Associations Found') !!}</div>
+	<div class="form-group mt-xxl">{!! Form::label('','No Associations Found') !!}</div>
 @endif

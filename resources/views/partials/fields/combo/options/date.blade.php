@@ -1,4 +1,4 @@
-<div class="form-group mt-xl half pr-m">
+<div class="form-group mt-xxl half pr-m">
     {!! Form::label('start_'.$fnum,'Start Year: ') !!}
     <span class="error-message"></span>
     {!! Form::input('number', 'start_'.$fnum, \App\ComboListField::getComboFieldOption($field,'Start',$fnum), ['class' => 'text-input']) !!}

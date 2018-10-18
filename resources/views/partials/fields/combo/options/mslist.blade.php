@@ -1,4 +1,4 @@
-<div class="form-group mt-xxxl">
+<div class="form-group mt-xxl">
     {!! Form::label('options_'.$fnum,'List Options') !!}
     <select multiple class="multi-select modify-select mslist-options-js" name="options_{{$fnum}}[]" data-placeholder="Select or Add Some Options">
         @foreach(\App\ComboListField::getComboList($field,false,$fnum) as $opt)
