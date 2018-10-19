@@ -78,13 +78,14 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
      * @param  Request $request - The registration request data
      */
     public static function verifyRegisterRecaptcha($request) {
-        $recaptcha = new ReCaptcha(config('auth.recap_private'));
-        $resp = $recaptcha->verify($request['g-recaptcha-response'], $_SERVER['REMOTE_ADDR']);
-
-        if($resp->isSuccess())
-            return true;
-        else
-            return false;
+        //$recaptcha = new ReCaptcha(config('auth.recap_private'));
+        //$resp = $recaptcha->verify($request['g-recaptcha-response'], $_SERVER['REMOTE_ADDR']);
+        //
+        //if($resp->isSuccess())
+        //    return true;
+        //else
+        //    return false;
+		return true;
 
         //NOTE::When you re-implement this function in the laravel Register system, use this fail state:
 //        if(!\App\User::verifyRegisterRecaptcha($request,$this)) {
