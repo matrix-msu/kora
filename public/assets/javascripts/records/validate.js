@@ -83,7 +83,7 @@ Kora.Records.Validate = function() {
                 success: function(err) {
                     $('.error-message').text('');
                     $('.text-input, .text-area, .cke, .chosen-container').removeClass('error');
-
+console.log(err);
                     if(err.errors.length==0) {
                         $('.record-form').submit();
                     } else {
@@ -103,6 +103,9 @@ Kora.Records.Validate = function() {
                         });
                     initializeValidationModal();
                     }
+                },
+                error: function(err) {
+                    console.log(err);
                 }
             });
         });

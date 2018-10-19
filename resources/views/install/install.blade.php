@@ -21,7 +21,7 @@
 
 @section('body')
     <section class="install-form center">
-        <form method="post" id="install_form" action={{action("InstallController@installPartTwo")}}>
+        <form method="post" id="install_form" enctype="multipart/form-data" action={{action("InstallController@installPartTwo")}}>
             @include('partials.install.form')
         </form>
     </section>

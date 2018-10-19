@@ -80,16 +80,20 @@
             @endif
             ">
                 {!! Form::label('preview_'.$f->fid, 'Preview Value') !!}
-                {!! Form::select('preview_'.$f->fid, $formFields, $f_flids, $selectArray) !!}
+                {{-- {!! Form::select('preview_'.$f->fid, $formFields, $f_flids, $selectArray) !!} --}}
+                {!! Form::select('preview_'.$f->fid, $formFields, $f_flids, ['class' => 'multi-select assoc-preview-js', 'multiple', "data-placeholder" => "Select field preview value"]) !!}
             </div>
         @endforeach
     </div>
+
+    <input name="flids" type="hidden" value="">
 
     <div class="form-group mt-sm">
         <p class="sub-text">
             If no forms are available, have a Form Admin request permission to forms by using the Association Permissions page.
         </p>
     </div>
+
 @stop
 
 @section('fieldOptionsJS')

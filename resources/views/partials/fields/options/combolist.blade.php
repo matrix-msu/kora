@@ -1,5 +1,9 @@
 @extends('fields.show')
 
+@section('presetModal')
+	@include('partials.fields.fieldValuePresetModals.addComboRegexPresetModal', ['presets' => $presets])
+@stop
+
 @section('fieldOptions')
     <?php
     $oneType = \App\ComboListField::getComboFieldType($field,'one');

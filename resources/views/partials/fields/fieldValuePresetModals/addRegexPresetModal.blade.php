@@ -25,10 +25,10 @@
                 <i class="icon icon-cancel"></i>
             </a>
         </div>
-        <div class="body">
-            <div class="form-group">
+	<div class="body">
+           <div class="form-group">
                 {!! Form::label('regex_preset','Regex Field Value Preset') !!}
-                {!! Form::select('regex_preset', $presetFormatted, null, ['class' => 'single-select', 'data-placeholder' => 'Select the regex field value preset here']) !!}
+		{!! Form::select('regex_preset', $presetFormatted, null, ['class' => 'single-select', 'data-placeholder' => 'Select the regex field value preset here']) !!}
             </div>
             <div class="form-group mt-xxxl">
                 <a href="#" class="btn add-regex-preset-js">Use Regex Preset Value</a>
