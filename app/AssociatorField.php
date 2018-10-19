@@ -624,21 +624,25 @@ class AssociatorField extends BaseField {
 
         //grab the preview fields associated with the form of this kid
         //make sure one is selected first
-        $preview = array();
+	$preview = array();
+	$prevField = array();
         if(isset($activeForms[$fid])) {
             $details = $activeForms[$fid];
             foreach($details['flids'] as $flid => $type) {
-                array_push($preview, self::previewData($flid, $rid, $type));
+		array_push($prevField, FieldController::getField($flid)->name);
+		array_push($preview, self::previewData($flid, $rid, $type));
             }
         } else {
             array_push($preview, "No Preview Field Available");
+	}
+
+        $html = "<div class='header'><a class='mt-xxxs documents-link underline-middle-hover' href='".url("projects/".$pid."/forms/".$fid."/records/".$rid)."'>".$kid."</a><div class='card-toggle-wrap'><a class='card-toggle assoc-card-toggle-js'><i class='icon icon-chevron active'></i></a></div></div><div class='body'><div class='overlay'></div>";
+
+        foreach($preview as $i=>$val) {
+            $html .= "<div>".$prevField[$i]."</div><div>".$val."</div>";
         }
 
-        $html = "<a class='mt-xxxs documents-link underline-middle-hover' href='".url("projects/".$pid."/forms/".$fid."/records/".$rid)."'>".$kid."</a>";
-
-        foreach($preview as $val) {
-            $html .= " | ".$val;
-        }
+        $html = $html .= "</div>";
 
         return $html;
     }
