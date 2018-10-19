@@ -69,6 +69,7 @@ class PasswordBroker implements PasswordBrokerContract
         $user->sendPasswordResetNotification(
             $this->tokens->create($user)
         );
+		
 
         return static::RESET_LINK_SENT;
     }

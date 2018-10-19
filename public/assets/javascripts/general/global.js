@@ -112,7 +112,11 @@ $(document).ready(function() {
     $('.side-menu-js').addClass('active');
     $(".center, .floating-buttons").addClass('with-aside');
     $('.field.card').addClass('with-aside');
-    $('.notification').addClass('with-aside');
+	
+	var welcome_notification = $('.welcome-body').find(".notification");
+	if (welcome_notification.length == 0) {
+	  $('.notification').addClass('with-aside'); // this breaks welcome page notification styling
+	}
     $('.pre-fixed-js').addClass('pre-fixed-with-aside');
     $('.toolbar').addClass('with-aside');
   } else {
@@ -235,7 +239,18 @@ $(document).ready(function() {
       }
 
       $noteBody.removeClass('dismiss');
-      $('.welcome-body').addClass('with-notification');
+	  var welcome_notification = $('.welcome-body').find(".notification");
+	  if (welcome_notification.length > 0) {
+		welcome_notification.addClass('welcome-align');
+		
+		var welcome_note = welcome_notification.find('.container').find('.note');
+		if (welcome_note.length > 0) {
+			welcome_note.addClass('welcome-stack-note');
+		}
+	  }
+	  
+	  
+	  
 
       if (!$noteBody.hasClass('static-js')) {
         setTimeout(function(){
@@ -336,7 +351,6 @@ function multiselect_placeholder_injection()
 multiselect_placeholder_injection();
 setInterval(multiselect_placeholder_injection, 451);
 
-//PRE LOADER STUFF
 function display_loader() {
 	$("#preloader").css("display", "");
 }
@@ -351,7 +365,7 @@ $( document ).ajaxSend(function(event, xhr, options) {
   var display = true;
 
   // loader exclusion cases for AJAX requests
-  if (url.search("validate") != -1)
+  if (url.search("validate") != -1) // exclude validation requests
   {
 	display = false;
   }
@@ -359,8 +373,18 @@ $( document ).ajaxSend(function(event, xhr, options) {
   if (display) { display_loader(); }
 });
 
-$( document ).ajaxComplete(function() {
-  hide_loader();
+$( document ).ajaxComplete(function(event, xhr, options) {
+  var url = options.url;
+  var hide = true;
+  
+  // hide loader exclusion cases for AJAX requests
+  if (url.search("validate") != -1) { // exclude validation requests
+	hide = false;
+  }
+  
+  if (hide) {
+    hide_loader();
+  }
 });
 
 
