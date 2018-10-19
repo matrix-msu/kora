@@ -1,4 +1,4 @@
-<div class="form-group mt-xl">
+<div class="form-group mt-xxl">
     {!! Form::label('regex_'.$fnum,'Regex') !!}
     {!! Form::text('regex_'.$fnum, \App\ComboListField::getComboFieldOption($field,'Regex',$fnum), ['class' => 'text-input', 'placeholder' => 'Enter regular expression pattern here']) !!}
 	<div><a href="#" class="field-preset-link open-regex-modal-js">Use a Value Preset for this Regex</a></div>
