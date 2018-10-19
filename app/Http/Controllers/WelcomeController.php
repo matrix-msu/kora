@@ -37,8 +37,6 @@ class WelcomeController extends Controller {
             $notification['message'] = 'Check your email!';
 			$notification['description'] ='The password reset link has successfully been sent!';
             $notification['static'] = true;
-			//return view('/welcome', compact('notification'))->with('use_welcome_styling', "testing123");
-			//return view('/welcome', compact('notification'));
           } else if($session == 'user_activate_resent') {
             $notification['message'] = 'Another email has been sent!';
             $notification['static'] = true;

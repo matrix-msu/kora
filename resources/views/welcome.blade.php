@@ -112,7 +112,6 @@
 					"email": email
 				},
 				success: function(data) {
-					console.log(data.response);
 					var response = data.response
 					
 					if (response == "Found") {
