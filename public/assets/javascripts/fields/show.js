@@ -275,6 +275,7 @@ Kora.Fields.Show = function() {
             var name = $('[name="preset_title"]').val();
             var type = 'Schedule';
             var preset = newEvent;
+		  console.log(select[0].value);
             var shared = $('[name="preset_shared"]').is(':checked');
 
             $.ajax({
@@ -295,7 +296,56 @@ Kora.Fields.Show = function() {
     }
 
     function initializeComboPresetModals() {
-        //Allow application of presets for individual field types in a combo list
+        let option = '';
+
+        $('.open-regex-modal-js').click(function (e) {
+            e.preventDefault();
+
+            option = $(this).parent().parent().find('label').attr('for');
+            if (option.includes('one')) {
+                $('.add-regex-one').next().show();
+                $('.add-regex-two').next().hide();
+            } else {
+                $('.add-regex-one').next().hide();
+                $('.add-regex-two').next().show();
+            }
+        });
+
+        $('.add-combo-preset-js').click(function (e) {
+            e.preventDefault();
+
+            let select = $('.add-regex-preset-modal-js select');
+            let value = '';
+            if (option.includes('one')) {
+                value = select[0].value;
+            } else {
+                value = select[1].value;
+            }
+
+            if (option.includes('regex')) {
+                $('[name="'+option+'"]').val(value);
+            } else {
+                let listVal = value;
+                listValArray = listVal.split('[!]');
+
+                //clear old values
+                let optDiv = $('[name="'+option+'\[\]"]');
+                optDiv.html('');
+
+                //Loop through results to
+                for(let i = 0; i < listValArray.length; i++) {
+                    let option = $("<option>").val(listValArray[i]).text(listValArray[i]);
+
+                    optDiv.append(option.clone());
+                }
+
+                //refresh chosen
+                optDiv.find($('option')).prop('selected', true);
+                optDiv.trigger("chosen:updated");
+            }
+
+            Kora.Modal.close();
+        });
     }
 
     function scrollTop (allScrolls) {
@@ -520,5 +570,6 @@ Kora.Fields.Show = function() {
     initializeListPresetModals();
     initializeLocationPresetModals();
     initializeEventPresetModals();
+    initializeComboPresetModals();
     initializeValidation();
 }

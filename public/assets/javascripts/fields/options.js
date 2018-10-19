@@ -536,7 +536,7 @@ Kora.Fields.Options = function(fieldType) {
             }
         });
 
-        //ASSOCIATOR OPTIONS
+	//ASSOCIATOR OPTIONS
         //Sets up association configurations
         $('.association-check-js').click(function() {
             var assocDiv = $(this).closest('.form-group').next();
