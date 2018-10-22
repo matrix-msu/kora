@@ -52,7 +52,8 @@ class FormController extends Controller {
 			$pushThis = $name.' '.$user;
 			array_push($userNames, $pushThis);
 		}
-			
+		dd($userNames);
+
         $currProjectAdmins = $project->adminGroup()->first()->users()->get();
         $admins = User::where("admin","=",1)->get();
         foreach($admins as $admin) {
