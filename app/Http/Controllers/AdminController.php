@@ -409,7 +409,7 @@ class AdminController extends Controller {
                         $user->language = 'en';
                         $token = RegisterController::makeRegToken();
                         $user->regtoken = $token;
-                        $user->save(); // foreach starts over if it reaches this line
+                        $user->save(); // foreach starts over once we reach this line
                         array_push($user_ids, $user->id);
 
                         //

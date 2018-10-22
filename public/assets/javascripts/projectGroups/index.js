@@ -130,6 +130,7 @@ Kora.ProjectGroups.Index = function() {
       },
       success: function(data) {
 		window.localStorage.setItem('message', "User(s) Successfully Added to Permissions Group!");
+		//console.log('data: ' + data);
 		location.reload();
       }
     });

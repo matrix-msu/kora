@@ -167,11 +167,11 @@ class ProjectGroupController extends Controller {
 			$request->return_user_ids = true;
 			// returns new & existing users' ids
 			$user_ids = (new AdminController())->batch($request); // this action creates the new users in db
-			
+
 			if (is_array($request->userIDs))
-			$request->userIDs = array_merge($request->userIDs, $user_ids);
+				$request->userIDs = array_merge($request->userIDs, $user_ids);
 			else
-			$request->userIDs = $user_ids;
+				$request->userIDs = $user_ids;
 	    }
 
 		$instance = ProjectGroup::where('id', '=', $request->projectGroup)->first();
@@ -200,7 +200,7 @@ class ProjectGroupController extends Controller {
 					break;
 				}
 			}
-			
+
 			if($newUser) {
 				array_push($new_users, $userID);
 			} else {
@@ -209,7 +209,7 @@ class ProjectGroupController extends Controller {
 				$this->emailUserProject("changed", $userID, $instance->id);
 				echo $idOld;
 			}
-	
+
 			$instance->users()->attach($userID);
 		}
 		
