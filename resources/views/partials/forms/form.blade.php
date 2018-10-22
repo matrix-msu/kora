@@ -25,7 +25,7 @@
 @if($submitButtonText == 'Create Form')
   <div class="form-group mt-xl">
     {!! Form::label('admins', 'Select Additional Form Admins') !!}
-    {!! Form::select('admins[]', $users, null, [
+    {!! Form::select('admins[]', $userNames, null, [
       'class' => 'multi-select',
       'multiple',
       'data-placeholder' => "Search and select the form admins",

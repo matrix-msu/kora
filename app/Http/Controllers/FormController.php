@@ -43,7 +43,16 @@ class FormController extends Controller {
             return redirect('projects/'.$pid.'/forms')->with('k3_global_error', 'cant_create_form');
 
         $project = ProjectController::getProject($pid);
-        $users = User::pluck('username', 'id')->all();
+        // $users = User::pluck('username', 'id')->all();
+		$users = User::pluck('first_name', 'last_name')->all();
+
+		$userNames = array();
+		foreach ($users as $user => $name) {
+			//$user .= ' '.User::where('first_name', '=', $user)->get('last_name');
+			$pushThis = $name.' '.$user;
+			array_push($userNames, $pushThis);
+		}
+			
         $currProjectAdmins = $project->adminGroup()->first()->users()->get();
         $admins = User::where("admin","=",1)->get();
         foreach($admins as $admin) {
@@ -62,7 +71,7 @@ class FormController extends Controller {
         foreach(Form::where('preset', '=', 1, 'and', 'pid', '=', $pid)->get() as $form)
             $presets[$form->fid] = $form->project->name.' - '.$form->name;
 
-        return view('forms.create', compact('project', 'users', 'presets')); //pass in
+        return view('forms.create', compact('project', 'userNames', 'presets')); //pass in
 	}
 
     /**
