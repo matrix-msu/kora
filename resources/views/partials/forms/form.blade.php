@@ -31,7 +31,7 @@
       'data-placeholder' => "Search and select the form admins",
       'id' => 'admins'
     ]) !!}
-    <p class="sub-text  mt-xxs">
+    <p class="sub-text mt-xs">
       Project admins are automatically assigned as admins to this new form, but you may select additional form admins above.  As the creator of this form, you are automatically added as a form admin as well.
     </p>
   </div>

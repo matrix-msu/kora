@@ -182,12 +182,20 @@ class ProjectController extends Controller {
         if(!\Auth::user()->admin)
             return redirect('projects')->with('k3_global_error', 'not_admin');
 
+		$projectMode = "project_create";
         $currentUser = auth()->user();
         //$users = User::pluck('username', 'id')->all();
-        $users = User::where('id', '!=', $currentUser->id)->pluck('username', 'id')->all();
-        $projectMode = "project_create";
+        $users = User::where('id', '!=', $currentUser->id)->pluck('first_name', 'last_name')->all();
+		
+		$userNames = array();
+		foreach ($users as $user => $name) {
+			//$user .= ' '.User::where('first_name', '=', $user)->get('last_name');
+			$pushThis = $name.' '.$user;
+			array_push($userNames, $pushThis);
+		}
+        
 
-        return view('projects.create', compact('users','projectMode'));
+        return view('projects.create', compact('userNames','projectMode'));
 	}
 
     /**

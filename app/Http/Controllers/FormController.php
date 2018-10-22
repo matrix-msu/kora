@@ -46,27 +46,25 @@ class FormController extends Controller {
         // $users = User::pluck('username', 'id')->all();
 		$users = User::pluck('first_name', 'last_name')->all();
 
+        $currProjectAdmins = $project->adminGroup()->first()->users()->get();
+        $admins = User::where("admin","=",1)->get();
+        foreach($admins as $admin) {
+            if(array_key_exists($admin->last_name,$users)) {
+                unset($users[$admin->last_name]);
+            }
+        }
+        foreach($currProjectAdmins as $pAdmin) {
+            if(array_key_exists($pAdmin->last_name,$users)) {
+                unset($users[$pAdmin->last_name]);
+            }
+        }
+
 		$userNames = array();
 		foreach ($users as $user => $name) {
 			//$user .= ' '.User::where('first_name', '=', $user)->get('last_name');
 			$pushThis = $name.' '.$user;
 			array_push($userNames, $pushThis);
 		}
-		dd($userNames);
-
-        $currProjectAdmins = $project->adminGroup()->first()->users()->get();
-        $admins = User::where("admin","=",1)->get();
-        foreach($admins as $admin) {
-            if(array_key_exists($admin->id,$users)) {
-                unset($users[$admin->id]);
-            }
-        }
-        foreach($currProjectAdmins as $pAdmin) {
-            if(array_key_exists($pAdmin->id,$users)) {
-                unset($users[$pAdmin->id]);
-            }
-        }
-
 
         $presets = array();
         foreach(Form::where('preset', '=', 1, 'and', 'pid', '=', $pid)->get() as $form)
