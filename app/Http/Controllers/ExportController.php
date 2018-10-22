@@ -717,7 +717,8 @@ class ExportController extends Controller {
                 if($useOpts && $options['assoc']) {
                     //simplify the duplicates
                     $arids = array_unique($assocRIDColl);
-                    $assocData = json_decode($this->exportWithRids($arids, $format, true),true);
+                    $aOpts = ["revAssoc" => false, "meta" => false, "fields" => 'ALL', "data" => true, "realnames" => $options['realnames'], "assoc" => false];
+                    $assocData = json_decode($this->exportWithRids($arids, $format, true, $aOpts),true);
                     foreach($assocMaster as $am) {
                         $value = array();
                         $kid = $am['kid'];
