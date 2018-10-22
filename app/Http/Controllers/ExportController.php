@@ -698,6 +698,7 @@ class ExportController extends Controller {
                                     $ainfo = [
                                         'kid' => $kid,
                                         'slug' => $data->slug,
+                                        'name' => $fieldIndex,
                                         'akids' => $akids
                                     ];
                                     array_push($assocMaster,$ainfo);
@@ -720,7 +721,10 @@ class ExportController extends Controller {
                     foreach($assocMaster as $am) {
                         $value = array();
                         $kid = $am['kid'];
-                        $slug = $am['slug'];
+                        if($options['realnames'])
+                            $slug = $am['name'];
+                        else
+                            $slug = $am['slug'];
                         foreach($am['akids'] as $akid) {
                             $value[$akid] = $assocData[$akid];
                         }
