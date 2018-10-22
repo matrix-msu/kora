@@ -25,6 +25,10 @@
     align-items: center;
     display: flex;
     height: 100%;
+	
+	div > p {
+	  color: palette('white', base);
+	}
   }
 
   .note {
