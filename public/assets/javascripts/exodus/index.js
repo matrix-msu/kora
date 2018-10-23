@@ -10,6 +10,14 @@ Kora.Exodus.Index = function() {
     function initializeGetProjectList() {
         $('.get-projects-js').click(function (e) {
             e.preventDefault();
+			
+			if (checkValidation($('.db-host-js')) & checkValidation($('.db-user-js'))
+				& checkValidation($('.db-name-js')) & checkValidation($('.db-pass-js')))
+			{
+				var passed = true;
+			}
+			
+			if (!passed) return;
 
             var databaseLink = $('.database-link');
             var databaseSection = $('.exodus-database');
@@ -27,6 +35,8 @@ Kora.Exodus.Index = function() {
                     "pass": $('.db-pass-js').val()
                 },
                 success: function (data) {
+					console.log("Exodus request success");
+					console.log(data);
                     databaseLink.removeClass('active');
                     projectsLink.addClass('active');
                     projectsLink.addClass('underline-middle');
@@ -43,7 +53,12 @@ Kora.Exodus.Index = function() {
                     }
 
                     projectsSelector.trigger("chosen:updated");
-                }
+                },
+				error: function(data) {
+					console.log("Exodus request failed");
+					console.log(data);
+					console.log(data.responseJSON.response);
+				}
             });
         });
     }
@@ -54,7 +69,25 @@ Kora.Exodus.Index = function() {
             $('.set-disabled-js').addClass("disabled");
         });
     }
+	
+	function initializeValidation() {
+		$(".db-host-js, .db-name-js, .db-user-js, .db-pass-js").blur(function(e) {
+			checkValidation($(this));
+		});
+	}
+	
+	function checkValidation(input) {
+		var text = input.val();
+		if (text == "") {
+			input.prev().text("This field is required");
+			return false;
+		} else {
+			input.prev().text("");
+			return true;
+		}
+	}
 
     initializeGetProjectList();
     initializeFormSubmit();
+	initializeValidation();
 }
