@@ -21,7 +21,6 @@
         @yield('footer')
 
         @if((Auth::guest() || !Auth::user()->active) && isInstalled())
-		  <script src="{{ url('assets/javascripts/navigation/breadcrumbs.js') }}"></script>
           @include('partials.footer')
         @endif
       </div>
