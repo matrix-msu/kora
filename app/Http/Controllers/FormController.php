@@ -43,27 +43,20 @@ class FormController extends Controller {
             return redirect('projects/'.$pid.'/forms')->with('k3_global_error', 'cant_create_form');
 
         $project = ProjectController::getProject($pid);
-        // $users = User::pluck('username', 'id')->all();
-		$users = User::pluck('first_name', 'last_name')->all();
-
+		$users = User::all();
         $currProjectAdmins = $project->adminGroup()->first()->users()->get();
         $admins = User::where("admin","=",1)->get();
-        foreach($admins as $admin) {
-            if(array_key_exists($admin->last_name,$users)) {
-                unset($users[$admin->last_name]);
-            }
-        }
-        foreach($currProjectAdmins as $pAdmin) {
-            if(array_key_exists($pAdmin->last_name,$users)) {
-                unset($users[$pAdmin->last_name]);
-            }
-        }
 
 		$userNames = array();
-		foreach ($users as $user => $name) {
-			//$user .= ' '.User::where('first_name', '=', $user)->get('last_name');
-			$pushThis = $name.' '.$user;
-			array_push($userNames, $pushThis);
+		foreach ($users as $user) {
+			if (!$currProjectAdmins->contains($user) && !$admins->contains($user)) {
+				$firstName = $user->first_name;
+				$lastName = $user->last_name;
+				$userName = $user->username;
+
+				$pushThis = $firstName.' '.$lastName.' ('.$userName.')';
+				array_push($userNames, $pushThis);
+			}
 		}
 
         $presets = array();

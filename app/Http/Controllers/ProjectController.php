@@ -184,16 +184,20 @@ class ProjectController extends Controller {
 
 		$projectMode = "project_create";
         $currentUser = auth()->user();
-        //$users = User::pluck('username', 'id')->all();
-        $users = User::where('id', '!=', $currentUser->id)->pluck('first_name', 'last_name')->all();
-		
+		$users = User::all();
+
 		$userNames = array();
-		foreach ($users as $user => $name) {
-			//$user .= ' '.User::where('first_name', '=', $user)->get('last_name');
-			$pushThis = $name.' '.$user;
-			array_push($userNames, $pushThis);
+		foreach ($users as $user) {
+			if ($user->id != $currentUser->id) {
+
+				$firstName = $user->first_name;
+				$lastName = $user->last_name;
+				$userName = $user->username;
+
+				$pushThis = $firstName.' '.$lastName.' ('.$userName.')';
+				array_push($userNames, $pushThis);
+			}
 		}
-        
 
         return view('projects.create', compact('userNames','projectMode'));
 	}
