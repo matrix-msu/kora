@@ -1,7 +1,7 @@
 @extends('app', ['page_title' => 'Activate', 'page_class' => 'activate'])
 
 @section('body')
-    @include('partials.projects.notification')
+  @include('partials.projects.notification')
   <div class="content">
     <div class="form-container center">
       <section class="head">

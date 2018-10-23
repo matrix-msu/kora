@@ -406,6 +406,14 @@ class UserController extends Controller {
      * @return View
      */
     public function activateshow() {
+        $notification = array(
+            'message' => '',
+            'description' => '',
+            'warning' => false,
+            'static' => false
+        );
+		return view('auth.activate', compact('notification'));
+		
         if(is_null(\Auth::user()))
             return redirect('register');
         elseif (!\Auth::user()->active)
