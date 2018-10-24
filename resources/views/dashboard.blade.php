@@ -86,7 +86,9 @@
 								<div class="edit-block">
 									<div class="wrap">
 										<p>Drag & drop blocks to reorganize</p>
-										<button>Edit Block</button>
+										<section class="new-object-button">
+											<input type="button" value="Edit Block">
+										</section>
 										<div class="bottom">
 											<a href="#" class="remove-block tooltip" tooltip="Delete Block">
 												<i class="icon icon-trash"></i>
