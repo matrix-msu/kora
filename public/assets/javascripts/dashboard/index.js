@@ -19,6 +19,30 @@ Kora.Dashboard.Index = function() {
             Kora.Modal.open($('.create-block-modal-js'));
         });
 
+        $('.edit-blocks-js').click(function (e) {
+            e.preventDefault();
+
+			$('.edit-dashboard-js').removeClass('hidden');
+			$('.done-editing-blocks-js').removeClass('hidden');
+			$('.edit-blocks-js').addClass('hidden');
+			$('.container .element').addClass('edit-mode');
+            $('.floating-buttons').addClass('hidden');
+
+			//Kora.Modal.open($('.edit-blocks-modal-js'));
+        });
+
+        $('.done-editing-blocks-js').click(function (e) {
+            e.preventDefault();
+
+			$('.edit-dashboard-js').addClass('hidden');
+			$('.done-editing-blocks-js').addClass('hidden');
+			$('.edit-blocks-js').removeClass('hidden');
+			$('.container .element').removeClass('edit-mode');
+            $('.floating-buttons').removeClass('hidden');
+
+			//Kora.Modal.open($('.edit-blocks-modal-js'));
+        });
+
         if(state == 1)
             Kora.Modal.open($('.create-block-modal-js'));
     }

@@ -43,7 +43,7 @@
       color: palette('green', accent);
       text-decoration: none;
 
-      &:last-child {
+      &:not(:first-child) {
         margin-left: 45px;
       }
 
@@ -112,6 +112,10 @@
         margin: 20px 20px 10px;
       }
     }
+  }
+  
+  .dashboard-submit .fixed-bottom-slide {
+	margin: 0 auto 15px;
   }
 
   .floating-buttons {
