@@ -42,10 +42,11 @@
             </a>
         </div>
     </div>
+
     @foreach($sections as $section)
         <section class="grid">
             <h1 class="header">
-                <span class="left title">{{ $section['title'] }}</span>
+                <span class="left title">Current {{ $section['title'] }}</span>
                 <div class="line-container">
                     <span class="line"></span>
                 </div>
@@ -72,7 +73,7 @@
                                         <i class="icon {{ $link['icon-class']}}"></i>
                                     </a>
                                 @endforeach
-                                <a href="#" class="element-link right options-modal-js">
+                                <a href="#" class="element-link tooltip right options-modal-js" tooltip="Import Multi-Form Records Setup  Kora 2 Scheme Importer  Export Project">
                                     <i class="icon icon-more"></i>
                                 </a>
                             </div>

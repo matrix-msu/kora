@@ -1,5 +1,6 @@
 <?php namespace App\Http\Controllers;
 
+use Carbon\Carbon;
 use App\AssociatorField;
 use App\Field;
 use App\Http\Requests\BlockRequest;
@@ -60,26 +61,40 @@ class DashboardController extends Controller {
         $results = DB::table('dashboard_sections')->where('uid','=',Auth::user()->id)->orderBy('order')->get();
 
         // Create a section and block if there isn't already one and we have a project to add
-
         if(count($results) == 0) {
+			$this->addSection('All');
             if(sizeof(Auth::User()->allowedProjects()) > 0)
                 $this->makeDefaultBlock('Project');
             else
                 $this->makeDefaultBlock('Fun'); // If no projects, make an inspiration quote
-        }
+        } else if (count($results) < 4) {
+			$addSections = array('Projects', 'Forms', 'Records', 'Fun');
+			for ($i = 0; $i < count($results); $i++) {
+				unset($addSections[array_search($results[$i]->title, $addSections)]);
+			}
+			foreach ($addSections as $addMe) {
+				$this->addSection($addMe);
+			}
+		}
 
         foreach($results as $sec) {
             $s = array();
             $s['title'] = $sec->title;
             $s['id'] = $sec->id;
 
-            $blocks = array();
-            $blkResults = DB::table('dashboard_blocks')->where('sec_id','=',$sec->id)->orderBy('order')->get();
+			if ($s['title'] != 'Fun') {
+				$type = substr($s['title'], 0, -1);
+				$blocks = array();
+				$blkResults = DB::table('dashboard_blocks')->where('sec_id','=',$sec->id)->where('type','=',$type)->orderBy('order')->get();
+			} else {
+				$blocks = array();
+				$blkResults = DB::table('dashboard_blocks')->where('sec_id','=',$sec->id)->orderBy('order')->get();
+			}
+
             foreach($blkResults as $blk) {
                 $b = array();
                 $b['id'] = $blk->id;
                 $b['type'] = $blk->type;
-
                 $options = json_decode($blk->options, true);
                 switch($blk->type) {
                     case 'Project':
@@ -167,12 +182,10 @@ class DashboardController extends Controller {
                     default:
                         break;
                 }
-
                 array_push($blocks,$b);
             }
 
             $s['blocks'] = $blocks;
-
             array_push($sections,$s);
         }
 
@@ -240,7 +253,28 @@ class DashboardController extends Controller {
     }
 
     public function addSection($request) {
+		switch ($request) {
+			case 'Projects':
+				$title = 'Projects';
+				break;
+			case 'Forms':
+				$title = 'Forms';
+				break;
+			case 'Records':
+				$title = 'Records';
+				break;
+			case 'Fun':
+				$title = 'Fun';
+				break;
+			default:
+				break;
+		}
 
+        DB::table('dashboard_sections')->insert([
+			'uid' => Auth::user()->id,
+            'title' => $title,
+            'created_at' => Carbon::now()->toDateTimeString()
+        ]);
     }
 
     /**
@@ -272,7 +306,8 @@ class DashboardController extends Controller {
                 break;
             case 'Record':
                 $kid = $request->block_record;
-                $rid = end(explode('-',$kid));
+				$rids = explode('-',$kid);
+                $rid = end($rids);
                 $optString = '{"rid": ' . $rid . '}';
                 break;
             case 'Quote':
