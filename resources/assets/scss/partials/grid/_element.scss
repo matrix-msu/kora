@@ -19,6 +19,7 @@
 	  border-radius: 5px;
 	  box-sizing: border-box;
 	  color: palette('white', base);
+	  display: none;
 	  height: 100%;
 	  left: 0;
 	  opacity: 0;
@@ -46,16 +47,26 @@
 	  
 	  .new-object-button {
 		  align-items: center;
-		  border-color: palette('gray', background, 0.5);
 		  bottom: 0;
-		  box-shadow: none;
 		  display: flex;
 		  left: 0;
 		  margin: 0 auto;
 		  position: absolute;
 		  right: 0;
 		  top: 0;
-		  width: 33%;
+		  width: 140px;
+		  
+		  > input {
+			background-color: rgba(240, 240, 240, 0.1);
+			border-color: palette('gray', background, 0.5);
+			box-shadow: none;
+			color: inherit;
+			
+			&:hover {
+				background-color: rgba(255, 255, 255, 0.9);
+				color: palette('gray', slate);
+			}
+		  }
 	  }
 
 	  .bottom {
@@ -68,8 +79,23 @@
 		  .remove-block {
 			  color: palette('white', base); 
 			  text-decoration: none;
+			  
+			  .icon {
+				  @include transition(transform);
+				  
+				  display: inline-block;
+				  will-change: transform;
+			  }
+			  
+			  &:hover .icon {
+				  transform: scale(1.25);
+			  }
 		  }
 	  }
+  }
+  
+  &.edit-mode .edit-block {
+	  display: block;
   }
   
   &.edit-mode:hover .edit-block {

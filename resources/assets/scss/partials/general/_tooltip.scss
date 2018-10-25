@@ -11,6 +11,14 @@
   &::after {
     opacity: 0;
   }
+  
+  .element-link-container &.right:last-child:hover::after { /* for dashboard */
+	  left: -60px;
+	  padding: 10px;
+	  top: -120px;
+	  white-space: normal;
+	  width: 130px;
+  }
 
   &:hover::after {
     animation: fadein .2s forwards;
@@ -91,6 +99,17 @@
     .open-create-regex & {
       left: -140px;
     }
+	
+	/* DASHBOARD SECTION */
+	.element .element-link-container & {
+		z-index: 1;
+	}
+
+	.edit-mode .edit-block & {
+		background: palette('white');
+		color: palette('gray', dropdown);
+	}
+	/* DASHBOARD SECTION END */
     
     @media screen and (max-width: $max-mobile-xs-width) {
       .title & {
