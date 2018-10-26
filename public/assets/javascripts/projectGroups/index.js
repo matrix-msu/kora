@@ -457,6 +457,8 @@ Kora.ProjectGroups.Index = function() {
   }
   
   function initializeValidation() {
+	var checkbox_names = {"create": true, "edit": true, "delete": true};
+	
 	function validateGroupName() {
 	  var name = $(".create-group-name-js").val();
 	  
@@ -483,12 +485,18 @@ Kora.ProjectGroups.Index = function() {
 	    error_msg.text("Select at least one permission");
 		return false;
 	  }
-	  
 	}
 	
     $(".create-group-name-js").blur(function() {
 	  validateGroupName();
     });
+	
+	$(".check-box-input").click(function() {
+	  var name = $(this).attr("name");
+	  if (name !== null && checkbox_names[name] != null) {
+	    validateGroupOptions();
+	  }
+	});
 	
 	$(".create-submit-js").click(function(e) {
 	  var valid_name = validateGroupName();
@@ -498,10 +506,6 @@ Kora.ProjectGroups.Index = function() {
 		e.preventDefault();
 	  }
 	});
-	
-	
-	
-	
   }
 
   Kora.Modal.initialize();
