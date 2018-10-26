@@ -81,7 +81,7 @@
                 </div>
               </div>
             </div>
-			<span class="error-message group-options-error-message">testing 123 testing 321</span>
+			<span class="error-message group-options-error-message"></span>
           </div>
 		</div>
 
