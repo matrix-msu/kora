@@ -296,7 +296,7 @@ Kora.ProjectGroups.Index = function() {
       var gid = $(this).data('group');
 
       var $editNameModal = $('.edit-group-name-modal-js');
-      var $editNameModalInput = $editNameModal.find('.group-name-js');
+      var $editNameModalInput = $editNameModal.find('.create-group-name-js');
       $editNameModalInput.val(groupName);
 
       // Submission of Editing a Name
@@ -304,7 +304,7 @@ Kora.ProjectGroups.Index = function() {
         return function(e) {
           e.preventDefault();
 
-          var groupName = $('.edit-group-name-modal-js').find('.group-name-js').val();
+          var groupName = $('.edit-group-name-modal-js').find('.create-group-name-js').val();
           self.editGroupName(gid, groupName);
         }
       }
@@ -363,7 +363,7 @@ Kora.ProjectGroups.Index = function() {
       }
 	  
       $('.add-users-submit-js').on('click', submitUsers(groupID, $addUserModal, $select));
-
+		
       Kora.Modal.open($addUserModal);
     });
   }
@@ -455,6 +455,54 @@ Kora.ProjectGroups.Index = function() {
       adjustCardTitle();
     });
   }
+  
+  function initializeValidation() {
+	function validateGroupName() {
+	  var name = $(".create-group-name-js").val();
+	  
+	  if (name == null || name == "") {
+	    $(".create-group-name-js").prev($("span")).text("This field is required");
+		return false;
+	  } else {
+		$(".create-group-name-js").prev($("span")).text("");
+		return true;
+	  }
+	}
+	
+	function validateGroupOptions() {
+	  var check_create = $("input[name='create'].check-box-input");
+	  var check_edit = $("input[name='edit'].check-box-input");
+	  var check_delete = $("input[name='delete'].check-box-input");
+	  var error_msg = $(".group-options-error-message");
+	  
+	  if (check_create && check_edit && check_delete &&
+	  (check_create.prop("checked") || check_edit.prop("checked") || check_delete.prop("checked"))) {
+		error_msg.text("");
+		return true;
+	  } else {
+	    error_msg.text("Select at least one permission");
+		return false;
+	  }
+	  
+	}
+	
+    $(".create-group-name-js").blur(function() {
+	  validateGroupName();
+    });
+	
+	$(".create-submit-js").click(function(e) {
+	  var valid_name = validateGroupName();
+	  var valid_options = validateGroupOptions();
+	  
+	  if (!valid_name || !valid_options) {
+		e.preventDefault();
+	  }
+	});
+	
+	
+	
+	
+  }
 
   Kora.Modal.initialize();
   initializePermissionsToggles();
@@ -465,4 +513,5 @@ Kora.ProjectGroups.Index = function() {
   initializeRemoveUserModal();
   initializeViewUserModal();
   initializeUserCardEllipsifying();
+  initializeValidation();
 }
