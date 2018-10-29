@@ -185,6 +185,7 @@ Kora.Dashboard.Index = function() {
             $.each($('#block_create_form').serializeArray(), function(i, field) {
                 values[field.name] = field.value;
             });
+			values['_token'] = CSRFToken;
 
             $.ajax({
                 url: validationUrl,
@@ -194,6 +195,7 @@ Kora.Dashboard.Index = function() {
                     $('#block_create_form').submit();
                 },
                 error: function(err) {
+					console.log(err);
                     $('.error-message').text('');
                     $('.text-input, .text-area, .chosen-container').removeClass('error');
 
