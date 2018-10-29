@@ -9,6 +9,9 @@ Route::group(['middleware' => 'web'], function () {
     Route::get('/dashboard', 'DashboardController@dashboard');
     Route::post('/dashboard/addBlock', 'DashboardController@addBlock');
     Route::post('/dashboard/addBlock/validate', 'DashboardController@validateBlockFields');
+	Route::delete('/dashboard/deleteBlock/{blkID}/{secID}', 'DashboardController@deleteBlock');
+	Route::post('/dashboard/addSection/{sectionTitle}','DashboardController@addSection');
+	Route::delete('/dashboard/deleteSection/{sectionID}', 'DashboardController@deleteSection');
 
 //project routes
     Route::get('/projects/import', 'ProjectController@importProjectView');

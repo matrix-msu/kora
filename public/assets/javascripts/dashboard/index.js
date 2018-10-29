@@ -19,6 +19,22 @@ Kora.Dashboard.Index = function() {
             Kora.Modal.open($('.create-block-modal-js'));
         });
 
+		$('.remove-block').click(function (e) {
+			e.preventDefault();
+
+			let blkID = $(this).attr('blkid');
+			let secID = $(this).attr('secid');
+			let url = removeBlockUrl + '/' + blkID + '/' + secID;
+			$('.delete-block-form-js').attr('action', url);
+
+			Kora.Modal.open($('.delete-block-modal-js'));
+		});
+
+        if(state == 1)
+            Kora.Modal.open($('.create-block-modal-js'));
+    }
+	
+	function initializeEditDashboardMode() {
         $('.edit-blocks-js').click(function (e) {
             e.preventDefault();
 
@@ -27,6 +43,8 @@ Kora.Dashboard.Index = function() {
 			$('.edit-blocks-js').addClass('hidden');
 			$('.container .element').addClass('edit-mode');
             $('.floating-buttons').addClass('hidden');
+			$('.grid.add-section').removeClass('hidden');
+			$('.section-quick-actions').addClass('show');
 
 			//Kora.Modal.open($('.edit-blocks-modal-js'));
         });
@@ -39,13 +57,86 @@ Kora.Dashboard.Index = function() {
 			$('.edit-blocks-js').removeClass('hidden');
 			$('.container .element').removeClass('edit-mode');
             $('.floating-buttons').removeClass('hidden');
+			$('.grid.add-section').addClass('hidden');
+			$('.section-quick-actions').removeClass('show');
 
 			//Kora.Modal.open($('.edit-blocks-modal-js'));
         });
 
-        if(state == 1)
-            Kora.Modal.open($('.create-block-modal-js'));
-    }
+		$('.delete-block-js').click(function (e) {
+			e.preventDefault();
+
+			let $form = $('.delete-block-form-js');
+			let url = $form.attr('action');
+
+			values = {};
+			$.each($form.children('input').serializeArray(), function (i, field) {
+				values[field.name] = field.value;
+			});
+			values['_method'] = 'DELETE';
+
+			$.ajax({
+				url: url,
+				method: 'POST',
+				data: values,
+				success: function (data) {
+					window.location.reload();
+				},
+				error: function (err) {
+					console.log(err);
+				}
+			});
+		});
+	}
+
+	function initializeSectionModificationFunctions() {
+		$('.add-section-input-js').on('keyup', function (e) {
+			e.preventDefault();
+
+			if (e.keyCode == 13) {
+				let secTitle = $('.add-section-input-js').val();
+				let url = addSectionUrl + '/' + secTitle;
+
+				$.ajax({
+					url: url,
+					method: 'POST',
+					data: {
+						'_token': CSRFToken,
+						'_method': 'POST',
+						'sectionTitle': secTitle
+					},
+					success: function () {
+						window.location.reload();
+					},
+					error: function (err) {
+						console.log(err);
+					}
+				});
+			}
+		});
+
+		$('.delete-section-js').click(function (e) {
+			e.preventDefault();
+
+			let secID = $(this).attr('data-id');
+			let url = removeSectionUrl + '/' + secID;
+			
+			$.ajax({
+				url: url,
+				method: 'POST',
+				data: {
+					'_token': CSRFToken,
+					'_method': 'DELETE'
+				},
+				success: function (data) {
+					window.location.reload();
+				},
+				error: function (err) {
+					console.log(err);
+				}
+			});
+		});
+	}
 
     function initializeAddBlockFunctions() {
         function setAddBlockVisibility(proj, form, rec, note) {
@@ -118,6 +209,8 @@ Kora.Dashboard.Index = function() {
 
     initializeSelects();
     initializeDashboardModals();
+	initializeEditDashboardMode();
+	initializeSectionModificationFunctions();
     initializeAddBlockFunctions();
     initializeValidation();
 }

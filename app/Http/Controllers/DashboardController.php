@@ -67,7 +67,8 @@ class DashboardController extends Controller {
                 $this->makeDefaultBlock('Project');
             else
                 $this->makeDefaultBlock('Fun'); // If no projects, make an inspiration quote
-        } else if (count($results) < 4) {
+        } /* else if (count($results) < 4) {
+			// We have at minimum these 4 sections -- sections will not display if there are no blocks to display in them
 			$addSections = array('Projects', 'Forms', 'Records', 'Fun');
 			for ($i = 0; $i < count($results); $i++) {
 				unset($addSections[array_search($results[$i]->title, $addSections)]);
@@ -75,21 +76,15 @@ class DashboardController extends Controller {
 			foreach ($addSections as $addMe) {
 				$this->addSection($addMe);
 			}
-		}
+		} */
 
         foreach($results as $sec) {
             $s = array();
             $s['title'] = $sec->title;
             $s['id'] = $sec->id;
 
-			if ($s['title'] != 'Fun') {
-				$type = substr($s['title'], 0, -1);
-				$blocks = array();
-				$blkResults = DB::table('dashboard_blocks')->where('sec_id','=',$sec->id)->where('type','=',$type)->orderBy('order')->get();
-			} else {
-				$blocks = array();
-				$blkResults = DB::table('dashboard_blocks')->where('sec_id','=',$sec->id)->orderBy('order')->get();
-			}
+			$blocks = array();
+			$blkResults = DB::table('dashboard_blocks')->where('sec_id','=',$sec->id)->orderBy('order')->get();
 
             foreach($blkResults as $blk) {
                 $b = array();
@@ -252,29 +247,20 @@ class DashboardController extends Controller {
         return array();
     }
 
-    public function addSection($request) {
-		switch ($request) {
-			case 'Projects':
-				$title = 'Projects';
-				break;
-			case 'Forms':
-				$title = 'Forms';
-				break;
-			case 'Records':
-				$title = 'Records';
-				break;
-			case 'Fun':
-				$title = 'Fun';
-				break;
-			default:
-				break;
-		}
+    public function addSection($sectionTitle) {
+		$order = 0;
+        $lastSec = DB::table('dashboard_sections')->where('uid','=',Auth::user()->id)->orderBy('order','desc')->first();
+        if(!is_null($lastSec))
+            $order = $lastSec->order + 1;
 
         DB::table('dashboard_sections')->insert([
 			'uid' => Auth::user()->id,
-            'title' => $title,
+			'order' => $order,
+            'title' => $sectionTitle,
             'created_at' => Carbon::now()->toDateTimeString()
         ]);
+
+        return response()->json(["status"=>true, "message"=>"Section created", 200]);
     }
 
     /**
@@ -349,18 +335,16 @@ class DashboardController extends Controller {
      * @param  int $secID - Section ID
      * @return JsonResponse
      */
-    public function deleteSection($request) {
-        $secID = $request->secID;
-
+    public function deleteSection($sectionID) {
         $validCnt = DB::table("dashboard_sections")
-            ->where("id", "=", $secID)
+            ->where("id", "=", $sectionID)
             ->where("uid", "=", Auth::user()->id)
             ->count();
         if($validCnt == 0)
             return redirect('projects')->with('k3_global_error', 'not_dashboard_owner');
 
-        DB::table("dashboard_blocks")->where("sec_id", "=", $secID)->delete();
-        DB::table("dashboard_sections")->where("id", "=", $secID)->delete();
+        DB::table("dashboard_blocks")->where("sec_id", "=", $sectionID)->delete();
+        DB::table("dashboard_sections")->where("id", "=", $sectionID)->delete();
 
         return response()->json(["status"=>true, "message"=>"Section destroyed", 200]);
     }
@@ -371,9 +355,9 @@ class DashboardController extends Controller {
      * @param  int $blkID - Block ID
      * @return JsonResponse
      */
-    public function deleteBlock($request) {
-        $blkID = $request->blkID;
-        $secID = $request->secID;
+    public function deleteBlock($blkID, $secID) {
+        // $blkID = $request->blkID;
+        // $secID = $request->secID;
 
         $validCnt = DB::table("dashboard_sections")
             ->where("id", "=", $secID)

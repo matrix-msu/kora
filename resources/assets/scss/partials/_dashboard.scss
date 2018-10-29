@@ -69,6 +69,55 @@
   }
 
   .grid {
+	.section-quick-actions {
+		@include transition(width);
+
+		background: palette('gray', background);
+		height: 100%;
+		overflow: hidden;
+		position: absolute;
+		right: 0;
+		top: 0;
+		width: 0;
+
+		> a {
+			color: palette('gray', slate, 0.7);
+			display: inline-block;
+			font-size: 10px;
+			padding: 2px 13px 0;
+			text-decoration: none;
+
+			i {
+				@include transition();
+
+				display: inline-block;
+			}
+
+			&:first-child {
+				padding: 0 13px 0 26px;
+			}
+
+			&:last-child {
+				font-size: 15px;
+				padding: 0 13px 0 0;
+				transform: rotate(180deg);
+			}
+
+			&.up {
+				transform: rotate(180deg);
+			}
+			
+			&:hover i {
+				transform: scale(1.25);
+			}
+		}
+
+		&.show {
+			overflow: visible;
+			width: unset;
+		}
+	}
+
     .element {
       .fp-style {
         height: auto;
@@ -112,6 +161,48 @@
         margin: 20px 20px 10px;
       }
     }
+
+	&.add-section {
+		padding-bottom: 180px;
+
+		.title {
+			background: gradient('background');
+			border: 1px solid palette('green',accent,0.2);
+			border-radius: 5px;
+			box-shadow: 0 3px 5px 0 rgba(57, 67, 89, 0.05);
+			height: 40px;
+			margin-right: 20px;
+			padding-right: 0;
+			width: 380px;
+
+			form {
+				height: 100%;
+			}
+
+			input {
+				background: transparent;
+				border: none;
+				color: palette('green', accent);
+				font-family: $ubuntu;
+				font-size: 16px;
+				height: 100%;
+				padding: 0 20px;
+				width: fill;
+
+				&:focus {
+					outline: none;
+				}
+			}
+		}
+
+		.line-container {
+			height: 40px;
+
+			.line {
+				margin: 20px 0 0;
+			}
+		}
+	}
   }
   
   .dashboard-submit .fixed-bottom-slide {
@@ -119,6 +210,8 @@
   }
 
   .floating-buttons {
+    z-index: 1;
+
     .form-group {
       display: inline-block;
       margin: 25px 7px;
