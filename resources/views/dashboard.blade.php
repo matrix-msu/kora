@@ -48,10 +48,12 @@
         </div>
     </div>
 
+	{{-- @php dd($sections[4]['id']); @endphp --}}
 	@foreach($sections as $section)
 		<section class="grid">
 			<h1 class="header">
 				<span class="left title">{{ $section['title'] }}</span>
+				<span class="left title">{{ $section['id'] }}</span>
 				<div class="line-container">
 					<span class="line"></span>
 				</div>

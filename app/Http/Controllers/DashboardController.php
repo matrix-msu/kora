@@ -330,7 +330,7 @@ class DashboardController extends Controller {
     }
 
     /**
-     * Deletes a dashboard section along with its blocks.
+     * Deletes a dashboard section, moves section's blocks to the previous section
      *
      * @param  int $secID - Section ID
      * @return JsonResponse
@@ -343,7 +343,26 @@ class DashboardController extends Controller {
         if($validCnt == 0)
             return redirect('projects')->with('k3_global_error', 'not_dashboard_owner');
 
-        DB::table("dashboard_blocks")->where("sec_id", "=", $sectionID)->delete();
+		// find the index of the selected section
+		$allSections = DB::table('dashboard_sections')->where('uid','=',Auth::user()->id)->orderBy('order')->get();
+		foreach ($allSections as $key => $section) {
+			if ($section->id == $sectionID) {
+				$index = $key;
+				break;
+			}
+		}
+		// reference the ID of the previous section with the key of the selected section
+		$newID = $allSections[$key - 1]->id;
+
+		// assign the new ID to all blocks within the old section
+		// $blocks = DB::table("dashboard_blocks")->where("sec_id", "=", $sectionID)->orderBy('order')->get();
+		// foreach ($blocks as $block) {
+			// $block->sec_id = $newID;
+			// $block->save();
+		// }
+		DB::table("dashboard_blocks")->where("sec_id", "=", $sectionID)->update(['sec_id' => $newID]);
+
+        //DB::table("dashboard_blocks")->where("sec_id", "=", $sectionID)->delete();
         DB::table("dashboard_sections")->where("id", "=", $sectionID)->delete();
 
         return response()->json(["status"=>true, "message"=>"Section destroyed", 200]);
@@ -356,9 +375,6 @@ class DashboardController extends Controller {
      * @return JsonResponse
      */
     public function deleteBlock($blkID, $secID) {
-        // $blkID = $request->blkID;
-        // $secID = $request->secID;
-
         $validCnt = DB::table("dashboard_sections")
             ->where("id", "=", $secID)
             ->where("uid", "=", Auth::user()->id)
