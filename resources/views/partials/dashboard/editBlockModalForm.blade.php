@@ -1,4 +1,6 @@
 {!! csrf_field() !!}
+<input type="hidden" name="_method" value="PATCH">
+<input type="hidden" name="selected_id" value="">
 
 <div class="form-group mt-xxs">
     <label for="block_type">Block Type</label>

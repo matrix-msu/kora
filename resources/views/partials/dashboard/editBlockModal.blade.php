@@ -7,7 +7,7 @@
             </a>
         </div>
         <div class="body">
-            <form method="post" id="block_edit_form" action="">
+            <form method="post" id="block_edit_form" action="{{ action('DashboardController@editBlock') }}">
                 @include("partials.dashboard.editBlockModalForm")
             </form>
         </div>

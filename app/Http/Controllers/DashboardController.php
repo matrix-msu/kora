@@ -303,8 +303,50 @@ class DashboardController extends Controller {
         return redirect('dashboard')->with('k3_global_success', 'block_added');
     }
 	
-	public function editBlock (BlockRequest $request) {
-		
+	public function editBlock (BlockRequest $request) { // does this need to pass thru validateBlockFields()?
+        $secID = $request->section_to_add;
+		$type = $request->block_type;
+        $optString = '{}';
+
+		// set its contents to whatever is desired
+		switch($type) {
+            case 'Project':
+                $pid = $request->block_project;
+                $optString = '{"pid": ' . $pid .
+                    ', "displayed": ["edit", "search", "form-new", "form-import", "permissions", "presets"]' .
+                    ', "hidden": []}';
+                break;
+            case 'Form':
+                $fid = $request->block_form;
+                $optString = '{"fid": ' . $fid .
+                    ', "displayed": ["edit", "search", "record-new", "field-new", "permissions", "revisions"]' .
+                    ', "hidden": []}';
+                break;
+            case 'Record':
+                $kid = $request->block_record;
+				$rids = explode('-',$kid);
+                $rid = end($rids);
+                $optString = '{"rid": ' . $rid . '}';
+                break;
+            case 'Quote':
+                break;
+            case 'Twitter':
+                break;
+            case 'Note':
+                $title = $request->block_note_title;
+                $content = $request->block_note_content;
+                $optString = '{"title": "' . $title . '", "content": "' . $content . '"}';
+                break;
+            default:
+                break;
+        }
+
+        DB::table('dashboard_blocks')->where('id','=',$request->selected_id)->update([
+            'sec_id' => $secID,
+            'type' => $type,
+            'options' => $optString
+        ]);
+
 		return redirect('dashboard')->with('k3_global_success', 'block_modified');
 	}
 

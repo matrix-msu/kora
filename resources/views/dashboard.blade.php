@@ -50,7 +50,6 @@
         </div>
     </div>
 
-	{{-- @php dd($sections); @endphp --}}
 	@foreach($sections as $section)
 		<section class="grid">
 			<h1 class="header">
@@ -72,7 +71,6 @@
 			</h1>
 			<div class="container">
 				@foreach($section['blocks'] as $block)
-				{{-- @php dd($block); @endphp --}}
 					@if($block["type"]=="Project")
 						<div class="element">
 							<div class="title-container">
@@ -104,7 +102,7 @@
 								<div class="wrap">
 									<p>Drag & drop blocks to reorganize</p>
 									<section class="new-object-button">
-										<input class="edit-block-js" type="button" value="Edit Block">
+										<input class="edit-block-js" type="button" value="Edit Block" blkID="{{ $block['id'] }}">
 									</section>
 									<div class="bottom">
 										<a class="remove-block remove-block-js tooltip" tooltip="Delete Block" blkID="{{ $block['id'] }}" secID="{{ $section['id'] }}">
@@ -149,7 +147,7 @@
 								<div class="wrap">
 									<p>Drag & drop blocks to reorganize</p>
 									<section class="new-object-button">
-										<input class="edit-block-js" type="button" value="Edit Block">
+										<input class="edit-block-js" type="button" value="Edit Block" blkID="{{ $block['id'] }}">
 									</section>
 									<div class="bottom">
 										<a class="remove-block remove-block-js tooltip" tooltip="Delete Block" blkID="{{ $block['id'] }}" secID="{{ $section['id'] }}">
@@ -191,7 +189,7 @@
 								<div class="wrap">
 									<p>Drag & drop blocks to reorganize</p>
 									<section class="new-object-button">
-										<input class="edit-block-js" type="button" value="Edit Block">
+										<input class="edit-block-js" type="button" value="Edit Block" blkID="{{ $block['id'] }}">
 									</section>
 									<div class="bottom">
 										<a class="remove-block remove-block-js tooltip" tooltip="Delete Block" blkID="{{ $block['id'] }}" secID="{{ $section['id'] }}">
@@ -217,7 +215,7 @@
 								<div class="wrap">
 									<p>Drag & drop blocks to reorganize</p>
 									<section class="new-object-button">
-										<input class="edit-block-js" type="button" value="Edit Block">
+										<input class="edit-block-js" type="button" value="Edit Block" blkID="{{ $block['id'] }}">
 									</section>
 									<div class="bottom">
 										<a class="remove-block remove-block-js tooltip" tooltip="Delete Block" blkID="{{ $block['id'] }}" secID="{{ $section['id'] }}">
@@ -240,7 +238,7 @@
 								<div class="wrap">
 									<p>Drag & drop blocks to reorganize</p>
 									<section class="new-object-button">
-										<input class="edit-block-js" type="button" value="Edit Block">
+										<input class="edit-block-js" type="button" value="Edit Block" blkID="{{ $block['id'] }}">
 									</section>
 									<div class="bottom">
 										<a class="remove-block remove-block-js tooltip" tooltip="Delete Block" blkID="{{ $block['id'] }}" secID="{{ $section['id'] }}">
@@ -263,7 +261,7 @@
 								<div class="wrap">
 									<p>Drag & drop blocks to reorganize</p>
 									<section class="new-object-button">
-										<input class="edit-block-js" type="button" value="Edit Block">
+										<input class="edit-block-js" type="button" value="Edit Block" blkID="{{ $block['id'] }}">
 									</section>
 									<div class="bottom">
 										<a class="remove-block remove-block-js tooltip" tooltip="Delete Block" blkID="{{ $block['id'] }}" secID="{{ $section['id'] }}">

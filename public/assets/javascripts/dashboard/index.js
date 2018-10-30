@@ -33,6 +33,9 @@ Kora.Dashboard.Index = function() {
 		$('.edit-block-js').click(function (e) {
 			e.preventDefault();
 
+			let blkID = $(this).attr('blkid');
+			$('input[name="selected_id"]').val(''+blkID+'');
+
 			Kora.Modal.open($('.edit-block-modal-js'));
 		});
 
@@ -179,28 +182,24 @@ Kora.Dashboard.Index = function() {
         });
 
         $('.section-to-add-js').change(function(e) {
-            $('.add-block-submit-js').removeClass('disabled');
+            $('.add-block-submit-js, .edit-block-submit-js').removeClass('disabled');
         });
     }
 
     function initializeValidation() {
-        $('.add-block-submit-js').on('click', function(e) {
-            var $this = $(this);
-
-            e.preventDefault();
-
+		function validate($form) {
             values = {};
-            $.each($('#block_create_form').serializeArray(), function(i, field) {
+            $.each($form.serializeArray(), function(i, field) {
                 values[field.name] = field.value;
             });
 			values['_token'] = CSRFToken;
 
-            $.ajax({
+			$.ajax({
                 url: validationUrl,
                 method: 'POST',
                 data: values,
                 success: function(data) {
-                    $('#block_create_form').submit();
+                    $form.submit();
                 },
                 error: function(err) {
 					console.log(err);
@@ -214,6 +213,47 @@ Kora.Dashboard.Index = function() {
                     });
                 }
             });
+		}
+
+		$('.edit-block-submit-js').on('click', function(e) {
+			e.preventDefault();
+
+			let $form = $('#block_edit_form');
+
+			//validate($form);
+
+            values = {};
+            $.each($form.serializeArray(), function(i, field) {
+                values[field.name] = field.value;
+            });
+			values['_token'] = CSRFToken;
+
+			$.ajax({
+                url: $form.attr('action'),
+                method: 'POST',
+                data: values,
+                success: function(data) {
+                    $form.submit();
+                },
+                error: function(err) {
+					console.log(err);
+                    $('.error-message').text('');
+                    $('.text-input, .text-area, .chosen-container').removeClass('error');
+
+                    $.each(err.responseJSON.errors, function(fieldName, errors) {
+                        var $field = $('#'+fieldName);
+                        $field.addClass('error');
+                        $field.siblings('.error-message').text(errors[0]);
+                    });
+                }
+            });
+		});
+
+        $('.add-block-submit-js').on('click', function(e) {
+            e.preventDefault();
+
+			let $form = $('#block_create_form');			
+			validate($form);
         });
     }
 
