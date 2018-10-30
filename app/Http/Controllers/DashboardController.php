@@ -302,8 +302,13 @@ class DashboardController extends Controller {
 
         return redirect('dashboard')->with('k3_global_success', 'block_added');
     }
-	
-	public function editBlock (BlockRequest $request) { // does this need to pass thru validateBlockFields()?
+
+	/**
+     * Edits an existing block.
+     *
+     * @param  BlockRequest $request
+     */
+	public function editBlock (BlockRequest $request) {
         $secID = $request->section_to_add;
 		$type = $request->block_type;
         $optString = '{}';
@@ -375,6 +380,19 @@ class DashboardController extends Controller {
 
         return response()->json(["status"=>true, "message"=>"Section created", 200]);
     }
+	
+	/**
+	* Edits dashboard section names (how to edit dash section positions as well?)
+	*
+	* @param Request $request
+	* @return JsonResponse
+	*/
+	public function editSection (Request $request) {
+		dd($request);
+		DB::table("dashboard_blocks")->where("sec_id", "=", $request->section_id)->update(['title' => $request->title]);
+
+		return response()->json(["status"=>true, "message"=>"section modified", 200]);
+	}
 
     /**
      * Deletes a dashboard section, moves section's blocks to the section above (unless the top section is deleted, in which case the blocks move down a section)

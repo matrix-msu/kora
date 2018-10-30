@@ -54,8 +54,8 @@ Kora.Dashboard.Index = function() {
             $('.floating-buttons').addClass('hidden');
 			$('.grid.add-section').removeClass('hidden');
 			$('.section-quick-actions').addClass('show');
-
-			//Kora.Modal.open($('.edit-blocks-modal-js'));
+			$('.grid:not(.add-section) .title').addClass('hidden');
+			$('.edit-section-title-js').removeClass('hidden');
         });
 
         $('.done-editing-blocks-js').click(function (e) {
@@ -68,8 +68,8 @@ Kora.Dashboard.Index = function() {
             $('.floating-buttons').removeClass('hidden');
 			$('.grid.add-section').addClass('hidden');
 			$('.section-quick-actions').removeClass('show');
-
-			//Kora.Modal.open($('.edit-blocks-modal-js'));
+			$('.title').removeClass('hidden');
+			$('.edit-section-title-js').addClass('hidden');
         });
 	}
 
@@ -120,8 +120,41 @@ Kora.Dashboard.Index = function() {
 				}
 			});
 		});
+		
+		$('.dashboard-submit .done-editing-blocks-js').click(function (e) {
+			e.preventDefault();
+
+			values = {};
+			$.each($('.edit-section-title-js'), function (i) {
+				if ($(this).val() != '')
+					values[i] = $(this).attr('secid') + '-' + $(this).val();
+					// Perhaps get all of these and set them in 1 string assigned to values[sections]
+					// values[sections] = secid-newTitle_secid-newTitle_secid-newTitle
+					// then in the backend I could explode/implode that and loop through?
+					// This may or may not be faster than the alternative, which is
+					// values[sectionid] = newTitle (for every edited section title)
+			});
+
+			if (Object.keys(values).length > 0) {			
+				values['_token'] = CSRFToken;
+				values['_method'] = 'PATCH';
+
+				$.ajax({
+					url: editSectionUrl,
+					method: 'POST',
+					data: values,
+					success: function (data) {
+						//window.location.reload();
+						console.log(data);
+					},
+					error: function (err) {
+						console.log(err);
+					}
+				});	
+			}
+		});
 	}
-	
+
 	function initializeEditBlocks() {
 		$('.delete-block-js').click(function (e) {
 			e.preventDefault();

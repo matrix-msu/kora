@@ -28,6 +28,23 @@
       font-size: 28px;
     }
   }
+	
+  .edit-section-title {
+	background-color: palette('gray', slate, 0.05);
+	border: 0;
+	border-radius: 5px;
+	box-sizing: border-box;
+	float: left;
+	font-family: inherit;
+	font-size: inherit;
+	height: 40px;
+	margin: -10px 20px 0 0;
+	padding: 10px 20px;
+	
+	&:focus {
+		outline: none;
+	}
+  }
 
   .inner-wrap .content-sections {
     display: flex;
@@ -167,6 +184,7 @@
 
 		.title {
 			background: gradient('background');
+			/* background: linear-gradient(270deg, #00C1B3 0%, #1CC9B0 100%); */
 			border: 1px solid palette('green',accent,0.2);
 			border-radius: 5px;
 			box-shadow: 0 3px 5px 0 rgba(57, 67, 89, 0.05);
@@ -188,6 +206,11 @@
 				height: 100%;
 				padding: 0 20px;
 				width: fill;
+
+				&::placeholder {
+					color: palette('green', accent);
+					font-family: $ubuntu-medium;
+				}
 
 				&:focus {
 					outline: none;

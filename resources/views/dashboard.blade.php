@@ -54,6 +54,7 @@
 		<section class="grid">
 			<h1 class="header">
 				<span class="left title">{{ $section['title'] }}</span>
+				<input class="edit-section-title edit-section-title-js hidden" type="text" value="" placeholder="{{ $section['title'] }}" secID="{{ $section['id'] }}">
 				<div class="line-container">
 					<span class="line"></span>
 				</div>
@@ -280,7 +281,7 @@
 	<section class="grid add-section hidden">
 		<h1 class="header">
 			<span class="left title">
-				<input class="add-section-input-js" type="text" name="sectionTitle" value="Type Here and Hit Enter to Add a New Section">
+				<input class="add-section-input-js" type="text" name="sectionTitle" value="" placeholder="Type Here and Hit Enter to Add a New Section">
 			</span>
 			<div class="line-container"><span class="line"></span></div>
 		</h1>
@@ -295,6 +296,7 @@
 
     <script>
 		var addSectionUrl = '{{ action('DashboardController@addSection',['sectionTitle' => '']) }}';
+		var editSectionUrl = '{{ action('DashboardController@editSection') }}';
 		var removeSectionUrl = '{{ action('DashboardController@deleteSection',['sectionID' => '']) }}';
 		var removeBlockUrl = '{{ action('DashboardController@deleteBlock',['blkID' => '', 'secID' => '']) }}';
         var validationUrl = '{{ action('DashboardController@validateBlockFields') }}';

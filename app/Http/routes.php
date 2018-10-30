@@ -10,6 +10,7 @@ Route::group(['middleware' => 'web'], function () {
     Route::post('/dashboard/addBlock', 'DashboardController@addBlock');
     Route::post('/dashboard/addBlock/validate', 'DashboardController@validateBlockFields');
 	Route::patch('/dashboard/editBlock', 'DashboardController@editBlock');
+	Route::patch('/dashboard/editSection', 'DashboardController@editSection');
 	Route::delete('/dashboard/deleteBlock/{blkID}/{secID}', 'DashboardController@deleteBlock');
 	Route::post('/dashboard/addSection/{sectionTitle}','DashboardController@addSection');
 	Route::delete('/dashboard/deleteSection/{sectionID}', 'DashboardController@deleteSection');
