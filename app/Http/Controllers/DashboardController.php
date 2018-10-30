@@ -247,22 +247,6 @@ class DashboardController extends Controller {
         return array();
     }
 
-    public function addSection($sectionTitle) {
-		$order = 0;
-        $lastSec = DB::table('dashboard_sections')->where('uid','=',Auth::user()->id)->orderBy('order','desc')->first();
-        if(!is_null($lastSec))
-            $order = $lastSec->order + 1;
-
-        DB::table('dashboard_sections')->insert([
-			'uid' => Auth::user()->id,
-			'order' => $order,
-            'title' => $sectionTitle,
-            'created_at' => Carbon::now()->toDateTimeString()
-        ]);
-
-        return response()->json(["status"=>true, "message"=>"Section created", 200]);
-    }
-
     /**
      * Adds a block to a section.
      *
@@ -318,6 +302,11 @@ class DashboardController extends Controller {
 
         return redirect('dashboard')->with('k3_global_success', 'block_added');
     }
+	
+	public function editBlock (BlockRequest $request) {
+		
+		return redirect('dashboard')->with('k3_global_success', 'block_modified');
+	}
 
     /**
      * Validates a block request.
@@ -329,8 +318,24 @@ class DashboardController extends Controller {
         return response()->json(["status"=>true, "message"=>"Block Valid", 200]);
     }
 
+    public function addSection($sectionTitle) {
+		$order = 0;
+        $lastSec = DB::table('dashboard_sections')->where('uid','=',Auth::user()->id)->orderBy('order','desc')->first();
+        if(!is_null($lastSec))
+            $order = $lastSec->order + 1;
+
+        DB::table('dashboard_sections')->insert([
+			'uid' => Auth::user()->id,
+			'order' => $order,
+            'title' => $sectionTitle,
+            'created_at' => Carbon::now()->toDateTimeString()
+        ]);
+
+        return response()->json(["status"=>true, "message"=>"Section created", 200]);
+    }
+
     /**
-     * Deletes a dashboard section, moves section's blocks to the previous section
+     * Deletes a dashboard section, moves section's blocks to the section above (unless the top section is deleted, in which case the blocks move down a section)
      *
      * @param  int $secID - Section ID
      * @return JsonResponse
@@ -351,19 +356,31 @@ class DashboardController extends Controller {
 				break;
 			}
 		}
-		// reference the ID of the previous section with the key of the selected section
-		$newID = $allSections[$key - 1]->id;
+		// get ID of desired section with key from selected section
+		if (isset($allSections[$key - 1]))
+			$newID = $allSections[$key - 1]->id;
+		else /* if (isset($allSections[$key + 1])) */
+			$newID = $allSections[$key + 1]->id;
+		/* else */
+			/* Delete All Blocks? */
 
-		// assign the new ID to all blocks within the old section
-		// $blocks = DB::table("dashboard_blocks")->where("sec_id", "=", $sectionID)->orderBy('order')->get();
-		// foreach ($blocks as $block) {
-			// $block->sec_id = $newID;
-			// $block->save();
-		// }
+		// assign new ID to blocks from old section
 		DB::table("dashboard_blocks")->where("sec_id", "=", $sectionID)->update(['sec_id' => $newID]);
+		// reorder blocks in new section
+		$this->reorderBlocks($newID);
 
-        //DB::table("dashboard_blocks")->where("sec_id", "=", $sectionID)->delete();
-        DB::table("dashboard_sections")->where("id", "=", $sectionID)->delete();
+		// delete section
+        DB::table("dashboard_sections")->where('uid','=',Auth::user()->id)->where("id", "=", $sectionID)->delete();
+		// reorder remaining sections
+		$sections = DB::table("dashboard_sections")->where('uid','=',Auth::user()->id)->orderBy('order','asc')->get();
+		$int = 0;
+		foreach ($sections as $section) {
+            DB::table('dashboard_sections')
+                ->where('id', $section->id)
+                ->update(['order' => $int]);
+
+            $int++;
+		}
 
         return response()->json(["status"=>true, "message"=>"Section destroyed", 200]);
     }
@@ -388,16 +405,17 @@ class DashboardController extends Controller {
             ->delete();
 
         //reorder remaining blocks in section
-        $blocks = DB::table("dashboard_blocks")->where("sec_id", "=", $secID)->orderBy('order','asc')->get();
-        $int = 0;
-        foreach($blocks as $block) {
-            DB::table('dashboard_blocks')
-                ->where('id', $block->id)
-                ->update(['order' => $int]);
-
-            $int++;
-        }
+		$this->reorderBlocks($secID);
 
         return response()->json(["status"=>true, "message"=>"Block destroyed", 200]);
     }
+
+	private function reorderBlocks($secID) {
+        $blocks = DB::table("dashboard_blocks")->where("sec_id", "=", $secID)->orderBy('order','asc')->get();
+        $int = 0;
+        foreach($blocks as $block) {
+            DB::table('dashboard_blocks')->where('id', $block->id)->update(['order' => $int]);
+            $int++;
+        }
+	}
 }

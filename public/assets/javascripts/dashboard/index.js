@@ -19,7 +19,7 @@ Kora.Dashboard.Index = function() {
             Kora.Modal.open($('.create-block-modal-js'));
         });
 
-		$('.remove-block').click(function (e) {
+		$('.remove-block-js').click(function (e) {
 			e.preventDefault();
 
 			let blkID = $(this).attr('blkid');
@@ -28,6 +28,12 @@ Kora.Dashboard.Index = function() {
 			$('.delete-block-form-js').attr('action', url);
 
 			Kora.Modal.open($('.delete-block-modal-js'));
+		});
+
+		$('.edit-block-js').click(function (e) {
+			e.preventDefault();
+
+			Kora.Modal.open($('.edit-block-modal-js'));
 		});
 
         if(state == 1)
@@ -62,34 +68,9 @@ Kora.Dashboard.Index = function() {
 
 			//Kora.Modal.open($('.edit-blocks-modal-js'));
         });
-
-		$('.delete-block-js').click(function (e) {
-			e.preventDefault();
-
-			let $form = $('.delete-block-form-js');
-			let url = $form.attr('action');
-
-			values = {};
-			$.each($form.children('input').serializeArray(), function (i, field) {
-				values[field.name] = field.value;
-			});
-			values['_method'] = 'DELETE';
-
-			$.ajax({
-				url: url,
-				method: 'POST',
-				data: values,
-				success: function (data) {
-					window.location.reload();
-				},
-				error: function (err) {
-					console.log(err);
-				}
-			});
-		});
 	}
 
-	function initializeSectionModificationFunctions() {
+	function initializeEditSections() {
 		$('.add-section-input-js').on('keyup', function (e) {
 			e.preventDefault();
 
@@ -128,6 +109,33 @@ Kora.Dashboard.Index = function() {
 					'_token': CSRFToken,
 					'_method': 'DELETE'
 				},
+				success: function (data) {
+					window.location.reload();
+				},
+				error: function (err) {
+					console.log(err);
+				}
+			});
+		});
+	}
+	
+	function initializeEditBlocks() {
+		$('.delete-block-js').click(function (e) {
+			e.preventDefault();
+
+			let $form = $('.delete-block-form-js');
+			let url = $form.attr('action');
+
+			values = {};
+			$.each($form.children('input').serializeArray(), function (i, field) {
+				values[field.name] = field.value;
+			});
+			values['_method'] = 'DELETE';
+
+			$.ajax({
+				url: url,
+				method: 'POST',
+				data: values,
 				success: function (data) {
 					window.location.reload();
 				},
@@ -212,7 +220,8 @@ Kora.Dashboard.Index = function() {
     initializeSelects();
     initializeDashboardModals();
 	initializeEditDashboardMode();
-	initializeSectionModificationFunctions();
+	initializeEditBlocks();
+	initializeEditSections();
     initializeAddBlockFunctions();
     initializeValidation();
 }

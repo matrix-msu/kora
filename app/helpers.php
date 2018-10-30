@@ -135,7 +135,7 @@ function getDashboardFormBlockLink($block, $link_type) {
           return [
             'tooltip' => 'Create New Field',
             'icon-class' => 'icon-form-new-little',
-            'href' => action('FieldController@create', ['pid'=>$form->pid, 'fid' => $form->fid, 'rootPage' =>$lastPage->id])
+            'href' => action('FieldController@create', ['pid'=>$form->pid, 'fid' => $form->fid, 'rootPage' => $lastPage['id']])
           ];
           break;
       case 'permissions':

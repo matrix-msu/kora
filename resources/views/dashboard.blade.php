@@ -35,6 +35,8 @@
     @include('partials.projects.notification')
     @include('partials.dashboard.addBlockModal')
 	@include('partials.dashboard.deleteBlockModal')
+	@include('partials.dashboard.editBlockModal')
+
     <div class="floating-buttons">
         <div class="form-group">
             <a class="btn dot-btn create-block-js">
@@ -48,12 +50,11 @@
         </div>
     </div>
 
-	{{-- @php dd($sections[4]['id']); @endphp --}}
+	{{-- @php dd($sections); @endphp --}}
 	@foreach($sections as $section)
 		<section class="grid">
 			<h1 class="header">
 				<span class="left title">{{ $section['title'] }}</span>
-				<span class="left title">{{ $section['id'] }}</span>
 				<div class="line-container">
 					<span class="line"></span>
 				</div>
@@ -71,6 +72,7 @@
 			</h1>
 			<div class="container">
 				@foreach($section['blocks'] as $block)
+				{{-- @php dd($block); @endphp --}}
 					@if($block["type"]=="Project")
 						<div class="element">
 							<div class="title-container">
@@ -102,10 +104,10 @@
 								<div class="wrap">
 									<p>Drag & drop blocks to reorganize</p>
 									<section class="new-object-button">
-										<input type="button" value="Edit Block">
+										<input class="edit-block-js" type="button" value="Edit Block">
 									</section>
 									<div class="bottom">
-										<a class="remove-block tooltip" tooltip="Delete Block" blkID="{{ $block['id'] }}" secID="{{ $section['id'] }}">
+										<a class="remove-block remove-block-js tooltip" tooltip="Delete Block" blkID="{{ $block['id'] }}" secID="{{ $section['id'] }}">
 											<i class="icon icon-trash"></i>
 										</a>
 										<p>Edit Quick Actions</p>
@@ -147,15 +149,12 @@
 								<div class="wrap">
 									<p>Drag & drop blocks to reorganize</p>
 									<section class="new-object-button">
-										<input type="button" value="Edit Block">
+										<input class="edit-block-js" type="button" value="Edit Block">
 									</section>
 									<div class="bottom">
-										<form action="{{ action('DashboardController@deleteBlock',['blkID' => $block['id'], 'secID' => $section['id']]) }}">
-											<input type="hidden" name="_token" value="{{ csrf_token() }}">
-											<a class="remove-block tooltip" tooltip="Delete Block">
-												<i class="icon icon-trash"></i>
-											</a>
-										</form>
+										<a class="remove-block remove-block-js tooltip" tooltip="Delete Block" blkID="{{ $block['id'] }}" secID="{{ $section['id'] }}">
+											<i class="icon icon-trash"></i>
+										</a>
 										<p>Edit Quick Actions</p>
 									</div>
 								</div>
@@ -192,15 +191,12 @@
 								<div class="wrap">
 									<p>Drag & drop blocks to reorganize</p>
 									<section class="new-object-button">
-										<input type="button" value="Edit Block">
+										<input class="edit-block-js" type="button" value="Edit Block">
 									</section>
 									<div class="bottom">
-										<form action="{{ action('DashboardController@deleteBlock',['blkID' => $block['id'], 'secID' => $section['id']]) }}">
-											<input type="hidden" name="_token" value="{{ csrf_token() }}">
-											<a class="remove-block tooltip" tooltip="Delete Block">
-												<i class="icon icon-trash"></i>
-											</a>
-										</form>
+										<a class="remove-block remove-block-js tooltip" tooltip="Delete Block" blkID="{{ $block['id'] }}" secID="{{ $section['id'] }}">
+											<i class="icon icon-trash"></i>
+										</a>
 										<p>Edit Quick Actions</p>
 									</div>
 								</div>
@@ -221,15 +217,12 @@
 								<div class="wrap">
 									<p>Drag & drop blocks to reorganize</p>
 									<section class="new-object-button">
-										<input type="button" value="Edit Block">
+										<input class="edit-block-js" type="button" value="Edit Block">
 									</section>
 									<div class="bottom">
-										<form action="{{ action('DashboardController@deleteBlock',['blkID' => $block['id'], 'secID' => $section['id']]) }}">
-											<input type="hidden" name="_token" value="{{ csrf_token() }}">
-											<a class="remove-block tooltip" tooltip="Delete Block">
-												<i class="icon icon-trash"></i>
-											</a>
-										</form>
+										<a class="remove-block remove-block-js tooltip" tooltip="Delete Block" blkID="{{ $block['id'] }}" secID="{{ $section['id'] }}">
+											<i class="icon icon-trash"></i>
+										</a>
 										<p>Edit Quick Actions</p>
 									</div>
 								</div>
@@ -247,15 +240,12 @@
 								<div class="wrap">
 									<p>Drag & drop blocks to reorganize</p>
 									<section class="new-object-button">
-										<input type="button" value="Edit Block">
+										<input class="edit-block-js" type="button" value="Edit Block">
 									</section>
 									<div class="bottom">
-										<form action="{{ action('DashboardController@deleteBlock',['blkID' => $block['id'], 'secID' => $section['id']]) }}">
-											<input type="hidden" name="_token" value="{{ csrf_token() }}">
-											<a class="remove-block tooltip" tooltip="Delete Block">
-												<i class="icon icon-trash"></i>
-											</a>
-										</form>
+										<a class="remove-block remove-block-js tooltip" tooltip="Delete Block" blkID="{{ $block['id'] }}" secID="{{ $section['id'] }}">
+											<i class="icon icon-trash"></i>
+										</a>
 										<p>Edit Quick Actions</p>
 									</div>
 								</div>
@@ -273,15 +263,12 @@
 								<div class="wrap">
 									<p>Drag & drop blocks to reorganize</p>
 									<section class="new-object-button">
-										<input type="button" value="Edit Block">
+										<input class="edit-block-js" type="button" value="Edit Block">
 									</section>
 									<div class="bottom">
-										<form action="{{ action('DashboardController@deleteBlock',['blkID' => $block['id'], 'secID' => $section['id']]) }}">
-											<input type="hidden" name="_token" value="{{ csrf_token() }}">
-											<a class="remove-block tooltip" tooltip="Delete Block">
-												<i class="icon icon-trash"></i>
-											</a>
-										</form>
+										<a class="remove-block remove-block-js tooltip" tooltip="Delete Block" blkID="{{ $block['id'] }}" secID="{{ $section['id'] }}">
+											<i class="icon icon-trash"></i>
+										</a>
 										<p>Edit Quick Actions</p>
 									</div>
 								</div>
