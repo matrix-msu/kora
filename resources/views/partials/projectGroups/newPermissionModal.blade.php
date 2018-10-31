@@ -67,6 +67,7 @@
 		
 		<div class="form-group mt-xxl">
 		  <label for="emails">Not Listed Above? Invite Users Via Email</label>
+		  <span class="error-message"></span>
 		  <input type="text" class="text-input" id="emails-new-perm-group" name="emails" placeholder="Enter invitee email(s) here. Separate multiple emails with a space or a comma.">
 		</div>
 		
