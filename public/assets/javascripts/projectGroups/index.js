@@ -487,9 +487,55 @@ Kora.ProjectGroups.Index = function() {
 	  }
 	}
 	
+	function validateEmails() {
+	  var email_input = $("#emails-new-perm-group");
+	  var emails_string = email_input.val();
+	  
+	  if (emails_string != null && emails_string != "") {
+		emails_string = emails_string.replace(/,/g, " ");
+		//console.log("emails_string: " + emails_string);
+		var emails = emails_string.split(" ");
+		var has_malformed = false;
+		var has_valid = false;
+		
+		for (i = 0; i < emails.length; i++) {
+		  var email = emails[i];
+		  
+		  if (email.length > 3) {
+			//console.log(email);
+			if (!validateEmail(email)) {
+			  email_input.prev().text("Email: " + email + " is not valid");
+			  return false;
+			} else {
+			  has_valid = true;
+			}
+		  } else {
+			has_malformed = true;
+		  }
+		}
+		
+		if (has_malformed && !has_valid) {
+			email_input.prev().text("Malformed email separation - use commas and/or spaces");
+			return false;
+		}
+	  }
+	  
+	  email_input.prev().text("");
+	  return true;
+	}
+	
+	function validateEmail(email) {
+      var re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+	  return re.test(String(email).toLowerCase());
+	}
+	
     $(".create-group-name-js").blur(function() {
 	  validateGroupName();
     });
+	
+	$("#emails-new-perm-group").blur(function() {
+		validateEmails();
+	});
 	
 	$(".check-box-input").click(function() {
 	  var name = $(this).attr("name");
