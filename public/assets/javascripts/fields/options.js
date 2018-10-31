@@ -839,6 +839,14 @@ Kora.Fields.Options = function(fieldType) {
       });
     }
 
+    function initializeRichTextFields() {
+        $('.ckeditor-js').each(function() {
+            textid = $(this).attr('id');
+
+            CKEDITOR.replace(textid);
+        });
+    }
+
     initializeSelects();
 
     switch(fieldType) {
@@ -872,6 +880,8 @@ Kora.Fields.Options = function(fieldType) {
             break;
         case 'Text':
             initializeTextFields();
+        case 'Rich Text':
+            initializeRichTextFields();
         default:
             break;
     }
