@@ -42,7 +42,7 @@ Kora.Dashboard.Index = function() {
         if(state == 1)
             Kora.Modal.open($('.create-block-modal-js'));
     }
-	
+
 	function initializeEditDashboardMode() {
         $('.edit-blocks-js').click(function (e) {
             e.preventDefault();
@@ -61,7 +61,7 @@ Kora.Dashboard.Index = function() {
         $('.done-editing-blocks-js').click(function (e) {
             e.preventDefault();
 
-			$('.edit-dashboard-js').addClass('hidden');
+            $('.edit-dashboard-js').addClass('hidden');
 			$('.done-editing-blocks-js').addClass('hidden');
 			$('.edit-blocks-js').removeClass('hidden');
 			$('.container .element').removeClass('edit-mode');
@@ -99,88 +99,90 @@ Kora.Dashboard.Index = function() {
 			}
 		});
 
-		$('.delete-section-js').click(function (e) {
-			e.preventDefault();
+        $('.delete-section-js').click(function (e) {
+            e.preventDefault();
 
-			let secID = $(this).attr('data-id');
-			let url = removeSectionUrl + '/' + secID;
-			
-			$.ajax({
-				url: url,
-				method: 'POST',
-				data: {
-					'_token': CSRFToken,
-					'_method': 'DELETE'
-				},
-				success: function (data) {
-					window.location.reload();
-				},
-				error: function (err) {
-					console.log(err);
-				}
-			});
-		});
-		
-		$('.dashboard-submit .done-editing-blocks-js').click(function (e) {
-			e.preventDefault();
+            let secID = $(this).attr('data-id');
+            let url = removeSectionUrl + '/' + secID;
 
-			values = {};
-			$.each($('.edit-section-title-js'), function (i) {
-				if ($(this).val() != '')
-					values[i] = $(this).attr('secid') + '-' + $(this).val();
-					// Perhaps get all of these and set them in 1 string assigned to values[sections]
-					// values[sections] = secid-newTitle_secid-newTitle_secid-newTitle
-					// then in the backend I could explode/implode that and loop through?
-					// This may or may not be faster than the alternative, which is
-					// values[sectionid] = newTitle (for every edited section title)
-			});
+            $.ajax({
+                url: url,
+                method: 'POST',
+                data: {
+                    '_token': CSRFToken,
+                    '_method': 'DELETE'
+                },
+                success: function (data) {
+                    window.location.reload();
+                },
+                error: function (err) {
+                    console.log(err);
+                }
+            });
+        });
 
-			if (Object.keys(values).length > 0) {			
-				values['_token'] = CSRFToken;
-				values['_method'] = 'PATCH';
+        // When user 'finishes' editing dash, check if any new section titles have been set
+        $('.dashboard-submit .done-editing-blocks-js').click(function (e) {
+            e.preventDefault();
 
-				$.ajax({
-					url: editSectionUrl,
-					method: 'POST',
-					data: values,
-					success: function (data) {
-						//window.location.reload();
-						console.log(data);
-					},
-					error: function (err) {
-						console.log(err);
-					}
-				});	
-			}
-		});
-	}
+            let titles
+            values = {};
+            $.each($('.edit-section-title-js'), function () {
+                if ($(this).val()) {
+                    if (!titles)
+                        titles = $(this).attr('secid') + '-' + $(this).val() + '_';
+                    else
+                        titles = titles + $(this).attr('secid') + '-' + $(this).val() + '_';
+                }
+            });
 
-	function initializeEditBlocks() {
-		$('.delete-block-js').click(function (e) {
-			e.preventDefault();
+            if (titles) {
+                titles = titles.slice(0, -1);
+                values['modified_titles'] = titles;
+                values['_token'] = CSRFToken;
+                values['_method'] = 'PATCH';
 
-			let $form = $('.delete-block-form-js');
-			let url = $form.attr('action');
+                $.ajax({
+                    url: editSectionUrl,
+                    method: 'POST',
+                    data: values,
+                    success: function (data) {
+                        window.location.reload();
+                    },
+                    error: function (err) {
+                        console.log(err);
+                    }
+                });
+            }
+        });
+    }
 
-			values = {};
-			$.each($form.children('input').serializeArray(), function (i, field) {
-				values[field.name] = field.value;
-			});
-			values['_method'] = 'DELETE';
+    function initializeEditBlocks() {
+        $('.delete-block-js').click(function (e) {
+            e.preventDefault();
 
-			$.ajax({
-				url: url,
-				method: 'POST',
-				data: values,
-				success: function (data) {
-					window.location.reload();
-				},
-				error: function (err) {
-					console.log(err);
-				}
-			});
-		});
-	}
+            let $form = $('.delete-block-form-js');
+            let url = $form.attr('action');
+
+            values = {};
+            $.each($form.children('input').serializeArray(), function (i, field) {
+                values[field.name] = field.value;
+            });
+            values['_method'] = 'DELETE';
+
+            $.ajax({
+                url: url,
+                method: 'POST',
+                data: values,
+                success: function (data) {
+                    window.location.reload();
+                },
+                error: function (err) {
+                    console.log(err);
+                }
+            });
+        });
+    }
 
     function initializeAddBlockFunctions() {
         function setAddBlockVisibility(proj, form, rec, note) {
@@ -225,9 +227,9 @@ Kora.Dashboard.Index = function() {
             $.each($form.serializeArray(), function(i, field) {
                 values[field.name] = field.value;
             });
-			values['_token'] = CSRFToken;
+            values['_token'] = CSRFToken;
 
-			$.ajax({
+            $.ajax({
                 url: validationUrl,
                 method: 'POST',
                 data: values,

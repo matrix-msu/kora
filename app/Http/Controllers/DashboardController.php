@@ -67,16 +67,7 @@ class DashboardController extends Controller {
                 $this->makeDefaultBlock('Project');
             else
                 $this->makeDefaultBlock('Fun'); // If no projects, make an inspiration quote
-        } /* else if (count($results) < 4) {
-			// We have at minimum these 4 sections -- sections will not display if there are no blocks to display in them
-			$addSections = array('Projects', 'Forms', 'Records', 'Fun');
-			for ($i = 0; $i < count($results); $i++) {
-				unset($addSections[array_search($results[$i]->title, $addSections)]);
-			}
-			foreach ($addSections as $addMe) {
-				$this->addSection($addMe);
-			}
-		} */
+        }
 
         foreach($results as $sec) {
             $s = array();
@@ -308,13 +299,12 @@ class DashboardController extends Controller {
      *
      * @param  BlockRequest $request
      */
-	public function editBlock (BlockRequest $request) {
+    public function editBlock (BlockRequest $request) {
         $secID = $request->section_to_add;
-		$type = $request->block_type;
+        $type = $request->block_type;
         $optString = '{}';
 
-		// set its contents to whatever is desired
-		switch($type) {
+        switch($type) {
             case 'Project':
                 $pid = $request->block_project;
                 $optString = '{"pid": ' . $pid .
@@ -329,7 +319,7 @@ class DashboardController extends Controller {
                 break;
             case 'Record':
                 $kid = $request->block_record;
-				$rids = explode('-',$kid);
+                $rids = explode('-',$kid);
                 $rid = end($rids);
                 $optString = '{"rid": ' . $rid . '}';
                 break;
@@ -352,8 +342,8 @@ class DashboardController extends Controller {
             'options' => $optString
         ]);
 
-		return redirect('dashboard')->with('k3_global_success', 'block_modified');
-	}
+        return redirect('dashboard')->with('k3_global_success', 'block_modified');
+    }
 
     /**
      * Validates a block request.
@@ -366,7 +356,7 @@ class DashboardController extends Controller {
     }
 
     public function addSection($sectionTitle) {
-		$order = 0;
+        $order = 0;
         $lastSec = DB::table('dashboard_sections')->where('uid','=',Auth::user()->id)->orderBy('order','desc')->first();
         if(!is_null($lastSec))
             $order = $lastSec->order + 1;
@@ -382,17 +372,24 @@ class DashboardController extends Controller {
     }
 	
 	/**
-	* Edits dashboard section names (how to edit dash section positions as well?)
+	* Edits dashboard section names TODO::edit section ordering
 	*
 	* @param Request $request
 	* @return JsonResponse
 	*/
-	public function editSection (Request $request) {
-		dd($request);
-		DB::table("dashboard_blocks")->where("sec_id", "=", $request->section_id)->update(['title' => $request->title]);
+    public function editSection (Request $request) {
+        $sections = explode('_', $request->modified_titles);
 
-		return response()->json(["status"=>true, "message"=>"section modified", 200]);
-	}
+        foreach ($sections as $section) {
+            $section = explode('-', $section);
+            DB::table('dashboard_sections')
+                ->where('uid','=',Auth::user()->id)
+                ->where('id','=',$section[0])
+                ->update(['title' => $section[1]]);
+        }
+
+        return response()->json(["status"=>true, "message"=>"section modified", 200]);
+    }
 
     /**
      * Deletes a dashboard section, moves section's blocks to the section above (unless the top section is deleted, in which case the blocks move down a section)
@@ -408,21 +405,20 @@ class DashboardController extends Controller {
         if($validCnt == 0)
             return redirect('projects')->with('k3_global_error', 'not_dashboard_owner');
 
-		// find the index of the selected section
-		$allSections = DB::table('dashboard_sections')->where('uid','=',Auth::user()->id)->orderBy('order')->get();
-		foreach ($allSections as $key => $section) {
-			if ($section->id == $sectionID) {
-				$index = $key;
-				break;
-			}
-		}
-		// get ID of desired section with key from selected section
-		if (isset($allSections[$key - 1]))
-			$newID = $allSections[$key - 1]->id;
-		else /* if (isset($allSections[$key + 1])) */
-			$newID = $allSections[$key + 1]->id;
-		/* else */
-			/* Delete All Blocks? */
+        // find the index of the selected section
+        $allSections = DB::table('dashboard_sections')->where('uid','=',Auth::user()->id)->orderBy('order')->get();
+        foreach ($allSections as $key => $section) {
+            if ($section->id == $sectionID) {
+                $index = $key;
+                break;
+            }
+        }
+
+        // get ID of desired section with key from selected section
+        if (isset($allSections[$key - 1]))
+            $newID = $allSections[$key - 1]->id;
+        else
+            $newID = $allSections[$key + 1]->id;
 
 		// assign new ID to blocks from old section
 		DB::table("dashboard_blocks")->where("sec_id", "=", $sectionID)->update(['sec_id' => $newID]);
