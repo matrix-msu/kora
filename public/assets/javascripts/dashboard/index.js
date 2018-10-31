@@ -19,25 +19,31 @@ Kora.Dashboard.Index = function() {
             Kora.Modal.open($('.create-block-modal-js'));
         });
 
-		$('.remove-block-js').click(function (e) {
-			e.preventDefault();
+        $('.remove-block-js').click(function (e) {
+            e.preventDefault();
 
-			let blkID = $(this).attr('blkid');
-			let secID = $(this).attr('secid');
-			let url = removeBlockUrl + '/' + blkID + '/' + secID;
-			$('.delete-block-form-js').attr('action', url);
+            let blkID = $(this).attr('blkid');
+            let secID = $(this).attr('secid');
+            let url = removeBlockUrl + '/' + blkID + '/' + secID;
+            $('.delete-block-form-js').attr('action', url);
 
-			Kora.Modal.open($('.delete-block-modal-js'));
-		});
+            Kora.Modal.open($('.delete-block-modal-js'));
+        });
 
-		$('.edit-block-js').click(function (e) {
-			e.preventDefault();
+        $('.edit-block-js').click(function (e) {
+            e.preventDefault();
 
-			let blkID = $(this).attr('blkid');
-			$('input[name="selected_id"]').val(''+blkID+'');
+            let blkID = $(this).attr('blkid');
+            $('input[name="selected_id"]').val(''+blkID+'');
 
-			Kora.Modal.open($('.edit-block-modal-js'));
-		});
+            Kora.Modal.open($('.edit-block-modal-js'));
+        });
+
+        $('.edit-quick-options-js').click(function (e) {
+            e.preventDefault();
+
+            Kora.Modal.open($('.edit-quick-actions-modal-js'));
+        })
 
         if(state == 1)
             Kora.Modal.open($('.create-block-modal-js'));

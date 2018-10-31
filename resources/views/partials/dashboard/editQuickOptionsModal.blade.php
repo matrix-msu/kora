@@ -1,4 +1,4 @@
-<div class="modal modal-js modal-mask edit-block-modal edit-block-modal-js">
+<div class="modal modal-js modal-mask edit-quick-actions-modal edit-quick-actions-modal-js">
     <div class="content">
         <div class="header">
             <span class="title">Edit Quick Actions</span>
@@ -7,7 +7,9 @@
             </a>
         </div>
         <div class="body">
-            <form method="post" id="block_edit_form" action="{{ action('DashboardController@editBlock') }}">
+            <p>Edit Quick Action Order Via Drag and Drop</p>
+            <p>(First 6 Display as Icons on Block)</p>
+            <form method="post" id="edit_quickActions_form" action="{{ action('DashboardController@editBlock') }}">
                 @include("partials.dashboard.editQuickOptionsModalForm")
             </form>
         </div>

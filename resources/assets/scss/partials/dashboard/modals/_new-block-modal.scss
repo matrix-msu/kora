@@ -1,7 +1,12 @@
 .create-block-modal,
-.edit-block-modal {
+.edit-block-modal,
+.edit-quick-actions-modal {
   .title {
     text-align: left;
+  }
+
+  .content {
+    overflow: visible;
   }
 }
 
