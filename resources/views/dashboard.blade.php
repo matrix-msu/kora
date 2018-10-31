@@ -36,6 +36,7 @@
     @include('partials.dashboard.addBlockModal')
     @include('partials.dashboard.deleteBlockModal')
     @include('partials.dashboard.editBlockModal')
+    @include('partials.dashboard.editQuickOptionsModal')
 
     <div class="floating-buttons">
         <div class="form-group">

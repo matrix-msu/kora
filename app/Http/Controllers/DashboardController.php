@@ -403,8 +403,8 @@ class DashboardController extends Controller {
             $order = $lastSec->order + 1;
 
         DB::table('dashboard_sections')->insert([
-			'uid' => Auth::user()->id,
-			'order' => $order,
+            'uid' => Auth::user()->id,
+            'order' => $order,
             'title' => $sectionTitle,
             'created_at' => Carbon::now()->toDateTimeString()
         ]);
