@@ -26,6 +26,22 @@ class AdvancedSearchController extends Controller {
     }
 
     /**
+     * The advanced search home page.
+     *
+     * @param  int $pid - Project ID
+     * @param  int $fid - Form ID
+     * @return View
+     */
+    public function index($pid, $fid) {
+        if(!FormController::validProjForm($pid, $fid))
+            return redirect('projects/'.$pid)->with('k3_global_error', 'form_invalid');
+
+        $form = FormController::getForm($fid);
+
+        return view('advancedSearch.index', compact("form"));
+    }
+
+    /**
      * Performs the advanced search and stores results in the session.
      *
      * @param  int $pid - Project ID
