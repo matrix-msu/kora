@@ -124,7 +124,7 @@ Kora.Projects.Index = function() {
 
     $('.move-action-js').click(function(e) {
       e.preventDefault();
-	  
+
       var $this = $(this);
       var $headerInnerWrapper = $this.parent().parent();
       var $header = $headerInnerWrapper.parent();
@@ -191,23 +191,21 @@ Kora.Projects.Index = function() {
               .css('position', '')
               .insertAfter($nextProject);
 
-              pidsArray = $(".project-custom-js").sortable("toArray");
+            pidsArray = $(".project-custom-js").sortable("toArray");
 
-              $.ajax({
-                  url: saveCustomOrderUrl,
-                  type: 'POST',
-                  data: {
-                      "_token": CSRFToken,
-                      "pids": pidsArray,
-
-                  },
-                  success: function(result) {}
-              });
+            $.ajax({
+              url: saveCustomOrderUrl,
+              type: 'POST',
+              data: {
+                "_token": CSRFToken,
+                "pids": pidsArray,
+              },
+              success: function(result) {}
+            });
           });
       }
     });
   }
-  
 
   function initializeFilters() {
     $('.sort-options-js a').click(function(e) { // clicked Custom, Alphabetical, or Archived

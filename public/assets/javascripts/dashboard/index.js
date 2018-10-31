@@ -47,57 +47,95 @@ Kora.Dashboard.Index = function() {
         $('.edit-blocks-js').click(function (e) {
             e.preventDefault();
 
-			$('.edit-dashboard-js').removeClass('hidden');
-			$('.done-editing-blocks-js').removeClass('hidden');
-			$('.edit-blocks-js').addClass('hidden');
-			$('.container .element').addClass('edit-mode');
+            $('.edit-dashboard-js').removeClass('hidden');
+            $('.done-editing-blocks-js').removeClass('hidden');
+            $('.edit-blocks-js').addClass('hidden');
+            $('.container .element').addClass('edit-mode');
             $('.floating-buttons').addClass('hidden');
-			$('.grid.add-section').removeClass('hidden');
-			$('.section-quick-actions').addClass('show');
-			$('.grid:not(.add-section) .title').addClass('hidden');
-			$('.edit-section-title-js').removeClass('hidden');
+            $('.grid.add-section').removeClass('hidden');
+            $('.section-quick-actions').addClass('show');
+            $('.grid:not(.add-section) .title').addClass('hidden');
+            $('.edit-section-title-js').removeClass('hidden');
+
+            $('.sections').sortable({
+                disabled: false
+            });
+            $('.section-js .container').sortable({
+                disabled: false
+            });
         });
 
         $('.done-editing-blocks-js').click(function (e) {
             e.preventDefault();
 
             $('.edit-dashboard-js').addClass('hidden');
-			$('.done-editing-blocks-js').addClass('hidden');
-			$('.edit-blocks-js').removeClass('hidden');
-			$('.container .element').removeClass('edit-mode');
+            $('.done-editing-blocks-js').addClass('hidden');
+            $('.edit-blocks-js').removeClass('hidden');
+            $('.container .element').removeClass('edit-mode');
             $('.floating-buttons').removeClass('hidden');
-			$('.grid.add-section').addClass('hidden');
-			$('.section-quick-actions').removeClass('show');
-			$('.title').removeClass('hidden');
-			$('.edit-section-title-js').addClass('hidden');
+            $('.grid.add-section').addClass('hidden');
+            $('.section-quick-actions').removeClass('show');
+            $('.title').removeClass('hidden');
+            $('.edit-section-title-js').addClass('hidden');
+
+            $('.sections').sortable({
+                disabled: true
+            });
+            $('.section-js .container').sortable({
+                disabled: true
+            });
         });
-	}
+    }
 
-	function initializeEditSections() {
-		$('.add-section-input-js').on('keyup', function (e) {
-			e.preventDefault();
+    function initializeEditSections() {
+        $(".sections").sortable({
+            helper: 'clone',
+            revert: true,
+            containment: ".dashboard",
+            update: function(event, ui) {
+                sectionIDs = $('.sections').sortable('toArray');
 
-			if (e.keyCode == 13) {
-				let secTitle = $('.add-section-input-js').val();
-				let url = addSectionUrl + '/' + secTitle;
+                $.ajax({
+                    url: editSectionOrderUrl,
+                    type: 'POST',
+                    data: {
+                        "_token": CSRFToken,
+                        "_method": 'PATCH',
+                        "sections": sectionIDs
+                    },
+                    success: function(result) {},
+                    error: function (err) {
+                        console.log(err);
+                    }
+                });
+            },
+            disabled: true
+        });
 
-				$.ajax({
-					url: url,
-					method: 'POST',
-					data: {
-						'_token': CSRFToken,
-						'_method': 'POST',
-						'sectionTitle': secTitle
-					},
-					success: function () {
-						window.location.reload();
-					},
-					error: function (err) {
-						console.log(err);
-					}
-				});
-			}
-		});
+        $('.add-section-input-js').on('keyup', function (e) {
+            e.preventDefault();
+
+            if (e.keyCode == 13) {
+                let secTitle = $('.add-section-input-js').val();
+                let url = addSectionUrl + '/' + secTitle;
+
+                $.ajax({
+                    url: url,
+                    method: 'POST',
+                    data: {
+                        '_token': CSRFToken,
+                        '_method': 'POST',
+                        'sectionTitle': secTitle
+                    },
+                    success: function () {
+                        window.location.reload();
+                    },
+                    error: function (err) {
+                        console.log(err);
+                    }
+                });
+            }
+        });
 
         $('.delete-section-js').click(function (e) {
             e.preventDefault();
@@ -121,8 +159,7 @@ Kora.Dashboard.Index = function() {
             });
         });
 
-        // When user 'finishes' editing dash, check if any new section titles have been set
-        $('.dashboard-submit .done-editing-blocks-js').click(function (e) {
+        $('.done-editing-blocks-js').click(function (e) {
             e.preventDefault();
 
             let titles
@@ -158,6 +195,30 @@ Kora.Dashboard.Index = function() {
     }
 
     function initializeEditBlocks() {
+        $(".section-js .container").sortable({
+            helper: 'clone',
+            revert: true,
+            containment: ".sections",
+            update: function(event, ui) {
+                blocks = $('.section-js .container').sortable('toArray');
+
+                $.ajax({
+                    url: editBlockOrderUrl,
+                    type: 'POST',
+                    data: {
+                        "_token": CSRFToken,
+                        "_method": 'PATCH',
+                        "blocks": blocks
+                    },
+                    success: function(result) {},
+                    error: function (err) {
+                        console.log(err);
+                    }
+                });
+            },
+            disabled: true
+        });
+
         $('.delete-block-js').click(function (e) {
             e.preventDefault();
 
@@ -222,7 +283,7 @@ Kora.Dashboard.Index = function() {
     }
 
     function initializeValidation() {
-		function validate($form) {
+        function validate($form) {
             values = {};
             $.each($form.serializeArray(), function(i, field) {
                 values[field.name] = field.value;
@@ -248,22 +309,22 @@ Kora.Dashboard.Index = function() {
                     });
                 }
             });
-		}
+        }
 
-		$('.edit-block-submit-js').on('click', function(e) {
-			e.preventDefault();
+        $('.edit-block-submit-js').on('click', function(e) {
+            e.preventDefault();
 
-			let $form = $('#block_edit_form');
+            let $form = $('#block_edit_form');
 
-			//validate($form);
+            //validate($form);
 
             values = {};
             $.each($form.serializeArray(), function(i, field) {
                 values[field.name] = field.value;
             });
-			values['_token'] = CSRFToken;
+            values['_token'] = CSRFToken;
 
-			$.ajax({
+            $.ajax({
                 url: $form.attr('action'),
                 method: 'POST',
                 data: values,
@@ -271,7 +332,7 @@ Kora.Dashboard.Index = function() {
                     $form.submit();
                 },
                 error: function(err) {
-					console.log(err);
+                    console.log(err);
                     $('.error-message').text('');
                     $('.text-input, .text-area, .chosen-container').removeClass('error');
 
@@ -282,21 +343,21 @@ Kora.Dashboard.Index = function() {
                     });
                 }
             });
-		});
+        });
 
         $('.add-block-submit-js').on('click', function(e) {
             e.preventDefault();
 
-			let $form = $('#block_create_form');			
-			validate($form);
+            let $form = $('#block_create_form');
+            validate($form);
         });
     }
 
     initializeSelects();
     initializeDashboardModals();
-	initializeEditDashboardMode();
-	initializeEditBlocks();
-	initializeEditSections();
+    initializeEditDashboardMode();
+    initializeEditBlocks();
+    initializeEditSections();
     initializeAddBlockFunctions();
     initializeValidation();
 }

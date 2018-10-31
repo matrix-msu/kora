@@ -9,15 +9,17 @@ Route::group(['middleware' => 'web'], function () {
     Route::get('/dashboard', 'DashboardController@dashboard');
     Route::post('/dashboard/addBlock', 'DashboardController@addBlock');
     Route::post('/dashboard/addBlock/validate', 'DashboardController@validateBlockFields');
-	Route::patch('/dashboard/editBlock', 'DashboardController@editBlock');
-	Route::patch('/dashboard/editSection', 'DashboardController@editSection');
-	Route::delete('/dashboard/deleteBlock/{blkID}/{secID}', 'DashboardController@deleteBlock');
-	Route::post('/dashboard/addSection/{sectionTitle}','DashboardController@addSection');
-	Route::delete('/dashboard/deleteSection/{sectionID}', 'DashboardController@deleteSection');
+    Route::patch('/dashboard/editBlock', 'DashboardController@editBlock');
+    Route::patch('/dashboard/editSection', 'DashboardController@editSection');
+    Route::patch('/dashboard/editSectionOrder', 'DashboardController@editSectionOrder');
+    Route::patch('/dashboard/editBlockOrder', 'DashboardController@editBlockOrder');
+    Route::delete('/dashboard/deleteBlock/{blkID}/{secID}', 'DashboardController@deleteBlock');
+    Route::post('/dashboard/addSection/{sectionTitle}','DashboardController@addSection');
+    Route::delete('/dashboard/deleteSection/{sectionID}', 'DashboardController@deleteSection');
 
 //project routes
     Route::get('/projects/import', 'ProjectController@importProjectView');
-	Route::post('/projects/getProjectPermissionsModal', 'ProjectController@getProjectPermissionsModal');
+    Route::post('/projects/getProjectPermissionsModal', 'ProjectController@getProjectPermissionsModal');
     Route::post('/projects/import', 'ImportController@importProject');
     Route::resource('projects', 'ProjectController');
     Route::post('projects/request', 'ProjectController@request');

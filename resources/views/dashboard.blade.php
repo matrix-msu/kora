@@ -34,8 +34,8 @@
 @section('body')
     @include('partials.projects.notification')
     @include('partials.dashboard.addBlockModal')
-	@include('partials.dashboard.deleteBlockModal')
-	@include('partials.dashboard.editBlockModal')
+    @include('partials.dashboard.deleteBlockModal')
+    @include('partials.dashboard.editBlockModal')
 
     <div class="floating-buttons">
         <div class="form-group">
@@ -50,8 +50,9 @@
         </div>
     </div>
 
-	@foreach($sections as $section)
-		<section class="grid">
+    <div class="sections">
+    @foreach($sections as $section)
+		<section class="grid section-js" id="{{ $section['id'] }}">
 			<h1 class="header">
 				<span class="left title">{{ $section['title'] }}</span>
 				<input class="edit-section-title edit-section-title-js hidden" type="text" value="" placeholder="{{ $section['title'] }}" secID="{{ $section['id'] }}">
@@ -73,7 +74,7 @@
 			<div class="container">
 				@foreach($section['blocks'] as $block)
 					@if($block["type"]=="Project")
-						<div class="element">
+						<div class="element" id="{{ $block['id'] }}">
 							<div class="title-container">
 								<i class="icon icon-project"></i>
 								<a class="name underline-middle-hover"
@@ -115,7 +116,7 @@
 							</div>
 						</div>
 					@elseif($block["type"]=="Form")
-						<div class="element">
+						<div class="element" id="{{ $block['id'] }}">
 							<div class="title-container">
 								<i class="icon icon-form"></i>
 								<a class="name underline-middle-hover"
@@ -160,7 +161,7 @@
 							</div>
 						</div>
 					@elseif($block["type"]=="Record")
-						<div class="element">
+						<div class="element" id="{{ $block['id'] }}">
 							<div class="title-container">
 								<i class="icon icon-form"></i>
 								<a class="name underline-middle-hover"
@@ -202,7 +203,7 @@
 							</div>
 						</div>
 					@elseif($block["type"]=="Quote")
-						<div class="element">
+						<div class="element" id="{{ $block['id'] }}">
 							<div class="title-container">
 								<span class="no-link-no-icon">Today's Inspiration</span>
 							</div>
@@ -228,7 +229,7 @@
 							</div>
 						</div>
 					@elseif($block["type"]=="Note")
-						<div class="element">
+						<div class="element" id="{{ $block['id'] }}">
 							<div class="title-container">
 								<span class="no-link-no-icon">{{ $block['title'] }}</span>
 							</div>
@@ -251,7 +252,7 @@
 							</div>
 						</div>
 					@elseif($block["type"]=="Twitter")
-						<div class="element">
+						<div class="element" id="{{ $block['id'] }}">
 							<div class="title-container">
 								<span class="no-link-no-icon">Kora Twitter</span>
 							</div>
@@ -278,6 +279,8 @@
 			</div>
 		</section>
 	@endforeach
+	</div>
+
 	<section class="grid add-section hidden">
 		<h1 class="header">
 			<span class="left title">
@@ -297,6 +300,8 @@
     <script>
 		var addSectionUrl = '{{ action('DashboardController@addSection',['sectionTitle' => '']) }}';
 		var editSectionUrl = '{{ action('DashboardController@editSection') }}';
+		var editSectionOrderUrl = '{{ action('DashboardController@editSectionOrder') }}';
+		var editBlockOrderUrl = '{{ action('DashboardController@editBlockOrder') }}';
 		var removeSectionUrl = '{{ action('DashboardController@deleteSection',['sectionID' => '']) }}';
 		var removeBlockUrl = '{{ action('DashboardController@deleteBlock',['blkID' => '', 'secID' => '']) }}';
         var validationUrl = '{{ action('DashboardController@validateBlockFields') }}';

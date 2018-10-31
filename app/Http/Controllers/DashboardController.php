@@ -62,7 +62,7 @@ class DashboardController extends Controller {
 
         // Create a section and block if there isn't already one and we have a project to add
         if(count($results) == 0) {
-			$this->addSection('All');
+            $this->addSection('All');
             if(sizeof(Auth::User()->allowedProjects()) > 0)
                 $this->makeDefaultBlock('Project');
             else
@@ -74,8 +74,8 @@ class DashboardController extends Controller {
             $s['title'] = $sec->title;
             $s['id'] = $sec->id;
 
-			$blocks = array();
-			$blkResults = DB::table('dashboard_blocks')->where('sec_id','=',$sec->id)->orderBy('order')->get();
+            $blocks = array();
+            $blkResults = DB::table('dashboard_blocks')->where('sec_id','=',$sec->id)->orderBy('order')->get();
 
             foreach($blkResults as $blk) {
                 $b = array();
@@ -267,7 +267,7 @@ class DashboardController extends Controller {
                 break;
             case 'Record':
                 $kid = $request->block_record;
-				$rids = explode('-',$kid);
+                $rids = explode('-',$kid);
                 $rid = end($rids);
                 $optString = '{"rid": ' . $rid . '}';
                 break;
@@ -294,7 +294,7 @@ class DashboardController extends Controller {
         return redirect('dashboard')->with('k3_global_success', 'block_added');
     }
 
-	/**
+    /**
      * Edits an existing block.
      *
      * @param  BlockRequest $request
@@ -370,7 +370,7 @@ class DashboardController extends Controller {
 
         return response()->json(["status"=>true, "message"=>"Section created", 200]);
     }
-	
+
 	/**
 	* Edits dashboard section names TODO::edit section ordering
 	*
@@ -389,6 +389,28 @@ class DashboardController extends Controller {
         }
 
         return response()->json(["status"=>true, "message"=>"section modified", 200]);
+    }
+
+    public function editSectionOrder (Request $request) {
+        $int = 0;
+        foreach($request->sections as $section) {
+            DB::table('dashboard_sections')
+                ->where('id','=',$section)
+                ->update(['order' => $int]);
+
+            $int++;
+        }
+    }
+
+    public function editBlockOrder (Request $request) {
+        $int = 0;
+        foreach($request->blocks as $block) {
+            DB::table('dashboard_blocks')
+                ->where('id','=',$block)
+                ->update(['order' => $int]);
+
+            $int++;
+        }
     }
 
     /**
@@ -420,23 +442,24 @@ class DashboardController extends Controller {
         else
             $newID = $allSections[$key + 1]->id;
 
-		// assign new ID to blocks from old section
-		DB::table("dashboard_blocks")->where("sec_id", "=", $sectionID)->update(['sec_id' => $newID]);
-		// reorder blocks in new section
-		$this->reorderBlocks($newID);
+        // assign new ID to blocks from old section
+        DB::table("dashboard_blocks")->where("sec_id", "=", $sectionID)->update(['sec_id' => $newID]);
 
-		// delete section
+        // reorder blocks in new section
+        $this->reorderBlocks($newID);
+
+        // delete section
         DB::table("dashboard_sections")->where('uid','=',Auth::user()->id)->where("id", "=", $sectionID)->delete();
-		// reorder remaining sections
-		$sections = DB::table("dashboard_sections")->where('uid','=',Auth::user()->id)->orderBy('order','asc')->get();
-		$int = 0;
-		foreach ($sections as $section) {
+        // reorder remaining sections
+        $sections = DB::table("dashboard_sections")->where('uid','=',Auth::user()->id)->orderBy('order','asc')->get();
+        $int = 0;
+        foreach ($sections as $section) {
             DB::table('dashboard_sections')
                 ->where('id', $section->id)
                 ->update(['order' => $int]);
 
             $int++;
-		}
+        }
 
         return response()->json(["status"=>true, "message"=>"Section destroyed", 200]);
     }
@@ -461,17 +484,17 @@ class DashboardController extends Controller {
             ->delete();
 
         //reorder remaining blocks in section
-		$this->reorderBlocks($secID);
+        $this->reorderBlocks($secID);
 
         return response()->json(["status"=>true, "message"=>"Block destroyed", 200]);
     }
 
-	private function reorderBlocks($secID) {
+    private function reorderBlocks($secID) {
         $blocks = DB::table("dashboard_blocks")->where("sec_id", "=", $secID)->orderBy('order','asc')->get();
         $int = 0;
         foreach($blocks as $block) {
             DB::table('dashboard_blocks')->where('id', $block->id)->update(['order' => $int]);
             $int++;
         }
-	}
+    }
 }

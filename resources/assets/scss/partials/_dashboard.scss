@@ -28,22 +28,22 @@
       font-size: 28px;
     }
   }
-	
+
   .edit-section-title {
-	background-color: palette('gray', slate, 0.05);
-	border: 0;
-	border-radius: 5px;
-	box-sizing: border-box;
-	float: left;
-	font-family: inherit;
-	font-size: inherit;
-	height: 40px;
-	margin: -10px 20px 0 0;
-	padding: 10px 20px;
-	
-	&:focus {
-		outline: none;
-	}
+    background-color: palette('gray', slate, 0.05);
+    border: 0;
+    border-radius: 5px;
+    box-sizing: border-box;
+    float: left;
+    font-family: inherit;
+    font-size: inherit;
+    height: 40px;
+    margin: -10px 20px 0 0;
+    padding: 10px 20px;
+
+    &:focus {
+      outline: none;
+    }
   }
 
   .inner-wrap .content-sections {
@@ -86,54 +86,56 @@
   }
 
   .grid {
-	.section-quick-actions {
-		@include transition(width);
+    background: palette('gray', background);
 
-		background: palette('gray', background);
-		height: 100%;
-		overflow: hidden;
-		position: absolute;
-		right: 0;
-		top: 0;
-		width: 0;
+    .section-quick-actions {
+      @include transition(width);
 
-		> a {
-			color: palette('gray', slate, 0.7);
-			display: inline-block;
-			font-size: 10px;
-			padding: 2px 13px 0;
-			text-decoration: none;
+      background: palette('gray', background);
+      height: 100%;
+      overflow: hidden;
+      position: absolute;
+      right: 0;
+      top: 0;
+      width: 0;
 
-			i {
-				@include transition();
+      > a {
+        color: palette('gray', slate, 0.7);
+        display: inline-block;
+        font-size: 10px;
+        padding: 2px 13px 0;
+        text-decoration: none;
 
-				display: inline-block;
-			}
+        i {
+          @include transition();
 
-			&:first-child {
-				padding: 0 13px 0 26px;
-			}
+          display: inline-block;
+        }
 
-			&:last-child {
-				font-size: 15px;
-				padding: 0 13px 0 0;
-				transform: rotate(180deg);
-			}
+        &:first-child {
+          padding: 0 13px 0 26px;
+        }
 
-			&.up {
-				transform: rotate(180deg);
-			}
-			
-			&:hover i {
-				transform: scale(1.25);
-			}
-		}
+        &:last-child {
+          font-size: 15px;
+          padding: 0 13px 0 0;
+          transform: rotate(180deg);
+        }
 
-		&.show {
-			overflow: visible;
-			width: unset;
-		}
-	}
+        &.up {
+          transform: rotate(180deg);
+        }
+
+        &:hover i {
+          transform: scale(1.25);
+        }
+      }
+
+      &.show {
+        overflow: visible;
+        width: unset;
+      }
+    }
 
     .element {
       .fp-style {
