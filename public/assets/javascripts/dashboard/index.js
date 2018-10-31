@@ -96,7 +96,7 @@ Kora.Dashboard.Index = function() {
                 sectionIDs = $('.sections').sortable('toArray');
 
                 $.ajax({
-                    url: editSectionOrderUrl,
+                    url: editSectionUrl,
                     type: 'POST',
                     data: {
                         "_token": CSRFToken,

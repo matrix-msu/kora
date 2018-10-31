@@ -300,7 +300,6 @@
     <script>
 		var addSectionUrl = '{{ action('DashboardController@addSection',['sectionTitle' => '']) }}';
 		var editSectionUrl = '{{ action('DashboardController@editSection') }}';
-		var editSectionOrderUrl = '{{ action('DashboardController@editSectionOrder') }}';
 		var editBlockOrderUrl = '{{ action('DashboardController@editBlockOrder') }}';
 		var removeSectionUrl = '{{ action('DashboardController@deleteSection',['sectionID' => '']) }}';
 		var removeBlockUrl = '{{ action('DashboardController@deleteBlock',['blkID' => '', 'secID' => '']) }}';

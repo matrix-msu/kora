@@ -295,6 +295,36 @@ class DashboardController extends Controller {
     }
 
     /**
+     * Edits an existing section.
+     *
+     * @param  BlockRequest $request
+     */
+    public function editSection (Request $request) {
+        if (isset($request->modified_titles)) {
+            $sections = explode('_', $request->modified_titles);
+
+            foreach ($sections as $section) {
+                $section = explode('-', $section);
+                DB::table('dashboard_sections')
+                    ->where('uid','=',Auth::user()->id)
+                    ->where('id','=',$section[0])
+                    ->update(['title' => $section[1]]);
+            }
+        }
+
+        if (isset($request->sections)) {
+            $int = 0;
+            foreach($request->sections as $section) {
+                DB::table('dashboard_sections')
+                    ->where('id','=',$section)
+                    ->update(['order' => $int]);
+
+                $int++;
+            }
+        }
+    }
+
+    /**
      * Edits an existing block.
      *
      * @param  BlockRequest $request
@@ -345,6 +375,17 @@ class DashboardController extends Controller {
         return redirect('dashboard')->with('k3_global_success', 'block_modified');
     }
 
+    public function editBlockOrder (Request $request) {
+        $int = 0;
+        foreach($request->blocks as $block) {
+            DB::table('dashboard_blocks')
+                ->where('id','=',$block)
+                ->update(['order' => $int]);
+
+            $int++;
+        }
+    }
+
     /**
      * Validates a block request.
      *
@@ -369,48 +410,6 @@ class DashboardController extends Controller {
         ]);
 
         return response()->json(["status"=>true, "message"=>"Section created", 200]);
-    }
-
-	/**
-	* Edits dashboard section names TODO::edit section ordering
-	*
-	* @param Request $request
-	* @return JsonResponse
-	*/
-    public function editSection (Request $request) {
-        $sections = explode('_', $request->modified_titles);
-
-        foreach ($sections as $section) {
-            $section = explode('-', $section);
-            DB::table('dashboard_sections')
-                ->where('uid','=',Auth::user()->id)
-                ->where('id','=',$section[0])
-                ->update(['title' => $section[1]]);
-        }
-
-        return response()->json(["status"=>true, "message"=>"section modified", 200]);
-    }
-
-    public function editSectionOrder (Request $request) {
-        $int = 0;
-        foreach($request->sections as $section) {
-            DB::table('dashboard_sections')
-                ->where('id','=',$section)
-                ->update(['order' => $int]);
-
-            $int++;
-        }
-    }
-
-    public function editBlockOrder (Request $request) {
-        $int = 0;
-        foreach($request->blocks as $block) {
-            DB::table('dashboard_blocks')
-                ->where('id','=',$block)
-                ->update(['order' => $int]);
-
-            $int++;
-        }
     }
 
     /**
