@@ -325,7 +325,8 @@ class DashboardController extends Controller {
     }
 
     /**
-     * Edits an existing block.
+     * Edits an existing block.  This does not account for updating an existing Note Block
+     * TODO::add noteblock update ability
      *
      * @param  BlockRequest $request
      */
@@ -373,6 +374,16 @@ class DashboardController extends Controller {
         ]);
 
         return redirect('dashboard')->with('k3_global_success', 'block_modified');
+    }
+
+    public function editNoteBlock (Request $request) {
+        $title = $request->block_note_title;
+        $content = $request->block_note_content;
+        $optString = '{"title": "' . $title . '", "content": "' . $content .'"}';
+
+        DB::table('dashboard_blocks')->where('id','=',$request->block_id)->update([
+            'options' => $optString
+        ]);
     }
 
     public function editBlockOrder (Request $request) {

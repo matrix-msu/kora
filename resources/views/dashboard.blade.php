@@ -21,7 +21,7 @@
                         <i class="icon icon-edit"></i>
                         <span>Edit your Dashboard</span>
                     </a>
-                    <a href="#" class="content done-editing-blocks-js hidden">
+                    <a href="#" class="content done-editing-dash-js hidden">
                         <i class="icon icon-edit"></i>
                         <span>Select to Finish Editing</span>
                     </a>
@@ -230,13 +230,11 @@
 							</div>
 						</div>
 					@elseif($block["type"]=="Note")
-						<div class="element" id="{{ $block['id'] }}">
-							<div class="title-container">
-								<span class="no-link-no-icon">{{ $block['title'] }}</span>
-							</div>
-							<p class="description note-desc">
-								{{ $block['content'] }}
-							</p>
+						<div class="element note-block" id="{{ $block['id'] }}">
+                            <div class="title-container">
+                                <input type="text" name="block_note_title" class="no-link-no-icon note-title note-title-js" placeholder="{{ $block['title'] }}">
+                            </div>
+                            <textarea class="description note-desc note-desc-js" name="block_note_content" placeholder="{{ $block['content'] }}"></textarea>
 							<div class="edit-block">
 								<div class="wrap">
 									<p>Drag & drop blocks to reorganize</p>
@@ -291,7 +289,7 @@
 		</h1>
 	</section>
 	<div class="form-group dashboard-submit">
-		<input class="hidden btn fixed-bottom fixed-bottom-slide done-editing-blocks-js" type="submit" value="Finish Editing Dashboard">
+		<input class="hidden btn fixed-bottom fixed-bottom-slide done-editing-dash-js" type="submit" value="Finish Editing Dashboard">
 	</div>
 @stop
 
@@ -300,7 +298,8 @@
 
     <script>
 		var addSectionUrl = '{{ action('DashboardController@addSection',['sectionTitle' => '']) }}';
-		var editSectionUrl = '{{ action('DashboardController@editSection') }}';
+        var editSectionUrl = '{{ action('DashboardController@editSection') }}';
+        var editNoteBlockUrl = '{{ action('DashboardController@editNoteBlock') }}';
 		var editBlockOrderUrl = '{{ action('DashboardController@editBlockOrder') }}';
 		var removeSectionUrl = '{{ action('DashboardController@deleteSection',['sectionID' => '']) }}';
 		var removeBlockUrl = '{{ action('DashboardController@deleteBlock',['blkID' => '', 'secID' => '']) }}';

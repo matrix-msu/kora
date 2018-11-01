@@ -175,9 +175,40 @@
         margin: 14px 20px 0;
       }
 
+      &.note-block {
+        overflow-y: auto;
+      }
+
+      .note-title {
+        border: 0;
+        box-sizing: border-box;
+        width: 100%;
+
+        &::placeholder {
+          color: palette('black', base);
+        }
+
+        &:focus {
+          outline: none;
+        }
+      }
+
       .note-desc {
-        height: 150px;
+        background: transparent;
+        border: 0;
+        height: 100px;
         margin: 20px 20px 10px;
+        overflow-y: hidden;
+        resize: none;
+        width: 85%;
+
+        &::placeholder {
+          color: palette('black', base);
+        }
+
+        &:focus {
+          outline: none;
+        }
       }
     }
 

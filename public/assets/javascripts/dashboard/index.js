@@ -54,7 +54,7 @@ Kora.Dashboard.Index = function() {
             e.preventDefault();
 
             $('.edit-dashboard-js').removeClass('hidden');
-            $('.done-editing-blocks-js').removeClass('hidden');
+            $('.done-editing-dash-js').removeClass('hidden');
             $('.edit-blocks-js').addClass('hidden');
             $('.container .element').addClass('edit-mode');
             $('.floating-buttons').addClass('hidden');
@@ -71,11 +71,11 @@ Kora.Dashboard.Index = function() {
             });
         });
 
-        $('.done-editing-blocks-js').click(function (e) {
+        $('.done-editing-dash-js').click(function (e) {
             e.preventDefault();
 
             $('.edit-dashboard-js').addClass('hidden');
-            $('.done-editing-blocks-js').addClass('hidden');
+            $('.done-editing-dash-js').addClass('hidden');
             $('.edit-blocks-js').removeClass('hidden');
             $('.container .element').removeClass('edit-mode');
             $('.floating-buttons').removeClass('hidden');
@@ -165,7 +165,7 @@ Kora.Dashboard.Index = function() {
             });
         });
 
-        $('.done-editing-blocks-js').click(function (e) {
+        $('.done-editing-dash-js').click(function (e) {
             e.preventDefault();
 
             let titles
@@ -223,6 +223,53 @@ Kora.Dashboard.Index = function() {
                 });
             },
             disabled: true
+        });
+
+        function updateNoteBlock (noteBlock) {
+            let blockId = noteBlock.attr('id');
+            let noteTitle = noteBlock.find('.note-title-js');
+            let noteDesc = noteBlock.find('.note-desc-js');
+
+            if (noteTitle.val() != '' && noteTitle.attr('placeholder') != noteTitle.val())
+                noteTitle = noteTitle.val();
+            else
+                noteTitle = noteTitle.attr('placeholder');
+
+            if (noteDesc.val() != '' && noteDesc.attr('placeholder') != noteDesc.val())
+                noteDesc = noteDesc.val();
+            else
+                noteDesc = noteDesc.attr('placeholder');
+
+            $.ajax({
+                url: editNoteBlockUrl,
+                type: 'POST',
+                data: {
+                    "_token": CSRFToken,
+                    "_method": 'PATCH',
+                    "block_id": blockId,
+                    "block_note_title": noteTitle,
+                    "block_note_content": noteDesc
+                },
+                success: function (result) {},
+                error: function (err) {
+                    console.log(err);
+                }
+            });
+        }
+
+        $('.note-title-js').on('blur', function (e) {
+            e.preventDefault();
+
+            updateNoteBlock($(this).parent().parent());
+        });
+
+        $('.note-desc-js').each(function () {
+            this.setAttribute('style', 'height:auto;');
+        }).on('input', function () {
+            this.style.height = 'auto';
+            this.style.height = (this.scrollHeight + 8) + 'px';
+        }).on('blur', function () {
+            updateNoteBlock($(this).parent());
         });
 
         $('.delete-block-js').click(function (e) {
