@@ -880,51 +880,38 @@ class ComboListField extends BaseField {
         $type_1 = self::getComboFieldType($field, 'one');
         $type_2 = self::getComboFieldType($field, 'two');
 
-        $one_valid = $query[$flid . "_1_valid"] == "1";
-        $two_valid = $query[$flid . "_2_valid"] == "1";
+        if($query[$flid . "_operator"] == "and") {
+            //
+            // We need to join combo_support with itself.
+            // Since each entry represents one sub-field in the combo list, an "and" operation
+            // on a combo list would be impossible without two copies of everything.
+            //
+            $first_prefix = "one.";
+            $second_prefix = "two.";
 
-        if(! ($one_valid || $two_valid)) {
-            return array();
-        } else if($one_valid && $two_valid) {
-            if($query[$flid . "_operator"] == "and") {
-                //
-                // We need to join combo_support with itself.
-                // Since each entry represents one sub-field in the combo list, an "and" operation
-                // on a combo list would be impossible without two copies of everything.
-                //
-                $first_prefix = "one.";
-                $second_prefix = "two.";
+            $db_query = DB::table(self::SUPPORT_NAME." AS " . substr($first_prefix, 0, -1))
+                ->select($first_prefix . "rid")
+                ->where($first_prefix . "flid", "=", $flid)
+                ->join(self::SUPPORT_NAME." AS " . substr($second_prefix, 0, -1),
+                    $first_prefix . "rid",
+                    "=",
+                    $second_prefix . "rid");
 
-                $db_query = DB::table(self::SUPPORT_NAME." AS " . substr($first_prefix, 0, -1))
-                    ->select($first_prefix . "rid")
-                    ->where($first_prefix . "flid", "=", $flid)
-                    ->join(self::SUPPORT_NAME." AS " . substr($second_prefix, 0, -1),
-                        $first_prefix . "rid",
-                        "=",
-                        $second_prefix . "rid");
+            $db_query->where(function($db_query) use ($flid, $query, $type_1, $first_prefix) {
+                self::buildAdvancedQueryRoutine($db_query, "1", $flid, $query, $type_1, $first_prefix);
+            });
+            $db_query->where(function($db_query) use ($flid, $query, $type_2, $second_prefix) {
+                self::buildAdvancedQueryRoutine($db_query, "2", $flid, $query, $type_2, $second_prefix);
+            });
 
-                $db_query->where(function($db_query) use ($flid, $query, $type_1, $first_prefix) {
-                    self::buildAdvancedQueryRoutine($db_query, "1", $flid, $query, $type_1, $first_prefix);
-                });
-                $db_query->where(function($db_query) use ($flid, $query, $type_2, $second_prefix) {
-                    self::buildAdvancedQueryRoutine($db_query, "2", $flid, $query, $type_2, $second_prefix);
-                });
-
-            } else { // OR operation.
-                $db_query = self::makeAdvancedQueryRoutine($flid);
-                $db_query->where(function($db_query) use ($flid, $query, $type_1) {
-                    self::buildAdvancedQueryRoutine($db_query, "1", $flid, $query, $type_1);
-                });
-                $db_query->orWhere(function($db_query) use ($flid, $query, $type_2) {
-                    self::buildAdvancedQueryRoutine($db_query, "2", $flid, $query, $type_2);
-                });
-            }
-        } else if ($one_valid) {
+        } else { // OR operation.
             $db_query = self::makeAdvancedQueryRoutine($flid);
-            self::buildAdvancedQueryRoutine($db_query, "1", $flid, $query, $type_1);
-        } else { // two valid
-            $db_query = self::makeAdvancedQueryRoutine($flid);
-            self::buildAdvancedQueryRoutine($db_query, "2", $flid, $query, $type_2);
+            $db_query->where(function($db_query) use ($flid, $query, $type_1) {
+                self::buildAdvancedQueryRoutine($db_query, "1", $flid, $query, $type_1);
+            });
+            $db_query->orWhere(function($db_query) use ($flid, $query, $type_2) {
+                self::buildAdvancedQueryRoutine($db_query, "2", $flid, $query, $type_2);
+            });
         }
 
         return $db_query->distinct()
