@@ -26,7 +26,7 @@ class GeolocatorField extends BaseField {
      */
     const FIELD_OPTIONS_VIEW = "partials.fields.options.geolocator";
     const FIELD_ADV_OPTIONS_VIEW = "partials.fields.advanced.geolocator";
-    const FIELD_ADV_INPUT_VIEW = null;
+    const FIELD_ADV_INPUT_VIEW = "partials.records.advanced.geolocator";
     const FIELD_INPUT_VIEW = "partials.records.input.geolocator";
     const FIELD_DISPLAY_VIEW = "partials.records.display.geolocator";
 
@@ -91,9 +91,13 @@ class GeolocatorField extends BaseField {
      */
     public function updateOptions($field, Request $request) {
         $reqDefs = $request->default;
-        $default = $reqDefs[0];
-        for($i=1;$i<sizeof($reqDefs);$i++) {
-            $default .= '[!]'.$reqDefs[$i];
+        if(!is_null($reqDefs)) {
+            $default = $reqDefs[0];
+            for ($i = 1; $i < sizeof($reqDefs); $i++) {
+                $default .= '[!]' . $reqDefs[$i];
+            }
+        } else {
+            $default = null;
         }
 
         $field->updateRequired($request->required);
@@ -523,26 +527,8 @@ class GeolocatorField extends BaseField {
      */
     public function advancedSearchTyped($flid, $query) {
         $range = $query[$flid.'_range'];
-
-        // Depending on the search type, we must convert the input to latitude and longitude.
-        switch($query[$flid.'_type']) {
-            case "LatLon":
-                $lat = $query[$flid."_lat"];
-                $lon = $query[$flid."_lon"];
-                break;
-            case "UTM":
-                $point = self::UTMToPoint($query[$flid."_zone"],
-                    $query[$flid."_east"],
-                    $query[$flid."_north"]);
-                $lat = $point->Lat();
-                $lon = $point->Long();
-                break;
-            case "Address":
-                $point = self::addressToPoint($query[$flid."_address"]);
-                $lat = $point->Lat();
-                $lon = $point->Long();
-                break;
-        }
+        $lat = $query[$flid."_lat"];
+        $lon = $query[$flid."_lon"];
 
         $query = DB::table(self::SUPPORT_NAME);
 

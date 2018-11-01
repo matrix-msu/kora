@@ -1,7 +1,7 @@
 <form method="POST" action="{{action("AdvancedSearchController@search", ["pid" => $form->pid, "fid" => $form->fid])}}">
     <input type="hidden" name="_token" value="{{ csrf_token() }}">
     @foreach($form->fields()->get() as $field)
-        @if($field->type != 'Combo List' && $field->type != 'Geolocator')
+        @if($field->type != 'Combo List')
             <?php $typedField = $field->getTypedField(); ?>
             @if($field->advsearch)
                 <input type="hidden" name="{{$field->flid}}" value="{{$field->flid}}">
