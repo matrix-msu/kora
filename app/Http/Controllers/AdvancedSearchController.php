@@ -218,7 +218,6 @@ class AdvancedSearchController extends Controller {
                 $field = Field::where('flid',$flid)->first();
 
                 switch($field->type) {
-                    //TODO::Modular?
                     case 'Date':
                     case 'Schedule':
                         if(
@@ -236,23 +235,45 @@ class AdvancedSearchController extends Controller {
                                 $processed[$flid][$flid.'_begin_era'] = $request[$flid.'_begin_era'];
                             if(isset($request[$flid.'_end_era']))
                                 $processed[$flid][$flid.'_end_era'] = $request[$flid.'_end_era'];
-                        } else {
-                            //advanced error
                         }
                         break;
                     case 'Number':
                         if($request[$flid.'_left'] != '' | $request[$flid.'_right'] != '') {
-                            $processed[$flid][$flid.'_left'] = $request[$flid.'_left'];
-                            $processed[$flid][$flid.'_right'] = $request[$flid.'_right'];
-                            if(isset($request[$flid.'_invert']))
-                                $processed[$flid][$flid.'_invert'] = $request[$flid.'_invert'];
-                        } else {
-                            //advanced error
+                            $processed[$flid][$flid . '_left'] = isset($request[$flid . '_left']) ? $request[$flid . '_left'] : '';
+                            $processed[$flid][$flid . '_right'] = isset($request[$flid . '_right']) ? $request[$flid . '_right'] : '';
+                            if (isset($request[$flid . '_invert']))
+                                $processed[$flid][$flid . '_invert'] = $request[$flid . '_invert'];
+                            break;
                         }
+                    case 'Combo List':
+                        //Main
+                        if(isset($request[$flid.'_one_input']) && $request[$flid.'_one_input'] != '')
+                            $processed[$flid][$flid.'_one_input'] = $request[$flid.'_one_input'];
+                        if(isset($request[$flid.'_one_input[]']) && $request[$flid.'_one_input[]'] != '')
+                            $processed[$flid][$flid.'_one_input[]'] = $request[$flid.'_one_input[]'];
+
+                        //Number
+                        if(isset($request[$flid.'_one_left']) && $request[$flid.'_one_left'] != '')
+                            $processed[$flid][$flid.'_one_left'] = $request[$flid.'_one_left'];
+                        if(isset($request[$flid.'_one_right']) && $request[$flid.'_one_right'] != '')
+                            $processed[$flid][$flid.'_one_right'] = $request[$flid.'_one_right'];
+                        if(isset($request[$flid.'_one_invert']))
+                            $processed[$flid][$flid.'_one_invert'] = $request[$flid.'_one_invert'];
+
+                        //Date
+                        if(isset($request[$flid.'_one_month']) && $request[$flid.'_one_month'] != '')
+                            $processed[$flid][$flid.'_one_month'] = $request[$flid.'_one_month'];
+                        if(isset($request[$flid.'_one_day']) && $request[$flid.'_one_day'] != '')
+                            $processed[$flid][$flid.'_one_day'] = $request[$flid.'_one_day'];
+                        if(isset($request[$flid.'_one_year']) && $request[$flid.'_one_year'] != '')
+                            $processed[$flid][$flid.'_one_year'] = $request[$flid.'_one_year'];
                         break;
                     default:
                         if(isset($request[$flid.'_input']) && $request[$flid.'_input'] != '')
                             $processed[$flid][$flid.'_input'] = $request[$flid.'_input'];
+
+                        if(isset($request[$flid.'_input[]']))
+                            $processed[$flid][$flid.'_input[]'] = $request[$flid.'_input[]'];
                         break;
                 }
 
