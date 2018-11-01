@@ -44,7 +44,7 @@
 			  font-style: italic;
 		  }
 	  }
-	  
+
 	  .new-object-button {
 		  align-items: center;
 		  bottom: 0;
@@ -79,25 +79,25 @@
 		  .remove-block {
 			  color: palette('white', base); 
 			  text-decoration: none;
-			  
+
 			  .icon {
 				  @include transition(transform);
 				  
 				  display: inline-block;
 				  will-change: transform;
 			  }
-			  
+
 			  &:hover .icon {
 				  transform: scale(1.25);
 			  }
 		  }
 	  }
   }
-  
+
   &.edit-mode .edit-block {
 	  display: block;
   }
-  
+
   &.edit-mode:hover .edit-block {
 	  cursor: pointer;
 	  opacity: 1;

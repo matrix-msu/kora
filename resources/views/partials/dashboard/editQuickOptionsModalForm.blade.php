@@ -7,7 +7,7 @@
             <a><i class="icon icon-arrow-up"></i></a>
             <a><i class="icon icon-arrow-down"></i></a>
         </div>
-        <a class="title underline-middle-hover" href="#">Quick Option</a>
+        <a class="underline-middle-hover pb-xxs" href="#">Quick Option</a>
     </div>
 </div>
 
