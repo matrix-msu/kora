@@ -586,11 +586,7 @@ class ImportController extends Controller {
 
                 $fieldSlug = $matchup[$slug];
                 $flid = Field::where('slug', '=', $fieldSlug)->get()->first()->flid;
-                $type = $field['type'];
-
-                //Type wasnt provided so we have to hunt for it
-                if(is_null($type))
-                    $type = Field::where('slug', '=', $fieldSlug)->get()->first()->type;
+                $type = isset($field['type']) ? $field['type'] : Field::where('slug', '=', $fieldSlug)->get()->first()->type;
 
                 if(!isset($field['value']))
                     return response()->json(["status"=>false,"message"=>"json_validation_error",
