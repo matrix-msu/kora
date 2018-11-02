@@ -459,14 +459,25 @@ Kora.ProjectGroups.Index = function() {
   function initializeValidation() {
 	var checkbox_names = {"create": true, "edit": true, "delete": true};
 	
+	function error(input, error_message) {
+	  $(input).prev().text(error_message);
+	  $(input).addClass("error"); // applies the error border styling
+	}
+	
+	function success(input) { // when validation is passed on a text input
+	  $(input).prev().text("");
+	  $(input).removeClass("error");
+	}
+	
 	function validateGroupName() {
-	  var name = $(".create-group-name-js").val();
+	  var name_input = $(".create-group-name-js");
+	  var name = name_input.val();
 	  
 	  if (name == null || name == "") {
-	    $(".create-group-name-js").prev($("span")).text("This field is required");
+		error(name_input, "This field is required");
 		return false;
 	  } else {
-		$(".create-group-name-js").prev($("span")).text("");
+		success(name_input);
 		return true;
 	  }
 	}
@@ -504,7 +515,7 @@ Kora.ProjectGroups.Index = function() {
 		  if (email.length > 3) {
 			//console.log(email);
 			if (!validateEmail(email)) {
-			  email_input.prev().text("Email: " + email + " is not valid");
+			  error(email_input, "Email: " + email + " is not valid");
 			  return false;
 			} else {
 			  has_valid = true;
@@ -515,12 +526,12 @@ Kora.ProjectGroups.Index = function() {
 		}
 		
 		if (has_malformed && !has_valid) {
-			email_input.prev().text("Malformed email separation - use commas and/or spaces");
+			error(email_input, "Malformed email separation - use commas and/or spaces");
 			return false;
 		}
 	  }
 	  
-	  email_input.prev().text("");
+	  success(email_input);
 	  return true;
 	}
 	
@@ -547,8 +558,9 @@ Kora.ProjectGroups.Index = function() {
 	$(".create-submit-js").click(function(e) {
 	  var valid_name = validateGroupName();
 	  var valid_options = validateGroupOptions();
+	  var valid_emails = validateEmails();
 	  
-	  if (!valid_name || !valid_options) {
+	  if (!valid_name || !valid_options || !valid_emails) {
 		e.preventDefault();
 	  }
 	});

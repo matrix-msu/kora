@@ -365,13 +365,23 @@ Kora.Admin.Users = function() {
   
   function initializeInviteUserValidation()
   {
+	function error(input, error_message) {
+	  $(input).prev().text(error_message);
+	  $(input).addClass("error"); // applies the error border styling
+	}
+	
+	function success(input) { // when validation is passed on an input
+	  $(input).prev().text("");
+	  $(input).removeClass("error");
+	}
+	  
 	function validateEmails() {
 	  var email_input = $("#emails.text-input");
 	  var emails_string = email_input.val();
 	  
 	  if (emails_string != null && emails_string != "") {
 		emails_string = emails_string.replace(/,/g, " ");
-		//console.log("emails_string: " + emails_string);
+		
 		var emails = emails_string.split(" ");
 		var has_malformed = false;
 		var has_valid = false;
@@ -380,9 +390,8 @@ Kora.Admin.Users = function() {
 		  var email = emails[i];
 		  
 		  if (email.length > 3) {
-			//console.log(email);
 			if (!validateEmail(email)) {
-			  email_input.prev().text("Email: " + email + " is not valid");
+			  error(email_input, "Email: " + email + " is not valid");
 			  return false;
 			} else {
 			  has_valid = true;
@@ -393,14 +402,14 @@ Kora.Admin.Users = function() {
 		}
 		
 		if (has_malformed && !has_valid) {
-		  email_input.prev().text("Malformed email separation - use commas and/or spaces");
+		  error(email_input, "Malformed email separation - use commas and/or spaces");
 		  return false;
 		}
 		
-		email_input.prev().text("");
-	    return true;
+		success(email_input);
+	    return true; // passed validation
 	  } else {
-		email_input.prev().text("This field is required");
+		error(email_input, "This field is required");
 	    return false;
 	  }
 	}

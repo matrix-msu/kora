@@ -232,13 +232,22 @@ Kora.Backups.Index = function() {
     }
 	
 	function initializeValidation() {
+	  function error(input, error_message) {
+	    $(input).prev().text(error_message);
+	    $(input).addClass("error"); // applies the error border styling
+	  }
+	
+	  function success(input) { // when validation is passed on an input
+	    $(input).prev().text("");
+	    $(input).removeClass("error");
+	  }
 		
 	  function validateFileName() {
 	    var filename_input = $("input[name='backupLabel']");
 		var filename = filename_input.val();
 		
 		if (filename == "") {
-		  filename_input.prev().text("This field is required");
+		  error(filename_input, "This field is required");
 		  return false;
 		}
 		
@@ -246,12 +255,12 @@ Kora.Backups.Index = function() {
 		  var code = filename.charAt(i).charCodeAt();
 			
 		  if (!(code >= 48 && code <= 57) && !(code >= 65 && code <= 90) && !(code >= 97 && code <= 122)) {
-			filename_input.prev().text("Invalid characters in name");
+			error(filename_input, "Invalid characters in name");
 		    return false;
 		  }
 		}
 		
-		filename_input.prev().text("");
+		success(filename_input);
 		return true;
 	  }
 	  
@@ -263,10 +272,12 @@ Kora.Backups.Index = function() {
 		if (!metadata_checkbox.prop("checked") && !files_checkbox.prop("checked"))
 		{
 			error_span.text("Select at least one backup option");
+			files_checkbox.addClass("error");
 			return false;
 		}
 		
 		error_span.text('');
+		files_checkbox.removeClass("error");
 		return true;
 	  }
 	  
@@ -275,7 +286,7 @@ Kora.Backups.Index = function() {
 	  })
 	  
 	  $("input[value='Start Backup']").click(function(e) {
-		// separate vars so no short circuit, so both functions executed
+		// evaluate before if-statement to avoid short circuit
 		var valid_name = validateFileName();
 		var valid_options = validateBackupOptions();
 		
@@ -293,6 +304,6 @@ Kora.Backups.Index = function() {
     initializeToggle();
     initializeDeleteBackupModal();
     initializeRestoreBackup();
-	initializeValidation()
+	initializeValidation();
     headerTabs();
 }

@@ -11,8 +11,8 @@ Kora.Exodus.Index = function() {
         $('.get-projects-js').click(function (e) {
             e.preventDefault();
 			
-			if (checkValidation($('.db-host-js')) & checkValidation($('.db-user-js'))
-				& checkValidation($('.db-name-js')) & checkValidation($('.db-pass-js')))
+			if (validateRequired($('.db-host-js')) & validateRequired($('.db-user-js'))
+				& validateRequired($('.db-name-js')) & validateRequired($('.db-pass-js')))
 			{
 				var passed = true;
 			}
@@ -72,17 +72,19 @@ Kora.Exodus.Index = function() {
 	
 	function initializeValidation() {
 		$(".db-host-js, .db-name-js, .db-user-js, .db-pass-js").blur(function(e) {
-			checkValidation($(this));
+			validateRequired($(this));
 		});
 	}
 	
-	function checkValidation(input) {
+	function validateRequired(input) { // checks to see if a text input is empty
 		var text = input.val();
 		if (text == "") {
 			input.prev().text("This field is required");
+			input.addClass("error");
 			return false;
 		} else {
 			input.prev().text("");
+			input.removeClass("error");
 			return true;
 		}
 	}
