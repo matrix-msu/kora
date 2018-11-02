@@ -3,6 +3,7 @@
 use Closure;
 use Illuminate\Contracts\Auth\Guard;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Session;
 
 class Authenticate {
 
@@ -41,7 +42,14 @@ class Authenticate {
 			if($request->ajax()) {
 				return response("Unauthorized.", 401);
 			} else {
-				return redirect()->guest('/');
+                //Replicating guest function to force https in production
+                //This fixes the issue where user wasn't bounced to intended url after login in https
+                $secure = false;
+                if(config('app.env') === 'production')
+                    $secure = true;
+                Session::put('url.intended', redirect()->getUrlGenerator()->current());
+
+                return redirect()->to('/', 302, [], $secure);
 			}
 		}
 
