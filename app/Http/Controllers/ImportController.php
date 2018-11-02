@@ -640,12 +640,9 @@ class ImportController extends Controller {
                         return response()->json(["status"=>false,"message"=>"json_validation_error",
                             "record_validation_error"=>[$request->kid => "$fieldSlug is missing month, day, and year indices"]],500);
                     $recRequest['circa_' . $flid] = $field['value']['circa'];
-                    if(isset($field['value']['month']))
-                        $recRequest['month_' . $flid] = $field['value']['month'];
-                    if(isset($field['value']['day']))
-                        $recRequest['day_' . $flid] = $field['value']['day'];
-                    if(isset($field['value']['year']))
-                        $recRequest['year_' . $flid] = $field['value']['year'];
+                    $recRequest['month_' . $flid] = isset($field['value']['month']) ? $field['value']['month'] : '';
+                    $recRequest['day_' . $flid] = isset($field['value']['day']) ? $field['value']['day'] : '';
+                    $recRequest['year_' . $flid] = isset($field['value']['year']) ? $field['value']['year'] : '';
                     $recRequest['era_' . $flid] = $field['value']['era'];
                     $recRequest[$flid] = '';
                 } else if($type == 'Schedule') {
