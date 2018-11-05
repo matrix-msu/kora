@@ -516,6 +516,74 @@ Kora.FormGroups.Index = function() {
       Kora.Modal.open($('.delete-permission-group-modal-js'));
     });
   }
+  
+  function initializeValidation() {
+	var checkbox_names = {"create": true, "ingest": true, "edit": true, "modify": true, 
+		"delete": true, "destroy": true};
+		
+	function error(input, error_message) {
+	  $(input).prev().text(error_message);
+	  $(input).addClass("error"); // applies the error border styling
+	}
+	
+	function success(input) { // when validation is passed on an input
+	  $(input).prev().text("");
+	  $(input).removeClass("error");
+	}
+	  
+	function validateGroupName() {
+	  var name_input = $(".create-group-name-js");
+	  var name = name_input.val();
+	  
+	  if (name == null || name == "") {
+		error(name_input, "This field is required");
+		return false;
+	  } else {
+		success(name_input);
+		return true;
+	  }
+	}
+	
+	function validateGroupOptions() {
+	  var check_create = $("input[name='create'].check-box-input");
+	  var check_ingest = $("input[name='ingest'].check-box-input");
+	  var check_edit = $("input[name='edit'].check-box-input");
+	  var check_modify = $("input[name='modify'].check-box-input");
+	  var check_delete = $("input[name='delete'].check-box-input");
+	  var check_destroy = $("input[name='destroy'].check-box-input");
+	  var error_msg = $(".group-options-error-message");
+	  
+	  if (check_create && check_edit && check_delete &&
+	  (check_create.prop("checked") || check_ingest.prop("checked") || check_edit.prop("checked")
+	  || check_modify.prop("checked") || check_delete.prop("checked") || check_destroy.prop("checked"))) {
+		error_msg.text("");
+		return true;
+	  } else {
+	    error_msg.text("Select at least one permission");
+		return false;
+	  }
+	}
+	
+    $(".create-group-name-js").blur(function() {
+	  validateGroupName();
+    });
+	
+	$(".check-box-input").click(function() {
+	  var name = $(this).attr("name");
+	  if (name !== null && checkbox_names[name] != null) {
+	    validateGroupOptions();
+	  }
+	});
+	
+	$(".create-submit-js").click(function(e) {
+	  var valid_name = validateGroupName();
+	  var valid_options = validateGroupOptions();
+	  
+	  if (!valid_name || !valid_options) {
+		e.preventDefault();
+	  }
+	});
+  }
 
   Kora.Modal.initialize();
   initializePermissionsToggles();
@@ -525,4 +593,5 @@ Kora.FormGroups.Index = function() {
   initializeAddUsersModal();
   initializeRemoveUserModal();
   initializeViewUserModal();
+  initializeValidation();
 }
