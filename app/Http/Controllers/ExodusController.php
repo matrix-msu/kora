@@ -17,7 +17,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\View\View;
+
 
 class ExodusController extends Controller {
 
@@ -95,18 +97,29 @@ class ExodusController extends Controller {
      * @return array - The list of projects
      */
     public function getProjectList(Request $request) {
-        $con = mysqli_connect($request->host, $request->user, $request->pass, $request->name);
-
-        $projectArray = array();
-
-        $projects = $con->query("select * from project");
-        while($p = $projects->fetch_assoc()) {
-            $projectArray[$p['pid']] = $p['name'];
-        }
-
-        mysqli_close($con);
-
-        return $projectArray;
+		$validator = Validator::make($request->all(), [
+			'host' => 'required',
+			'user' => 'required',
+			'pass' => 'required',
+			'name' => 'required'
+		]);
+		
+		if ($validator->fails()) {
+			return response()->json(["response"=>"validation failed"], 422);
+		}
+		
+		$con = mysqli_connect($request->host, $request->user, $request->pass, $request->name);
+	
+		$projectArray = array();
+	
+		$projects = $con->query("select * from project");
+		while($p = $projects->fetch_assoc()) {
+			$projectArray[$p['pid']] = $p['name'];
+		}
+	
+		mysqli_close($con);
+	
+		return $projectArray;
     }
 
     /**
