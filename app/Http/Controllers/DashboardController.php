@@ -61,10 +61,13 @@ class DashboardController extends Controller {
         $results = DB::table('dashboard_sections')->where('uid','=',Auth::user()->id)->orderBy('order')->get();
 
         if(count($results) == 0) {
+            $this->addSection('No Section');
             if(sizeof(Auth::User()->allowedProjects()) > 0)
                 $this->makeDefaultBlock('Project'); // create section + block
             else
                 $this->makeDefaultBlock('Fun'); // If no projects, make an inspiration quote
+        } elseif (count($results) > 1) {
+            $this->makeNonSectionLast();
         }
 
         foreach($results as $sec) {
@@ -418,8 +421,8 @@ class DashboardController extends Controller {
             'created_at' => Carbon::now()->toDateTimeString()
         ]);
 
-        if ($sectionTitle != 'No Section')
-            return response()->json(["status"=>true, "message"=>"Section created", 200]);
+        $this->makeNonSectionLast();
+        return response()->json(["status"=>true, "message"=>"Section created", 200]);
     }
 
     /**
@@ -509,5 +512,13 @@ class DashboardController extends Controller {
             DB::table('dashboard_blocks')->where('id', $block->id)->update(['order' => $int]);
             $int++;
         }
+    }
+
+    private function makeNonSectionLast () {
+        $numberOfSections = count(DB::table("dashboard_sections")->where('uid','=',Auth::user()->id)->orderBy('order','asc')->get());
+
+        DB::table('dashboard_sections')
+            ->where('title', 'No Section')
+            ->update(['order' => $numberOfSections]);
     }
 }

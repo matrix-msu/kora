@@ -5,7 +5,7 @@
 <div class="form-group mt-xxs">
     <label for="block_type">Block Type</label>
     <span class="error-message"></span>
-    <select class="single-select block-type-selected-js" id="block_type" name="block_type">
+    <select class="single-select block-type-selected-js edit-block-type-selected-js" id="block_type" name="block_type">
         <option></option>
         <option value="Project">Project</option>
         <option value="Form">Form</option>
@@ -20,7 +20,7 @@
     <div class="form-group mt-xl">
         <label for="block_project">Select Project</label>
         <span class="error-message"></span>
-        <select class="single-select" id="block_project" name="block_project">
+        <select class="single-select edit-block-project-js" id="block_project" name="block_project">
             <option></option>
             @foreach($userProjects as $proj)
                 <option value="{{$proj->pid}}">{{$proj->name}}</option>
@@ -33,7 +33,7 @@
     <div class="form-group mt-xl">
         <label for="block_form">Select Form</label>
         <span class="error-message"></span>
-        <select class="single-select" id="block_form" name="block_form">
+        <select class="single-select edit-block-form-js" id="block_form" name="block_form">
             <option></option>
             @foreach($userForms as $form)
                 <option value="{{$form->fid}}">{{$form->name}}</option>
@@ -46,7 +46,7 @@
     <div class="form-group mt-xl">
         <label for="block_record">Select Record</label>
         <span class="error-message"></span>
-        <select class="single-select" id="block_record" name="block_record">
+        <select class="single-select edit-block-record-js" id="block_record" name="block_record">
             <option></option>
             @foreach($userRecords as $rec)
                 <option value="{{$rec}}">{{$rec}}</option>
@@ -72,7 +72,7 @@
 <div class="form-group mt-xl">
     <label for="section_to_add">Select Section</label>
     <span class="error-message"></span>
-    <select class="single-select section-to-add-js" id="section_to_add" name="section_to_add" disabled>
+    <select class="single-select section-to-add-js edit-section-to-add-js" id="section_to_add" name="section_to_add" disabled>
         <option></option>
         @foreach($sections as $section)
             <option value="{{$section['id']}}">{{$section['title']}}</option>

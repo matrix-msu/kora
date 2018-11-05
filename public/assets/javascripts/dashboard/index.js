@@ -36,6 +36,36 @@ Kora.Dashboard.Index = function() {
             let blkID = $(this).attr('blkid');
             $('input[name="selected_id"]').val(''+blkID+'');
 
+            let blkType = $(this).attr('blocktype');
+            let selected
+            let selectedSelector
+            let secID = $(this).attr('secid');
+
+            if (blkType == 'Project') {
+                selectedSelector = $('.edit-block-project-js');
+                selected = $(this).attr('blockproject');
+            } else if (blkType == 'Form') {
+                selectedSelector = $('.edit-block-form-js');
+                selected = $(this).attr('blockform');
+            } else if (blkType == 'Record') {
+                selectedSelector = $('.edit-block-record-js');
+                selected = $(this).attr('blockrecord');
+            }
+
+            $('.edit-block-type-selected-js').val(blkType);
+            $('.edit-block-type-selected-js').trigger('chosen:updated');
+            $('.block-type-selected-js').trigger('change');
+
+            if (selected) {
+                selectedSelector.val(selected);
+                selectedSelector.trigger('chosen:updated');
+                $('.block-type-selected-js').trigger('change');
+            }
+
+            $('.edit-section-to-add-js').val(secID);
+            $('.edit-section-to-add-js').trigger('chosen:updated');
+            $('.section-to-add-js').trigger('change');
+
             Kora.Modal.open($('.edit-block-modal-js'));
         });
 
@@ -43,7 +73,7 @@ Kora.Dashboard.Index = function() {
             e.preventDefault();
 
             Kora.Modal.open($('.edit-quick-actions-modal-js'));
-        })
+        });
 
         if(state == 1)
             Kora.Modal.open($('.create-block-modal-js'));
@@ -58,7 +88,7 @@ Kora.Dashboard.Index = function() {
             $('.edit-blocks-js').addClass('hidden');
             $('.container .element').addClass('edit-mode');
             $('.floating-buttons').addClass('hidden');
-            $('.grid.add-section').removeClass('hidden');
+            $('.header.add-section').removeClass('hidden');
             $('.section-quick-actions').addClass('show');
             $('.grid:not(.add-section) .title').addClass('hidden');
             $('.edit-section-title-js').removeClass('hidden');
@@ -79,7 +109,7 @@ Kora.Dashboard.Index = function() {
             $('.edit-blocks-js').removeClass('hidden');
             $('.container .element').removeClass('edit-mode');
             $('.floating-buttons').removeClass('hidden');
-            $('.grid.add-section').addClass('hidden');
+            $('.header.add-section').addClass('hidden');
             $('.section-quick-actions').removeClass('show');
             $('.title').removeClass('hidden');
             $('.edit-section-title-js').addClass('hidden');

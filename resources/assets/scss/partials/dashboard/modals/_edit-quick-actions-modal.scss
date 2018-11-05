@@ -11,10 +11,25 @@
             }
         }
 
+        .line-container {
+            height: 20px;
+            overflow: hidden;
+
+            .line {
+                background-color: palette('gray', slate, .05);
+                content: '';
+                display: block;
+                height: 2px;
+                margin: 10px 0 0;
+                z-index: -1;
+            }
+        }
+
         .card {
             align-items: center;
             display: flex;
             height: 50px;
+            margin: 10px 0;
 
             .move-actions {
                 display: inline-block;
