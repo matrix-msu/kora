@@ -83,12 +83,12 @@ function setFixedElement(load = false) {
   var fixed_elements = $('.pre-fixed-js');
   
   if (fixed_elements.length > 0) {
-    for (var i = 0; i < $('.pre-fixed-js').length; i++) {
+    for (var i = 0; i < fixed_elements.length; i++) {
       
       var $elementToFix = $(fixed_elements[i]);
       var $elementFixWrapper = $elementToFix.parent();
       
-      if ($elementFixWrapper.height() == 0) {return;} // ignore if parent height is zero
+      if ($elementFixWrapper.height() == 0) {continue;} // ignore if parent height is zero
       
       if (!isScrolledIntoView($elementFixWrapper)) {
       	if (load) {
