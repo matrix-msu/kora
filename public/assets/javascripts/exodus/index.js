@@ -35,8 +35,6 @@ Kora.Exodus.Index = function() {
                     "pass": $('.db-pass-js').val()
                 },
                 success: function (data) {
-					console.log("Exodus request success");
-					console.log(data);
                     databaseLink.removeClass('active');
                     projectsLink.addClass('active');
                     projectsLink.addClass('underline-middle');
@@ -55,9 +53,6 @@ Kora.Exodus.Index = function() {
                     projectsSelector.trigger("chosen:updated");
                 },
 				error: function(data) {
-					console.log("Exodus request failed");
-					console.log(data);
-					console.log(data.responseJSON.response);
 				}
             });
         });

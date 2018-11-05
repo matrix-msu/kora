@@ -498,13 +498,13 @@ Kora.ProjectGroups.Index = function() {
 	  }
 	}
 	
+	// validates a comma and/or space separated list of emails
 	function validateEmails() {
 	  var email_input = $("#emails-new-perm-group");
 	  var emails_string = email_input.val();
 	  
 	  if (emails_string != null && emails_string != "") {
 		emails_string = emails_string.replace(/,/g, " ");
-		//console.log("emails_string: " + emails_string);
 		var emails = emails_string.split(" ");
 		var has_malformed = false;
 		var has_valid = false;
@@ -513,7 +513,6 @@ Kora.ProjectGroups.Index = function() {
 		  var email = emails[i];
 		  
 		  if (email.length > 3) {
-			//console.log(email);
 			if (!validateEmail(email)) {
 			  error(email_input, "Email: " + email + " is not valid");
 			  return false;
