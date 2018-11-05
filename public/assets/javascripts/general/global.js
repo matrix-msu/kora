@@ -80,18 +80,25 @@ function isScrolledIntoView($elem) {
 }
 
 function setFixedElement(load = false) {
-  if ($('.pre-fixed-js').length > 0) {
-    var $elementToFix = $('.pre-fixed-js');
-    var $elementFixWrapper = $elementToFix.parent();
-
-    if (!isScrolledIntoView($elementFixWrapper)) {
-      if (load) {
-        $elementToFix.addClass('fixed-bottom fixed-bottom-slide');
-      } else {
-        $elementToFix.addClass('fixed-bottom');
+  var fixed_elements = $('.pre-fixed-js');
+  
+  if (fixed_elements.length > 0) {
+    for (var i = 0; i < $('.pre-fixed-js').length; i++) {
+      
+      var $elementToFix = $(fixed_elements[i]);
+      var $elementFixWrapper = $elementToFix.parent();
+      
+      if ($elementFixWrapper.height() == 0) {return;} // ignore if parent height is zero
+      
+      if (!isScrolledIntoView($elementFixWrapper)) {
+      	if (load) {
+      		$elementToFix.addClass('fixed-bottom fixed-bottom-slide');
+      	} else {
+      		$elementToFix.addClass('fixed-bottom');
+      	}
+      } else if (isScrolledIntoView($elementFixWrapper)) {
+      	$elementToFix.removeClass('fixed-bottom').removeClass('fixed-bottom-slide');
       }
-    } else if (isScrolledIntoView($elementFixWrapper)) {
-      $elementToFix.removeClass('fixed-bottom').removeClass('fixed-bottom-slide');
     }
   }
 }
