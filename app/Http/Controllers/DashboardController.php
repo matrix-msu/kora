@@ -60,11 +60,9 @@ class DashboardController extends Controller {
 
         $results = DB::table('dashboard_sections')->where('uid','=',Auth::user()->id)->orderBy('order')->get();
 
-        // Create a section and block if there isn't already one and we have a project to add
         if(count($results) == 0) {
-            $this->addSection('All');
             if(sizeof(Auth::User()->allowedProjects()) > 0)
-                $this->makeDefaultBlock('Project');
+                $this->makeDefaultBlock('Project'); // create section + block
             else
                 $this->makeDefaultBlock('Fun'); // If no projects, make an inspiration quote
         }
@@ -420,7 +418,8 @@ class DashboardController extends Controller {
             'created_at' => Carbon::now()->toDateTimeString()
         ]);
 
-        return response()->json(["status"=>true, "message"=>"Section created", 200]);
+        if ($sectionTitle != 'No Section')
+            return response()->json(["status"=>true, "message"=>"Section created", 200]);
     }
 
     /**
@@ -447,15 +446,19 @@ class DashboardController extends Controller {
         }
 
         // get ID of desired section with key from selected section
-        if (isset($allSections[$key - 1]))
+        if (isset($allSections[$key - 1])) // blocks normally move up to the prev section
             $newID = $allSections[$key - 1]->id;
-        else
+        elseif (isset($allSections[$key + 1])) // if prev section doesn't exist, move blocks to lower section
             $newID = $allSections[$key + 1]->id;
+        else { // otherwise we create new unique invisible section to add the blocks to
+            $this->addSection('No Section');
+            $newID = $key + 1;
+        }
 
         // assign new ID to blocks from old section
         DB::table("dashboard_blocks")->where("sec_id", "=", $sectionID)->update(['sec_id' => $newID]);
 
-        // reorder blocks in new section
+        // reorder blocks in new section to order them with blocks already in new section
         $this->reorderBlocks($newID);
 
         // delete section

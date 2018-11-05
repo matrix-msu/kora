@@ -53,24 +53,32 @@
 
     <div class="sections">
     @foreach($sections as $section)
-		<section class="grid section-js" id="{{ $section['id'] }}">
+		<section class="grid section-js {{ $section['title'] == 'No Section' ? 'add-section hidden' : null }}" id="{{ $section['id'] }}">
 			<h1 class="header">
-				<span class="left title">{{ $section['title'] }}</span>
-				<input class="edit-section-title edit-section-title-js hidden" type="text" value="" placeholder="{{ $section['title'] }}" secID="{{ $section['id'] }}">
-				<div class="line-container">
-					<span class="line"></span>
-				</div>
-				<div class="section-quick-actions">
-					<a href="#" class="down">
-						<i class="icon icon-chevron"></i>
-					</a>
-					<a href="#" class="up">
-						<i class="icon icon-chevron"></i>
-					</a>
-					<a href="#" class="delete-section-js" data-id="{{ $section['id'] }}">
-						<i class="icon icon-cancel"></i>
-					</a>
-				</div>
+				<span class="left title">
+					@if ($section['title'] != 'No Section')
+						{{ $section['title'] }}
+					@else
+						<input class="add-section-input-js" type="text" name="sectionTitle" value="" placeholder="Type Here and Hit Enter to Add a New Section">
+					@endif
+				</span>
+				@if ($section['title'] != 'No Section')
+					<input class="edit-section-title edit-section-title-js hidden" type="text" value="" placeholder="{{ $section['title'] }}" secID="{{ $section['id'] }}">
+				@endif
+				<div class="line-container"><span class="line"></span></div>
+				@if ($section['title'] != 'No Section')
+					<div class="section-quick-actions">
+						<a href="#" class="move-action-js down-js">
+							<i class="icon icon-chevron"></i>
+						</a>
+						<a href="#" class="up move-action-js up-js">
+							<i class="icon icon-chevron"></i>
+						</a>
+						<a href="#" class="delete-section-js" data-id="{{ $section['id'] }}">
+							<i class="icon icon-cancel"></i>
+						</a>
+					</div>
+				@endif
 			</h1>
 			<div class="container">
 				@foreach($section['blocks'] as $block)
@@ -79,7 +87,7 @@
 							<div class="title-container">
 								<i class="icon icon-project"></i>
 								<a class="name underline-middle-hover"
-								   href="{{ action('ProjectController@show',['pid' => $block['pid']]) }}">
+								href="{{ action('ProjectController@show',['pid' => $block['pid']]) }}">
 									<span>{{ $block['name'] }}</span>
 									<i class="icon icon-arrow-right"></i>
 								</a>
@@ -90,7 +98,7 @@
 							<div class="element-link-container">
 								@foreach($block['displayedOpts'] as $link)
 									<a href="{{ $link['href'] }}" class="element-link tooltip"
-									   tooltip="{{ $link['tooltip'] }}">
+									tooltip="{{ $link['tooltip'] }}">
 										<i class="icon {{ $link['icon-class']}}"></i>
 									</a>
 								@endforeach
@@ -121,7 +129,7 @@
 							<div class="title-container">
 								<i class="icon icon-form"></i>
 								<a class="name underline-middle-hover"
-								   href="{{ action('FormController@show',['pid' => $block['pid'],'fid' => $block['fid']]) }}">
+								href="{{ action('FormController@show',['pid' => $block['pid'],'fid' => $block['fid']]) }}">
 									<span>{{ $block['name'] }}</span>
 									<i class="icon icon-arrow-right"></i>
 								</a>
@@ -135,7 +143,7 @@
 							<div class="element-link-container">
 								@foreach($block['displayedOpts'] as $link)
 									<a href="{{ $link['href'] }}" class="element-link tooltip"
-									   tooltip="{{ $link['tooltip'] }}">
+									tooltip="{{ $link['tooltip'] }}">
 										<i class="icon {{ $link['icon-class']}}"></i>
 									</a>
 								@endforeach
@@ -166,7 +174,7 @@
 							<div class="title-container">
 								<i class="icon icon-form"></i>
 								<a class="name underline-middle-hover"
-								   href="{{ action('RecordController@show',['pid' => $block['pid'],'fid' => $block['fid'], 'rid' => $block['rid']]) }}">
+								href="{{ action('RecordController@show',['pid' => $block['pid'],'fid' => $block['fid'], 'rid' => $block['rid']]) }}">
 									<span>{{ $block['kid'] }}</span>
 									<i class="icon icon-arrow-right"></i>
 								</a>
@@ -183,7 +191,7 @@
 							<div class="element-link-container">
 								@foreach($block['displayedOpts'] as $link)
 									<a href="{{ $link['href'] }}" class="element-link tooltip"
-									   tooltip="{{ $link['tooltip'] }}">
+									tooltip="{{ $link['tooltip'] }}">
 										<i class="icon {{ $link['icon-class']}}"></i>
 									</a>
 								@endforeach
@@ -231,10 +239,10 @@
 						</div>
 					@elseif($block["type"]=="Note")
 						<div class="element note-block" id="{{ $block['id'] }}">
-                            <div class="title-container">
-                                <input type="text" name="block_note_title" class="no-link-no-icon note-title note-title-js" placeholder="{{ $block['title'] }}">
-                            </div>
-                            <textarea class="description note-desc note-desc-js" name="block_note_content" placeholder="{{ $block['content'] }}"></textarea>
+							<div class="title-container">
+								<input type="text" name="block_note_title" class="no-link-no-icon note-title note-title-js" placeholder="{{ $block['title'] }}">
+							</div>
+							<textarea class="description note-desc note-desc-js" name="block_note_content" placeholder="{{ $block['content'] }}"></textarea>
 							<div class="edit-block">
 								<div class="wrap">
 									<p>Drag & drop blocks to reorganize</p>
@@ -279,7 +287,7 @@
 		</section>
 	@endforeach
 	</div>
-
+<!--
 	<section class="grid add-section hidden">
 		<h1 class="header">
 			<span class="left title">
@@ -288,6 +296,7 @@
 			<div class="line-container"><span class="line"></span></div>
 		</h1>
 	</section>
+-->
 	<div class="form-group dashboard-submit">
 		<input class="hidden btn fixed-bottom fixed-bottom-slide done-editing-dash-js" type="submit" value="Finish Editing Dashboard">
 	</div>

@@ -94,28 +94,91 @@ Kora.Dashboard.Index = function() {
     }
 
     function initializeEditSections() {
+        function reorderSections () {
+            sectionIDs = $('.sections').sortable('toArray');
+
+            $.ajax({
+                url: editSectionUrl,
+                type: 'POST',
+                data: {
+                    "_token": CSRFToken,
+                    "_method": 'PATCH',
+                    "sections": sectionIDs
+                },
+                success: function(result) {},
+                error: function (err) {
+                    console.log(err);
+                }
+            });
+        }
+
         $(".sections").sortable({
             helper: 'clone',
             revert: true,
             containment: ".dashboard",
             update: function(event, ui) {
-                sectionIDs = $('.sections').sortable('toArray');
-
-                $.ajax({
-                    url: editSectionUrl,
-                    type: 'POST',
-                    data: {
-                        "_token": CSRFToken,
-                        "_method": 'PATCH',
-                        "sections": sectionIDs
-                    },
-                    success: function(result) {},
-                    error: function (err) {
-                        console.log(err);
-                    }
-                });
+                reorderSections()
             },
             disabled: true
+        });
+
+        $('.move-action-js').click(function(e) {
+            e.preventDefault();
+
+            var $this = $(this);
+            var $section = $this.parent().parent().parent();
+
+            if ($this.hasClass('up-js')) {
+                var $previousSection = $section.prev();
+                if ($previousSection.length == 0)
+                    return
+
+                $previousSection.css('z-index', 999)
+                    .css('position', 'relative')
+                    .animate({
+                        top: $section.height()
+                    }, 300);
+                $section.css('z-index', 1000)
+                    .css('position', 'relative')
+                    .animate({
+                        top: '-' + $previousSection.height()
+                    }, 300, function() {
+                        $previousSection.css('z-index', '')
+                            .css('top', '')
+                            .css('position', '');
+                        $section.css('z-index', '')
+                            .css('top', '')
+                            .css('position', '')
+                            .insertBefore($previousSection);
+
+                        reorderSections()
+                    });
+            } else {
+                var $nextSection = $section.next();
+                if ($nextSection.length == 0)
+                    return
+
+                $nextSection.css('z-index', 999)
+                    .css('position', 'relative')
+                    .animate({
+                        top: '-' + $section.height()
+                    }, 300);
+                $section.css('z-index', 1000)
+                    .css('position', 'relative')
+                    .animate({
+                        top: $nextSection.height()
+                    }, 300, function() {
+                        $nextSection.css('z-index', '')
+                            .css('top', '')
+                            .css('position', '');
+                        $section.css('z-index', '')
+                            .css('top', '')
+                            .css('position', '')
+                            .insertAfter($nextSection);
+
+                        reorderSections()
+                    });
+            }
         });
 
         $('.add-section-input-js').on('keyup', function (e) {
