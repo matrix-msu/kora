@@ -460,22 +460,11 @@ class DashboardController extends Controller {
 
         // assign new ID to blocks from old section
         DB::table("dashboard_blocks")->where("sec_id", "=", $sectionID)->update(['sec_id' => $newID]);
-
-        // reorder blocks in new section to order them with blocks already in new section
         $this->reorderBlocks($newID);
 
         // delete section
         DB::table("dashboard_sections")->where('uid','=',Auth::user()->id)->where("id", "=", $sectionID)->delete();
-        // reorder remaining sections
-        $sections = DB::table("dashboard_sections")->where('uid','=',Auth::user()->id)->orderBy('order','asc')->get();
-        $int = 0;
-        foreach ($sections as $section) {
-            DB::table('dashboard_sections')
-                ->where('id', $section->id)
-                ->update(['order' => $int]);
-
-            $int++;
-        }
+        $this->reorderSections();
 
         return response()->json(["status"=>true, "message"=>"Section destroyed", 200]);
     }
@@ -505,6 +494,26 @@ class DashboardController extends Controller {
         return response()->json(["status"=>true, "message"=>"Block destroyed", 200]);
     }
 
+    private function makeNonSectionLast () {
+        $lastSection = DB::table("dashboard_sections")->where('uid','=',Auth::user()->id)->orderBy('order','desc')->first()->order + 1;
+
+        DB::table('dashboard_sections')
+            ->where('uid','=',Auth::user()->id)
+            ->where('title','=','No Section')
+            ->update(['order' => $lastSection]);
+
+        $this->reorderSections();
+    }
+
+    private function reorderSections() {
+        $sections = DB::table("dashboard_sections")->where('uid','=',Auth::user()->id)->orderBy('order','asc')->get();
+        $int = 0;
+        foreach ($sections as $section) {
+            DB::table('dashboard_sections')->where('id', $section->id)->update(['order' => $int]);
+            $int++;
+        }
+    }
+
     private function reorderBlocks($secID) {
         $blocks = DB::table("dashboard_blocks")->where("sec_id", "=", $secID)->orderBy('order','asc')->get();
         $int = 0;
@@ -512,13 +521,5 @@ class DashboardController extends Controller {
             DB::table('dashboard_blocks')->where('id', $block->id)->update(['order' => $int]);
             $int++;
         }
-    }
-
-    private function makeNonSectionLast () {
-        $numberOfSections = count(DB::table("dashboard_sections")->where('uid','=',Auth::user()->id)->orderBy('order','asc')->get());
-
-        DB::table('dashboard_sections')
-            ->where('title', 'No Section')
-            ->update(['order' => $numberOfSections]);
     }
 }

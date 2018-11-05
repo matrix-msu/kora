@@ -227,7 +227,7 @@ Kora.Dashboard.Index = function() {
                         'sectionTitle': secTitle
                     },
                     success: function () {
-                        window.location.reload();
+                        window.location.reload(true);
                     },
                     error: function (err) {
                         console.log(err);
