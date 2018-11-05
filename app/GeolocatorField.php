@@ -551,41 +551,6 @@ SQL;
             ->toArray();
     }
 
-    /**
-     * Convert UTM to gPoint instance.
-     *
-     * @param  string $zone - Valid UTM zone
-     * @param  float $easting - Easting UTM value (meters east)
-     * @param  float $northing - Northing UTM value (meters north)
-     * @return gPoint - Point with converted latitude and longitude values in member variables
-     *                 Use ->Lat() and ->Long() to obtain converted values
-     */
-    private static function UTMToPoint($zone, $easting, $northing) {
-        $point = new gPoint();
-        $point->gPoint();
-        $point->setUTM($easting, $northing, $zone);
-        $point->convertTMtoLL();
-        return $point;
-    }
-
-    /**
-     * Convert address to gPoint instance.
-     *
-     * @param  string $address - Address value
-     * @return gPoint - Point with converted latitude and longitude values in member variables
-     *                 Use ->Lat() and ->Long() to obtain converted values
-     */
-    private static function addressToPoint($address) {
-        $con = new Nominatim(new CurlHttpAdapter(),'http://nominatim.openstreetmap.org/','en');
-
-        $result = $con->geocode($address)->first();
-        $point = new gPoint();
-        $point->gPoint();
-        $point->setLongLat($result->getLongitude(), $result->getLatitude());
-
-        return $point;
-    }
-
     ///////////////////////////////////////////////END ABSTRACT FUNCTIONS///////////////////////////////////////////////
 
     /**
@@ -750,10 +715,10 @@ SQL;
             //to address
             $con = app('geocoder');
             try {
-                $res = $con->reverse($lat, $lon)->get();
-                $addrArray = array($res->getStreetNumber(),$res->getStreetName(),$res->getLocality());
-                $addr = implode(' ',$addrArray);
+                $res = $con->reverse($lat, $lon)->get()->first();
+                $addr = $res->getDisplayName();
             } catch(\Exception $e) {
+                dd($e);
                 $addr = 'Address Not Found';
             }
 
@@ -776,9 +741,8 @@ SQL;
             //to address
             $con = app('geocoder');
             try {
-                $res = $con->reverse($lat, $lon)->get();
-                $addrArray = array($res->getStreetNumber(),$res->getStreetName(),$res->getLocality());
-                $addr = implode(' ',$addrArray);
+                $res = $con->reverse($lat, $lon)->get()->first();
+                $addr = $res->getDisplayName();
             } catch(\Exception $e) {
                 $addr = 'Address Not Found';
             }
@@ -792,7 +756,7 @@ SQL;
             //to latlon
             $con = app('geocoder');
             try {
-                $res = $con->geocode($addr)->get();
+                $res = $con->geocode($addr)->get()->first()->getCoordinates();
                 $lat = $res->getLatitude();
                 $lon = $res->getLongitude();
             } catch(\Exception $e) {
