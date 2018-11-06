@@ -150,20 +150,34 @@ class ProjectController extends Controller {
         if(sizeof($projects)==0) {
             return response()->json(["status"=>false, "message"=>"project_access_empty", 500]);
         } else {
+            //find the installation admin
+            $installAdmin = User::where('id','=',1)->first();
+
             foreach($projects as $project) {
                 $admins = $this->getProjectAdminNames($project);
+                $admin_selected = false;
 
-                foreach($admins as $user) {
-                    try{
-                        Mail::send('emails.request.access', compact('project'), function ($message) use($user) {
-                            $message->from(config('mail.from.address'));
-                            $message->to($user->email);
-                            $message->subject('Kora Project Request');
-                        });
-                    } catch(\Swift_TransportException $e) {
-                        //Log for now
-                        return response()->json(["status"=>false, "message"=>"project_access_failed", 500]);
+                //remove install admin for bcc
+                foreach($admins as $index => $admin_data) {
+                    //Log::info($admin_data[0]);
+                    if($admin_data->id == $installAdmin->id) {
+                        // make sure the email target isn't getting BCC'ed as well
+                        $admins->forget($index);
+                        break;
                     }
+                }
+
+                $bccEmails = $admins->pluck('email')->toArray();
+
+                try {
+                    Mail::send('emails.request.access', compact('project'), function ($message) use($installAdmin, $bccEmails) {
+                        $message->from(config('mail.from.address'));
+                        $message->to($installAdmin->email);
+                        $message->bcc($bccEmails);
+                        $message->subject('Kora Project Request');
+                    });
+                } catch(\Swift_TransportException $e) {
+                    return response()->json(["status"=>false, "message"=>"project_access_failed", 500]);
                 }
             }
 			
