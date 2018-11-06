@@ -147,6 +147,7 @@ class ExodusHelperController extends Controller {
                             $def = $optXML->defaultValue->__toString();
                         else
                             $def = '';
+
                         if(!$blankOpts)
                             $textType = $optXML->textEditor->__toString();
                         else
@@ -161,6 +162,7 @@ class ExodusHelperController extends Controller {
                                 $regex = $optXML->regex->__toString();
                             else
                                 $regex = '';
+
                             if(!$blankOpts)
                                 $rows = (int)$optXML->rows;
                             else
@@ -179,14 +181,8 @@ class ExodusHelperController extends Controller {
                             $def = (array)$optXML->defaultValue->value;
                         else
                             $def = array();
-                        $defOpts = '';
-                        if(isset($def[0])) {
-                            $defOpts = $def[0];
-                            $size = sizeof($def);
-                            for($i = 1; $i < $size; ++$i) {
-                                $defOpts .= '[!]' . $def[$i];
-                            }
-                        }
+                        $defOpts = implode('[!]', $def);
+
                         if(!$blankOpts)
                             $regex = $optXML->regex->__toString();
                         else
@@ -216,6 +212,7 @@ class ExodusHelperController extends Controller {
                             $defDay = '';
                             $prefix = 'No';
                         }
+
                         $circa = 'No';
                         $for = 'MMDDYYYY';
                         if($prefix=='circa') {$circa='Yes';}
@@ -261,18 +258,12 @@ class ExodusHelperController extends Controller {
                             $maxSize = (int)$optXML->maxSize;
                         else
                             $maxSize=0;
+
                         if(!$blankOpts)
                             $allowed = (array)$optXML->allowedMIME->mime;
                         else
                             $allowed=array();
-                        $allOpts = '';
-                        if(isset($allowed[0])) {
-                            $allOpts = $allowed[0];
-                            $size = sizeof($allowed);
-                            for($i = 1; $i < $size; ++$i) {
-                                $allOpts .= '[!]' . $allowed[$i];
-                            }
-                        }
+                        $allOpts = implode('[!]', $allowed);
 
                         $newOpts = '[!FieldSize!]'.$maxSize.'[!FieldSize!][!MaxFiles!]0[!MaxFiles!][!FileTypes!]'.$allOpts.'[!FileTypes!]';
                         $newType = 'Documents';
@@ -282,19 +273,19 @@ class ExodusHelperController extends Controller {
                             $maxSize = (int)$optXML->maxSize;
                         else
                             $maxSize=0;
+
                         if(!$blankOpts)
                             $allowed = (array)$optXML->allowedMIME->mime;
                         else
                             $allowed=array();
-                        $allOpts = '';
-                        if(isset($allowed[0])) {
-                            $allOpts = $allowed[0];
-                            $size = sizeof($allowed);
-                            for($i = 1; $i < $size; ++$i) {
-                                if($allowed[$i] != 'image/pjpeg' && $allowed[$i] != 'image/x-png')
-                                    $allOpts .= '[!]' . $allowed[$i];
-                            }
+                        $cleaned = array();
+                        //Remove unsupported types
+                        foreach($allowed as $allow) {
+                            if($allow != 'image/pjpeg' && $allow != 'image/x-png')
+                                array_push($cleaned, $allow);
                         }
+                        $allOpts = implode('[!]', $cleaned);
+
                         $thumbW = (int)$optXML->thumbWidth;
                         $thumbH = (int)$optXML->thumbHeight;
 
@@ -306,14 +297,8 @@ class ExodusHelperController extends Controller {
                             $opts = (array)$optXML->option;
                         else
                             $opts = array();
-                        $allOpts = '';
-                        if(isset($opts[0])) {
-                            $allOpts = $opts[0];
-                            $size = sizeof($opts);
-                            for($i = 1; $i < $size; ++$i) {
-                                $allOpts .= '[!]' . $opts[$i];
-                            }
-                        }
+                        $allOpts = implode('[!]', $opts);
+
                         if(!$blankOpts)
                             $def = $optXML->defaultValue->__toString();
                         else
@@ -328,26 +313,13 @@ class ExodusHelperController extends Controller {
                             $opts = (array)$optXML->option;
                         else
                             $opts = array();
-                        $allOpts = '';
-                        if(isset($opts[0])) {
-                            $allOpts = $opts[0];
-                            $size = sizeof($opts);
-                            for($i = 1; $i < $size; ++$i) {
-                                $allOpts .= '[!]' . $opts[$i];
-                            }
-                        }
+                        $allOpts = implode('[!]', $opts);
+
                         if(!$blankOpts)
                             $def = (array)$optXML->defaultValue->option;
                         else
                             $def = array();
-                        $defOpts = '';
-                        if(isset($def[0])) {
-                            $defOpts = $def[0];
-                            $size = sizeof($def);
-                            for($i = 1; $i < $size; ++$i) {
-                                $defOpts .= '[!]' . $def[$i];
-                            }
-                        }
+                        $defOpts = implode('[!]', $def);
 
                         $newOpts = '[!Options!]'.$allOpts.'[!Options!]';
                         $newDef = $defOpts;
