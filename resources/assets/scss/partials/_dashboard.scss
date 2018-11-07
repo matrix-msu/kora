@@ -210,6 +210,21 @@
           outline: none;
         }
       }
+
+	  .tweets {
+		  margin: 10px 0 0;
+		  overflow: visible;
+		  width: 100%;
+	  }
+
+	  &.tweets {
+		  overflow-x: hidden;
+		  overflow-y: scroll;
+
+		  &.edit-mode {
+			overflow: hidden;
+		  }
+	  }
     }
 
 	&.add-section {

@@ -259,12 +259,10 @@
 							</div>
 						</div>
 					@elseif($block["type"]=="Twitter")
-						<div class="element" id="{{ $block['id'] }}">
-							<div class="title-container">
-								<span class="no-link-no-icon">Kora Twitter</span>
-							</div>
-							<p class="description note-desc">
-								Coming soon...
+						<div class="element tweets" id="{{ $block['id'] }}">
+							<p class="description tweets">
+								<a class="twitter-timeline" href="https://twitter.com/kora_matrix?ref_src=twsrc%5Etfw">Tweets by kora_matrix</a>
+								<script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
 							</p>
 							<div class="edit-block">
 								<div class="wrap">
