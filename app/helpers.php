@@ -62,42 +62,48 @@ function getDashboardProjectBlockLink($block, $link_type) {
           return [
             'tooltip' => 'Edit Project',
             'icon-class' => 'icon-edit-little',
-            'href' => action('ProjectController@edit', ['pid'=>$options['pid']])
+            'href' => action('ProjectController@edit', ['pid'=>$options['pid']]),
+			'type' => 'edit'
           ];
           break;
       case 'search':
           return [
             'tooltip' => 'Search Project Records',
             'icon-class' => 'icon-search',
-            'href' => action('ProjectSearchController@keywordSearch', ['pid'=>$options['pid']])
+            'href' => action('ProjectSearchController@keywordSearch', ['pid'=>$options['pid']]),
+			'type' => 'search'
           ];
           break;
       case 'form-import':
           return [
             'tooltip' => 'Import Form',
             'icon-class' => 'icon-form-import-little',
-            'href' => action('FormController@importFormView', ['pid'=>$options['pid']])
+            'href' => action('FormController@importFormView', ['pid'=>$options['pid']]),
+			'type' => 'form-import'
           ];
           break;
       case 'form-new':
           return [
             'tooltip' => 'Create New Form',
             'icon-class' => 'icon-form-new-little',
-            'href' => action('FormController@create', ['pid'=>$options['pid']])
+            'href' => action('FormController@create', ['pid'=>$options['pid']]),
+			'type' => 'form-new'
           ];
           break;
       case 'permissions':
           return [
             'tooltip' => 'Project Permissions',
             'icon-class' => 'icon-star',
-            'href' => action('ProjectGroupController@index', ['pid'=>$options['pid']])
+            'href' => action('ProjectGroupController@index', ['pid'=>$options['pid']]),
+			'type' => 'permissions'
           ];
           break;
       case 'presets':
           return [
             'tooltip' => 'Field Value Presets',
             'icon-class' => 'icon-preset-little',
-            'href' => action('OptionPresetController@index', ['pid'=>$options['pid']])
+            'href' => action('OptionPresetController@index', ['pid'=>$options['pid']]),
+			'type' => 'presets'
           ];
           break;
       default:
@@ -113,21 +119,24 @@ function getDashboardFormBlockLink($block, $link_type) {
           return [
             'tooltip' => 'Edit Form',
             'icon-class' => 'icon-edit-little',
-            'href' => action('FormController@edit', ['pid' => $form->pid, 'fid' => $form->fid])
+            'href' => action('FormController@edit', ['pid' => $form->pid, 'fid' => $form->fid]),
+			'type' => 'edit'
           ];
           break;
       case 'search':
           return [
             'tooltip' => 'Search Form Records',
             'icon-class' => 'icon-search',
-            'href' => action('RecordController@index', ['pid' => $form->pid, 'fid' => $form->fid])
+            'href' => action('RecordController@index', ['pid' => $form->pid, 'fid' => $form->fid]),
+			'type' => 'search'
           ];
           break;
       case 'record-new':
           return [
             'tooltip' => 'Create New Record',
             'icon-class' => 'icon-record-new-little',
-            'href' => action('RecordController@create',['pid' => $form->pid, 'fid' => $form->fid])
+            'href' => action('RecordController@create',['pid' => $form->pid, 'fid' => $form->fid]),
+			'type' => 'record-new'
           ];
           break;
       case 'field-new':
@@ -135,21 +144,24 @@ function getDashboardFormBlockLink($block, $link_type) {
           return [
             'tooltip' => 'Create New Field',
             'icon-class' => 'icon-form-new-little',
-            'href' => action('FieldController@create', ['pid'=>$form->pid, 'fid' => $form->fid, 'rootPage' => $lastPage['id']])
+            'href' => action('FieldController@create', ['pid'=>$form->pid, 'fid' => $form->fid, 'rootPage' => $lastPage['id']]),
+			'type' => 'field-new'
           ];
           break;
       case 'permissions':
           return [
             'tooltip' => 'Form Permissions',
             'icon-class' => 'icon-star',
-            'href' => action('FormGroupController@index', ['pid' => $form->pid, 'fid' => $form->fid])
+            'href' => action('FormGroupController@index', ['pid' => $form->pid, 'fid' => $form->fid]),
+			'type' => 'permissions'
           ];
           break;
       case 'revisions':
           return [
             'tooltip' => 'Manage Record Revisions',
             'icon-class' => 'icon-preset-little',
-            'href' => action('RevisionController@index', ['pid'=>$form->pid, 'fid'=>$form->fid])
+            'href' => action('RevisionController@index', ['pid'=>$form->pid, 'fid'=>$form->fid]),
+			'type' => 'revisions'
           ];
           break;
       default:

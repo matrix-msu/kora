@@ -9,7 +9,7 @@
         <div class="body">
             <p>Edit Quick Action Order Via Drag and Drop</p>
             <p>(First 6 Display as Icons on Block)</p>
-            <form method="post" id="edit_quickActions_form" action="{{ action('DashboardController@editBlock') }}">
+            <form method="post" id="edit_quickActions_form" action="{{ action('DashboardController@editBlockQuickActions') }}">
                 @include("partials.dashboard.editQuickOptionsModalForm")
             </form>
         </div>

@@ -10,6 +10,86 @@ Kora.Dashboard.Index = function() {
         });
     }
 
+	function setQuickActionOrder () {
+		let options = []
+		$.each($('.card-container .card'), function (i) {
+			options.push($(this).attr('type'))
+		});
+		$('input[name="options"]').val(options);
+	}
+
+    function editQuickActionsSort () {
+        $(".card-container").sortable({
+            helper: 'clone',
+            revert: true,
+            containment: ".edit-quick-actions-modal-js",
+			//update: setQuickActionOrder()
+			update: function () {
+				setQuickActionOrder()
+			}
+        });
+    }
+
+	function moveUp (event) {
+		let $card = event.target.parentElement.parentElement.parentElement.parentElement
+		$card = $('#' + $card.id + '.card');
+
+		let $previousCard = $card.prev();
+		if ($previousCard.length == 0)
+			return
+
+		$previousCard.css('z-index', 999)
+			.css('position', 'relative')
+			.animate({
+				top: $card.height()
+			}, 300);
+		$card.css('z-index', 1000)
+			.css('position', 'relative')
+			.animate({
+				top: '-' + $previousCard.height()
+			}, 300, function() {
+				$previousCard.css('z-index', '')
+					.css('top', '')
+					.css('position', '');
+				$card.css('z-index', '')
+					.css('top', '')
+					.css('position', '')
+					.insertBefore($previousCard);
+
+					setQuickActionOrder()
+			});
+	}
+
+	function moveDown (event) {
+		let $card = event.target.parentElement.parentElement.parentElement.parentElement
+		$card = $('#' + $card.id + '.card');
+
+		let $nextCard = $card.next();
+		if ($nextCard.length == 0)
+			return
+
+		$nextCard.css('z-index', 999)
+			.css('position', 'relative')
+			.animate({
+				top: '-' + $card.height()
+			}, 300);
+		$card.css('z-index', 1000)
+			.css('position', 'relative')
+			.animate({
+				top: $nextCard.height()
+			}, 300, function() {
+				$nextCard.css('z-index', '')
+					.css('top', '')
+					.css('position', '');
+				$card.css('z-index', '')
+					.css('top', '')
+					.css('position', '')
+					.insertAfter($nextCard);
+
+					setQuickActionOrder()
+			});
+	}
+
     function initializeDashboardModals() {
         Kora.Modal.initialize();
 
@@ -71,6 +151,25 @@ Kora.Dashboard.Index = function() {
 
         $('.edit-quick-options-js').click(function (e) {
             e.preventDefault();
+
+			$('input[name="selected_id"]').val($(this).siblings('a.remove-block-js').attr('blkid'));
+			$('#card-container .card').remove();
+
+			let cards = document.getElementById('card-container')
+			let template = document.getElementById('quick-action-template-js')
+
+            let $linkOpts = $(this).parent().parent().parent().siblings('.element-link-container').children(':not(.right)');
+            $.each($linkOpts, function (i) {
+				let clone = document.importNode(template.content, true)
+
+				clone.querySelector('.card').id = i
+				clone.querySelector('.card').setAttribute('type', $linkOpts[i].getAttribute('quickaction'))
+				clone.querySelector('.quick-action-title-js').textContent = $linkOpts[i].getAttribute('tooltip')
+				clone.querySelector('.up-js').addEventListener('click', moveUp)
+				clone.querySelector('.down-js').addEventListener('click', moveDown)
+
+				cards.appendChild(clone)
+            });
 
             Kora.Modal.open($('.edit-quick-actions-modal-js'));
         });
@@ -500,6 +599,7 @@ Kora.Dashboard.Index = function() {
     }
 
     initializeSelects();
+	editQuickActionsSort();
     initializeDashboardModals();
     initializeEditDashboardMode();
     initializeEditBlocks();

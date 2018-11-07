@@ -98,7 +98,7 @@
 							<div class="element-link-container">
 								@foreach($block['displayedOpts'] as $link)
 									<a href="{{ $link['href'] }}" class="element-link tooltip"
-									tooltip="{{ $link['tooltip'] }}">
+									tooltip="{{ $link['tooltip'] }}" quickAction="{{ $link['type'] }}">
 										<i class="icon {{ $link['icon-class']}}"></i>
 									</a>
 								@endforeach
@@ -143,7 +143,7 @@
 							<div class="element-link-container">
 								@foreach($block['displayedOpts'] as $link)
 									<a href="{{ $link['href'] }}" class="element-link tooltip"
-									tooltip="{{ $link['tooltip'] }}">
+									tooltip="{{ $link['tooltip'] }}" quickAction="{{ $link['type'] }}">
 										<i class="icon {{ $link['icon-class']}}"></i>
 									</a>
 								@endforeach
@@ -206,7 +206,7 @@
 										<a class="remove-block remove-block-js tooltip" tooltip="Delete Block" blkID="{{ $block['id'] }}" secID="{{ $section['id'] }}">
 											<i class="icon icon-trash"></i>
 										</a>
-										<p class="edit-quick-options-js">Edit Quick Actions</p>
+										<!-- <p class="edit-quick-options-js">Edit Quick Actions</p> -->
 									</div>
 								</div>
 							</div>
@@ -232,7 +232,7 @@
 										<a class="remove-block remove-block-js tooltip" tooltip="Delete Block" blkID="{{ $block['id'] }}" secID="{{ $section['id'] }}">
 											<i class="icon icon-trash"></i>
 										</a>
-										<p class="edit-quick-options-js">Edit Quick Actions</p>
+										<!-- <p class="edit-quick-options-js">Edit Quick Actions</p> -->
 									</div>
 								</div>
 							</div>
@@ -253,7 +253,7 @@
 										<a class="remove-block remove-block-js tooltip" tooltip="Delete Block" blkID="{{ $block['id'] }}" secID="{{ $section['id'] }}">
 											<i class="icon icon-trash"></i>
 										</a>
-										<p class="edit-quick-options-js">Edit Quick Actions</p>
+										<!-- <p class="edit-quick-options-js">Edit Quick Actions</p> -->
 									</div>
 								</div>
 							</div>
@@ -276,7 +276,7 @@
 										<a class="remove-block remove-block-js tooltip" tooltip="Delete Block" blkID="{{ $block['id'] }}" secID="{{ $section['id'] }}">
 											<i class="icon icon-trash"></i>
 										</a>
-										<p class="edit-quick-options-js">Edit Quick Actions</p>
+										<!-- <p class="edit-quick-options-js">Edit Quick Actions</p> -->
 									</div>
 								</div>
 							</div>

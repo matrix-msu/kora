@@ -82,7 +82,9 @@ class DashboardController extends Controller {
                 $b = array();
                 $b['id'] = $blk->id;
                 $b['type'] = $blk->type;
+				//dd($blk);
                 $options = json_decode($blk->options, true);
+				//dd($options);
                 switch($blk->type) {
                     case 'Project':
                         $pid = $options['pid'];
@@ -99,6 +101,7 @@ class DashboardController extends Controller {
                           $b['description'] = $project->description;
                         }
 
+						// dd($disOpts);
                         $b['displayedOpts'] = [];
                         foreach ($disOpts as $opt) {
                           array_push($b['displayedOpts'], getDashboardBlockLink($blk, $opt));
@@ -326,8 +329,7 @@ class DashboardController extends Controller {
     }
 
     /**
-     * Edits an existing block.  This does not account for updating an existing Note Block
-     * TODO::add noteblock update ability
+     * Edits an existing block.  NOT edit block quick actions
      *
      * @param  BlockRequest $request
      */
@@ -377,6 +379,27 @@ class DashboardController extends Controller {
         return redirect('dashboard')->with('k3_global_success', 'block_modified');
     }
 
+    /**
+    * Edits an existing block's quick action order
+    */
+    public function editBlockQuickActions (Request $request) {
+
+		$block = DB::table('dashboard_blocks')->where('id','=',$request->selected_id)->first()->options;
+		$options = json_decode($block, true);
+		$newOpts = explode(',', $request->options);
+		$options['displayed'] = $newOpts;
+		$options = json_encode($options);
+
+		DB::table('dashboard_blocks')->where('id','=',$request->selected_id)->update([
+			'options' => $options
+		]);
+
+		return redirect('dashboard')->with('k3_global_success', 'options_modified');
+    }
+
+    /**
+    * Edit note block
+    */
     public function editNoteBlock (Request $request) {
         $title = $request->block_note_title;
         $content = $request->block_note_content;

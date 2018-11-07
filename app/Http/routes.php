@@ -9,12 +9,13 @@ Route::group(['middleware' => 'web'], function () {
     Route::get('/dashboard', 'DashboardController@dashboard');
     Route::post('/dashboard/addBlock', 'DashboardController@addBlock');
     Route::post('/dashboard/addBlock/validate', 'DashboardController@validateBlockFields');
+    Route::post('/dashboard/addSection/{sectionTitle}','DashboardController@addSection');
     Route::patch('/dashboard/editBlock', 'DashboardController@editBlock');
     Route::patch('/dashboard/editNoteBlock', 'DashboardController@editNoteBlock');
     Route::patch('/dashboard/editSection', 'DashboardController@editSection');
     Route::patch('/dashboard/editBlockOrder', 'DashboardController@editBlockOrder');
+    Route::patch('/dashboard/editBlockQuickActions', 'DashboardController@editBlockQuickActions');
     Route::delete('/dashboard/deleteBlock/{blkID}/{secID}', 'DashboardController@deleteBlock');
-    Route::post('/dashboard/addSection/{sectionTitle}','DashboardController@addSection');
     Route::delete('/dashboard/deleteSection/{sectionID}', 'DashboardController@deleteSection');
 
 //project routes
