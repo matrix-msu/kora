@@ -82,9 +82,7 @@ class DashboardController extends Controller {
                 $b = array();
                 $b['id'] = $blk->id;
                 $b['type'] = $blk->type;
-				//dd($blk);
                 $options = json_decode($blk->options, true);
-				//dd($options);
                 switch($blk->type) {
                     case 'Project':
                         $pid = $options['pid'];
@@ -101,7 +99,6 @@ class DashboardController extends Controller {
                           $b['description'] = $project->description;
                         }
 
-						// dd($disOpts);
                         $b['displayedOpts'] = [];
                         foreach ($disOpts as $opt) {
                           array_push($b['displayedOpts'], getDashboardBlockLink($blk, $opt));
