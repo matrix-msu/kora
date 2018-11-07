@@ -10,6 +10,14 @@ Kora.Exodus.Index = function() {
     function initializeGetProjectList() {
         $('.get-projects-js').click(function (e) {
             e.preventDefault();
+			
+			if (validateRequired($('.db-host-js')) & validateRequired($('.db-user-js'))
+				& validateRequired($('.db-name-js')) & validateRequired($('.db-pass-js')))
+			{
+				var passed = true;
+			}
+			
+			if (!passed) return;
 
             var databaseLink = $('.database-link');
             var databaseSection = $('.exodus-database');
@@ -43,7 +51,9 @@ Kora.Exodus.Index = function() {
                     }
 
                     projectsSelector.trigger("chosen:updated");
-                }
+                },
+				error: function(data) {
+				}
             });
         });
     }
@@ -54,7 +64,27 @@ Kora.Exodus.Index = function() {
             $('.set-disabled-js').addClass("disabled");
         });
     }
+	
+	function initializeValidation() {
+		$(".db-host-js, .db-name-js, .db-user-js, .db-pass-js").blur(function(e) {
+			validateRequired($(this));
+		});
+	}
+	
+	function validateRequired(input) { // checks to see if a text input is empty
+		var text = input.val();
+		if (text == "") {
+			input.prev().text("This field is required");
+			input.addClass("error");
+			return false;
+		} else {
+			input.prev().text("");
+			input.removeClass("error");
+			return true;
+		}
+	}
 
     initializeGetProjectList();
     initializeFormSubmit();
+	initializeValidation();
 }

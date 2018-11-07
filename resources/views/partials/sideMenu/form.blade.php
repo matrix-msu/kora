@@ -15,7 +15,11 @@
       </li>
 
       <li class="content-link content-link-js" data-page="record-index">
-        <a  href="{{ url('/projects/'.$form->pid).'/forms/'.$form->fid.'/records'}}">View Form Records</a>
+        <a  href="{{ url('/projects/'.$form->pid).'/forms/'.$form->fid.'/records'}}">Form Records & Search</a>
+      </li>
+
+      <li class="content-link content-link-js" data-page="advanced-index">
+          <a  href="{{ url('/projects/'.$form->pid).'/forms/'.$form->fid.'/advancedSearch'}}">Form Records Advanced Search</a>
       </li>
 
       @if(\Auth::user()->canCreateFields($form))

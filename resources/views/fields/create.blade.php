@@ -44,6 +44,7 @@
 @stop
 
 @section('javascripts')
+    <script src="{{ url('assets/javascripts/vendor/ckeditor/ckeditor.js') }}"></script>
     @include('partials.fields.javascripts')
 
     <script type="text/javascript">

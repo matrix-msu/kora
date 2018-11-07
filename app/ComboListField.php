@@ -29,7 +29,7 @@ class ComboListField extends BaseField {
      */
     const FIELD_OPTIONS_VIEW = "partials.fields.options.combolist";
     const FIELD_ADV_OPTIONS_VIEW = null;
-    const FIELD_ADV_INPUT_VIEW = null;
+    const FIELD_ADV_INPUT_VIEW = "partials.records.advanced.combolist";
     const FIELD_INPUT_VIEW = "partials.records.input.combolist";
     const FIELD_DISPLAY_VIEW = "partials.records.display.combolist";
 
@@ -880,51 +880,38 @@ class ComboListField extends BaseField {
         $type_1 = self::getComboFieldType($field, 'one');
         $type_2 = self::getComboFieldType($field, 'two');
 
-        $one_valid = $query[$flid . "_1_valid"] == "1";
-        $two_valid = $query[$flid . "_2_valid"] == "1";
+        if($query[$flid . "_operator"] == "and") {
+            //
+            // We need to join combo_support with itself.
+            // Since each entry represents one sub-field in the combo list, an "and" operation
+            // on a combo list would be impossible without two copies of everything.
+            //
+            $first_prefix = "one.";
+            $second_prefix = "two.";
 
-        if(! ($one_valid || $two_valid)) {
-            return array();
-        } else if($one_valid && $two_valid) {
-            if($query[$flid . "_operator"] == "and") {
-                //
-                // We need to join combo_support with itself.
-                // Since each entry represents one sub-field in the combo list, an "and" operation
-                // on a combo list would be impossible without two copies of everything.
-                //
-                $first_prefix = "one.";
-                $second_prefix = "two.";
+            $db_query = DB::table(self::SUPPORT_NAME." AS " . substr($first_prefix, 0, -1))
+                ->select($first_prefix . "rid")
+                ->where($first_prefix . "flid", "=", $flid)
+                ->join(self::SUPPORT_NAME." AS " . substr($second_prefix, 0, -1),
+                    $first_prefix . "rid",
+                    "=",
+                    $second_prefix . "rid");
 
-                $db_query = DB::table(self::SUPPORT_NAME." AS " . substr($first_prefix, 0, -1))
-                    ->select($first_prefix . "rid")
-                    ->where($first_prefix . "flid", "=", $flid)
-                    ->join(self::SUPPORT_NAME." AS " . substr($second_prefix, 0, -1),
-                        $first_prefix . "rid",
-                        "=",
-                        $second_prefix . "rid");
+            $db_query->where(function($db_query) use ($flid, $query, $type_1, $first_prefix) {
+                self::buildAdvancedQueryRoutine($db_query, "1", $flid, $query, $type_1, $first_prefix);
+            });
+            $db_query->where(function($db_query) use ($flid, $query, $type_2, $second_prefix) {
+                self::buildAdvancedQueryRoutine($db_query, "2", $flid, $query, $type_2, $second_prefix);
+            });
 
-                $db_query->where(function($db_query) use ($flid, $query, $type_1, $first_prefix) {
-                    self::buildAdvancedQueryRoutine($db_query, "1", $flid, $query, $type_1, $first_prefix);
-                });
-                $db_query->where(function($db_query) use ($flid, $query, $type_2, $second_prefix) {
-                    self::buildAdvancedQueryRoutine($db_query, "2", $flid, $query, $type_2, $second_prefix);
-                });
-
-            } else { // OR operation.
-                $db_query = self::makeAdvancedQueryRoutine($flid);
-                $db_query->where(function($db_query) use ($flid, $query, $type_1) {
-                    self::buildAdvancedQueryRoutine($db_query, "1", $flid, $query, $type_1);
-                });
-                $db_query->orWhere(function($db_query) use ($flid, $query, $type_2) {
-                    self::buildAdvancedQueryRoutine($db_query, "2", $flid, $query, $type_2);
-                });
-            }
-        } else if ($one_valid) {
+        } else { // OR operation.
             $db_query = self::makeAdvancedQueryRoutine($flid);
-            self::buildAdvancedQueryRoutine($db_query, "1", $flid, $query, $type_1);
-        } else { // two valid
-            $db_query = self::makeAdvancedQueryRoutine($flid);
-            self::buildAdvancedQueryRoutine($db_query, "2", $flid, $query, $type_2);
+            $db_query->where(function($db_query) use ($flid, $query, $type_1) {
+                self::buildAdvancedQueryRoutine($db_query, "1", $flid, $query, $type_1);
+            });
+            $db_query->orWhere(function($db_query) use ($flid, $query, $type_2) {
+                self::buildAdvancedQueryRoutine($db_query, "2", $flid, $query, $type_2);
+            });
         }
 
         return $db_query->distinct()
@@ -956,25 +943,45 @@ class ComboListField extends BaseField {
      */
     private static function buildAdvancedQueryRoutine(Builder &$db_query, $field_num, $flid, $query, $type, $prefix = "") {
         $db_query->where($prefix . "field_num", "=", $field_num);
+        $db_prefix = config('database.connections.mysql.prefix');
 
-        if($type == Field::_NUMBER) {
-            NumberField::buildAdvancedNumberQuery($db_query,
-                $query[$flid . "_" . $field_num . "_left"],
-                $query[$flid . "_" . $field_num . "_right"],
-                isset($query[$flid . "_" . $field_num . "_invert"]),
-                $prefix);
-        } else {
-            $inputs = $query[$flid . "_" . $field_num . "_input"];
+        switch($type){
+            case Field::_NUMBER:
+                NumberField::buildAdvancedNumberQuery($db_query,
+                    $query[$flid . "_" . $field_num . "_left"],
+                    $query[$flid . "_" . $field_num . "_right"],
+                    isset($query[$flid . "_" . $field_num . "_invert"]),
+                    $db_prefix. $prefix);
+                break;
+            case Field::_DATE:
+                $input = $query[$flid . "_" . $field_num . "_month"].'/'
+                    .$query[$flid . "_" . $field_num . "_day"].'/'
+                    .$query[$flid . "_" . $field_num . "_year"];
 
-            // Since we're using a raw query, we have to get the database prefix to match our alias.
-            $db_prefix = DB::getTablePrefix();
-            $prefix = ($prefix == "") ? self::SUPPORT_NAME : substr($prefix, 0, -1);
-            $db_query->where(function($db_query) use ($inputs, $prefix, $db_prefix) {
-                foreach($inputs as $input) {
-                    $input = Search::prepare($input);
-                    $db_query->orWhereRaw("`" . $db_prefix . $prefix . "`.`data` LIKE %?%", [$input]);
-                }
-            });
+                $prefix = ($prefix == "") ? self::SUPPORT_NAME : substr($prefix, 0, -1);
+                $input = Search::prepare($input);
+                $db_query->orWhereRaw("`" . $db_prefix . $prefix . "`.`data` LIKE %?%", [$input]);
+                break;
+            case Field::_MULTI_SELECT_LIST:
+            case Field::_GENERATED_LIST:
+            case Field::_ASSOCIATOR:
+                $inputs = $query[$flid . "_" . $field_num . "_input[]"];
+
+                $prefix = ($prefix == "") ? self::SUPPORT_NAME : substr($prefix, 0, -1);
+                $db_query->where(function($db_query) use ($inputs, $prefix, $db_prefix) {
+                    foreach($inputs as $input) {
+                        $input = Search::prepare($input);
+                        $db_query->orWhereRaw("`" . $db_prefix . $prefix . "`.`data` LIKE %?%", [$input]);
+                    }
+                });
+                break;
+            default: //Text and List
+                $input = $query[$flid . "_" . $field_num . "_input"];
+
+                $prefix = ($prefix == "") ? self::SUPPORT_NAME : substr($prefix, 0, -1);
+                $input = Search::prepare($input);
+                $db_query->orWhereRaw("`" . $db_prefix . $prefix . "`.`data` LIKE %?%", [$input]);
+                break;
         }
     }
 

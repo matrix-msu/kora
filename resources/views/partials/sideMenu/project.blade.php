@@ -54,7 +54,7 @@
       @endif
 
       <li class="content-link content-link-js pre-spacer" data-page="project-records">
-        <a href="{{ action('ProjectSearchController@keywordSearch', ['pid'=>$pid]) }}">Search Project Records</a>
+        <a href="{{ action('ProjectSearchController@keywordSearch', ['pid'=>$pid]) }}">Project Records Search</a>
       </li>
 
       <li class="spacer"></li>

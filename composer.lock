@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "af6695ebbb880aeaabfb83af012a6d53",
+    "content-hash": "9671c84d717692803849547029a01bd1",
     "packages": [
         {
             "name": "clue/stream-filter",
@@ -525,22 +525,22 @@
         },
         {
             "name": "geocoder-php/common-http",
-            "version": "4.0.0",
+            "version": "4.1.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/geocoder-php/php-common-http.git",
-                "reference": "a469c06658e4aadf034f793cf6e398d44482491e"
+                "reference": "99db54307a4b12e4cb4a8c3fbafc41c395c97d65"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/geocoder-php/php-common-http/zipball/a469c06658e4aadf034f793cf6e398d44482491e",
-                "reference": "a469c06658e4aadf034f793cf6e398d44482491e",
+                "url": "https://api.github.com/repos/geocoder-php/php-common-http/zipball/99db54307a4b12e4cb4a8c3fbafc41c395c97d65",
+                "reference": "99db54307a4b12e4cb4a8c3fbafc41c395c97d65",
                 "shasum": ""
             },
             "require": {
                 "php": "^7.0",
                 "php-http/client-implementation": "^1.0",
-                "php-http/discovery": "^1.0",
+                "php-http/discovery": "^1.4",
                 "php-http/httplug": "^1.0",
                 "php-http/message-factory": "^1.0.2",
                 "psr/http-message": "^1.0",
@@ -551,7 +551,7 @@
                 "nyholm/psr7": "^0.2.2",
                 "php-http/message": "^1.0",
                 "php-http/mock-client": "^1.0",
-                "phpunit/phpunit": "^6.1",
+                "phpunit/phpunit": "6.3.*",
                 "symfony/stopwatch": "~2.5"
             },
             "type": "library",
@@ -583,7 +583,7 @@
             "keywords": [
                 "http geocoder"
             ],
-            "time": "2017-08-01T06:58:52+00:00"
+            "time": "2018-06-28T09:46:39+00:00"
         },
         {
             "name": "geocoder-php/geo-plugin-provider",
@@ -699,6 +699,63 @@
             "description": "Geocoder GoogleMaps adapter",
             "homepage": "http://geocoder-php.org/Geocoder/",
             "time": "2018-03-03T14:37:50+00:00"
+        },
+        {
+            "name": "geocoder-php/nominatim-provider",
+            "version": "5.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/geocoder-php/nominatim-provider.git",
+                "reference": "38d9299ae3cb95cd5eb354008dc19884d00f7edc"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/geocoder-php/nominatim-provider/zipball/38d9299ae3cb95cd5eb354008dc19884d00f7edc",
+                "reference": "38d9299ae3cb95cd5eb354008dc19884d00f7edc",
+                "shasum": ""
+            },
+            "require": {
+                "geocoder-php/common-http": "^4.1",
+                "php": "^7.0",
+                "willdurand/geocoder": "^4.0"
+            },
+            "provide": {
+                "geocoder-php/provider-implementation": "1.0"
+            },
+            "require-dev": {
+                "geocoder-php/provider-integration-tests": "^1.0",
+                "nyholm/psr7": "^0.2.2",
+                "php-http/curl-client": "^1.7",
+                "php-http/message": "^1.0",
+                "phpunit/phpunit": "6.3.*"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "4.0-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Geocoder\\Provider\\Nominatim\\": ""
+                },
+                "exclude-from-classmap": [
+                    "/Tests/"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "William Durand",
+                    "email": "william.durand1@gmail.com"
+                }
+            ],
+            "description": "Geocoder Nominatim adapter",
+            "homepage": "http://geocoder-php.org/Geocoder/",
+            "time": "2018-07-08T11:28:45+00:00"
         },
         {
             "name": "google/recaptcha",
@@ -3362,16 +3419,16 @@
         },
         {
             "name": "toin0u/geocoder-laravel",
-            "version": "4.0.9",
+            "version": "4.0.20",
             "source": {
                 "type": "git",
                 "url": "https://github.com/geocoder-php/GeocoderLaravel.git",
-                "reference": "fd0c837441cc8c7d8aa3ee6b8bea4103881bd868"
+                "reference": "e15b9dd94a97a0505850ba79a0d40e9c825c3f84"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/geocoder-php/GeocoderLaravel/zipball/fd0c837441cc8c7d8aa3ee6b8bea4103881bd868",
-                "reference": "fd0c837441cc8c7d8aa3ee6b8bea4103881bd868",
+                "url": "https://api.github.com/repos/geocoder-php/GeocoderLaravel/zipball/e15b9dd94a97a0505850ba79a0d40e9c825c3f84",
+                "reference": "e15b9dd94a97a0505850ba79a0d40e9c825c3f84",
                 "shasum": ""
             },
             "require": {
@@ -3379,10 +3436,10 @@
                 "geocoder-php/geo-plugin-provider": "^4.0",
                 "geocoder-php/google-maps-provider": "^4.0",
                 "guzzlehttp/psr7": "*",
-                "illuminate/cache": "5.0 - 5.6",
-                "illuminate/support": "5.0 - 5.6",
+                "illuminate/cache": "5.0 - 5.7",
+                "illuminate/support": "5.0 - 5.7",
                 "php": ">=7.1.3",
-                "php-http/curl-client": "^1.7",
+                "php-http/curl-client": "*",
                 "willdurand/geocoder": "^4.0"
             },
             "require-dev": {
@@ -3439,7 +3496,7 @@
                 "geocoding",
                 "laravel"
             ],
-            "time": "2018-05-28T15:46:10+00:00"
+            "time": "2018-09-14T19:09:00+00:00"
         },
         {
             "name": "vlucas/phpdotenv",
@@ -5483,8 +5540,8 @@
     "aliases": [],
     "minimum-stability": "dev",
     "stability-flags": {
-        "toin0u/geocoder-laravel": 0,
-        "stilliard/csvparser": 20
+        "stilliard/csvparser": 20,
+        "toin0u/geocoder-laravel": 0
     },
     "prefer-stable": true,
     "prefer-lowest": false,
