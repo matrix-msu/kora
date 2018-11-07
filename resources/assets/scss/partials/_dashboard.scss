@@ -161,16 +161,16 @@
         margin: 16px 20px 10px;
       }
 
-      .quote-text {
-        font-family: $ubuntu-light-italic;
+      .quote-text,
+	  .quote-author {
+		color: #1f2833;
+        font-family: $ubuntu;
         font-size: 14px;
         height: fit-content;
         margin: 76px 20px 0;
       }
 
       .quote-author {
-        font-family: $ubuntu-light-italic;
-        font-size: 14px;
         height: 20px;
         margin: 14px 20px 0;
       }
