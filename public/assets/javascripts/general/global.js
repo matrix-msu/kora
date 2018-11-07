@@ -111,7 +111,7 @@ $(document).ready(function() {
   setFixedElement(true);
 
   var $sidebarCookie = getCookie('sidebar');
-  if (($sidebarCookie || $sidebarPrefs) && getBrowserWidth() > 870) {
+  if ($sidebarCookie && getBrowserWidth() > 870) {
     $('.side-menu-js').addClass('active');
     $(".center, .floating-buttons").addClass('with-aside');
     $('.field.card').addClass('with-aside');
