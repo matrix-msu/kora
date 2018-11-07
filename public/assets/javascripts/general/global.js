@@ -110,10 +110,6 @@ function getURLParameter(name) {
 $(document).ready(function() {
   setFixedElement(true);
 
-  var $sidebarPrefs = false;
-  if ($('.keep-sidemenu').hasClass('true')) {
-    $sidebarPrefs = true;
-  }
   var $sidebarCookie = getCookie('sidebar');
   if (($sidebarCookie || $sidebarPrefs) && getBrowserWidth() > 870) {
     $('.side-menu-js').addClass('active');
