@@ -111,15 +111,16 @@ $(document).ready(function() {
   setFixedElement(true);
 
   var $sidebarCookie = getCookie('sidebar');
+  console.log('sidebarCookie: ' + $sidebarCookie)
   if ($sidebarCookie && getBrowserWidth() > 870) {
     $('.side-menu-js').addClass('active');
     $(".center, .floating-buttons").addClass('with-aside');
     $('.field.card').addClass('with-aside');
-	
-	var welcome_notification = $('.welcome-body').find(".notification");
-	if (welcome_notification.length == 0) {
-	  $('.notification').addClass('with-aside'); // this breaks welcome page notification styling
-	}
+
+  	var welcome_notification = $('.welcome-body').find(".notification");
+  	if (welcome_notification.length == 0) {
+  	  $('.notification').addClass('with-aside'); // this breaks welcome page notification styling
+  	}
     $('.pre-fixed-js').addClass('pre-fixed-with-aside');
     $('.toolbar').addClass('with-aside');
   } else {
@@ -229,6 +230,7 @@ $(document).ready(function() {
 
   setTimeout(function(){
     if ($note.text() != '') {
+	  console.log($note.text())
       if ($note.text() === 'Update Available!') {
         $('.view-updates-js').removeClass('hidden');
       }
@@ -261,6 +263,8 @@ $(document).ready(function() {
   $('.toggle-notification-js').click(function(e) {
     e.preventDefault();
 
+	$note.text('');
+	$noteDesc.text('');
     $noteBody.addClass('dismiss');
     $('.welcome-body').removeClass('with-notification');
   });
