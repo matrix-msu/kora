@@ -63,14 +63,15 @@ Kora.Admin.Users = function() {
       });
 
       $('.search-js i, .search-js input').keyup(function() {
-          var searchVal = $(this).val().toLowerCase();
+          let searchVal = $(this).val().toLowerCase();
 
           $('.user.card').each(function() {
-              var fname = $(this).find('.firstname').first().text().toLowerCase();
-              var lname = $(this).find('.lastname').first().text().toLowerCase();
-              var uname = $(this).find('.username').first().text().toLowerCase();
+              let fname = $(this).find('.firstname').first().text().toLowerCase();
+              let lname = $(this).find('.lastname').first().text().toLowerCase();
+              let uname = $(this).find('.username').first().text().toLowerCase();
+			  let email = $(this).find('.email').first().text().toLowerCase();
 
-              if(fname.includes(searchVal) | lname.includes(searchVal) | uname.includes(searchVal))
+              if(fname.includes(searchVal) | lname.includes(searchVal) | uname.includes(searchVal) | email.includes(searchVal))
                   $(this).removeClass('hidden');
               else
                   $(this).addClass('hidden');
