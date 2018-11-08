@@ -143,17 +143,11 @@ Kora.Records.Create = function() {
             } else {
                 $('.combo-error-'+flid+'-js').text('');
 
-                //Remove empty div if applicable
-                var border = true;
                 if(defaultDiv.find('.combo-list-empty').length) {
                     defaultDiv.find('.combo-list-empty').first().remove();
-                    border = false;
                 }
 
-                div = '<div class="combo-value-item-js">';
-
-                if(border)
-                    div += '<span class="combo-border-small"> </span>';
+                div = '<div class="combo-value-item combo-value-item-js">';
 
                 if(type1=='Text' | type1=='List' | type1=='Number' | type1=='Date') {
                     div += '<input type="hidden" name="'+flid+'_combo_one[]" value="'+val1+'">';
@@ -171,11 +165,11 @@ Kora.Records.Create = function() {
                     div += '<span class="combo-column">'+val2.join(' | ')+'</span>';
                 }
 
-                div += '<span class="combo-delete delete-combo-value-js"><a class="underline-middle-hover">[X]</a></span>';
+                div += '<span class="combo-delete delete-combo-value-js"><i class="icon icon-trash"></i></span>';
 
                 div += '</div>';
 
-                defaultDiv.children('.combo-list-display').first().append(div);
+                defaultDiv.find('.combo-value-item-container-js').append(div);
 
                 if(type1=='Multi-Select List' | type1=='Generated List' | type1=='List' | type1=='Associator') {
                     inputOne.val('');

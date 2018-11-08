@@ -95,35 +95,265 @@ Kora.Fields.Options = function(fieldType) {
         });
     }
 
-    function initializeListOptions() {
-        var listOpt = $('.list-options-js');
-        var listDef = $('.list-default-js');
+    function initializeList() {
+        function setCardTitleWidth() {
+            var $cards = $('.list-option-card-js');
 
-        var inputOpt = listOpt.siblings('.chosen-container');
-        var childCheck = inputOpt.children('.chosen-drop').children('.chosen-results');
+            $cards.each(function() {
+                var $card = $(this);
+                var $value = $card.find('.title');
 
-        listOpt.find('option').prop('selected', true);
-        listOpt.trigger("chosen:updated");
+                var maxValueWidth = $card.outerWidth() * .75;
+                $value.css('max-width', maxValueWidth);
+            })
+        }
 
-        listOpt.chosen().change(function() {
-            //When option de-selected, we delete it from list
-            listOpt.find('option').not(':selected').remove();
+        function old_initializeListDefaultOptions() {
+            var listOpt = $('.list-options-js');
+            var listDef = $('.list-default-js');
+
+            var inputOpt = listOpt.siblings('.chosen-container');
+            var childCheck = inputOpt.children('.chosen-drop').children('.chosen-results');
+
+            listOpt.find('option').prop('selected', true);
             listOpt.trigger("chosen:updated");
-        });
 
-        listOpt.bind("DOMSubtreeModified",function(){
-            var options = listOpt.html();
-            listDef.html(options);
-            listDef.trigger("chosen:updated");
-        });
+            listOpt.chosen().change(function() {
+                //When option de-selected, we delete it from list
+                listOpt.find('option').not(':selected').remove();
+                listOpt.trigger("chosen:updated");
+            });
 
-        inputOpt.on('click', function () {
-          if (childCheck.children().length === 0) {
-            childCheck.append('<li class="no-results">No options to select!</li>');
-          } else if (childCheck.children('.active-result').length === 0 && childCheck.children('.no-results').length === 0) {
-            childCheck.append('<li class="no-results">No more options to select!</li>');
-          }
-        });
+            listOpt.bind("DOMSubtreeModified",function(){
+                var options = listOpt.html();
+                listDef.html(options);
+                listDef.trigger("chosen:updated");
+            });
+
+            inputOpt.on('click', function () {
+                if (childCheck.children().length === 0) {
+                    childCheck.append('<li class="no-results">No options to select!</li>');
+                } else if (childCheck.children('.active-result').length === 0 && childCheck.children('.no-results').length === 0) {
+                    childCheck.append('<li class="no-results">No more options to select!</li>');
+                }
+            });
+        }
+
+        // Function to add list options and the respective cards
+        function initializeListAddOption() {
+            var $addButton = $('.list-option-add-js');
+            var $newListOptionInput = $('.new-list-option-js');
+            var $listOptions = $('.list-options-js');
+            var $cardContainer = $('.list-option-card-container-js');
+            var $cards = $cardContainer.find('.list-option-card-js');
+
+            $newListOptionInput.keypress(function(e) {
+                var keycode =  (e.keyCode ? e.keyCode : e.which);
+                if (keycode == '13') {
+                    e.preventDefault();
+
+                    // Enter key pressed, trigger 'add' button click
+                    $addButton.click();
+                }
+            });
+
+            // Add new list option card after 'add' button pressed
+            $addButton.click(function(e) {
+                e.preventDefault();
+
+                var newListOption = $newListOptionInput.val();
+
+                // Prevent duplicate entries
+
+                // Create and display new card
+                var newCardHtml = '<div class="card list-option-card list-option-card-js" data-list-value="'+newListOption+'">' +
+                    '<input type="hidden" class="list-option-js" name="options[]" value="'+newListOption+'">'+
+                    '<div class="header">' +
+                    '<div class="left">' +
+                    '<div class="move-actions">' +
+                    '<a class="action move-action-js up-js" href="">' +
+                    '<i class="icon icon-arrow-up"></i>' +
+                    '</a>' +
+                    '<a class="action move-action-js down-js" href="">' +
+                    '<i class="icon icon-arrow-down"></i>' +
+                    '</a>' +
+                    '</div>' +
+                    '<span class="title">'+newListOption+'</span>' +
+                    '</div>' +
+                    '<div class="card-toggle-wrap">' +
+                    '<a class="list-option-delete list-option-delete-js" href=""><i class="icon icon-trash"></i></a>' +
+                    '</div>' +
+                    '</div>' +
+                    '</div>';
+
+                $cardContainer.append(newCardHtml);
+
+                // Initialize functionality for all the cards again
+                $('.move-action-js').unbind();
+                setCardTitleWidth();
+                initializeListSort();
+                initializeListOptionDelete();
+                updateListDefaultOptions();
+                Kora.Fields.TypedFieldInputs.Initialize();
+
+                // Clear input after everything is finished
+                $newListOptionInput.val("");
+            });
+        }
+
+        function initializeListSort() {
+            $('.move-action-js').click(function(e) {
+                e.preventDefault();
+
+                var $this = $(this);
+                var $headerInnerWrapper = $this.parent().parent();
+                var $header = $headerInnerWrapper.parent();
+                var $card = $header.parent();
+                var $listOptions = $('.list-options-js');
+                // $form.prev().before(current);
+                if ($this.hasClass('up-js')) {
+                    var $previousForm = $card.prev();
+                    if ($previousForm.length == 0) {
+                        return;
+                    }
+
+                    $previousForm.css('z-index', 999)
+                        .css('position', 'relative')
+                        .animate({
+                            top: $card.height()
+                        }, 300);
+                    $card.css('z-index', 1000)
+                        .css('position', 'relative')
+                        .animate({
+                            top: '-' + $previousForm.height()
+                        }, 300, function() {
+                            $previousForm.css('z-index', '')
+                                .css('top', '')
+                                .css('position', '');
+                            $card.css('z-index', '')
+                                .css('top', '')
+                                .css('position', '')
+                                .insertBefore($previousForm);
+
+                            // fidsArray = $(".form-custom-js").sortable("toArray");
+                            //
+                            // $.ajax({
+                            //     url: saveCustomOrderUrl,
+                            //     type: 'POST',
+                            //     data: {
+                            //         "_token": CSRFToken,
+                            //         "fids": fidsArray,
+                            //
+                            //     },
+                            //     success: function(result) {}
+                            // });
+                        });
+                } else {
+                    var $nextForm = $card.next();
+                    if ($nextForm.length == 0) {
+                        return;
+                    }
+
+                    $nextForm.css('z-index', 999)
+                        .css('position', 'relative')
+                        .animate({
+                            top: '-' + $card.height()
+                        }, 300);
+                    $card.css('z-index', 1000)
+                        .css('position', 'relative')
+                        .animate({
+                            top: $nextForm.height()
+                        }, 300, function() {
+                            $nextForm.css('z-index', '')
+                                .css('top', '')
+                                .css('position', '');
+                            $card.css('z-index', '')
+                                .css('top', '')
+                                .css('position', '')
+                                .insertAfter($nextForm);
+
+                            // fidsArray = $(".form-custom-js").sortable("toArray");
+                            //
+                            // $.ajax({
+                            //     url: saveCustomOrderUrl,
+                            //     type: 'POST',
+                            //     data: {
+                            //         "_token": CSRFToken,
+                            //         "fids": fidsArray,
+                            //
+                            //     },
+                            //     success: function(result) {}
+                            // });
+                        });
+                }
+            });
+        }
+
+        function initializeListOptionDelete() {
+            var $listOptionCards = $('.list-option-card-js');
+
+            $listOptionCards.each(function() {
+                var $card = $(this);
+                var $deleteButton = $card.find('.list-option-delete-js');
+
+                $deleteButton.click(function(e) {
+                    e.preventDefault();
+
+                    $card.remove();
+
+                    updateListDefaultOptions();
+                });
+            });
+        }
+
+        function updateListDefaultOptions() {
+            var $cards = $('.list-option-card-js');
+            var $listDef = $('.list-default-js');
+
+            var optionsHtml = "";
+            if ($cards.length > 0) {
+                for (var i = 0; i < $cards.length; i++) {
+                    var $card = $($cards[i]);
+                    var option = $card.find('.list-option-js').val();
+                    optionsHtml += '<option value="'+option+'">'+option+'</option>';
+                }
+            } else {
+                optionsHtml += '<option value="" disabled>No options to select!</option>';
+            }
+
+            $listDef.html(optionsHtml);
+            $listDef.trigger("chosen:updated");
+
+            /*
+            listOpt.chosen().change(function() {
+                //When option de-selected, we delete it from list
+                listOpt.find('option').not(':selected').remove();
+                listOpt.trigger("chosen:updated");
+            });
+
+            listOpt.bind("DOMSubtreeModified",function(){
+                var options = listOpt.html();
+                listDef.html(options);
+                listDef.trigger("chosen:updated");
+            });
+
+            inputOpt.on('click', function () {
+                if (childCheck.children().length === 0) {
+                    childCheck.append('<li class="no-results">No options to select!</li>');
+                } else if (childCheck.children('.active-result').length === 0 && childCheck.children('.no-results').length === 0) {
+                    childCheck.append('<li class="no-results">No more options to select!</li>');
+                }
+            });
+            */
+        }
+
+        setCardTitleWidth();
+        initializeListAddOption();
+        initializeListSort();
+        initializeListOptionDelete();
+        updateListDefaultOptions();
+        Kora.Fields.TypedFieldInputs.Initialize();
+        //initializeListOptions();
     }
 
     function initializeMultiSelectListOptions() {
@@ -637,7 +867,7 @@ Kora.Fields.Options = function(fieldType) {
       if ($('.error-message.single-line').text().length > 0) {
         var erMsg = $('.error-message.single-line').text();
         $('.error-message.multi-line').text(''+erMsg+'');
-        $multiLine.children('textarea').addClass('error');      
+        $multiLine.children('textarea').addClass('error');
       }
 
       $multiLineCheck.click(function () {
@@ -649,9 +879,9 @@ Kora.Fields.Options = function(fieldType) {
           $multiLineShow.removeClass('hidden');
         } else {
           $singleLine.removeClass('hidden');
-          $multiLine.addClass('hidden');      
+          $multiLine.addClass('hidden');
           $singleLineShow.removeClass('hidden');
-          $multiLineShow.addClass('hidden');    
+          $multiLineShow.addClass('hidden');
         }
       });
 
@@ -678,8 +908,8 @@ Kora.Fields.Options = function(fieldType) {
             initializeGeneratedListOptions();
             break;
         case 'List':
+            initializeList();
             initializeSelectAddition();
-            initializeListOptions();
             break;
         case 'Geolocator':
             intializeGeolocatorOptions();
