@@ -147,6 +147,7 @@ class ExodusHelperController extends Controller {
                             $def = $optXML->defaultValue->__toString();
                         else
                             $def = '';
+
                         if(!$blankOpts)
                             $textType = $optXML->textEditor->__toString();
                         else
@@ -161,6 +162,7 @@ class ExodusHelperController extends Controller {
                                 $regex = $optXML->regex->__toString();
                             else
                                 $regex = '';
+
                             if(!$blankOpts)
                                 $rows = (int)$optXML->rows;
                             else
@@ -175,18 +177,15 @@ class ExodusHelperController extends Controller {
                         }
                         break;
                     case 'MultiTextControl':
-                        if(!$blankOpts)
-                            $def = (array)$optXML->defaultValue->value;
-                        else
-                            $def = array();
-                        $defOpts = '';
-                        if(isset($def[0])) {
-                            $defOpts = $def[0];
-                            $size = sizeof($def);
-                            for($i = 1; $i < $size; ++$i) {
-                                $defOpts .= '[!]' . $def[$i];
+                        $def = array();
+                        if(!$blankOpts && !is_null($optXML->defaultValue->value)) {
+                            foreach($optXML->defaultValue->value as $xmlopt) {
+                                array_push($def, (string)$xmlopt);
                             }
                         }
+
+                        $defOpts = implode('[!]', $def);
+
                         if(!$blankOpts)
                             $regex = $optXML->regex->__toString();
                         else
@@ -216,6 +215,7 @@ class ExodusHelperController extends Controller {
                             $defDay = '';
                             $prefix = 'No';
                         }
+
                         $circa = 'No';
                         $for = 'MMDDYYYY';
                         if($prefix=='circa') {$circa='Yes';}
@@ -228,14 +228,16 @@ class ExodusHelperController extends Controller {
                         $newType = 'Date';
                         break;
                     case 'MultiDateControl':
+                        $def = array();
                         if(!$blankOpts) {
                             $startY = (int)$optXML->startYear;
                             $endY = (int)$optXML->endYear;
-                            $def = (array)$optXML->defaultValue;
+                            foreach($optXML->defaultValue as $xmlopt) {
+                                array_push($def, (string)$xmlopt);
+                            }
                         } else {
                             $startY = 1990;
                             $endY = 2020;
-                            $def = array();
                         }
 
                         if(isset($def['date']))
@@ -261,18 +263,14 @@ class ExodusHelperController extends Controller {
                             $maxSize = (int)$optXML->maxSize;
                         else
                             $maxSize=0;
-                        if(!$blankOpts)
-                            $allowed = (array)$optXML->allowedMIME->mime;
-                        else
-                            $allowed=array();
-                        $allOpts = '';
-                        if(isset($allowed[0])) {
-                            $allOpts = $allowed[0];
-                            $size = sizeof($allowed);
-                            for($i = 1; $i < $size; ++$i) {
-                                $allOpts .= '[!]' . $allowed[$i];
+
+                        $allowed = array();
+                        if(!$blankOpts) {
+                            foreach($optXML->allowedMIME->mime as $xmlopt) {
+                                array_push($allowed, (string)$xmlopt);
                             }
                         }
+                        $allOpts = implode('[!]', $allowed);
 
                         $newOpts = '[!FieldSize!]'.$maxSize.'[!FieldSize!][!MaxFiles!]0[!MaxFiles!][!FileTypes!]'.$allOpts.'[!FileTypes!]';
                         $newType = 'Documents';
@@ -282,19 +280,21 @@ class ExodusHelperController extends Controller {
                             $maxSize = (int)$optXML->maxSize;
                         else
                             $maxSize=0;
-                        if(!$blankOpts)
-                            $allowed = (array)$optXML->allowedMIME->mime;
-                        else
-                            $allowed=array();
-                        $allOpts = '';
-                        if(isset($allowed[0])) {
-                            $allOpts = $allowed[0];
-                            $size = sizeof($allowed);
-                            for($i = 1; $i < $size; ++$i) {
-                                if($allowed[$i] != 'image/pjpeg' && $allowed[$i] != 'image/x-png')
-                                    $allOpts .= '[!]' . $allowed[$i];
+
+                        $allowed = array();
+                        if(!$blankOpts) {
+                            foreach($optXML->allowedMIME->mime as $xmlopt) {
+                                array_push($allowed, (string)$xmlopt);
                             }
                         }
+                        $cleaned = array();
+                        //Remove unsupported types
+                        foreach($allowed as $allow) {
+                            if($allow != 'image/pjpeg' && $allow != 'image/x-png')
+                                array_push($cleaned, $allow);
+                        }
+                        $allOpts = implode('[!]', $cleaned);
+
                         $thumbW = (int)$optXML->thumbWidth;
                         $thumbH = (int)$optXML->thumbHeight;
 
@@ -302,18 +302,14 @@ class ExodusHelperController extends Controller {
                         $newType = 'Gallery';
                         break;
                     case 'ListControl':
-                        if(!$blankOpts)
-                            $opts = (array)$optXML->option;
-                        else
-                            $opts = array();
-                        $allOpts = '';
-                        if(isset($opts[0])) {
-                            $allOpts = $opts[0];
-                            $size = sizeof($opts);
-                            for($i = 1; $i < $size; ++$i) {
-                                $allOpts .= '[!]' . $opts[$i];
+                        $opts = array();
+                        if(!$blankOpts) {
+                            foreach($optXML->option as $xmlopt) {
+                                array_push($opts, (string)$xmlopt);
                             }
                         }
+                        $allOpts = implode('[!]', $opts);
+
                         if(!$blankOpts)
                             $def = $optXML->defaultValue->__toString();
                         else
@@ -324,40 +320,33 @@ class ExodusHelperController extends Controller {
                         $newType = 'List';
                         break;
                     case 'MultiListControl':
-                        if(!$blankOpts)
-                            $opts = (array)$optXML->option;
-                        else
-                            $opts = array();
-                        $allOpts = '';
-                        if(isset($opts[0])) {
-                            $allOpts = $opts[0];
-                            $size = sizeof($opts);
-                            for($i = 1; $i < $size; ++$i) {
-                                $allOpts .= '[!]' . $opts[$i];
+                        $opts = array();
+                        if(!$blankOpts) {
+                            foreach($optXML->option as $xmlopt) {
+                                array_push($opts, (string)$xmlopt);
                             }
                         }
-                        if(!$blankOpts)
-                            $def = (array)$optXML->defaultValue->option;
-                        else
-                            $def = array();
-                        $defOpts = '';
-                        if(isset($def[0])) {
-                            $defOpts = $def[0];
-                            $size = sizeof($def);
-                            for($i = 1; $i < $size; ++$i) {
-                                $defOpts .= '[!]' . $def[$i];
+                        $allOpts = implode('[!]', $opts);
+
+                        $def = array();
+                        if(!$blankOpts && !is_null($optXML->defaultValue->option)) {
+                            foreach($optXML->defaultValue->option as $xmlopt) {
+                                array_push($def, (string)$xmlopt);
                             }
                         }
+                        $defOpts = implode('[!]', $def);
 
                         $newOpts = '[!Options!]'.$allOpts.'[!Options!]';
                         $newDef = $defOpts;
                         $newType = 'Multi-Select List';
                         break;
                     case 'AssociatorControl':
-                        if(!$blankOpts)
-                            $opts = (array)$optXML->scheme;
-                        else
-                            $opts = array();
+                        $opts = array();
+                        if(!$blankOpts) {
+                            foreach($optXML->scheme as $xmlopt) {
+                                array_push($opts, (string)$xmlopt);
+                            }
+                        }
 
                         $assocControlCheck[$c['cid']] = $opts;
 
@@ -546,7 +535,10 @@ class ExodusHelperController extends Controller {
 
                             break;
                         case 'Generated List':
-                            $mtc = (array)simplexml_load_string($value)->text;
+                            $mtc = array();
+                            foreach(simplexml_load_string($value)->text as $xmlopt) {
+                                array_push($mtc, (string)$xmlopt);
+                            }
                             $optStr = implode('[!]',$mtc);
 
                             $gen = [
@@ -620,7 +612,7 @@ class ExodusHelperController extends Controller {
 
                             if($localname!='') {
                                 //Make folder
-                                $newPath = config('app.base_path') . 'storage/app/files/p' . $newForm->pid . '/f' . $newForm->fid . '/r' . $recModel->rid . '/fl' . $field->flid.'/';
+                                $newPath = storage_path('app/files/p' . $newForm->pid . '/f' . $newForm->fid . '/r' . $recModel->rid . '/fl' . $field->flid.'/');
                                 mkdir($newPath, 0775, true);
 
                                 $oldDir = $filePath.'/'.$oldPid.'/'.$ogSid.'/';
@@ -663,7 +655,7 @@ class ExodusHelperController extends Controller {
 
                             if($localname!='') {
                                 //Make folder
-                                $newPath = config('app.base_path') . 'storage/app/files/p' . $newForm->pid . '/f' . $newForm->fid . '/r' . $recModel->rid . '/fl' . $field->flid.'/';
+                                $newPath = storage_path('app/files/p' . $newForm->pid . '/f' . $newForm->fid . '/r' . $recModel->rid . '/fl' . $field->flid.'/');
                                 $newPathM = $newPath.'medium/';
                                 $newPathT = $newPath.'thumbnail/';
                                 mkdir($newPath, 0775, true);
@@ -751,7 +743,10 @@ class ExodusHelperController extends Controller {
 
                             break;
                         case 'Multi-Select List':
-                            $mlc = (array)simplexml_load_string($value)->value;
+                            $mlc = array();
+                            foreach(simplexml_load_string($value)->value as $xmlopt) {
+                                array_push($mlc, (string)$xmlopt);
+                            }
                             $optStr = implode('[!]',$mlc);
 
                             $msl = [
@@ -764,7 +759,10 @@ class ExodusHelperController extends Controller {
 
                             break;
                         case 'Associator':
-                            $kids = (array)simplexml_load_string($value)->kid;
+                            $kids = array();
+                            foreach(simplexml_load_string($value)->kid as $xmlopt) {
+                                array_push($kids, (string)$xmlopt);
+                            }
 
                             $aid = DB::table('associator_fields')->insertGetId([
                                 'rid' => $recModel->rid,
@@ -778,7 +776,7 @@ class ExodusHelperController extends Controller {
                             //This prevents the array from getting too big. We will just create the files in parts
                             if(sizeof($assocFile)>self::EXODUS_CONVERSION_SIZE) {
                                 $dataToWrite = json_encode($assocFile);
-                                $filename = config('app.base_path').ExodusController::EXODUS_DATA_PATH.'assoc_'.$ogSid.'_'.$filePartNum.'.json';
+                                $filename = storage_path(ExodusController::EXODUS_DATA_PATH.'assoc_'.$ogSid.'_'.$filePartNum.'.json');
                                 file_put_contents($filename,$dataToWrite);
 
                                 //Reset the variables
@@ -804,7 +802,7 @@ class ExodusHelperController extends Controller {
 
         //We want to save the Typed Field that will have the data eventually, matched to its values in Kora 2 KID form
         $dataToWrite = json_encode($assocFile);
-        $filename = config('app.base_path').ExodusController::EXODUS_DATA_PATH.'assoc_'.$ogSid.'_'.$filePartNum.'.json';
+        $filename = storage_path(ExodusController::EXODUS_DATA_PATH.'assoc_'.$ogSid.'_'.$filePartNum.'.json');
         file_put_contents($filename,$dataToWrite);
 
         //We want to save the conversion array of Kora 2 KIDs to Kora 3 RIDs for this scheme
@@ -812,7 +810,7 @@ class ExodusHelperController extends Controller {
         $partIndex = 0;
         foreach($ridChunks as $ridc) {
             $dataToWrite = json_encode($ridc);
-            $filename = env('BASE_PATH').ExodusController::EXODUS_CONVERSION_PATH.'kid_to_rid_'.$ogSid.'_'.$partIndex.'.json';
+            $filename = storage_path(ExodusController::EXODUS_CONVERSION_PATH.'kid_to_rid_'.$ogSid.'_'.$partIndex.'.json');
             file_put_contents($filename,$dataToWrite);
             $partIndex++;
         }
@@ -897,7 +895,7 @@ class ExodusHelperController extends Controller {
      * @param  int $id - Preset ID
      */
     public function moveFilesToPreset($rid, $id) {
-        $presets_path = config('app.base_path').'storage/app/presetFiles';
+        $presets_path = storage_path('app/presetFiles');
 
         //
         // Create the presets file path if it does not exist.
@@ -913,7 +911,7 @@ class ExodusHelperController extends Controller {
         // Build the record's directory.
         $record = RecordController::getRecord($rid);
 
-        $record_path = config('app.base_path') . 'storage/app/files/p' . $record->pid . '/f' . $record->fid . '/r' . $record->rid;
+        $record_path = storage_path('app/files/p' . $record->pid . '/f' . $record->fid . '/r' . $record->rid);
 
         //
         // Recursively copy the record's file directory.

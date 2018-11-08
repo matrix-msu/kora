@@ -11,7 +11,7 @@
 @stop
 
 @section('stylesheets')
-    <link rel="stylesheet" href="{{ config('app.url') }}assets/css/vendor/datetimepicker/jquery.datetimepicker.min.css" />
+    <link rel="stylesheet" href="{{ url('assets/css/vendor/datetimepicker/jquery.datetimepicker.min.css') }}" />
 @stop
 
 @section('header')
@@ -44,6 +44,7 @@
 @stop
 
 @section('javascripts')
+    <script src="{{ url('assets/javascripts/vendor/ckeditor/ckeditor.js') }}"></script>
     @include('partials.fields.javascripts')
 
     <script type="text/javascript">

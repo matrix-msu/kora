@@ -262,11 +262,15 @@ Route::group(['middleware' => 'web'], function () {
     Route::delete("clearGlobalCache", "ProjectSearchController@clearGlobalCache");
 
 //advanced search routes
+    Route::get("/projects/{pid}/forms/{fid}/advancedSearch", "AdvancedSearchController@index");
     Route::get("/projects/{pid}/forms/{fid}/advancedSearch/results", "AdvancedSearchController@recent");
     Route::post("/projects/{pid}/forms/{fid}/advancedSearch/results", "AdvancedSearchController@search");
 
 //twitter routes
     Route::get("/twitter", "TwitterController@index");
+	
+//reset password routes
+	Route::post("/reset/email/validate", "Auth\ResetPasswordController@preValidateEmail");
 
 //user auth
     Auth::routes();

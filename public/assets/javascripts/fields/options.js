@@ -682,6 +682,26 @@ Kora.Fields.Options = function(fieldType) {
             parentDiv.remove();
         });
 
+        $('.combolist-add-new-list-value-modal-js').click(function(e){
+            e.preventDefault();
+
+            Kora.Modal.open($('.combolist-add-list-value-modal-js'));
+        });
+
+        $('.default-input-js').on('blur change', function(e) {
+            e.preventDefault();
+
+			$.each($('.default-input-js'), function(){
+				if ($(this).val() == '' || $(this).val() == null) {
+					if (!$('.add-combo-value-js').hasClass('disabled'))
+						$('.add-combo-value-js').addClass('disabled');
+					return false;
+				} else {
+					$('.add-combo-value-js').removeClass('disabled');
+				}
+			});
+        });
+
         $('.add-combo-value-js').click(function() {
             if(type1=='Date') {
                 monthOne = $('#month_one');
@@ -717,10 +737,10 @@ Kora.Fields.Options = function(fieldType) {
                     border = false;
                 }
 
-                div = '<div class="combo-value-item-js">';
+                div = '<div class="card combo-value-item-js">';
 
-                if(border)
-                    div += '<span class="combo-border-small"> </span>';
+                // if(border)
+                    // div += '<span class="combo-border-small"> </span>';
 
                 if(type1=='Text' | type1=='List' | type1=='Number' | type1=='Date') {
                     div += '<input type="hidden" name="default_combo_one[]" value="'+val1+'">';
@@ -738,11 +758,14 @@ Kora.Fields.Options = function(fieldType) {
                     div += '<span class="combo-column">'+val2.join(' | ')+'</span>';
                 }
 
-                div += '<span class="combo-delete delete-combo-value-js"><a class="underline-middle-hover">[X]</a></span>';
+                div += '<span class="combo-delete delete-combo-value-js"><a class="quick-action delete-option delete-default-js tooltip" tooltip="Delete Default Value"><i class="icon icon-trash"></i></a></span>';
 
                 div += '</div>';
 
+                Kora.Modal.close();
                 defaultDiv.html(defaultDiv.html()+div);
+                $('.combo-value-div-js').removeClass('hidden');
+                $('.combolist-add-new-list-value-modal-js').addClass('mt-xxl');
 
                 if(type1=='Multi-Select List' | type1=='Generated List' | type1=='List' | type1=='Associator') {
                     inputOne.val('');
@@ -766,7 +789,7 @@ Kora.Fields.Options = function(fieldType) {
             }
         });
 
-        //ASSOCIATOR OPTIONS
+	//ASSOCIATOR OPTIONS
         //Sets up association configurations
         $('.association-check-js').click(function() {
             var assocDiv = $(this).closest('.form-group').next();
@@ -830,9 +853,9 @@ Kora.Fields.Options = function(fieldType) {
         });
 
         //LIST OPTIONS
-        var listOpt = $('.list-options-js');
-        listOpt.find('option').prop('selected', true);
-        listOpt.trigger("chosen:updated");
+        // var listOpt = $('.list-options-js');
+        // listOpt.find('option').prop('selected', true);
+        // listOpt.trigger("chosen:updated");
 
         listOpt = $('.mslist-options-js');
         listOpt.find('option').prop('selected', true);
@@ -841,6 +864,155 @@ Kora.Fields.Options = function(fieldType) {
         listOpt = $('.genlist-options-js');
         listOpt.find('option').prop('selected', true);
         listOpt.trigger("chosen:updated");
+		
+        // (new) LIST OPTIONS
+        $(".list-options-js").sortable({
+            helper: 'clone',
+            revert: true,
+            containment: ".field-show"/*,
+            update: function(event, ui) {
+              pidsArray = $(".project-custom-js").sortable("toArray");*/
+
+            //   $.ajax({
+            //     url: saveCustomOrderUrl,
+            //     type: 'POST',
+            //     data: {
+            //       "_token": CSRFToken,
+            //       "pids": pidsArray,
+            //     },
+            //     success: function(result) {}
+            //   });
+            // }
+        });
+        
+		$('.list-options-js').on('click', '.move-action-js', function(e) {
+		  e.preventDefault();
+
+		  var $this = $(this);
+		  var $headerInnerWrapper = $this.parent().parent(); // div.left
+		  var $header = $headerInnerWrapper.parent();		 // div.header
+		  var $form = $header.parent();						 // div.card
+		  // $form.prev().before(current);
+
+		  if ($this.hasClass('up-js')) {
+			var $previousForm = $form.prev();
+			if ($previousForm.length == 0) {
+			  return;
+			}
+
+			$previousForm.css('z-index', 999)
+			  .css('position', 'relative')
+			  .animate({
+				top: $form.height()
+			  }, 300);
+			$form.css('z-index', 1000)
+			  .css('position', 'relative')
+			  .animate({
+				top: '-' + $previousForm.height()
+			  }, 300, function() {
+				$previousForm.css('z-index', '')
+				  .css('top', '')
+				  .css('position', '');
+				$form.css('z-index', '')
+				  .css('top', '')
+				  .css('position', '')
+				  .insertBefore($previousForm);
+
+				  // fidsArray = $(".form-custom-js").sortable("toArray");
+
+				  // $.ajax({
+					  // url: saveCustomOrderUrl,
+					  // type: 'POST',
+					  // data: {
+						  // "_token": CSRFToken,
+						  // "fids": fidsArray,
+
+					  // },
+					  // success: function(result) {}
+				  // });
+			  });
+		  } else {
+			var $nextForm = $form.next();
+			if ($nextForm.length == 0) {
+			  return;
+			}
+
+			$nextForm.css('z-index', 999)
+			  .css('position', 'relative')
+			  .animate({
+				top: '-' + $form.height()
+			  }, 300);
+			$form.css('z-index', 1000)
+			  .css('position', 'relative')
+			  .animate({
+				top: $nextForm.height()
+			  }, 300, function() {
+				$nextForm.css('z-index', '')
+				  .css('top', '')
+				  .css('position', '');
+				$form.css('z-index', '')
+				  .css('top', '')
+				  .css('position', '')
+				  .insertAfter($nextForm);
+
+				  // fidsArray = $(".form-custom-js").sortable("toArray");
+
+				  // $.ajax({
+					  // url: saveCustomOrderUrl,
+					  // type: 'POST',
+					  // data: {
+						  // "_token": CSRFToken,
+						  // "fids": fidsArray,
+
+					  // },
+					  // success: function(result) {}
+				  // });
+			  });
+		  }
+        });
+        
+        $('.list-options-js').on('click', '.delete-option-js', function(){
+            let $this = $(this).parent().parent().parent();
+            let $thisOpt = $('.list-select-js option').get($this.index()-1);
+            $thisOpt.remove();
+            $this.remove();
+        });
+
+        $('.combo-value-div-js').on('click', '.delete-default-js', function(e){
+            e.preventDefault();
+
+            if ($('.combo-value-div-js .card').length == 1) {
+                $('.combo-value-div-js').addClass('hidden');
+                $('.combolist-add-new-list-value-modal-js').removeClass('mt-xxl');
+            }
+        });
+
+	var listOpt = $('.list-options-container-js');
+	var newValue = $('.add-list-option-js');
+
+	$('.list-options-container-js .submit').on('click', function () {
+        	let input = $('.add-list-option-js').val();
+		if (input != '') {
+                	// add the card
+			let card = '<div class="card ui-sortable-handle"><div class="header"><div class="left"><div class="move-actions"><a class="action move-action-js up-js"><i class="icon icon-arrow-up"></i></a><a class="action move-action-js down-js"><i class="icon icon-arrow-down"></i></a></div><span class="title">';
+                	card += "" + input + "";
+			card += '</span></div><div class="card-toggle-wrap"><a class="quick-action delete-option delete-option-js tooltip" tooltip="Delete Option"><i class="icon icon-trash"></i></a></div></div></div>';
+                    	$('.list-options-js').html($('.list-options-js').html()+card);
+                    	// add the select option
+                    	let option = '<option selected value="'+input+'">'+input+'</option>';
+                    	$('.list-select-js').html($('.list-select-js').html()+option);
+                    	// clear the input
+                    	$('.add-list-option-js').val('');
+		}
+	});
+
+	$(".list-options-container-js").on('keypress', function(event) {
+        	var keyCode = event.keyCode || event.which;
+                if (keyCode === 13) {
+                	event.preventDefault();
+                	$(".list-options-container-js .submit").click();
+                }
+	});
     }
 
     function initializeTextFields() {
@@ -897,6 +1069,14 @@ Kora.Fields.Options = function(fieldType) {
       });
     }
 
+    function initializeRichTextFields() {
+        $('.ckeditor-js').each(function() {
+            textid = $(this).attr('id');
+
+            CKEDITOR.replace(textid);
+        });
+    }
+
     initializeSelects();
 
     switch(fieldType) {
@@ -930,6 +1110,8 @@ Kora.Fields.Options = function(fieldType) {
             break;
         case 'Text':
             initializeTextFields();
+        case 'Rich Text':
+            initializeRichTextFields();
         default:
             break;
     }

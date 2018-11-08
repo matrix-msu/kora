@@ -1,8 +1,8 @@
 <li class="navigation-profile">
   <a href="#" class="profile-toggle navigation-toggle-js">
-    <?php  $imgpath = 'profiles/' . \Auth::user()->id . '/' . \Auth::user()->profile ?>
-    @if(File::exists( config('app.base_path') . '/public/app/' . $imgpath ))
-      <img class="profile-picture" src="{{config('app.storage_url') . $imgpath}}">
+    <?php  $imgpath = 'app/profiles/' . \Auth::user()->id . '/' . \Auth::user()->profile ?>
+    @if(File::exists( public_path('app/' . $imgpath) ))
+      <img class="profile-picture" src="{{url($imgpath)}}">
     @else
       <i class="icon icon-user-little"></i>
     @endif

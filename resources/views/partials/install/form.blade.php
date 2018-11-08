@@ -1,21 +1,11 @@
+{!! csrf_field() !!}
+
 <!-- Section 1 -->
 <section class="database-section">
     <div class="section-title">Database Setup</div>
 
     <div class="section-desc mt-m">
         Information for your database server
-    </div>
-
-    <div class="form-group install-select-container install-select-container-js">
-        <div class="install-select-js mt-xl">
-            <label for="db_driver">Driver</label>
-            <select class="single-select" id="db_driver" name="db_driver">
-                <option value="mysql">MySQL</option>
-                {{--<option value="pgsql">PostgreSQL</option>--}}
-                {{--<option value="sqlite">SQLite</option>--}}
-                {{--<option value="sqlsrv">SQL Server</option>--}}
-            </select>
-        </div>
     </div>
 
     <div class="form-group mt-xl">
@@ -87,7 +77,7 @@
         <input type="file" accept="image/*" name="user_profile" id="user_profile" class="profile-input" />
         <label for="user_profile" class="profile-label">
             <div class="icon-user-cont">
-                <img src="{{ config('app.url') }}assets/images/blank_profile.jpg" height="80px" width="80px" alt="Profile">
+                <img src="{{ url('assets/images/blank_profile.jpg') }}" height="80px" width="80px" alt="Profile">
             </div>
             <p class="filename">Add a photo to help others identify you</p>
             <p class="instruction mb-0">Drag and Drop or Select a Photo here</p>
@@ -161,31 +151,6 @@
     <div class="form-group mt-xl">
         <label for="recaptcha_private_key">Private Key</label>
         <input class="text-input" placeholder="Enter the recaptcha private key here" type="text" id="recaptcha_private_key" name="recaptcha_private_key" value="{{old('recaptcha_private_key')}}">
-    </div>
-</section>
-
-<!-- Section 5 -->
-<section class="base-section hidden">
-    <div class="section-title">Base Setup</div>
-
-    <div class="section-desc mt-m">
-        Information on the paths used for accessing system resources. See ENV.example for example URIs
-    </div>
-
-    <div class="form-group mt-xl">
-        <label for="baseurl_url">URL</label>
-        <input class="text-input" placeholder="Enter the base URL here (i.e. https://www.MyKora3.com/)" type="text" id="baseurl_url" name="baseurl_url" value="{{old('baseurl_url')}}">
-        <p class="sub-text  mt-xxs">
-            URL that points to the installation. Kora 3 requires your URL to point to /{path to project root folder}/public/
-        </p>
-    </div>
-
-    <div class="form-group mt-xl">
-        <label for="basepath">Path</label>
-        <input class="text-input" placeholder="Enter the base path here (i.e. /system/path/to/Kora3/)" type="text" id="basepath" name="basepath" value="{{old('basepath')}}">
-        <p class="sub-text  mt-xxs">
-            Actual system path from / to {ProjectRoot}/
-        </p>
     </div>
 
     <div class="form-group mt-xxl">

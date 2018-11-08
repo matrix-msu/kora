@@ -14,5 +14,5 @@
 
 @section('post-action-text')
     If the link does not work, you may manually activate within Kora using the token ({{\Auth::user()->regtoken}}) at
-    the following url: {{ config('app.url') }}auth/activate
+    the following url: {{ url('auth/activate') }}
 @endsection

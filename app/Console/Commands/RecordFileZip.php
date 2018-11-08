@@ -49,8 +49,8 @@ class RecordFileZip extends Command {
 
         $form = FormController::getForm($fid);
 
-        $path = config('app.base_path').'storage/app/files/p'.$form->pid.'/f'.$fid;
-        $zipPath = config('app.base_path').'storage/app/tmpFiles/'.$form->name.'_preppedZIP_CLI.zip';
+        $path = storage_path('app/files/p'.$form->pid.'/f'.$fid);
+        $zipPath = storage_path('app/tmpFiles/'.$form->name.'_preppedZIP_CLI.zip');
 
         // Initialize archive object
         $zip = new \ZipArchive();

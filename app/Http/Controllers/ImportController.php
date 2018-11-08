@@ -128,7 +128,7 @@ class ImportController extends Controller {
             $zip = new \ZipArchive();
             $res = $zip->open($request->file('files'));
             if($res) {
-                $dir = config('app.base_path').'storage/app/tmpFiles/impU'.\Auth::user()->id;
+                $dir = storage_path('app/tmpFiles/impU'.\Auth::user()->id);
                 if(file_exists($dir)) {
                     //clear import directory
                     $files = new \RecursiveIteratorIterator(
@@ -413,10 +413,10 @@ class ImportController extends Controller {
                 } else if($type == 'Documents' | $type == 'Playlist' | $type == 'Video' | $type == '3D-Model') {
                     $files = array();
                     if(is_null($originRid))
-                        $currDir = config('app.base_path') . 'storage/app/tmpFiles/impU' . \Auth::user()->id;
+                        $currDir = storage_path( 'app/tmpFiles/impU' . \Auth::user()->id);
                     else
-                        $currDir = config('app.base_path') . 'storage/app/tmpFiles/impU' . \Auth::user()->id . '/r' . $originRid . '/fl' . $flid;
-                    $newDir = config('app.base_path') . 'storage/app/tmpFiles/f' . $flid . 'u' . \Auth::user()->id . '/r' . $request->kid;
+                        $currDir = storage_path('app/tmpFiles/impU' . \Auth::user()->id . '/r' . $originRid . '/fl' . $flid);
+                    $newDir = storage_path('app/tmpFiles/f' . $flid . 'u' . \Auth::user()->id . '/r' . $request->kid);
                     if(file_exists($newDir)) {
                         foreach(new \DirectoryIterator($newDir) as $file) {
                             if($file->isFile()) {
@@ -432,7 +432,7 @@ class ImportController extends Controller {
                         if(!file_exists($currDir . '/' . $name)) {
                             //Before we fail, let's see first if it's just failing because the originRid was specified
                             // and not because the file doesn't actually exist. We will now force look into the ZIPs root folder
-                            $currDir = config('app.base_path') . 'storage/app/tmpFiles/impU' . \Auth::user()->id;
+                            $currDir = storage_path( 'app/tmpFiles/impU' . \Auth::user()->id);
                             if(!file_exists($currDir . '/' . $name))
                                 return response()->json(["status" => false, "message" => "xml_validation_error",
                                     "record_validation_error" => [$request->kid => "$fieldSlug: trouble finding file $name"]], 500);
@@ -450,7 +450,7 @@ class ImportController extends Controller {
                             if(!file_exists($currDir . '/' . $name)) {
                                 //Before we fail, let's see first if it's just failing because the originRid was specified
                                 // and not because the file doesn't actually exist. We will now force look into the ZIPs root folder
-                                $currDir = config('app.base_path') . 'storage/app/tmpFiles/impU' . \Auth::user()->id;
+                                $currDir = storage_path( 'app/tmpFiles/impU' . \Auth::user()->id);
                                 if(!file_exists($currDir . '/' . $name))
                                     return response()->json(["status" => false, "message" => "xml_validation_error",
                                         "record_validation_error" => [$request->kid => "$fieldSlug: trouble finding file $name"]], 500);
@@ -465,10 +465,10 @@ class ImportController extends Controller {
                 } else if($type == 'Gallery') {
                     $files = array();
                     if(is_null($originRid))
-                        $currDir = config('app.base_path') . 'storage/app/tmpFiles/impU' . \Auth::user()->id;
+                        $currDir = storage_path( 'app/tmpFiles/impU' . \Auth::user()->id);
                     else
-                        $currDir = config('app.base_path') . 'storage/app/tmpFiles/impU' . \Auth::user()->id . '/r' . $originRid . '/fl' . $flid;
-                    $newDir = config('app.base_path') . 'storage/app/tmpFiles/f' . $flid . 'u' . \Auth::user()->id . '/r' . $request->kid;
+                        $currDir = storage_path('app/tmpFiles/impU' . \Auth::user()->id . '/r' . $originRid . '/fl' . $flid);
+                    $newDir = storage_path('app/tmpFiles/f' . $flid . 'u' . \Auth::user()->id . '/r' . $request->kid);
                     if(file_exists($newDir)) {
                         foreach(new \DirectoryIterator($newDir) as $file) {
                             if($file->isFile())
@@ -497,7 +497,7 @@ class ImportController extends Controller {
                         if(!file_exists($currDir . '/' . $name)) {
                             //Before we fail, let's see first if it's just failing because the originRid was specified
                             // and not because the file doesn't actually exist. We will now force look into the ZIPs root folder
-                            $currDir = config('app.base_path') . 'storage/app/tmpFiles/impU' . \Auth::user()->id;
+                            $currDir = storage_path( 'app/tmpFiles/impU' . \Auth::user()->id);
                             if(!file_exists($currDir . '/' . $name))
                                 return response()->json(["status" => false, "message" => "xml_validation_error",
                                     "record_validation_error" => [$request->kid => "$fieldSlug: trouble finding file $name"]], 500);
@@ -531,7 +531,7 @@ class ImportController extends Controller {
                             if(!file_exists($currDir . '/' . $name)) {
                                 //Before we fail, let's see first if it's just failing because the originRid was specified
                                 // and not because the file doesn't actually exist. We will now force look into the ZIPs root folder
-                                $currDir = config('app.base_path') . 'storage/app/tmpFiles/impU' . \Auth::user()->id;
+                                $currDir = storage_path( 'app/tmpFiles/impU' . \Auth::user()->id);
                                 if(!file_exists($currDir . '/' . $name))
                                     return response()->json(["status" => false, "message" => "xml_validation_error",
                                         "record_validation_error" => [$request->kid => "$fieldSlug: trouble finding file $name"]], 500);
@@ -586,11 +586,7 @@ class ImportController extends Controller {
 
                 $fieldSlug = $matchup[$slug];
                 $flid = Field::where('slug', '=', $fieldSlug)->get()->first()->flid;
-                $type = $field['type'];
-
-                //Type wasnt provided so we have to hunt for it
-                if(is_null($type))
-                    $type = Field::where('slug', '=', $fieldSlug)->get()->first()->type;
+                $type = isset($field['type']) ? $field['type'] : Field::where('slug', '=', $fieldSlug)->get()->first()->type;
 
                 if(!isset($field['value']))
                     return response()->json(["status"=>false,"message"=>"json_validation_error",
@@ -644,9 +640,9 @@ class ImportController extends Controller {
                         return response()->json(["status"=>false,"message"=>"json_validation_error",
                             "record_validation_error"=>[$request->kid => "$fieldSlug is missing month, day, and year indices"]],500);
                     $recRequest['circa_' . $flid] = $field['value']['circa'];
-                    $recRequest['month_' . $flid] = $field['value']['month'];
-                    $recRequest['day_' . $flid] = $field['value']['day'];
-                    $recRequest['year_' . $flid] = $field['value']['year'];
+                    $recRequest['month_' . $flid] = isset($field['value']['month']) ? $field['value']['month'] : '';
+                    $recRequest['day_' . $flid] = isset($field['value']['day']) ? $field['value']['day'] : '';
+                    $recRequest['year_' . $flid] = isset($field['value']['year']) ? $field['value']['year'] : '';
                     $recRequest['era_' . $flid] = $field['value']['era'];
                     $recRequest[$flid] = '';
                 } else if($type == 'Schedule') {
@@ -690,10 +686,10 @@ class ImportController extends Controller {
                 } else if($type == 'Documents' | $type == 'Playlist' | $type == 'Video' | $type == '3D-Model') {
                     $files = array();
                     if(is_null($originRid))
-                        $currDir = config('app.base_path') . 'storage/app/tmpFiles/impU' . \Auth::user()->id;
+                        $currDir = storage_path( 'app/tmpFiles/impU' . \Auth::user()->id);
                     else
-                        $currDir = config('app.base_path') . 'storage/app/tmpFiles/impU' . \Auth::user()->id . '/r' . $originRid . '/fl' . $flid;
-                    $newDir = config('app.base_path') . 'storage/app/tmpFiles/f' . $flid . 'u' . \Auth::user()->id . '/r' . $request->kid;
+                        $currDir = storage_path('app/tmpFiles/impU' . \Auth::user()->id . '/r' . $originRid . '/fl' . $flid);
+                    $newDir = storage_path('app/tmpFiles/f' . $flid . 'u' . \Auth::user()->id . '/r' . $request->kid);
                     if(file_exists($newDir)) {
                         foreach(new \DirectoryIterator($newDir) as $file) {
                             if($file->isFile()) {
@@ -718,10 +714,10 @@ class ImportController extends Controller {
                 } else if($type == 'Gallery') {
                     $files = array();
                     if(is_null($originRid))
-                        $currDir = config('app.base_path') . 'storage/app/tmpFiles/impU' . \Auth::user()->id;
+                        $currDir = storage_path( 'app/tmpFiles/impU' . \Auth::user()->id);
                     else
-                        $currDir = config('app.base_path') . 'storage/app/tmpFiles/impU' . \Auth::user()->id . '/r' . $originRid . '/fl' . $flid;
-                    $newDir = config('app.base_path') . 'storage/app/tmpFiles/f' . $flid . 'u' . \Auth::user()->id . '/r' . $request->kid;
+                        $currDir = storage_path('app/tmpFiles/impU' . \Auth::user()->id . '/r' . $originRid . '/fl' . $flid);
+                    $newDir = storage_path('app/tmpFiles/f' . $flid . 'u' . \Auth::user()->id . '/r' . $request->kid);
                     if(file_exists($newDir)) {
                         foreach(new \DirectoryIterator($newDir) as $file) {
                             if($file->isFile())
@@ -1258,7 +1254,7 @@ class ImportController extends Controller {
         if(!is_null($request->file('records'))) {
             $file = $request->file('records');
             $records = simplexml_load_file($file);
-            $zipDir = config('app.base_path').'storage/app/tmpFiles/f'.$form->fid.'u'.\Auth::user()->id.'/';
+            $zipDir = storage_path('app/tmpFiles/f'.$form->fid.'u'.\Auth::user()->id.'/');
             $filesProvided = false;
 
             if(!is_null($request->file('files'))) {
@@ -1405,7 +1401,7 @@ class ImportController extends Controller {
                                     $docs->flid = $field->flid;
 
                                     //Make folder
-                                    $newPath = config('app.base_path') . 'storage/app/files/p' . $form->pid . '/f' . $form->fid . '/r' . $recModel->rid . '/fl' . $field->flid.'/';
+                                    $newPath = storage_path('app/files/p' . $form->pid . '/f' . $form->fid . '/r' . $recModel->rid . '/fl' . $field->flid.'/');
                                     mkdir($newPath, 0775, true);
 
                                     //Move file
@@ -1445,7 +1441,7 @@ class ImportController extends Controller {
                                     $gal->flid = $field->flid;
 
                                     //Make folder
-                                    $newPath = config('app.base_path') . 'storage/app/files/p' . $form->pid . '/f' . $form->fid . '/r' . $recModel->rid . '/fl' . $field->flid.'/';
+                                    $newPath = storage_path('app/files/p' . $form->pid . '/f' . $form->fid . '/r' . $recModel->rid . '/fl' . $field->flid.'/');
                                     $newPathM = $newPath.'medium/';
                                     $newPathT = $newPath.'thumbnail/';
                                     mkdir($newPath, 0775, true);
@@ -1741,22 +1737,26 @@ class ImportController extends Controller {
         $currData = array();
 
         if($handle) {
+            echo "Processing file...\n";
             while(($line = fgets($handle)) !== false) {
                 $line = trim($line);
-                if(mb_substr($line, 0, 6) == "Record") {
+                if(mb_substr($line, 0, 8) == "<Record>") {
                     //get kid if applicable
-                    $parts = explode(' ', $line);
-                    if(sizeof($parts) == 2)
-                        $kid = $parts[1];
-                    else
-                        $kid = "";
+                    $kid = explode('<Record>', $line)[1];
 
                     if($state == "start")
                         $records .= "<Record kid='$kid'>";
                     else {
-                        $records .= self::processUtf8Data($currField, $currData);
+                        $processed = self::processUtf8Data($currField, $currData);
                         $currData = array();
-                        $records .= "</$currField></Record><Record kid='$kid'>"; //End last field and record before starting over
+                        if(!$processed) {
+                            //Data blank so remove start tag for last field, the finish record
+                            $records = preg_replace('/<'.$currField.'>$/', '', $records);
+                            $records .= "</Record><Record kid='$kid'>";
+                        } else {
+                            $records .= $processed;
+                            $records .= "</$currField></Record><Record kid='$kid'>"; //End last field and record before starting over
+                        }
                     }
 
                     $state = "record";
@@ -1766,9 +1766,16 @@ class ImportController extends Controller {
                     if($state == "record") {
                         $records .= "<$slug>";
                     } else {
-                        $records .= self::processUtf8Data($currField, $currData);
+                        $processed = self::processUtf8Data($currField, $currData);
                         $currData = array();
-                        $records .= "</$currField><$slug>"; //End last field before moving on to next field
+                        if(!$processed) {
+                            //Data blank so remove start tag for last field, then start next field
+                            $records = preg_replace('/<'.$currField.'>$/', '', $records);
+                            $records .= "<$slug>";
+                        } else {
+                            $records .= $processed;
+                            $records .= "</$currField><$slug>"; //End last field before moving on to next field
+                        }
                     }
 
                     $currField = $slug;
@@ -1776,18 +1783,32 @@ class ImportController extends Controller {
                     $state = "field";
                 } else {
                     //We are gathering data
-                    $currData[] = $line;
+                    $currData[] = trim($line);
 
                     $state = "data";
                 }
             }
 
-            if($state == "data") {
-                $records .= self::processUtf8Data($currField, $currData);
-                $records .= "</$currField></Record>"; //End last field and record
+            echo "Cleaning up XML...\n";
+
+            switch($state) {
+                case "data":
+                    $records .= self::processUtf8Data($currField, $currData);
+                    $records .= "</$currField></Record>"; //End last field and record
+                    break;
+                case "field":
+                    $records = preg_replace('/<'.$slug.'>$/', '', $records);
+                    $records .= "</Record>"; //End last record
+                    break;
+                default:
+                    break;
             }
 
             $records .= '</Records>';
+
+            //remove bad records
+            $records = str_replace("<Record kid=''></Record>","",$records);
+            $records = str_replace("<Record kid=''>","<Record>",$records);
 
             fclose($handle);
 
@@ -1801,7 +1822,7 @@ class ImportController extends Controller {
         if(sizeof($dataArray)==1)
             $data = $dataArray[0];
         else
-            $data = implode("\n",$dataArray);
+            $data = implode(PHP_EOL,$dataArray);
 
         if($slug=="reverseAssociations")
             $type = "reverseAssociations";
@@ -1809,6 +1830,9 @@ class ImportController extends Controller {
             $field = FieldController::getField($slug);
             $type = $field->type;
         }
+
+        if($data == "")
+            return false;
 
         switch($type) {
             case Field::_TEXT:

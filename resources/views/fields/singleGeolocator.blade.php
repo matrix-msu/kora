@@ -26,7 +26,7 @@
 @section('javascripts')
     @include('partials.records.javascripts')
 
-    <script src="{{ config('app.url') }}assets/javascripts/vendor/leaflet/leaflet.js"></script>
+    <script src="{{ url('assets/javascripts/vendor/leaflet/leaflet.js') }}"></script>
 
     <script type="text/javascript">
         var $geolocator = $('.geolocator-map-js');

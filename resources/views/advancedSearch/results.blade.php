@@ -1,4 +1,4 @@
-@extends('app', ['page_title' => 'Advanced Search', 'page_class' => 'record-index'])
+@extends('app', ['page_title' => 'Advanced Search', 'page_class' => 'advanced-index'])
 
 @section('leftNavLinks')
     @include('partials.menu.project', ['pid' => $form->pid])
@@ -11,11 +11,11 @@
 @stop
 
 @section('stylesheets')
-    <link rel="stylesheet" type="text/css" href="{{ config('app.url') }}assets/css/vendor/fullcalendar/fullcalendar.css"/>
-    <link rel="stylesheet" type="text/css" href="{{ config('app.url') }}assets/css/vendor/leaflet/leaflet.css"/>
-    <link rel="stylesheet" type="text/css" href="{{ config('app.url') }}assets/css/vendor/slick/slick.css"/>
-    <link rel="stylesheet" type="text/css" href="{{ config('app.url') }}assets/css/vendor/slick/slick-theme.css"/>
-    <link rel="stylesheet" type="text/css" href="{{ config('app.url') }}assets/css/vendor/jplayer/pink.flag/css/jplayer.pink.flag.min.css"/>
+    <link rel="stylesheet" type="text/css" href="{{ url('assets/css/vendor/fullcalendar/fullcalendar.css') }}"/>
+    <link rel="stylesheet" type="text/css" href="{{ url('assets/css/vendor/leaflet/leaflet.css') }}"/>
+    <link rel="stylesheet" type="text/css" href="{{ url('assets/css/vendor/slick/slick.css') }}"/>
+    <link rel="stylesheet" type="text/css" href="{{ url('assets/css/vendor/slick/slick-theme.css') }}"/>
+    <link rel="stylesheet" type="text/css" href="{{ url('assets/css/vendor/jplayer/pink.flag/css/jplayer.pink.flag.min.css') }}"/>
 @stop
 
 @section('header')
@@ -24,9 +24,9 @@
         <div class="inner-wrap center">
             <h1 class="title">
                 <i class="icon icon-form-record-search mr-sm"></i>
-                <span>Advanced Search Results</span>
+                <span>Form Records Advanced Search</span>
             </h1>
-            <p class="description">View advanced search results or submit a new advanced search. </p>
+            <p class="description">Use the advanced search options below, then select 'Submit Advanced Search'</p>
         </div>
     </section>
 @stop
@@ -87,7 +87,7 @@
 @section('javascripts')
     @include('partials.records.javascripts')
 
-    <script src="{{ config('app.url') }}assets/javascripts/vendor/leaflet/leaflet.js"></script>
+    <script src="{{ url('assets/javascripts/vendor/leaflet/leaflet.js') }}"></script>
 
     <script type="text/javascript">
         var deleteRecordURL = "{{action('RecordController@destroy', ['pid' => $form->pid, 'fid' => $form->fid, 'rid' => ''])}}";

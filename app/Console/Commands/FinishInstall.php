@@ -36,8 +36,6 @@ class FinishInstall extends Command
     |
     | recaptcha_public_key - Public key for ReCaptcha account
     | recaptcha_private_key - Private key for ReCaptcha account
-    | baseurl_url - Base URL for the installation (i.e. https://www.MyKora3.com/)
-    | basepath - Base system path for installation (i.e. /system/path/to/Kora3/)
     |
     */
 
@@ -49,7 +47,7 @@ class FinishInstall extends Command
     protected $signature = 'install:finish {db_host} {db_database} {db_username} {db_password} {db_prefix} 
         {user_firstname} {user_lastname} {user_username} {user_email} {user_password} {user_confirmpassword} {user_organization} {user_language} 
         {mail_host} {mail_from_address} {mail_from_name} {mail_username} {mail_password} 
-        {recaptcha_public_key} {recaptcha_private_key} {baseurl_url} {basepath}';
+        {recaptcha_public_key} {recaptcha_private_key}';
 
     /**
      * The console command description.
@@ -79,7 +77,6 @@ class FinishInstall extends Command
         $request = new InstallRequest();
 
         //Gather variables and store into it
-        $request->db_driver = 'mysql';
         $request->db_host = $this->argument('db_host');
         $request->db_database = $this->argument('db_database');
         $request->db_username = $this->argument('db_username');
@@ -103,12 +100,17 @@ class FinishInstall extends Command
 
         $request->recaptcha_public_key = $this->argument('recaptcha_public_key');
         $request->recaptcha_private_key = $this->argument('recaptcha_private_key');
-        $request->baseurl_url = $this->argument('baseurl_url');
-        $request->basepath = $this->argument('basepath');
 
         //Call Exodus function
         $ic = new InstallController();
         $ic->install($request);
+		
+		//Manually update config to keep things rolling
+		config(['database.connections.mysql.host' => $request->db_host]);
+		config(['database.connections.mysql.database' => $request->db_database]);
+		config(['database.connections.mysql.username' => $request->db_username]);
+		config(['database.connections.mysql.password' => $request->db_password]);
+		config(['database.connections.mysql.prefix' => $request->db_prefix]);
 
         $ic->installPartTwo($request);
     }

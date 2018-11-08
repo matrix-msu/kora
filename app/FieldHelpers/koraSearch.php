@@ -1,21 +1,30 @@
-<?php namespace App\FieldHelpers;
+<?php
 
 //THIS TOOL IS PRIMARILY (see first class for exception) THE CONVERTER FUNCTION FOR USING OLD KORA 2 KORA_Search AND KORA_Clause FUNCTIONS
 //THIS WORKS IF YOU HAVE USED EITHER Exodus OR THE K2 Importer TOOLS TO MIGRATE YOUR KORA 2 DATA
 //Step 1
-////Change your php includes of koraSearch.php from K2 to point at this file
-////In your file, use the namespace tag "namespace App\FieldHelpers"
+////Copy this file into your local site, and change your php includes of koraSearch.php from K2 to point at this file
 //Step 2
-////Replace your token, pid, and sid with a new search token, a k3 pid, and fid
+////Replace your token, pid, and sid with a new search token, a K3 pid, and fid
 //Step 3
-////You do not need to update field names, unless you manually changed the nickname in Kora 3 or you want KID clause to search for the "legacy_kid"
-////Leave the original control names in your koraSearch, but the k3 nickname should be {K2 control name with underscores not spaces}_{pid}_{fid}_
+////You do not need to update field names, unless you manually changed the Unique ID in Kora3 or you want KID clause to search for the "legacy_kid"
+////Leave the original control names in your koraSearch, but the K3 Unique ID should be {K2 control name with underscores not spaces}_{pid}_{fid}_
 //Step 4
 ////If you are pointing to a K3 installation that needs http auth, as the 9th variable of KORA_Search, place an
 ////array in the format ["user"=>"{your_username}", "pass"=>"{your_password}"]
+//Step 5
+////You may need to modify URLs for file and image fields to properly point at their new Kora3 locations
 
 //This class has a bunch of functions that can help build the json required for a form to search with the API. NOTE: This
 //can be used separately from it's use in the koraSearch conversion.
+
+/**
+ * SITE VARIABLES - Fill these out to use remotely
+ * @var string - Kora3 API URL
+ */
+
+define("kora3ApiURL","FILL_THIS"); //"http://www.myKora3Install.com/api/search"
+
 class kora3ApiExternalTool {
 
     /*
@@ -530,28 +539,12 @@ function KORA_Search($token,$pid,$sid,$koraClause,$fields,$order=array(),$start=
 
     array_push($output,$fsArray);
 
-    //We need the url out of the env file
-    $env = array();
-    $handle = fopen(__DIR__.'/../../.env', "r");
-    if($handle) {
-        while(($line = fgets($handle)) !== false) {
-            if(!ctype_space($line)) {
-                $parts = explode("=", $line);
-                $env[trim($parts[0])] = trim($parts[1]);
-            }
-        }
-
-        fclose($handle);
-    } else {
-        return "Error processing environment file.";
-    }
-
     $data = array();
     $data["forms"] = json_encode($output);
     $data["format"] = "KORA_OLD";
 
     $curl = curl_init();
-    curl_setopt($curl, CURLOPT_URL, $env["BASE_URL"]."api/search");
+    curl_setopt($curl, CURLOPT_URL, kora3ApiURL);
     if(!empty($userInfo)) {
         curl_setopt($curl, CURLOPT_USERPWD, $userInfo["user"].":".$userInfo["pass"]);
         curl_setopt($curl, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
@@ -572,7 +565,6 @@ function KORA_Search($token,$pid,$sid,$koraClause,$fields,$order=array(),$start=
     else
         return $result;
 }
-
 
 /**
  * Converts an old KORA_Search from Kora 2 into a Kora3 search, provided steps at top of page were completed properly.
@@ -662,23 +654,6 @@ function MPF_Search($token,$pidList,$sidList,$koraClause,$fields,$order=array(),
         );
         array_push($output,$fsArray);
     }
-
-    //We need the url out of the env file
-    $env = array();
-    $handle = fopen(__DIR__.'/../../.env', "r");
-    if($handle) {
-        while(($line = fgets($handle)) !== false) {
-            if(!ctype_space($line)) {
-                $parts = explode("=", $line);
-                $env[trim($parts[0])] = trim($parts[1]);
-            }
-        }
-
-        fclose($handle);
-    } else {
-        return "Error processing environment file.";
-    }
-
     $data = array();
     $data["forms"] = json_encode($output);
     $data["globalSort"] = json_encode($newOrder);
@@ -688,7 +663,7 @@ function MPF_Search($token,$pidList,$sidList,$koraClause,$fields,$order=array(),
         $data["globalFilters"]["under"] = true;
     $data["format"] = "KORA_OLD";
     $curl = curl_init();
-    curl_setopt($curl, CURLOPT_URL, $env["BASE_URL"]."api/search");
+    curl_setopt($curl, CURLOPT_URL, $GLOBALS['kora3ApiURL']);
     if(!empty($userInfo)) {
         curl_setopt($curl, CURLOPT_USERPWD, $userInfo["user"].":".$userInfo["pass"]);
         curl_setopt($curl, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);

@@ -11,6 +11,130 @@
   padding-left: 0;
 }
 
+.label-spacer {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 60px;
+
+  label {
+    margin-right: 20px;
+    white-space: nowrap;
+  }
+
+  .spacer {
+    align-self: center;
+    background: palette('gray', slate, 0.05);
+    height: 2px;
+    width: 100%;
+  }
+}
+
+.container {
+  background-color: palette('gray', page, 1);
+  border: 1px solid palette('box-shadow', base, 0.05);
+  border-radius: 5px;
+  box-shadow: 0 5px 15px 0 palette('box-shadow', base, 0.03);
+  padding: 30px 40px 40px;
+
+  .description-text {
+    font-size: 14px;
+    font-style: italic;
+    margin-top: 0;
+    opacity: 0.6;
+  }
+
+  .card {
+    box-sizing: border-box;
+    height: 50px;
+    margin: 15px 0;
+
+    .header {
+      align-items: center;
+      display: flex;
+      height: 100%;
+      justify-content: space-between;
+
+      .title {
+        color: unset;
+
+        &:hover {
+          cursor: default;
+        }
+      }
+
+      .card-toggle-wrap {
+		overflow: visible;
+        text-align: right;
+
+        .delete-option {
+          color: palette('red', warning, 1);
+
+		  .icon-trash {
+			@include transition();
+
+			display: inline-block;
+            padding: 17px;
+			will-change: transform;
+		  }
+
+          &:hover .icon-trash {
+			padding: 10px 17px;
+			transform: scale($transform-scale-multiplier);
+          }
+        }
+      }
+    }
+
+    &:first-of-type {
+      margin-top: 20px;
+    }
+  }
+
+  .input-section {
+    align-items: center;
+    border: 2px solid palette('green', accent, 0.2);
+    border-radius: 5px;
+    box-shadow: inset 0 3px 5px 0 palette('gray', slate, 0.03), 0 3px 5px 0 rgba(57, 67, 89, 0.05);
+    box-sizing: border-box;
+    color: palette('green', accent);
+    display: flex;
+    height: 50px;
+    justify-content: space-between;
+    margin-top: 40px;
+    padding: 15px 20px;
+
+    &:hover {
+    	background: palette('white', base, 0.9);
+    }
+
+    .add-options {
+      background: transparent;
+      border: none;
+      font-family: $ubuntu;
+      font-size: 14px;
+      width: 70%;
+
+      &:focus {
+        outline: none;
+      }
+
+      &::placeholder {
+        color: palette('green', accent);
+      }
+      &:-ms-input-placeholder {
+        color: palette('green', accent);
+      }
+      &::-ms-input-placeholder {
+        color: palette('green', accent);
+      }
+    }
+
+    .submit:hover {
+      cursor: pointer;
+    }
+  }
+}
+
 .combo-list-empty {
   color: palette('gray', text, .4);
   font-family: $ubuntu-italic;
@@ -18,48 +142,65 @@
 }
 
 .combo-list-display {
-  border: 1px solid palette('gray', slate, 0.1);
-  border-radius: 5px;
-  box-shadow: 0 3px 5px 0 palette('gray', slate, 0.05);
-  margin-top: 10px;
-  overflow: auto;
-  padding-bottom: 6px;
-  padding-left: 20px;
-  padding-right: 20px;
+  margin: 0;
+  padding: 0;
 
-  .combo-column {
-    float: left;
-    margin-bottom: 10px;
-    margin-top: 13px;
-    width: 40%;
-  }
-
-  .combo-title {
-    font-family: $ubuntu-medium;
-    font-size: 14px;
+  .combo-list-title {
+	display: flex;
+    font-family: $ubuntu;
+    font-size: 16px;
     line-height: 19px;
+
+	.combo-title {
+		margin: 0;
+		width: 50%;
+	}
   }
 
-  .combo-delete {
-    float:left;
-    margin-bottom:10px;
-    margin-top: 13px;
-    width:15%;
+  .card {
+	  align-items: center;
+	  display: flex;
+	  justify-content: space-between;
+	  padding: 0 20px;
+
+	  .combo-column {
+		  font-size: 13px;
+		  margin: 0;
+	      width: 50%;
+	  }
+
+	  .combo-delete {
+      		  color: palette('red', warning, 1);
+		  position: absolute;
+		  right: 0;
+
+		  .delete-option {
+			  .icon-trash {
+				@include transition();
+
+				display: inline-block;
+				padding: 20px;
+				will-change: transform;
+			  }
+
+			  &:hover .icon-trash {
+				cursor: pointer;
+				transform: scale($transform-scale-multiplier);
+			  }
+		  }
+	  }
   }
 
-  .combo-border-large {
-    border: 1px solid palette('gray', slate, 0.05);
-    float: left;
-    margin-top: 6px;
-    margin-left:-20px;
-    padding-right: 40px;
-    width: 100%;
+  .card:first-of-type {
+	  margin-top: 10px;
   }
 
-  .combo-border-small {
-    border: 1px solid palette('gray', slate, 0.05);
-    float: left;
-    margin-top: 6px;
-    width: 100%;
+  .card:last-of-type {
+	  margin-bottom: 0;
   }
+}
+
+.combo-list-defaults label {
+	display: block;
+	padding: 0 0 10px;
 }

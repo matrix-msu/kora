@@ -50,7 +50,7 @@ class ThumbScript extends Command {
     public function handle()
     {
         $formIDs = $this->argument('fid');
-        $baseDir = config('app.base_path').'storage/app/files/';
+        $baseDir = storage_path('app/files/');
 
         foreach($formIDs as $fid) {
             $galFields = Field::where('fid','=',$fid)->where('type','=','Gallery')->get();

@@ -4,7 +4,7 @@
 @include('partials.projects.notification')
 <div class="content">
   <div class="form-container center">
-    <img class="logo" src="{{ config('app.url') }}assets/logos/koraiii-logo-blue.svg">
+    <img class="logo" src="{{ url('assets/logos/koraiii-logo-blue.svg') }}">
 
     <div>
       <form class="form-horizontal" role="form" method="POST" action="{{ url('/login') }}">
@@ -75,6 +75,11 @@
 
 @section('javascripts')
   @include('partials.auth.javascripts')
+  
+  <script type="text/javascript">
+    var CSRFToken = '{{ csrf_token() }}';
+    var emailURL = '{{ action('Auth\ResetPasswordController@preValidateEmail') }}';
+  </script>
 
   <script>
     Kora.Modal.initialize();
@@ -97,7 +102,33 @@
             $('.pass-error-js').text('The email must be a valid email address.');
             $('.pass-email-js').addClass('error');
         } else {
-            $('.pass-form-js').submit();
+			display_loader();
+			
+			$.ajax({
+				url: emailURL,
+				method: 'POST',
+				data: {
+					"_token": CSRFToken,
+					"email": email
+				},
+				success: function(data) {
+					var response = data.response
+					
+					if (response == "Found") {
+						$('.pass-error-js').text('');
+						setTimeout(function(){
+							$('.pass-form-js').submit();
+						}, 10);
+					}
+				},
+				error: function(data) {
+					var response = data.responseJSON.response;
+					
+					$('.pass-error-js').text(response);
+					$('.pass-email-js').addClass('error');
+					hide_loader();
+				}
+			});
         }
     });
 

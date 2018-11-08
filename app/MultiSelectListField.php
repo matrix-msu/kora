@@ -401,6 +401,9 @@ class MultiSelectListField extends BaseField {
                 $db_query->orWhere('options','LIKE',$input."[!]%"); //is it the first term
                 $db_query->orWhere('options','LIKE',"%[!]".$input); //is it the last term
                 $db_query->orWhere('options','LIKE',"%[!]".$input."[!]%"); //is it in the middle
+                $db_query->orWhere(function($db_query) use ($input) {
+                    $db_query->where('options','NOT LIKE',"%[!]%")->where('options','=',$input); //is it the only item
+                });
             }
         });
     }

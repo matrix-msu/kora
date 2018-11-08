@@ -115,7 +115,7 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
             $file = $request->file('profile');
             $filename = $file->getClientOriginalName();
             //path where file will be stored
-            $destinationPath = env('BASE_PATH') . 'storage/app/profiles/'.$user->id.'/';
+            $destinationPath = storage_path('app/profiles/'.$user->id.'/');
             //store filename in user model
             $user->profile = $filename;
             $user->save();
@@ -1015,9 +1015,9 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
      */
     public function getProfilePicUrl() {
         if(!is_null($this->profile))
-            return config('app.storage_url') . 'profiles/'.$this->id.'/'.$this->profile;
+            return url('app/profiles/'.$this->id.'/'.$this->profile);
         else
-            return config('app.url') . 'assets/images/blank_profile.jpg';
+            return url('assets/images/blank_profile.jpg');
     }
 
     /**

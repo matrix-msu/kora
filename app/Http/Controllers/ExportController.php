@@ -147,8 +147,8 @@ class ExportController extends Controller {
         if(!(\Auth::user()->isFormAdmin($form)))
             return redirect('projects/'.$pid)->with('k3_global_error', 'not_form_admin');
 
-        $path = config('app.base_path').'storage/app/files/p'.$pid.'/f'.$fid;
-        $zipPath = config('app.base_path').'storage/app/tmpFiles/'.$form->name.'_preppedZIP_user'.\Auth::user()->id.'.zip';
+        $path = storage_path('app/files/p'.$pid.'/f'.$fid);
+        $zipPath = storage_path('app/tmpFiles/'.$form->name.'_preppedZIP_user'.\Auth::user()->id.'.zip');
 
         $fileSizeCount = 0.0;
 
@@ -208,8 +208,8 @@ class ExportController extends Controller {
         if(!(\Auth::user()->isFormAdmin($form)))
             return redirect('projects/'.$pid)->with('k3_global_error', 'not_form_admin');
 
-        $path = config('app.base_path').'storage/app/files/p'.$pid.'/f'.$fid;
-        $zipPath = config('app.base_path').'storage/app/tmpFiles/';
+        $path = storage_path('app/files/p'.$pid.'/f'.$fid);
+        $zipPath = storage_path('app/tmpFiles/');
 
         ini_set('max_execution_time',0);
         ini_set('memory_limit', "6G");
@@ -603,7 +603,7 @@ class ExportController extends Controller {
                                 $records[$kid][$fieldIndex]['type'] = $data->type;
                                 break;
                             case Field::_DOCUMENTS:
-                                $url = config('app.storage_url').'files/p'.$data->pid.'/f'.$data->fid.'/r'.$data->rid.'/fl'.$data->flid . '/';
+                                $url = url('app/files/p'.$data->pid.'/f'.$data->fid.'/r'.$data->rid.'/fl'.$data->flid) . '/';
                                 $value = array();
                                 $files = explode('[!]',$data->value);
                                 foreach($files as $file) {
@@ -619,7 +619,7 @@ class ExportController extends Controller {
                                 $records[$kid][$fieldIndex]['type'] = $data->type;
                                 break;
                             case Field::_GALLERY:
-                                $url = config('app.storage_url').'files/p'.$data->pid.'/f'.$data->fid.'/r'.$data->rid.'/fl'.$data->flid . '/';
+                                $url = url('app/files/p'.$data->pid.'/f'.$data->fid.'/r'.$data->rid.'/fl'.$data->flid) . '/';
                                 $value = array();
                                 $files = explode('[!]',$data->value);
                                 foreach($files as $file) {
@@ -635,7 +635,7 @@ class ExportController extends Controller {
                                 $records[$kid][$fieldIndex]['type'] = $data->type;
                                 break;
                             case Field::_PLAYLIST:
-                                $url = config('app.storage_url').'files/p'.$data->pid.'/f'.$data->fid.'/r'.$data->rid.'/fl'.$data->flid . '/';
+                                $url = url('app/files/p'.$data->pid.'/f'.$data->fid.'/r'.$data->rid.'/fl'.$data->flid) . '/';
                                 $value = array();
                                 $files = explode('[!]',$data->value);
                                 foreach($files as $file) {
@@ -651,7 +651,7 @@ class ExportController extends Controller {
                                 $records[$kid][$fieldIndex]['type'] = $data->type;
                                 break;
                             case Field::_VIDEO:
-                                $url = config('app.storage_url').'files/p'.$data->pid.'/f'.$data->fid.'/r'.$data->rid.'/fl'.$data->flid . '/';
+                                $url = url('app/files/p'.$data->pid.'/f'.$data->fid.'/r'.$data->rid.'/fl'.$data->flid) . '/';
                                 $value = array();
                                 $files = explode('[!]',$data->value);
                                 foreach($files as $file) {
@@ -667,7 +667,7 @@ class ExportController extends Controller {
                                 $records[$kid][$fieldIndex]['type'] = $data->type;
                                 break;
                             case Field::_3D_MODEL:
-                                $url = config('app.storage_url').'files/p'.$data->pid.'/f'.$data->fid.'/r'.$data->rid.'/fl'.$data->flid . '/';
+                                $url = url('app/files/p'.$data->pid.'/f'.$data->fid.'/r'.$data->rid.'/fl'.$data->flid) . '/';
                                 $value = array();
                                 $files = explode('[!]',$data->value);
                                 foreach($files as $file) {
@@ -698,6 +698,7 @@ class ExportController extends Controller {
                                     $ainfo = [
                                         'kid' => $kid,
                                         'slug' => $data->slug,
+                                        'name' => $fieldIndex,
                                         'akids' => $akids
                                     ];
                                     array_push($assocMaster,$ainfo);
@@ -716,11 +717,15 @@ class ExportController extends Controller {
                 if($useOpts && $options['assoc']) {
                     //simplify the duplicates
                     $arids = array_unique($assocRIDColl);
-                    $assocData = json_decode($this->exportWithRids($arids, $format, true),true);
+                    $aOpts = ["revAssoc" => false, "meta" => false, "fields" => 'ALL', "data" => true, "realnames" => $options['realnames'], "assoc" => false];
+                    $assocData = json_decode($this->exportWithRids($arids, $format, true, $aOpts),true);
                     foreach($assocMaster as $am) {
                         $value = array();
                         $kid = $am['kid'];
-                        $slug = $am['slug'];
+                        if($options['realnames'])
+                            $slug = $am['name'];
+                        else
+                            $slug = $am['slug'];
                         foreach($am['akids'] as $akid) {
                             $value[$akid] = $assocData[$akid];
                         }
@@ -735,7 +740,7 @@ class ExportController extends Controller {
                 } else {
                     $dt = new \DateTime();
                     $format = $dt->format('Y_m_d_H_i_s');
-                    $path = config('app.base_path') . "storage/app/exports/record_export_$format.json";
+                    $path = storage_path("app/exports/record_export_$format.json");
 
                     file_put_contents($path, $records);
 
@@ -1013,7 +1018,7 @@ class ExportController extends Controller {
                                 }
                                 break;
                             case Field::_DOCUMENTS:
-                                $url = config('app.storage_url').'files/p'.$data->pid.'/f'.$data->fid.'/r'.$data->rid.'/fl'.$data->flid . '/';
+                                $url = url('app/files/p'.$data->pid.'/f'.$data->fid.'/r'.$data->rid.'/fl'.$data->flid) . '/';
                                 $files = explode('[!]',$data->value);
                                 foreach($files as $file) {
                                     $fieldxml .= '<File>';
@@ -1025,7 +1030,7 @@ class ExportController extends Controller {
                                 }
                                 break;
                             case Field::_GALLERY:
-                                $url = config('app.storage_url').'files/p'.$data->pid.'/f'.$data->fid.'/r'.$data->rid.'/fl'.$data->flid . '/';
+                                $url = url('app/files/p'.$data->pid.'/f'.$data->fid.'/r'.$data->rid.'/fl'.$data->flid) . '/';
                                 $files = explode('[!]',$data->value);
                                 foreach($files as $file) {
                                     $fieldxml .= '<File>';
@@ -1037,7 +1042,7 @@ class ExportController extends Controller {
                                 }
                                 break;
                             case Field::_PLAYLIST:
-                                $url = config('app.storage_url').'files/p'.$data->pid.'/f'.$data->fid.'/r'.$data->rid.'/fl'.$data->flid . '/';
+                                $url = url('app/files/p'.$data->pid.'/f'.$data->fid.'/r'.$data->rid.'/fl'.$data->flid) . '/';
                                 $files = explode('[!]',$data->value);
                                 foreach($files as $file) {
                                     $fieldxml .= '<File>';
@@ -1049,7 +1054,7 @@ class ExportController extends Controller {
                                 }
                                 break;
                             case Field::_VIDEO:
-                                $url = config('app.storage_url').'files/p'.$data->pid.'/f'.$data->fid.'/r'.$data->rid.'/fl'.$data->flid . '/';
+                                $url = url('app/files/p'.$data->pid.'/f'.$data->fid.'/r'.$data->rid.'/fl'.$data->flid) . '/';
                                 $files = explode('[!]',$data->value);
                                 foreach($files as $file) {
                                     $fieldxml .= '<File>';
@@ -1061,7 +1066,7 @@ class ExportController extends Controller {
                                 }
                                 break;
                             case Field::_3D_MODEL:
-                                $url = config('app.storage_url').'files/p'.$data->pid.'/f'.$data->fid.'/r'.$data->rid.'/fl'.$data->flid . '/';
+                                $url = url('app/files/p'.$data->pid.'/f'.$data->fid.'/r'.$data->rid.'/fl'.$data->flid) . '/';
                                 $files = explode('[!]',$data->value);
                                 foreach($files as $file) {
                                     $fieldxml .= '<File>';
@@ -1123,7 +1128,7 @@ class ExportController extends Controller {
                 } else {
                     $dt = new \DateTime();
                     $format = $dt->format('Y_m_d_H_i_s');
-                    $path = config('app.base_path') . "storage/app/exports/record_export_$format.xml";
+                    $path = storage_path("app/exports/record_export_$format.xml");
 
                     file_put_contents($path, $records);
 
@@ -1140,7 +1145,7 @@ class ExportController extends Controller {
                 $kidParts = explode('-',$tempKid);
 
                 $resourceTitle = Form::where('fid','=',$kidParts[1])->first()->lod_resource;
-                $metaUrl = config('app.url')."projects/".$kidParts[0]."/forms/".$kidParts[1]."/metadata/public#";
+                $metaUrl = url("projects/".$kidParts[0]."/forms/".$kidParts[1]."/metadata/public#");
 
                 $records = '<?xml version="1.0"?><rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" ';
                 $records .= 'xmlns:geo="http://www.w3.org/2003/01/geo/wgs84_pos#" ';
@@ -1228,9 +1233,8 @@ class ExportController extends Controller {
                                     $aPrimary = Metadata::where('fid','=',$aKidParts[1])->where('primary','=',1)->first()->flid;
                                     $aResourceIndexValue = TextField::where('flid','=',$aPrimary)->where('rid','=',$aKidParts[2])->first()->text;
 
-                                    $fieldxml .= "<rdf:Description rdf:about=\"".config('app.url')."";
-                                    $fieldxml .= "projects/".$aKidParts[0]."/forms/".$aKidParts[1]."/metadata/public/";
-                                    $fieldxml .= "$aResourceIndexValue\" />";
+                                    $fieldxml .= "<rdf:Description rdf:about=\""
+                                        .url("projects/".$aKidParts[0]."/forms/".$aKidParts[1]."/metadata/public/$aResourceIndexValue")."\" />";
                                 }
                                 break;
                             default:
@@ -1255,7 +1259,7 @@ class ExportController extends Controller {
                     $primary = Metadata::where('fid','=',$parts[1])->where('primary','=',1)->first()->flid;
                     $resourceIndexValue = TextField::where('flid','=',$primary)->where('rid','=',$parts[2])->first()->text;
 
-                    $records .= "rdf:about=\"".config('app.url')."projects/".$parts[0]."/forms/".$parts[1]."/metadata/public/".$resourceIndexValue."\">";
+                    $records .= "rdf:about=\"".url("projects/".$parts[0]."/forms/".$parts[1]."/metadata/public/".$resourceIndexValue)."\">";
                     $records .= "$data</rdf:Description>";
                 }
 
@@ -1266,7 +1270,7 @@ class ExportController extends Controller {
                 } else {
                     $dt = new \DateTime();
                     $format = $dt->format('Y_m_d_H_i_s');
-                    $path = config('app.base_path') . "storage/app/exports/record_export_$format.rdf";
+                    $path = storage_path("app/exports/record_export_$format.rdf");
 
                     file_put_contents($path, $records);
 
@@ -1285,7 +1289,7 @@ class ExportController extends Controller {
      * @return array - Data for the records
      */
     public static function getDataRows($rids, $slugOpts=null) {
-        $prefix = env('DB_PREFIX');
+        $prefix = config('database.connections.mysql.prefix');
         $ridArray = implode(', ',$rids);
         $slugQL = '';
         if(!is_null($slugOpts)) {
@@ -1372,7 +1376,7 @@ FROM ".$prefix."associator_support as af left join ".$prefix."fields as fl on af
      * @return array - Metadata for the records
      */
     public static function getRecordMetadata($rids) {
-        $prefix = env('DB_PREFIX');
+        $prefix = config('database.connections.mysql.prefix');
         $meta = [];
         $kidPairs = [];
         $rid = implode(', ',$rids);
@@ -1401,7 +1405,7 @@ FROM ".$prefix."associator_support as af left join ".$prefix."fields as fl on af
      * @return array - Reverse associations for the records
      */
     public static function getReverseAssociations($rids) {
-        $prefix = env('DB_PREFIX');
+        $prefix = config('database.connections.mysql.prefix');
         $meta = [];
         $rid = implode(', ',$rids);
 
@@ -1426,7 +1430,7 @@ FROM ".$prefix."associator_support as af left join ".$prefix."fields as fl on af
      * @return array - Metadata for the records
      */
     public static function getRecordMetadataForOldKora($rids) {
-        $prefix = env('DB_PREFIX');
+        $prefix = config('database.connections.mysql.prefix');
         $meta = array();
         $kidPairs = [];
         $rid = implode(', ',$rids);
@@ -1460,7 +1464,7 @@ FROM ".$prefix."associator_support as af left join ".$prefix."fields as fl on af
      * @return array - KIDs for the records
      */
     public static function getKidsFromRids($rids) {
-        $prefix = env('DB_PREFIX');
+        $prefix = config('database.connections.mysql.prefix');
         $rid = implode(', ',$rids);
         $kids = array();
 

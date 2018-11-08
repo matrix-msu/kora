@@ -61,12 +61,13 @@ class BackupController extends Controller {
      */
     public function index(Request $request) {
         $available_backups = array();
-        foreach(new \DirectoryIterator(config('app.base_path')."storage/app/".$this->BACKUP_DIRECTORY."/") as $dir) {
+		
+        foreach(new \DirectoryIterator(storage_path("app/".$this->BACKUP_DIRECTORY."/")) as $dir) {
             $name = $dir->getFilename();
             if(strpos($name, 'fileRestore') !== false)
                 continue;
             if($name!='.' && $name!='..' && $dir->isDir()) {
-                if(file_exists(config('app.base_path')."storage/app/".$this->BACKUP_DIRECTORY.'/'.$name.'/.kora3_backup'))
+                if(file_exists(storage_path("app/".$this->BACKUP_DIRECTORY.'/'.$name.'/.kora3_backup')))
                     array_push($available_backups,$this->BACKUP_DIRECTORY.'/'.$name.'/.kora3_backup');
             }
         }
@@ -108,7 +109,7 @@ class BackupController extends Controller {
                 $backup_info->put("files","Unknown");
             }
 
-            $fullPath = config('app.base_path')."storage/app/".$directory;
+            $fullPath = storage_path("app/".$directory);
             $size = $this->humanFileSize($this->getDirectorySize($fullPath));
             $backup_info->put("size",$size);
 
@@ -253,8 +254,8 @@ class BackupController extends Controller {
 
         if($request->backupFiles) {
             //time to move the files
-            $filepath = config('app.base_path') . "storage/app/files/";
-            $newfilepath = config('app.base_path') . "storage/app/" . $this->BACKUP_DIRECTORY . "/" . $label . "/files/";
+            $filepath = storage_path("app/files/");
+            $newfilepath = storage_path("app/" . $this->BACKUP_DIRECTORY . "/" . $label . "/files/");
             mkdir($newfilepath, 0775, true);
             $directory = new \RecursiveDirectoryIterator($filepath);
             $iterator = new \RecursiveIteratorIterator($directory);
@@ -291,7 +292,7 @@ class BackupController extends Controller {
         $k3['files'] = $request->backupFiles;
 
         //save json file
-        $path = config('app.base_path')."storage/app/".$this->BACKUP_DIRECTORY."/".$label."/";
+        $path = storage_path("app/".$this->BACKUP_DIRECTORY."/".$label."/");
         $data['kora3'] = $k3;
         $json = json_encode($data);
         $newfile = $path . ".kora3_backup";
@@ -346,10 +347,10 @@ class BackupController extends Controller {
      * @param  string $path - System path to the backup
      */
     public function download($path) {
-        $fullpath = config('app.base_path')."storage/app/".$this->BACKUP_DIRECTORY."/".$path."/";
+        $fullpath = storage_path("app/".$this->BACKUP_DIRECTORY."/".$path."/");
 
         $zipname = $path.'.zip';
-        $zipdir = config('app.base_path')."storage/app/".$this->BACKUP_DIRECTORY."/";
+        $zipdir = storage_path("app/".$this->BACKUP_DIRECTORY."/");
         $zip = new \ZipArchive();
         $zip->open($zipdir.$zipname, \ZipArchive::CREATE);
 
@@ -395,7 +396,7 @@ class BackupController extends Controller {
                     //Once we have a file, we need to do two things
                     //First, save the file name path to a variable
                     $filename = "fileRestore___".time();
-                    $filepath = config('app.base_path')."storage/app/".$this->BACKUP_DIRECTORY.'/'.$filename;
+                    $filepath = storage_path("app/".$this->BACKUP_DIRECTORY.'/'.$filename);
                     mkdir($filepath, 0775, true);
                     try {
                         //Second, unzip the file into the backups directory
@@ -440,7 +441,7 @@ class BackupController extends Controller {
         $this->lockUsers($users_exempt_from_lockout);
 
         //We need to gather the directory where the restored files are
-        $dir = config('app.base_path').'storage/app/'.$this->BACKUP_DIRECTORY.'/'.$request->filename;
+        $dir = storage_path('app/'.$this->BACKUP_DIRECTORY.'/'.$request->filename);
 
         //get info from the backup file
         $backup_file = file_get_contents($dir.'/.kora3_backup');
@@ -492,7 +493,7 @@ class BackupController extends Controller {
      */
     public function finishRestore(Request $request) {
         //We need to gather the directory where the restored files are
-        $dir = config('app.base_path').'storage/app/'.$this->BACKUP_DIRECTORY.'/'.$request->filename;
+        $dir = storage_path('app/'.$this->BACKUP_DIRECTORY.'/'.$request->filename);
 
         //get info from the backup file
         $backup_file = file_get_contents($dir.'/.kora3_backup');
@@ -501,7 +502,7 @@ class BackupController extends Controller {
 
         if($isFileBackup) {
             $filepath = $dir.'/files/';
-            $newfilepath = config('app.base_path')."storage/app/files/";
+            $newfilepath = storage_path("app/files/");
 
             //Delete the files directory
             if(file_exists($newfilepath)) //this check is to see if it was deleted in a failed restore
@@ -594,7 +595,7 @@ class BackupController extends Controller {
      * @return JsonResponse - Json response of the result
      */
     public function delete(Request $request) {
-        $path = config('app.base_path')."storage/app/".$this->BACKUP_DIRECTORY."/";
+        $path = storage_path("app/".$this->BACKUP_DIRECTORY."/");
         $dir = $path.$request->label;
 
         try {

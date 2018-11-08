@@ -13,7 +13,7 @@
 @stop
 
 @section('stylesheets')
-    <link rel="stylesheet" href="{{ config('app.url') }}assets/css/vendor/datetimepicker/jquery.datetimepicker.min.css" />
+    <link rel="stylesheet" href="{{ url('assets/css/vendor/datetimepicker/jquery.datetimepicker.min.css') }}" />
 @stop
 
 @section('header')
@@ -97,7 +97,7 @@
 @section('javascripts')
     @include('partials.records.javascripts')
 
-    <script src="{{ config('app.url') }}assets/javascripts/vendor/ckeditor/ckeditor.js"></script>
+    <script src="{{ url('assets/javascripts/vendor/ckeditor/ckeditor.js') }}"></script>
 
     <script type="text/javascript">
         getPresetDataUrl = "{{action('RecordPresetController@getData')}}";
@@ -105,7 +105,7 @@
         geoConvertUrl = '{{ action('FieldAjaxController@geoConvert',['pid' => $form->pid, 'fid' => $form->fid, 'flid' => 0]) }}';
         csrfToken = "{{ csrf_token() }}";
         userID = "{{\Auth::user()->id}}";
-        baseFileUrl = "{{config('app.url'). 'deleteTmpFile/'}}";
+        baseFileUrl = "{{url('deleteTmpFile')}}/";
         var validationUrl = "{{action('RecordController@validateRecord',['pid' => $form->pid, 'fid' => $form->fid])}}";
 
         Kora.Records.Create();

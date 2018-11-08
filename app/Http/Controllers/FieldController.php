@@ -281,7 +281,7 @@ class FieldController extends Controller {
         if(!self::checkPermissions($fid, 'delete'))
             return redirect()->action('FormController@show', ['pid' => $pid, 'fid' => $fid])->with('k3_global_error', 'cant_delete_field');
 
-         
+        $field = FieldController::getField($flid);
         $pageID = $field->page_id; //capture before delete
         $field->delete();
 
@@ -399,9 +399,9 @@ class FieldController extends Controller {
      */
     public function singleResource($pid, $fid, $rid, $flid, $filename) {
         $relative_src = 'files/p'.$pid.'/f'.$fid.'/r'.$rid.'/fl'.$flid.'/'.$filename;
-        $src = config('app.storage_url') . $relative_src;
+        $src = url('app/'.$relative_src);
 
-        if (!file_exists('app/'.$relative_src)) {
+        if (!file_exists(storage_path('app/'.$relative_src))) {
             // File does not exist
             dd($filename . ' not found');
         }

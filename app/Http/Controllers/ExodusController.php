@@ -17,7 +17,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\View\View;
+
 
 class ExodusController extends Controller {
 
@@ -33,8 +35,8 @@ class ExodusController extends Controller {
     /**
      * @var string - Storage folders for association conversions
      */
-    const EXODUS_CONVERSION_PATH = "storage/app/exodusAssoc/conversions/";
-    const EXODUS_DATA_PATH = "storage/app/exodusAssoc/data/";
+    const EXODUS_CONVERSION_PATH = "app/exodusAssoc/conversions/";
+    const EXODUS_DATA_PATH = "app/exodusAssoc/data/";
 
     /**
      * Constructs controller and makes sure user is the root installation user.
@@ -95,18 +97,29 @@ class ExodusController extends Controller {
      * @return array - The list of projects
      */
     public function getProjectList(Request $request) {
-        $con = mysqli_connect($request->host, $request->user, $request->pass, $request->name);
-
-        $projectArray = array();
-
-        $projects = $con->query("select * from project");
-        while($p = $projects->fetch_assoc()) {
-            $projectArray[$p['pid']] = $p['name'];
-        }
-
-        mysqli_close($con);
-
-        return $projectArray;
+		$validator = Validator::make($request->all(), [
+			'host' => 'required',
+			'user' => 'required',
+			'pass' => 'required',
+			'name' => 'required'
+		]);
+		
+		if ($validator->fails()) {
+			return response()->json(["response"=>"validation failed"], 422);
+		}
+		
+		$con = mysqli_connect($request->host, $request->user, $request->pass, $request->name);
+	
+		$projectArray = array();
+	
+		$projects = $con->query("select * from project");
+		while($p = $projects->fetch_assoc()) {
+			$projectArray[$p['pid']] = $p['name'];
+		}
+	
+		mysqli_close($con);
+	
+		return $projectArray;
     }
 
     /**
@@ -138,8 +151,8 @@ class ExodusController extends Controller {
         $tokenArray = array();
 
         //clear assoc directories
-        $this->recursiveRemoveDirectoryFiles(config('app.base_path').self::EXODUS_CONVERSION_PATH);
-        $this->recursiveRemoveDirectoryFiles(config('app.base_path').self::EXODUS_DATA_PATH);
+        $this->recursiveRemoveDirectoryFiles(storage_path(self::EXODUS_CONVERSION_PATH));
+        $this->recursiveRemoveDirectoryFiles(storage_path(self::EXODUS_DATA_PATH));
 
         //we should do the user table and project related tables and then divide all the scheme tasks into queued jobs
 
@@ -512,7 +525,7 @@ class ExodusController extends Controller {
         $masterConvertor = array();
 
         //Get all the conversion arrays for k2 KIDs to k3 RIDs
-        $dir1 = config('app.base_path').self::EXODUS_CONVERSION_PATH;
+        $dir1 = storage_path(self::EXODUS_CONVERSION_PATH);
         $iterator = new \DirectoryIterator($dir1);
         foreach($iterator as $fileinfo) {
             if($fileinfo->isFile()) {
@@ -528,7 +541,7 @@ class ExodusController extends Controller {
         }
 
         //Get all the matchups of k3 Assoc Field ids to the k2 KID values
-        $dir2 = config('app.base_path').self::EXODUS_DATA_PATH;
+        $dir2 = storage_path(self::EXODUS_DATA_PATH);
         $iterator = new \DirectoryIterator($dir2);
         foreach($iterator as $fileinfo) {
             if($fileinfo->isFile()) {

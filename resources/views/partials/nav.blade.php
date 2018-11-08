@@ -73,7 +73,7 @@ use App\Http\Requests\ProjectRequest;
     var clearGlobalCacheUrl = '{{ action('ProjectSearchController@clearGlobalCache') }}';
     var getProjectPermissionsModal = '{{ action('ProjectController@getProjectPermissionsModal') }}';
     var requestProjectPermissionsURL = '{{ action('ProjectController@request') }}';
-    var baseURL = '{{ env('BASE_URL') }}';
+    var baseURL = '{{ url('') }}/';
     var CSRFToken = '{{ csrf_token() }}';
   </script>
 </nav>

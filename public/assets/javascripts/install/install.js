@@ -53,7 +53,7 @@ Kora.Install.Create = function() {
             $('.previous.page').addClass('disabled');
         else
             $('.previous.page').removeClass('disabled');
-        if(active=="#base")
+        if(active=="#recaptcha")
             $('.next.page').addClass('disabled');
         else
             $('.next.page').removeClass('disabled');
@@ -66,7 +66,6 @@ Kora.Install.Create = function() {
             $('.admin-section').addClass('hidden');
             $('.mail-section').addClass('hidden');
             $('.recaptcha-section').addClass('hidden');
-            $('.base-section').addClass('hidden');
         } else if(active == "#admin") {
             $('.admin-link').addClass('active');
 
@@ -74,7 +73,6 @@ Kora.Install.Create = function() {
             $('.admin-section').removeClass('hidden');
             $('.mail-section').addClass('hidden');
             $('.recaptcha-section').addClass('hidden');
-            $('.base-section').addClass('hidden');
         } else if(active == "#mail") {
             $('.mail-link').addClass('active');
 
@@ -82,7 +80,6 @@ Kora.Install.Create = function() {
             $('.admin-section').addClass('hidden');
             $('.mail-section').removeClass('hidden');
             $('.recaptcha-section').addClass('hidden');
-            $('.base-section').addClass('hidden');
         } else if(active == "#recaptcha") {
             $('.recaptcha-link').addClass('active');
 
@@ -90,15 +87,6 @@ Kora.Install.Create = function() {
             $('.admin-section').addClass('hidden');
             $('.mail-section').addClass('hidden');
             $('.recaptcha-section').removeClass('hidden');
-            $('.base-section').addClass('hidden');
-        } else if(active == "#base") {
-            $('.base-link').addClass('active');
-
-            $('.database-section').addClass('hidden');
-            $('.admin-section').addClass('hidden');
-            $('.mail-section').addClass('hidden');
-            $('.recaptcha-section').addClass('hidden');
-            $('.base-section').removeClass('hidden');
         } else {
             $('.database-link').addClass('active');
 
@@ -106,28 +94,11 @@ Kora.Install.Create = function() {
             $('.admin-section').addClass('hidden');
             $('.mail-section').addClass('hidden');
             $('.recaptcha-section').addClass('hidden');
-            $('.base-section').addClass('hidden');
         }
     }
 
     $('.single-select').chosen({
         width: '100%',
-    });
-
-    $('.install-input-js').change(function() {
-        if (this.checked) {
-            $('.install-select-container-js').animate({
-                height: 75
-            }, function() {
-                $('.install-select-js').fadeIn();
-            });
-        } else {
-            $('.install-select-js').fadeOut(function() {
-                $('.install-select-container-js').animate({
-                    height: 0
-                });
-            });
-        }
     });
 
     var form = $('#install_form');
@@ -212,15 +183,15 @@ Kora.Install.Create = function() {
 
     $('#install_submit').on('click', function() {
         //gather the form data
-        if (!photoDroppedFile && photoInput.val() != '') { // if there was no dropped photo and if no photo was added by default 
-            var data = $('#install_form').serialize();
+        if (!photoDroppedFile && photoInput.val() != '') { // if there was no dropped photo and if no photo was added by default
+            var data = form.serialize();
         } else {
-            var data = new FormData(form.get());
-            data.delete('profile');
+            var data = new FormData(form[0]);
+            data.delete('user_profile');
             if (photoDroppedFile) {
-                data.append('profile', photoDroppedFile);
+                data.append('user_profile', photoDroppedFile);
             } else {
-                data.append('profile', photoInput[0].files[0]);
+                data.append('user_profile', photoInput[0].files[0]);
             }
         }
 
@@ -229,6 +200,8 @@ Kora.Install.Create = function() {
             type: "POST",
             url: installPartOneURL,
             data: data,
+            contentType: false,
+            processData: false,
             success: function(data) {
                 //Submit the form
                 $('#install_form').submit();
