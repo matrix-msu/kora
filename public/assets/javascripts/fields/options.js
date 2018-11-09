@@ -966,8 +966,7 @@ Kora.Fields.Options = function(fieldType) {
             intializeGeolocatorOptions();
             break;
         case 'Multi-Select List':
-            initializeSelectAddition();
-            initializeMultiSelectListOptions();
+            initializeList();
             break;
         case 'Schedule':
             initializeScheduleOptions();
