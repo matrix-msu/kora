@@ -961,7 +961,6 @@ Kora.Fields.Options = function(fieldType) {
             break;
         case 'List':
             initializeList();
-            initializeSelectAddition();
             break;
         case 'Geolocator':
             intializeGeolocatorOptions();

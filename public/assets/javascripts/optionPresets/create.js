@@ -69,13 +69,15 @@ Kora.OptionPresets.Create = function() {
         function enableOptionInput(order) {
             var textInput = $('.open-text-js').find('.text-input').first();
             textInput.attr('disabled',order[0]);
-            //TODO::THIS THING
-            var listInput = $('.open-list-js').find('.modify-select').first();
-            listInput.attr('disabled',order[1]);
-            listInput.trigger("chosen:updated");
+
+            $(".list-option-js").each(function() {
+                $(this).attr('disabled',order[1]);
+            });
+
             var scheduleInput = $('.open-schedule-js').find('.schedule-event-js').first();
             scheduleInput.attr('disabled',order[2]);
             scheduleInput.trigger("chosen:updated");
+
             var geoInput = $('.open-geolocator-js').find('.geolocator-location-js').first();
             geoInput.attr('disabled',order[3]);
             geoInput.trigger("chosen:updated");
