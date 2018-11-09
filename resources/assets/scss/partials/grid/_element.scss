@@ -130,9 +130,8 @@
   .name {
     color: palette('green', accent);
     display: inline-block;
-    font-family: $ubuntu;
+    font-family: $ubuntu-medium;
     font-size: 14px;
-    font-weight: 600;
     line-height: 20px;
     margin: #{ $underline-padding } 0 0 10px;
     padding-bottom: $underline-padding;
