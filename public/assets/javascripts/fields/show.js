@@ -254,7 +254,7 @@ Kora.Fields.Show = function() {
         $('.open-create-list-modal-js').click(function(e) {
             e.preventDefault();
 
-            newList = $('[name="options[]"]').val();
+            newList = $('[name="options[]"]').map(function(){return $(this).val();}).get();
 
             if(newList!=[])
                 Kora.Modal.open(createListModal);
