@@ -4,6 +4,7 @@
   '/assets/javascripts/vendor/chosen.js',
   '/assets/javascripts/vendor/datetimepicker/jquery.datetimepicker.full.min.js',
   '/assets/javascripts/general/modal.js',
+  '/assets/javascripts/fields/typedFieldInputs.js',
   '/assets/javascripts/fields/create.js',
   '/assets/javascripts/fields/show.js',
   '/assets/javascripts/fields/options.js',
