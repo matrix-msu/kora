@@ -54,11 +54,6 @@
                 </div>
             </div>
         </div>
-        <!--<select multiple class="multi-select modify-select list-options-js" name="options[]" data-placeholder="Select or Add Some Options">
-            @foreach(\App\ListField::getList($field,false) as $opt)
-                <option value="{{$opt}}">{{$opt}}</option>
-            @endforeach
-        </select>-->
 
         <div><a href="#" class="field-preset-link open-list-modal-js">Use a Value Preset for these List Options</a></div>
         <div class="open-create-regex"><a href="#" class="field-preset-link open-create-list-modal-js right
@@ -69,7 +64,7 @@
     <div class="form-group mt-xxxl">
         {!! Form::label('default','Default') !!}
         {!! Form::select('default',\App\ListField::getList($field,true), $field->default,
-        ['class' => 'single-select list-default-js']) !!}
+        ['class' => 'single-select list-default-js', 'data-placeholder' => 'Select the default value here (Value must be added above in order to select)']) !!}
     </div>
 @stop
 

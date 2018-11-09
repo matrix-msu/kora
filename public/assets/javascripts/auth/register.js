@@ -106,7 +106,8 @@ Kora.Auth.Register = function() {
             });
         }
       
-        form.submit(function(e) {
+        //form.submit(function(e) {
+		$('.validate-user-js').click(function (e) {
             var $this = $(this);
 
             e.preventDefault();

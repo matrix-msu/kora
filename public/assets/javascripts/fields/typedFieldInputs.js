@@ -46,7 +46,6 @@ Kora.Fields.TypedFieldInputs.Initialize = function() {
         $('.list-input-form-group').each(function() {
             var $listFormGroup = $(this);
             var $cardOptionsContainer = $listFormGroup.find('.list-option-card-container-js');
-            var $cards = $cardOptionsContainer.find('.list-option-card-js');
             var $newOptionCard = $('.new-list-option-card-js');
             var $newOptionInput = $newOptionCard.find('.new-list-option-js');
             var $newOptionAddButton = $newOptionCard.find('.list-option-add-js');

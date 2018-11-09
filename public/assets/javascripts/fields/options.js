@@ -6,9 +6,9 @@ Kora.Fields.Options = function(fieldType) {
     function initializeSelects() {
         //Most field option pages need these
         $('.single-select').chosen({
-            allow_single_deselect: true,
             disable_search_threshold: 4,
             width: '100%',
+            allow_single_deselect: true,
         });
 
         $('.multi-select').chosen({
@@ -108,44 +108,11 @@ Kora.Fields.Options = function(fieldType) {
             })
         }
 
-        function old_initializeListDefaultOptions() {
-            var listOpt = $('.list-options-js');
-            var listDef = $('.list-default-js');
-
-            var inputOpt = listOpt.siblings('.chosen-container');
-            var childCheck = inputOpt.children('.chosen-drop').children('.chosen-results');
-
-            listOpt.find('option').prop('selected', true);
-            listOpt.trigger("chosen:updated");
-
-            listOpt.chosen().change(function() {
-                //When option de-selected, we delete it from list
-                listOpt.find('option').not(':selected').remove();
-                listOpt.trigger("chosen:updated");
-            });
-
-            listOpt.bind("DOMSubtreeModified",function(){
-                var options = listOpt.html();
-                listDef.html(options);
-                listDef.trigger("chosen:updated");
-            });
-
-            inputOpt.on('click', function () {
-                if (childCheck.children().length === 0) {
-                    childCheck.append('<li class="no-results">No options to select!</li>');
-                } else if (childCheck.children('.active-result').length === 0 && childCheck.children('.no-results').length === 0) {
-                    childCheck.append('<li class="no-results">No more options to select!</li>');
-                }
-            });
-        }
-
         // Function to add list options and the respective cards
         function initializeListAddOption() {
             var $addButton = $('.list-option-add-js');
             var $newListOptionInput = $('.new-list-option-js');
-            var $listOptions = $('.list-options-js');
             var $cardContainer = $('.list-option-card-container-js');
-            var $cards = $cardContainer.find('.list-option-card-js');
 
             $newListOptionInput.keypress(function(e) {
                 var keycode =  (e.keyCode ? e.keyCode : e.which);
@@ -163,41 +130,43 @@ Kora.Fields.Options = function(fieldType) {
 
                 var newListOption = $newListOptionInput.val();
 
-                // Prevent duplicate entries
+                if(newListOption!='') {
+                    // Prevent duplicate entries
 
-                // Create and display new card
-                var newCardHtml = '<div class="card list-option-card list-option-card-js" data-list-value="'+newListOption+'">' +
-                    '<input type="hidden" class="list-option-js" name="options[]" value="'+newListOption+'">'+
-                    '<div class="header">' +
-                    '<div class="left">' +
-                    '<div class="move-actions">' +
-                    '<a class="action move-action-js up-js" href="">' +
-                    '<i class="icon icon-arrow-up"></i>' +
-                    '</a>' +
-                    '<a class="action move-action-js down-js" href="">' +
-                    '<i class="icon icon-arrow-down"></i>' +
-                    '</a>' +
-                    '</div>' +
-                    '<span class="title">'+newListOption+'</span>' +
-                    '</div>' +
-                    '<div class="card-toggle-wrap">' +
-                    '<a class="list-option-delete list-option-delete-js" href=""><i class="icon icon-trash"></i></a>' +
-                    '</div>' +
-                    '</div>' +
-                    '</div>';
+                    // Create and display new card
+                    var newCardHtml = '<div class="card list-option-card list-option-card-js" data-list-value="' + newListOption + '">' +
+                        '<input type="hidden" class="list-option-js" name="options[]" value="' + newListOption + '">' +
+                        '<div class="header">' +
+                        '<div class="left">' +
+                        '<div class="move-actions">' +
+                        '<a class="action move-action-js up-js" href="">' +
+                        '<i class="icon icon-arrow-up"></i>' +
+                        '</a>' +
+                        '<a class="action move-action-js down-js" href="">' +
+                        '<i class="icon icon-arrow-down"></i>' +
+                        '</a>' +
+                        '</div>' +
+                        '<span class="title">' + newListOption + '</span>' +
+                        '</div>' +
+                        '<div class="card-toggle-wrap">' +
+                        '<a class="list-option-delete list-option-delete-js" href=""><i class="icon icon-trash"></i></a>' +
+                        '</div>' +
+                        '</div>' +
+                        '</div>';
 
-                $cardContainer.append(newCardHtml);
+                    $cardContainer.append(newCardHtml);
 
-                // Initialize functionality for all the cards again
-                $('.move-action-js').unbind();
-                setCardTitleWidth();
-                initializeListSort();
-                initializeListOptionDelete();
-                updateListDefaultOptions();
-                Kora.Fields.TypedFieldInputs.Initialize();
+                    // Initialize functionality for all the cards again
+                    $('.move-action-js').unbind();
+                    setCardTitleWidth();
+                    initializeListSort();
+                    initializeListOptionDelete();
+                    updateListDefaultOptions();
+                    Kora.Fields.TypedFieldInputs.Initialize();
 
-                // Clear input after everything is finished
-                $newListOptionInput.val("");
+                    // Clear input after everything is finished
+                    $newListOptionInput.val("");
+                }
             });
         }
 
@@ -209,7 +178,6 @@ Kora.Fields.Options = function(fieldType) {
                 var $headerInnerWrapper = $this.parent().parent();
                 var $header = $headerInnerWrapper.parent();
                 var $card = $header.parent();
-                var $listOptions = $('.list-options-js');
                 // $form.prev().before(current);
                 if ($this.hasClass('up-js')) {
                     var $previousForm = $card.prev();
@@ -234,19 +202,7 @@ Kora.Fields.Options = function(fieldType) {
                                 .css('top', '')
                                 .css('position', '')
                                 .insertBefore($previousForm);
-
-                            // fidsArray = $(".form-custom-js").sortable("toArray");
-                            //
-                            // $.ajax({
-                            //     url: saveCustomOrderUrl,
-                            //     type: 'POST',
-                            //     data: {
-                            //         "_token": CSRFToken,
-                            //         "fids": fidsArray,
-                            //
-                            //     },
-                            //     success: function(result) {}
-                            // });
+                            updateListDefaultOptions();
                         });
                 } else {
                     var $nextForm = $card.next();
@@ -271,19 +227,7 @@ Kora.Fields.Options = function(fieldType) {
                                 .css('top', '')
                                 .css('position', '')
                                 .insertAfter($nextForm);
-
-                            // fidsArray = $(".form-custom-js").sortable("toArray");
-                            //
-                            // $.ajax({
-                            //     url: saveCustomOrderUrl,
-                            //     type: 'POST',
-                            //     data: {
-                            //         "_token": CSRFToken,
-                            //         "fids": fidsArray,
-                            //
-                            //     },
-                            //     success: function(result) {}
-                            // });
+                            updateListDefaultOptions();
                         });
                 }
             });
@@ -312,6 +256,7 @@ Kora.Fields.Options = function(fieldType) {
 
             var optionsHtml = "";
             if ($cards.length > 0) {
+                optionsHtml += '<option></option>';
                 for (var i = 0; i < $cards.length; i++) {
                     var $card = $($cards[i]);
                     var option = $card.find('.list-option-js').val();
@@ -323,37 +268,13 @@ Kora.Fields.Options = function(fieldType) {
 
             $listDef.html(optionsHtml);
             $listDef.trigger("chosen:updated");
-
-            /*
-            listOpt.chosen().change(function() {
-                //When option de-selected, we delete it from list
-                listOpt.find('option').not(':selected').remove();
-                listOpt.trigger("chosen:updated");
-            });
-
-            listOpt.bind("DOMSubtreeModified",function(){
-                var options = listOpt.html();
-                listDef.html(options);
-                listDef.trigger("chosen:updated");
-            });
-
-            inputOpt.on('click', function () {
-                if (childCheck.children().length === 0) {
-                    childCheck.append('<li class="no-results">No options to select!</li>');
-                } else if (childCheck.children('.active-result').length === 0 && childCheck.children('.no-results').length === 0) {
-                    childCheck.append('<li class="no-results">No more options to select!</li>');
-                }
-            });
-            */
         }
 
         setCardTitleWidth();
         initializeListAddOption();
         initializeListSort();
         initializeListOptionDelete();
-        updateListDefaultOptions();
         Kora.Fields.TypedFieldInputs.Initialize();
-        //initializeListOptions();
     }
 
     function initializeMultiSelectListOptions() {
@@ -739,9 +660,6 @@ Kora.Fields.Options = function(fieldType) {
 
                 div = '<div class="card combo-value-item-js">';
 
-                // if(border)
-                    // div += '<span class="combo-border-small"> </span>';
-
                 if(type1=='Text' | type1=='List' | type1=='Number' | type1=='Date') {
                     div += '<input type="hidden" name="default_combo_one[]" value="'+val1+'">';
                     div += '<span class="combo-column">'+val1+'</span>';
@@ -853,10 +771,6 @@ Kora.Fields.Options = function(fieldType) {
         });
 
         //LIST OPTIONS
-        // var listOpt = $('.list-options-js');
-        // listOpt.find('option').prop('selected', true);
-        // listOpt.trigger("chosen:updated");
-
         listOpt = $('.mslist-options-js');
         listOpt.find('option').prop('selected', true);
         listOpt.trigger("chosen:updated");
@@ -869,20 +783,7 @@ Kora.Fields.Options = function(fieldType) {
         $(".list-options-js").sortable({
             helper: 'clone',
             revert: true,
-            containment: ".field-show"/*,
-            update: function(event, ui) {
-              pidsArray = $(".project-custom-js").sortable("toArray");*/
-
-            //   $.ajax({
-            //     url: saveCustomOrderUrl,
-            //     type: 'POST',
-            //     data: {
-            //       "_token": CSRFToken,
-            //       "pids": pidsArray,
-            //     },
-            //     success: function(result) {}
-            //   });
-            // }
+            containment: ".field-show"
         });
         
 		$('.list-options-js').on('click', '.move-action-js', function(e) {
@@ -892,7 +793,6 @@ Kora.Fields.Options = function(fieldType) {
 		  var $headerInnerWrapper = $this.parent().parent(); // div.left
 		  var $header = $headerInnerWrapper.parent();		 // div.header
 		  var $form = $header.parent();						 // div.card
-		  // $form.prev().before(current);
 
 		  if ($this.hasClass('up-js')) {
 			var $previousForm = $form.prev();
@@ -918,18 +818,6 @@ Kora.Fields.Options = function(fieldType) {
 				  .css('position', '')
 				  .insertBefore($previousForm);
 
-				  // fidsArray = $(".form-custom-js").sortable("toArray");
-
-				  // $.ajax({
-					  // url: saveCustomOrderUrl,
-					  // type: 'POST',
-					  // data: {
-						  // "_token": CSRFToken,
-						  // "fids": fidsArray,
-
-					  // },
-					  // success: function(result) {}
-				  // });
 			  });
 		  } else {
 			var $nextForm = $form.next();
@@ -955,18 +843,6 @@ Kora.Fields.Options = function(fieldType) {
 				  .css('position', '')
 				  .insertAfter($nextForm);
 
-				  // fidsArray = $(".form-custom-js").sortable("toArray");
-
-				  // $.ajax({
-					  // url: saveCustomOrderUrl,
-					  // type: 'POST',
-					  // data: {
-						  // "_token": CSRFToken,
-						  // "fids": fidsArray,
-
-					  // },
-					  // success: function(result) {}
-				  // });
 			  });
 		  }
         });
@@ -986,9 +862,6 @@ Kora.Fields.Options = function(fieldType) {
                 $('.combolist-add-new-list-value-modal-js').removeClass('mt-xxl');
             }
         });
-
-	var listOpt = $('.list-options-container-js');
-	var newValue = $('.add-list-option-js');
 
 	$('.list-options-container-js .submit').on('click', function () {
         	let input = $('.add-list-option-js').val();
@@ -1043,7 +916,6 @@ Kora.Fields.Options = function(fieldType) {
       }
 
       $multiLineCheck.click(function () {
-        //if ($multiLineCheck.is(':checked') === true || $multiLineCheck.prop('checked') === true) {
         if ($multiLineCheck.is(':checked')) {
           $singleLine.addClass('hidden');
           $multiLine.removeClass('hidden');
@@ -1084,19 +956,16 @@ Kora.Fields.Options = function(fieldType) {
             initializeDateOptions();
             break;
         case 'Generated List':
-            initializeSelectAddition();
-            initializeGeneratedListOptions();
+            initializeList();
             break;
         case 'List':
             initializeList();
-            initializeSelectAddition();
             break;
         case 'Geolocator':
             intializeGeolocatorOptions();
             break;
         case 'Multi-Select List':
-            initializeSelectAddition();
-            initializeMultiSelectListOptions();
+            initializeList();
             break;
         case 'Schedule':
             initializeScheduleOptions();
@@ -1110,8 +979,10 @@ Kora.Fields.Options = function(fieldType) {
             break;
         case 'Text':
             initializeTextFields();
+            break;
         case 'Rich Text':
             initializeRichTextFields();
+            break;
         default:
             break;
     }
