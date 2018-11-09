@@ -25,7 +25,7 @@
 
 <div class="form-group mt-xl">
     {!! Form::label('default','Default Value') !!}
-    {!! Form::select('default',['' => ''], null, ['class' => 'single-select list-default-js', 'placeholder' => 'Select the default value here (Value must be added above in order to select)']) !!}
+    {!! Form::select('default',[], null, ['class' => 'single-select list-default-js', 'data-placeholder' => 'Select the default value here (Value must be added above in order to select)']) !!}
 </div>
 
 <script>
