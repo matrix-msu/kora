@@ -262,29 +262,33 @@ Kora.Admin.Users = function() {
           $('.error-message.emails').html($('.error-message.emails').html() + err[i] + ' ');
         }
       }
+
+	  $('.invite-content-js .btn-primary').addClass('disabled');
     }
 
     // check if any entered emails already exist in the system
     $('.text-input#emails').on('blur', function (e) {
-	  e.preventDefault();
+      e.preventDefault();
 
-	  let $formData = $('.invite-content-js :not(input[name="_method"])').serialize();
-	  $.ajax({
-	    url: validateEmailsUrl,
-	    type: 'POST',
-	    data: $formData,
-	    success: function (data) {
-		  if (data.message.length >= 1) {
-		    setError(data.message);
-		  } else {
-		    $('.text-input#emails').removeClass('error');
-		  }
-	    },
-	    error: function (err) {
-		  console.log('Error:');
-		  console.log(err);
-	    }
-	  });
+      let $formData = $('.invite-content-js :not(input[name="_method"])').serialize();
+      $.ajax({
+        url: validateEmailsUrl,
+        type: 'POST',
+        data: $formData,
+        success: function (data) {
+          if (data.message.length >= 1) {
+            setError(data.message);
+          } else {
+            $('.text-input#emails').removeClass('error');
+            $('.invite-content-js .error-message.emails').text('');
+            $('.invite-content-js .btn-primary').removeClass('disabled');
+          }
+        },
+        error: function (err) {
+          console.log('Error:');
+          console.log(err);
+        }
+      });
     });
 
 	$('.invite-content-js .btn-primary').click(function(e) {
