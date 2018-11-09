@@ -1,4 +1,8 @@
 .record {
+  .header .title .name {
+    font-family: $ubuntu-medium;
+  }
+
   .record-page {
     .record-page-title {
       font-family: $ubuntu-medium-italic;

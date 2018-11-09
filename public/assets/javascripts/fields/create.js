@@ -55,6 +55,8 @@ Kora.Fields.Create = function() {
                     advCreation = true;
                     $('.advanced-options-show').addClass('hidden');
                     $('.advanced-options-hide').removeClass('hidden');
+
+                    Kora.Fields.TypedFieldInputs.Initialize();
                 }
             });
         }
@@ -124,7 +126,7 @@ Kora.Fields.Create = function() {
         e.preventDefault();
 
         Kora.Modal.open($('.field-type-description-modal-js'));
-      }); 
+      });
     }
 
     function initializeValidation() {
@@ -191,8 +193,8 @@ Kora.Fields.Create = function() {
                 }
             });
         });
-      
-      
+
+
 
         function validateAdvancedOptions(currType) {
             var valid = true;
@@ -227,7 +229,7 @@ Kora.Fields.Create = function() {
                     var minDiv = $('.number-min-js');
                     var maxDiv = $('.number-max-js');
                     var stepDiv = $('.number-step-js');
-                    
+
                     var def = defDiv.val();
                     var min = minDiv.val();
                     var max = maxDiv.val();
@@ -328,7 +330,7 @@ Kora.Fields.Create = function() {
             return valid;
         }
     }
-    
+
     initializeDescriptionModal();
     initializeAdvancedOptions();
     initializeComboListFields();

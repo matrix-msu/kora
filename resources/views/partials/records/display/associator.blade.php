@@ -1,3 +1,5 @@
 @foreach($typedField->records()->get() as $opt)
-    <div>{!! $typedField->getPreviewValues($opt->record) !!}</div>
+    <div class="associator card">
+        {!! $typedField->getPreviewValues($opt->record) !!}
+    </div>
 @endforeach

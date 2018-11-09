@@ -425,6 +425,73 @@ Kora.Admin.Users = function() {
     $("[href='#custom'], [href='#active'], [href='#inactive']").click(function() { adjustProjectCardTitle(); });
   }
   
+  function initializeInviteUserValidation()
+  {
+	function error(input, error_message) {
+	  $(input).prev().text(error_message);
+	  $(input).addClass("error"); // applies the error border styling
+	}
+	
+	function success(input) { // when validation is passed on an input
+	  $(input).prev().text("");
+	  $(input).removeClass("error");
+	}
+	  
+	function validateEmails() {
+	  var email_input = $("#emails.text-input");
+	  var emails_string = email_input.val();
+	  
+	  if (emails_string != null && emails_string != "") {
+		emails_string = emails_string.replace(/,/g, " ");
+		
+		var emails = emails_string.split(" ");
+		var has_malformed = false;
+		var has_valid = false;
+		
+		for (i = 0; i < emails.length; i++) {
+		  var email = emails[i];
+		  
+		  if (email.length > 3) {
+			if (!validateEmail(email)) {
+			  error(email_input, "Email: " + email + " is not valid");
+			  return false;
+			} else {
+			  has_valid = true;
+			}
+		  } else {
+			has_malformed = true;
+		  }
+		}
+		
+		if (has_malformed && !has_valid) {
+		  error(email_input, "Malformed email separation - use commas and/or spaces");
+		  return false;
+		}
+		
+		success(email_input);
+	    return true; // passed validation
+	  } else {
+		error(email_input, "This field is required");
+	    return false;
+	  }
+	}
+	
+	function validateEmail(email) {
+      var re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+	  return re.test(String(email).toLowerCase());
+	}
+	  
+    $("#emails.text-input").blur(function() {
+	  validateEmails();
+	});
+	
+	$( "input[name='sendButton']" ).click(function(e) {
+	  if (!validateEmails()) {
+	    e.preventDefault();
+	  }
+	})
+  }
+  
   initializeOptionDropdowns();
   initializeFilters();
   initializeCards();
@@ -432,4 +499,5 @@ Kora.Admin.Users = function() {
   initializeCleanUpModals();
   initializeCardEvents();
   initializeUserCardEllipsifying();
+  initializeInviteUserValidation();
 };

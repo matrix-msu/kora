@@ -104,6 +104,13 @@ class FinishInstall extends Command
         //Call Exodus function
         $ic = new InstallController();
         $ic->install($request);
+		
+		//Manually update config to keep things rolling
+		config(['database.connections.mysql.host' => $request->db_host]);
+		config(['database.connections.mysql.database' => $request->db_database]);
+		config(['database.connections.mysql.username' => $request->db_username]);
+		config(['database.connections.mysql.password' => $request->db_password]);
+		config(['database.connections.mysql.prefix' => $request->db_prefix]);
 
         $ic->installPartTwo($request);
     }

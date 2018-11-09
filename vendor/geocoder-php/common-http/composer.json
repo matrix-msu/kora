@@ -19,10 +19,10 @@
         "php-http/message-factory": "^1.0.2",
         "psr/http-message-implementation": "^1.0",
         "php-http/client-implementation": "^1.0",
-        "php-http/discovery": "^1.0"
+        "php-http/discovery": "^1.4"
     },
     "require-dev": {
-        "phpunit/phpunit": "^6.1",
+        "phpunit/phpunit": "6.3.*",
         "symfony/stopwatch": "~2.5",
         "php-http/message": "^1.0",
         "php-http/mock-client": "^1.0",
@@ -39,6 +39,7 @@
         "test-ci": "vendor/bin/phpunit --coverage-text --coverage-clover=build/coverage.xml"
     },
     "minimum-stability": "dev",
+    "prefer-stable": true,
     "extra": {
         "branch-alias": {
             "dev-master": "4.0-dev"

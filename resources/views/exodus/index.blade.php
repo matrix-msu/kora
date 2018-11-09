@@ -32,26 +32,31 @@
         <section class="exodus-database">
             <div class="form-group">
                 {!! Form::label('host', 'Kora 2 Database Host') !!}
+				<span class="error-message"></span>
                 {!! Form::text('host','', ['class' => 'text-input db-host-js', 'placeholder' => 'Enter DB Host']) !!}
             </div>
 
             <div class="form-group mt-xl">
                 {!! Form::label('name', 'Kora 2 Database Name (Default Schema)') !!}
+				<span class="error-message"></span>
                 {!! Form::text('name','', ['class' => 'text-input db-name-js', 'placeholder' => 'Enter DB Name']) !!}
             </div>
 
             <div class="form-group mt-xl">
                 {!! Form::label('user', 'Kora 2 Database User') !!}
+				<span class="error-message"></span>
                 {!! Form::text('user','', ['class' => 'text-input db-user-js', 'placeholder' => 'Enter DB User']) !!}
             </div>
 
             <div class="form-group mt-xl">
                 {!! Form::label('pass', 'Kora 2 Database Password') !!}
+				<span class="error-message"></span>
                 {!! Form::password('pass', ['class' => 'text-input db-pass-js', 'placeholder' => 'Enter DB Password']) !!}
             </div>
 
             <div class="form-group mt-xl">
                 {!! Form::label('filePath', trans('exodus_index.files').'') !!}
+				<span class="error-message"></span>
                 {!! Form::text('filePath','', ['class' => 'text-input file-path-js', 'placeholder' => '/{system_path}/{Kora2}/files']) !!}
             </div>
 

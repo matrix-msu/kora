@@ -297,7 +297,7 @@ Kora.ProjectGroups.Index = function() {
       var gid = $(this).data('group');
 
       var $editNameModal = $('.edit-group-name-modal-js');
-      var $editNameModalInput = $editNameModal.find('.group-name-js');
+      var $editNameModalInput = $editNameModal.find('.create-group-name-js');
       $editNameModalInput.val(groupName);
 
       // Submission of Editing a Name
@@ -305,7 +305,7 @@ Kora.ProjectGroups.Index = function() {
         return function(e) {
           e.preventDefault();
 
-          var groupName = $('.edit-group-name-modal-js').find('.group-name-js').val();
+          var groupName = $('.edit-group-name-modal-js').find('.create-group-name-js').val();
           self.editGroupName(gid, groupName);
         }
       }
@@ -405,7 +405,7 @@ Kora.ProjectGroups.Index = function() {
       }
 	  
       $('.add-users-submit-js').on('click', submitUsers(groupID, $addUserModal, $select));
-
+		
       Kora.Modal.open($addUserModal);
       $('.emails').on('blur', initializeValidateEmails);
     });
@@ -498,6 +498,115 @@ Kora.ProjectGroups.Index = function() {
       adjustCardTitle();
     });
   }
+  
+  function initializeValidation() {
+	var checkbox_names = {"create": true, "edit": true, "delete": true};
+	
+	function error(input, error_message) {
+	  $(input).prev().text(error_message);
+	  $(input).addClass("error"); // applies the error border styling
+	}
+	
+	function success(input) { // when validation is passed on a text input
+	  $(input).prev().text("");
+	  $(input).removeClass("error");
+	}
+	
+	function validateGroupName() {
+	  var name_input = $(".create-group-name-js");
+	  var name = name_input.val();
+	  
+	  if (name == null || name == "") {
+		error(name_input, "This field is required");
+		return false;
+	  } else {
+		success(name_input);
+		return true;
+	  }
+	}
+	
+	function validateGroupOptions() {
+	  var check_create = $("input[name='create'].check-box-input");
+	  var check_edit = $("input[name='edit'].check-box-input");
+	  var check_delete = $("input[name='delete'].check-box-input");
+	  var error_msg = $(".group-options-error-message");
+	  
+	  if (check_create && check_edit && check_delete &&
+	  (check_create.prop("checked") || check_edit.prop("checked") || check_delete.prop("checked"))) {
+		error_msg.text("");
+		return true;
+	  } else {
+	    error_msg.text("Select at least one permission");
+		return false;
+	  }
+	}
+	
+	// validates a comma and/or space separated list of emails
+	function validateEmails() {
+	  var email_input = $("#emails-new-perm-group");
+	  var emails_string = email_input.val();
+	  
+	  if (emails_string != null && emails_string != "") {
+		emails_string = emails_string.replace(/,/g, " ");
+		var emails = emails_string.split(" ");
+		var has_malformed = false;
+		var has_valid = false;
+		
+		for (i = 0; i < emails.length; i++) {
+		  var email = emails[i];
+		  
+		  if (email.length > 3) {
+			if (!validateEmail(email)) {
+			  error(email_input, "Email: " + email + " is not valid");
+			  return false;
+			} else {
+			  has_valid = true;
+			}
+		  } else {
+			has_malformed = true;
+		  }
+		}
+		
+		if (has_malformed && !has_valid) {
+			error(email_input, "Malformed email separation - use commas and/or spaces");
+			return false;
+		}
+	  }
+	  
+	  success(email_input);
+	  return true;
+	}
+	
+	function validateEmail(email) {
+      var re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+	  return re.test(String(email).toLowerCase());
+	}
+	
+    $(".create-group-name-js").blur(function() {
+	  validateGroupName();
+    });
+	
+	$("#emails-new-perm-group").blur(function() {
+		validateEmails();
+	});
+	
+	$(".check-box-input").click(function() {
+	  var name = $(this).attr("name");
+	  if (name !== null && checkbox_names[name] != null) {
+	    validateGroupOptions();
+	  }
+	});
+	
+	$(".create-submit-js").click(function(e) {
+	  var valid_name = validateGroupName();
+	  var valid_options = validateGroupOptions();
+	  var valid_emails = validateEmails();
+	  
+	  if (!valid_name || !valid_options || !valid_emails) {
+		e.preventDefault();
+	  }
+	});
+  }
 
   Kora.Modal.initialize();
   initializePermissionsToggles();
@@ -509,4 +618,5 @@ Kora.ProjectGroups.Index = function() {
   initializeRemoveUserModal();
   initializeViewUserModal();
   initializeUserCardEllipsifying();
+  initializeValidation();
 }

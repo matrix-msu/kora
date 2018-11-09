@@ -157,30 +157,6 @@ Kora.Records.Index = function() {
                 }
             }
         });
-
-        $('.open-advanced-js').click(function(e) {
-            e.preventDefault();
-
-            $('.advanced-search-drawer-js').effect('slide', {
-                direction: 'up',
-                mode: 'show',
-                duration: 240
-            });
-            $('.close-advanced-js').show();
-            $('.open-advanced-js').hide();
-        });
-
-        $('.close-advanced-js').click(function(e) {
-            e.preventDefault();
-
-            $('.advanced-search-drawer-js').effect('slide', {
-                direction: 'up',
-                mode: 'hide',
-                duration: 240
-            });
-            $('.open-advanced-js').show();
-            $('.close-advanced-js').hide();
-        });
     }
 
     function initializeToggle() {
@@ -298,6 +274,38 @@ Kora.Records.Index = function() {
       }
     }
 
+    function initializeAssociatorCardToggle () {
+        $('.assoc-card-toggle-js').click(function (e) {
+            e.preventDefault();
+
+            let $card = $(this).parent().parent().parent();
+            let $cardBody = $card.find('.body');
+
+            $(this).children().toggleClass('active');
+
+            if ($(this).children().hasClass('active')) {
+                //$card.css('height', '');
+                $card.animate({
+                    height: $card.height() + $cardBody.outerHeight() + 'px'
+                }, 230);
+                $cardBody.effect('slide', {
+                    direction: 'up',
+                    mode: 'show',
+                    duration: 240
+                });
+            } else {
+                $card.animate({
+                    height: '49px'
+                }, 230);
+                $cardBody.effect('slide', {
+                    direction: 'up',
+                    mode: 'hide',
+                    duration: 240
+                });
+            }
+        });
+    }
+
     initializeSelectAddition();
     initializeOptionDropdowns();
     initializePaginationShortcut();
@@ -307,6 +315,7 @@ Kora.Records.Index = function() {
     initializeScrollTo();
     initializeSearchValidation();
     displayKeywords();
+    initializeAssociatorCardToggle();
     Kora.Records.Modal();
     Kora.Fields.TypedFieldDisplays.Initialize();
 }

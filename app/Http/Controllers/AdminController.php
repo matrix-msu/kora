@@ -16,6 +16,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\View\View;
+use Validator;
 
 class AdminController extends Controller {
 
@@ -329,7 +330,7 @@ class AdminController extends Controller {
           }
         }
 		
-        $user->save(); // insignificant
+        $user->save();
 		
         return response()->json(["status" => true, "message" => $message, "action" => $action], 200);
       }
@@ -357,7 +358,7 @@ class AdminController extends Controller {
     }
 
     /**
-     * Batch invites users to Kora3 using list of emails.
+     * Batch invites users to Kora3 using list of emails. Creates users in the db if they don't exist.
      *
      * @param  Request $request
      * @return View

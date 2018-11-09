@@ -1,10 +1,10 @@
 @extends('app', ['page_title' => 'Reset Password', 'page_class' => 'reset'])
 
 @section('body')
-<div class="content">
-  <div class="form-container py-100-xl ma-auto">
-    <section class="head">
-			<h1 class="title text-center">Enter your new password</h1>
+<div class="content reset-page">
+  <div class="form-container center ma-xl">
+		<section class="title-bottom-margin">
+			<p class="title">Enter your new password</p>
 		</section>
 
 		<form class="form-horizontal" role="form" method="POST" action="{{ url('/password/reset') }}">
@@ -15,7 +15,7 @@
 				<label for="email">Enter Your Email</label>
                 <span class="error-message">{{array_key_exists("email", $errors->messages()) ? $errors->messages()["email"][0] : ''}}</span>
 				<input type="email" class="text-input {{(array_key_exists("email", $errors->messages()) ? ' error' : '')}}"
-                       name="email" value="{{ old('email') }}" placeholder="Enter your email here">
+                       name="email" value="{{ $email }}" placeholder="Enter your email here">
 			</div>
 
 			<div class="form-group mt-xl">

@@ -50,7 +50,7 @@
 
       <section>
         <h2 class="mt-0 mb-xl">Requesting another email doesn't work?</h2>
-        <p>Contact the installation admin at <a class="text underline-middle-hover" href="mailto:FIXME">FIXME</a></p>
+        <p>Contact the installation admin at <a class="text underline-middle-hover" href="mailto:{{ DB::table('users')->where('id', 1)->value('email') }}">{{ DB::table('users')->where('id', 1)->value('email') }}</a></p>
       </section>
     </div>
   </div>

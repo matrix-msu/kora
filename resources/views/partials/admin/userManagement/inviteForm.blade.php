@@ -6,6 +6,7 @@
 
 <div class="form-group mt-xl">
     <label for="message">Include a Personal Message?</label>
+	<span class="error-message"></span>
     <textarea class="text-area" id="message" name="message" placeholder="Provide further details to be sent to invited users. Including a personal message is optional."></textarea>
 </div>
 
