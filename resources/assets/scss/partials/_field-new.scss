@@ -18,7 +18,18 @@
     width: $max-site-width;
 
     .form-group {
-      padding: 0 45px;
+      padding-left: 45px;
+      padding-right: 45px;
+
+      &.half {
+        padding-left: 45px;
+        padding-right: 15px;
+
+        + .half {
+          padding-left: 15px;
+          padding-right: 45px;
+        }
+      }
     }
 
     .field-meme-link {
