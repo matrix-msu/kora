@@ -956,8 +956,7 @@ Kora.Fields.Options = function(fieldType) {
             initializeDateOptions();
             break;
         case 'Generated List':
-            initializeSelectAddition();
-            initializeGeneratedListOptions();
+            initializeList();
             break;
         case 'List':
             initializeList();
@@ -980,8 +979,10 @@ Kora.Fields.Options = function(fieldType) {
             break;
         case 'Text':
             initializeTextFields();
+            break;
         case 'Rich Text':
             initializeRichTextFields();
+            break;
         default:
             break;
     }
