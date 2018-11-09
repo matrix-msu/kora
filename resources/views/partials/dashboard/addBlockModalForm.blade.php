@@ -1,6 +1,6 @@
 {!! csrf_field() !!}
 
-<div class="form-group mt-xxs">
+<div class="form-group mt-xxs add-block-type-js">
     <label for="block_type">Dashboard Block Type</label>
     <span class="error-message"></span>
     <select class="single-select block-type-selected-js" id="block_type" name="block_type">
@@ -67,7 +67,7 @@
     </div>
 </section>
 
-<div class="form-group mt-xl">
+<div class="form-group mt-xl add-block-section-js">
     <label for="section_to_add">Add to Section</label>
     <span class="error-message"></span>
     <select class="single-select section-to-add-js" id="section_to_add" name="section_to_add" disabled>

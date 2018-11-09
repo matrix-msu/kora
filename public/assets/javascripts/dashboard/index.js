@@ -520,6 +520,7 @@ Kora.Dashboard.Index = function() {
                 setAddBlockVisibility(0,0,0,1);
 
             $('.section-to-add-js').prop('disabled', false).trigger("chosen:updated");
+            $('.add-block-section-js .chosen-default span').text('Select a section to add to');
         });
 
         $('.section-to-add-js').change(function(e) {
@@ -598,6 +599,11 @@ Kora.Dashboard.Index = function() {
         });
     }
 
+    function initEditPlaceholders () {
+        $('.add-block-type-js .chosen-default span').text('Select a block type');
+        $('.add-block-section-js .chosen-default span').text('Select a section to add to');
+    }
+
     initializeSelects();
 	editQuickActionsSort();
     initializeDashboardModals();
@@ -606,4 +612,5 @@ Kora.Dashboard.Index = function() {
     initializeEditSections();
     initializeAddBlockFunctions();
     initializeValidation();
+    initEditPlaceholders();
 }
