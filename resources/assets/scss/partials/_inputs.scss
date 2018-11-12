@@ -1,6 +1,7 @@
 .form-group {
   color: palette('gray', text);
   font-family: $ubuntu;
+  position: relative;
   text-align: left;
 
   label {
@@ -109,6 +110,7 @@
   @import 'inputs/buttons';
   @import 'inputs/check-boxes';
   @import 'inputs/file';
+  @import 'inputs/number';
   @import 'inputs/selects';
   @import 'inputs/text';
 

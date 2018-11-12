@@ -1,0 +1,50 @@
+.number-input-container {
+  position: relative;
+
+  input[type=number] {
+    -moz-appearance: textfield;
+
+    &::-webkit-inner-spin-button,
+    &::-webkit-outer-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+
+    + .num-arrows {
+      bottom: 0;
+      position: absolute;
+      right: 10px;
+      width: 20px;
+
+      .arrow {
+        cursor: pointer;
+        display: flex;
+        height: 24px;
+
+        .icon-chevron {
+          color: palette('gray', slate, .5);
+          font-size: 6px;
+          margin: auto;
+          transform-origin: center;
+          @include transition();
+        }
+
+        &:hover {
+          .icon-chevron {
+            color: palette('gray', slate);
+            transform: scale(1.25);
+          }
+        }
+      }
+
+      .arrow-up {
+        transform: rotate(180deg);
+      }
+
+      .spacer {
+        background: palette('gray', slate, .05);
+        height: 2px;
+      }
+    }
+  }
+}
