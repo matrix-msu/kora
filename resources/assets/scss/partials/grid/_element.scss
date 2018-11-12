@@ -11,7 +11,7 @@
   text-align: left;
   transition: all .2s linear;
   width: calc(25% - 10px);
-  
+
   .edit-block {
 	  @include transition(opacity);
 
@@ -27,7 +27,7 @@
 	  position: absolute;
 	  top: 0;
 	  width: 100%;
-	  
+
 	  .wrap {
 		  height: 100%;
 		  position: relative;
@@ -167,6 +167,44 @@
 
   .element-link-container {
     padding: 0 20px;
+
+	.element-link-right-tooltips {
+		background: palette('gray', dropdown);
+		border-radius: 5px;
+		bottom: 30px;
+		font-size: 12px;
+		line-height: 13px;
+		opacity: 0;
+		padding: 5px 10px;
+		position: absolute;
+		right: -30px;
+		z-index: -1;
+
+		ul {
+			list-style: none;
+			margin: 0;
+			padding: 0;
+		}
+
+		a {
+			@include transition(color);
+
+			color: palette('white');
+			display: inline-block;
+			margin: 5px 0;
+			text-decoration: none;
+			width: 110px;
+
+			&:hover {
+				color: palette('green', accent);
+			}
+		}
+
+		&:hover {
+			opacity: 1;
+			z-index: 2;
+		}
+	}
   }
 
   .element-link {
@@ -181,6 +219,11 @@
 
     &.right {
       padding: 0;
+
+	  &:hover + .element-link-right-tooltips {
+		animation: fadein .2s forwards;
+		z-index: 2;
+	  }
     }
 
     .icon {

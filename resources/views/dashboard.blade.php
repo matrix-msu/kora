@@ -102,14 +102,16 @@
 										<i class="icon {{ $link['icon-class']}}"></i>
 									</a>
 								@endforeach
-								<a href="#" class="element-link tooltip right options-modal-js" tooltip="
-									<a href='#'>Import Multi-Form Records Setup</a>
-									&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-									Kora 2 Scheme Importer
-									&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-									Export Project">
+								<a href="#" class="element-link right options-modal-js">
 									<i class="icon icon-more"></i>
 								</a>
+								<div class="element-link-right-tooltips">
+									<ul>
+										<li><a href="{{ url('/').'/projects/'.$block['pid'].'/importMF' }}">Import Multi-Form Records Setup</a></li>
+										<li><a href="{{ url('/').'/projects/'.$block['pid'].'/forms/importk2' }}">Kora 2 Scheme Importer</a></li>
+										<li><a href="{{ action('ExportController@exportProject',['pid' => $block['pid']]) }}">Export Project</a></li>
+									</ul>
+								</div>
 							</div>
 							<div class="edit-block">
 								<div class="wrap">
@@ -149,12 +151,16 @@
 										<i class="icon {{ $link['icon-class']}}"></i>
 									</a>
 								@endforeach
-								<a href="#" class="element-link tooltip right options-modal-js" tooltip="
-									Import Multi-Form Records Setup &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-									Kora 2 Scheme Importer &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-									Export Project">
+								<a href="#" class="element-link right options-modal-js">
 									<i class="icon icon-more"></i>
 								</a>
+								<div class="element-link-right-tooltips">
+									<ul>
+										<li><a href="{{ url('/').'/projects/'.$block['pid'].'/importMF' }}">Import Multi-Form Records Setup</a></li>
+										<li><a href="{{ url('/').'/projects/'.$block['pid'].'/forms/importk2' }}">Kora 2 Scheme Importer</a></li>
+										<li><a href="{{ action('ExportController@exportProject',['pid' => $block['pid']]) }}">Export Project</a></li>
+									</ul>
+								</div>
 							</div>
 							<div class="edit-block">
 								<div class="wrap">
