@@ -105,13 +105,11 @@
 								<a href="#" class="element-link right options-modal-js">
 									<i class="icon icon-more"></i>
 								</a>
-								<div class="element-link-right-tooltips">
-									<ul>
-										@foreach($block['hiddenOpts'] as $link)
-											<li><a quickaction="{{ $link['type'] }}" href="{{ $link['href'] }}">{{ $link['text'] }}</a></li>
-										@endforeach
-									</ul>
-								</div>
+								<div class="element-link-right-tooltips"><ul>
+									@foreach($block['hiddenOpts'] as $opt)
+										<li><a quickaction="{{ $opt['type'] }}" href="{{ $opt['href'] }}">{{ $opt['text'] }}</a></li>
+									@endforeach
+								</ul></div>
 							</div>
 							<div class="edit-block">
 								<div class="wrap">
@@ -156,8 +154,8 @@
 								</a>
 								<div class="element-link-right-tooltips">
 									<ul>
-										@foreach($block['hiddenOpts'] as $link)
-											<li><a quickaction="{{ $link['type'] }}" href="{{ $link['href'] }}">{{ $link['text'] }}</a></li>
+										@foreach($block['hiddenOpts'] as $opt)
+											<li><a quickaction="{{ $opt['type'] }}" href="{{ $opt['href'] }}">{{ $opt['text'] }}</a></li>
 										@endforeach
 									</ul>
 								</div>

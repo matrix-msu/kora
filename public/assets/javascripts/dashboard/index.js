@@ -12,10 +12,16 @@ Kora.Dashboard.Index = function() {
 
 	function setQuickActionOrder () {
 		let options = []
-		$.each($('.card-container .card'), function (i) {
+		$.each($('#card-container-top .card'), function (i) {
 			options.push($(this).attr('type'))
 		});
 		$('input[name="options"]').val(options);
+
+		let hiddenOpts = []
+		$.each($('#card-container-bottom .card'), function (i) {
+			hiddenOpts.push($(this).attr('type'))
+		});
+		$('input[name="hiddenOpts"]').val(hiddenOpts);
 	}
 
     function editQuickActionsSort () {
@@ -31,7 +37,7 @@ Kora.Dashboard.Index = function() {
 
 	function moveUp (event) {
 		let $card = event.target.parentElement.parentElement.parentElement.parentElement
-		$card = $('#' + $card.id + '.card');
+		$card = $('#' + $card.parentElement.id + ' #' + $card.id + '.card');
 
 		let $previousCard = $card.prev();
 		if ($previousCard.length == 0)
@@ -61,7 +67,7 @@ Kora.Dashboard.Index = function() {
 
 	function moveDown (event) {
 		let $card = event.target.parentElement.parentElement.parentElement.parentElement
-		$card = $('#' + $card.id + '.card');
+		$card = $('#' + $card.parentElement.id + ' #' + $card.id + '.card');
 
 		let $nextCard = $card.next();
 		if ($nextCard.length == 0)
@@ -176,12 +182,10 @@ Kora.Dashboard.Index = function() {
 			let lowerCards = document.getElementById('card-container-bottom')
 			let rightOpts = $(this).parent().parent().parent().siblings('.element-link-container').find('.element-link-right-tooltips ul li').children();
 			$.each(rightOpts, function (i) {
-				console.log($(this).attr('quickaction'))
-
 				let clone = document.importNode(template.content, true)
 
 				clone.querySelector('.card').id = i
-				clone.querySelector('.card').setAttribute('type', $linkOpts[i].getAttribute('quickaction'))
+				clone.querySelector('.card').setAttribute('type', rightOpts[i].getAttribute('quickaction'))
 				clone.querySelector('.quick-action-title-js').textContent = rightOpts[i].textContent
 				clone.querySelector('.up-js').addEventListener('click', moveUp)
 				clone.querySelector('.down-js').addEventListener('click', moveDown)

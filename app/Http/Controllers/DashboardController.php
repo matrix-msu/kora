@@ -393,10 +393,15 @@ class DashboardController extends Controller {
     */
     public function editBlockQuickActions (Request $request) {
 
-		$block = DB::table('dashboard_blocks')->where('id','=',$request->selected_id)->first()->options;
-		$options = json_decode($block, true);
 		$newOpts = explode(',', $request->options);
+		$newHiddenOpts = explode(',', $request->hiddenOpts);
+
+		$oldOpts = DB::table('dashboard_blocks')->where('id','=',$request->selected_id)->first()->options;
+		$options = json_decode($oldOpts, true);
+
 		$options['displayed'] = $newOpts;
+		$options['hidden'] = $newHiddenOpts;
+
 		$options = json_encode($options);
 
 		DB::table('dashboard_blocks')->where('id','=',$request->selected_id)->update([

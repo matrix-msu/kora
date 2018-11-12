@@ -2,6 +2,7 @@
 <input type="hidden" name="_method" value="PATCH">
 <input type="hidden" name="selected_id" value="">
 <input type="hidden" name="options" value="">
+<input type="hidden" name="hiddenOpts" value="">
 
 <div class="card-container" id="card-container-top"></div>
 <div class="line-container"><span class="line"></span></div>
