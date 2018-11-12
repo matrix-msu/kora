@@ -185,6 +185,12 @@ class DashboardController extends Controller {
             $userRecords = array_merge($userRecords, $projRecs);
         }
 
+		// Sort proj and forms alphabetically by name
+		usort($userProjects, function($a, $b){ return strcmp(strtolower($a["name"]), strtolower($b["name"])); });
+		usort($userForms, function ($a, $b) { return strcmp(strtolower($a['name']), strtolower($b['name'])); });
+		// Sort records numerically
+		asort($userRecords);
+
         //Check if were using a special menu link
         $state = isset($request->state) ? $request->state: 0;
 
