@@ -707,7 +707,16 @@ Kora.Fields.Options = function(fieldType) {
             }
         });
 
-	//ASSOCIATOR OPTIONS
+        $('.combo-value-div-js').on('click', '.delete-default-js', function(e){
+            e.preventDefault();
+
+            if ($('.combo-value-div-js .card').length == 1) {
+                $('.combo-value-div-js').addClass('hidden');
+                $('.combolist-add-new-list-value-modal-js').removeClass('mt-xxl');
+            }
+        });
+
+	    //ASSOCIATOR OPTIONS
         //Sets up association configurations
         $('.association-check-js').click(function() {
             var assocDiv = $(this).closest('.form-group').next();
@@ -771,174 +780,214 @@ Kora.Fields.Options = function(fieldType) {
         });
 
         //LIST OPTIONS
-        listOpt = $('.mslist-options-js');
-        listOpt.find('option').prop('selected', true);
-        listOpt.trigger("chosen:updated");
+        function setCardTitleWidth() {
+            var $cards = $('.list-option-card-js');
 
-        listOpt = $('.genlist-options-js');
-        listOpt.find('option').prop('selected', true);
-        listOpt.trigger("chosen:updated");
-		
-        // (new) LIST OPTIONS
-        $(".list-options-js").sortable({
-            helper: 'clone',
-            revert: true,
-            containment: ".field-show"
-        });
-        
-		$('.list-options-js').on('click', '.move-action-js', function(e) {
-		  e.preventDefault();
+            $cards.each(function() {
+                var $card = $(this);
+                var $value = $card.find('.title');
 
-		  var $this = $(this);
-		  var $headerInnerWrapper = $this.parent().parent(); // div.left
-		  var $header = $headerInnerWrapper.parent();		 // div.header
-		  var $form = $header.parent();						 // div.card
+                var maxValueWidth = $card.outerWidth() * .75;
+                $value.css('max-width', maxValueWidth);
+            })
+        }
 
-		  if ($this.hasClass('up-js')) {
-			var $previousForm = $form.prev();
-			if ($previousForm.length == 0) {
-			  return;
-			}
+        // Function to add list options and the respective cards
+        function initializeListAddOption(fnum) {
+            var $addButton = $('.list-option-add-'+fnum+'-js');
+            var $newListOptionInput = $('.new-list-option-'+fnum+'-js');
+            var $cardContainer = $('.list-option-card-container-'+fnum+'-js');
 
-			$previousForm.css('z-index', 999)
-			  .css('position', 'relative')
-			  .animate({
-				top: $form.height()
-			  }, 300);
-			$form.css('z-index', 1000)
-			  .css('position', 'relative')
-			  .animate({
-				top: '-' + $previousForm.height()
-			  }, 300, function() {
-				$previousForm.css('z-index', '')
-				  .css('top', '')
-				  .css('position', '');
-				$form.css('z-index', '')
-				  .css('top', '')
-				  .css('position', '')
-				  .insertBefore($previousForm);
+            $newListOptionInput.keypress(function(e) {
+                var keycode =  (e.keyCode ? e.keyCode : e.which);
+                if (keycode == '13') {
+                    e.preventDefault();
 
-			  });
-		  } else {
-			var $nextForm = $form.next();
-			if ($nextForm.length == 0) {
-			  return;
-			}
-
-			$nextForm.css('z-index', 999)
-			  .css('position', 'relative')
-			  .animate({
-				top: '-' + $form.height()
-			  }, 300);
-			$form.css('z-index', 1000)
-			  .css('position', 'relative')
-			  .animate({
-				top: $nextForm.height()
-			  }, 300, function() {
-				$nextForm.css('z-index', '')
-				  .css('top', '')
-				  .css('position', '');
-				$form.css('z-index', '')
-				  .css('top', '')
-				  .css('position', '')
-				  .insertAfter($nextForm);
-
-			  });
-		  }
-        });
-        
-        $('.list-options-js').on('click', '.delete-option-js', function(){
-            let $this = $(this).parent().parent().parent();
-            let $thisOpt = $('.list-select-js option').get($this.index()-1);
-            $thisOpt.remove();
-            $this.remove();
-        });
-
-        $('.combo-value-div-js').on('click', '.delete-default-js', function(e){
-            e.preventDefault();
-
-            if ($('.combo-value-div-js .card').length == 1) {
-                $('.combo-value-div-js').addClass('hidden');
-                $('.combolist-add-new-list-value-modal-js').removeClass('mt-xxl');
-            }
-        });
-
-	$('.list-options-container-js .submit').on('click', function () {
-        	let input = $('.add-list-option-js').val();
-		if (input != '') {
-                	// add the card
-			let card = '<div class="card ui-sortable-handle"><div class="header"><div class="left"><div class="move-actions"><a class="action move-action-js up-js"><i class="icon icon-arrow-up"></i></a><a class="action move-action-js down-js"><i class="icon icon-arrow-down"></i></a></div><span class="title">';
-                	card += "" + input + "";
-			card += '</span></div><div class="card-toggle-wrap"><a class="quick-action delete-option delete-option-js tooltip" tooltip="Delete Option"><i class="icon icon-trash"></i></a></div></div></div>';
-                    	$('.list-options-js').html($('.list-options-js').html()+card);
-                    	// add the select option
-                    	let option = '<option selected value="'+input+'">'+input+'</option>';
-                    	$('.list-select-js').html($('.list-select-js').html()+option);
-                    	// clear the input
-                    	$('.add-list-option-js').val('');
-		}
-	});
-
-	$(".list-options-container-js").on('keypress', function(event) {
-        	var keyCode = event.keyCode || event.which;
-                if (keyCode === 13) {
-                	event.preventDefault();
-                	$(".list-options-container-js .submit").click();
+                    // Enter key pressed, trigger 'add' button click
+                    $addButton.click();
                 }
-	});
+            });
+
+            // Add new list option card after 'add' button pressed
+            $addButton.click(function(e) {
+                e.preventDefault();
+
+                var newListOption = $newListOptionInput.val();
+
+                if(newListOption!='') {
+                    // Prevent duplicate entries
+
+                    // Create and display new card
+                    var newCardHtml = '<div class="card list-option-card list-option-card-js" data-list-value="' + newListOption + '">' +
+                        '<input type="hidden" class="list-option-js" name="options_'+fnum+'[]" value="' + newListOption + '">' +
+                        '<div class="header">' +
+                        '<div class="left">' +
+                        '<div class="move-actions">' +
+                        '<a class="action move-action-js up-js" href="">' +
+                        '<i class="icon icon-arrow-up"></i>' +
+                        '</a>' +
+                        '<a class="action move-action-js down-js" href="">' +
+                        '<i class="icon icon-arrow-down"></i>' +
+                        '</a>' +
+                        '</div>' +
+                        '<span class="title">' + newListOption + '</span>' +
+                        '</div>' +
+                        '<div class="card-toggle-wrap">' +
+                        '<a class="list-option-delete list-option-delete-js" href=""><i class="icon icon-trash"></i></a>' +
+                        '</div>' +
+                        '</div>' +
+                        '</div>';
+
+                    $cardContainer.append(newCardHtml);
+
+                    // Initialize functionality for all the cards again
+                    $('.move-action-js').unbind();
+                    setCardTitleWidth();
+                    initializeListSort();
+                    initializeListOptionDelete();
+                    Kora.Fields.TypedFieldInputs.Initialize();
+
+                    // Clear input after everything is finished
+                    $newListOptionInput.val("");
+                }
+            });
+        }
+
+        function initializeListSort() {
+            $('.move-action-js').click(function(e) {
+                e.preventDefault();
+
+                var $this = $(this);
+                var $headerInnerWrapper = $this.parent().parent();
+                var $header = $headerInnerWrapper.parent();
+                var $card = $header.parent();
+                // $form.prev().before(current);
+                if ($this.hasClass('up-js')) {
+                    var $previousForm = $card.prev();
+                    if ($previousForm.length == 0) {
+                        return;
+                    }
+
+                    $previousForm.css('z-index', 999)
+                        .css('position', 'relative')
+                        .animate({
+                            top: $card.height()
+                        }, 300);
+                    $card.css('z-index', 1000)
+                        .css('position', 'relative')
+                        .animate({
+                            top: '-' + $previousForm.height()
+                        }, 300, function() {
+                            $previousForm.css('z-index', '')
+                                .css('top', '')
+                                .css('position', '');
+                            $card.css('z-index', '')
+                                .css('top', '')
+                                .css('position', '')
+                                .insertBefore($previousForm);
+                        });
+                } else {
+                    var $nextForm = $card.next();
+                    if ($nextForm.length == 0) {
+                        return;
+                    }
+
+                    $nextForm.css('z-index', 999)
+                        .css('position', 'relative')
+                        .animate({
+                            top: '-' + $card.height()
+                        }, 300);
+                    $card.css('z-index', 1000)
+                        .css('position', 'relative')
+                        .animate({
+                            top: $nextForm.height()
+                        }, 300, function() {
+                            $nextForm.css('z-index', '')
+                                .css('top', '')
+                                .css('position', '');
+                            $card.css('z-index', '')
+                                .css('top', '')
+                                .css('position', '')
+                                .insertAfter($nextForm);
+                        });
+                }
+            });
+        }
+
+        function initializeListOptionDelete() {
+            var $listOptionCards = $('.list-option-card-js');
+
+            $listOptionCards.each(function() {
+                var $card = $(this);
+                var $deleteButton = $card.find('.list-option-delete-js');
+
+                $deleteButton.click(function(e) {
+                    e.preventDefault();
+
+                    $card.remove();
+                });
+            });
+        }
+
+        setCardTitleWidth();
+        initializeListAddOption('one');
+        initializeListAddOption('two');
+        initializeListSort();
+        initializeListOptionDelete();
+        Kora.Fields.TypedFieldInputs.Initialize();
     }
 
     function initializeTextFields() {
-      var $multiLineCheck = $('.check-box-input[name="multi"]');
-      var $singleLine = $('.advance-options-section-js .single-line-js');
-      var $multiLine = $('.advance-options-section-js .multi-line-js');
-      var $singleLineShow = $('.edit-form .single-line-js');
-      var $multiLineShow = $('.edit-form .multi-line-js');
+        var $multiLineCheck = $('.check-box-input[name="multi"]');
+        var $singleLine = $('.advance-options-section-js .single-line-js');
+        var $multiLine = $('.advance-options-section-js .multi-line-js');
+        var $singleLineShow = $('.edit-form .single-line-js');
+        var $multiLineShow = $('.edit-form .multi-line-js');
 
-      if ($multiLineCheck.is(':checked')) {
-        $singleLine.addClass('hidden');
-        $multiLine.removeClass('hidden');
-        $singleLineShow.addClass('hidden');
-        $multiLineShow.removeClass('hidden');
-        var input = $singleLineShow.children('input').val();
-        $multiLineShow.children('textarea').val(''+input+'');
-      } else {
-        $singleLineShow.removeClass('hidden');
-        $multiLineShow.addClass('hidden');
-        $singleLine.removeClass('hidden');
-        $multiLine.addClass('hidden');
-      }
-
-      if ($('.error-message.single-line').text().length > 0) {
-        var erMsg = $('.error-message.single-line').text();
-        $('.error-message.multi-line').text(''+erMsg+'');
-        $multiLine.children('textarea').addClass('error');
-      }
-
-      $multiLineCheck.click(function () {
-        if ($multiLineCheck.is(':checked')) {
-          $singleLine.addClass('hidden');
-          $multiLine.removeClass('hidden');
-          $singleLineShow.addClass('hidden');
-          $multiLineShow.removeClass('hidden');
+        if($multiLineCheck.is(':checked')) {
+            $singleLine.addClass('hidden');
+            $multiLine.removeClass('hidden');
+            $singleLineShow.addClass('hidden');
+            $multiLineShow.removeClass('hidden');
+            var input = $singleLineShow.children('input').val();
+            $multiLineShow.children('textarea').val(''+input+'');
         } else {
-          $singleLine.removeClass('hidden');
-          $multiLine.addClass('hidden');
-          $singleLineShow.removeClass('hidden');
-          $multiLineShow.addClass('hidden');
+            $singleLineShow.removeClass('hidden');
+            $multiLineShow.addClass('hidden');
+            $singleLine.removeClass('hidden');
+            $multiLine.addClass('hidden');
         }
-      });
 
-      $multiLine.children('textarea').blur(function () {
-        var input = $multiLine.children('textarea').val();
-        $singleLine.children('input').val(''+input+'');
-      });
+        if($('.error-message.single-line').text().length > 0) {
+            var erMsg = $('.error-message.single-line').text();
+            $('.error-message.multi-line').text(''+erMsg+'');
+            $multiLine.children('textarea').addClass('error');
+        }
 
-      $('.error-message.single-line').bind('DOMSubtreeModified', function () {
-        erMsg = $('.error-message.single-line').text();
-        $('.error-message.multi-line').text(''+erMsg+'');
-        $multiLine.children('textarea').addClass('error');
-      });
+        $multiLineCheck.click(function () {
+            if($multiLineCheck.is(':checked')) {
+                $singleLine.addClass('hidden');
+                $multiLine.removeClass('hidden');
+                $singleLineShow.addClass('hidden');
+                $multiLineShow.removeClass('hidden');
+            } else {
+                $singleLine.removeClass('hidden');
+                $multiLine.addClass('hidden');
+                $singleLineShow.removeClass('hidden');
+                $multiLineShow.addClass('hidden');
+            }
+        });
+
+        $multiLine.children('textarea').blur(function () {
+            var input = $multiLine.children('textarea').val();
+            $singleLine.children('input').val(''+input+'');
+        });
+
+        $('.error-message.single-line').bind('DOMSubtreeModified', function () {
+            erMsg = $('.error-message.single-line').text();
+            $('.error-message.multi-line').text(''+erMsg+'');
+            $multiLine.children('textarea').addClass('error');
+        });
     }
 
     function initializeRichTextFields() {
@@ -974,7 +1023,6 @@ Kora.Fields.Options = function(fieldType) {
             intializeAssociatorOptions();
             break;
         case 'Combo List':
-            initializeSelectAddition();
             initializeComboListOptions();
             break;
         case 'Text':
