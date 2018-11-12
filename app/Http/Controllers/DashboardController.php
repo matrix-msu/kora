@@ -103,7 +103,10 @@ class DashboardController extends Controller {
                         foreach ($disOpts as $opt) {
                           array_push($b['displayedOpts'], getDashboardBlockLink($blk, $opt));
                         }
-                        $b['hiddenOpts'] = $hidOpts;
+                        $b['hiddenOpts'] = [];
+						foreach ($hidOpts as $opt) {
+                          array_push($b['hiddenOpts'], getDashboardBlockLink($blk, $opt));
+                        }
                         break;
                     case 'Form':
                         $fid = $options['fid'];
@@ -126,7 +129,10 @@ class DashboardController extends Controller {
                         foreach ($disOpts as $opt) {
                           array_push($b['displayedOpts'], getDashboardBlockLink($blk, $opt));
                         }
-                        $b['hiddenOpts'] = $hidOpts;
+                        $b['hiddenOpts'] = [];
+						foreach ($hidOpts as $opt) {
+                          array_push($b['hiddenOpts'], getDashboardBlockLink($blk, $opt));
+                        }
                         break;
                     case 'Record':
                         $rid = $options['rid'];
@@ -264,13 +270,13 @@ class DashboardController extends Controller {
                 $pid = $request->block_project;
                 $optString = '{"pid": ' . $pid .
                     ', "displayed": ["edit", "search", "form-new", "form-import", "permissions", "presets"]' .
-                    ', "hidden": []}';
+                    ', "hidden": ["import", "import2k", "export"]}';
                 break;
             case 'Form':
                 $fid = $request->block_form;
                 $optString = '{"fid": ' . $fid .
                     ', "displayed": ["edit", "search", "record-new", "field-new", "permissions", "revisions"]' .
-                    ', "hidden": []}';
+                    ', "hidden": ["import", "import2k", "export"]}';
                 break;
             case 'Record':
                 $kid = $request->block_record;

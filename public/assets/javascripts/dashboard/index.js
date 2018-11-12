@@ -23,7 +23,6 @@ Kora.Dashboard.Index = function() {
             helper: 'clone',
             revert: true,
             containment: ".edit-quick-actions-modal-js",
-			//update: setQuickActionOrder()
 			update: function () {
 				setQuickActionOrder()
 			}
@@ -158,11 +157,10 @@ Kora.Dashboard.Index = function() {
 
 			$('input[name="selected_id"]').val($(this).siblings('a.remove-block-js').attr('blkid'));
 			$('#card-container .card').remove();
-
-			let cards = document.getElementById('card-container')
 			let template = document.getElementById('quick-action-template-js')
 
-            let $linkOpts = $(this).parent().parent().parent().siblings('.element-link-container').children(':not(.right)');
+			let cards = document.getElementById('card-container-top')
+            let $linkOpts = $(this).parent().parent().parent().siblings('.element-link-container').children('.element-link:not(.right)');
             $.each($linkOpts, function (i) {
 				let clone = document.importNode(template.content, true)
 
@@ -174,6 +172,22 @@ Kora.Dashboard.Index = function() {
 
 				cards.appendChild(clone)
             });
+
+			let lowerCards = document.getElementById('card-container-bottom')
+			let rightOpts = $(this).parent().parent().parent().siblings('.element-link-container').find('.element-link-right-tooltips ul li').children();
+			$.each(rightOpts, function (i) {
+				console.log($(this).attr('quickaction'))
+
+				let clone = document.importNode(template.content, true)
+
+				clone.querySelector('.card').id = i
+				clone.querySelector('.card').setAttribute('type', $linkOpts[i].getAttribute('quickaction'))
+				clone.querySelector('.quick-action-title-js').textContent = rightOpts[i].textContent
+				clone.querySelector('.up-js').addEventListener('click', moveUp)
+				clone.querySelector('.down-js').addEventListener('click', moveDown)
+
+				lowerCards.appendChild(clone)
+			});
 
             Kora.Modal.open($('.edit-quick-actions-modal-js'));
         });

@@ -3,36 +3,9 @@
 <input type="hidden" name="selected_id" value="">
 <input type="hidden" name="options" value="">
 
-<div class="card-container" id="card-container"></div>
-
+<div class="card-container" id="card-container-top"></div>
 <div class="line-container"><span class="line"></span></div>
-<div class="card">
-    <div class="left">
-        <div class="move-actions">
-            <a><i class="icon icon-arrow-up"></i></a>
-            <a><i class="icon icon-arrow-down"></i></a>
-        </div>
-        <a class="quick-action-title quick-action-title-js" href="#">Quick Option</a>
-    </div>
-</div>
-<div class="card">
-    <div class="left">
-        <div class="move-actions">
-            <a><i class="icon icon-arrow-up"></i></a>
-            <a><i class="icon icon-arrow-down"></i></a>
-        </div>
-        <a class="quick-action-title quick-action-title-js" href="#">Other Quick Option</a>
-    </div>
-</div>
-<div class="card">
-    <div class="left">
-        <div class="move-actions">
-            <a><i class="icon icon-arrow-up"></i></a>
-            <a><i class="icon icon-arrow-down"></i></a>
-        </div>
-        <a class="quick-action-title quick-action-title-js" href="#">Quick Option</a>
-    </div>
-</div>
+<div class="card-container" id="card-container-bottom"></div>
 
 <template id="quick-action-template-js">
     <div class="card">

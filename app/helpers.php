@@ -106,6 +106,27 @@ function getDashboardProjectBlockLink($block, $link_type) {
 			'type' => 'presets'
           ];
           break;
+	  case 'import':
+	    return [
+		  'text' => 'Import Multi-Form Records Setup',
+		  'href' => url('/').'/projects/'.$options['pid'].'/importMF',
+		  'type' => 'import'
+		];
+		break;
+	  case 'import2k':
+	    return [
+		  'text' => 'Kora 2 Scheme Importer',
+		  'href' => url('/').'/projects/'.$options['pid'].'/forms/importk2',
+		  'type' => 'import2k'
+		];
+		break;
+	  case 'export':
+	    return [
+		  'text' => 'Export Project',
+		  'href' => action('ExportController@exportProject',['pid' => $options['pid']]),
+		  'type' => 'export'
+		];
+		break;
       default:
         return [];
   }
@@ -164,6 +185,27 @@ function getDashboardFormBlockLink($block, $link_type) {
 			'type' => 'revisions'
           ];
           break;
+	  case 'import':
+	    return [
+		  'text' => 'Import Multi-Form Records Setup',
+		  'href' => url('/').'/projects/'.$form->pid.'/importMF',
+		  'type' => 'import'
+		];
+		break;
+	  case 'import2k':
+	    return [
+		  'text' => 'Kora 2 Scheme Importer',
+		  'href' => url('/').'/projects/'.$form->pid.'/forms/importk2',
+		  'type' => 'import2k'
+		];
+		break;
+	  case 'export':
+	    return [
+		  'text' => 'Export Project',
+		  'href' => action('ExportController@exportProject',['pid' => $form->pid]),
+		  'type' => 'export'
+		];
+		break;
       default:
         return [];
   }

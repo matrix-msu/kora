@@ -107,9 +107,9 @@
 								</a>
 								<div class="element-link-right-tooltips">
 									<ul>
-										<li><a href="{{ url('/').'/projects/'.$block['pid'].'/importMF' }}">Import Multi-Form Records Setup</a></li>
-										<li><a href="{{ url('/').'/projects/'.$block['pid'].'/forms/importk2' }}">Kora 2 Scheme Importer</a></li>
-										<li><a href="{{ action('ExportController@exportProject',['pid' => $block['pid']]) }}">Export Project</a></li>
+										@foreach($block['hiddenOpts'] as $link)
+											<li><a quickaction="{{ $link['type'] }}" href="{{ $link['href'] }}">{{ $link['text'] }}</a></li>
+										@endforeach
 									</ul>
 								</div>
 							</div>
@@ -156,9 +156,9 @@
 								</a>
 								<div class="element-link-right-tooltips">
 									<ul>
-										<li><a href="{{ url('/').'/projects/'.$block['pid'].'/importMF' }}">Import Multi-Form Records Setup</a></li>
-										<li><a href="{{ url('/').'/projects/'.$block['pid'].'/forms/importk2' }}">Kora 2 Scheme Importer</a></li>
-										<li><a href="{{ action('ExportController@exportProject',['pid' => $block['pid']]) }}">Export Project</a></li>
+										@foreach($block['hiddenOpts'] as $link)
+											<li><a quickaction="{{ $link['type'] }}" href="{{ $link['href'] }}">{{ $link['text'] }}</a></li>
+										@endforeach
 									</ul>
 								</div>
 							</div>
