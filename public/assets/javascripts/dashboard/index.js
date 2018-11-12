@@ -130,7 +130,14 @@ Kora.Dashboard.Index = function() {
             } else if (blkType == 'Record') {
                 selectedSelector = $('.edit-block-record-js');
                 selected = $(this).attr('blockrecord');
-            }
+            } else if (blkType == 'Note') {
+				let note = $(this).parent().parent().parent().parent();
+				let noteTitle = note.find('.note-title-js').attr('placeholder');
+				let noteDesc = note.find('.note-desc-js').attr('placeholder');
+				console.log(noteTitle, noteDesc);
+				$('.edit-note-title-js').val(noteTitle);
+				$('.edit-note-desc-js').val(noteDesc);
+			}
 
             $('.edit-block-type-selected-js').val(blkType);
             $('.edit-block-type-selected-js').trigger('chosen:updated');
@@ -422,12 +429,12 @@ Kora.Dashboard.Index = function() {
             let noteTitle = noteBlock.find('.note-title-js');
             let noteDesc = noteBlock.find('.note-desc-js');
 
-            if (noteTitle.val() != '' && noteTitle.attr('placeholder') != noteTitle.val())
+            if (noteTitle.attr('placeholder') != noteTitle.val())
                 noteTitle = noteTitle.val();
             else
                 noteTitle = noteTitle.attr('placeholder');
 
-            if (noteDesc.val() != '' && noteDesc.attr('placeholder') != noteDesc.val())
+            if (noteDesc.attr('placeholder') != noteDesc.val())
                 noteDesc = noteDesc.val();
             else
                 noteDesc = noteDesc.attr('placeholder');

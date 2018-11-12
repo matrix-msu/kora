@@ -12,7 +12,7 @@
             <a><i class="icon icon-arrow-up"></i></a>
             <a><i class="icon icon-arrow-down"></i></a>
         </div>
-        <a class="underline-middle-hover pb-xxs" href="#">Quick Option</a>
+        <a class="quick-action-title quick-action-title-js" href="#">Quick Option</a>
     </div>
 </div>
 <div class="card">
@@ -21,7 +21,7 @@
             <a><i class="icon icon-arrow-up"></i></a>
             <a><i class="icon icon-arrow-down"></i></a>
         </div>
-        <a class="underline-middle-hover pb-xxs" href="#">Other Quick Option</a>
+        <a class="quick-action-title quick-action-title-js" href="#">Other Quick Option</a>
     </div>
 </div>
 <div class="card">
@@ -30,7 +30,7 @@
             <a><i class="icon icon-arrow-up"></i></a>
             <a><i class="icon icon-arrow-down"></i></a>
         </div>
-        <a class="underline-middle-hover pb-xxs" href="#">Quick Option</a>
+        <a class="quick-action-title quick-action-title-js" href="#">Quick Option</a>
     </div>
 </div>
 
@@ -41,7 +41,7 @@
                 <a class="move-card-js up-js"><i class="icon icon-arrow-up"></i></a>
                 <a class="move-card-js down-js"><i class="icon icon-arrow-down"></i></a>
             </div>
-            <a class="underline-middle-hover pb-xxs quick-action-title-js" href="#">Quick Option</a>
+            <a class="quick-action-title quick-action-title-js" href="#">Quick Option</a>
         </div>
     </div>
 </template>
