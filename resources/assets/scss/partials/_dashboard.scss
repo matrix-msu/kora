@@ -104,7 +104,7 @@
         color: palette('gray', slate, 0.7);
         display: inline-block;
         font-size: 10px;
-        padding: 2px 13px 0;
+        padding: 0 13px;
         text-decoration: none;
 
         i {
@@ -117,15 +117,9 @@
           padding: 0 13px 0 26px;
         }
 
-        &:last-child {
-          font-size: 15px;
-          padding: 0 13px 0 0;
-          transform: rotate(180deg);
-        }
-
-        &.up {
-          transform: rotate(180deg);
-        }
+		&:last-child {
+			font-size: 14px;
+		}
 
         &:hover i {
           transform: scale(1.25);

@@ -20,15 +20,8 @@
 		width: 130px;
 	}
 
-	.section-quick-actions &:hover::after {
+	.section-quick-actions &:last-child:hover::after {
 		left: -30px;
-		top: -37px;
-	}
-
-	.section-quick-actions &.up:hover::after {
-		left: -40px;
-		top: 25px;
-		transform: rotate(180deg);
 	}
 
   &:hover::after {

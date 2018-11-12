@@ -132,11 +132,8 @@ Kora.Dashboard.Index = function() {
                 selected = $(this).attr('blockrecord');
             } else if (blkType == 'Note') {
 				let note = $(this).parent().parent().parent().parent();
-				let noteTitle = note.find('.note-title-js').attr('placeholder');
-				let noteDesc = note.find('.note-desc-js').attr('placeholder');
-				console.log(noteTitle, noteDesc);
-				$('.edit-note-title-js').val(noteTitle);
-				$('.edit-note-desc-js').val(noteDesc);
+				$('.edit-note-title-js').val(note.find('.note-title-js').attr('placeholder'));
+				$('.edit-note-desc-js').val(note.find('.note-desc-js').attr('placeholder'));
 			}
 
             $('.edit-block-type-selected-js').val(blkType);

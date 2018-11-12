@@ -103,6 +103,16 @@ i {
   text-transform: none;
 }
 
+.icon-chevron-up-dark-large {
+  &:before {
+    content: $icon-chevron-up-dark-large; 
+  }
+}
+.icon-chevron-down-dark-large {
+  &:before {
+    content: $icon-chevron-down-dark-large; 
+  }
+}
 .icon-replay {
   &:before {
     content: $icon-replay;

@@ -69,12 +69,12 @@
 				@if ($section['title'] != 'No Section')
 					<div class="section-quick-actions">
 						<a href="#" class="move-action-js down-js tooltip" tooltip="Move Section Down">
-							<i class="icon icon-chevron"></i>
+							<i class="icon icon-chevron-down-dark-large"></i>
 						</a>
 						<a href="#" class="up move-action-js up-js tooltip" tooltip="Move Section Up">
-							<i class="icon icon-chevron"></i>
+							<i class="icon icon-chevron-up-dark-large"></i>
 						</a>
-						<a href="#" class="delete-section-js" data-id="{{ $section['id'] }}">
+						<a href="#" class="delete-section-js tooltip" tooltip="Delete Section" data-id="{{ $section['id'] }}">
 							<i class="icon icon-cancel"></i>
 						</a>
 					</div>
