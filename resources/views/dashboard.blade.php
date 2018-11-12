@@ -63,15 +63,15 @@
 					@endif
 				</span>
 				@if ($section['title'] != 'No Section')
-					<input class="edit-section-title edit-section-title-js hidden" type="text" value="" placeholder="{{ $section['title'] }}" secID="{{ $section['id'] }}">
+					<input class="edit-section-title edit-section-title-js hidden" type="text" value="{{ $section['title'] }}" placeholder="{{ $section['title'] }}" secID="{{ $section['id'] }}">
 				@endif
 				<div class="line-container"><span class="line"></span></div>
 				@if ($section['title'] != 'No Section')
 					<div class="section-quick-actions">
-						<a href="#" class="move-action-js down-js">
+						<a href="#" class="move-action-js down-js tooltip" tooltip="Move Section Down">
 							<i class="icon icon-chevron"></i>
 						</a>
-						<a href="#" class="up move-action-js up-js">
+						<a href="#" class="up move-action-js up-js tooltip" tooltip="Move Section Up">
 							<i class="icon icon-chevron"></i>
 						</a>
 						<a href="#" class="delete-section-js" data-id="{{ $section['id'] }}">

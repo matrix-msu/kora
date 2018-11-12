@@ -363,7 +363,7 @@ Kora.Dashboard.Index = function() {
             let titles
             values = {};
             $.each($('.edit-section-title-js'), function () {
-                if ($(this).val()) {
+                if ($(this).val() != $(this).attr('placeholder')) {
                     if (!titles)
                         titles = $(this).attr('secid') + '-' + $(this).val() + '_';
                     else
