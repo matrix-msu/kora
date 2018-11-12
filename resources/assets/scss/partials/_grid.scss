@@ -46,20 +46,38 @@
   @import 'grid/element';
 }
 
-@media screen and (min-width: $max-grid-tri-width) and (max-width: $max-grid-quad-width - 1px) {
+@media screen and (min-width: $max-grid-tri-width) and (max-width: $max-grid-quad-width - 1px) { /* 1049 to 1351 */
   .grid .container .element {
     width: calc(33% - 8px);
   }
 }
+/* with sidebar */
+@media screen and (min-width: 1299px) and (max-width: 1618px) {
+  .grid.with-aside .container .element {
+    width: calc(33% - 8px);
+  }
+}
 
-@media screen and (min-width: $max-grid-duo-width) and (max-width: $max-grid-tri-width - 1px) {
+@media screen and (min-width: $max-grid-duo-width) and (max-width: $max-grid-tri-width - 1px) { /* 736 to 1048 */
   .grid .container .element {
     width: calc(50% - 10px);
   }
 }
+/* with sidebar */
+@media screen and (min-width: 985px) and (max-width: 1298px) {
+  .grid.with-aside .container .element {
+    width: calc(50% - 10px);
+  }
+}
 
-@media screen and (max-width: $max-grid-duo-width - 1px) {
+@media screen and (max-width: $max-grid-duo-width - 1px) { /* 735 and down */
   .grid .container .element {
+    width: calc(100% - 10px);
+  }
+}
+/* with sidebar */
+@media screen and (max-width: 984px) {
+  .grid.with-aside .container .element {
     width: calc(100% - 10px);
   }
 }
