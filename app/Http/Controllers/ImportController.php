@@ -274,6 +274,10 @@ class ImportController extends Controller {
                 if(!array_key_exists($key,$matchup))
                     continue;
 
+                //If value is not set, we assume no value so move on
+                if($field->count() == 0 && (string)$field == '')
+                    continue;
+
                 //Deal with reverse associations and move on
                 if($matchup[$key] == 'reverseAssociations') {
                     if(empty($field->Record))
@@ -578,6 +582,10 @@ class ImportController extends Controller {
                 if(!array_key_exists($slug,$matchup))
                     continue;
 
+                //If value is not set, we assume no value so move on
+                if(!isset($field['value']))
+                    continue;
+
                 //Deal with reverse associations and move on
                 if($matchup[$slug] == 'reverseAssociations') {
                     $recRequest['newRecRevAssoc'] = $field;
@@ -587,10 +595,6 @@ class ImportController extends Controller {
                 $fieldSlug = $matchup[$slug];
                 $flid = Field::where('slug', '=', $fieldSlug)->get()->first()->flid;
                 $type = isset($field['type']) ? $field['type'] : Field::where('slug', '=', $fieldSlug)->get()->first()->type;
-
-                if(!isset($field['value']))
-                    return response()->json(["status"=>false,"message"=>"json_validation_error",
-                        "record_validation_error"=>[$request->kid => "$fieldSlug is missing value index"]],500);
 
                 if($type == 'Text') {
                     $recRequest[$flid] = $field['value'];
@@ -2062,3 +2066,4 @@ class ImportController extends Controller {
         return '';
     }
 }
+                                    
