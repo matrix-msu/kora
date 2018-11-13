@@ -14,6 +14,7 @@
 					<input class="btn warning delete-block-js" type="submit" value="Delete Block">
 				</div>
             </form>
+            <input type="hidden" name="blkID" value="">
         </div>
     </div>
 </div>

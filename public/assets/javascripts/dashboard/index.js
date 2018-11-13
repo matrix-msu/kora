@@ -111,6 +111,7 @@ Kora.Dashboard.Index = function() {
             let secID = $(this).attr('secid');
             let url = removeBlockUrl + '/' + blkID + '/' + secID;
             $('.delete-block-form-js').attr('action', url);
+            $('.delete-block-modal-js input[name="blkID"]').val(blkID);
 
             Kora.Modal.open($('.delete-block-modal-js'));
         });
@@ -551,8 +552,9 @@ Kora.Dashboard.Index = function() {
                 url: url,
                 method: 'POST',
                 data: values,
-                success: function (data) {
-                    window.location.reload();
+                success: function () {
+                    Kora.Modal.close($('.delete-block-modal-js'));
+                    $("#" + $('.delete-block-modal-js input[name="blkID"]').val() + ".element").remove();
                 },
                 error: function (err) {
                     console.log(err);
