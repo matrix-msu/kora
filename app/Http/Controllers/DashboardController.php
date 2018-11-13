@@ -461,8 +461,13 @@ class DashboardController extends Controller {
             'created_at' => Carbon::now()->toDateTimeString()
         ]);
 
+        $sec_id = DB::table('dashboard_sections')
+            ->where('uid','=',Auth::user()->id)
+            ->where('title','=',$sectionTitle)
+            ->first()->id;
+
         $this->makeNonSectionLast();
-        return response()->json(["status"=>true, "message"=>"Section created", "sec_title"=>$sectionTitle, 200]);
+        return response()->json(["status"=>true, "message"=>"Section created", "sec_title"=>$sectionTitle, "sec_id"=>$sec_id, 200]);
     }
 
     /**

@@ -296,7 +296,7 @@
 		<input class="hidden btn fixed-bottom fixed-bottom-slide done-editing-dash-js" type="submit" value="Finish Editing Dashboard">
 	</div>
 
-	<section class="grid section-js hidden">
+	<section class="grid section-js ui-sortable-handle hidden">
 		<h1 class="header">
 			<span class="left title"></span>
 			<input type="text" class="edit-section-title edit-section-title-js hidden">

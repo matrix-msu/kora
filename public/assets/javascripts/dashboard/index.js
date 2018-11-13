@@ -335,13 +335,15 @@ Kora.Dashboard.Index = function() {
         $('.add-section-input-js').on('keyup', function (e) {
             e.preventDefault();
 
-            function createNewSection (title) {
+            function createNewSection (section) {
                 // have to use JQuery's .clone() method instead of javascript .importNode or similar methods
                 // because JAVASCRIPT doesn't clone event listeners whereas JQ .clone() does
                 $('.dashboard .section-js.hidden').clone(true).insertBefore('.sections section:last-child');
-                $('.sections .section-js.hidden').find('.title').text(title);
-                $('.sections .section-js.hidden').find('.edit-section-title-js').val(''+title);
-                $('.sections .section-js.hidden').find('.edit-section-title-js').attr('placeholder', title);
+                $('.sections .section-js.hidden').find('.title').text(section.sec_title);
+                $('.sections .section-js.hidden').find('.edit-section-title-js').val('' + section.sec_title);
+                $('.sections .section-js.hidden').find('.edit-section-title-js').attr('placeholder', section.sec_title);
+                $('.sections .section-js.hidden').find('.delete-section-js').attr('data-id', section.sec_id);
+                $('.sections .section-js.hidden').attr('id', section.sec_id);
                 $('.sections .section-js.hidden').removeClass('hidden');
 
                 $('.add-section-input-js').val('');
@@ -360,7 +362,7 @@ Kora.Dashboard.Index = function() {
                         'sectionTitle': secTitle
                     },
                     success: function (data) {
-                        createNewSection(data.sec_title)
+                        createNewSection(data)
                     },
                     error: function (err) {
                         console.log(err);
