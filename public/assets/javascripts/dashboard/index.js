@@ -383,6 +383,7 @@ Kora.Dashboard.Index = function() {
                 });
 
                 dSection.remove();
+                reorderBlocks()
             }
 
             let deletedSection = $(this).parent().parent().parent();
@@ -441,27 +442,48 @@ Kora.Dashboard.Index = function() {
         });
     }
 
+    function reorderBlocks() {
+        $.each($('.sections .section-js:not(.add-section)'), function () {
+            blocks = $(this).children('.container').sortable('toArray');
+
+            $.ajax({
+                url: editBlockOrderUrl,
+                type: 'POST',
+                data: {
+                    "_token": CSRFToken,
+                    "_method": 'PATCH',
+                    "blocks": blocks
+                },
+                success: function(result) {},
+                error: function (err) {
+                    console.log(err);
+                }
+            });
+        });
+    }
+
     function initializeEditBlocks() {
         $(".section-js .container").sortable({
             helper: 'clone',
             revert: true,
             containment: ".sections",
             update: function(event, ui) {
-                blocks = $('.section-js .container').sortable('toArray');
+                reorderBlocks()
+                // blocks = $('.section-js .container').sortable('toArray');
 
-                $.ajax({
-                    url: editBlockOrderUrl,
-                    type: 'POST',
-                    data: {
-                        "_token": CSRFToken,
-                        "_method": 'PATCH',
-                        "blocks": blocks
-                    },
-                    success: function(result) {},
-                    error: function (err) {
-                        console.log(err);
-                    }
-                });
+                // $.ajax({
+                //     url: editBlockOrderUrl,
+                //     type: 'POST',
+                //     data: {
+                //         "_token": CSRFToken,
+                //         "_method": 'PATCH',
+                //         "blocks": blocks
+                //     },
+                //     success: function(result) {},
+                //     error: function (err) {
+                //         console.log(err);
+                //     }
+                // });
             },
             disabled: true
         });
