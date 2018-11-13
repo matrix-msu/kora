@@ -335,6 +335,18 @@ Kora.Dashboard.Index = function() {
         $('.add-section-input-js').on('keyup', function (e) {
             e.preventDefault();
 
+            function createNewSection (title) {
+                // have to use JQuery's .clone() method instead of javascript .importNode or similar methods
+                // because JAVASCRIPT doesn't clone event listeners whereas JQ .clone() does
+                $('.dashboard .section-js.hidden').clone(true).insertBefore('.sections section:last-child');
+                $('.sections .section-js.hidden').find('.title').text(title);
+                $('.sections .section-js.hidden').find('.edit-section-title-js').val(''+title);
+                $('.sections .section-js.hidden').find('.edit-section-title-js').attr('placeholder', title);
+                $('.sections .section-js.hidden').removeClass('hidden');
+
+                $('.add-section-input-js').val('');
+            }
+
             if (e.keyCode == 13) {
                 let secTitle = $('.add-section-input-js').val();
                 let url = addSectionUrl + '/' + secTitle;
@@ -347,11 +359,12 @@ Kora.Dashboard.Index = function() {
                         '_method': 'POST',
                         'sectionTitle': secTitle
                     },
-                    success: function () {
-                        window.location.reload(true);
+                    success: function (data) {
+                        createNewSection(data.sec_title)
                     },
                     error: function (err) {
                         console.log(err);
+                        // POSSIBLE::Notify user of failed section creation?
                     }
                 });
             }

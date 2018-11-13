@@ -204,7 +204,8 @@ class DashboardController extends Controller {
     }
 
     /**
-     * Adds a block to a section.
+     * Create a section and add a block to it
+     * This is to populate a new users' empty dashboard
      *
      * @param  string $type - Type of default block to make
      * @return array - Array with the new block
@@ -252,7 +253,7 @@ class DashboardController extends Controller {
     }
 
     /**
-     * Adds a block to a section.
+     * Creates a block and adds it to a section.
      *
      * @param  BlockRequest $request
      */
@@ -308,7 +309,7 @@ class DashboardController extends Controller {
     }
 
     /**
-     * Edits an existing section.
+     * Edits an existing section title and/or ordering.
      *
      * @param  BlockRequest $request
      */
@@ -338,7 +339,7 @@ class DashboardController extends Controller {
     }
 
     /**
-     * Edits an existing block.  NOT edit block quick actions
+     * Edits an existing block type and content.  NOT including quick-action
      *
      * @param  BlockRequest $request
      */
@@ -389,8 +390,10 @@ class DashboardController extends Controller {
     }
 
     /**
-    * Edits an existing block's quick action order
-    */
+     * Edits an existing block's quick action ordering
+     *
+     * @param  BlockRequest $request
+     */
     public function editBlockQuickActions (Request $request) {
 
 		$newOpts = explode(',', $request->options);
@@ -412,7 +415,7 @@ class DashboardController extends Controller {
     }
 
     /**
-    * Edit note block
+    * Edit note block title and content.
     */
     public function editNoteBlock (Request $request) {
         $title = $request->block_note_title;
@@ -459,7 +462,7 @@ class DashboardController extends Controller {
         ]);
 
         $this->makeNonSectionLast();
-        return response()->json(["status"=>true, "message"=>"Section created", 200]);
+        return response()->json(["status"=>true, "message"=>"Section created", "sec_title"=>$sectionTitle, 200]);
     }
 
     /**
@@ -486,13 +489,16 @@ class DashboardController extends Controller {
         }
 
         // get ID of desired section with key from selected section
-        if (isset($allSections[$key - 1])) // blocks normally move up to the prev section
+        if (isset($allSections[$key - 1])) { // blocks normally move up (previous sect)
             $newID = $allSections[$key - 1]->id;
-        elseif (isset($allSections[$key + 1])) // if prev section doesn't exist, move blocks to lower section
+            $dir = 'up';
+        } elseif (isset($allSections[$key + 1])) { // if prev section doesn't exist, move blocks down
             $newID = $allSections[$key + 1]->id;
-        else { // otherwise we create new unique invisible section to add the blocks to
-            $this->addSection('No Section');
+            $dir = 'down';
+        } else { // otherwise we create new unique invisible section to add the blocks to
+            $this->addSection('No Section'); // we shouldn't reach this line since this section should always exist
             $newID = $key + 1;
+            $dir = 'down';
         }
 
         // assign new ID to blocks from old section
@@ -503,7 +509,7 @@ class DashboardController extends Controller {
         DB::table("dashboard_sections")->where('uid','=',Auth::user()->id)->where("id", "=", $sectionID)->delete();
         $this->reorderSections();
 
-        return response()->json(["status"=>true, "message"=>"Section destroyed", 200]);
+        return response()->json(["status"=>true, "message"=>"Section destroyed", "direction"=>$dir, 200]);
     }
 
     /**

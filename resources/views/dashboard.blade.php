@@ -51,7 +51,7 @@
         </div>
     </div>
 
-    <div class="sections">
+    <div class="sections" id="sections">
     @foreach($sections as $section)
 		<section class="grid section-js {{ $section['title'] == 'No Section' ? 'add-section' : null }}" id="{{ $section['id'] }}">
 			<h1 class="header {{ $section['title'] == 'No Section' ? 'add-section hidden' : null }}">
@@ -295,6 +295,26 @@
 	<div class="form-group dashboard-submit">
 		<input class="hidden btn fixed-bottom fixed-bottom-slide done-editing-dash-js" type="submit" value="Finish Editing Dashboard">
 	</div>
+
+	<section class="grid section-js hidden">
+		<h1 class="header">
+			<span class="left title"></span>
+			<input type="text" class="edit-section-title edit-section-title-js hidden">
+			<div class="line-container"><span class="line"></span></div>
+			<div class="section-quick-actions show">
+				<a class="move-action-js down-js tooltip" tooltip="Move Section Down">
+					<i class="icon icon-chevron-down-dark-large"></i>
+				</a>
+				<a class="move-action-js up-js tooltip" tooltip="Move Section Up">
+					<i class="icon icon-chevron-up-dark-large"></i>
+				</a>
+				<a class="delete-section-js tooltip" tooltip="Delete Section">
+					<i class="icon icon-cancel"></i>
+				</a>
+			</div>
+		</h1>
+		<div class="container ui-sortable"></div>
+	</section>
 @stop
 
 @section('javascripts')
