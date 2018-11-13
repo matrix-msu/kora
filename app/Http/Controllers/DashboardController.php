@@ -411,7 +411,7 @@ class DashboardController extends Controller {
 			'options' => $options
 		]);
 
-		return redirect('dashboard')->with('k3_global_success', 'options_modified');
+        return response()->json(["status"=>true, "message"=>"Quick Actions Updated", 200]);
     }
 
     /**

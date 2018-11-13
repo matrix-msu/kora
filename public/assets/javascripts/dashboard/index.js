@@ -21,7 +21,7 @@ Kora.Dashboard.Index = function() {
 		$.each($('#card-container-bottom .card'), function (i) {
 			hiddenOpts.push($(this).attr('type'))
 		});
-		$('input[name="hiddenOpts"]').val(hiddenOpts);
+        $('input[name="hiddenOpts"]').val(hiddenOpts);
 	}
 
     function editQuickActionsSort () {
@@ -33,6 +33,31 @@ Kora.Dashboard.Index = function() {
 				setQuickActionOrder()
 			}
         });
+
+        $('.edit-quick-actions-submit-js').click(function (e) {
+            e.preventDefault();
+
+            let form = $('#edit_quickActions_form');
+            let values = {};
+            $.each(form.children('input').serializeArray(), function (i, field) {
+                values[field.name] = field.value;
+            });
+
+            console.log(values)
+
+            $.ajax({
+                url: form.attr('action'),
+                type: 'POST',
+                data: values,
+                success: function (response) {
+                    console.log(response)
+                    Kora.Modal.close($('.edit-quick-actions-modal-js'));
+                },
+                error: function (err) {
+                    console.warn(err)
+                }
+            });
+        })
     }
 
 	function moveUp (event) {
@@ -120,12 +145,12 @@ Kora.Dashboard.Index = function() {
             e.preventDefault();
 
             let blkID = $(this).attr('blkid');
-            $('input[name="selected_id"]').val(''+blkID+'');
+            $('input[name="selected_id"]').val(blkID);
 
             let blkType = $(this).attr('blocktype');
+            let secID = $(this).attr('secid');
             let selected
             let selectedSelector
-            let secID = $(this).attr('secid');
 
             if (blkType == 'Project') {
                 selectedSelector = $('.edit-block-project-js');
@@ -163,7 +188,7 @@ Kora.Dashboard.Index = function() {
             e.preventDefault();
 
 			$('input[name="selected_id"]').val($(this).siblings('a.remove-block-js').attr('blkid'));
-			$('#card-container .card').remove();
+			$('#card-container-top .card, #card-container-bottom .card').remove();
 			let template = document.getElementById('quick-action-template-js')
 
 			let cards = document.getElementById('card-container-top')
@@ -194,6 +219,7 @@ Kora.Dashboard.Index = function() {
 				lowerCards.appendChild(clone)
 			});
 
+            setQuickActionOrder()
             Kora.Modal.open($('.edit-quick-actions-modal-js'));
         });
 
@@ -634,8 +660,6 @@ Kora.Dashboard.Index = function() {
             e.preventDefault();
 
             let $form = $('#block_edit_form');
-
-            //validate($form);
 
             values = {};
             $.each($form.serializeArray(), function(i, field) {
