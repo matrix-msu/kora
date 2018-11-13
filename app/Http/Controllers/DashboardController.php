@@ -491,14 +491,11 @@ class DashboardController extends Controller {
         // get ID of desired section with key from selected section
         if (isset($allSections[$key - 1])) { // blocks normally move up (previous sect)
             $newID = $allSections[$key - 1]->id;
-            $dir = 'up';
         } elseif (isset($allSections[$key + 1])) { // if prev section doesn't exist, move blocks down
             $newID = $allSections[$key + 1]->id;
-            $dir = 'down';
         } else { // otherwise we create new unique invisible section to add the blocks to
             $this->addSection('No Section'); // we shouldn't reach this line since this section should always exist
             $newID = $key + 1;
-            $dir = 'down';
         }
 
         // assign new ID to blocks from old section
@@ -509,7 +506,7 @@ class DashboardController extends Controller {
         DB::table("dashboard_sections")->where('uid','=',Auth::user()->id)->where("id", "=", $sectionID)->delete();
         $this->reorderSections();
 
-        return response()->json(["status"=>true, "message"=>"Section destroyed", "direction"=>$dir, 200]);
+        return response()->json(["status"=>true, "message"=>"Section destroyed", 'section'=>$newID, 200]);
     }
 
     /**
