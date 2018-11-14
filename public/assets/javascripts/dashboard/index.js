@@ -43,15 +43,14 @@ Kora.Dashboard.Index = function() {
                 values[field.name] = field.value;
             });
 
-            console.log(values)
-
             $.ajax({
                 url: form.attr('action'),
                 type: 'POST',
                 data: values,
-                success: function (response) {
-                    console.log(response)
+                success: function () {
                     Kora.Modal.close($('.edit-quick-actions-modal-js'));
+                    window.localStorage.setItem('edit-mode', true)
+                    window.location.reload()
                 },
                 error: function (err) {
                     console.warn(err)
@@ -247,6 +246,7 @@ Kora.Dashboard.Index = function() {
             $('.section-js .container').sortable({
                 disabled: false
             });
+            window.localStorage.setItem('edit-mode', true)
         });
 
         $('.done-editing-dash-js').click(function (e) {
@@ -268,6 +268,7 @@ Kora.Dashboard.Index = function() {
             $('.section-js .container').sortable({
                 disabled: true
             });
+            window.localStorage.clear()
         });
     }
 
@@ -426,7 +427,6 @@ Kora.Dashboard.Index = function() {
                 },
                 success: function (response) {
                     removeSection(deletedSection, response.section)
-                    //window.location.reload();
                 },
                 error: function (err) {
                     console.log(err);
@@ -701,6 +701,15 @@ Kora.Dashboard.Index = function() {
         $('.add-block-section-js .chosen-default span').text('Select a section to add to');
     }
 
+    function setState () {
+        let editMode = window.localStorage.getItem('edit-mode')
+        window.localStorage.clear()
+
+        if (editMode) {
+            $('.edit-blocks-js').trigger('click');
+        }
+    }
+
     initializeSelects();
 	editQuickActionsSort();
     initializeDashboardModals();
@@ -710,4 +719,5 @@ Kora.Dashboard.Index = function() {
     initializeAddBlockFunctions();
     initializeValidation();
     initEditPlaceholders();
+    setState();
 }
