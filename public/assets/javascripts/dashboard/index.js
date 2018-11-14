@@ -548,10 +548,12 @@ Kora.Dashboard.Index = function() {
         });
 
         $('.note-desc-js').each(function () {
-            this.setAttribute('style', 'height:auto;');
+            //this.setAttribute('style', 'height:auto;');
+            this.style.height = (this.scrollHeight + 8) + 'px';
         }).on('input', function () {
             this.style.height = 'auto';
             this.style.height = (this.scrollHeight + 8) + 'px';
+            console.log(this.scrollHeight)
         }).on('blur', function () {
             updateNoteBlock($(this).parent());
         });
