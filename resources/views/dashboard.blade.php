@@ -96,6 +96,7 @@
 								{{ $block['description'] }}
 							</p>
 							<div class="element-link-container">
+							@if (\Auth::user()->admin ||  \Auth::user()->isProjectAdmin(\App\Http\Controllers\ProjectController::getProject($pid)))
 								@foreach($block['displayedOpts'] as $link)
 									<a href="{{ $link['href'] }}" class="element-link tooltip {{ $link['type'] }}"
 									tooltip="{{ $link['tooltip'] }}" quickAction="{{ $link['type'] }}">
@@ -110,6 +111,7 @@
 										<li><a quickaction="{{ $opt['type'] }}" href="{{ $opt['href'] }}">{{ $opt['tooltip'] }}</a></li>
 									@endforeach
 								</ul></div>
+							@endif
 							</div>
 							<div class="edit-block">
 								<div class="wrap">
@@ -143,6 +145,7 @@
 								{{ $block['description'] }}
 							</p>
 							<div class="element-link-container">
+							@if (\Auth::user()->admin || \Auth::user()->isFormAdmin(\App\Http\Controllers\FormController::getForm($form->fid)))
 								@foreach($block['displayedOpts'] as $link)
 									<a href="{{ $link['href'] }}" class="element-link tooltip {{ $link['type'] }}"
 									tooltip="{{ $link['tooltip'] }}" quickAction="{{ $link['type'] }}">
@@ -152,13 +155,12 @@
 								<a href="#" class="element-link right options-modal-js">
 									<i class="icon icon-more"></i>
 								</a>
-								<div class="element-link-right-tooltips">
-									<ul>
-										@foreach($block['hiddenOpts'] as $opt)
-											<li><a quickaction="{{ $opt['type'] }}" href="{{ $opt['href'] }}">{{ $opt['tooltip'] }}</a></li>
-										@endforeach
-									</ul>
-								</div>
+								<div class="element-link-right-tooltips"><ul>
+									@foreach($block['hiddenOpts'] as $opt)
+										<li><a quickaction="{{ $opt['type'] }}" href="{{ $opt['href'] }}">{{ $opt['tooltip'] }}</a></li>
+									@endforeach
+								</ul></div>
+							@endif
 							</div>
 							<div class="edit-block">
 								<div class="wrap">
