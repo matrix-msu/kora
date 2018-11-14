@@ -230,6 +230,10 @@ class ImportMultiFormController extends Controller {
             }
 
             foreach($record->children() as $key => $field) {
+                //If value is not set, we assume no value so move on
+                if($field->count() == 0 && (string)$field == '')
+                    continue;
+
                 //Deal with reverse associations and move on
                 if($key == 'reverseAssociations') {
                     if(empty($field->Record))
@@ -553,6 +557,10 @@ class ImportMultiFormController extends Controller {
             }
 
             foreach($record as $slug => $field) {
+                //If value is not set, we assume no value so move on
+                if(!isset($field['value']))
+                    continue;
+
                 //Deal with reverse associations and move on
                 if($slug == 'reverseAssociations') {
                     $recRequest['newRecRevAssoc'] = $field;
