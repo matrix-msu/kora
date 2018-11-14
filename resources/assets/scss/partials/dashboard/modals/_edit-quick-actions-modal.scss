@@ -1,4 +1,9 @@
 .edit-quick-actions-modal {
+    .content {
+        max-height: 100%;
+        overflow-y: scroll;
+    }
+
     .body {
         > p {
             font-family: inherit;

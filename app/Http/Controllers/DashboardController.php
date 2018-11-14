@@ -276,8 +276,8 @@ class DashboardController extends Controller {
             case 'Form':
                 $fid = $request->block_form;
                 $optString = '{"fid": ' . $fid .
-                    ', "displayed": ["edit", "search", "record-new", "field-new", "permissions", "revisions"]' .
-                    ', "hidden": ["import", "import2k", "export"]}';
+                    ', "displayed": ["edit", "search", "record-new", "field-new", "form-permissions", "revisions"]' .
+                    ', "hidden": ["import", "batch", "export-records", "assoc-permissions", "export-form"]}';
                 break;
             case 'Record':
                 $kid = $request->block_record;

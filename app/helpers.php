@@ -107,26 +107,29 @@ function getDashboardProjectBlockLink($block, $link_type) {
           ];
           break;
 	  case 'import':
-	    return [
-		  'text' => 'Import Multi-Form Records Setup',
-		  'href' => url('/').'/projects/'.$options['pid'].'/importMF',
-		  'type' => 'import'
-		];
-		break;
+	      return [
+            'tooltip' => 'Import Multi-Form Records Setup',
+            'icon-class' => 'icon-record-import',
+		    'href' => url('/').'/projects/'.$options['pid'].'/importMF',
+		    'type' => 'import'
+		  ];
+		  break;
 	  case 'import2k':
-	    return [
-		  'text' => 'Kora 2 Scheme Importer',
-		  'href' => url('/').'/projects/'.$options['pid'].'/forms/importk2',
-		  'type' => 'import2k'
-		];
-		break;
+          return [
+            'tooltip' => 'Kora 2 Scheme Importer',
+            'icon-class' => 'icon-form-scheme-importer',
+            'href' => url('/').'/projects/'.$options['pid'].'/forms/importk2',
+            'type' => 'import2k'
+          ];
+          break;
 	  case 'export':
-	    return [
-		  'text' => 'Export Project',
-		  'href' => action('ExportController@exportProject',['pid' => $options['pid']]),
-		  'type' => 'export'
-		];
-		break;
+	      return [
+            'tooltip' => 'Export Project',
+            'icon-class' => 'icon-chevron',
+		    'href' => action('ExportController@exportProject',['pid' => $options['pid']]),
+		    'type' => 'export'
+		  ];
+		  break;
       default:
         return [];
   }
@@ -169,12 +172,12 @@ function getDashboardFormBlockLink($block, $link_type) {
 			'type' => 'field-new'
           ];
           break;
-      case 'permissions':
+      case 'form-permissions':
           return [
             'tooltip' => 'Form Permissions',
             'icon-class' => 'icon-star',
             'href' => action('FormGroupController@index', ['pid' => $form->pid, 'fid' => $form->fid]),
-			'type' => 'permissions'
+			'type' => 'form-permissions'
           ];
           break;
       case 'revisions':
@@ -186,26 +189,45 @@ function getDashboardFormBlockLink($block, $link_type) {
           ];
           break;
 	  case 'import':
-	    return [
-		  'text' => 'Import Multi-Form Records Setup',
-		  'href' => url('/').'/projects/'.$form->pid.'/importMF',
-		  'type' => 'import'
-		];
-		break;
-	  case 'import2k':
-	    return [
-		  'text' => 'Kora 2 Scheme Importer',
-		  'href' => url('/').'/projects/'.$form->pid.'/forms/importk2',
-		  'type' => 'import2k'
-		];
-		break;
-	  case 'export':
-	    return [
-		  'text' => 'Export Project',
-		  'href' => action('ExportController@exportProject',['pid' => $form->pid]),
-		  'type' => 'export'
-		];
-		break;
+	      return [
+            'tooltip' => 'Import Records',
+            'icon-class' => 'icon-record-import',
+		    'href' => action('RecordController@importRecordsView', ['pid' => $form->pid, 'fid' => $form->fid]),
+		    'type' => 'import'
+		  ];
+          break;
+      case 'batch':
+          return [
+            'tooltip' => 'Batch Assign Field Values',
+            'icon-class' => 'icon-zap',
+            'href' => action('RecordController@showMassAssignmentView',['pid' => $form->pid, 'fid' => $form->fid]),
+            'type' => 'batch'
+          ];
+          break;
+      case 'export-records':
+          return [
+            'tooltip' => 'Export All Records',
+            'icon-class' => 'icon-chevron',
+            'href' => '#',
+            'type' => 'export-records'
+          ];
+          break;
+      case 'assoc-permissions':
+          return [
+            'tooltip' => 'Association Permissions',
+            'icon-class' => 'icon-form-associations',
+            'href' => action('AssociationController@index', ['fid' => $form->fid, 'pid' => $form->pid]),
+            'type' => 'assoc-permissions'
+          ];
+          break;
+      case 'export-form':
+          return [
+            'tooltip' => 'Export Form',
+            'icon-class' => 'icon-chevron',
+            'href' => action('ExportController@exportForm',['fid'=>$form->fid, 'pid' => $form->pid]),
+            'type' => 'export-form'
+          ];
+          break;
       default:
         return [];
   }

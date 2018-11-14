@@ -4,9 +4,13 @@
 <input type="hidden" name="options" value="">
 <input type="hidden" name="hiddenOpts" value="">
 
-<div class="card-container" id="card-container-top"></div>
-<div class="line-container"><span class="line"></span></div>
-<div class="card-container" id="card-container-bottom"></div>
+<div class="card-container" id="card-container">
+<!--
+    <div id="card-container-top"></div>
+    <div class="line-container"><span class="line"></span></div>
+    <div id="card-container-bottom"></div>
+-->
+</div>
 
 <template id="quick-action-template-js">
     <div class="card">

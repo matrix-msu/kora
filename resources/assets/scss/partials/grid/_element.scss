@@ -215,7 +215,12 @@
 
     &:first-child {
       padding-left: 0;
-    }
+		}
+
+		&.form-permissions {
+			margin: 0;
+			width: unset;
+		}
 
     &.right {
       padding: 0;

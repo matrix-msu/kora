@@ -107,7 +107,7 @@
 								</a>
 								<div class="element-link-right-tooltips"><ul>
 									@foreach($block['hiddenOpts'] as $opt)
-										<li><a quickaction="{{ $opt['type'] }}" href="{{ $opt['href'] }}">{{ $opt['text'] }}</a></li>
+										<li><a quickaction="{{ $opt['type'] }}" href="{{ $opt['href'] }}">{{ $opt['tooltip'] }}</a></li>
 									@endforeach
 								</ul></div>
 							</div>
@@ -155,7 +155,7 @@
 								<div class="element-link-right-tooltips">
 									<ul>
 										@foreach($block['hiddenOpts'] as $opt)
-											<li><a quickaction="{{ $opt['type'] }}" href="{{ $opt['href'] }}">{{ $opt['text'] }}</a></li>
+											<li><a quickaction="{{ $opt['type'] }}" href="{{ $opt['href'] }}">{{ $opt['tooltip'] }}</a></li>
 										@endforeach
 									</ul>
 								</div>

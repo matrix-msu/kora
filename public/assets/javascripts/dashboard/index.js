@@ -11,16 +11,17 @@ Kora.Dashboard.Index = function() {
     }
 
 	function setQuickActionOrder () {
-		let options = []
-		$.each($('#card-container-top .card'), function (i) {
-			options.push($(this).attr('type'))
-		});
-		$('input[name="options"]').val(options);
-
+        let cards = $('#card-container .card');
+        let options = []
 		let hiddenOpts = []
-		$.each($('#card-container-bottom .card'), function (i) {
-			hiddenOpts.push($(this).attr('type'))
-		});
+
+        for (let i = 0; i < cards.length; i++) {
+            if (i < 6)
+                options.push(cards[i].getAttribute('type'))
+            else
+                hiddenOpts.push(cards[i].getAttribute('type'))
+        }
+		$('input[name="options"]').val(options);
         $('input[name="hiddenOpts"]').val(hiddenOpts);
 	}
 
@@ -90,7 +91,7 @@ Kora.Dashboard.Index = function() {
 	}
 
 	function moveDown (event) {
-		let $card = event.target.parentElement.parentElement.parentElement.parentElement
+        let $card = event.target.parentElement.parentElement.parentElement.parentElement
 		$card = $('#' + $card.parentElement.id + ' #' + $card.id + '.card');
 
 		let $nextCard = $card.next();
@@ -187,10 +188,13 @@ Kora.Dashboard.Index = function() {
             e.preventDefault();
 
 			$('input[name="selected_id"]').val($(this).siblings('a.remove-block-js').attr('blkid'));
-			$('#card-container-top .card, #card-container-bottom .card').remove();
-			let template = document.getElementById('quick-action-template-js')
+			$('#card-container').children().remove();
 
-			let cards = document.getElementById('card-container-top')
+            let template = document.getElementById('quick-action-template-js')
+
+            let cardContainer = document.getElementById('card-container')
+
+			//let cards = document.getElementById('card-container-top')
             let $linkOpts = $(this).parent().parent().parent().siblings('.element-link-container').children('.element-link:not(.right)');
             $.each($linkOpts, function (i) {
 				let clone = document.importNode(template.content, true)
@@ -201,21 +205,25 @@ Kora.Dashboard.Index = function() {
 				clone.querySelector('.up-js').addEventListener('click', moveUp)
 				clone.querySelector('.down-js').addEventListener('click', moveDown)
 
-				cards.appendChild(clone)
+                //cards.appendChild(clone)
+                cardContainer.appendChild(clone)
             });
 
-			let lowerCards = document.getElementById('card-container-bottom')
+            $('#card-container').append('<div class="line-container"><span class="line"></span></div>');
+
+			//let lowerCards = document.getElementById('card-container-bottom')
 			let rightOpts = $(this).parent().parent().parent().siblings('.element-link-container').find('.element-link-right-tooltips ul li').children();
 			$.each(rightOpts, function (i) {
 				let clone = document.importNode(template.content, true)
 
-				clone.querySelector('.card').id = i
+				clone.querySelector('.card').id = 6 + i
 				clone.querySelector('.card').setAttribute('type', rightOpts[i].getAttribute('quickaction'))
 				clone.querySelector('.quick-action-title-js').textContent = rightOpts[i].textContent
 				clone.querySelector('.up-js').addEventListener('click', moveUp)
 				clone.querySelector('.down-js').addEventListener('click', moveDown)
 
-				lowerCards.appendChild(clone)
+                //lowerCards.appendChild(clone)
+                cardContainer.appendChild(clone)
 			});
 
             setQuickActionOrder()
@@ -439,8 +447,9 @@ Kora.Dashboard.Index = function() {
 
             let titles
             values = {};
-            $.each($('.edit-section-title-js'), function () {
+            $.each($('.sections .edit-section-title-js'), function () {
                 if ($(this).val() != $(this).attr('placeholder')) {
+                    console.log($(this))
                     if (!titles)
                         titles = $(this).attr('secid') + '-' + $(this).val() + '_';
                     else
@@ -459,7 +468,7 @@ Kora.Dashboard.Index = function() {
                     method: 'POST',
                     data: values,
                     success: function (data) {
-                        window.location.reload();
+                        //window.location.reload();
                     },
                     error: function (err) {
                         console.log(err);
@@ -496,21 +505,6 @@ Kora.Dashboard.Index = function() {
             containment: ".sections",
             update: function(event, ui) {
                 reorderBlocks()
-                // blocks = $('.section-js .container').sortable('toArray');
-
-                // $.ajax({
-                //     url: editBlockOrderUrl,
-                //     type: 'POST',
-                //     data: {
-                //         "_token": CSRFToken,
-                //         "_method": 'PATCH',
-                //         "blocks": blocks
-                //     },
-                //     success: function(result) {},
-                //     error: function (err) {
-                //         console.log(err);
-                //     }
-                // });
             },
             disabled: true
         });
