@@ -246,7 +246,7 @@
 					@elseif($block["type"]=="Note")
 						<div class="element note-block" id="{{ $block['id'] }}">
 							<div class="title-container">
-								<input type="text" name="block_note_title" class="no-link-no-icon note-title note-title-js" placeholder="{{ $block['title'] }}" value="{{ $block['title'] }}">
+								<input type="text" name="block_note_title" class="no-link-no-icon note-title note-title-js" placeholder="{{ $block['title'] }}" value="{{ $block['title'] }}" maxlength="40">
 							</div>
 							<textarea class="description note-desc note-desc-js" name="block_note_content" placeholder="{{ $block['content'] }}">{{ $block['content'] }}</textarea>
 							<div class="edit-block">

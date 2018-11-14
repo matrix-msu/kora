@@ -59,7 +59,7 @@
     <div class="form-group mt-xl">
         <label for="block_note_title">Note Title</label>
         <span class="error-message"></span>
-        <input class="text-input edit-note-title-js" placeholder="Enter note title here (max 30 characters)" type="text" id="block_note_title" name="block_note_title" value="" maxlength="30">
+        <input class="text-input edit-note-title-js" placeholder="Enter note title here (max 30 characters)" type="text" id="block_note_title" name="block_note_title" value="" maxlength="40">
     </div>
 
     <div class="form-group mt-xl">
