@@ -1,127 +1,130 @@
 /* List */
-.list-option-card {
-  cursor: pointer;
-  height: 50px;
-  margin: 15px 0;
-
-  .card-toggle-wrap {
-    overflow: visible;
-    text-align: right;
-
-    .list-option-delete {
-      i {
-        color: palette('red', base);
-        display: inline-block;
-        font-size: 14px;
-        padding: 0 0 2px;
-        transform-origin: center;
-      }
-
-      &.tooltip:hover::after {
-        left: -53px;
-      }
-
-      &:hover {
-        i {
-          transform: scale(1.25);
-        }
-      }
-    }
-  }
-
-  .header {
-    margin: 16px 0;
-    padding: 0 20px;
-
-    .move-actions {
-      bottom: 4px;
-      position: relative;
-      vertical-align: middle;
-
-      .action {
-        &:first-child {
-          padding-left: 0;
-        }
-      }
-    }
-
-    .title {
-      bottom: 3px;
-      color: palette('gray', text);
-      display: inline-block;
-      overflow: hidden;
-      padding: 0;
-      position: relative;
-      text-overflow: ellipsis;
-      vertical-align: middle;
-      -webkit-line-clamp: 1;
-      white-space: nowrap;
-
-    }
-  }
-
-  .list-option-value {
-    display: inline-block;
-    margin: 20px 0;
-    vertical-align: middle;
-  }
-}
-
-.list-option-card-container {
-  margin: 20px 0 40px;
-}
-
-.new-list-option-card {
-  background: palette('green', accent, .03);
-  border: 2px solid palette('green', accent, .2);
-  margin: 0 0 10px;
-  transition: .3s border ease;
-
-  .card-toggle-wrap {
-    text-align: right;
-  }
-
-  .header {
-    background: transparent;
-  }
-
-  .list-option-add {
-    color: palette('green', accent);
-    font-family: $ubuntu-medium;
-    padding-right: 20px;
-    transition: .3s all ease;
-
-    span {
-      padding: 16px 0;
-    }
-  }
-
-  .new-list-option {
-    background: transparent;
-    border: none;
-    color: palette('green', accent);
-    font-family: $ubuntu;
+&.list-input-form-group {
+  .list-option-card {
+    cursor: pointer;
+    height: 50px;
     margin: 15px 0;
-    padding-left: 20px;
-    outline: none;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    width: 475px;
 
-    &::placeholder {
-      color: palette('green', accent, .7);
-      font-family: $ubuntu-medium;
-      font-style: italic;
-      opacity: 1;
+    .card-toggle-wrap {
+      overflow: visible;
+      text-align: right;
+
+      .list-option-delete {
+        i {
+          color: palette('red', base);
+          display: inline-block;
+          font-size: 14px;
+          padding: 0 0 2px;
+          transform-origin: center;
+        }
+
+        &.tooltip:hover::after {
+          left: -53px;
+        }
+
+        &:hover {
+          i {
+            transform: scale(1.25);
+          }
+        }
+      }
+    }
+
+    .header {
+      margin: 16px 0;
+      padding: 0 20px;
+
+      .move-actions {
+        bottom: 4px;
+        position: relative;
+        vertical-align: middle;
+
+        .action {
+          &:first-child {
+            padding-left: 0;
+          }
+        }
+      }
+
+      .title {
+        bottom: 3px;
+        color: palette('gray', text);
+        display: inline-block;
+        overflow: hidden;
+        padding: 0;
+        position: relative;
+        text-overflow: ellipsis;
+        vertical-align: middle;
+        -webkit-line-clamp: 1;
+        white-space: nowrap;
+
+      }
+    }
+
+    .list-option-value {
+      display: inline-block;
+      margin: 20px 0;
+      vertical-align: middle;
     }
   }
 
-  &:focus-within {
-    border-color: palette('green', accent);
+  .list-option-card-container {
+    margin: 20px 0 40px;
   }
 
-  &:hover {
-    border-color: palette('green', accent, .6);
+  .new-list-option-card {
+    background: palette('green', accent, .03);
+    border: 2px solid palette('green', accent, .2);
+    margin: 0 0 10px;
+    transition: .3s border ease;
+
+    .card-toggle-wrap {
+      text-align: right;
+    }
+
+    .header {
+      background: transparent;
+    }
+
+    .list-option-add {
+      color: palette('green', accent);
+      font-family: $ubuntu-medium;
+      padding-right: 20px;
+      transition: .3s all ease;
+
+      span {
+        padding: 16px 0;
+      }
+    }
+
+    .new-list-option {
+      background: transparent;
+      border: none;
+      color: palette('green', accent);
+      font-family: $ubuntu;
+      margin: 15px 0;
+      padding-left: 20px;
+      outline: none;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      width: 475px;
+
+      &::placeholder {
+        color: palette('green', accent, .7);
+        font-family: $ubuntu-medium;
+        font-style: italic;
+        opacity: 1;
+      }
+    }
+
+    &:focus-within {
+      border-color: palette('green', accent);
+    }
+
+    &:hover {
+      border-color: palette('green', accent, .6);
+    }
   }
 }
+

@@ -417,21 +417,15 @@ Kora.Records.Create = function() {
     }
 
     function intializeFileUploaderOptions() {
+        var $fileCardsContainer = $('.file-cards-container-js');
         //We will capture the current field when we start to upload. That way when we do upload, it's guarenteed to be that Field ID
         var lastClickedFlid = 0;
-
-        $('.kora-file-button-js').click(function(e){
-            e.preventDefault();
-
-            lastClickedFlid = $(this).attr('flid');
-
-            fileUploader = $(this).next().trigger('click');
-        });
 
         $('.kora-file-upload-js').fileupload({
             dataType: 'json',
             singleFileUploads: false,
             done: function (e, data) {
+                lastClickedFlid = $(this).attr('flid');
                 inputName = 'file'+lastClickedFlid;
                 fileDiv = ".filenames-"+lastClickedFlid+"-js";
 
@@ -440,16 +434,43 @@ Kora.Records.Create = function() {
                 $field.siblings('.error-message').text('');
                 $.each(data.result[inputName], function (index, file) {
                     if(file.error == "" || !file.hasOwnProperty('error')) {
-                        var del = '<div class="form-group mt-xxs uploaded-file">';
-                        del += '<input type="hidden" name="' + inputName + '[]" value ="' + file.name + '">';
-                        del += '<a href="#" class="upload-fileup-js">';
-                        del += '<i class="icon icon-arrow-up"></i></a>';
-                        del += '<a href="#" class="upload-filedown-js">';
-                        del += '<i class="icon icon-arrow-down"></i></a>';
-                        del += '<span class="ml-sm">' + file.name + '</span>';
-                        del += '<a href="#" class="upload-filedelete-js ml-sm" data-url="' + file.deleteUrl + '">';
-                        del += '<i class="icon icon-trash danger"></i></a></div>';
-                        $(fileDiv).append(del);
+                        var fileCardHtml = '<div class="card file-card file-card-js">' +
+                            '<input type="hidden" name="' + inputName + '[]" value ="' + file.name + '">' +
+                            '<div class="header">' +
+                                '<div class="left">' +
+                                    '<div class="move-actions">' +
+                                        '<a class="action move-action-js up-js" href="">' +
+                                            '<i class="icon icon-arrow-up"></i>' +
+                                        '</a>' +
+                                        '<a class="action move-action-js down-js" href="">' +
+                                            '<i class="icon icon-arrow-down"></i>' +
+                                        '</a>' +
+                                    '</div>' +
+                                    '<span class="title">' + file.name + '</span>' +
+                                '</div>' +
+                                '<div class="card-toggle-wrap">' +
+                                    '<a href="#" class="file-delete upload-filedelete-js ml-sm tooltip" tooltip="Remove Image" data-url="' + file.deleteUrl + '">' +
+                                        '<i class="icon icon-trash danger"></i>' +
+                                    '</a>' +
+                                '</div>' +
+                                '<textarea type="text" name="caption[]" class="caption autosize-js" placeholder="Enter caption here"></textarea>' +
+                            '</div>' +
+                        '</div>';
+
+                        // Old File Display
+                        // var del = '<div class="form-group mt-xxs uploaded-file">';
+                        // del += '<input type="hidden" name="' + inputName + '[]" value ="' + file.name + '">';
+                        // del += '<a href="#" class="upload-fileup-js">';
+                        // del += '<i class="icon icon-arrow-up"></i></a>';
+                        // del += '<a href="#" class="upload-filedown-js">';
+                        // del += '<i class="icon icon-arrow-down"></i></a>';
+                        // del += '<span class="ml-sm">' + file.name + '</span>';
+                        // del += '<a href="#" class="upload-filedelete-js ml-sm" data-url="' + file.deleteUrl + '">';
+                        // del += '<i class="icon icon-trash danger"></i></a></div>';
+                        $(fileDiv).append(fileCardHtml);
+
+                        Kora.Fields.TypedFieldInputs.Initialize();
+                        Kora.Inputs.Textarea();
                     } else {
                         $field.addClass('error');
                         $field.siblings('.error-message').text(file.error);
@@ -490,10 +511,11 @@ Kora.Records.Create = function() {
             }
         });
 
-        $('.filenames').on('click', '.upload-filedelete-js', function(e) {
+        $fileCardsContainer.on('click', '.upload-filedelete-js', function(e) {
             e.preventDefault();
 
-            var div = $(this).parent('.uploaded-file');
+            var $fileCard = $(this).parent().parent().parent('.file-card-js');
+            
             $.ajax({
                 url: $(this).attr('data-url'),
                 type: 'POST',
@@ -503,34 +525,42 @@ Kora.Records.Create = function() {
                     "_method": 'delete'
                 },
                 success: function (data) {
-                    div.remove();
+                    $fileCard.remove();
                 }
             });
         });
 
-        $('.filenames').on('click', '.upload-fileup-js', function(e) {
+        // Move file card up
+        $fileCardsContainer.on('click', '.up-js', function(e) {
             e.preventDefault();
 
-            fileDiv = $(this).parent('.uploaded-file');
+            var $fileCard = $(this).parent().parent().parent().parent('.file-card-js');
 
-            if(fileDiv.prev('.uploaded-file').length==1){
-                prevDiv = fileDiv.prev('.uploaded-file');
+            if ($fileCard.prev('.file-card-js').length == 1) {
+                var $prevCard = $fileCard.prev('.file-card-js');
 
-                fileDiv.insertBefore(prevDiv);
+                $fileCard.insertBefore($prevCard);
             }
         });
 
-        $('.filenames').on('click', '.upload-filedown-js', function(e) {
+        // Move file card down
+        $fileCardsContainer.on('click', '.down-js', function(e) {
             e.preventDefault();
 
-            fileDiv = $(this).parent('.uploaded-file');
+            var $fileCard = $(this).parent().parent().parent().parent('.file-card-js');
 
-            if(fileDiv.next('.uploaded-file').length==1){
-                nextDiv = fileDiv.next('.uploaded-file');
+            if ($fileCard.next('.file-card-js').length == 1) {
+                var $nextCard = $fileCard.next('.file-card-js');
 
-                fileDiv.insertAfter(nextDiv);
+                $fileCard.insertAfter($nextCard);
             }
         });
+
+        // Drag file cards to reorder
+        $fileCardsContainer.sortable();
+
+        Kora.Fields.TypedFieldInputs.Initialize();
+        Kora.Inputs.Textarea();
     }
 
     function initializePageNavigation() {

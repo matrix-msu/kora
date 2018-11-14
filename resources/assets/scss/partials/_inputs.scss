@@ -109,14 +109,14 @@
 
   @import 'inputs/buttons';
   @import 'inputs/check-boxes';
-  @import 'inputs/file';
+  @import 'inputs/profile';
   @import 'inputs/number';
   @import 'inputs/selects';
   @import 'inputs/text';
 
-  &.specialty-field-group {
-    @import 'inputs/list';
-  }
+  // Specialty Field Inputs
+  @import 'inputs/file';
+  @import 'inputs/list';
 }
 
 @import 'inputs/new-object-button';

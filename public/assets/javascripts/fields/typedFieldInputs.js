@@ -3,11 +3,32 @@ Kora.Fields = Kora.Fields || {};
 Kora.Fields.TypedFieldInputs = Kora.Fields.TypedFieldInputs || {};
 
 Kora.Fields.TypedFieldInputs.Initialize = function() {
-    console.log('Field Inputs Initialized')
+    console.log('Field Inputs Initialized');
 
     function initializeGallery() {
-        $('.gallery-field-display-js').each(function() {
+        var $galleryFormGroup = $('.gallery-input-form-group');
 
+        $galleryFormGroup.each(function() {
+            var $cards = $(this).find('.file-card');
+
+            // New option input doesn't push 'Add' button outside of input
+            function sizeCard() {
+                $cards.each(function() {
+                    var $card = $(this);
+                    var cardWidth = $card.outerWidth();
+                    var $title = $card.find('.title');
+                    var $delete = $card.find('.upload-filedelete-js');
+                    var $moveAction = $card.find('.move-actions');
+
+                    $title.css('max-width', cardWidth - $delete.width() - $moveAction.width() - 40);
+                });
+            }
+
+            sizeCard();
+
+            $(window).resize(function() {
+                sizeCard();
+            });
         });
     }
 
