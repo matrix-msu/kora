@@ -11,18 +11,30 @@
   &::after {
     opacity: 0;
   }
-  
-	.element-link-container &.right:last-child:hover::after { /* for dashboard */
-		left: -60px;
-		padding: 10px;
-		top: -120px;
-		white-space: normal;
-		width: 130px;
-	}
 
+  /* dashboard stuff */
 	.section-quick-actions &:last-child:hover::after {
 		left: -30px;
-	}
+  }
+
+  /* centering dash block quick actions */
+  .element .element-link-container &:hover::after {
+    left: -30px;
+  }
+  .element .element-link-container &.form-import:hover::after {
+    left: -15px;
+  }
+  .element .element-link-container &.permissions:hover::after,
+  .element .element-link-container &.presets:hover::after {
+    left: -45px;
+  }
+  .element .element-link-container &.search:hover::after {
+    left: -55px;
+  }
+  .element .element-link-container &.revisions:hover::after {
+    left: -60px;
+  }
+  /* end dash stuff */
 
   &:hover::after {
     animation: fadein .2s forwards;

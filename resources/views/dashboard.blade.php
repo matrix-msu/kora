@@ -97,7 +97,7 @@
 							</p>
 							<div class="element-link-container">
 								@foreach($block['displayedOpts'] as $link)
-									<a href="{{ $link['href'] }}" class="element-link tooltip"
+									<a href="{{ $link['href'] }}" class="element-link tooltip {{ $link['type'] }}"
 									tooltip="{{ $link['tooltip'] }}" quickAction="{{ $link['type'] }}">
 										<i class="icon {{ $link['icon-class']}}"></i>
 									</a>
@@ -144,7 +144,7 @@
 							</p>
 							<div class="element-link-container">
 								@foreach($block['displayedOpts'] as $link)
-									<a href="{{ $link['href'] }}" class="element-link tooltip"
+									<a href="{{ $link['href'] }}" class="element-link tooltip {{ $link['type'] }}"
 									tooltip="{{ $link['tooltip'] }}" quickAction="{{ $link['type'] }}">
 										<i class="icon {{ $link['icon-class']}}"></i>
 									</a>
