@@ -81,3 +81,8 @@
     width: calc(100% - 10px);
   }
 }
+@media screen and (max-width: $max-mobile-med-width) {
+  .grid {
+    padding: 0 10px;
+  }
+}
