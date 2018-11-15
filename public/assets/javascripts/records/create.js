@@ -427,6 +427,7 @@ Kora.Records.Create = function() {
             done: function (e, data) {
                 lastClickedFlid = $(this).attr('flid');
                 inputName = 'file'+lastClickedFlid;
+                capName = 'file_captions'+lastClickedFlid;
                 fileDiv = ".filenames-"+lastClickedFlid+"-js";
 
                 var $field = $('#'+lastClickedFlid);
@@ -453,20 +454,10 @@ Kora.Records.Create = function() {
                                         '<i class="icon icon-trash danger"></i>' +
                                     '</a>' +
                                 '</div>' +
-                                '<textarea type="text" name="caption[]" class="caption autosize-js" placeholder="Enter caption here"></textarea>' +
+                                '<textarea type="text" name="' + capName + '[]" class="caption autosize-js" placeholder="Enter caption here"></textarea>' +
                             '</div>' +
                         '</div>';
-
-                        // Old File Display
-                        // var del = '<div class="form-group mt-xxs uploaded-file">';
-                        // del += '<input type="hidden" name="' + inputName + '[]" value ="' + file.name + '">';
-                        // del += '<a href="#" class="upload-fileup-js">';
-                        // del += '<i class="icon icon-arrow-up"></i></a>';
-                        // del += '<a href="#" class="upload-filedown-js">';
-                        // del += '<i class="icon icon-arrow-down"></i></a>';
-                        // del += '<span class="ml-sm">' + file.name + '</span>';
-                        // del += '<a href="#" class="upload-filedelete-js ml-sm" data-url="' + file.deleteUrl + '">';
-                        // del += '<i class="icon icon-trash danger"></i></a></div>';
+                        
                         $(fileDiv).append(fileCardHtml);
 
                         Kora.Fields.TypedFieldInputs.Initialize();

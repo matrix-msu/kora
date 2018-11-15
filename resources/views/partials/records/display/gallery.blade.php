@@ -1,11 +1,13 @@
 <?php
-$single = (count(explode('[!]',$typedField->images)) <= 1);
-$singleFilename = ($single ? explode('[Name]',$typedField->images)[1] : '');
+    $images = explode('[!]',$typedField->images);
+    $captions = explode('[!]',$typedField->captions);
+    $single = (count($images) <= 1);
+    $singleFilename = ($single ? explode('[Name]',$typedField->images)[1] : '');
 ?>
 
 <div class="record-data-card">
     <div class="gallery-field-display gallery-field-display-js {{ ($single ? 'single' : '') }}">
-        @foreach(explode('[!]',$typedField->images) as $img)
+        @foreach($images as $img)
             @if($img != '')
                 <?php
                 $name = explode('[Name]',$img)[1];
@@ -61,7 +63,7 @@ $singleFilename = ($single ? explode('[Name]',$typedField->images)[1] : '');
         </div>
         <div class="body">
             <div class="gallery-field-display gallery-field-display-js">
-                @foreach(explode('[!]',$typedField->images) as $img)
+                @foreach($images as $img)
                     @if($img != '')
                         <?php
                         $name = explode('[Name]',$img)[1];
