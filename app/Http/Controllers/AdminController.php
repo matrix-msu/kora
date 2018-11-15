@@ -410,7 +410,7 @@ class AdminController extends Controller {
                         $user->language = 'en';
                         $token = RegisterController::makeRegToken();
                         $user->regtoken = $token;
-                        $user->save(); // foreach starts over once we reach this line
+                        $user->save();
                         array_push($user_ids, $user->id);
 
                         //
@@ -429,7 +429,8 @@ class AdminController extends Controller {
                         // Send a confirmation email.
                         //
                         try {
-                            Mail::send('emails.batch-activation', compact('token', 'password', 'username', 'personal_message'), function ($message) use ($email) {
+                            $sender = Auth::User();
+                            Mail::send('emails.batch-activation', compact('token', 'password', 'username', 'personal_message', 'sender'), function ($message) use ($email) {
                                 $message->from(config('mail.from.address'));
                                 $message->to($email);
                                 $message->subject('Kora Account Activation');

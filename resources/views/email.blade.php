@@ -74,14 +74,16 @@
         .email > .content > .project-text {
             font-size: 24px;
             line-height: 28px;
-            padding-top: 22px;
+            margin-top: 22px;
             text-shadow: 0 2px 4px 0 rgba(0,0,0,0.1);
         }
 
         .email > .content > .sub-text {
+            color: #283c46;
             font-size: 14px;
+            font-style: italic;
             line-height: 24px;
-            padding-top: 34px;
+            margin-top: 34px;
         }
 
         .email > .content > .action-btn {
@@ -121,7 +123,7 @@
         .email > .content > .post-action-text {
             font-size: 14px;
             line-height: 24px;
-            padding-top: 57px;
+            margin-top: 57px;
         }
 
         .email > .content > .line {
@@ -135,20 +137,24 @@
         .email > .content > .pre-footer-text {
             font-size: 14px;
             line-height: 24px;
-            padding-top: 39px;
+            margin-top: 39px;
         }
 
         .email > .content > .footer-text {
             font-family: 'Ubuntu-Bold', sans-serif;
             font-size: 14px;
             line-height: 24px;
-            padding-top: 39px;
+            margin-top: 40px;
         }
 
         .email > .content > .footer-email {
             font-size: 12px;
             line-height: 20px;
             padding-top: 5px;
+        }
+
+        .email .green {
+            color: #04b6af;
         }
     </style>
 </head>
@@ -174,7 +180,7 @@
 
         <div class="post-action-text">@yield('post-action-text')</div>
 
-        <div class="line"> </div>
+        <div class="line"></div>
 
         <div class="pre-footer-text">@yield('pre-footer-text')</div>
 

@@ -163,7 +163,7 @@ class ProjectGroupController extends Controller {
      * @param  Request $request
      */
     public function addUsers(Request $request) {
-		if (is_string($request->emails) && $request->emails !== '') {
+        if (is_string($request->emails) && $request->emails !== '') {
 			$request->return_user_ids = true;
 			// returns new & existing users' ids
 			$user_ids = (new AdminController())->batch($request); // this action creates the new users in db

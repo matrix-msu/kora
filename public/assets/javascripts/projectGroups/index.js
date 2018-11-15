@@ -124,14 +124,14 @@ Kora.ProjectGroups.Index = function() {
         "_token": CSRFToken,
         "_method": 'patch',
         "userIDs": userIDs,
-		"emails": invited_users_emails,
-		"message": invited_personal_msg,
+        "emails": invited_users_emails,
+        "message": invited_personal_msg,
         "projectGroup": projectGroup
       },
       success: function(data) {
-		window.localStorage.setItem('message', "User(s) Successfully Added to Permissions Group!");
-		//console.log('data: ' + data);
-		location.reload();
+        //console.log('data: ' + data);
+        window.localStorage.setItem('message', "User(s) Successfully Added to Permissions Group!");
+        window.location.reload();
       }
     });
   }
