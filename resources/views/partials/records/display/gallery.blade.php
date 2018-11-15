@@ -7,11 +7,12 @@
 
 <div class="record-data-card">
     <div class="gallery-field-display gallery-field-display-js {{ ($single ? 'single' : '') }}">
-        @foreach($images as $img)
+        @foreach($images as $ndx => $img)
             @if($img != '')
                 <?php
                 $name = explode('[Name]',$img)[1];
                 $link = action('FieldAjaxController@getImgDisplay',['flid' => $field->flid, 'rid' => $record->rid, 'filename' => $name, 'type' => 'medium']);
+                $caption = (array_key_exists($ndx, $captions) ? $captions[$ndx] : '');
                 ?>
                 <div class="slide slide-js">
                     <img class="slide-img slide-img-js" data-pid="{{$record->pid}}" data-fid="{{$record->fid}}" data-rid="{{$record->rid}}" data-flid="{{ $field->flid }}" src="{{$link}}" alt="{{$name}}">
@@ -33,6 +34,13 @@
             </div>
         </div>
     @endif
+
+    <div class="caption-container caption-container-js">
+        @foreach ($captions as $index => $caption)
+            <div class="caption caption-js {{ ($index == 0 ? 'active' : '') }}">{{ $caption }}</div>
+        @endforeach
+    </div>
+    <a class="caption-more caption-more-js underline-middle-hover" showing="less" href="#">Show Full Caption</a>
 
     <div class="field-sidebar gallery-sidebar gallery-sidebar-js {{ ($single ? 'single' : '') }}">
         <div class="top">

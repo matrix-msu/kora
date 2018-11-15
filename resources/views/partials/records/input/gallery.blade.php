@@ -35,6 +35,7 @@
     //If this is an edit, we need to move things around
     if($editRecord && $hasData) {
         $names = explode('[!]',$typedField->images);
+        $captions = explode('[!]',$typedField->captions);
         foreach($names as $key => $file) {
             $name = explode('[Name]',$file)[1];
             $names[$key] = $name;
@@ -65,7 +66,7 @@
 
     <label for="file{{$field->flid}}" class="file-label file-label-js">
         <div class="file-cards-container file-cards-container-js filenames-{{$field->flid}}-js preset-clear-file-js">
-            @foreach($value as $file)
+            @foreach($value as $index => $file)
                 <div class="card file-card file-card-js">
                     <input type="hidden" name="file{{$field->flid}}[]" value ="{{$file}}">
                     <div class="header">
@@ -87,7 +88,7 @@
                             </a>
                         </div>
 
-                        <textarea type="text" name="file_captions{{$field->flid}}[]" class="caption autosize-js" placeholder="Enter caption here"></textarea>
+                        <textarea type="text" name="file_captions{{$field->flid}}[]" class="caption autosize-js" placeholder="Enter caption here">{{ (array_key_exists($index, $captions) ? $captions[$index] : '') }}</textarea>
                     </div>
                 </div>
             @endforeach

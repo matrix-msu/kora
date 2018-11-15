@@ -103,6 +103,43 @@
 }
 
 /***** GALLERY *****/
+.caption-container {
+  margin: 10px;
+  max-height: 225px;
+  overflow: hidden;
+  position: relative;
+
+  .caption {
+    color: palette('gray', text, .8);
+    font-size: 13px;
+    left: calc(100% + 40px);
+    margin: 0;
+    position: absolute;
+    top: 0;
+    width: 100%;
+
+    &.active {
+      position: relative;
+      left: 0;
+    }
+  }
+
+  + .caption-more {
+    color: palette('green', accent);
+    display: none;
+    font-family: $ubuntu-medium;
+    margin: 10px;
+
+    &.more {
+      display: inline-block;
+    }
+  }
+
+  &.more {
+    max-height: initial;
+  }
+}
+
 .gallery-controls {
   align-items: center;
   display: flex;
@@ -209,11 +246,8 @@
 }
 
 .gallery-sidebar {
-  height: calc(100% - 58px);
-
-  &.single {
-    height: 100%;
-  }
+  box-sizing: initial;
+  height: 300px;
 }
 
 /***** GEOLOCATOR *****/
