@@ -208,7 +208,7 @@
 								<div class="wrap">
 									<p>Drag & drop blocks to reorganize</p>
 									<section class="new-object-button">
-										<input class="edit-block-js" type="button" value="Edit Block" blkID="{{ $block['id'] }}" blockType="{{ $block['type'] }}" blockRecord="{{ $block['rid'] }}" secID="{{ $section['id'] }}">
+										<input class="edit-block-js" type="button" value="Edit Block" blkID="{{ $block['id'] }}" blockType="{{ $block['type'] }}" blockRecord="{{ $block['kid'] }}" secID="{{ $section['id'] }}">
 									</section>
 									<div class="bottom">
 										<a class="remove-block remove-block-js tooltip" tooltip="Delete Block" blkID="{{ $block['id'] }}" secID="{{ $section['id'] }}">
