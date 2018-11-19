@@ -28,28 +28,28 @@
         <label for="first-name">Your First Name</label>
           <span class="error-message">{{array_key_exists("first_name", $errors->messages()) ? $errors->messages()["first_name"][0] : ''}}</span>
   			<input type="text" class="text-input {{(array_key_exists("first_name", $errors->messages()) ? ' error' : '')}}"
-                   id="first_name" name="first_name" placeholder="Enter your first name here" value="{{ old('first_name') }}">
+                   id="first_name" name="first_name" placeholder="Enter your first name here" value="">
       </div>
 
       <div class="form-group half mt-xl">
         <label for="first-name">Your Last Name</label>
           <span class="error-message">{{array_key_exists("last_name", $errors->messages()) ? $errors->messages()["last_name"][0] : ''}}</span>
   			<input type="text" class="text-input {{(array_key_exists("last_name", $errors->messages()) ? ' error' : '')}}"
-                   id="last_name" name="last_name" placeholder="Enter your last name here" value="{{ old('last_name') }}">
+                   id="last_name" name="last_name" placeholder="Enter your last name here" value="">
       </div>
 
       <div class="form-group mt-xl">
         <label for="username">Your Username</label>
           <span class="error-message">{{array_key_exists("username", $errors->messages()) ? $errors->messages()["username"][0] : ''}}</span>
         <input type="text" class="text-input {{(array_key_exists("username", $errors->messages()) ? ' error' : '')}}"
-               id="username" name="username" placeholder="Enter your username here" value="{{ old('username') }}">
+               id="username" name="username" placeholder="Enter your username here" value="">
       </div>
 
       <div class="form-group mt-xl">
         <label for="email">Your Email</label>
           <span class="error-message">{{array_key_exists("email", $errors->messages()) ? $errors->messages()["email"][0] : ''}}</span>
         <input type="email" class="text-input {{(array_key_exists("email", $errors->messages()) ? ' error' : '')}}"
-               id="email" name="email" placeholder="Enter your email here" value="{{ old('email') }}">
+               id="email" name="email" placeholder="Enter your email here" value="{{ $user->email }}">
       </div>
 
       <div class="form-group half mt-xl">
@@ -84,7 +84,7 @@
         <label for="organization">Your Organization</label>
           <span class="error-message">{{array_key_exists("organization", $errors->messages()) ? $errors->messages()["organization"][0] : ''}}</span>
   			<input type="text" class="text-input {{(array_key_exists("organization", $errors->messages()) ? ' error' : '')}}"
-                   id="organization" name="organization" placeholder="Enter your organization here" value="{{ old('organization') }}">
+                   id="organization" name="organization" placeholder="Enter your organization here" value="">
       </div>
 
       {{--
