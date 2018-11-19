@@ -157,8 +157,8 @@
       }
 
       .quote-text,
-	  .quote-author {
-		color: #1f2833;
+      .quote-author {
+        color: #1f2833;
         font-family: $ubuntu;
         font-size: 14px;
         height: fit-content;
@@ -172,6 +172,10 @@
 
       &.note-block {
         overflow-y: auto;
+
+        &.edit-mode:hover {
+          overflow-y: hidden;
+        }
       }
 
       .note-title {
