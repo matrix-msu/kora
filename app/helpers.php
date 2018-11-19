@@ -109,7 +109,7 @@ function getDashboardProjectBlockLink($block, $link_type) {
 	  case 'import':
 	      return [
             'tooltip' => 'Import Multi-Form Records Setup',
-            'icon-class' => 'icon-record-import',
+            'icon-class' => 'icon-importMFRecords-little',
 		    'href' => url('/').'/projects/'.$options['pid'].'/importMF',
 		    'type' => 'import'
 		  ];
@@ -117,7 +117,7 @@ function getDashboardProjectBlockLink($block, $link_type) {
 	  case 'import2k':
           return [
             'tooltip' => 'Kora 2 Scheme Importer',
-            'icon-class' => 'icon-form-scheme-importer',
+            'icon-class' => 'icon-k2SchemeImporter-little',
             'href' => url('/').'/projects/'.$options['pid'].'/forms/importk2',
             'type' => 'import2k'
           ];
@@ -125,7 +125,7 @@ function getDashboardProjectBlockLink($block, $link_type) {
 	  case 'export':
 	      return [
             'tooltip' => 'Export Project',
-            'icon-class' => 'icon-chevron',
+            'icon-class' => 'icon-exportProject-little',
 		    'href' => action('ExportController@exportProject',['pid' => $options['pid']]),
 		    'type' => 'export'
 		  ];
@@ -191,7 +191,7 @@ function getDashboardFormBlockLink($block, $link_type) {
 	  case 'import':
 	      return [
             'tooltip' => 'Import Records',
-            'icon-class' => 'icon-record-import',
+            'icon-class' => 'icon-importrecords-little',
 		    'href' => action('RecordController@importRecordsView', ['pid' => $form->pid, 'fid' => $form->fid]),
 		    'type' => 'import'
 		  ];
@@ -199,7 +199,7 @@ function getDashboardFormBlockLink($block, $link_type) {
       case 'batch':
           return [
             'tooltip' => 'Batch Assign Field Values',
-            'icon-class' => 'icon-zap',
+            'icon-class' => 'icon-batchAssign-little',
             'href' => action('RecordController@showMassAssignmentView',['pid' => $form->pid, 'fid' => $form->fid]),
             'type' => 'batch'
           ];
@@ -207,7 +207,7 @@ function getDashboardFormBlockLink($block, $link_type) {
       case 'export-records':
           return [
             'tooltip' => 'Export All Records',
-            'icon-class' => 'icon-chevron',
+            'icon-class' => 'icon-exportRecords-Little',
             'href' => '#',
             'type' => 'export-records'
           ];
@@ -215,7 +215,7 @@ function getDashboardFormBlockLink($block, $link_type) {
       case 'assoc-permissions':
           return [
             'tooltip' => 'Association Permissions',
-            'icon-class' => 'icon-form-associations',
+            'icon-class' => 'icon-associationPermissions-little',
             'href' => action('AssociationController@index', ['fid' => $form->fid, 'pid' => $form->pid]),
             'type' => 'assoc-permissions'
           ];
@@ -223,7 +223,7 @@ function getDashboardFormBlockLink($block, $link_type) {
       case 'export-form':
           return [
             'tooltip' => 'Export Form',
-            'icon-class' => 'icon-chevron',
+            'icon-class' => 'icon-exportForm-Little',
             'href' => action('ExportController@exportForm',['fid'=>$form->fid, 'pid' => $form->pid]),
             'type' => 'export-form'
           ];
