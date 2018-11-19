@@ -64,6 +64,7 @@
 @import 'partials/loading-icon';
 @import 'partials/reset-page';
 @import 'partials/error-404.scss';
+@import 'partials/error-500.scss';
 
 @media screen and (min-width: $max-tablet-width) and (max-width: $max-with-aside-width) {
   // scss-lint:disable ImportantRule
