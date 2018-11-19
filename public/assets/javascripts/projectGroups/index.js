@@ -129,9 +129,12 @@ Kora.ProjectGroups.Index = function() {
         "projectGroup": projectGroup
       },
       success: function(data) {
-        //console.log('data: ' + data);
-        window.localStorage.setItem('message', "User(s) Successfully Added to Permissions Group!");
-        window.location.reload();
+        console.log(data)
+        //window.localStorage.setItem('message', "User(s) Successfully Added to Permissions Group!");
+        //window.location.reload();
+      },
+      error: function (err) {
+        console.log(err)
       }
     });
   }

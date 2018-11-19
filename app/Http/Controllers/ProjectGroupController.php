@@ -184,14 +184,14 @@ class ProjectGroupController extends Controller {
 			foreach($currGroups as $group) {
 				array_push($currGroups_ids, $group->project_group_id);
 			}
-		
+
 			$newUser = true;
 			$group = null;
 			$idOld = 0;
-		
+
 			// for the user's project groups, see if one belongs to the current project
 			$groups = ProjectGroup::whereIn('id', $currGroups_ids)->get();
-			
+
 			foreach($groups as $group) {
 				if($group == null){Log::info("Null group"); continue;}
 				if ($group->pid == $instance->pid) {
@@ -212,27 +212,27 @@ class ProjectGroupController extends Controller {
 
 			$instance->users()->attach($userID);
 		}
-		
+
 	    $proj = ProjectController::getProject($instance->pid);
 		// add the users to the custom project
 		$proj->batchAddUsersAsCustom($request->userIDs);
-		
+
 		if($instance->name == $proj->name.' Admin Group') {
 			$tag = ' Admin Group';
         } else {
 			$tag = ' Default Group';
         }
 		$forms = Form::where('pid', '=', $instance->pid)->get();
-		
+
 		$names = array(); $fids = array();
 		foreach ($forms as $form) {
 			array_push($names, $form->name . $tag);
 			$fids[$form->fid] = true;
 		}
-		
+
 		$possible_formgroups = FormGroup::whereIn('name', $names)->get();
 		$wanted_form_group_ids = array();
-		
+
 		foreach ($possible_formgroups as $form_group) {
 			if (isset($fids[$form_group->fid])) { // this filters out form groups with same name but different fid
 				$FGC = new FormGroupController();

@@ -369,6 +369,11 @@ class AdminController extends Controller {
         $emails = array_unique(explode(' ', $emails));
         $personal_message = $request->message;
 
+        if (isset($request->projectGroup)) {
+            $projectGroup = ProjectGroup::where('id', '=', $request->projectGroup)->first();
+            $project = Project::where('pid','=',$projectGroup->pid)->first();
+        }
+
         $notification = array(
             'message' => '',
             'description' => '',
@@ -383,7 +388,7 @@ class AdminController extends Controller {
             $skipped = 0;
             $created = 0;
 			$user_ids = array();
-			
+
             foreach ($emails as $email) {
                 if (filter_var($email, FILTER_VALIDATE_EMAIL)) {
                     $username = explode('@', $email)[0];
@@ -430,7 +435,7 @@ class AdminController extends Controller {
                         //
                         try {
                             $sender = Auth::User();
-                            Mail::send('emails.batch-activation', compact('token', 'password', 'username', 'personal_message', 'sender'), function ($message) use ($email) {
+                            Mail::send('emails.batch-activation', compact('token', 'password', 'username', 'personal_message', 'sender', 'project', 'projectGroup'), function ($message) use ($email) {
                                 $message->from(config('mail.from.address'));
                                 $message->to($email);
                                 $message->subject('Kora Account Activation');

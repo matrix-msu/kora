@@ -126,11 +126,17 @@
             margin-top: 57px;
         }
 
+        .email > .content > .post-action-text > ul {
+            display: inline-block;
+            margin-bottom: 0;
+            padding: 0;
+        }
+
         .email > .content > .line {
             border: 2px solid rgba(21,39,48,0.05);
             box-sizing: border-box;
             height: 3px;
-            margin-top: 51px;
+            margin-top: 39px;
             width: 100%;
         }
 
@@ -155,6 +161,11 @@
 
         .email .green {
             color: #04b6af;
+        }
+
+        .email .project-title {
+            display: inline-block;
+            margin-top: 34px;
         }
 
         .email .green-nolink {
