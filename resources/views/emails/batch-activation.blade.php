@@ -28,9 +28,18 @@
         Once you accept, you'll be added to the {{ $projectGroup->name }} permissions group.  This means you'll be able to:
         <ul>
             <li>View the Project</li>
-            {{ $projectGroup->create == '1' ? '<li>Create Forms</li>' : null }}
-            {{ $projectGroup->edit == '1' ? '<li>Edit Forms</li>' : null }}
-            {{ $projectGroup->delete == '1' ? '<li>Delete Forms</li>' : null }}
+
+            @if ($projectGroup->create == '1')
+                <li>Create Forms</li>
+            @endif
+
+            @if ($projectGroup->edit == '1')
+                <li>Edit Forms</li>
+            @endif
+
+            @if ($projectGroup->delete == '1')
+                <li>Delete Forms</li>
+            @endif
         </ul>
     @endsection
 @endif

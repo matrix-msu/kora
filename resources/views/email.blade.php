@@ -132,6 +132,10 @@
             padding: 0;
         }
 
+        .email > .content > .post-action-text > ul > li {
+            margin: 0 0 0 15px;
+        }
+
         .email > .content > .line {
             border: 2px solid rgba(21,39,48,0.05);
             box-sizing: border-box;
