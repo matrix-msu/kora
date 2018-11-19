@@ -1,0 +1,88 @@
+.error-500 {
+  width: 100%;
+  height: 100%;
+  
+  .content {
+    background: url('../images/auth-bg.jpg');
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+  }
+
+  .e500 {
+	margin: 50px auto 0 auto;
+	max-width: 405px !important;
+	text-align: center;
+  }
+  
+  .subheader {
+    padding-top: 140px;
+    font-family: Ubuntu-Medium;
+	font-size: 22px;
+	line-height: 26px;
+	text-shadow: 0 2px 4px 0 rgba(0,0,0,0.1);
+	color: #283C46;
+  }
+  
+  .main-info {
+    font-family: Ubuntu-Medium;
+	font-size: 14px;
+	line-height: 24px;
+	white-space: nowrap;
+    color: #283C46;
+  }
+  
+  .link {
+    text-decoration: none;
+    color: #04b6af !important;
+  }
+  
+  .btn {
+    @include transition();
+    
+    background: gradient($palette: 'accent', $degree: to right);
+    border: 0;
+    border-radius: 100px;
+    box-shadow: 0 3px 5px 0 palette('box-shadow', accent, .1);
+    color: palette('white', base);
+    cursor: pointer;
+    font-family: $ubuntu;
+    font-size: 16px;
+    height: 50px;
+    line-height: 18px;
+    opacity: .9;
+    text-align: center;
+    width: 100%;
+    
+    &:focus {
+      outline: none;
+    }
+    
+    &:hover,
+    &:focus {
+      box-shadow: 0 5px 10px 0 palette('box-shadow', accent, .2);
+      opacity: 1;
+    }
+    
+    &.secondary {
+      background: palette('white', base);
+      border: 2px solid palette('green', accent, .6);
+      box-shadow: 0 5px 10px 0 palette('box-shadow', accent, .1);
+      color: palette('green', accent);
+    
+      &:hover {
+        border-color: palette('green', accent, 1);
+      }
+    }
+  }
+
+  .footer-spacing {
+    margin-bottom: 150px;
+  }
+  
+  footer {
+	padding-top: 18vh;
+    padding-bottom: 19vh;
+  }
+}
+
