@@ -198,6 +198,7 @@ Route::group(['middleware' => 'web'], function () {
     Route::get('/user', 'Auth\UserController@redirect');
     Route::get('/auth/activate', 'Auth\UserController@activateshow');
     Route::get('/user/activate/{token}', 'Auth\UserController@activate');
+    Route::get('/user/invitedactivate/{token}', 'Auth\UserController@activateFromInvite');
     Route::get('/user/{uid}/edit', 'Auth\UserController@editProfile');
     Route::get('/user/{uid}/preferences', 'Auth\UserController@preferences'); // get all user prefs
     Route::get('/user/{uid}/{section?}', 'Auth\UserController@index');

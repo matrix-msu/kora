@@ -156,6 +156,11 @@
         .email .green {
             color: #04b6af;
         }
+
+        .email .green-nolink {
+            color: #04b6af !important;
+            text-decoration: none !important;
+        }
     </style>
 </head>
 <body class="email-body">

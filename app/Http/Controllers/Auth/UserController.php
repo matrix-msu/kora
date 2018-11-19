@@ -494,6 +494,15 @@ class UserController extends Controller {
         }
     }
 
+    public function activateFromInvite ($token) {
+        if(!is_null(\Auth::user()))
+            \Auth::logout(\Auth::user()->id);
+
+        $user = User::where('regtoken', '=', $token)->first();
+
+        return view('auth.invited-register', compact('user'));
+    }
+
     /**
      * Creates a default project for the new user. Kept private because this should only happen on activation by user.
      *

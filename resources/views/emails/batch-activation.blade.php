@@ -9,23 +9,24 @@
 @endsection
 
 @section('button-link')
-    {{ action('Auth\UserController@activate', ['token' => $token]) }}
+    {{ action('Auth\UserController@activateFromInvite', ['token' => $token]) }}
 @endsection
 
 @section('button-text')
     Accept Invite
 @endsection
 
-@section('footer-text')
+@section('pre-footer-text')
     <span class="green">Kora</span> is an open-source, database-driven, online digital repository application for complex digital objects. Kora allows you to store, manage, and publish digital objects, each with corresponding metadata into a single record, enhancing the research and educational value of each.
 @endsection
 
-@section('footer-email')
-    You have been invited by <span class="green">{{ $sender->first_name }} {{ $sender->last_name }}</span><br>
-    ({{ $sender->username }}, {{ $sender->email }})
+@section('footer-text')
+    You have been invited by {{ $sender->first_name }} {{ $sender->last_name }}
 @endsection
 
-
+@section('footer-email')
+    ({{ $sender->username }}, <span class="green-nolink">{{ $sender->email }}</span>)
+@endsection
 
 {{--
 {{trans('emails_batch-activation.welcome')}} Kora 3! <br/>
