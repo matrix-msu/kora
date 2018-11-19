@@ -117,9 +117,9 @@
           padding: 0 13px 0 26px;
         }
 
-		&:last-child {
-			font-size: 14px;
-		}
+        &:last-child {
+          font-size: 14px;
+        }
 
         &:hover i {
           transform: scale(1.25);
@@ -210,21 +210,29 @@
         }
       }
 
-	  .tweets {
-		  margin: 10px 0 0;
-		  overflow: visible;
-		  width: 100%;
-	  }
+      .tweets {
+        margin: 10px 0 0;
+        overflow: visible;
+        width: 100%;
+      }
 
-	  &.tweets {
-		  overflow-x: hidden;
-		  overflow-y: scroll;
+      &.tweets {
+        overflow-x: hidden;
+        overflow-y: scroll;
 
-		  &.edit-mode {
-			overflow: hidden;
-		  }
-	  }
+        &.edit-mode {
+          overflow: hidden;
+        }
+      }
     }
+
+  &.no-section {
+    margin: 0 auto 55px;
+
+    .container > .element:first-of-type {
+      margin-top: 60px;
+    }
+  }
 
 	&.add-section {
 		padding-bottom: 180px;

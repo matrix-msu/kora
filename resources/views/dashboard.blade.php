@@ -53,13 +53,11 @@
 
     <div class="sections" id="sections">
     @foreach($sections as $section)
-		<section class="grid section-js {{ $section['title'] == 'No Section' ? 'add-section' : null }}" id="{{ $section['id'] }}">
-			<h1 class="header {{ $section['title'] == 'No Section' ? 'add-section hidden' : null }}">
+		<section class="grid section-js {{ $section['title'] == 'No Section' ? 'no-section' : null }}" id="{{ $section['id'] }}">
+			<h1 class="header {{ $section['title'] == 'No Section' ? 'no-section hidden' : null }}">
 				<span class="left title">
 					@if ($section['title'] != 'No Section')
 						{{ $section['title'] }}
-					@else
-						<input class="add-section-input-js" type="text" name="sectionTitle" value="" placeholder="Type Here and Hit Enter to Add a New Section">
 					@endif
 				</span>
 				@if ($section['title'] != 'No Section')
@@ -292,6 +290,13 @@
 			</div>
 		</section>
 	@endforeach
+		<section class="grid section-js add-section">
+			<h1 class="header add-section hidden">
+				<span class="left title"><input class="add-section-input-js" type="text" name="sectionTitle" value="" placeholder="Type Here and Hit Enter to Add a New Section"></span>
+				<div class="line-container"><span class="line"></span></div>
+			</h1>
+			<div class="container"></div>
+		</section>
 	</div>
 
 	<div class="form-group dashboard-submit">

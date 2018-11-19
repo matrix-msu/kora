@@ -67,7 +67,7 @@ class DashboardController extends Controller {
             else
                 $this->makeDefaultBlock('Fun'); // If no projects, make an inspiration quote
         } elseif (count($results) > 1) {
-            $this->makeNonSectionLast();
+            $this->makeNonSectionFirst();
         }
 
         foreach($results as $sec) {
@@ -466,7 +466,7 @@ class DashboardController extends Controller {
             ->where('title','=',$sectionTitle)
             ->first()->id;
 
-        $this->makeNonSectionLast();
+        $this->makeNonSectionFirst();
         return response()->json(["status"=>true, "message"=>"Section created", "sec_title"=>$sectionTitle, "sec_id"=>$sec_id, 200]);
     }
 
@@ -539,13 +539,13 @@ class DashboardController extends Controller {
         return response()->json(["status"=>true, "message"=>"Block destroyed", 200]);
     }
 
-    private function makeNonSectionLast () {
-        $lastSection = DB::table("dashboard_sections")->where('uid','=',Auth::user()->id)->orderBy('order','desc')->first()->order + 1;
+    private function makeNonSectionFirst () {
+        $firstSection = DB::table("dashboard_sections")->where('uid','=',Auth::user()->id)->orderBy('order','asc')->first()->order - 1;
 
         DB::table('dashboard_sections')
             ->where('uid','=',Auth::user()->id)
             ->where('title','=','No Section')
-            ->update(['order' => $lastSection]);
+            ->update(['order' => $firstSection]);
 
         $this->reorderSections();
     }
