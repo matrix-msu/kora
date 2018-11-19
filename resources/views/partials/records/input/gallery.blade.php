@@ -15,7 +15,7 @@
     }
     if(file_exists($dirTmp.'/medium')) {
         //clear tmp folder
-        foreach(new \DirectoryIterator($dirTmp) as $file) {
+        foreach(new \DirectoryIterator($dirTmp.'/medium') as $file) {
             if($file->isFile())
                 unlink($dirTmp.'/medium/'.$file->getFilename());
         }
@@ -24,7 +24,7 @@
     }
     if(file_exists($dirTmp.'/thumbnail')) {
         //clear tmp folder
-        foreach(new \DirectoryIterator($dirTmp) as $file) {
+        foreach(new \DirectoryIterator($dirTmp.'/thumbnail') as $file) {
             if($file->isFile())
                 unlink($dirTmp.'/thumbnail/'.$file->getFilename());
         }

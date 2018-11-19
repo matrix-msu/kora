@@ -52,7 +52,6 @@
                                 $data = $stringDate;
                                 break;
                             case 'Documents':
-                            case 'Gallery':
                             case 'Model':
                             case 'Playlist':
                             case 'Video':
@@ -61,6 +60,19 @@
                                     $stringFile .= '<div>'.explode('[Name]',$file)[1].'</div>';
                                 }
                                 $data = $stringFile;
+                                break;
+                            case 'Gallery':
+                                $names = $data;
+                                $captions = $pd['captions'];
+                                $stringFile = '';
+                                for($gi=0;$gi<count($names);$gi++) {
+                                    $capString = '';
+                                    if($captions[$gi] != '')
+                                        $capString = ' - '.$captions[$gi];
+                                    $stringFile .= '<div>'.explode('[Name]',$names[$gi])[1].$capString.'</div>';
+                                }
+                                $data = $stringFile;
+                                break;
                                 break;
                             case 'Multi-Select List':
                             case 'Generated List':
