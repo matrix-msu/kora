@@ -10,7 +10,7 @@
 			
 			<div class="main-info mt-xxl">Feel free to contact the Installation Admin</div>
 			
-			<a href="{{$install_admin_email}}" class="link main-info">{{$install_admin_email}}</a>
+			<a href="mailto:{{$install_admin_email}}" class="link main-info">{{$install_admin_email}}</a>
 			
 			<div class="main-info">about this problem, or ...</div>
 			
@@ -33,6 +33,7 @@
 	{!! Minify::javascript([
 	'/assets/javascripts/vendor/jquery/jquery.js',
 	'/assets/javascripts/vendor/jquery/jquery-ui.js',
+	'/assets/javascripts/vendor/chosen.js',
 	'/assets/javascripts/general/modal.js',
 	'/assets/javascripts/navigation/navigation.js',
 	'/assets/javascripts/general/global.js'
