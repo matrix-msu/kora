@@ -431,10 +431,19 @@ Kora.Records.Create = function() {
                 fileDiv = ".filenames-"+lastClickedFlid+"-js";
 
                 var $field = $('#'+lastClickedFlid);
+                var $formGroup = $field.parent('.form-group');
                 $field.removeClass('error');
                 $field.siblings('.error-message').text('');
                 $.each(data.result[inputName], function (index, file) {
                     if(file.error == "" || !file.hasOwnProperty('error')) {
+                        // Add caption only if input is a gallery
+                        var captionHtml = '';
+                        console.log($formGroup);
+                        if ($formGroup.hasClass('gallery-input-form-group')) {
+                          console.log('wow');
+                          captionHtml = '<textarea type="text" name="' + capName + '[]" class="caption autosize-js" placeholder="Enter caption here"></textarea>';
+                        }
+                        // File card html
                         var fileCardHtml = '<div class="card file-card file-card-js">' +
                             '<input type="hidden" name="' + inputName + '[]" value ="' + file.name + '">' +
                             '<div class="header">' +
@@ -454,12 +463,14 @@ Kora.Records.Create = function() {
                                         '<i class="icon icon-trash danger"></i>' +
                                     '</a>' +
                                 '</div>' +
-                                '<textarea type="text" name="' + capName + '[]" class="caption autosize-js" placeholder="Enter caption here"></textarea>' +
+                                captionHtml +
                             '</div>' +
                         '</div>';
-                        
+
+                        // Add file card to list of cards
                         $(fileDiv).append(fileCardHtml);
 
+                        // Reinitialize inputs
                         Kora.Fields.TypedFieldInputs.Initialize();
                         Kora.Inputs.Textarea();
                     } else {
@@ -506,7 +517,7 @@ Kora.Records.Create = function() {
             e.preventDefault();
 
             var $fileCard = $(this).parent().parent().parent('.file-card-js');
-            
+
             $.ajax({
                 url: $(this).attr('data-url'),
                 type: 'POST',

@@ -8,8 +8,8 @@
                 $link = action('FieldAjaxController@getFileDownload',['flid' => $field->flid, 'rid' => $record->rid, 'filename' => $name]);
                 ?>
                 <div>
-                    <p class="mt-xs"><a class="documents-link underline-middle-hover" href="{{$link}}">{{$name}}</a></p>
-                    <p class="">File size: {{$typedField->formatBytes($size)}}</p>
+                    <p class="filename"><a class="documents-link underline-middle-hover" href="{{$link}}">{{$name}}</a></p>
+                    <p class="file-size">File size: {{$typedField->formatBytes($size)}}</p>
                 </div>
             @endif
         </div>
@@ -28,10 +28,3 @@
         </div>
     </div>
 @endforeach
-
-
-
-
-
-
-
