@@ -425,6 +425,8 @@ Kora.Records.Create = function() {
             dataType: 'json',
             singleFileUploads: false,
             done: function (e, data) {
+                console.log('success');
+
                 lastClickedFlid = $(this).attr('flid');
                 inputName = 'file'+lastClickedFlid;
                 capName = 'file_captions'+lastClickedFlid;
@@ -488,8 +490,10 @@ Kora.Records.Create = function() {
             },
             fail: function (e,data){
                 var error = data.jqXHR['responseText'];
+                lastClickedFlid = $(this).attr('flid');
 
                 var $field = $('#'+lastClickedFlid);
+                var $errorMessage = $field.siblings('.error-message');
                 $field.removeClass('error');
                 $field.siblings('.error-message').text('');
                 if(error=='InvalidType'){
@@ -501,6 +505,9 @@ Kora.Records.Create = function() {
                 } else if(error=='MaxSizeReached'){
                     $field.addClass('error');
                     $field.siblings('.error-message').text('One or more uploaded files is bigger than limit');
+                } else {
+                    $field.addClass('error');
+                    $field.siblings('.error-message').text('Error uploading file');
                 }
             },
             progressall: function (e, data) {
