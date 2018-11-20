@@ -97,6 +97,13 @@
                     <i class="icon icon-chevron"></i>
                 </div>
             </div>
+
+            <div class="caption-container caption-container-js">
+                @foreach ($captions as $index => $caption)
+                    <div class="caption caption-js {{ ($index == 0 ? 'active' : '') }}">{{ $caption }}</div>
+                @endforeach
+            </div>
+            <a class="caption-more caption-more-js underline-middle-hover" showing="less" href="#">Show Full Caption</a>
         </div>
     </div>
 </div>

@@ -20,6 +20,8 @@ Kora.Fields.TypedFieldDisplays.Initialize = function() {
             var captionWidth = $captionContainer.width() + 40;
             var maxCaptionHeight = 225;
 
+            var $dots = $dotsContainer.find('.dot-js');
+
             // Set dots
             if (!single) {
                 var dotsHtml = "";

@@ -164,21 +164,24 @@ class GalleryField extends FileTypeField  {
                             $type = $types[$file->getExtension()];
                         $info = '[Name]' . $file->getFilename() . '[Name][Size]' . $file->getSize() . '[Size][Type]' . $type . '[Type]';
                         $infoArray[$file->getFilename()] = $info;
+
                         if(isset($request->mass_creation_num))
                             copy(storage_path('app/tmpFiles/' . $value . '/' . $file->getFilename()),
                                 $newPath . '/' . $file->getFilename());
                         else
                             rename(storage_path('app/tmpFiles/' . $value . '/' . $file->getFilename()),
                             $newPath . '/' . $file->getFilename());
+
                         if(isset($request->mass_creation_num))
                             copy(storage_path('app/tmpFiles/' . $value . '/thumbnail/' . $file->getFilename()),
-                                $newPath . '/' . $file->getFilename());
+                                $newPath . '/thumbnail/' . $file->getFilename());
                         else
                             rename(storage_path('app/tmpFiles/' . $value . '/thumbnail/' . $file->getFilename()),
                             $newPath . '/thumbnail/' . $file->getFilename());
+
                         if(isset($request->mass_creation_num))
                             copy(storage_path('app/tmpFiles/' . $value . '/medium/' . $file->getFilename()),
-                                $newPath . '/' . $file->getFilename());
+                                $newPath . '/medium/' . $file->getFilename());
                         else
                             rename(storage_path('app/tmpFiles/' . $value . '/medium/' . $file->getFilename()),
                             $newPath . '/medium/' . $file->getFilename());
@@ -324,6 +327,7 @@ class GalleryField extends FileTypeField  {
         $this->rid = $record->rid;
         $this->fid = $field->fid;
         $infoArray = array();
+        $captionArray = array();
         $maxfiles = FieldController::getFieldOption($field,'MaxFiles');
         if($maxfiles==0) {$maxfiles=1;}
         $newPath = storage_path('app/files/p' . $field->pid . '/f' . $field->fid . '/r' . $record->rid . '/fl' . $field->flid);
@@ -339,6 +343,7 @@ class GalleryField extends FileTypeField  {
                 $type = $types['png'];
             $info = '[Name]gallery' . $q . '.png[Name][Size]54827[Size][Type]' . $type . '[Type]';
             $infoArray['gallery' . $q . '.png'] = $info;
+            array_push($captionArray, 'This is a test caption');
             copy(public_path('assets/testFiles/gallery.png'),
                 $newPath . '/gallery' . $q . '.png');
             copy(public_path('assets/testFiles/medium/gallery.png'),
@@ -346,8 +351,8 @@ class GalleryField extends FileTypeField  {
             copy(public_path('assets/testFiles/thumbnail/gallery.png'),
                 $newPath . '/thumbnail/gallery' . $q . '.png');
         }
-        $infoString = implode('[!]',$infoArray);
-        $this->images = $infoString;
+        $this->images = implode('[!]',$infoArray);
+        $this->captions = implode('[!]',$captionArray);
         $this->save();
     }
 

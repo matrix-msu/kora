@@ -131,8 +131,6 @@
             </section>
         </div>
     </section>
-
-    {{--//TODO::PRESETS--}}
 @stop
 
 @section('fieldOptionsJS')

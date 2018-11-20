@@ -661,7 +661,7 @@ Kora.Records.Create = function() {
         function putArray(ary) {
             var flids = ary['flids'];
             var data = ary['data'];
-            var presetID = $('#presetselect').val();
+            var presetID = $('.preset-record-js').val();
 
             var i;
             for (i = 0; i < flids.length; i++) {
@@ -795,7 +795,7 @@ Kora.Records.Create = function() {
                             applyFilePreset(field['documents'], presetID, flid);
                             break;
                         case 'Gallery':
-                            applyFilePreset(field['images'], presetID, flid);
+                            applyGalleryPreset(field, presetID, flid);
                             break;
                         case 'Playlist':
                             applyFilePreset(field['audio'], presetID, flid);
@@ -844,6 +844,27 @@ Kora.Records.Create = function() {
         }
 
         /**
+         * Applies the preset for a file type field
+         */
+        function applyGalleryPreset(field, presetID, flid) {
+            var filenames = $(".filenames-"+flid+"-js");
+            filenames.empty();
+
+            var typeIndex = field["images"];
+            var captions = field["captions"];
+
+            if (!typeIndex) { /* Do nothing. */ }
+            else {
+                moveFiles(presetID, flid, userID);
+
+                for (var z = 0; z < typeIndex.length; z++) {
+                    filename = typeIndex[z].split('[Name]')[1];
+                    filenames.append(galDivHTML(filename, captions[z], flid, userID));
+                }
+            }
+        }
+
+        /**
          * Generates the HTML for an uploaded file's div.
          */
         function fileDivHTML(filename, flid, userID) {
@@ -851,15 +872,39 @@ Kora.Records.Create = function() {
             var deleteUrl = baseFileUrl;
             deleteUrl += 'f' + flid + 'u' + userID + '/' + myUrlEncode(filename);
 
-            var HTML = '<div class="form-group mt-xxs uploaded-file">';
+            var HTML = '<div class="card file-card file-card-js">';
             HTML += '<input type="hidden" name="file'+flid+'[]" value ="'+filename+'">';
-            HTML += '<a href="#" class="upload-fileup-js">';
-            HTML += '<i class="icon icon-arrow-up"></i></a>';
-            HTML += '<a href="#" class="upload-filedown-js">';
-            HTML += '<i class="icon icon-arrow-down"></i></a>';
-            HTML += '<span class="ml-sm">' + filename + '</span>';
-            HTML += '<a href="#" class="upload-filedelete-js ml-sm" data-url="' + deleteUrl + '">';
+            HTML += '<div class="header"><div class="left"><div class="move-actions">';
+            HTML += '<a class="action move-action-js up-js" href=""><i class="icon icon-arrow-up"></i></a>';
+            HTML += '<a class="action move-action-js down-js" href=""><i class="icon icon-arrow-down"></i></a></div>';
+            HTML += '<span class="title">'+filename+'</span></div>';
+            HTML += '<div class="card-toggle-wrap">';
+            HTML += '<a href="#" class="file-delete upload-filedelete-js ml-sm tooltip" tooltip="Remove Image" data-url="'+deleteUrl+'">';
             HTML += '<i class="icon icon-trash danger"></i></a></div>';
+            HTML += '</div></div>';
+
+            return HTML;
+        }
+
+        /**
+         * Generates the HTML for an uploaded file's div with the gallery captions.
+         */
+        function galDivHTML(filename, caption, flid, userID) {
+            // Build the delete file url.
+            var deleteUrl = baseFileUrl;
+            deleteUrl += 'f' + flid + 'u' + userID + '/' + myUrlEncode(filename);
+
+            var HTML = '<div class="card file-card file-card-js">';
+            HTML += '<input type="hidden" name="file'+flid+'[]" value ="'+filename+'">';
+            HTML += '<div class="header"><div class="left"><div class="move-actions">';
+            HTML += '<a class="action move-action-js up-js" href=""><i class="icon icon-arrow-up"></i></a>';
+            HTML += '<a class="action move-action-js down-js" href=""><i class="icon icon-arrow-down"></i></a></div>';
+            HTML += '<span class="title">'+filename+'</span></div>';
+            HTML += '<div class="card-toggle-wrap">';
+            HTML += '<a href="#" class="file-delete upload-filedelete-js ml-sm tooltip" tooltip="Remove Image" data-url="'+deleteUrl+'">';
+            HTML += '<i class="icon icon-trash danger"></i></a></div>';
+            HTML += '<textarea type="text" name="file_captions'+flid+'[]" class="caption autosize-js" placeholder="Enter caption here">'+caption+'</textarea>';
+            HTML += '</div></div>';
 
             return HTML;
         }
