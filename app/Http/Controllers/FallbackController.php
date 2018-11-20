@@ -17,6 +17,7 @@ class FallbackController extends Controller {
     }
 	
 	public function routeNotFound(Request $request) {
+		//Log::info($install_admin);
 		$install_admin = User::where('id','=',1)->first();
 		return response()->view('errors.404', ['install_admin_email' => $install_admin->email], 404);
 	}
