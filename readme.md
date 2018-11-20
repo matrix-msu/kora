@@ -1,4 +1,4 @@
-# Kora 3 
+# Kora 3.0
 ***
 
 ### Software Requirements
@@ -16,18 +16,24 @@
 
        cp Kora3/public/.htaccess.example Kora3/public/.htaccess
 
-4) Configure the `RewriteBase` rule in the newly created `.htaccess` if the installation is **NOT** located at the root of your url:
+4) Configure the `RewriteBase` rule in the newly created `.htaccess` if the installation is **NOT** located at the root 
+of your url:
 
        i.e. if the URL is: http://www.example.com/digitalRepo/Kora3/public
        then the .htaccess rule is: RewriteBase /digitalRepo/Kora3/public
        
-5) Configure the `php_value` rules in the newly created `.htaccess` if the installation supports variable overwriting in htaccess:
+5) Configure the `php_value` rules in the newly created `.htaccess` if the installation supports variable overwriting in 
+htaccess:
 
        i.e. if you plan on uploading larger files
 
 6) Navigate to your Kora3 url and click install. **REMEMBER** to return here once you complete the installation.
     
-    ***NOTE:*** Alternatively you can run the `php artisan install:finish` command, with the appropriate variables, via CLI if you do not wish to use the Kora3 interface.
+    ***NOTE:*** Alternatively you can run the `php artisan install:finish` command, with the appropriate variables, via 
+    CLI if you do not wish to use the Kora3 interface.
+    
+    ***SUB-NOTE:*** You will need to use the command line installer on un-secure servers (i.e. non HTTPS). Afterwards 
+    you will need to modify your .env file, setting APP_ENV=local.
 
 7) Give **READ** access to the web user for Kora3 and **ALL** sub-folders.
     
@@ -39,8 +45,9 @@
 
 ## Contributing
 
-Thank you for considering contributing to Kora3! The contribution guide can be found in the [Kora3 documentation](http://kora.com).
+Thank you for considering contributing to Kora3! The contribution guide can be found in the 
+[Coming soon...]()
 
 ### License
 
-Kora is open-sourced software licensed under the [GPU GPL-3.0 license](https://opensource.org/licenses/GPL-3.0)
+Kora is an open-sourced software licensed under the [GPU GPL-3.0 license](https://opensource.org/licenses/GPL-3.0)
