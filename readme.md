@@ -1,4 +1,13 @@
 # Kora 3.0
+
+####The easiest way to manage and publish your data.
+
+Open-source, database-driven, online digital repository application for complex multimedia objects (text, images, audio, 
+video).
+
+Kora stores, manages, and delivers digital objects with corresponding metadata that enhances the research and 
+educational value of the objects. 
+
 ***
 
 ### Software Requirements
