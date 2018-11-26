@@ -106,16 +106,26 @@ Kora.Records.Create = function() {
     }
 
     function initializeComboListOptions(){
+        var flid, type1, type2, $comboValueDiv, $modal;
+
         $('.combo-list-display').on('click', '.delete-combo-value-js', function() {
             parentDiv = $(this).parent();
             parentDiv.remove();
         });
 
-        $('.add-combo-value-js').click(function() {
-            flid = $(this).attr('flid');
-            type1 = $(this).attr('typeOne');
-            type2 = $(this).attr('typeTwo');
+        $('.open-combo-value-modal-js').click(function(e) {
+          flid = $(this).attr('flid');
+          type1 = $(this).attr('typeOne');
+          type2 = $(this).attr('typeTwo');
 
+          $comboValueDiv = $('.combo-value-div-js-'+flid);
+          var $modal = $comboValueDiv.find('.combo-list-modal-js');
+
+          Kora.Modal.close();
+          Kora.Modal.open($modal);
+        });
+
+        $('.add-combo-value-js').click(function() {
             if(type1=='Date') {
                 monthOne = $('#month_one_'+flid);
                 dayOne = $('#day_one_'+flid);
@@ -136,15 +146,13 @@ Kora.Records.Create = function() {
                 val2 = inputTwo.val();
             }
 
-            defaultDiv = $('.combo-value-div-js-'+flid);
-
             if(val1=='' | val2=='' | val1==null | val2==null | val1=='//'| val2=='//') {
                 $('.combo-error-'+flid+'-js').text('Both fields must be filled out');
             } else {
                 $('.combo-error-'+flid+'-js').text('');
 
-                if(defaultDiv.find('.combo-list-empty').length) {
-                    defaultDiv.find('.combo-list-empty').first().remove();
+                if($comboValueDiv.find('.combo-list-empty').length) {
+                    $comboValueDiv.find('.combo-list-empty').first().remove();
                 }
 
                 div = '<div class="combo-value-item combo-value-item-js">';
@@ -165,11 +173,11 @@ Kora.Records.Create = function() {
                     div += '<span class="combo-column">'+val2.join(' | ')+'</span>';
                 }
 
-                div += '<span class="combo-delete delete-combo-value-js"><i class="icon icon-trash"></i></span>';
+                div += '<span class="combo-delete delete-combo-value-js tooltip" tooltip="Delete Combo Value"><i class="icon icon-trash"></i></span>';
 
                 div += '</div>';
 
-                defaultDiv.find('.combo-value-item-container-js').append(div);
+                $comboValueDiv.find('.combo-value-item-container-js').append(div);
 
                 if(type1=='Multi-Select List' | type1=='Generated List' | type1=='List' | type1=='Associator') {
                     inputOne.val('');
@@ -190,6 +198,8 @@ Kora.Records.Create = function() {
                 } else {
                     inputTwo.val('');
                 }
+
+                Kora.Modal.close();
             }
         });
     }
