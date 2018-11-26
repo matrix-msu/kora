@@ -34,8 +34,8 @@ class UserController extends Controller {
      * Constructs the controller and checks if user is authenticated and activated.
      */
     public function __construct() {
-        $this->middleware('auth', ['except' => ['activate', 'activator', 'activateshow']]);
-        $this->middleware('active', ['except' => ['activate', 'resendActivation', 'activator', 'activateshow']]);
+        $this->middleware('auth', ['except' => ['activate', 'activator', 'activateshow', 'activateFromInvite']]);
+        $this->middleware('active', ['except' => ['activate', 'resendActivation', 'activator', 'activateshow', 'activateFromInvite']]);
     }
 
     /**
@@ -494,11 +494,22 @@ class UserController extends Controller {
         }
     }
 
+    /**
+     * Account registration from email invitation.
+     *
+     * @param String $token - Token to register and identify user with
+     * @return View
+     */
     public function activateFromInvite ($token) {
+        // coming from email client or otherwise, need to make sure no one on the browser is already logged in.
         if(!is_null(\Auth::user()))
             \Auth::logout(\Auth::user()->id);
 
         $user = User::where('regtoken', '=', $token)->first();
+        \Auth::login($user);
+
+        if($token != $user->regtoken)
+            return redirect('/')->with('status', 'bad_activation_token');
 
         return view('auth.invited-register', compact('user'));
     }
