@@ -197,9 +197,15 @@ Kora.Auth.Register = function() {
                 method: 'POST',
                 data: values,
                 error: function(err) {
+                    console.log(err.responseJSON.errors[field])
                     if (err.responseJSON.errors[field] !== undefined) {
                         $('#'+field).addClass('error');
-                        $('#'+field).siblings('.error-message').text(err.responseJSON.errors[field][0]);
+
+                        if (err.responseJSON.errors[field] == 'The invited-email field is required.') {
+                            $('#'+field).siblings('.error-message').text('The email field is required.');
+                        } else {
+                            $('#'+field).siblings('.error-message').text(err.responseJSON.errors[field][0]);
+                        }
                     } else {
                         $('#'+field).removeClass('error');
                         $('#'+field).siblings('.error-message').text('');

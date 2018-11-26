@@ -48,8 +48,8 @@
       <div class="form-group mt-xl">
         <label for="email">Your Email</label>
           <span class="error-message">{{array_key_exists("email", $errors->messages()) ? $errors->messages()["email"][0] : ''}}</span>
-        <input type="email" class="invited-email-input {{ (array_key_exists("email", $errors->messages()) ? ' error' : '') }}"
-               id="email" name="email" placeholder="Enter your email here" value="{{ $user->email }}">
+        <input type="email" class="text-input {{ (array_key_exists("email", $errors->messages()) ? ' error' : '') }}"
+               id="invited-email" name="email" placeholder="Enter your email here" value="{{ $user->email }}">
       </div>
 
       <div class="form-group half mt-xl">
