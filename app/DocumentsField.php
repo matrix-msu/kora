@@ -87,10 +87,14 @@ class DocumentsField extends FileTypeField {
      * @return Redirect
      */
     public function updateOptions($field, Request $request) {
-        $filetype = $request->filetype[0];
-        for($i=1;$i<sizeof($request->filetype);$i++) {
-            $filetype .= '[!]'.$request->filetype[$i];
-        }
+		$has_filetype = isset($request->filetype);
+		
+		if ($has_filetype) {
+			$filetype = $request->filetype[0];
+			for($i=1;$i<sizeof($request->filetype);$i++) {
+				$filetype .= '[!]'.$request->filetype[$i];
+			}
+		}
 
         if($request->filesize=='')
             $request->filesize = 0;
@@ -102,7 +106,7 @@ class DocumentsField extends FileTypeField {
         $field->updateSearchable($request);
         $field->updateOptions('FieldSize', $request->filesize);
         $field->updateOptions('MaxFiles', $request->maxfiles);
-        $field->updateOptions('FileTypes', $filetype);
+        $field->updateOptions('FileTypes', $has_filetype ? $filetype : "");
 
         return redirect('projects/' . $field->pid . '/forms/' . $field->fid . '/fields/' . $field->flid . '/options')
             ->with('k3_global_success', 'field_options_updated');
