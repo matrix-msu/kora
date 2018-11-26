@@ -187,31 +187,28 @@ $searchInput.keyup(function(e) {
         var searchText = $(this).val();
         typewatch(function () {
             // executed only 500 ms after the last keyup event.
-
             //We don't want to search the entire alphabet, need at least 2 characters
-            if (searchText != '' && searchText.length >= 2) {
-                $clearResentSearchResults.parent().slideUp(100, function () {
-                    $recentSearch.parent().slideUp(100, function () {
-                        //Perform quick search
-                        $.ajax({
-                            url: globalQuickSearchUrl,
-                            type: 'POST',
-                            data: {
-                                '_token': CSRFToken,
-                                'searchText': searchText
-                            },
-                            success: function (result) {
-                                var resultObj = JSON.parse(result);
-                                var resultStr = resultObj.join('');
+            if(searchText != '' && searchText.length >= 2) {
+                $clearResentSearchResults.parent().slideUp(100);
+                $recentSearch.parent().slideUp(100);
 
-                                $searchResults.parent().slideUp(200, function () {
-                                    $searchResults.html(resultStr);
-                                });
+                $.ajax({
+                    url: globalQuickSearchUrl,
+                    type: 'POST',
+                    data: {
+                        '_token': CSRFToken,
+                        'searchText': searchText
+                    },
+                    success: function (result) {
+                        var resultObj = JSON.parse(result);
+                        var resultStr = resultObj.join('');
 
-                                $searchResults.parent().slideDown(100);
-                            }
+                        $searchResults.parent().slideUp(200, function () {
+                            $searchResults.html(resultStr);
                         });
-                    });
+
+                        $searchResults.parent().slideDown(100);
+                    }
                 });
             } else if (searchText == '') {
                 $searchResults.parent().slideUp(100);
