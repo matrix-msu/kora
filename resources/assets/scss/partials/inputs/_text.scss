@@ -1,5 +1,6 @@
 .text-input,
-.text-area {
+.text-area,
+.invited-email-input {
   @include transition();
 
   appearance: none;
