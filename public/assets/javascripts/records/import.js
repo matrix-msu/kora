@@ -80,6 +80,7 @@ Kora.Records.Import = function () {
                         recordMatchSection.html(data['matchup']);
 
                         $('.single-select').chosen({
+                            allow_single_deselect: true,
                             width: '100%',
                         });
 
