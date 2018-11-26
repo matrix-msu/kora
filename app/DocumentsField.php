@@ -4,7 +4,6 @@ use App\Http\Controllers\FieldController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redirect;
 
 class DocumentsField extends FileTypeField {
@@ -88,9 +87,6 @@ class DocumentsField extends FileTypeField {
      * @return Redirect
      */
     public function updateOptions($field, Request $request) {
-		Log::info("updateOptions in DocumentsField");
-		Log::info($request);
-		
 		$has_filetype = isset($request->filetype);
 		
 		if ($has_filetype) {
@@ -125,8 +121,6 @@ class DocumentsField extends FileTypeField {
      * @param  Request $request
      */
     public function createNewRecordField($field, $record, $value, $request) {
-		Log::info("createNewRecordField in DocumentsField");
-		
         if(glob(storage_path('app/tmpFiles/' . $value . '/*.*')) != false) {
             $this->flid = $field->flid;
             $this->rid = $record->rid;
