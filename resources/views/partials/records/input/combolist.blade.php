@@ -31,37 +31,34 @@
         <div class="combo-value-item-container-js">
             @if(sizeof($defArray) > 0)
                 @for($i=0; $i < sizeof($defArray); $i++)
-                    <div class="combo-value-item-js">
-                        @if($i!=0)
-                            <span class="combo-border-small"> </span>
-                        @endif
+                    <div class="combo-value-item combo-value-item-js">
+                        <span class="combo-delete delete-combo-value-js tooltip" tooltip="Delete Combo Value"><i class="icon icon-trash"></i></span>
+
                         @if($oneType=='Text' | $oneType=='List' | $oneType=='Number' | $oneType=='Date')
                             <?php $value = explode('[!f1!]',$defArray[$i])[1]; ?>
                             {!! Form::hidden($field->flid."_combo_one[]",$value) !!}
-                            <span class="combo-column">{{$value}}</span>
+                            <span class="combo-column combo-value">{{$value}}</span>
                         @elseif($oneType=='Multi-Select List' | $oneType=='Generated List' | $oneType=='Associator')
                             <?php
                             $valPre = explode('[!f1!]',$defArray[$i])[1];
                             $value = explode('[!]',$valPre);
                             ?>
                             {!! Form::hidden($field->flid."_combo_one[]",$valPre) !!}
-                            <span class="combo-column">{{implode(' | ',$value)}}</span>
+                            <span class="combo-column combo-value">{{implode(' | ',$value)}}</span>
                         @endif
 
                         @if($twoType=='Text' | $twoType=='List' | $twoType=='Number' | $twoType=='Date')
                             <?php $value = explode('[!f2!]',$defArray[$i])[1]; ?>
                             {!! Form::hidden($field->flid."_combo_two[]",$value) !!}
-                            <span class="combo-column">{{$value}}</span>
+                            <span class="combo-column combo-value">{{$value}}</span>
                         @elseif($twoType=='Multi-Select List' | $twoType=='Generated List' | $twoType=='Associator')
                             <?php
                             $valPre = explode('[!f2!]',$defArray[$i])[1];
                             $value = explode('[!]',$valPre);
                             ?>
                             {!! Form::hidden($field->flid."_combo_two[]",$valPre) !!}
-                            <span class="combo-column">{{implode(' | ',$value)}}</span>
+                            <span class="combo-column combo-value">{{implode(' | ',$value)}}</span>
                         @endif
-
-                        <span class="combo-delete delete-combo-value-js"><a class="underline-middle-hover">[X]</a></span>
                     </div>
                 @endfor
             @endif
@@ -71,28 +68,28 @@
             <div class="combo-list-empty"><span class="combo-column">Add Values to Combo List Below</span></div>
         @endif
 
-        <section class="combo-list-input-one" cfType="{{$oneType}}">
-            @include('partials.fields.combo.inputs.record',['field'=>$field, 'type'=>$oneType,'cfName'=>$oneName,  'fnum'=>'one', 'flid'=>$field->flid])
-        </section>
-        <section class="combo-list-input-two" cfType="{{$twoType}}">
-            @include('partials.fields.combo.inputs.record',['field'=>$field, 'type'=>$twoType,'cfName'=>$twoName,  'fnum'=>'two', 'flid'=>$field->flid])
-        </section>
-
         <section class="new-object-button form-group mt-xxxl">
-            <span class="error-message combo-error-{{$field->flid}}-js"></span>
-            <input class="add-combo-value-js" type="button" value="Create new Combo List value" flid="{{$field->flid}}" typeOne="{{$oneType}}" typeTwo="{{$twoType}}">
+            <input class="open-combo-value-modal-js" type="button" value="Add a New Value" flid="{{$field->flid}}" typeOne="{{$oneType}}" typeTwo="{{$twoType}}">
         </section>
 
         <div class="modal modal-js modal-mask combo-list-modal-js">
             <div class="content">
                 <div class="header">
-                    <span class="title title-js"></span>
+                    <span class="title title-js">Add a New Value for {{$field->name}}</span>
                     <a href="#" class="modal-toggle modal-toggle-js">
                         <i class="icon icon-cancel"></i>
                     </a>
                 </div>
                 <div class="body">
+                    <span class="error-message combo-error-{{$field->flid}}-js"></span>
 
+                    <section class="combo-list-input-one" cfType="{{$oneType}}">
+                        @include('partials.fields.combo.inputs.record',['field'=>$field, 'type'=>$oneType,'cfName'=>$oneName,  'fnum'=>'one', 'flid'=>$field->flid])
+                    </section>
+                    <section class="combo-list-input-two" cfType="{{$twoType}}">
+                        @include('partials.fields.combo.inputs.record',['field'=>$field, 'type'=>$twoType,'cfName'=>$twoName,  'fnum'=>'two', 'flid'=>$field->flid])
+                    </section>
+                    <input class="btn mt-xs add-combo-value-js" type="button" value="Create Combo Value">
                 </div>
             </div>
         </div>
