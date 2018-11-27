@@ -62,7 +62,7 @@
 
     <div class="forms">
       <span class="attribute">Project Forms:</span>
-        
+
       @foreach($project->forms()->get() as $form)
         <span class="form">
           <a class="form-link {{$archived ? 'inactive': 'underline-middle-hover'}}" href="{{action("FormController@show",["pid" => $project->pid,"fid" => $form->fid])}}">
@@ -70,6 +70,12 @@
           </a>
         </span>
       @endforeach
+
+	  @if ($project->forms()->count() == 0)
+		<span class="form">
+		  <a class="form-link inactive">This project does not have any forms.</a>
+		</span>
+	  @endif
     </div>
 
     @if (!$archived)
