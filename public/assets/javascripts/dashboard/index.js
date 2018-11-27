@@ -479,30 +479,37 @@ Kora.Dashboard.Index = function() {
     }
 
     function reorderBlocks() {
-        $.each($('.sections .section-js:not(.add-section)'), function () {
-            blocks = $(this).children('.container').sortable('toArray');
+        $.each($('.sections .section-js:not(.add-section, .no-section)'), function () {
+			let section = $(this).attr('id');
+            let blocks = $(this).children('.container').sortable('toArray');
 
-            $.ajax({
-                url: editBlockOrderUrl,
-                type: 'POST',
-                data: {
-                    "_token": CSRFToken,
-                    "_method": 'PATCH',
-                    "blocks": blocks
-                },
-                success: function(result) {},
-                error: function (err) {
-                    console.log(err);
-                }
-            });
+			if (blocks.length > 0) {
+				$.ajax({
+					url: editBlockOrderUrl,
+					type: 'POST',
+					data: {
+						"_token": CSRFToken,
+						"_method": 'PATCH',
+						"blocks": blocks,
+						"section": section
+					},
+					success: function(result) {},
+					error: function (err) {
+						console.log(err)
+					}
+				});
+			}
         });
     }
 
     function initializeEditBlocks() {
         $(".section-js .container").sortable({
             helper: 'clone',
-            revert: true,
-            containment: ".sections",
+            //revert: true,
+
+            containment: ".dashboard",
+            connectWith: '.container',
+            items: '.element',
             update: function(event, ui) {
                 reorderBlocks()
             },

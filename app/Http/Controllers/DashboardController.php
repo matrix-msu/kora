@@ -432,10 +432,15 @@ class DashboardController extends Controller {
         foreach($request->blocks as $block) {
             DB::table('dashboard_blocks')
                 ->where('id','=',$block)
-                ->update(['order' => $int]);
+                ->update([
+					'sec_id' => $request->section,
+					'order' => $int
+				]);
 
             $int++;
         }
+
+		return response()->json(["status"=>true, "message"=>"blocks_successfully_reordered", 200]);
     }
 
     /**
