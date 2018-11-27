@@ -211,6 +211,7 @@ class ProjectController extends Controller {
 				array_push($userNames, $pushThis);
 			}
 		}
+		natcasesort($userNames);
 
         return view('projects.create', compact('userNames','projectMode'));
 	}
