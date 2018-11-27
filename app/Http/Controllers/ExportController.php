@@ -622,13 +622,16 @@ class ExportController extends Controller {
                                 $url = url('app/files/p'.$data->pid.'/f'.$data->fid.'/r'.$data->rid.'/fl'.$data->flid) . '/';
                                 $value = array();
                                 $files = explode('[!]',$data->value);
-                                foreach($files as $file) {
+                                $captions = !is_null($data->val2) ? explode('[!]',$data->val2) : null;
+                                for($gi=0;$gi<sizeof($files);$gi++) {
                                     $info = [
-                                        'name' => explode('[Name]',$file)[1],
-                                        'size' => floatval(explode('[Size]',$file)[1])/1000 . " mb",
-                                        'type' => explode('[Type]',$file)[1],
-                                        'url' => $url.explode('[Name]',$file)[1]
+                                        'name' => explode('[Name]',$files[$gi])[1],
+                                        'size' => floatval(explode('[Size]',$files[$gi])[1])/1000 . " mb",
+                                        'type' => explode('[Type]',$files[$gi])[1],
+                                        'url' => $url.explode('[Name]',$files[$gi])[1]
                                     ];
+                                    if(!is_null($captions))
+                                        $info['caption'] = $captions[$gi];
                                     array_push($value,$info);
                                 }
                                 $records[$kid][$fieldIndex]['value'] = $value;
@@ -1032,12 +1035,15 @@ class ExportController extends Controller {
                             case Field::_GALLERY:
                                 $url = url('app/files/p'.$data->pid.'/f'.$data->fid.'/r'.$data->rid.'/fl'.$data->flid) . '/';
                                 $files = explode('[!]',$data->value);
-                                foreach($files as $file) {
+                                $captions = !is_null($data->val2) ? explode('[!]',$data->val2) : null;
+                                for($gi=0;$gi<sizeof($files);$gi++) {
                                     $fieldxml .= '<File>';
-                                    $fieldxml .= '<Name>' . htmlspecialchars(explode('[Name]',$file)[1], ENT_XML1, 'UTF-8') . '</Name>';
-                                    $fieldxml .= '<Size>' . floatval(explode('[Size]',$file)[1])/1000 . ' mb</Size>';
-                                    $fieldxml .= '<Type>' . explode('[Type]',$file)[1] . '</Type>';
-                                    $fieldxml .= '<Url>' . htmlspecialchars($url.explode('[Name]',$file)[1], ENT_XML1, 'UTF-8') . '</Url>';
+                                    $fieldxml .= '<Name>' . htmlspecialchars(explode('[Name]',$files[$gi])[1], ENT_XML1, 'UTF-8') . '</Name>';
+                                    if(!is_null($captions))
+                                        $fieldxml .= '<Caption>' . htmlspecialchars($captions[$gi], ENT_XML1, 'UTF-8') . '</Caption>';
+                                    $fieldxml .= '<Size>' . floatval(explode('[Size]',$files[$gi])[1])/1000 . ' mb</Size>';
+                                    $fieldxml .= '<Type>' . explode('[Type]',$files[$gi])[1] . '</Type>';
+                                    $fieldxml .= '<Url>' . htmlspecialchars($url.explode('[Name]',$files[$gi])[1], ENT_XML1, 'UTF-8') . '</Url>';
                                     $fieldxml .= '</File>';
                                 }
                                 break;
@@ -1345,7 +1351,7 @@ SELECT docf.rid as `rid`, docf.documents as `value`, NULL as `val2`, NULL as `va
 FROM ".$prefix."documents_fields as docf left join ".$prefix."fields as fl on docf.flid=fl.flid where docf.rid in ($ridArray)$slugQL 
 union all
 
-SELECT galf.rid as `rid`, galf.images as `value`, NULL as `val2`, NULL as `val3`, NULL as `val4`, NULL as `val5`, fl.slug, fl.type, fl.pid, fl.fid, fl.flid, fl.name 
+SELECT galf.rid as `rid`, galf.images as `value`, galf.captions as `val2`, NULL as `val3`, NULL as `val4`, NULL as `val5`, fl.slug, fl.type, fl.pid, fl.fid, fl.flid, fl.name 
 FROM ".$prefix."gallery_fields as galf left join ".$prefix."fields as fl on galf.flid=fl.flid where galf.rid in ($ridArray)$slugQL 
 union all
 

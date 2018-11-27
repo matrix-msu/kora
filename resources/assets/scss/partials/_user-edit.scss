@@ -27,6 +27,15 @@
       }
     }
   }
+  
+  .floating-button-height {
+    height: 65px;
+  }
+  
+  .color-transition {
+    transition: opacity .2s ease-in-out !important;
+	-webkit-transition: opacity .2s ease-in-out !important;
+  }
 
   @import 'user/form';
 }

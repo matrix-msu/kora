@@ -90,7 +90,7 @@
 @elseif($type=='Multi-Select List')
     <div class="form-group
         @if($fnum=='two')
-            mt-xxxl
+            mt-xl
         @else
             mt-xl
         @endif

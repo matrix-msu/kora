@@ -1,5 +1,6 @@
 .record-index-body,
 .record-results-body,
+.advanced-index-body,
 .project-records-body {
   background: palette('gray', background);
   font-family: $ubuntu;
@@ -8,6 +9,7 @@
 
 .record-index,
 .record-results,
+.advanced-index,
 .project-records {
   margin: $navigation-height auto 0;
   width: 100%;
@@ -73,13 +75,6 @@
           margin-bottom: 60px;
         }
       }
-    }
-
-    .advanced-search-title {
-      font-size: 30px;
-      height: 34px;
-      line-height: 35px;
-      color: palette('gray', text);
     }
 
     .records-title {

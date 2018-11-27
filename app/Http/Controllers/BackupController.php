@@ -61,6 +61,7 @@ class BackupController extends Controller {
      */
     public function index(Request $request) {
         $available_backups = array();
+		
         foreach(new \DirectoryIterator(storage_path("app/".$this->BACKUP_DIRECTORY."/")) as $dir) {
             $name = $dir->getFilename();
             if(strpos($name, 'fileRestore') !== false)

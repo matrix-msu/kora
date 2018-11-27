@@ -219,33 +219,33 @@ Kora.Records.Show = function() {
         });
 
         //GEOLOCATOR
-        $('.geolocator-map-js').each(function() {
-            Kora.Modal.initialize();
-
-            var mapID = $(this).attr('map-id');
-
-            var firstLoc = $(this).children('.geolocator-location-js').first();
-            var mapRecord = L.map('map'+mapID).setView([firstLoc.attr('loc-x'), firstLoc.attr('loc-y')], 13);
-            mapRecord.scrollWheelZoom.disable();
-            L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png?{foo}', {foo: 'bar'}).addTo(mapRecord);
-
-            // Make second map for full screen modal
-            var mapRecordModal = L.map('modalmap'+mapID).setView([firstLoc.attr('loc-x'), firstLoc.attr('loc-y')], 13);
-            mapRecordModal.scrollWheelZoom.disable();
-            L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png?{foo}', {foo: 'bar'}).addTo(mapRecordModal);
-
-            $(this).children('.geolocator-location-js').each(function() {
-                var marker = L.marker([$(this).attr('loc-x'), $(this).attr('loc-y')]).addTo(mapRecord);
-                marker.bindPopup($(this).attr('loc-desc'));
-            });
-        });
-
-        $('.geolocator-map-js .full-screen-button-js').click(function(e) {
-            e.preventDefault();
-            var $geoModal = $(this).parent().parent().parent().find('.geolocator-map-modal-js');
-            Kora.Modal.close();
-            Kora.Modal.open($geoModal);
-        });
+        // $('.geolocator-map-js').each(function() {
+        //     Kora.Modal.initialize();
+        //
+        //     var mapID = $(this).attr('map-id');
+        //
+        //     var firstLoc = $(this).children('.geolocator-location-js').first();
+        //     var mapRecord = L.map('map'+mapID).setView([firstLoc.attr('loc-x'), firstLoc.attr('loc-y')], 13);
+        //     mapRecord.scrollWheelZoom.disable();
+        //     L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png?{foo}', {foo: 'bar'}).addTo(mapRecord);
+        //
+        //     // Make second map for full screen modal
+        //     var mapRecordModal = L.map('modalmap'+mapID).setView([firstLoc.attr('loc-x'), firstLoc.attr('loc-y')], 13);
+        //     mapRecordModal.scrollWheelZoom.disable();
+        //     L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png?{foo}', {foo: 'bar'}).addTo(mapRecordModal);
+        //
+        //     $(this).children('.geolocator-location-js').each(function() {
+        //         var marker = L.marker([$(this).attr('loc-x'), $(this).attr('loc-y')]).addTo(mapRecord);
+        //         marker.bindPopup($(this).attr('loc-desc'));
+        //     });
+        // });
+        //
+        // $('.geolocator-map-js .full-screen-button-js').click(function(e) {
+        //     e.preventDefault();
+        //     var $geoModal = $(this).parent().parent().parent().find('.geolocator-map-modal-js');
+        //     Kora.Modal.close();
+        //     Kora.Modal.open($geoModal);
+        // });
 
         //PLAYLIST
         $('.jp-audio-js').each(function() {

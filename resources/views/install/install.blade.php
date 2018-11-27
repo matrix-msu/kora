@@ -2,6 +2,7 @@
 
 @section('header')
     <section class="head">
+        {{--NO BACK BUTTON HERE--}}
         <div class="inner-wrap center">
             <h1 class="title no-icon">
                 <span>Kora 3 Initialization Form</span>

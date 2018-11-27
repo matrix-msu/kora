@@ -106,16 +106,26 @@ Kora.Records.Create = function() {
     }
 
     function initializeComboListOptions(){
+        var flid, type1, type2, $comboValueDiv, $modal;
+
         $('.combo-list-display').on('click', '.delete-combo-value-js', function() {
             parentDiv = $(this).parent();
             parentDiv.remove();
         });
 
-        $('.add-combo-value-js').click(function() {
-            flid = $(this).attr('flid');
-            type1 = $(this).attr('typeOne');
-            type2 = $(this).attr('typeTwo');
+        $('.open-combo-value-modal-js').click(function(e) {
+          flid = $(this).attr('flid');
+          type1 = $(this).attr('typeOne');
+          type2 = $(this).attr('typeTwo');
 
+          $comboValueDiv = $('.combo-value-div-js-'+flid);
+          var $modal = $comboValueDiv.find('.combo-list-modal-js');
+
+          Kora.Modal.close();
+          Kora.Modal.open($modal);
+        });
+
+        $('.add-combo-value-js').click(function() {
             if(type1=='Date') {
                 monthOne = $('#month_one_'+flid);
                 dayOne = $('#day_one_'+flid);
@@ -136,24 +146,16 @@ Kora.Records.Create = function() {
                 val2 = inputTwo.val();
             }
 
-            defaultDiv = $('.combo-value-div-js-'+flid);
-
             if(val1=='' | val2=='' | val1==null | val2==null | val1=='//'| val2=='//') {
                 $('.combo-error-'+flid+'-js').text('Both fields must be filled out');
             } else {
                 $('.combo-error-'+flid+'-js').text('');
 
-                //Remove empty div if applicable
-                var border = true;
-                if(defaultDiv.find('.combo-list-empty').length) {
-                    defaultDiv.find('.combo-list-empty').first().remove();
-                    border = false;
+                if($comboValueDiv.find('.combo-list-empty').length) {
+                    $comboValueDiv.find('.combo-list-empty').first().remove();
                 }
 
-                div = '<div class="combo-value-item-js">';
-
-                if(border)
-                    div += '<span class="combo-border-small"> </span>';
+                div = '<div class="combo-value-item combo-value-item-js">';
 
                 if(type1=='Text' | type1=='List' | type1=='Number' | type1=='Date') {
                     div += '<input type="hidden" name="'+flid+'_combo_one[]" value="'+val1+'">';
@@ -171,11 +173,11 @@ Kora.Records.Create = function() {
                     div += '<span class="combo-column">'+val2.join(' | ')+'</span>';
                 }
 
-                div += '<span class="combo-delete delete-combo-value-js"><a class="underline-middle-hover">[X]</a></span>';
+                div += '<span class="combo-delete delete-combo-value-js tooltip" tooltip="Delete Combo Value"><i class="icon icon-trash"></i></span>';
 
                 div += '</div>';
 
-                defaultDiv.children('.combo-list-display').first().append(div);
+                $comboValueDiv.find('.combo-value-item-container-js').append(div);
 
                 if(type1=='Multi-Select List' | type1=='Generated List' | type1=='List' | type1=='Associator') {
                     inputOne.val('');
@@ -196,6 +198,8 @@ Kora.Records.Create = function() {
                 } else {
                     inputTwo.val('');
                 }
+
+                Kora.Modal.close();
             }
         });
     }
@@ -423,39 +427,64 @@ Kora.Records.Create = function() {
     }
 
     function intializeFileUploaderOptions() {
+        var $fileCardsContainer = $('.file-cards-container-js');
         //We will capture the current field when we start to upload. That way when we do upload, it's guarenteed to be that Field ID
         var lastClickedFlid = 0;
-
-        $('.kora-file-button-js').click(function(e){
-            e.preventDefault();
-
-            lastClickedFlid = $(this).attr('flid');
-
-            fileUploader = $(this).next().trigger('click');
-        });
 
         $('.kora-file-upload-js').fileupload({
             dataType: 'json',
             singleFileUploads: false,
             done: function (e, data) {
+                console.log('success');
+
+                lastClickedFlid = $(this).attr('flid');
                 inputName = 'file'+lastClickedFlid;
+                capName = 'file_captions'+lastClickedFlid;
                 fileDiv = ".filenames-"+lastClickedFlid+"-js";
 
                 var $field = $('#'+lastClickedFlid);
+                var $formGroup = $field.parent('.form-group');
                 $field.removeClass('error');
                 $field.siblings('.error-message').text('');
                 $.each(data.result[inputName], function (index, file) {
                     if(file.error == "" || !file.hasOwnProperty('error')) {
-                        var del = '<div class="form-group mt-xxs uploaded-file">';
-                        del += '<input type="hidden" name="' + inputName + '[]" value ="' + file.name + '">';
-                        del += '<a href="#" class="upload-fileup-js">';
-                        del += '<i class="icon icon-arrow-up"></i></a>';
-                        del += '<a href="#" class="upload-filedown-js">';
-                        del += '<i class="icon icon-arrow-down"></i></a>';
-                        del += '<span class="ml-sm">' + file.name + '</span>';
-                        del += '<a href="#" class="upload-filedelete-js ml-sm" data-url="' + file.deleteUrl + '">';
-                        del += '<i class="icon icon-trash danger"></i></a></div>';
-                        $(fileDiv).append(del);
+                        // Add caption only if input is a gallery
+                        var captionHtml = '';
+                        console.log($formGroup);
+                        if ($formGroup.hasClass('gallery-input-form-group')) {
+                          console.log('wow');
+                          captionHtml = '<textarea type="text" name="' + capName + '[]" class="caption autosize-js" placeholder="Enter caption here"></textarea>';
+                        }
+                        // File card html
+                        var fileCardHtml = '<div class="card file-card file-card-js">' +
+                            '<input type="hidden" name="' + inputName + '[]" value ="' + file.name + '">' +
+                            '<div class="header">' +
+                                '<div class="left">' +
+                                    '<div class="move-actions">' +
+                                        '<a class="action move-action-js up-js" href="">' +
+                                            '<i class="icon icon-arrow-up"></i>' +
+                                        '</a>' +
+                                        '<a class="action move-action-js down-js" href="">' +
+                                            '<i class="icon icon-arrow-down"></i>' +
+                                        '</a>' +
+                                    '</div>' +
+                                    '<span class="title">' + file.name + '</span>' +
+                                '</div>' +
+                                '<div class="card-toggle-wrap">' +
+                                    '<a href="#" class="file-delete upload-filedelete-js ml-sm tooltip" tooltip="Remove Image" data-url="' + file.deleteUrl + '">' +
+                                        '<i class="icon icon-trash danger"></i>' +
+                                    '</a>' +
+                                '</div>' +
+                                captionHtml +
+                            '</div>' +
+                        '</div>';
+
+                        // Add file card to list of cards
+                        $(fileDiv).append(fileCardHtml);
+
+                        // Reinitialize inputs
+                        Kora.Fields.TypedFieldInputs.Initialize();
+                        Kora.Inputs.Textarea();
                     } else {
                         $field.addClass('error');
                         $field.siblings('.error-message').text(file.error);
@@ -471,8 +500,10 @@ Kora.Records.Create = function() {
             },
             fail: function (e,data){
                 var error = data.jqXHR['responseText'];
+                lastClickedFlid = $(this).attr('flid');
 
                 var $field = $('#'+lastClickedFlid);
+                var $errorMessage = $field.siblings('.error-message');
                 $field.removeClass('error');
                 $field.siblings('.error-message').text('');
                 if(error=='InvalidType'){
@@ -484,6 +515,9 @@ Kora.Records.Create = function() {
                 } else if(error=='MaxSizeReached'){
                     $field.addClass('error');
                     $field.siblings('.error-message').text('One or more uploaded files is bigger than limit');
+                } else {
+                    $field.addClass('error');
+                    $field.siblings('.error-message').text('Error uploading file');
                 }
             },
             progressall: function (e, data) {
@@ -496,10 +530,11 @@ Kora.Records.Create = function() {
             }
         });
 
-        $('.filenames').on('click', '.upload-filedelete-js', function(e) {
+        $fileCardsContainer.on('click', '.upload-filedelete-js', function(e) {
             e.preventDefault();
 
-            var div = $(this).parent('.uploaded-file');
+            var $fileCard = $(this).parent().parent().parent('.file-card-js');
+
             $.ajax({
                 url: $(this).attr('data-url'),
                 type: 'POST',
@@ -509,34 +544,42 @@ Kora.Records.Create = function() {
                     "_method": 'delete'
                 },
                 success: function (data) {
-                    div.remove();
+                    $fileCard.remove();
                 }
             });
         });
 
-        $('.filenames').on('click', '.upload-fileup-js', function(e) {
+        // Move file card up
+        $fileCardsContainer.on('click', '.up-js', function(e) {
             e.preventDefault();
 
-            fileDiv = $(this).parent('.uploaded-file');
+            var $fileCard = $(this).parent().parent().parent().parent('.file-card-js');
 
-            if(fileDiv.prev('.uploaded-file').length==1){
-                prevDiv = fileDiv.prev('.uploaded-file');
+            if ($fileCard.prev('.file-card-js').length == 1) {
+                var $prevCard = $fileCard.prev('.file-card-js');
 
-                fileDiv.insertBefore(prevDiv);
+                $fileCard.insertBefore($prevCard);
             }
         });
 
-        $('.filenames').on('click', '.upload-filedown-js', function(e) {
+        // Move file card down
+        $fileCardsContainer.on('click', '.down-js', function(e) {
             e.preventDefault();
 
-            fileDiv = $(this).parent('.uploaded-file');
+            var $fileCard = $(this).parent().parent().parent().parent('.file-card-js');
 
-            if(fileDiv.next('.uploaded-file').length==1){
-                nextDiv = fileDiv.next('.uploaded-file');
+            if ($fileCard.next('.file-card-js').length == 1) {
+                var $nextCard = $fileCard.next('.file-card-js');
 
-                fileDiv.insertAfter(nextDiv);
+                $fileCard.insertAfter($nextCard);
             }
         });
+
+        // Drag file cards to reorder
+        $fileCardsContainer.sortable();
+
+        Kora.Fields.TypedFieldInputs.Initialize();
+        Kora.Inputs.Textarea();
     }
 
     function initializePageNavigation() {
@@ -628,7 +671,7 @@ Kora.Records.Create = function() {
         function putArray(ary) {
             var flids = ary['flids'];
             var data = ary['data'];
-            var presetID = $('#presetselect').val();
+            var presetID = $('.preset-record-js').val();
 
             var i;
             for (i = 0; i < flids.length; i++) {
@@ -762,7 +805,7 @@ Kora.Records.Create = function() {
                             applyFilePreset(field['documents'], presetID, flid);
                             break;
                         case 'Gallery':
-                            applyFilePreset(field['images'], presetID, flid);
+                            applyGalleryPreset(field, presetID, flid);
                             break;
                         case 'Playlist':
                             applyFilePreset(field['audio'], presetID, flid);
@@ -811,6 +854,27 @@ Kora.Records.Create = function() {
         }
 
         /**
+         * Applies the preset for a file type field
+         */
+        function applyGalleryPreset(field, presetID, flid) {
+            var filenames = $(".filenames-"+flid+"-js");
+            filenames.empty();
+
+            var typeIndex = field["images"];
+            var captions = field["captions"];
+
+            if (!typeIndex) { /* Do nothing. */ }
+            else {
+                moveFiles(presetID, flid, userID);
+
+                for (var z = 0; z < typeIndex.length; z++) {
+                    filename = typeIndex[z].split('[Name]')[1];
+                    filenames.append(galDivHTML(filename, captions[z], flid, userID));
+                }
+            }
+        }
+
+        /**
          * Generates the HTML for an uploaded file's div.
          */
         function fileDivHTML(filename, flid, userID) {
@@ -818,15 +882,39 @@ Kora.Records.Create = function() {
             var deleteUrl = baseFileUrl;
             deleteUrl += 'f' + flid + 'u' + userID + '/' + myUrlEncode(filename);
 
-            var HTML = '<div class="form-group mt-xxs uploaded-file">';
+            var HTML = '<div class="card file-card file-card-js">';
             HTML += '<input type="hidden" name="file'+flid+'[]" value ="'+filename+'">';
-            HTML += '<a href="#" class="upload-fileup-js">';
-            HTML += '<i class="icon icon-arrow-up"></i></a>';
-            HTML += '<a href="#" class="upload-filedown-js">';
-            HTML += '<i class="icon icon-arrow-down"></i></a>';
-            HTML += '<span class="ml-sm">' + filename + '</span>';
-            HTML += '<a href="#" class="upload-filedelete-js ml-sm" data-url="' + deleteUrl + '">';
+            HTML += '<div class="header"><div class="left"><div class="move-actions">';
+            HTML += '<a class="action move-action-js up-js" href=""><i class="icon icon-arrow-up"></i></a>';
+            HTML += '<a class="action move-action-js down-js" href=""><i class="icon icon-arrow-down"></i></a></div>';
+            HTML += '<span class="title">'+filename+'</span></div>';
+            HTML += '<div class="card-toggle-wrap">';
+            HTML += '<a href="#" class="file-delete upload-filedelete-js ml-sm tooltip" tooltip="Remove Image" data-url="'+deleteUrl+'">';
             HTML += '<i class="icon icon-trash danger"></i></a></div>';
+            HTML += '</div></div>';
+
+            return HTML;
+        }
+
+        /**
+         * Generates the HTML for an uploaded file's div with the gallery captions.
+         */
+        function galDivHTML(filename, caption, flid, userID) {
+            // Build the delete file url.
+            var deleteUrl = baseFileUrl;
+            deleteUrl += 'f' + flid + 'u' + userID + '/' + myUrlEncode(filename);
+
+            var HTML = '<div class="card file-card file-card-js">';
+            HTML += '<input type="hidden" name="file'+flid+'[]" value ="'+filename+'">';
+            HTML += '<div class="header"><div class="left"><div class="move-actions">';
+            HTML += '<a class="action move-action-js up-js" href=""><i class="icon icon-arrow-up"></i></a>';
+            HTML += '<a class="action move-action-js down-js" href=""><i class="icon icon-arrow-down"></i></a></div>';
+            HTML += '<span class="title">'+filename+'</span></div>';
+            HTML += '<div class="card-toggle-wrap">';
+            HTML += '<a href="#" class="file-delete upload-filedelete-js ml-sm tooltip" tooltip="Remove Image" data-url="'+deleteUrl+'">';
+            HTML += '<i class="icon icon-trash danger"></i></a></div>';
+            HTML += '<textarea type="text" name="file_captions'+flid+'[]" class="caption autosize-js" placeholder="Enter caption here">'+caption+'</textarea>';
+            HTML += '</div></div>';
 
             return HTML;
         }

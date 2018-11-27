@@ -23,6 +23,7 @@ class CreateGalleryfieldsTable extends Migration {
 			$table->integer('fid')->unsigned();
 			$table->integer('flid')->unsigned();
 			$table->mediumText('images');
+			$table->longText('captions');
 			$table->timestamps();
 
 			$table->foreign('rid')->references('rid')->on('records')->onDelete('cascade');

@@ -38,18 +38,18 @@
   @endif
   @php $pref = 'single_proj_page_tab_selection' @endphp
   @if (count($forms) > 0)
-  <section class="filters center">
-      <div class="underline-middle search search-js">
-        <i class="icon icon-search"></i>
-        <input type="text" placeholder="Find a Form">
-        <i class="icon icon-cancel icon-cancel-js"></i>
-      </div>
-      <div class="sort-options sort-options-js">
-          <!-- <a href="modified" class="option underline-middle">Recently Modified</a> -->
-          <a href="#custom" class="option underline-middle underline-middle-hover {{ \App\Http\Controllers\Auth\UserController::returnUserPrefs($pref) == "2" ? 'active' : ''}}">Custom</a>
-          <a href="#active" class="option underline-middle underline-middle-hover {{ \App\Http\Controllers\Auth\UserController::returnUserPrefs($pref) == "3" ? 'active' : ''}}">Alphabetical</a>
-      </div>
-  </section>
+	  <section class="filters center">
+		  <div class="underline-middle search search-js">
+			<i class="icon icon-search"></i>
+			<input type="text" placeholder="Find a Form">
+			<i class="icon icon-cancel icon-cancel-js"></i>
+		  </div>
+		  <div class="sort-options sort-options-js">
+			  <!-- <a href="modified" class="option underline-middle">Recently Modified</a> -->
+			  <a href="#custom" class="option underline-middle underline-middle-hover {{ \App\Http\Controllers\Auth\UserController::returnUserPrefs($pref) == "2" ? 'active' : ''}}">Custom</a>
+			  <a href="#active" class="option underline-middle underline-middle-hover {{ \App\Http\Controllers\Auth\UserController::returnUserPrefs($pref) == "3" ? 'active' : ''}}">Alphabetical</a>
+		  </div>
+	  </section>
   @endif
 
   <section class="new-object-button center">
@@ -61,8 +61,14 @@
   </section>
 
   <section class="form-selection center form-js form-selection-js">
-    @include("partials.projects.show.alphabetical", ['isCustom' => false, 'active' => \App\Http\Controllers\Auth\UserController::returnUserPrefs($pref) == "3" ? true : false])
-    @include("partials.projects.show.custom", ['isCustom' => true, 'active' => \App\Http\Controllers\Auth\UserController::returnUserPrefs($pref) == "2" ? true : false])
+	@if (count($forms) > 0)  
+	  @include("partials.projects.show.alphabetical", ['isCustom' => false, 'active' => \App\Http\Controllers\Auth\UserController::returnUserPrefs($pref) == "3" ? true : false])
+	  @include("partials.projects.show.custom", ['isCustom' => true, 'active' => \App\Http\Controllers\Auth\UserController::returnUserPrefs($pref) == "2" ? true : false])
+	@else
+	  <div class="form-sort active-forms active form-active-js form-sort-js">
+		@include('partials.projects.show.no-form')
+	  </div>
+	@endif
   </section>
 @stop
 

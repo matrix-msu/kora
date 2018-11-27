@@ -12,11 +12,13 @@
 
                 <div class="form-group mt-xxs">
                     <label for="backupLabel">New Backup File Name</label>
+					<span class="error-message"></span>
                     <input type="text" class="text-input" name="backupLabel" placeholder="Enter the new backup file name here">
                 </div>
 
                 <div class="form-group mt-xl">
                     <label for="backupData">Backup Options</label>
+					<span class="error-message"></span>
                 </div>
                 <div class="actions">
                     <div class="form-group action mt-xs">
