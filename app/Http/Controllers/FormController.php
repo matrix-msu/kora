@@ -58,6 +58,7 @@ class FormController extends Controller {
 				array_push($userNames, $pushThis);
 			}
 		}
+		natcasesort($userNames);
 
         $presets = array();
         foreach(Form::where('preset', '=', 1, 'and', 'pid', '=', $pid)->get() as $form)
