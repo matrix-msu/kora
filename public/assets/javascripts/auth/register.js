@@ -106,7 +106,8 @@ Kora.Auth.Register = function() {
             });
         }
       
-        form.submit(function(e) {
+        //form.submit(function(e) {
+		$('.validate-user-js').click(function (e) {
             var $this = $(this);
 
             e.preventDefault();
@@ -116,38 +117,63 @@ Kora.Auth.Register = function() {
                 $.each($('.user-form').serializeArray(), function(i, field) {
                     values[field.name] = field.value;
                 });
+
+				$.ajax({
+					url: validationUrl,
+					method: 'POST',
+					data: values,
+					success: function(data) {
+						$('.user-form').submit();
+					},
+					error: function(err) {
+						console.log(err);
+						console.log(err.message);
+						$('.error-message').text('');
+						$('.text-input').removeClass('error');
+
+						$.each(err.responseJSON.errors, function(fieldName, errors) {
+							var $field = $('#'+fieldName);
+							$field.addClass('error');
+							$field.siblings('.error-message').text(errors[0]);
+						});
+					}
+				});
             } else {
                 values = new FormData(form.get(0));
                 values.delete('profile');
                 values.append('profile', droppedPicFile);
             
                 // for ( var pair of values.entries() ) {
-                //     console.log(pair[0] + ', ' + pair[1]);
-                //     //console.log(typeof pair[1]);
-                //     if (typeof pair[1] === 'object') {
-                //         console.log(pair[1]);
-                //     }
+                    // console.log(pair[0] + ', ' + pair[1]);
+                    // //console.log(typeof pair[1]);
+                    // if (typeof pair[1] === 'object') {
+                        // console.log(pair[1]);
+                    // }
                 // }
+
+				$.ajax({
+					url: validationUrl,
+					method: 'POST',
+					data: values,
+					processData: false,
+					contentType: false,
+					success: function(data) {
+						$('.user-form').submit();
+					},
+					error: function(err) {
+						console.log(err);
+						console.log(err.message);
+						$('.error-message').text('');
+						$('.text-input').removeClass('error');
+
+						$.each(err.responseJSON.errors, function(fieldName, errors) {
+							var $field = $('#'+fieldName);
+							$field.addClass('error');
+							$field.siblings('.error-message').text(errors[0]);
+						});
+					}
+				});
             }
-
-            $.ajax({
-                url: validationUrl,
-                method: 'POST',
-                data: values,
-                success: function(data) {
-                    $('.user-form').submit();
-                },
-                error: function(err) {
-                    $('.error-message').text('');
-                    $('.text-input').removeClass('error');
-
-                    $.each(err.responseJSON.errors, function(fieldName, errors) {
-                        var $field = $('#'+fieldName);
-                        $field.addClass('error');
-                        $field.siblings('.error-message').text(errors[0]);
-                    });
-                }
-            });
         });
 
         $('.text-input').on('blur', function(e) {

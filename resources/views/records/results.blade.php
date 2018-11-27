@@ -24,10 +24,12 @@
         <div class="inner-wrap center">
             <h1 class="title">
                 <i class="icon icon-form-record-search mr-sm"></i>
-                <span>Search Form Records</span>
+                <span>Form Records & Search</span>
             </h1>
-            <p class="description">Enter keywords to search below. A keyword is required in order to search form
-                records. You can also filter by “Or”, “And”, or “Exact” keyword results.</p>
+            <p class="description">Enter keywords to search below. You can also filter by “Or”, “And”, or “Exact”
+                keyword results. The Form Records & Search page also allows you to individually select a number of
+                records in order to batch delete, assign field values, or to export. To create a selection of records,
+                select the radio buttons next to each record name use wish to select.</p>
         </div>
     </section>
 @stop
@@ -48,18 +50,13 @@
 
                 <div class="form-group mt-xxxl search-button-container">
                     @if($form->fields()->where('advsearch','=',1)->count() > 0)
-                        <a href="#" class="btn half-sub-btn open-advanced-js" data-unsp-sanitized="clean">View Advanced Search Options</a>
+                        <a href="{{action('AdvancedSearchController@index', ['pid' => $form->pid, 'fid' => $form->fid])}}" class="btn half-sub-btn" data-unsp-sanitized="clean">Go to Advanced Search</a>
                     @else
                         <a href="#" class="btn half-sub-btn disabled" data-unsp-sanitized="clean">No Advanced Search Available</a>
                     @endif
-                    <a href="#" class="btn half-sub-btn close-advanced-js" data-unsp-sanitized="clean">Hide Advanced Search Options</a>
                     <a href="#" class="btn half-btn submit-search-js right" data-unsp-sanitized="clean">Search</a>
                 </div>
             </form>
-
-            <section class="advanced-search-drawer advanced-search-drawer-js mt-xxxl hidden">
-                @include('partials.records.adv-form')
-            </section>
 
             <div class="form-group mt-xxxl scroll-to-here-js">
                 <div class="spacer"></div>
@@ -114,6 +111,9 @@
             @endif
         </section>
     </section>
+    @if (count($records) > 0)
+        @include('partials.records.toolbar')
+    @endif
 @stop
 
 @section('footer')
@@ -129,5 +129,6 @@
         var deleteRecordURL = "{{action('RecordController@destroy', ['pid' => $form->pid, 'fid' => $form->fid, 'rid' => ''])}}";
 
         Kora.Records.Index();
+        Kora.Records.Toolbar();
     </script>
 @stop

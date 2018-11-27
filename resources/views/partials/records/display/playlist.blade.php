@@ -12,7 +12,7 @@
                     <i class="icon icon-pause-big audio-button audio-button-js pause-button-js"></i>
                     <i class="icon icon-replay-big audio-button audio-button-js replay-button-js"></i>
 
-                    <div class="slider ml-m">
+                    <div class="slider slider-js no-select ml-m">
                         <div class="slider-button slider-button-js"><div class="inner-button"></div></div>
 
                         <div class="slider-bar slider-bar-js"></div>

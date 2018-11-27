@@ -50,6 +50,7 @@ use App\Http\Requests\ProjectRequest;
           @foreach(getLangs()->keys() as $lang)
               <li><a onclick='setTempLang({{$lang}})' href='#'>{{\Illuminate\Support\Facades\Config::get('app.locales_supported')->get($lang)[1]}}</a> </li>
           @endforeach
+		  <li>More Languages Coming Soon!</li>
         </ul>
       </li>
     @elseif (!Auth::user()->active)

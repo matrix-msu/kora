@@ -32,7 +32,8 @@ class GalleryField extends FileTypeField  {
     protected $fillable = [
         'rid',
         'flid',
-        'images'
+        'images',
+        'captions'
     ];
 
     /**
@@ -163,21 +164,24 @@ class GalleryField extends FileTypeField  {
                             $type = $types[$file->getExtension()];
                         $info = '[Name]' . $file->getFilename() . '[Name][Size]' . $file->getSize() . '[Size][Type]' . $type . '[Type]';
                         $infoArray[$file->getFilename()] = $info;
+
                         if(isset($request->mass_creation_num))
                             copy(storage_path('app/tmpFiles/' . $value . '/' . $file->getFilename()),
                                 $newPath . '/' . $file->getFilename());
                         else
                             rename(storage_path('app/tmpFiles/' . $value . '/' . $file->getFilename()),
                             $newPath . '/' . $file->getFilename());
+
                         if(isset($request->mass_creation_num))
                             copy(storage_path('app/tmpFiles/' . $value . '/thumbnail/' . $file->getFilename()),
-                                $newPath . '/' . $file->getFilename());
+                                $newPath . '/thumbnail/' . $file->getFilename());
                         else
                             rename(storage_path('app/tmpFiles/' . $value . '/thumbnail/' . $file->getFilename()),
                             $newPath . '/thumbnail/' . $file->getFilename());
+
                         if(isset($request->mass_creation_num))
                             copy(storage_path('app/tmpFiles/' . $value . '/medium/' . $file->getFilename()),
-                                $newPath . '/' . $file->getFilename());
+                                $newPath . '/medium/' . $file->getFilename());
                         else
                             rename(storage_path('app/tmpFiles/' . $value . '/medium/' . $file->getFilename()),
                             $newPath . '/medium/' . $file->getFilename());
@@ -191,8 +195,10 @@ class GalleryField extends FileTypeField  {
                             $infoString .= '[!]' . $infoArray[$fName];
                     }
                 }
+                $capString = implode('[!]',$request->input('file_captions'.$field->flid));
             }
             $this->images = $infoString;
+            $this->captions = $capString;
             $this->save();
         }
     }
@@ -260,8 +266,10 @@ class GalleryField extends FileTypeField  {
                             $infoString .= '[!]' . $infoArray[$fName];
                     }
                 }
+                $capString = implode('[!]',$request->input('file_captions'.$field->flid));
             }
             $this->images = $infoString;
+            $this->captions = $capString;
             $this->save();
 
             if(!$gal_files_exist)
@@ -319,6 +327,7 @@ class GalleryField extends FileTypeField  {
         $this->rid = $record->rid;
         $this->fid = $field->fid;
         $infoArray = array();
+        $captionArray = array();
         $maxfiles = FieldController::getFieldOption($field,'MaxFiles');
         if($maxfiles==0) {$maxfiles=1;}
         $newPath = storage_path('app/files/p' . $field->pid . '/f' . $field->fid . '/r' . $record->rid . '/fl' . $field->flid);
@@ -334,6 +343,7 @@ class GalleryField extends FileTypeField  {
                 $type = $types['png'];
             $info = '[Name]gallery' . $q . '.png[Name][Size]54827[Size][Type]' . $type . '[Type]';
             $infoArray['gallery' . $q . '.png'] = $info;
+            array_push($captionArray, 'This is a test caption');
             copy(public_path('assets/testFiles/gallery.png'),
                 $newPath . '/gallery' . $q . '.png');
             copy(public_path('assets/testFiles/medium/gallery.png'),
@@ -341,8 +351,8 @@ class GalleryField extends FileTypeField  {
             copy(public_path('assets/testFiles/thumbnail/gallery.png'),
                 $newPath . '/thumbnail/gallery' . $q . '.png');
         }
-        $infoString = implode('[!]',$infoArray);
-        $this->images = $infoString;
+        $this->images = implode('[!]',$infoArray);
+        $this->captions = implode('[!]',$captionArray);
         $this->save();
     }
 
@@ -390,7 +400,8 @@ class GalleryField extends FileTypeField  {
             $this->rid = $revision->rid;
         }
 
-        $this->images = $revision->oldData[Field::_GALLERY][$field->flid]['data'];
+        $this->images = $revision->oldData[Field::_GALLERY][$field->flid]['data']['names'];
+        $this->captions = $revision->oldData[Field::_GALLERY][$field->flid]['data']['captions'];
         $this->save();
     }
 
@@ -402,10 +413,13 @@ class GalleryField extends FileTypeField  {
      * @return array - The updated $data
      */
     public function getRecordPresetArray($data, $exists=true) {
-        if($exists)
+        if($exists) {
             $data['images'] = explode('[!]', $this->images);
-        else
+            $data['captions'] = explode('[!]', $this->captions);
+        } else {
             $data['images'] = null;
+            $data['captions'] = null;
+        }
 
         return $data;
     }
@@ -417,7 +431,7 @@ class GalleryField extends FileTypeField  {
      * @return mixed - The revision data
      */
     public function getRevisionData($field = null) {
-        return $this->images;
+        return ['names' => $this->images, 'captions' => $this->captions];
     }
 
     /**
@@ -436,6 +450,7 @@ class GalleryField extends FileTypeField  {
                 $xml .= '</File>';
                 $xml .= '<File>';
                 $xml .= '<Name>' . utf8_encode('FILENAME 2') . '</Name>';
+                $xml .= '<Caption>' . utf8_encode('Example of one that has a caption!') . '</Caption>';
                 $xml .= '</File>';
                 $xml .= '<File>';
                 $xml .= '<Name>' . utf8_encode('so on...') . '</Name>';
@@ -457,6 +472,7 @@ class GalleryField extends FileTypeField  {
 
                 $fileArray = [];
                 $fileArray['name'] = 'FILENAME2';
+                $fileArray['caption'] = 'Example of one that has a caption!';
                 $fieldArray[$slug]['value'][] = $fileArray;
 
                 $fileArray = [];
@@ -493,6 +509,7 @@ class GalleryField extends FileTypeField  {
      */
     public function setRestfulRecordData($jsonField, $flid, $recRequest, $uToken=null) {
         $files = array();
+        $captions = array();
         $currDir = storage_path('app/tmpFiles/impU' . $uToken);
         $newDir = storage_path('app/tmpFiles/f' . $flid . 'u' . $uToken);
         if(file_exists($newDir)) {
@@ -520,6 +537,7 @@ class GalleryField extends FileTypeField  {
         $field = FieldController::getField($flid);
         foreach($jsonField->value as $file) {
             $name = $file->name;
+            $caption = isset($file->caption) ? $file->caption : '';
             //move file from imp temp to tmp files
             copy($currDir . '/' . $name, $newDir . '/' . $name);
             $smallParts = explode('x',FieldController::getFieldOption($field,'ThumbSmall'));
@@ -532,8 +550,10 @@ class GalleryField extends FileTypeField  {
             $mImage->writeImage($newDir . '/medium/' . $name);
             //add input for this file
             array_push($files, $name);
+            array_push($captions, $caption);
         }
         $recRequest['file' . $flid] = $files;
+        $recRequest['file_captions' . $flid] = $captions;
         $recRequest[$flid] = 'f' . $flid . 'u' . $uToken;
 
         return $recRequest;
@@ -547,11 +567,16 @@ class GalleryField extends FileTypeField  {
      * @return array - The RIDs that match search
      */
     public function keywordSearchTyped($flid, $arg) {
-        return DB::table("gallery_fields")
+        $search = DB::table("gallery_fields")
             ->select("rid")
-            ->where("flid", "=", $flid)
-            ->where('images','LIKE',"%$arg%")
-            ->distinct()
+            ->where("flid", "=", $flid);
+
+        $search->where(function($search) use ($arg) {
+            $search->where('images', 'LIKE', "%$arg%");
+            $search->orWhere('captions', 'LIKE', "%$arg%");
+        });
+
+        return $search->distinct()
             ->pluck('rid')
             ->toArray();
     }
@@ -567,11 +592,16 @@ class GalleryField extends FileTypeField  {
         $arg = $query[$flid."_input"];
         $arg = Search::prepare($arg);
 
-        return DB::table("gallery_fields")
+        $search = DB::table("gallery_fields")
             ->select("rid")
-            ->where("flid", "=", $flid)
-            ->where('images','LIKE',"%$arg%")
-            ->distinct()
+            ->where("flid", "=", $flid);
+
+        $search->where(function($search) use ($arg) {
+            $search->where('images', 'LIKE', "%$arg%");
+            $search->orWhere('captions', 'LIKE', "%$arg%");
+        });
+
+        return $search->distinct()
             ->pluck('rid')
             ->toArray();
     }

@@ -102,12 +102,20 @@ abstract class FileTypeField extends BaseField {
 
         if((sizeof($fileTypes)!=1 | $fileTypes[0]!='') && $field->type != Field::_3D_MODEL) {
             foreach($fileTypesRequest as $type) {
+                //This statement guards against Safari's lack of file type recognition
+                if($field->type == Field::_PLAYLIST && $type == "audio/mpeg")
+                    $type = "audio/mp3";
+
                 if(!in_array($type,$fileTypes))
                     $validTypes = false;
             }
         } else if(array_key_exists($field->type, self::$FILE_MIME_TYPES)) {
             $fileTypes = self::$FILE_MIME_TYPES[$field->type];
             foreach($fileTypesRequest as $type) {
+                //This statement guards against Safari's lack of file type recognition
+                if($field->type == Field::_PLAYLIST && $type == "audio/mpeg")
+                    $type = "audio/mp3";
+
                 if(!in_array($type,$fileTypes))
                     $validTypes = false;
             }

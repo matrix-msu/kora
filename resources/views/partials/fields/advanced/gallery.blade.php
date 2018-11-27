@@ -1,17 +1,23 @@
 {!! Form::hidden('advanced',true) !!}
 <div class="form-group mt-xxxl">
     {!! Form::label('filesize','Max File Size (kb)') !!}
-    <input type="number" name="filesize" class="text-input" step="1" value="0" min="0" placeholder="Enter max file size (kb) here">
+    <div class="number-input-container number-input-container-js">
+      <input type="number" name="filesize" class="text-input" step="1" value="0" min="0" placeholder="Enter max file size (kb) here">
+    </div>
 </div>
 
 <div class="form-group mt-xl half pr-m">
     {!! Form::label('small_x','Small Thumbnail (X)') !!}
-    <input type="number" name="small_x" class="text-input" step="any" value="150" min="50" max="700" placeholder="Enter small thumbnail (X) here">
+    <div class="number-input-container number-input-container-js">
+      <input type="number" name="small_x" class="text-input" step="any" value="150" min="50" max="700" placeholder="Enter small thumbnail (X) here">
+    </div>
 </div>
 
 <div class="form-group mt-xl half pl-m">
     {!! Form::label('small_y','Small Thumbnail (Y)') !!}
-    <input type="number" name="small_y" class="text-input " step="any" value="150" min="50" max="700" placeholder="Enter small thumbnail (Y) here">
+    <div class="number-input-container number-input-container-js">
+      <input type="number" name="small_y" class="text-input " step="any" value="150" min="50" max="700" placeholder="Enter small thumbnail (Y) here">
+    </div>
 </div>
 
 <div class="form-group">
@@ -20,17 +26,23 @@
 
 <div class="form-group mt-xl half pr-m">
     {!! Form::label('large_x','Large Thumbnail (X)') !!}
-    <input type="number" name="large_x" class="text-input" step="1" value="300" min="50" max="700" placeholder="Enter large thumbnail (X) here">
+    <div class="number-input-container number-input-container-js">
+      <input type="number" name="large_x" class="text-input" step="1" value="300" min="50" max="700" placeholder="Enter large thumbnail (X) here">
+    </div>
 </div>
 
 <div class="form-group mt-xl half pl-m">
     {!! Form::label('large_y','Large Thumbnail (Y)') !!}
-    <input type="number" name="large_y" class="text-input" step="1" value="300" min="50" max="700" placeholder="Enter large thumbnail (Y) here">
+    <div class="number-input-container number-input-container-js">
+      <input type="number" name="large_y" class="text-input" step="1" value="300" min="50" max="700" placeholder="Enter large thumbnail (Y) here">
+    </div>
 </div>
 
 <div class="form-group mt-xl">
     {!! Form::label('maxfiles','Max File Amount') !!}
-    <input type="number" name="maxfiles" class="text-input" step="1" value="0" min="0" placeholder="Enter max file amount here">
+    <div class="number-input-container number-input-container-js">
+      <input type="number" name="maxfiles" class="text-input" step="1" value="0" min="0" placeholder="Enter max file amount here">
+    </div>
 </div>
 
 <div class="form-group mt-xl">
@@ -40,5 +52,6 @@
 </div>
 
 <script>
+    Kora.Inputs.Number();
     Kora.Fields.Options('Gallery');
 </script>

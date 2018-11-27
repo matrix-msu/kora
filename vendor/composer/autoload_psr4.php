@@ -46,6 +46,7 @@ return array(
     'Http\\Client\\Curl\\' => array($vendorDir . '/php-http/curl-client/src'),
     'Http\\Client\\' => array($vendorDir . '/php-http/httplug/src'),
     'GuzzleHttp\\Psr7\\' => array($vendorDir . '/guzzlehttp/psr7/src'),
+    'Geocoder\\Provider\\Nominatim\\' => array($vendorDir . '/geocoder-php/nominatim-provider'),
     'Geocoder\\Provider\\GoogleMaps\\' => array($vendorDir . '/geocoder-php/google-maps-provider'),
     'Geocoder\\Provider\\GeoPlugin\\' => array($vendorDir . '/geocoder-php/geo-plugin-provider'),
     'Geocoder\\Provider\\Chain\\' => array($vendorDir . '/geocoder-php/chain-provider'),

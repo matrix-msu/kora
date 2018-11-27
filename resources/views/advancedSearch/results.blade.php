@@ -1,4 +1,4 @@
-@extends('app', ['page_title' => 'Advanced Search', 'page_class' => 'record-index'])
+@extends('app', ['page_title' => 'Advanced Search', 'page_class' => 'advanced-index'])
 
 @section('leftNavLinks')
     @include('partials.menu.project', ['pid' => $form->pid])
@@ -24,9 +24,9 @@
         <div class="inner-wrap center">
             <h1 class="title">
                 <i class="icon icon-form-record-search mr-sm"></i>
-                <span>Advanced Search Results</span>
+                <span>Form Records Advanced Search</span>
             </h1>
-            <p class="description">View advanced search results or submit a new advanced search. </p>
+            <p class="description">Use the advanced search options below, then select 'Submit Advanced Search'</p>
         </div>
     </section>
 @stop

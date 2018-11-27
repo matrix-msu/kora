@@ -1,3 +1,5 @@
+@php $pref = 'use_dashboard' @endphp
+@if (\App\Http\Controllers\Auth\UserController::returnUserPrefs($pref) == "1")
 <div class="drawer-element drawer-element-js">
   <a href="#" class="drawer-toggle drawer-toggle-js" data-drawer="{{ $openDashboardDrawer or '0' }}">
     <i class="icon icon-dashboard"></i>
@@ -20,6 +22,7 @@
     </li>
   </ul>
 </div>
+@endif
 
 <div class="drawer-element drawer-element-js">
   <a href="#" class="drawer-toggle drawer-toggle-js" data-drawer="{{ $openProjectDrawer or '0' }}">

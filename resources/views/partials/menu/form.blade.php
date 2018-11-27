@@ -16,7 +16,11 @@
       <li class="spacer full"></li>
 
       <li class="link first">
-        <a  href="{{ url('/projects/'.$pid).'/forms/'.$fid.'/records'}}">View Form Records</a>
+        <a  href="{{ url('/projects/'.$pid).'/forms/'.$fid.'/records'}}">Form Records & Search</a>
+      </li>
+
+      <li class="link">
+          <a  href="{{ url('/projects/'.$pid).'/forms/'.$fid.'/advancedSearch'}}">Form Records<br>Advanced Search</a>
       </li>
 
       @if(\Auth::user()->canCreateFields($form))

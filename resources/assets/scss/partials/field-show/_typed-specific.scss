@@ -144,7 +144,7 @@
 .combo-list-display {
   margin: 0;
   padding: 0;
-  
+
   .combo-list-title {
 	display: flex;
     font-family: $ubuntu;
@@ -156,24 +156,24 @@
 		width: 50%;
 	}
   }
-  
+
   .card {
 	  align-items: center;
 	  display: flex;
 	  justify-content: space-between;
 	  padding: 0 20px;
-	  
+
 	  .combo-column {
 		  font-size: 13px;
 		  margin: 0;
 	      width: 50%;
 	  }
-	  
+
 	  .combo-delete {
       		  color: palette('red', warning, 1);
 		  position: absolute;
 		  right: 0;
-		  
+
 		  .delete-option {
 			  .icon-trash {
 				@include transition();
@@ -190,11 +190,11 @@
 		  }
 	  }
   }
-  
+
   .card:first-of-type {
 	  margin-top: 10px;
   }
-  
+
   .card:last-of-type {
 	  margin-bottom: 0;
   }

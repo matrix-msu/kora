@@ -78,11 +78,11 @@
          id="password_confirmation" name="password_confirmation" placeholder="Enter password here">
 </div>
 
-<div class="form-group mt-100-xl" >
-    {!! Form::submit('Update Profile', ['class' => 'btn edit-btn update-user-submit pre-fixed-js validate-user-js']) !!}
+<div class="form-group mt-100-xl floating-button-height">
+    {!! Form::submit('Update Profile', ['class' => 'btn edit-btn update-user-submit pre-fixed-js validate-user-js color-transition']) !!}
 </div>
 
-<div class="form-group mt-100-xl">
+<div class="form-group mt-xxxl">
     @if ($type == 'edit' && $user->id != 1)
         <div class="delete-user">
             <a class="btn dot-btn trash warning user-trash-js tooltip" data-title="Delete User?" href="#" tooltip="Delete User">

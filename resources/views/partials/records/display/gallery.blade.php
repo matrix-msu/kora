@@ -1,15 +1,18 @@
 <?php
-$single = (count(explode('[!]',$typedField->images)) <= 1);
-$singleFilename = ($single ? explode('[Name]',$typedField->images)[1] : '');
+    $images = explode('[!]',$typedField->images);
+    $captions = explode('[!]',$typedField->captions);
+    $single = (count($images) <= 1);
+    $singleFilename = ($single ? explode('[Name]',$typedField->images)[1] : '');
 ?>
 
 <div class="record-data-card">
     <div class="gallery-field-display gallery-field-display-js {{ ($single ? 'single' : '') }}">
-        @foreach(explode('[!]',$typedField->images) as $img)
+        @foreach($images as $ndx => $img)
             @if($img != '')
                 <?php
                 $name = explode('[Name]',$img)[1];
                 $link = action('FieldAjaxController@getImgDisplay',['flid' => $field->flid, 'rid' => $record->rid, 'filename' => $name, 'type' => 'medium']);
+                $caption = (array_key_exists($ndx, $captions) ? $captions[$ndx] : '');
                 ?>
                 <div class="slide slide-js">
                     <img class="slide-img slide-img-js" data-pid="{{$record->pid}}" data-fid="{{$record->fid}}" data-rid="{{$record->rid}}" data-flid="{{ $field->flid }}" src="{{$link}}" alt="{{$name}}">
@@ -31,6 +34,13 @@ $singleFilename = ($single ? explode('[Name]',$typedField->images)[1] : '');
             </div>
         </div>
     @endif
+
+    <div class="caption-container caption-container-js">
+        @foreach ($captions as $index => $caption)
+            <div class="caption caption-js {{ ($index == 0 ? 'active' : '') }}">{{ $caption }}</div>
+        @endforeach
+    </div>
+    <a class="caption-more caption-more-js underline-middle-hover" showing="less" href="#">Show Full Caption</a>
 
     <div class="field-sidebar gallery-sidebar gallery-sidebar-js {{ ($single ? 'single' : '') }}">
         <div class="top">
@@ -61,7 +71,7 @@ $singleFilename = ($single ? explode('[Name]',$typedField->images)[1] : '');
         </div>
         <div class="body">
             <div class="gallery-field-display gallery-field-display-js">
-                @foreach(explode('[!]',$typedField->images) as $img)
+                @foreach($images as $img)
                     @if($img != '')
                         <?php
                         $name = explode('[Name]',$img)[1];
@@ -87,6 +97,13 @@ $singleFilename = ($single ? explode('[Name]',$typedField->images)[1] : '');
                     <i class="icon icon-chevron"></i>
                 </div>
             </div>
+
+            <div class="caption-container caption-container-js">
+                @foreach ($captions as $index => $caption)
+                    <div class="caption caption-js {{ ($index == 0 ? 'active' : '') }}">{{ $caption }}</div>
+                @endforeach
+            </div>
+            <a class="caption-more caption-more-js underline-middle-hover" showing="less" href="#">Show Full Caption</a>
         </div>
     </div>
 </div>

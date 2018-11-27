@@ -50,7 +50,6 @@
           Kora.Auth.Auth();
         </script>
       @endif
-       <script src="{{ url('assets/javascripts/navigation/breadcrumbs.js') }}"></script>
 	   <div id="preloader" style="display:none;">
          <div id="loader-background">
 		   <div id="loader">

@@ -274,12 +274,15 @@ class ImportController extends Controller {
                 if(!array_key_exists($key,$matchup))
                     continue;
 
+                //If value is not set, we assume no value so move on
+                if($field->count() == 0 && (string)$field == '')
+                    continue;
+
                 //Deal with reverse associations and move on
                 if($matchup[$key] == 'reverseAssociations') {
                     if(empty($field->Record))
                         return response()->json(["status"=>false,"message"=>"xml_validation_error",
                             "record_validation_error"=>[$request->kid => "$matchup[$key] format is incorrect for applying reverse associations"]],500);
-                    $rAssoc = (array)$field->Record;
                     $rFinal = [];
                     foreach($field->Record as $rAssoc) {
                         $rFinal[(string)$rAssoc['flid']][] = (string)$rAssoc;
@@ -464,6 +467,7 @@ class ImportController extends Controller {
                     $recRequest[$flid] = 'f' . $flid . 'u' . \Auth::user()->id . '/r' . $request->kid;
                 } else if($type == 'Gallery') {
                     $files = array();
+                    $captions = array();
                     if(is_null($originRid))
                         $currDir = storage_path( 'app/tmpFiles/impU' . \Auth::user()->id);
                     else
@@ -521,12 +525,14 @@ class ImportController extends Controller {
                         }
                         //add input for this file
                         array_push($files, $name);
+                        array_push($captions, '');
                     } else {
                         if(empty($field->File))
                             return response()->json(["status"=>false,"message"=>"xml_validation_error",
                                 "record_validation_error"=>[$request->kid => "$fieldSlug format is incorrect for a File Type Field"]],500);
                         foreach ($field->File as $file) {
                             $name = (string)$file->Name;
+                            $caption = isset($file->Caption) ? (string)$file->Caption : '';
                             //move file from imp temp to tmp files
                             if(!file_exists($currDir . '/' . $name)) {
                                 //Before we fail, let's see first if it's just failing because the originRid was specified
@@ -555,9 +561,11 @@ class ImportController extends Controller {
                             }
                             //add input for this file
                             array_push($files, $name);
+                            array_push($captions, $caption);
                         }
                     }
                     $recRequest['file' . $flid] = $files;
+                    $recRequest['file_captions' . $flid] = $captions;
                     $recRequest[$flid] = 'f' . $flid . 'u' . \Auth::user()->id . '/r' . $request->kid;
                 } else if($type == 'Associator') {
                     if(empty($field->Record))
@@ -578,6 +586,10 @@ class ImportController extends Controller {
                 if(!array_key_exists($slug,$matchup))
                     continue;
 
+                //If value is not set, we assume no value so move on
+                if(!isset($field['value']))
+                    continue;
+
                 //Deal with reverse associations and move on
                 if($matchup[$slug] == 'reverseAssociations') {
                     $recRequest['newRecRevAssoc'] = $field;
@@ -586,15 +598,7 @@ class ImportController extends Controller {
 
                 $fieldSlug = $matchup[$slug];
                 $flid = Field::where('slug', '=', $fieldSlug)->get()->first()->flid;
-                $type = $field['type'];
-
-                //Type wasnt provided so we have to hunt for it
-                if(is_null($type))
-                    $type = Field::where('slug', '=', $fieldSlug)->get()->first()->type;
-
-                if(!isset($field['value']))
-                    return response()->json(["status"=>false,"message"=>"json_validation_error",
-                        "record_validation_error"=>[$request->kid => "$fieldSlug is missing value index"]],500);
+                $type = isset($field['type']) ? $field['type'] : Field::where('slug', '=', $fieldSlug)->get()->first()->type;
 
                 if($type == 'Text') {
                     $recRequest[$flid] = $field['value'];
@@ -644,9 +648,9 @@ class ImportController extends Controller {
                         return response()->json(["status"=>false,"message"=>"json_validation_error",
                             "record_validation_error"=>[$request->kid => "$fieldSlug is missing month, day, and year indices"]],500);
                     $recRequest['circa_' . $flid] = $field['value']['circa'];
-                    $recRequest['month_' . $flid] = $field['value']['month'];
-                    $recRequest['day_' . $flid] = $field['value']['day'];
-                    $recRequest['year_' . $flid] = $field['value']['year'];
+                    $recRequest['month_' . $flid] = isset($field['value']['month']) ? $field['value']['month'] : '';
+                    $recRequest['day_' . $flid] = isset($field['value']['day']) ? $field['value']['day'] : '';
+                    $recRequest['year_' . $flid] = isset($field['value']['year']) ? $field['value']['year'] : '';
                     $recRequest['era_' . $flid] = $field['value']['era'];
                     $recRequest[$flid] = '';
                 } else if($type == 'Schedule') {
@@ -717,6 +721,7 @@ class ImportController extends Controller {
                     $recRequest[$flid] = 'f' . $flid . 'u' . \Auth::user()->id . '/r' . $request->kid;
                 } else if($type == 'Gallery') {
                     $files = array();
+                    $captions = array();
                     if(is_null($originRid))
                         $currDir = storage_path( 'app/tmpFiles/impU' . \Auth::user()->id);
                     else
@@ -749,6 +754,7 @@ class ImportController extends Controller {
                             return response()->json(["status"=>false,"message"=>"json_validation_error",
                                 "record_validation_error"=>[$request->kid => "$fieldSlug is missing name for a file"]],500);
                         $name = $file['name'];
+                        $caption = isset($file['caption']) ? $file['caption'] : '';
                         //move file from imp temp to tmp files
                         copy($currDir . '/' . $name, $newDir . '/' . $name);
                         if(file_exists($currDir . '/thumbnail'))
@@ -769,8 +775,10 @@ class ImportController extends Controller {
                         }
                         //add input for this file
                         array_push($files, $name);
+                        array_push($captions, $caption);
                     }
                     $recRequest['file' . $flid] = $files;
+                    $recRequest['file_captions' . $flid] = $captions;
                     $recRequest[$flid] = 'f' . $flid . 'u' . \Auth::user()->id . '/r' . $request->kid;
                 } else if($type == 'Associator') {
                     $recRequest[$flid] = $field['value'];

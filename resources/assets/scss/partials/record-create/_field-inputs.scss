@@ -9,14 +9,12 @@
   box-shadow: 0 3px 5px 0 palette('gray', slate, 0.05);
   margin-top: 10px;
   overflow: auto;
-  padding-bottom: 6px;
-  padding-left: 20px;
-  padding-right: 20px;
+  padding: 30px 40px;
 
   .combo-column {
-    float: left;
-    margin-bottom: 10px;
-    margin-top: 13px;
+    display: inline-block;
+    margin-right: 30px;
+    vertical-align: top;
     width: 40%;
   }
 
@@ -27,10 +25,32 @@
   }
 
   .combo-delete {
-    float:left;
-    margin-bottom:10px;
-    margin-top: 13px;
-    width:15%;
+    cursor: pointer;
+    display: inline-block;
+    position: absolute;
+    right: 20px;
+    text-align: right;
+    top: 15px;
+
+    .icon-trash {
+      color: palette('red', base);
+      display: inline-block;
+      font-size: 12px;
+      @include transition();
+    }
+
+    &:hover {
+      .icon-trash {
+        transform: scale(1.25);
+        transform-origin: center center;
+      }
+
+      &.tooltip {
+        &:after {
+          left: -62px;
+        }
+      }
+    }
   }
 
   .combo-border-large {
@@ -47,6 +67,39 @@
     float: left;
     margin-top: 6px;
     width: 100%;
+  }
+
+  .combo-value-item {
+    background: palette('white', base);
+    border-radius: 5px;
+    box-shadow: 0 3px 5px 0 palette('gray', slate, 0.05);
+    margin-bottom: 15px;
+    padding: 15px 20px;
+    position: relative;
+
+    .combo-column {
+      font-size: 13px;
+      font-weight: normal;
+    }
+  }
+
+  .modal {
+    .form-group {
+      margin-bottom: 30px;
+      margin-top: 0;
+    }
+  }
+
+  @media screen and (max-width: $max-mobile-med-width) {
+    .combo-column {
+      margin-bottom: 10px;
+      margin-right: 0;
+      width: 81%;
+
+      &:last-child {
+        margin-bottom: 0;
+      }
+    }
   }
 }
 
@@ -65,7 +118,6 @@
 
 .new-object-button,
 .low-margin {
-  margin-top: 10px;
   width: calc(100%);
 }
 
