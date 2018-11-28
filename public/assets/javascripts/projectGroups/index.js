@@ -561,6 +561,8 @@ Kora.ProjectGroups.Index = function() {
 	  
 	  if (!valid_name || !valid_options || !valid_emails) {
 		e.preventDefault();
+	  } else {
+		display_loader();
 	  }
 	});
   }

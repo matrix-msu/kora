@@ -141,6 +141,7 @@ Kora.Records.Import = function () {
                                         "type": importType
                                     },
                                     local_kid: kid,
+                                    impType: importType,
                                     success: function (data) {
                                         succ++;
                                         progressText.text(succ + ' of ' + total + ' Records Submitted');
@@ -148,25 +149,14 @@ Kora.Records.Import = function () {
                                         done++;
                                         //update progress bar
                                         percent = (done / total) * 100;
-                                        if (percent < 7)
+                                        if(percent < 7)
                                             percent = 7;
                                         progressFill.attr('style', 'width:' + percent + '%');
                                         progressText.text(succ + ' of ' + total + ' Records Submitted');
 
                                         //if done = total
-                                        if (done == total) {
-                                            progressText.html(succ + ' of ' + total + ' records successfully imported! Click <a class="success-link" href="' + showRecordUrl + '">here to visit the records page</a>.'
-                                                + ' Or click <a class="success-link failed-records-js" href="#">here to download any records</a>'
-                                                + '<form action="' + downloadFailedUrl + '" method="post" class="records-form-js" style="display:none;">'
-                                                + '<input type="hidden" name="type" value="' + importType + '"/>'
-                                                + '<input type="hidden" name="_token" value="' + CSRFToken + '"/>'
-                                                + '</form>'
-                                                + ' that failed to upload, and click <a class="success-link failed-reasons-js" href="#">here to download a report</a>'
-                                                + '<form action="' + downloadReasonsUrl + '" method="post" class="reasons-form-js" style="display:none;">'
-                                                + '<input type="hidden" name="_token" value="' + CSRFToken + '"/>'
-                                                + '</form>'
-                                                + ' of why they failed.');
-                                        }
+                                        if(done == total)
+                                            completeImport(succ, total, this.impType);
                                     },
                                     error: function (data) {
                                         failedRecords.push([this.local_kid, importRecs[this.local_kid], data]);
@@ -174,25 +164,14 @@ Kora.Records.Import = function () {
                                         done++;
                                         //update progress bar
                                         percent = (done / total) * 100;
-                                        if (percent < 7)
+                                        if(percent < 7)
                                             percent = 7;
                                         progressFill.attr('style', 'width:' + percent + '%');
                                         progressText.text(succ + ' of ' + total + ' Records Submitted');
 
                                         //if done = total
-                                        if (done == total) {
-                                            progressText.html(succ + ' of ' + total + ' records successfully imported! Click <a class="success-link" href="' + showRecordUrl + '">here to visit the records page</a>.'
-                                                + ' Or click <a class="success-link failed-records-js" href="#">here to download any records</a>'
-                                                + '<form action="' + downloadFailedUrl + '" method="post" class="records-form-js" style="display:none;">'
-                                                + '<input type="hidden" name="type" value="' + importType + '"/>'
-                                                + '<input type="hidden" name="_token" value="' + CSRFToken + '"/>'
-                                                + '</form>'
-                                                + ' that failed to upload, and click <a class="success-link failed-reasons-js" href="#">here to download a report</a>'
-                                                + '<form action="' + downloadReasonsUrl + '" method="post" class="reasons-form-js" style="display:none;">'
-                                                + '<input type="hidden" name="_token" value="' + CSRFToken + '"/>'
-                                                + '</form>'
-                                                + ' of why they failed.');
-                                        }
+                                        if(done == total)
+                                            completeImport(succ, total, this.impType);
                                     }
                                 });
                             }
@@ -206,7 +185,38 @@ Kora.Records.Import = function () {
             }
         });
 
-        $('.progress-text-js').on('click', '.failed-records-js', function (e) {
+        function completeImport(succ, total, impType) {
+            var recImpLabel = $('.records-imported-label-js');
+            var recImpText = $('.records-imported-text-js');
+            var btnContainer = $('.button-container-js');
+            var extraText = $('.download-report-js');
+
+            $('.recordresults-section').addClass('hidden');
+            $('.allrecords-section').removeClass('hidden');
+
+            $('.header-text-js').text('Import Records Complete!');
+            $('.desc-text-js').text('Below is a summary of the imported records.');
+
+            if(succ==total) {
+                recImpLabel.text(succ + ' of ' + total + ' Records Successfully Imported!');
+                recImpText.text('Way to have your data organized! We found zero errors with this import. Woohoo!');
+            } else {
+                recImpLabel.text(succ + ' of ' + total + ' Records Successfully Imported');
+                recImpText.html('Looks like not all of the records made it. However, you can ' +
+                    'download the Failed Records and their report below to identify the problem with their import. You ' +
+                    'may <a class="success-link refresh-records-js" href="#">Try Importing Again</a> at anytime.');
+
+                btnContainer.prepend('<a href="#" class="btn half-sub-btn import-thick-btn-text failed-records-js">Download Failed Records (' + impType + ')</a>'
+                    + '<form action="' + downloadFailedUrl + '" method="post" class="records-form-js" style="display:none;">'
+                    + '<input type="hidden" name="type" value="' + impType + '"/>'
+                    + '<input type="hidden" name="_token" value="' + CSRFToken + '"/>'
+                    + '</form>')
+
+                extraText.removeClass('hidden');
+            }
+        }
+
+        $('.button-container-js').on('click', '.failed-records-js', function (e) {
             var $recForm = $('.records-form-js');
 
             var input = $("<input>")
@@ -217,7 +227,7 @@ Kora.Records.Import = function () {
             $recForm.submit();
         });
 
-        $('.progress-text-js').on('click', '.failed-reasons-js', function (e) {
+        $('.failed-reasons-js').click(function (e) {
             var $recForm = $('.reasons-form-js');
 
             var input = $("<input>")
@@ -226,6 +236,10 @@ Kora.Records.Import = function () {
             $recForm.append($(input));
 
             $recForm.submit();
+        });
+
+        $('.records-imported-text-js').on('click', '.refresh-records-js', function (e) {
+            location.reload();
         });
     }
 
