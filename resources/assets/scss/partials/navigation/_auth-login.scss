@@ -26,6 +26,19 @@
         margin: 0;
       }
     }
+
+    &.invited {
+      &.logo {
+        color: palette('green', accent);
+        margin: 15px 0 0;
+        padding-right: 15px;
+      }
+
+      &:last-of-type {
+        margin-left: 0;
+        padding-left: 0;
+      }
+    }
   }
 
   .navigation-left {
