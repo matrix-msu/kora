@@ -10,7 +10,7 @@
 			
 			<div class="main-info mt-xxl">Feel free to contact the Installation Admin</div>
 			
-			<a href="mailto:{{$install_admin_email}}" class="link main-info">{{$install_admin_email}}</a>
+			<a href="mailto:{{$install_admin_email}}" class="link">{{$install_admin_email}}</a>
 			
 			<div class="main-info">about this problem, or ...</div>
 			
