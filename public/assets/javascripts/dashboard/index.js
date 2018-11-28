@@ -24,6 +24,9 @@ Kora.Dashboard.Index = function() {
         }
 		$('input[name="options"]').val(options);
         $('input[name="hiddenOpts"]').val(hiddenOpts);
+
+        let line = $('#card-container .line-container').detach();
+        line.insertBefore($('#card-container .card:nth-child(7)'));
 	}
 
     function editQuickActionsSort () {
