@@ -121,8 +121,6 @@ Kora.Auth.Register = function() {
                 });
                 values['_method'] = 'PATCH';
 
-                console.log(values)
-                console.log(validationUrl)
                 // for ( var pair of values.entries() ) {
                 //     console.log(pair[0] + ', ' + pair[1]);
                 //     //console.log(typeof pair[1]);
@@ -201,8 +199,6 @@ Kora.Auth.Register = function() {
 
             values['_method'] = 'PATCH';
             values['_token'] = CSRFToken;
-
-            console.log(values)
 
             $.ajax({
                 url: validationUrl,
