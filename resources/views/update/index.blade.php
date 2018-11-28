@@ -33,15 +33,15 @@
     <section class="update-text center">
         <div class="update-version">KORA {{$info['version']}}</div>
         <div class="update-notes mt-xl">
-            <div class="note-header">Update Notes</div>
+            <div class="note-header">Update Notes:</div>
             <div class="mt-m">{{$info['notes']}}</div>
-            <div class="note-header mt-m">New Features</div>
+            <div class="mt-m">New Features:</div>
             <ul class="mt-m">
                 @foreach($info['features'] as $feature)
                     <li>{{$feature}}</li>
                 @endforeach
             </ul>
-            <div class="note-header mt-m">Bug Fixes</div>
+            <div class="mt-m">Bug Fixes:</div>
             <ul class="mt-m">
                 @foreach($info['bugs'] as $bug)
                     <li>{{$bug}}</li>
