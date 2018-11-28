@@ -501,12 +501,10 @@ Kora.Dashboard.Index = function() {
 			}
         });
 
-        console.log($('.no-section .container').children().length);
-        if ($('.no-section .container').children().length > 0) {
+        if ($('.no-section .container').children().length > 0)
             $('.section-js.no-section').addClass('mt-xxxl');
-        } else {
+        else
             $('.section-js.no-section').removeClass('mt-xxxl');
-        }
     }
 
     function initializeEditBlocks() {
@@ -719,6 +717,13 @@ Kora.Dashboard.Index = function() {
             $('.edit-blocks-js').trigger('click');
         }
     }
+
+    $(document).ready(function () {
+        if ($('.no-section .container').children().length > 0)
+            $('.section-js.no-section').addClass('mt-xxxl');
+        else
+            $('.section-js.no-section').removeClass('mt-xxxl');
+    });
 
     initializeSelects();
 	editQuickActionsSort();

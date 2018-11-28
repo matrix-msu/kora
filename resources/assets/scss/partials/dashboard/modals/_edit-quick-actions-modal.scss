@@ -73,6 +73,10 @@
                 font-family: $ubuntu;
                 font-size: 16px;
             }
+
+            &:hover {
+                cursor: pointer;
+            }
         }
     }
 }
