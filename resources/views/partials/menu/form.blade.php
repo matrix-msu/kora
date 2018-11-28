@@ -54,7 +54,6 @@
 			  
 			  <?php
 			  $fields_by_page_id = [];
-			  $flid_to_name = []; // map field ids to field names
 			  $pageid_to_sequence = [];
 			  
 			  // map page ids to page sequences
@@ -68,16 +67,14 @@
 			  // both of these sequences are sequential (0->count) so we dont need any sorting
 			  $page_count = 0;
 			  foreach ($fieldsInForm as $field) {
-				$flid_to_name[$field->flid] = $field->name;
-				
 			    if (!array_key_exists($pageid_to_sequence[$field->page_id], $fields_by_page_id)) {
 					$fields_by_page_id[$pageid_to_sequence[$field->page_id]] = [];
 					$page_count = $page_count + 1;
 				}
 				
-				$fields_by_page_id[$pageid_to_sequence[$field->page_id]][$field->sequence] = $field->flid;
+				$fields_by_page_id[$pageid_to_sequence[$field->page_id]][$field->sequence] = $field;;
 			   }
-			   
+				
 			  ?>
 
               <ul class="navigation-deep-menu navigation-deep-menu-js">
@@ -87,13 +84,13 @@
 						$fields_in_page = count($fields_by_page_id[$page_sequence]);
 					} else {
 						$page_count++;
-						continue; // skip pages with 0 fields, push loop counter back to account for this
+						continue; // skip pages with 0 fields, push loop back to account for this
 					}
 					@endphp
 					@for ($field_sequence = 0; $field_sequence < $fields_in_page; $field_sequence++)
-						@php $field_flid = $fields_by_page_id[$page_sequence][$field_sequence]; @endphp
+						@php $field = $fields_by_page_id[$page_sequence][$field_sequence]; @endphp
 						<li class="deep-menu-item">
-							<a class="padding-fix" href="{{ url('/projects/'.$pid).'/forms/'.$fid.'/fields/'.$field_flid.'/options'}}">{{ $flid_to_name[$field_flid] }}</a>
+							<a class="padding-fix" href="{{ url('/projects/'.$pid).'/forms/'.$fid.'/fields/'.$field->flid.'/options'}}">{{ $field->name }}</a>
 						</li>
 					@endfor
 			    @endfor
