@@ -435,24 +435,34 @@ Kora.Records.Create = function() {
             dataType: 'json',
             singleFileUploads: false,
             done: function (e, data) {
-                console.log('success');
-
-                lastClickedFlid = $(this).attr('flid');
+                var $uploadInput = $(this);
+                lastClickedFlid = $uploadInput.attr('flid');
                 inputName = 'file'+lastClickedFlid;
                 capName = 'file_captions'+lastClickedFlid;
                 fileDiv = ".filenames-"+lastClickedFlid+"-js";
 
-                var $field = $('#'+lastClickedFlid);
+                var $field = $uploadInput.siblings('#'+lastClickedFlid);
                 var $formGroup = $field.parent('.form-group');
+
+                // Tooltip text
+                var tooltip = "Remove Document";
+                if ($formGroup.hasClass('gallery-input-form-group')) {
+                    tooltip = "Remove Image";
+                } else if ($formGroup.hasClass('video-input-form-group')) {
+                    tooltip = "Remove Video";
+                } else if ($formGroup.hasClass('audio-input-form-group')) {
+                    tooltip = "Remove Audio";
+                } else if ($formGroup.hasClass('3d-model-input-form-group')) {
+                    tooltip = "Remove 3D Model";
+                }
+
                 $field.removeClass('error');
                 $field.siblings('.error-message').text('');
                 $.each(data.result[inputName], function (index, file) {
                     if(file.error == "" || !file.hasOwnProperty('error')) {
                         // Add caption only if input is a gallery
                         var captionHtml = '';
-                        console.log($formGroup);
                         if ($formGroup.hasClass('gallery-input-form-group')) {
-                          console.log('wow');
                           captionHtml = '<textarea type="text" name="' + capName + '[]" class="caption autosize-js" placeholder="Enter caption here"></textarea>';
                         }
                         // File card html
@@ -471,7 +481,7 @@ Kora.Records.Create = function() {
                                     '<span class="title">' + file.name + '</span>' +
                                 '</div>' +
                                 '<div class="card-toggle-wrap">' +
-                                    '<a href="#" class="file-delete upload-filedelete-js ml-sm tooltip" tooltip="Remove Image" data-url="' + file.deleteUrl + '">' +
+                                    '<a href="#" class="file-delete upload-filedelete-js ml-sm tooltip" tooltip="'+tooltip+'" data-url="' + file.deleteUrl + '">' +
                                         '<i class="icon icon-trash danger"></i>' +
                                     '</a>' +
                                 '</div>' +
@@ -480,7 +490,11 @@ Kora.Records.Create = function() {
                         '</div>';
 
                         // Add file card to list of cards
-                        $(fileDiv).append(fileCardHtml);
+                        $formGroup.find(fileDiv).append(fileCardHtml);
+
+                        // Change directions text
+                        $formGroup.find('.directions-empty-js').removeClass('active');
+                        $formGroup.find('.directions-not-empty-js').addClass('active');
 
                         // Reinitialize inputs
                         Kora.Fields.TypedFieldInputs.Initialize();
@@ -494,37 +508,42 @@ Kora.Records.Create = function() {
 
                 //Reset progress bar
                 var progressBar = '.progress-bar-'+lastClickedFlid+'-js';
-                $(progressBar).css(
+                $formGroup.find(progressBar).css(
                     {"width": 0, "height": 0, "margin-top": 0}
                 );
             },
             fail: function (e,data){
-                var error = data.jqXHR['responseText'];
-                lastClickedFlid = $(this).attr('flid');
+                var $uploadInput = $(this);
+                var $errorMessage = $uploadInput.siblings('.error-message');
 
-                var $field = $('#'+lastClickedFlid);
-                var $errorMessage = $field.siblings('.error-message');
+                var error = data.jqXHR['responseText'];
+                lastClickedFlid = $uploadInput.attr('flid');
+
+                var $field = $uploadInput.siblings('#'+lastClickedFlid);
+
                 $field.removeClass('error');
                 $field.siblings('.error-message').text('');
                 if(error=='InvalidType'){
                     $field.addClass('error');
-                    $field.siblings('.error-message').text('Invalid file type provided');
+                    $errorMessage.text('Invalid file type provided');
                 } else if(error=='TooManyFiles'){
                     $field.addClass('error');
-                    $field.siblings('.error-message').text('Max file limit was reached');
+                    $errorMessage.text('Max file limit was reached');
                 } else if(error=='MaxSizeReached'){
                     $field.addClass('error');
-                    $field.siblings('.error-message').text('One or more uploaded files is bigger than limit');
+                    $errorMessage.text('One or more uploaded files is bigger than limit');
                 } else {
                     $field.addClass('error');
-                    $field.siblings('.error-message').text('Error uploading file');
+                    $errorMessage.text('Error uploading file');
                 }
             },
             progressall: function (e, data) {
+                var $uploadInput = $(this);
+                var $formGroup = $uploadInput.parent();
                 var progressBar = '.progress-bar-'+lastClickedFlid+'-js';
                 var progress = parseInt(data.loaded / data.total * 100, 10);
 
-                $(progressBar).css(
+                $formGroup.find(progressBar).css(
                     {"width": progress + '%', "height": '18px', "margin-top": '10px'}
                 );
             }
@@ -534,6 +553,7 @@ Kora.Records.Create = function() {
             e.preventDefault();
 
             var $fileCard = $(this).parent().parent().parent('.file-card-js');
+            var $container = $fileCard.parent();
 
             $.ajax({
                 url: $(this).attr('data-url'),
@@ -545,6 +565,15 @@ Kora.Records.Create = function() {
                 },
                 success: function (data) {
                     $fileCard.remove();
+
+                    // Change directions text
+                    if ($fileCardsContainer.children().length > 0) {
+                        $container.siblings('.directions-empty-js').removeClass('active');
+                        $container.siblings('.directions-not-empty-js').addClass('active');
+                    } else {
+                        $container.siblings('.directions-empty-js').addClass('active');
+                        $container.siblings('.directions-not-empty-js').removeClass('active');
+                    }
                 }
             });
         });
