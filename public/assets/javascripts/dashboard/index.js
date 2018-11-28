@@ -479,7 +479,7 @@ Kora.Dashboard.Index = function() {
     }
 
     function reorderBlocks() {
-        $.each($('.sections .section-js:not(.add-section, .no-section)'), function () {
+        $.each($('.sections .section-js:not(.add-section'), function () {
 			let section = $(this).attr('id');
             let blocks = $(this).children('.container').sortable('toArray');
 
@@ -500,6 +500,13 @@ Kora.Dashboard.Index = function() {
 				});
 			}
         });
+
+        console.log($('.no-section .container').children().length);
+        if ($('.no-section .container').children().length > 0) {
+            $('.section-js.no-section').addClass('mt-xxxl');
+        } else {
+            $('.section-js.no-section').removeClass('mt-xxxl');
+        }
     }
 
     function initializeEditBlocks() {
