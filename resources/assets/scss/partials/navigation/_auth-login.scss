@@ -28,6 +28,8 @@
     }
 
     &.invited {
+      font-family: $ubuntu;
+
       &.logo {
         color: palette('green', accent);
         margin: 15px 0 0;

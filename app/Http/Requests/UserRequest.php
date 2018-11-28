@@ -27,7 +27,6 @@ class UserRequest extends FormRequest
                 return [
                     'username' => 'required|max:255|unique:users',
                     'email' => 'required|email|max:255|unique:users',
-                    'invited-email' => 'required|email|max:255',
                     'password' => 'required|confirmed|min:6',
                     'language'=> 'required|alpha|max:2',
                     'first_name'=> 'required',
@@ -36,7 +35,8 @@ class UserRequest extends FormRequest
                 ];
             case 'PATCH':
                 return [
-                    'password' => 'confirmed|min:6',
+                    'username' => 'required|max:255|unique:users',
+                    'password' => 'required|confirmed|min:6',
                     'language'=> 'required|alpha|max:2',
                     'first_name'=> 'required',
                     'last_name'=> 'required',

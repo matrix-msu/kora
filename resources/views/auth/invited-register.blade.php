@@ -20,7 +20,8 @@
       </div>
     @endif
 
-    <form id="register-form" class="form-horizontal form-file-input user-form" role="form" method="POST" enctype="multipart/form-data" action="{{ url('/register') }}">
+    <form id="register-form" class="form-horizontal form-file-input user-form" role="form" method="POST" enctype="multipart/form-data" action="{{ action('Auth\UserController@updateFromEmail', $user->id) }}">
+      <input type="hidden" id="_method" name="_method" value="PATCH">
       <input type="hidden" id="_token" name="_token" value="{{ csrf_token() }}">
       <input type="hidden" id="regtoken" name="regtoken" value="{{\App\Http\Controllers\Auth\RegisterController::makeRegToken()}}">
 
@@ -116,10 +117,10 @@
 @stop
 
 @section('javascripts')
-  @include('partials.auth.javascripts')
+  @include('partials.auth.invited-javascripts')
 
   <script>
-    validationUrl = '{{action('Auth\RegisterController@validateUserFields')}}';
+    var validationUrl = '{{action('Auth\UserController@validateUserFields',['uid'=>$user->id])}}';
     CSRFToken = '{{ csrf_token() }}';
 
     Kora.Auth.Register();

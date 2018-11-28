@@ -26,7 +26,10 @@ use App\Http\Requests\ProjectRequest;
         <i class="icon icon-placeholder"></i>
       </li>
       <li class="navigation-item invited">
-        <a href="{{ url('/') }}" class="text navigation-toggle-js underline-middle-hover">Need to Login?</a>
+        <form id="logout_link" class="form-horizontal" role="form" method="POST" action="{{ url('/logout') }}">
+          <input type="hidden" name="_token" value="{{ csrf_token() }}">
+          <a class="logout underline-middle-hover">Need to Login?</a>
+        </form>
       </li>
     @elseif (!Auth::user()->active)
       <li class="navigation-item logo">

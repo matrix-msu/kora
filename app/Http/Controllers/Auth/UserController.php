@@ -35,7 +35,7 @@ class UserController extends Controller {
      */
     public function __construct() {
         $this->middleware('auth', ['except' => ['activate', 'activator', 'activateshow', 'activateFromInvite']]);
-        $this->middleware('active', ['except' => ['activate', 'resendActivation', 'activator', 'activateshow', 'activateFromInvite']]);
+        $this->middleware('active', ['except' => ['activate', 'resendActivation', 'activator', 'activateshow', 'activateFromInvite', 'validateUserFields', 'updateFromEmail']]);
     }
 
     /**
@@ -141,6 +141,7 @@ class UserController extends Controller {
       * User updating profile information
       */
     public function update(Request $request) {
+
       if (!\Auth::user()->admin && \Auth::user()->id != $request->uid) {
         return response()->json(["status" => false, "message" => "cannot_update_user"], 200);
       }
@@ -201,6 +202,91 @@ class UserController extends Controller {
       }
 
       //return response()->json(["status" => true, "message" => $message], 200);
+      return redirect('user/'.Auth::user()->id)->with('k3_global_success', 'user_updated')->with('user_changes', $message);
+    }
+
+    /**
+     * Create account from email invite
+     * Since we 'create' the account when we invite the user, we are updating their things rather than creating them
+     * Can't use the 'Update' function above since we need this function to send the activation email
+     * 
+     * What to return here?
+     */
+    public function updateFromEmail(Request $request) {
+
+      if (!\Auth::user()->admin && \Auth::user()->id != $request->uid) {
+        return response()->json(["status" => false, "message" => "cannot_update_user"], 200);
+      }
+
+      $message = array();
+      $user = User::where('id', '=', $request->uid)->first();
+      $newFirstName = $request->first_name;
+      $newLastName = $request->last_name;
+      $newUserName = $request->username;
+      $newProfilePic = $request->profile;
+      $newOrganization = $request->organization;
+      $newPass = $request->password;
+      $confirm = $request->password_confirmation;
+
+      // Look for changes, update what was changed
+      if (!empty($newFirstName) && $newFirstName != $user->first_name) {
+        $user->first_name = $newFirstName;
+        array_push($message, "first_name");
+      }
+
+      if (!empty($newLastName) && $newLastName != $user->last_name) {
+        $user->last_name = $newLastName;
+        array_push($message, "last_name");
+      }
+
+      if (!empty($newOrganization) && $newOrganization != $user->organization) {
+        $user->organization = $newOrganization;
+        array_push($message, "organization");
+      }
+
+      // Handle password change cases.
+      if(!empty($newPass) || !empty($confirm)) {
+          // If passwords don't match.
+          if($newPass != $confirm)
+              return response()->json(["status" => false, "message" => "passwords_unmatched"], 200);
+              //return redirect('user/'.$user->id.'/edit')->with('k3_global_error', 'passwords_unmatched');
+
+          // If password is less than 6 chars
+          if(strlen($newPass)<6)
+              return response()->json(["status" => false, "message" => "password_minimum"], 200);
+              //return redirect('user/'.$user->id.'/edit')->with('k3_global_error', 'password_minimum');
+
+          // If password contains spaces
+          if(preg_match('/\s/',$newPass))
+              return response()->json(["status" => false, "message" => "password_whitespaces"], 200);
+              //return redirect('user/'.$user->id.'/edit')->with('k3_global_error', 'password_whitespaces');
+
+          $user->password = bcrypt($newPass);
+          array_push($message,"password");
+      }
+
+      $user->save();
+
+      if (!empty($newProfilePic)) {
+        $changePicResponse = json_decode($this->changepicture($request, $user), true);
+        if ($changePicResponse['status']) {
+          array_push($message, $changePicResponse['message']);
+        }
+      }
+
+      // Send email
+      try {
+        Mail::send('emails.activation', compact('token'), function($message) {
+          $message->from(env('MAIL_FROM_ADDRESS'));
+          $message->to(\Auth::user()->email);
+          $message->subject('Kora Account Activation');
+        });
+      } catch(\Swift_TransportException $e) {
+        //Log for now
+        Log::info('Resend activation email failed');
+        return redirect('/')->with('status', 'activation_email_failed');
+      }
+
       return redirect('user/'.Auth::user()->id)->with('k3_global_success', 'user_updated')->with('user_changes', $message);
     }
 

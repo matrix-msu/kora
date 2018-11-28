@@ -119,8 +119,10 @@ Kora.Auth.Register = function() {
                 $.each($('.user-form').serializeArray(), function(i, field) {
                     values[field.name] = field.value;
                 });
+                values['_method'] = 'PATCH';
 
-                // console.log(values)
+                console.log(values)
+                console.log(validationUrl)
                 // for ( var pair of values.entries() ) {
                 //     console.log(pair[0] + ', ' + pair[1]);
                 //     //console.log(typeof pair[1]);
@@ -154,6 +156,7 @@ Kora.Auth.Register = function() {
                 values = new FormData(form.get(0));
                 values.delete('profile');
                 values.append('profile', droppedPicFile);
+                values['_method'] = 'PATCH';
 
 				$.ajax({
 					url: validationUrl,
@@ -195,13 +198,22 @@ Kora.Auth.Register = function() {
             values[field] = this.value;
             if(second)
                 values[field2] = $('#'+field2).val();
+
+            values['_method'] = 'PATCH';
             values['_token'] = CSRFToken;
+
+            console.log(values)
 
             $.ajax({
                 url: validationUrl,
                 method: 'POST',
                 data: values,
+                success: function (resp) {
+                    console.log(resp)
+                    console.warn('success! No errors found')
+                },
                 error: function(err) {
+                    console.log(err)
                     console.log(err.responseJSON.errors[field])
                     if (err.responseJSON.errors[field] !== undefined) {
                         $('#'+field).addClass('error');
