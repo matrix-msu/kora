@@ -7,6 +7,7 @@ Kora.Dashboard.Index = function() {
         //Most field option pages need these
         $('.single-select').chosen({
             width: '100%',
+            disable_search: true
         });
     }
 
