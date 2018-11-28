@@ -32,7 +32,7 @@
 @section('body')
     <section class="update-text center">
         <div class="update-version">KORA {{$info['version']}}</div>
-        <div class="update-notes mt-xl">
+        <div class="update-notes mt-xl mb-100-xl">
             <div class="note-header">Update Notes:</div>
             <div class="mt-m">{{$info['notes']}}</div>
             <div class="mt-m">New Features:</div>
