@@ -317,7 +317,7 @@ Kora.Dashboard.Index = function() {
 
             if ($this.hasClass('up-js')) {
                 var $previousSection = $section.prev();
-                if ($previousSection.length == 0)
+                if ($previousSection.length == 0 || $previousSection.hasClass('no-section'))
                     return
 
                 $previousSection.css('z-index', 999)
