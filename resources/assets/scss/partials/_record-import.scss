@@ -47,13 +47,19 @@
 
   .recordfile-section,
   .recordmatch-section,
-  .recordresults-section {
+  .recordresults-section,
+  .allrecords-section {
     margin: #{map-get($spacing, xxxl)} auto;
     max-width: calc(#{ $max-site-width } - 600px);
     padding: 0 20px;
 
     .record-file-title {
       font-size: 14px;
+    }
+
+    .records-imported-label {
+      font-size: 24px;
+      line-height: 28px;
     }
 
     .record-import-button {
@@ -65,6 +71,15 @@
       .record-import-submit {
         margin: 0 auto 15px;
       }
+    }
+
+    .import-thin-btn-text {
+      font-family: $ubuntu !important;
+      font-size: 16px !important;
+    }
+
+    .import-thick-btn-text {
+      font-size: 16px !important;
     }
 
     .solid-box {
@@ -81,5 +96,7 @@
       font-family: $ubuntu-medium;
       text-decoration: none;
     }
+
+    @import 'record-import/button-layout';
   }
 }
