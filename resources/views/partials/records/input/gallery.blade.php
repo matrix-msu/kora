@@ -98,9 +98,14 @@
             <div class="file-upload-progress progress-bar-{{$field->flid}}-js"></div>
         </div>
 
-        <div class="directions">
+        <div class="directions directions-not-empty-js">
             <p class="mb-m">Drag & Drop Another File Here</p>
             <p class="text-green">Or Select Another File</p>
+        </div>
+
+        <div class="directions directions-empty-js active">
+            <p class="mb-m">Drag & Drop a File Here</p>
+            <p class="text-green">Or Select a File</p>
         </div>
     </label>
     
