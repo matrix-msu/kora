@@ -1,6 +1,7 @@
 .form-group {
   color: palette('gray', text);
   font-family: $ubuntu;
+  position: relative;
   text-align: left;
 
   label {
@@ -10,16 +11,43 @@
     text-align: left;
   }
 
-  ::-webkit-input-placeholder {
+  .directions {
+    color: palette('gray', text, .6);
+    font-size: 14px;
+    font-style: italic;
+    margin: 0;
+  }
+
+  &::-webkit-input-placeholder {
     color: palette('gray', text);
     font-family: $ubuntu-italic;
+    font-style: italic;
     opacity: .6;
   }
 
-  :-ms-input-placeholder {
+  &::-moz-placholder {
     color: palette('gray', text);
     font-family: $ubuntu-italic;
+    font-style: italic;
     opacity: .6;
+  }
+
+  &:-moz-placholder {
+    color: palette('gray', text);
+    font-family: $ubuntu-italic;
+    font-style: italic;
+    opacity: .6;
+  }
+
+  .form-input-container {
+    background: palette('gray', page, 1);
+    border: 1px solid palette('box-shadow', base, 0.05);
+    border-radius: 5px;
+    box-shadow: 0 40px 85px 0 palette('box-shadow', base, 0.05);
+    left: -45px;
+    padding: 30px 45px;
+    position: relative;
+    width: 100%;
   }
 
   .spacer {
@@ -53,10 +81,10 @@
   &.no-padding {
     padding: 0;
   }
-  
+
   .desc-modal {
     @include transition();
-  
+
     color: palette('box-shadow', accent);
     float: right;
     font-family: $ubuntu-medium;
@@ -90,9 +118,15 @@
 
   @import 'inputs/buttons';
   @import 'inputs/check-boxes';
-  @import 'inputs/file';
+  @import 'inputs/profile';
+  @import 'inputs/number';
   @import 'inputs/selects';
   @import 'inputs/text';
+
+  // Specialty Field Inputs
+  @import 'inputs/file';
+  @import 'inputs/geolocator';
+  @import 'inputs/list';
 }
 
 @import 'inputs/new-object-button';

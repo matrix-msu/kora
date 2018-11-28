@@ -17,5 +17,5 @@
     <label>@if($field->required==1)<span class="oval-icon"></span> @endif{{$field->name}}</label>
     <span class="error-message"></span>
     {!! Form::select($field->flid.'[]',$listOpts, $selected, ['class' => 'multi-select modify-select preset-clear-chosen-js', 'multiple',
-        'id' => 'list'.$field->flid]) !!}
+        'id' => 'list'.$field->flid, 'data-placeholder' => 'Select Some Options or Type a New Option and Press Enter']) !!}
 </div>

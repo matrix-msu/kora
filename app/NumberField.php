@@ -256,10 +256,10 @@ class NumberField extends BaseField {
         if(($req==1 | $forceReq) && ($value==null | $value==""))
             return [$field->flid => $field->name.' is required'];
 
-        if($min!='' && $value<$min)
+        if($min!='' && $value!="" && $value<$min)
             return [$field->flid => $field->name.' can not be less than '.$min];
 
-        if($max!='' && $value>$max)
+        if($max!='' && $value!="" && $value>$max)
             return [$field->flid => $field->name.' can not be more than '.$max];
 
         return array();

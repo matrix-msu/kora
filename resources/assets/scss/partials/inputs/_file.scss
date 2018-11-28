@@ -1,146 +1,121 @@
-// For profile pictures
-
-.profile-button {
-  @include transition();
-
-  background-color: palette('white', base, .5);
-  border: 2px dashed rgba(21,39,48,0.1);
-  border-radius: 5px;
-  padding: 30px;
-  text-align: center;
-
-  &:hover {
-    border: 2px solid palette('green', accent, .3);
-    box-shadow: 0 7px 10px 0 palette('box-shadow', base, .05);
-  }
-
-  &:focus {
-    border: 2px solid palette('green', accent, .7);
-    box-shadow: 0 7px 10px 0 palette('box-shadow', base, .05);
-    outline: none;
-  }
-
-  img {
-    border-radius: 50%;
-  }
-
-  .instruction {
-    color: palette('green', accent);
-  }
-}
-
-.profile {
-  opacity: 0;
-  position: absolute;
-  z-index: -1;
-}
-
-.profile-input {
-  left: 0;
-  opacity: 0;
-  position: absolute;
-  z-index: -1;
-}
-
-.profile-label {
-  @include transition();
-
-  background-color: palette('white', base, .5);
-  border: 2px dashed rgba(21,39,48,0.1);
-  border-radius: 5px;
-  box-sizing: border-box;
-  cursor: pointer;
-  padding: 30px;
-  text-align: center;
-  width: 100%;
-
-  &.extend {
-    padding: 58px 30px 74px;
-  }
-
-  &.no-advanced-upload {
-    .instruction {
-      .no-dd {
-        display: block;
-      }
-
-      .dd {
-        display: none;
-      }
-    }
-  }
-
-  &:focus {
-    border: 2px solid palette('green', accent, .7);
-    box-shadow: 0 7px 10px 0 palette('box-shadow', base, .05);
-    outline: none;
-  }
-
-  &:hover,
-  &.is-dragover {
-    border: 2px solid palette('green', accent, .3);
-    box-shadow: 0 7px 10px 0 palette('box-shadow', base, .05);
-  }
-
-  .icon-user-cont {
-    background: palette('white', base);
-    border: 2px solid palette('white', base);
-    border-radius: 50%;
-    box-shadow: 0 3px 5px 0 palette('box-shadow', base, .2);;
-    display: flex;
-    height: 80px;
-    margin: auto;
-    overflow: hidden;
-    width: 80px;
-
-    img {
-      height: 100%;
-      object-fit: cover;
-      width: 100%;
-    }
-
-    .icon-user {
-      font-size: 36px;
-      margin: auto;
-    }
-  }
-
-  .instruction {
-    color: palette('green', accent);
-
-    &.photo-selected {
-      .dd,
-      .no-dd {
-        display: none;
-      }
-
-      .select-new {
-        display: block;
-      }
-    }
-
-    .dd {
-      display: block;
-    }
-
-    .no-dd,
-    .select-new {
-      display: none;
-    }
-  }
-
-  .remove {
+&.file-input-form-group {
+  .file-card {
+    border: 1px solid palette('gray', slate, .1);
+    height: 50px;
+    margin: 0 auto 15px;
     z-index: 1;
 
-    &:hover {
-      color: palette('green', accent);
-      cursor: pointer;
+    .card-toggle-wrap {
+      overflow: visible;
+      padding-right: 20px;
+      text-align: right;
     }
 
-    .icon {
-      @include transition();
+    .file-delete {
+      .icon-trash {
+        color: palette('red', warning);
+        display: inline-block;
+        font-size: 12px;
+        @include transition();
+      }
 
-      font-size: 12px;
+      &:hover {
+        .icon-trash {
+          transform: scale(1.25);
+        }
+      }
+    }
+
+    .header {
+      margin: 14px 0;
+    }
+
+    .move-actions {
+      position: relative;
+      bottom: 4px;
+    }
+
+    .title {
+      color: palette('gray', text);
+      display: inline-block;
+      overflow: hidden;
+      padding-bottom: 0;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .tooltip:hover::after {
+      left: -45px;
+    }
+  }
+
+  .file-label {
+    background: palette('white', base);
+    border: 1px dashed palette('gray', slate, .15);
+    border-radius: 5px;
+    box-shadow: 0 3px 5px 0 palette('gray', slate, .05);
+    cursor: pointer;
+    display: block;
+    @include transition();
+    padding: 20px;
+
+    .directions {
+      color: palette('gray', text);
+      display: none;
+      font-style: normal;
+      margin: 40px 0 20px;
+      text-align: center;
+
+      p {
+        margin: 20px 0;
+      }
+
+      .text-green {
+        color: palette('green', accent);
+      }
+
+      &.active {
+        display: block;
+      }
+    }
+
+    &:hover {
+      border: 1px dashed palette('green', accent, .5);
+      box-shadow: 0 7px 10px 0 palette('gray', slate, .05);
+    }
+  }
+
+  // Document specific
+  &.document-input-form-group {
+    .file-card {
+      .tooltip:hover::after {
+        left: -57px;
+      }
+    }
+  }
+
+  // Gallery specific 
+  &.gallery-input-form-group {
+    .caption {
+      border: 0;
+      color: palette('gray', text, .8);
+      font-size: 13px;
+      font-family: $ubuntu;
+      height: 13px;
+      margin: 20px 20px 0;
+      outline: none;
+      overflow: hidden;
+      resize: none;
+      width: calc(100% - 44px);
+
+      &:placeholder {
+        color: palette('gray', text, .6);
+        font-style: italic;
+      }
+    }
+
+    .file-card {
+      height: auto;
     }
   }
 }

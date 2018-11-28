@@ -157,30 +157,6 @@ Kora.Records.Index = function() {
                 }
             }
         });
-
-        $('.open-advanced-js').click(function(e) {
-            e.preventDefault();
-
-            $('.advanced-search-drawer-js').effect('slide', {
-                direction: 'up',
-                mode: 'show',
-                duration: 240
-            });
-            $('.close-advanced-js').show();
-            $('.open-advanced-js').hide();
-        });
-
-        $('.close-advanced-js').click(function(e) {
-            e.preventDefault();
-
-            $('.advanced-search-drawer-js').effect('slide', {
-                direction: 'up',
-                mode: 'hide',
-                duration: 240
-            });
-            $('.open-advanced-js').show();
-            $('.close-advanced-js').hide();
-        });
     }
 
     function initializeToggle() {

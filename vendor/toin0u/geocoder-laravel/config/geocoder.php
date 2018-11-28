@@ -58,7 +58,10 @@ return [
     */
     'providers' => [
         Chain::class => [
-            //Nominatim::class => [],
+            Nominatim::class => [
+                'https://nominatim.openstreetmap.org',
+                url('/')
+            ],
             GoogleMaps::class => [
                 env('GOOGLE_MAPS_LOCALE', 'en-US'),
                 env('GOOGLE_MAPS_API_KEY'),

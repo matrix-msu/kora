@@ -1,12 +1,14 @@
 @extends('app', ['page_title' => 'Activate', 'page_class' => 'activate'])
 
 @section('body')
-    @include('partials.projects.notification')
+  @include('partials.projects.notification')
   <div class="content">
     <div class="form-container center">
       <section class="head">
         <h1 class="title">Thanks for Signing Up!</h1>
-        <h2 class="sub-title">We've sent an email to {{ Auth::user()->email }}</h2>
+		@if (Auth::user())
+			<h2 class="sub-title">We've sent an email to {{ Auth::user()->email }}</h2>
+		@endif
         <p class="description">Once you receive the email, hit the "Activate Account" button and you'll be all set!</p>
       </section>
 
@@ -40,7 +42,7 @@
             <input type="hidden" name="regtoken" value="{{\App\Http\Controllers\Auth\RegisterController::makeRegToken()}}">
 
             <div class="form-group" >
-              <button type="submit" class="btn secondary">Request Another Email</button>
+              <button id="resend-email" type="submit" class="btn secondary">Request Another Email</button>
             </div>
           </form>
         </div>

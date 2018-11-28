@@ -1,7 +1,7 @@
 <div class="modal modal-js modal-mask geolocator-add-location-modal-js">
     <div class="content">
         <div class="header">
-            <span class="title title-js">Add a New Location</span>
+            <span class="title title-js">Create Default Location</span>
             <a href="#" class="modal-toggle modal-toggle-js">
                 <i class="icon icon-cancel"></i>
             </a>
@@ -22,12 +22,16 @@
                 <div class="form-group mt-xl half pr-m">
                     <span class="error-message"></span>
                     {!! Form::label('latVal', 'Latitude') !!}
-                    <input type="number" class="text-input location-lat-js" min=-90 max=90 step=".000001">
+                    <div class="number-input-container number-input-container-js">
+                        <input type="number" class="text-input location-lat-js" value="0" min=-90 max=90 step=".000001">
+                    </div>
                 </div>
                 <div class="form-group mt-xl half pr-l">
                     <span class="error-message"></span>
                     {!! Form::label('lonVal', 'Longitude') !!}
-                    <input type="number" class="text-input location-lon-js" min=-180 max=180 step=".000001">
+                    <div class="number-input-container number-input-container-js">
+                        <input type="number" class="text-input location-lon-js" value="0" min=-180 max=180 step=".000001">
+                    </div>
                 </div>
             </section>
 

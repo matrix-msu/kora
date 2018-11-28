@@ -26,7 +26,7 @@ class GeolocatorField extends BaseField {
      */
     const FIELD_OPTIONS_VIEW = "partials.fields.options.geolocator";
     const FIELD_ADV_OPTIONS_VIEW = "partials.fields.advanced.geolocator";
-    const FIELD_ADV_INPUT_VIEW = null;
+    const FIELD_ADV_INPUT_VIEW = "partials.records.advanced.geolocator";
     const FIELD_INPUT_VIEW = "partials.records.input.geolocator";
     const FIELD_DISPLAY_VIEW = "partials.records.display.geolocator";
 
@@ -91,9 +91,13 @@ class GeolocatorField extends BaseField {
      */
     public function updateOptions($field, Request $request) {
         $reqDefs = $request->default;
-        $default = $reqDefs[0];
-        for($i=1;$i<sizeof($reqDefs);$i++) {
-            $default .= '[!]'.$reqDefs[$i];
+        if(!is_null($reqDefs)) {
+            $default = $reqDefs[0];
+            for ($i = 1; $i < sizeof($reqDefs); $i++) {
+                $default .= '[!]' . $reqDefs[$i];
+            }
+        } else {
+            $default = null;
         }
 
         $field->updateRequired($request->required);
@@ -523,26 +527,8 @@ class GeolocatorField extends BaseField {
      */
     public function advancedSearchTyped($flid, $query) {
         $range = $query[$flid.'_range'];
-
-        // Depending on the search type, we must convert the input to latitude and longitude.
-        switch($query[$flid.'_type']) {
-            case "LatLon":
-                $lat = $query[$flid."_lat"];
-                $lon = $query[$flid."_lon"];
-                break;
-            case "UTM":
-                $point = self::UTMToPoint($query[$flid."_zone"],
-                    $query[$flid."_east"],
-                    $query[$flid."_north"]);
-                $lat = $point->Lat();
-                $lon = $point->Long();
-                break;
-            case "Address":
-                $point = self::addressToPoint($query[$flid."_address"]);
-                $lat = $point->Lat();
-                $lon = $point->Long();
-                break;
-        }
+        $lat = $query[$flid."_lat"];
+        $lon = $query[$flid."_lon"];
 
         $query = DB::table(self::SUPPORT_NAME);
 
@@ -563,41 +549,6 @@ SQL;
             ->setBindings([$lat, $lon, $lat, $flid, $range])
             ->pluck('rid')
             ->toArray();
-    }
-
-    /**
-     * Convert UTM to gPoint instance.
-     *
-     * @param  string $zone - Valid UTM zone
-     * @param  float $easting - Easting UTM value (meters east)
-     * @param  float $northing - Northing UTM value (meters north)
-     * @return gPoint - Point with converted latitude and longitude values in member variables
-     *                 Use ->Lat() and ->Long() to obtain converted values
-     */
-    private static function UTMToPoint($zone, $easting, $northing) {
-        $point = new gPoint();
-        $point->gPoint();
-        $point->setUTM($easting, $northing, $zone);
-        $point->convertTMtoLL();
-        return $point;
-    }
-
-    /**
-     * Convert address to gPoint instance.
-     *
-     * @param  string $address - Address value
-     * @return gPoint - Point with converted latitude and longitude values in member variables
-     *                 Use ->Lat() and ->Long() to obtain converted values
-     */
-    private static function addressToPoint($address) {
-        $con = new Nominatim(new CurlHttpAdapter(),'http://nominatim.openstreetmap.org/','en');
-
-        $result = $con->geocode($address)->first();
-        $point = new gPoint();
-        $point->gPoint();
-        $point->setLongLat($result->getLongitude(), $result->getLatitude());
-
-        return $point;
     }
 
     ///////////////////////////////////////////////END ABSTRACT FUNCTIONS///////////////////////////////////////////////
@@ -764,9 +715,12 @@ SQL;
             //to address
             $con = app('geocoder');
             try {
-                $res = $con->reverse($lat, $lon)->get();
-                $addrArray = array($res->getStreetNumber(),$res->getStreetName(),$res->getLocality());
-                $addr = implode(' ',$addrArray);
+                $res = $con->reverse($lat, $lon)->get()->first();
+                if ($res !== null) {
+                    $addr = $res->getDisplayName();
+                } else {
+                    $addr = 'Address Not Found';
+                }
             } catch(\Exception $e) {
                 $addr = 'Address Not Found';
             }
@@ -790,9 +744,12 @@ SQL;
             //to address
             $con = app('geocoder');
             try {
-                $res = $con->reverse($lat, $lon)->get();
-                $addrArray = array($res->getStreetNumber(),$res->getStreetName(),$res->getLocality());
-                $addr = implode(' ',$addrArray);
+                $res = $con->reverse($lat, $lon)->get()->first();
+                if ($res !== null) {
+                    $addr = $res->getDisplayName();
+                } else {
+                    $addr = 'Address Not Found';
+                }
             } catch(\Exception $e) {
                 $addr = 'Address Not Found';
             }
@@ -806,7 +763,7 @@ SQL;
             //to latlon
             $con = app('geocoder');
             try {
-                $res = $con->geocode($addr)->get();
+                $res = $con->geocode($addr)->get()->first()->getCoordinates();
                 $lat = $res->getLatitude();
                 $lon = $res->getLongitude();
             } catch(\Exception $e) {

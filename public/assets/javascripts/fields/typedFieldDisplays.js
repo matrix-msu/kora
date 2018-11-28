@@ -13,11 +13,23 @@ Kora.Fields.TypedFieldDisplays.Initialize = function() {
             var galHeight = 300, galWidth = 500, galAspectRatio = galWidth / galHeight;
             var single = $this.hasClass('single');
 
+            // Caption vars
+            var $captionContainer = $this.siblings('.caption-container-js');
+            var $captions = $captionContainer.find('.caption-js');
+            var $captionMore = $captionContainer.siblings('.caption-more-js');
+            var captionWidth = $captionContainer.width() + 40;
+            var maxCaptionHeight = 225;
+
+            var $dots = $dotsContainer.find('.dot-js');
+
             // Set dots
             if (!single) {
+                var dotsHtml = "";
                 for (var i = 0; i < slideCount; i++) {
-                    $dotsContainer.append('<div class="dot dot-js'+(i == currentSlide ? ' active' : '')+'" data-slide-num="'+i+'"></div>')
+                    dotsHtml += '<div class="dot dot-js'+(i == currentSlide ? ' active' : '')+'" data-slide-num="'+i+'"></div>';
                 }
+                $dotsContainer.html("");
+                $dotsContainer.append(dotsHtml);
 
                 var $dots = $dotsContainer.find('.dot-js');
 
@@ -33,6 +45,9 @@ Kora.Fields.TypedFieldDisplays.Initialize = function() {
                 });
             }
 
+            // Initialize Caption
+            updateCaption(0);
+
             // Need to wait for images to load before getting heights and widths
             $(window).load(function() {
                 // Size and Position slides based on gallery aspect ratio
@@ -40,6 +55,7 @@ Kora.Fields.TypedFieldDisplays.Initialize = function() {
 
                 for (var i = 0; i < slideCount; i++) {
                     var $slide = $($slides[i]);
+                    var $caption = $($captions[i]);
                     var $slideImg = $slide.find('.slide-img-js');
                     var slideImgHeight = $slideImg.height();
                     var slideImgWidth = $slideImg.width();
@@ -48,7 +64,7 @@ Kora.Fields.TypedFieldDisplays.Initialize = function() {
                     // Set fixed img aspect ratio
                     $slideImg.attr('data-aspect-ratio', imgAspectRatio);
 
-                    setImagePosition($slide, i);
+                    setImagePosition($slide, $caption, i);
                     setImageSize($slideImg, imgAspectRatio);
                 }
 
@@ -128,7 +144,7 @@ Kora.Fields.TypedFieldDisplays.Initialize = function() {
             });
 
             // Set horizontal positioning for single slide
-            function setImagePosition($slide, index) {
+            function setImagePosition($slide, $caption, index) {
                 // Set corresponding dot
                 $dots.removeClass('active');
                 $($dots[currentSlide]).addClass('active');
@@ -136,13 +152,55 @@ Kora.Fields.TypedFieldDisplays.Initialize = function() {
                 // Slide slides
                 var pos = ((index - currentSlide) * galWidth) + "px";
                 $slide.animate({left: pos}, 100, 'swing');
+
+                // Slide captions
+                var capPos = ((index - currentSlide) * captionWidth) + "px";
+                if (index == currentSlide) {
+                    $captions.removeClass('active');
+                    $caption.addClass('active');
+                    updateCaption(index);
+                }
+                $caption.animate({left: capPos}, 100, 'swing');
             }
 
             // Set horizontal positioning for all slides
             function setImagePositions() {
                 for (var i = 0; i < slideCount; i++) {
                     var $slide = $($slides[i]);
-                    setImagePosition($slide, i);
+                    var $caption = $($captions[i]);
+                    setImagePosition($slide, $caption, i);
+                }
+            }
+
+            function updateCaption(index) {
+                var $caption = $($captions[index]);
+                $captionMore.unbind();
+
+                if ($caption.height() > maxCaptionHeight) {
+                    // Show 'more' button
+                    $captionMore.addClass('more');
+
+                    // Initialize 'more' button
+                    $captionMore.click(function(e) {
+                       e.preventDefault();
+
+                        var showing = $captionMore.attr('showing');
+                        if (showing == 'less') {
+                            // Now showing more caption
+                            $captionMore.attr('showing', 'more');
+                            $captionContainer.addClass('more');
+                            $captionMore.html('Show Less Caption');
+                        } else {
+                            // Now showing less caption
+                            $captionMore.attr('showing', 'less');
+                            $captionContainer.removeClass('more');
+                            $captionMore.html('Show Full Caption');
+                        }
+                    });
+                } else {
+                    // Hide 'more' button if caption is short
+                    $captionMore.removeClass('more');
+                    $captionContainer.removeClass('more');
                 }
             }
         });
@@ -166,8 +224,9 @@ Kora.Fields.TypedFieldDisplays.Initialize = function() {
 
             $(this).children('.geolocator-location-js').each(function() {
                 var marker = L.marker([$(this).attr('loc-x'), $(this).attr('loc-y')]).addTo(mapRecord);
-                var marker = L.marker([$(this).attr('loc-x'), $(this).attr('loc-y')]).addTo(modalMapRecord);
+                var modalmarker = L.marker([$(this).attr('loc-x'), $(this).attr('loc-y')]).addTo(modalMapRecord);
                 marker.bindPopup($(this).attr('loc-desc'));
+                modalmarker.bindPopup($(this).attr('loc-desc'));
             });
 
             // External Button Clicked
@@ -185,6 +244,7 @@ Kora.Fields.TypedFieldDisplays.Initialize = function() {
 
     function intializeAudio() {
         $('.audio-field-display').each(function() {
+            console.log('audio initialized');
             var $audio = $(this);
             var $audioClip = $audio.find('.audio-clip-js');
             var audioClip = $audioClip[0];
@@ -232,7 +292,7 @@ Kora.Fields.TypedFieldDisplays.Initialize = function() {
                 playSlider(true);
 
                 $audioButtons.removeClass('active');
-                $playButton.addClass('active');
+                $pauseButton.addClass('active');
             });
 
             // Dragging slider
@@ -281,6 +341,7 @@ Kora.Fields.TypedFieldDisplays.Initialize = function() {
                         var percent = audioClip.currentTime * 100 / audioLength;
                         $progressBar.css('width', percent + "%");
 
+                        updateSliderButton();
                         setSlider(percent);
                     }
 
@@ -289,9 +350,14 @@ Kora.Fields.TypedFieldDisplays.Initialize = function() {
                 }
             }
 
-            function updateSliderButton(e) {
-                if (dragging && e.pageX >= sliderLeft && e.pageX <= (sliderLeft + sliderWidth)) {
-                    var slideTimePercentage = (e.pageX - sliderLeft) / sliderWidth;
+            function updateSliderButton(e = null) {
+                // 18px makes the offset relative to center of button
+                var pageX = (e !== null ? e.pageX : $sliderButton.offset().left) + 18;
+
+                console.log(pageX, sliderLeft);
+
+                if (dragging && pageX >= sliderLeft && pageX <= (sliderLeft + sliderWidth)) {
+                    var slideTimePercentage = (pageX - sliderLeft) / sliderWidth;
                     $progressBar.css('width', (slideTimePercentage * 100) + "%");
                     setSlider(slideTimePercentage * 100);
 
@@ -300,10 +366,10 @@ Kora.Fields.TypedFieldDisplays.Initialize = function() {
                     seconds = seconds.toFixed(3);
                     audioClip.currentTime = seconds;
 
-                    if (audioClip.currentTime != audioClip.duration) {
-                        $audioButtons.removeClass('active');
-                        $playButton.addClass('active');
-                    }
+                    // if (audioClip.currentTime != audioClip.duration) {
+                    //     $audioButtons.removeClass('active');
+                    //     $playButton.addClass('active');
+                    // }
                 }
             }
 
@@ -312,36 +378,6 @@ Kora.Fields.TypedFieldDisplays.Initialize = function() {
                 $sliderButton.css('left', 'calc('+left+'% - 17px)');
             }
         });
-
-        /*$('.jp-audio-js').each(function() {
-          var audioID = $(this).attr('audio-id');
-          var audioLink = $(this).attr('audio-link');
-          var swfpath = $(this).attr('swf-path');
-
-          var cssSelector = {
-            jPlayer: "#jquery_jplayer_"+audioID,
-            cssSelectorAncestor: "#jp_container_"+audioID
-          };
-          var playlist = [];
-          $(this).children('.jp-audio-file-js').each(function() {
-            var audioName = $(this).attr('audio-name');
-            var audioType = $(this).attr('audio-type');
-
-            if(audioType=="audio/mpeg")
-              var audioVal = {title: audioName, mp3: audioLink+audioName};
-            else if(audioType=="audio/ogg")
-              var audioVal = {title: audioName, oga: audioLink+audioName};
-            else if(audioType=="audio/x-wav")
-              var audioVal = {title: audioName, wav: audioLink+audioName};
-
-            playlist.push(audioVal);
-          });
-          var options = {
-            swfPath: swfpath,
-            supplied: "mp3, oga, wav"
-          };
-          var myPlaylist = new jPlayerPlaylist(cssSelector, playlist, options);
-        });*/
     }
 
     function initalizeSchedule() {

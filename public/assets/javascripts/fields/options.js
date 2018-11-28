@@ -6,15 +6,79 @@ Kora.Fields.Options = function(fieldType) {
     function initializeSelects() {
         //Most field option pages need these
         $('.single-select').chosen({
-            allow_single_deselect: true,
             disable_search_threshold: 4,
             width: '100%',
+            allow_single_deselect: true,
         });
 
         $('.multi-select').chosen({
             width: '100%',
         });
     }
+
+    function initializeMoveAction($cards) {
+        $cards.each(function() {
+            var $card = $(this);
+            var $moveActions = $card.find('.move-action-js');
+
+            $moveActions.unbind();
+            $moveActions.click(function(e) {
+                e.preventDefault();
+
+                var $moveAction = $(this);
+                if ($moveAction.hasClass('up-js')) {
+                    var $previousForm = $card.prev();
+                    if ($previousForm.length == 0) {
+                        return;
+                    }
+
+                    $previousForm.css('z-index', 999)
+                        .css('position', 'relative')
+                        .animate({
+                            top: $card.height()
+                        }, 300);
+                    $card.css('z-index', 1000)
+                        .css('position', 'relative')
+                        .animate({
+                            top: '-' + $previousForm.height()
+                        }, 300, function() {
+                            $previousForm.css('z-index', '')
+                                .css('top', '')
+                                .css('position', '');
+                            $card.css('z-index', '')
+                                .css('top', '')
+                                .css('position', '')
+                                .insertBefore($previousForm);
+                        });
+                } else {
+                    var $nextForm = $card.next();
+                    if ($nextForm.length == 0) {
+                        return;
+                    }
+
+                    $nextForm.css('z-index', 999)
+                        .css('position', 'relative')
+                        .animate({
+                            top: '-' + $card.height()
+                        }, 300);
+                    $card.css('z-index', 1000)
+                        .css('position', 'relative')
+                        .animate({
+                            top: $nextForm.height()
+                        }, 300, function() {
+                            $nextForm.css('z-index', '')
+                                .css('top', '')
+                                .css('position', '');
+                            $card.css('z-index', '')
+                                .css('top', '')
+                                .css('position', '')
+                                .insertAfter($nextForm);
+                        });
+                }
+            });
+        });
+    }
+
 
     function initializeSelectAddition() {
         $('.chosen-search-input').on('keyup', function(e) {
@@ -95,35 +159,186 @@ Kora.Fields.Options = function(fieldType) {
         });
     }
 
-    function initializeListOptions() {
-        var listOpt = $('.list-options-js');
-        var listDef = $('.list-default-js');
+    function initializeList() {
+        function setCardTitleWidth() {
+            var $cards = $('.list-option-card-js');
 
-        var inputOpt = listOpt.siblings('.chosen-container');
-        var childCheck = inputOpt.children('.chosen-drop').children('.chosen-results');
+            $cards.each(function() {
+                var $card = $(this);
+                var $value = $card.find('.title');
 
-        listOpt.find('option').prop('selected', true);
-        listOpt.trigger("chosen:updated");
+                var maxValueWidth = $card.outerWidth() * .75;
+                $value.css('max-width', maxValueWidth);
+            })
+        }
 
-        listOpt.chosen().change(function() {
-            //When option de-selected, we delete it from list
-            listOpt.find('option').not(':selected').remove();
-            listOpt.trigger("chosen:updated");
-        });
+        // Function to add list options and the respective cards
+        function initializeListAddOption() {
+            var $addButton = $('.list-option-add-js');
+            var $newListOptionInput = $('.new-list-option-js');
+            var $cardContainer = $('.list-option-card-container-js');
 
-        listOpt.bind("DOMSubtreeModified",function(){
-            var options = listOpt.html();
-            listDef.html(options);
-            listDef.trigger("chosen:updated");
-        });
+            $newListOptionInput.keypress(function(e) {
+                var keycode =  (e.keyCode ? e.keyCode : e.which);
+                if (keycode == '13') {
+                    e.preventDefault();
 
-        inputOpt.on('click', function () {
-          if (childCheck.children().length === 0) {
-            childCheck.append('<li class="no-results">No options to select!</li>');
-          } else if (childCheck.children('.active-result').length === 0 && childCheck.children('.no-results').length === 0) {
-            childCheck.append('<li class="no-results">No more options to select!</li>');
-          }
-        });
+                    // Enter key pressed, trigger 'add' button click
+                    $addButton.click();
+                }
+            });
+
+            // Add new list option card after 'add' button pressed
+            $addButton.click(function(e) {
+                e.preventDefault();
+
+                var newListOption = $newListOptionInput.val();
+
+                if(newListOption!='') {
+                    // Prevent duplicate entries
+
+                    // Create and display new card
+                    var newCardHtml = '<div class="card list-option-card list-option-card-js" data-list-value="' + newListOption + '">' +
+                        '<input type="hidden" class="list-option-js" name="options[]" value="' + newListOption + '">' +
+                        '<div class="header">' +
+                        '<div class="left">' +
+                        '<div class="move-actions">' +
+                        '<a class="action move-action-js up-js" href="">' +
+                        '<i class="icon icon-arrow-up"></i>' +
+                        '</a>' +
+                        '<a class="action move-action-js down-js" href="">' +
+                        '<i class="icon icon-arrow-down"></i>' +
+                        '</a>' +
+                        '</div>' +
+                        '<span class="title">' + newListOption + '</span>' +
+                        '</div>' +
+                        '<div class="card-toggle-wrap">' +
+                        '<a class="list-option-delete list-option-delete-js" href=""><i class="icon icon-trash"></i></a>' +
+                        '</div>' +
+                        '</div>' +
+                        '</div>';
+
+                    $cardContainer.append(newCardHtml);
+
+                    // Initialize functionality for all the cards again
+                    $('.move-action-js').unbind();
+                    setCardTitleWidth();
+                    initializeListSort();
+                    initializeListOptionDelete();
+                    updateListDefaultOptions();
+                    Kora.Fields.TypedFieldInputs.Initialize();
+
+                    // Clear input after everything is finished
+                    $newListOptionInput.val("");
+                }
+            });
+        }
+
+        function initializeListSort() {
+            $('.move-action-js').click(function(e) {
+                e.preventDefault();
+
+                var $this = $(this);
+                var $headerInnerWrapper = $this.parent().parent();
+                var $header = $headerInnerWrapper.parent();
+                var $card = $header.parent();
+                // $form.prev().before(current);
+                if ($this.hasClass('up-js')) {
+                    var $previousForm = $card.prev();
+                    if ($previousForm.length == 0) {
+                        return;
+                    }
+
+                    $previousForm.css('z-index', 999)
+                        .css('position', 'relative')
+                        .animate({
+                            top: $card.height()
+                        }, 300);
+                    $card.css('z-index', 1000)
+                        .css('position', 'relative')
+                        .animate({
+                            top: '-' + $previousForm.height()
+                        }, 300, function() {
+                            $previousForm.css('z-index', '')
+                                .css('top', '')
+                                .css('position', '');
+                            $card.css('z-index', '')
+                                .css('top', '')
+                                .css('position', '')
+                                .insertBefore($previousForm);
+                            updateListDefaultOptions();
+                        });
+                } else {
+                    var $nextForm = $card.next();
+                    if ($nextForm.length == 0) {
+                        return;
+                    }
+
+                    $nextForm.css('z-index', 999)
+                        .css('position', 'relative')
+                        .animate({
+                            top: '-' + $card.height()
+                        }, 300);
+                    $card.css('z-index', 1000)
+                        .css('position', 'relative')
+                        .animate({
+                            top: $nextForm.height()
+                        }, 300, function() {
+                            $nextForm.css('z-index', '')
+                                .css('top', '')
+                                .css('position', '');
+                            $card.css('z-index', '')
+                                .css('top', '')
+                                .css('position', '')
+                                .insertAfter($nextForm);
+                            updateListDefaultOptions();
+                        });
+                }
+            });
+        }
+
+        function initializeListOptionDelete() {
+            var $listOptionCards = $('.list-option-card-js');
+
+            $listOptionCards.each(function() {
+                var $card = $(this);
+                var $deleteButton = $card.find('.list-option-delete-js');
+
+                $deleteButton.click(function(e) {
+                    e.preventDefault();
+
+                    $card.remove();
+
+                    updateListDefaultOptions();
+                });
+            });
+        }
+
+        function updateListDefaultOptions() {
+            var $cards = $('.list-option-card-js');
+            var $listDef = $('.list-default-js');
+
+            var optionsHtml = "";
+            if ($cards.length > 0) {
+                optionsHtml += '<option></option>';
+                for (var i = 0; i < $cards.length; i++) {
+                    var $card = $($cards[i]);
+                    var option = $card.find('.list-option-js').val();
+                    optionsHtml += '<option value="'+option+'">'+option+'</option>';
+                }
+            } else {
+                optionsHtml += '<option value="" disabled>No options to select!</option>';
+            }
+
+            $listDef.html(optionsHtml);
+            $listDef.trigger("chosen:updated");
+        }
+
+        setCardTitleWidth();
+        initializeListAddOption();
+        initializeListSort();
+        initializeListOptionDelete();
+        Kora.Fields.TypedFieldInputs.Initialize();
     }
 
     function initializeMultiSelectListOptions() {
@@ -239,9 +454,22 @@ Kora.Fields.Options = function(fieldType) {
         });
     }
 
-    function intializeGeolocatorOptions() {
+    function initializeGeolocatorOptions() {
         Kora.Modal.initialize();
 
+        var $geoCardContainer = $('.geolocator-card-container-js');
+        var $geoCards = $geoCardContainer.find('.geolocator-card-js');
+
+        // Action arrows on the cards
+        initializeMoveAction($geoCards);
+
+        // Drag cards to sort
+        $geoCardContainer.sortable();
+
+        // Delete card
+        initializeDelete();
+
+        // Open Geolocator modal when adding new location
         $('.add-new-default-location-js').click(function(e) {
             e.preventDefault();
 
@@ -358,27 +586,68 @@ Kora.Fields.Options = function(fieldType) {
                 type: 'POST',
                 data: data,
                 success:function(result) {
+                    // Get Values
                     var desc = $('.location-desc-js').val();
                     var fullresult = '[Desc]'+desc+'[Desc]'+result;
-                    var latlon = result.split('[LatLon]');
-                    var utm = result.split('[UTM]');
-                    var addr = result.split('[Address]');
-                    var fulltext = 'Description: '+desc+' | LatLon: '+latlon[1]+' | UTM: '+utm[1]+' | Address: '+addr[1];
-                    var option = $("<option/>", { value: fullresult, text: fulltext });
+                    var latlon = result.split('[LatLon]')[1].split(',').join(', ');
+                    var utm = result.split('[UTM]')[1];
+                    var addr = result.split('[Address]')[1];
 
-                    var select = $('.default-location-js');
-                    select.append(option);
-                    select.find(option).prop('selected', true);
-                    select.trigger("chosen:updated");
+                    // Create and display new geolocation card
+                    var newCardHtml = '<div class="card geolocator-card geolocator-card-js">' +
+                        '<input type="hidden" class="list-option-js" name="default[]" value="' + fullresult + '">' +
+                        '<div class="header">' +
+                        '<div class="left">' +
+                        '<div class="move-actions">' +
+                        '<a class="action move-action-js up-js" href="">' +
+                        '<i class="icon icon-arrow-up"></i>' +
+                        '</a>' +
+                        '<a class="action move-action-js down-js" href="">' +
+                        '<i class="icon icon-arrow-down"></i>' +
+                        '</a>' +
+                        '</div>' +
+                        '<span class="title">' + desc + '</span>' +
+                        '</div>' +
+                        '<div class="card-toggle-wrap">' +
+                        '<a class="geolocator-delete geolocator-delete-js tooltip" tooltip="Delete Location" href=""><i class="icon icon-trash"></i></a>' +
+                        '</div>' +
+                        '</div>' +
+                        '<div class="content"><p class="location"><span class="bold">LatLon:</span> '+ latlon +'</p></div>' +
+                        '</div>';
 
+                    $geoCardContainer.append(newCardHtml);
+                    $geoCardContainer.addClass('mb-xxl');
+
+                    initializeMoveAction($geoCardContainer.find('.geolocator-card-js'));
+                    initializeDelete();
+
+                    // Reset Modal
                     $('.location-desc-js').val('');
                     Kora.Modal.close($('.geolocator-add-location-modal-js'));
                 }
             });
         }
+
+        function initializeDelete() {
+            $geoCardContainer.find('.geolocator-card-js').each(function() {
+                var $card = $(this);
+                var $deleteButton = $card.find('.geolocator-delete-js');
+
+                $deleteButton.unbind();
+                $deleteButton.click(function(e) {
+                    e.preventDefault();
+
+                    $card.remove();
+
+                    if ($geoCardContainer.children().length == 0) {
+                        $geoCardContainer.removeClass('mb-xxl');
+                    }
+                })
+            });
+        }
     }
 
-    function intializeAssociatorOptions() {
+    function initializeAssociatorOptions() {
         //Sets up association configurations
         $('.association-check-js').click(function() {
             var assocDiv = $(this).closest('.form-group').next();
@@ -509,9 +778,6 @@ Kora.Fields.Options = function(fieldType) {
 
                 div = '<div class="card combo-value-item-js">';
 
-                // if(border)
-                    // div += '<span class="combo-border-small"> </span>';
-
                 if(type1=='Text' | type1=='List' | type1=='Number' | type1=='Date') {
                     div += '<input type="hidden" name="default_combo_one[]" value="'+val1+'">';
                     div += '<span class="combo-column">'+val1+'</span>';
@@ -559,7 +825,16 @@ Kora.Fields.Options = function(fieldType) {
             }
         });
 
-	//ASSOCIATOR OPTIONS
+        $('.combo-value-div-js').on('click', '.delete-default-js', function(e){
+            e.preventDefault();
+
+            if ($('.combo-value-div-js .card').length == 1) {
+                $('.combo-value-div-js').addClass('hidden');
+                $('.combolist-add-new-list-value-modal-js').removeClass('mt-xxl');
+            }
+        });
+
+	    //ASSOCIATOR OPTIONS
         //Sets up association configurations
         $('.association-check-js').click(function() {
             var assocDiv = $(this).closest('.form-group').next();
@@ -623,220 +898,222 @@ Kora.Fields.Options = function(fieldType) {
         });
 
         //LIST OPTIONS
-        // var listOpt = $('.list-options-js');
-        // listOpt.find('option').prop('selected', true);
-        // listOpt.trigger("chosen:updated");
+        function setCardTitleWidth() {
+            var $cards = $('.list-option-card-js');
 
-        listOpt = $('.mslist-options-js');
-        listOpt.find('option').prop('selected', true);
-        listOpt.trigger("chosen:updated");
+            $cards.each(function() {
+                var $card = $(this);
+                var $value = $card.find('.title');
 
-        listOpt = $('.genlist-options-js');
-        listOpt.find('option').prop('selected', true);
-        listOpt.trigger("chosen:updated");
-		
-        // (new) LIST OPTIONS
-        $(".list-options-js").sortable({
-            helper: 'clone',
-            revert: true,
-            containment: ".field-show"/*,
-            update: function(event, ui) {
-              pidsArray = $(".project-custom-js").sortable("toArray");*/
+                var maxValueWidth = $card.outerWidth() * .75;
+                $value.css('max-width', maxValueWidth);
+            })
+        }
 
-            //   $.ajax({
-            //     url: saveCustomOrderUrl,
-            //     type: 'POST',
-            //     data: {
-            //       "_token": CSRFToken,
-            //       "pids": pidsArray,
-            //     },
-            //     success: function(result) {}
-            //   });
-            // }
-        });
-        
-		$('.list-options-js').on('click', '.move-action-js', function(e) {
-		  e.preventDefault();
+        // Function to add list options and the respective cards
+        function initializeListAddOption(fnum) {
+            var $addButton = $('.list-option-add-'+fnum+'-js');
+            var $newListOptionInput = $('.new-list-option-'+fnum+'-js');
+            var $cardContainer = $('.list-option-card-container-'+fnum+'-js');
 
-		  var $this = $(this);
-		  var $headerInnerWrapper = $this.parent().parent(); // div.left
-		  var $header = $headerInnerWrapper.parent();		 // div.header
-		  var $form = $header.parent();						 // div.card
-		  // $form.prev().before(current);
+            $newListOptionInput.keypress(function(e) {
+                var keycode =  (e.keyCode ? e.keyCode : e.which);
+                if (keycode == '13') {
+                    e.preventDefault();
 
-		  if ($this.hasClass('up-js')) {
-			var $previousForm = $form.prev();
-			if ($previousForm.length == 0) {
-			  return;
-			}
-
-			$previousForm.css('z-index', 999)
-			  .css('position', 'relative')
-			  .animate({
-				top: $form.height()
-			  }, 300);
-			$form.css('z-index', 1000)
-			  .css('position', 'relative')
-			  .animate({
-				top: '-' + $previousForm.height()
-			  }, 300, function() {
-				$previousForm.css('z-index', '')
-				  .css('top', '')
-				  .css('position', '');
-				$form.css('z-index', '')
-				  .css('top', '')
-				  .css('position', '')
-				  .insertBefore($previousForm);
-
-				  // fidsArray = $(".form-custom-js").sortable("toArray");
-
-				  // $.ajax({
-					  // url: saveCustomOrderUrl,
-					  // type: 'POST',
-					  // data: {
-						  // "_token": CSRFToken,
-						  // "fids": fidsArray,
-
-					  // },
-					  // success: function(result) {}
-				  // });
-			  });
-		  } else {
-			var $nextForm = $form.next();
-			if ($nextForm.length == 0) {
-			  return;
-			}
-
-			$nextForm.css('z-index', 999)
-			  .css('position', 'relative')
-			  .animate({
-				top: '-' + $form.height()
-			  }, 300);
-			$form.css('z-index', 1000)
-			  .css('position', 'relative')
-			  .animate({
-				top: $nextForm.height()
-			  }, 300, function() {
-				$nextForm.css('z-index', '')
-				  .css('top', '')
-				  .css('position', '');
-				$form.css('z-index', '')
-				  .css('top', '')
-				  .css('position', '')
-				  .insertAfter($nextForm);
-
-				  // fidsArray = $(".form-custom-js").sortable("toArray");
-
-				  // $.ajax({
-					  // url: saveCustomOrderUrl,
-					  // type: 'POST',
-					  // data: {
-						  // "_token": CSRFToken,
-						  // "fids": fidsArray,
-
-					  // },
-					  // success: function(result) {}
-				  // });
-			  });
-		  }
-        });
-        
-        $('.list-options-js').on('click', '.delete-option-js', function(){
-            let $this = $(this).parent().parent().parent();
-            let $thisOpt = $('.list-select-js option').get($this.index()-1);
-            $thisOpt.remove();
-            $this.remove();
-        });
-
-        $('.combo-value-div-js').on('click', '.delete-default-js', function(e){
-            e.preventDefault();
-
-            if ($('.combo-value-div-js .card').length == 1) {
-                $('.combo-value-div-js').addClass('hidden');
-                $('.combolist-add-new-list-value-modal-js').removeClass('mt-xxl');
-            }
-        });
-
-	var listOpt = $('.list-options-container-js');
-	var newValue = $('.add-list-option-js');
-
-	$('.list-options-container-js .submit').on('click', function () {
-        	let input = $('.add-list-option-js').val();
-		if (input != '') {
-                	// add the card
-			let card = '<div class="card ui-sortable-handle"><div class="header"><div class="left"><div class="move-actions"><a class="action move-action-js up-js"><i class="icon icon-arrow-up"></i></a><a class="action move-action-js down-js"><i class="icon icon-arrow-down"></i></a></div><span class="title">';
-                	card += "" + input + "";
-			card += '</span></div><div class="card-toggle-wrap"><a class="quick-action delete-option delete-option-js tooltip" tooltip="Delete Option"><i class="icon icon-trash"></i></a></div></div></div>';
-                    	$('.list-options-js').html($('.list-options-js').html()+card);
-                    	// add the select option
-                    	let option = '<option selected value="'+input+'">'+input+'</option>';
-                    	$('.list-select-js').html($('.list-select-js').html()+option);
-                    	// clear the input
-                    	$('.add-list-option-js').val('');
-		}
-	});
-
-	$(".list-options-container-js").on('keypress', function(event) {
-        	var keyCode = event.keyCode || event.which;
-                if (keyCode === 13) {
-                	event.preventDefault();
-                	$(".list-options-container-js .submit").click();
+                    // Enter key pressed, trigger 'add' button click
+                    $addButton.click();
                 }
-	});
+            });
+
+            // Add new list option card after 'add' button pressed
+            $addButton.click(function(e) {
+                e.preventDefault();
+
+                var newListOption = $newListOptionInput.val();
+
+                if(newListOption!='') {
+                    // Prevent duplicate entries
+
+                    // Create and display new card
+                    var newCardHtml = '<div class="card list-option-card list-option-card-js" data-list-value="' + newListOption + '">' +
+                        '<input type="hidden" class="list-option-js" name="options_'+fnum+'[]" value="' + newListOption + '">' +
+                        '<div class="header">' +
+                        '<div class="left">' +
+                        '<div class="move-actions">' +
+                        '<a class="action move-action-js up-js" href="">' +
+                        '<i class="icon icon-arrow-up"></i>' +
+                        '</a>' +
+                        '<a class="action move-action-js down-js" href="">' +
+                        '<i class="icon icon-arrow-down"></i>' +
+                        '</a>' +
+                        '</div>' +
+                        '<span class="title">' + newListOption + '</span>' +
+                        '</div>' +
+                        '<div class="card-toggle-wrap">' +
+                        '<a class="list-option-delete list-option-delete-js" href=""><i class="icon icon-trash"></i></a>' +
+                        '</div>' +
+                        '</div>' +
+                        '</div>';
+
+                    $cardContainer.append(newCardHtml);
+
+                    // Initialize functionality for all the cards again
+                    $('.move-action-js').unbind();
+                    setCardTitleWidth();
+                    initializeListSort();
+                    initializeListOptionDelete();
+                    Kora.Fields.TypedFieldInputs.Initialize();
+
+                    // Clear input after everything is finished
+                    $newListOptionInput.val("");
+                }
+            });
+        }
+
+        function initializeListSort() {
+            $('.move-action-js').click(function(e) {
+                e.preventDefault();
+
+                var $this = $(this);
+                var $headerInnerWrapper = $this.parent().parent();
+                var $header = $headerInnerWrapper.parent();
+                var $card = $header.parent();
+                // $form.prev().before(current);
+                if ($this.hasClass('up-js')) {
+                    var $previousForm = $card.prev();
+                    if ($previousForm.length == 0) {
+                        return;
+                    }
+
+                    $previousForm.css('z-index', 999)
+                        .css('position', 'relative')
+                        .animate({
+                            top: $card.height()
+                        }, 300);
+                    $card.css('z-index', 1000)
+                        .css('position', 'relative')
+                        .animate({
+                            top: '-' + $previousForm.height()
+                        }, 300, function() {
+                            $previousForm.css('z-index', '')
+                                .css('top', '')
+                                .css('position', '');
+                            $card.css('z-index', '')
+                                .css('top', '')
+                                .css('position', '')
+                                .insertBefore($previousForm);
+                        });
+                } else {
+                    var $nextForm = $card.next();
+                    if ($nextForm.length == 0) {
+                        return;
+                    }
+
+                    $nextForm.css('z-index', 999)
+                        .css('position', 'relative')
+                        .animate({
+                            top: '-' + $card.height()
+                        }, 300);
+                    $card.css('z-index', 1000)
+                        .css('position', 'relative')
+                        .animate({
+                            top: $nextForm.height()
+                        }, 300, function() {
+                            $nextForm.css('z-index', '')
+                                .css('top', '')
+                                .css('position', '');
+                            $card.css('z-index', '')
+                                .css('top', '')
+                                .css('position', '')
+                                .insertAfter($nextForm);
+                        });
+                }
+            });
+        }
+
+        function initializeListOptionDelete() {
+            var $listOptionCards = $('.list-option-card-js');
+
+            $listOptionCards.each(function() {
+                var $card = $(this);
+                var $deleteButton = $card.find('.list-option-delete-js');
+
+                $deleteButton.click(function(e) {
+                    e.preventDefault();
+
+                    $card.remove();
+                });
+            });
+        }
+
+        setCardTitleWidth();
+        initializeListAddOption('one');
+        initializeListAddOption('two');
+        initializeListSort();
+        initializeListOptionDelete();
+        Kora.Fields.TypedFieldInputs.Initialize();
     }
 
     function initializeTextFields() {
-      var $multiLineCheck = $('.check-box-input[name="multi"]');
-      var $singleLine = $('.advance-options-section-js .single-line-js');
-      var $multiLine = $('.advance-options-section-js .multi-line-js');
-      var $singleLineShow = $('.edit-form .single-line-js');
-      var $multiLineShow = $('.edit-form .multi-line-js');
+        var $multiLineCheck = $('.check-box-input[name="multi"]');
+        var $singleLine = $('.advance-options-section-js .single-line-js');
+        var $multiLine = $('.advance-options-section-js .multi-line-js');
+        var $singleLineShow = $('.edit-form .single-line-js');
+        var $multiLineShow = $('.edit-form .multi-line-js');
 
-      if ($multiLineCheck.is(':checked')) {
-        $singleLine.addClass('hidden');
-        $multiLine.removeClass('hidden');
-        $singleLineShow.addClass('hidden');
-        $multiLineShow.removeClass('hidden');
-        var input = $singleLineShow.children('input').val();
-        $multiLineShow.children('textarea').val(''+input+'');
-      } else {
-        $singleLineShow.removeClass('hidden');
-        $multiLineShow.addClass('hidden');
-        $singleLine.removeClass('hidden');
-        $multiLine.addClass('hidden');
-      }
-
-      if ($('.error-message.single-line').text().length > 0) {
-        var erMsg = $('.error-message.single-line').text();
-        $('.error-message.multi-line').text(''+erMsg+'');
-        $multiLine.children('textarea').addClass('error');      
-      }
-
-      $multiLineCheck.click(function () {
-        //if ($multiLineCheck.is(':checked') === true || $multiLineCheck.prop('checked') === true) {
-        if ($multiLineCheck.is(':checked')) {
-          $singleLine.addClass('hidden');
-          $multiLine.removeClass('hidden');
-          $singleLineShow.addClass('hidden');
-          $multiLineShow.removeClass('hidden');
+        if($multiLineCheck.is(':checked')) {
+            $singleLine.addClass('hidden');
+            $multiLine.removeClass('hidden');
+            $singleLineShow.addClass('hidden');
+            $multiLineShow.removeClass('hidden');
+            var input = $singleLineShow.children('input').val();
+            $multiLineShow.children('textarea').val(''+input+'');
         } else {
-          $singleLine.removeClass('hidden');
-          $multiLine.addClass('hidden');      
-          $singleLineShow.removeClass('hidden');
-          $multiLineShow.addClass('hidden');    
+            $singleLineShow.removeClass('hidden');
+            $multiLineShow.addClass('hidden');
+            $singleLine.removeClass('hidden');
+            $multiLine.addClass('hidden');
         }
-      });
 
-      $multiLine.children('textarea').blur(function () {
-        var input = $multiLine.children('textarea').val();
-        $singleLine.children('input').val(''+input+'');
-      });
+        if($('.error-message.single-line').text().length > 0) {
+            var erMsg = $('.error-message.single-line').text();
+            $('.error-message.multi-line').text(''+erMsg+'');
+            $multiLine.children('textarea').addClass('error');
+        }
 
-      $('.error-message.single-line').bind('DOMSubtreeModified', function () {
-        erMsg = $('.error-message.single-line').text();
-        $('.error-message.multi-line').text(''+erMsg+'');
-        $multiLine.children('textarea').addClass('error');
-      });
+        $multiLineCheck.click(function () {
+            if($multiLineCheck.is(':checked')) {
+                $singleLine.addClass('hidden');
+                $multiLine.removeClass('hidden');
+                $singleLineShow.addClass('hidden');
+                $multiLineShow.removeClass('hidden');
+            } else {
+                $singleLine.removeClass('hidden');
+                $multiLine.addClass('hidden');
+                $singleLineShow.removeClass('hidden');
+                $multiLineShow.addClass('hidden');
+            }
+        });
+
+        $multiLine.children('textarea').blur(function () {
+            var input = $multiLine.children('textarea').val();
+            $singleLine.children('input').val(''+input+'');
+        });
+
+        $('.error-message.single-line').bind('DOMSubtreeModified', function () {
+            erMsg = $('.error-message.single-line').text();
+            $('.error-message.multi-line').text(''+erMsg+'');
+            $multiLine.children('textarea').addClass('error');
+        });
+    }
+
+    function initializeRichTextFields() {
+        $('.ckeditor-js').each(function() {
+            textid = $(this).attr('id');
+
+            CKEDITOR.replace(textid);
+        });
     }
 
     initializeSelects();
@@ -846,32 +1123,32 @@ Kora.Fields.Options = function(fieldType) {
             initializeDateOptions();
             break;
         case 'Generated List':
-            initializeSelectAddition();
-            initializeGeneratedListOptions();
+            initializeList();
             break;
         case 'List':
-            initializeSelectAddition();
-            initializeListOptions();
+            initializeList();
             break;
         case 'Geolocator':
-            intializeGeolocatorOptions();
+            initializeGeolocatorOptions();
             break;
         case 'Multi-Select List':
-            initializeSelectAddition();
-            initializeMultiSelectListOptions();
+            initializeList();
             break;
         case 'Schedule':
             initializeScheduleOptions();
             break;
         case 'Associator':
-            intializeAssociatorOptions();
+            initializeAssociatorOptions();
             break;
         case 'Combo List':
-            initializeSelectAddition();
             initializeComboListOptions();
             break;
         case 'Text':
             initializeTextFields();
+            break;
+        case 'Rich Text':
+            initializeRichTextFields();
+            break;
         default:
             break;
     }

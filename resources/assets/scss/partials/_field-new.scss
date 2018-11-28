@@ -17,6 +17,21 @@
     max-width: calc(#{ $max-site-width } - 600px);
     width: $max-site-width;
 
+    .form-group {
+      padding-left: 45px;
+      padding-right: 45px;
+
+      &.half {
+        padding-left: 45px;
+        padding-right: 15px;
+
+        + .half {
+          padding-left: 15px;
+          padding-right: 45px;
+        }
+      }
+    }
+
     .field-meme-link {
       color: palette('green', accent);
       font-family: $ubuntu-medium;
@@ -51,6 +66,14 @@
     @media screen and (max-width: $max-mobile-xs-width) {
       .error-message {
         padding: 0 0 10px;
+      }
+    }
+  }
+
+  @media screen and (max-width: $max-mobile-l-width) {
+    .create-field {
+      .form-group {
+        padding: 0;
       }
     }
   }

@@ -79,6 +79,118 @@ Kora.Fields.Show = function() {
     function initializeListPresetModals() {
         Kora.Modal.initialize();
 
+        function setCardTitleWidth() {
+            var $cards = $('.list-option-card-js');
+
+            $cards.each(function() {
+                var $card = $(this);
+                var $value = $card.find('.title');
+
+                var maxValueWidth = $card.outerWidth() * .75;
+                $value.css('max-width', maxValueWidth);
+            })
+        }
+
+        function initializeListSort() {
+            $('.move-action-js').click(function(e) {
+                e.preventDefault();
+
+                var $this = $(this);
+                var $headerInnerWrapper = $this.parent().parent();
+                var $header = $headerInnerWrapper.parent();
+                var $card = $header.parent();
+                // $form.prev().before(current);
+                if ($this.hasClass('up-js')) {
+                    var $previousForm = $card.prev();
+                    if ($previousForm.length == 0) {
+                        return;
+                    }
+
+                    $previousForm.css('z-index', 999)
+                        .css('position', 'relative')
+                        .animate({
+                            top: $card.height()
+                        }, 300);
+                    $card.css('z-index', 1000)
+                        .css('position', 'relative')
+                        .animate({
+                            top: '-' + $previousForm.height()
+                        }, 300, function() {
+                            $previousForm.css('z-index', '')
+                                .css('top', '')
+                                .css('position', '');
+                            $card.css('z-index', '')
+                                .css('top', '')
+                                .css('position', '')
+                                .insertBefore($previousForm);
+                            updateListDefaultOptions();
+                        });
+                } else {
+                    var $nextForm = $card.next();
+                    if ($nextForm.length == 0) {
+                        return;
+                    }
+
+                    $nextForm.css('z-index', 999)
+                        .css('position', 'relative')
+                        .animate({
+                            top: '-' + $card.height()
+                        }, 300);
+                    $card.css('z-index', 1000)
+                        .css('position', 'relative')
+                        .animate({
+                            top: $nextForm.height()
+                        }, 300, function() {
+                            $nextForm.css('z-index', '')
+                                .css('top', '')
+                                .css('position', '');
+                            $card.css('z-index', '')
+                                .css('top', '')
+                                .css('position', '')
+                                .insertAfter($nextForm);
+                            updateListDefaultOptions();
+                        });
+                }
+            });
+        }
+
+        function initializeListOptionDelete() {
+            var $listOptionCards = $('.list-option-card-js');
+
+            $listOptionCards.each(function() {
+                var $card = $(this);
+                var $deleteButton = $card.find('.list-option-delete-js');
+
+                $deleteButton.click(function(e) {
+                    e.preventDefault();
+
+                    $card.remove();
+
+                    updateListDefaultOptions();
+                });
+            });
+        }
+
+        function updateListDefaultOptions() {
+            var $cards = $('.list-option-card-js');
+            var $listDef = $('.list-default-js');
+
+            var optionsHtml = "";
+            if ($cards.length > 0) {
+                optionsHtml += '<option></option>';
+                for (var i = 0; i < $cards.length; i++) {
+                    var $card = $($cards[i]);
+                    var option = $card.find('.list-option-js').val();
+                    optionsHtml += '<option value="'+option+'">'+option+'</option>';
+                }
+            } else {
+                optionsHtml += '<option value="" disabled>No options to select!</option>';
+            }
+
+            $listDef.html(optionsHtml);
+            $listDef.trigger("chosen:updated");
+        }
+
         var listModal = $('.add-list-preset-modal-js');
         var createListModal = $('.create-list-preset-modal-js');
         var newList = [];
@@ -94,26 +206,47 @@ Kora.Fields.Show = function() {
 
             var listVal = $('[name="list_preset"]').val();
             listValArray = listVal.split('[!]');
+            var $cardContainer = $('.list-option-card-container-js');
 
             //clear old values
-            var optDiv = $('[name="options\[\]"]');
-            var defDiv = $('[name="default"]');
-            optDiv.html('');
-            defDiv.html('');
+            $cardContainer.html('');
 
             //Loop through results to
             for(var i = 0; i < listValArray.length; i++) {
-                var option = $("<option>").val(listValArray[i]).text(listValArray[i]);
+                var newListOption = listValArray[i];
 
-                defDiv.append(option.clone());
-                optDiv.append(option.clone());
+                //add to cards
+                // Create and display new card
+                var newCardHtml = '<div class="card list-option-card list-option-card-js" data-list-value="' + newListOption + '">' +
+                    '<input type="hidden" class="list-option-js" name="options[]" value="' + newListOption + '">' +
+                    '<div class="header">' +
+                    '<div class="left">' +
+                    '<div class="move-actions">' +
+                    '<a class="action move-action-js up-js" href="">' +
+                    '<i class="icon icon-arrow-up"></i>' +
+                    '</a>' +
+                    '<a class="action move-action-js down-js" href="">' +
+                    '<i class="icon icon-arrow-down"></i>' +
+                    '</a>' +
+                    '</div>' +
+                    '<span class="title">' + newListOption + '</span>' +
+                    '</div>' +
+                    '<div class="card-toggle-wrap">' +
+                    '<a class="list-option-delete list-option-delete-js" href=""><i class="icon icon-trash"></i></a>' +
+                    '</div>' +
+                    '</div>' +
+                    '</div>';
+
+                $cardContainer.append(newCardHtml);
+
+                // Initialize functionality for all the cards
             }
 
-            //refresh chosen
-            defDiv.prepend("<option value='' selected='selected'></option>");
-            optDiv.find($('option')).prop('selected', true);
-            optDiv.trigger("chosen:updated");
-            defDiv.trigger("chosen:updated");
+            setCardTitleWidth();
+            initializeListSort();
+            initializeListOptionDelete();
+            updateListDefaultOptions();
+            Kora.Fields.TypedFieldInputs.Initialize();
 
             Kora.Modal.close(listModal);
         });
@@ -121,7 +254,7 @@ Kora.Fields.Show = function() {
         $('.open-create-list-modal-js').click(function(e) {
             e.preventDefault();
 
-            newList = $('[name="options[]"]').val();
+            newList = $('[name="options[]"]').map(function(){return $(this).val();}).get();
 
             if(newList!=[])
                 Kora.Modal.open(createListModal);

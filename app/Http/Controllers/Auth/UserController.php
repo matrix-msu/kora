@@ -39,7 +39,7 @@ class UserController extends Controller {
     }
 
     /**
-     * Quick link to get to the profile of the logged in user
+     * Quick link to get to the profile of the logged in user.
      *
      * @return Redirect
      */
@@ -53,7 +53,7 @@ class UserController extends Controller {
      * @return View
      */
     public function index(Request $request, $uid, $section = '') {
-        if (!\Auth::user()->admin && \Auth::user()->id != $request->uid)
+        if(!\Auth::user()->admin && \Auth::user()->id != $request->uid)
             return redirect('user')->with('k3_global_error', 'cannot_edit_profile');
 
         $section = (($section && in_array($section, ['permissions', 'history'])) ? $section : 'profile');
@@ -72,12 +72,12 @@ class UserController extends Controller {
         $prevUrlArray = $request->session()->get('_previous');
         $prevUrl = reset($prevUrlArray);
 
-        if ($prevUrl !== url()->current()) {
+        if($prevUrl !== url()->current()) {
           $session = $request->session()->get('k3_global_success');
           $changes = $request->session()->get('user_changes');
 
-          if ($session == 'user_updated') {
-            if (in_array('password', $changes)) {
+          if($session == 'user_updated') {
+            if(in_array('password', $changes)) {
               $notification['message'] = 'Password Successfully Reset!';
               $notification['static'] = true;
             } else {
@@ -86,7 +86,7 @@ class UserController extends Controller {
           }
         }
 
-        if ($section == 'permissions') {
+        if($section == 'permissions') {
             if($admin) {
                 return view('user/profile-permissions',compact('user', 'admin',  'section', 'notification'));
             } else {
@@ -94,7 +94,7 @@ class UserController extends Controller {
                 $forms = self::buildFormsArray($user);
                 return view('user/profile-permissions',compact('user', 'admin', 'projects', 'forms', 'section', 'notification'));
             }
-        } elseif ($section == 'history') {
+        } else if ($section == 'history') {
             // Record History revisions
             $sec = $request->input('sec') === null ? 'rm' : $request->input('sec');
             $pagination = $request->input('page-count') === null ? 10 : app('request')->input('page-count');
@@ -124,26 +124,33 @@ class UserController extends Controller {
         }
     }
 
+    /**
+     * Returns the edit profile view.
+     *
+     * @param  Request $request
+     * @return View
+     */
     public function editProfile(Request $request) {
-        if (!\Auth::user()->admin && \Auth::user()->id!=$request->uid)
+        if(!\Auth::user()->admin && \Auth::user()->id!=$request->uid)
             return redirect('user')->with('k3_global_error', 'cannot_edit_profile');
 
-        if (\Auth::user()->admin) {
+        if(\Auth::user()->admin)
           $user = User::where('id', '=', $request->uid)->first();
-        } else {
+        else
           $user = \Auth::user();
-        }
 
         return view('user/edit', compact('user'));
     }
 
     /**
-      * User updating profile information
-      */
+     * User updating profile information.
+     *
+     * @param  Request $request
+     * @return Redirect
+     */
     public function update(Request $request) {
-      if (!\Auth::user()->admin && \Auth::user()->id != $request->uid) {
-        return response()->json(["status" => false, "message" => "cannot_update_user"], 200);
-      }
+      if(!\Auth::user()->admin && \Auth::user()->id != $request->uid)
+          return response()->json(["status" => false, "message" => "cannot_update_user"], 200);
 
       $message = array();
       $user = User::where('id', '=', $request->uid)->first();
@@ -155,17 +162,17 @@ class UserController extends Controller {
       $confirm = $request->password_confirmation;
 
       // Look for changes, update what was changed
-      if (!empty($newFirstName) && $newFirstName != $user->first_name) {
+      if(!empty($newFirstName) && $newFirstName != $user->first_name) {
         $user->first_name = $newFirstName;
         array_push($message, "first_name");
       }
 
-      if (!empty($newLastName) && $newLastName != $user->last_name) {
+      if(!empty($newLastName) && $newLastName != $user->last_name) {
         $user->last_name = $newLastName;
         array_push($message, "last_name");
       }
 
-      if (!empty($newOrganization) && $newOrganization != $user->organization) {
+      if(!empty($newOrganization) && $newOrganization != $user->organization) {
         $user->organization = $newOrganization;
         array_push($message, "organization");
       }
@@ -175,17 +182,14 @@ class UserController extends Controller {
           // If passwords don't match.
           if($newPass != $confirm)
               return response()->json(["status" => false, "message" => "passwords_unmatched"], 200);
-              //return redirect('user/'.$user->id.'/edit')->with('k3_global_error', 'passwords_unmatched');
 
           // If password is less than 6 chars
           if(strlen($newPass)<6)
               return response()->json(["status" => false, "message" => "password_minimum"], 200);
-              //return redirect('user/'.$user->id.'/edit')->with('k3_global_error', 'password_minimum');
 
           // If password contains spaces
           if(preg_match('/\s/',$newPass))
               return response()->json(["status" => false, "message" => "password_whitespaces"], 200);
-              //return redirect('user/'.$user->id.'/edit')->with('k3_global_error', 'password_whitespaces');
 
           $user->password = bcrypt($newPass);
           array_push($message,"password");
@@ -193,50 +197,48 @@ class UserController extends Controller {
 
       $user->save();
 
-      if (!empty($newProfilePic)) {
+      if(!empty($newProfilePic)) {
         $changePicResponse = json_decode($this->changepicture($request, $user), true);
-        if ($changePicResponse['status']) {
+        if($changePicResponse['status'])
           array_push($message, $changePicResponse['message']);
-        }
       }
 
-      //return response()->json(["status" => true, "message" => $message], 200);
       return redirect('user/'.Auth::user()->id)->with('k3_global_success', 'user_updated')->with('user_changes', $message);
     }
 
     /**
-      * User deleting own account
-      */
+     * User deleting own account.
+     *
+     * @param  Request $request
+     * @return Redirect
+     */
     public function delete(Request $request) {
-        if (!\Auth::user()->admin && \Auth::user()->id != $request->uid) {
+        if(!\Auth::user()->admin && \Auth::user()->id != $request->uid)
           return redirect('user/'.\Auth::user()->id)->with('k3_global_error', 'cannot_delete_profile');
-        }
 
-        if ($request->uid == 1) {
+        if($request->uid == 1)
           return redirect('user/'.\Auth::user()->id)->with('k3_global_error', 'cannot_delete_root_admin');
-        }
 
         $user = User::where('id', '=', $request->uid)->first();
         $selfDelete = (\Auth::user()->id == $request->uid);
         $user->delete();
 
-        if ($selfDelete) {
+        if($selfDelete)
             return redirect('/')->with('k3_global_success', 'account_deleted');
-        } elseif (\Auth::user()->admin) {
+        else if (\Auth::user()->admin)
             return redirect('admin/users')->with('k3_global_success', 'user_deleted');
-        } else {
+        else
             return redirect('/')->with('k3_global_success', 'account_deleted');
-        }
     }
 
     /**
-     * Editing a user's preferences
+     * Editing a user's preferences.
      *
-     * @param $uid User's Id
-     * @return View User prefernce view
+     * @param  int $uid - User's Id
+     * @return View
      */
     public function preferences($uid) {
-        if (\Auth::user()->id != $uid)
+        if(\Auth::user()->id != $uid)
             return redirect('user')->with('k3_global_error', 'cannot_edit_preferences');
 
         $user = \Auth::user();
@@ -245,7 +247,7 @@ class UserController extends Controller {
         $projPageTabSelOptions = Preference::projPageTabSelOptions();
         $singleProjTabSelOptions = Preference::singleProjTabSelOptions();
 
-        if (is_null($preference)) {
+        if(is_null($preference)) {
             // Must create user preference
             $preference = new Preference;
             $preference->user_id = $user->id;
@@ -268,19 +270,21 @@ class UserController extends Controller {
     }
 
     /**
-     * @param $uid User's Id
-     * @param Request $request Form inputs
-     * @return Redirect to user's preferences
+     * Actually updates the user's profile.
+     *
+     * @param  int $uid - User's Id
+     * @param  Request $request
+     * @return View
      */
     public function updatePreferences($uid, Request $request) {
-        if (\Auth::user()->id != $uid)
+        if(\Auth::user()->id != $uid)
             return redirect('user/'.\Auth::user()->id.'/preferences')->with('k3_global_error', 'cannot_edit_preferences');
 
         $user = \Auth::user();
 
         $preference = Preference::where('user_id', '=', $user->id)->first();
 
-        if (is_null($preference)) {
+        if(is_null($preference)) {
             // Must create user preference
             $preference = new Preference;
             $preference->user_id = $user->id;
@@ -308,12 +312,18 @@ class UserController extends Controller {
         return view('user.preferences', compact('user', 'preference', 'logoTargetOptions', 'projPageTabSelOptions', 'singleProjTabSelOptions', 'sideMenuOptions', 'notification'));
     }
 
-    public static function returnUserPrefs ($pref) {
-        if (\Auth::user()) {
+    /**
+     * Return a specific user preference
+     *
+     * @param  string $pref - The requested preference
+     * @return string - The preference value
+     */
+    public static function returnUserPrefs($pref) {
+        if(\Auth::user()) {
             $user = \Auth::user();
             $preference = Preference::where('user_id', '=', $user->id)->first();
 
-            if (is_null($preference)) {
+            if(is_null($preference)) {
                 $preference = new Preference();
                 $preference->use_dashboard = 1;
                 $preference->logo_target = 1;
@@ -329,7 +339,7 @@ class UserController extends Controller {
             // single_proj_page_tab_selection :: 2 or 3 :: custom//alphabetical
 
             return $preference;
-        } else if (\Auth::guest()) {
+        } else if(\Auth::guest()) {
             // if user is guest, create default set of preferences
             $preference = new Preference;
             $preference->use_dashboard = 1;
@@ -343,6 +353,12 @@ class UserController extends Controller {
         }
     }
 
+    /**
+     * Validate a user model.
+     *
+     * @param  UserRequest $request
+     * @return JsonResponse
+     */
     public function validateUserFields(UserRequest $request) {
         return response()->json(["status"=>true, "message"=>"User Valid", 200]);
     }
@@ -351,7 +367,7 @@ class UserController extends Controller {
      * Changes the user profile picture and returns the pic URI.
      *
      * @param  Request $request
-     * @return JsonResponse - URI of pic
+     * @return JsonResponse
      */
     public function changepicture(Request $request, $user) {
         $file = $request->profile;
@@ -408,16 +424,22 @@ class UserController extends Controller {
     public function activateshow() {
         if(is_null(\Auth::user()))
             return redirect('register');
-        elseif (!\Auth::user()->active)
-            return view('auth.activate');
-        else
+        else if(!\Auth::user()->active) {
+			$notification = array(
+				'message' => '',
+				'description' => '',
+				'warning' => false,
+				'static' => false
+			);
+			return view('auth.activate', compact('notification'));
+        } else
             return redirect('projects');
     }
 
     /**
      * Returns the view for the user activation page.
      *
-     * @return View
+     * @return Redirect
      */
     public function resendActivation() {
         $token = \Auth::user()->token;
@@ -582,7 +604,7 @@ class UserController extends Controller {
                 $projects[$i]['name'] = $project->name;
                 $projects[$i]['group'] = $user->getProjectGroup($project);
 
-                if ($user->isProjectAdmin($project)) {
+                if($user->isProjectAdmin($project)) {
                     $projects[$i]['permissions'] = 'Admin';
                 } else {
                     // Get Permissions
@@ -634,7 +656,7 @@ class UserController extends Controller {
                         $permissions .= 'Create Records | ';
                     if($user->canModifyRecords($form))
                         $permissions .= 'Edit Records | ';
-                    if ($user->canDestroyRecords($form))
+                    if($user->canDestroyRecords($form))
                         $permissions .= 'Delete Records | ';
                     if($permissions == '')
                         $permissions .= 'Read Only ';
@@ -646,25 +668,34 @@ class UserController extends Controller {
         return $forms;
     }
 
+    /**
+     * Builds the string that represents a User's permissions for saving.
+     *
+     * @param  string $permissions - Pre-formatted permissions
+     * @return string - The formatted string
+     */
     public static function buildPermissionsString($permissions) {
         $permissionsArray = explode(" | ", $permissions);
-        if (count($permissionsArray) == 1) {
+        if(count($permissionsArray) == 1) {
             return $permissionsArray[0];
-        } elseif (count($permissionsArray) == 2) {
+        } else if(count($permissionsArray) == 2) {
             return implode(' and ', $permissionsArray);
-        } elseif (count($permissionsArray) > 2) {
+        } else if(count($permissionsArray) > 2) {
             $lastIndex = count($permissionsArray) - 1;
             $permissionsArray[$lastIndex] = 'and ' . $permissionsArray[$lastIndex];
             return implode(', ', $permissionsArray);
         }
     }
 
-    public static function savePreferences(Request $request, $uid) {
-        if (!\Auth::user()->id != $uid)
+    /**
+     * Changes the user profile picture and returns the pic URI.
+     *
+     * @param  int $uid - User ID
+     */
+    public static function savePreferences($uid) {
+        if(!\Auth::user()->id != $uid)
             return redirect('user')->with('k3_global_error', 'cannot_edit_preferences');
 
         $preference = Preference::firstOrNew(array('uid' => $uid));
-
-        dd($preference);
     }
 }
