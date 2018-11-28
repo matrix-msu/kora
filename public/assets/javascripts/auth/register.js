@@ -107,15 +107,24 @@ Kora.Auth.Register = function() {
         }
       
         form.submit(function(e) {
-            var $this = $(this);
-
             e.preventDefault();
+
+            var $this = $(this);
 
             if (!droppedPicFile) {
                 values = {};
                 $.each($('.user-form').serializeArray(), function(i, field) {
                     values[field.name] = field.value;
                 });
+
+                //console.log(values)
+                // for ( var pair of values.entries() ) {
+                //     console.log(pair[0] + ', ' + pair[1]);
+                //     //console.log(typeof pair[1]);
+                //     if (typeof pair[1] === 'object') {
+                //         console.log(pair[1]);
+                //     }
+                // }
 
 				$.ajax({
 					url: validationUrl,
@@ -141,14 +150,6 @@ Kora.Auth.Register = function() {
                 values = new FormData(form.get(0));
                 values.delete('profile');
                 values.append('profile', droppedPicFile);
-            
-                // for ( var pair of values.entries() ) {
-                    // console.log(pair[0] + ', ' + pair[1]);
-                    // //console.log(typeof pair[1]);
-                    // if (typeof pair[1] === 'object') {
-                        // console.log(pair[1]);
-                    // }
-                // }
 
 				$.ajax({
 					url: validationUrl,
