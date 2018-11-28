@@ -427,126 +427,138 @@ Kora.Records.Create = function() {
     }
 
     function intializeFileUploaderOptions() {
-        var $fileCardsContainer = $('.file-cards-container-js');
+        var $fileUploads = $('.kora-file-upload-js');
+        var $fileCardsContainer = $fileUploads.parent().find('.file-cards-container-js');
         //We will capture the current field when we start to upload. That way when we do upload, it's guarenteed to be that Field ID
         var lastClickedFlid = 0;
 
-        $('.kora-file-upload-js').fileupload({
-            dataType: 'json',
-            singleFileUploads: false,
-            done: function (e, data) {
-                var $uploadInput = $(this);
-                lastClickedFlid = $uploadInput.attr('flid');
-                inputName = 'file'+lastClickedFlid;
-                capName = 'file_captions'+lastClickedFlid;
-                fileDiv = ".filenames-"+lastClickedFlid+"-js";
+        // Prevents upload to whole web page
+        $(document).bind('drop dragover', function (e) {
+            e.preventDefault();
+        });
 
-                var $field = $uploadInput.siblings('#'+lastClickedFlid);
-                var $formGroup = $field.parent('.form-group');
+        $fileUploads.each(function() {
+            var $fileUpload = $(this);
 
-                // Tooltip text
-                var tooltip = "Remove Document";
-                if ($formGroup.hasClass('gallery-input-form-group')) {
-                    tooltip = "Remove Image";
-                } else if ($formGroup.hasClass('video-input-form-group')) {
-                    tooltip = "Remove Video";
-                } else if ($formGroup.hasClass('audio-input-form-group')) {
-                    tooltip = "Remove Audio";
-                } else if ($formGroup.hasClass('3d-model-input-form-group')) {
-                    tooltip = "Remove 3D Model";
-                }
+            $('#'+$fileUpload.attr('id')).fileupload({
+                dataType: 'json',
+                dropZone: $('#'+$fileUpload.attr('id')).parent(),
+                singleFileUploads: false,
+                done: function (e, data) {
+                    var $uploadInput = $(this);
+                    lastClickedFlid = $uploadInput.attr('flid');
+                    console.log(lastClickedFlid);
+                    inputName = 'file'+lastClickedFlid;
+                    capName = 'file_captions'+lastClickedFlid;
+                    fileDiv = ".filenames-"+lastClickedFlid+"-js";
 
-                $field.removeClass('error');
-                $field.siblings('.error-message').text('');
-                $.each(data.result[inputName], function (index, file) {
-                    if(file.error == "" || !file.hasOwnProperty('error')) {
-                        // Add caption only if input is a gallery
-                        var captionHtml = '';
-                        if ($formGroup.hasClass('gallery-input-form-group')) {
-                          captionHtml = '<textarea type="text" name="' + capName + '[]" class="caption autosize-js" placeholder="Enter caption here"></textarea>';
-                        }
-                        // File card html
-                        var fileCardHtml = '<div class="card file-card file-card-js">' +
-                            '<input type="hidden" name="' + inputName + '[]" value ="' + file.name + '">' +
-                            '<div class="header">' +
+                    var $field = $uploadInput.siblings('#'+lastClickedFlid);
+                    var $formGroup = $field.parent('.form-group');
+
+                    // Tooltip text
+                    var tooltip = "Remove Document";
+                    if ($formGroup.hasClass('gallery-input-form-group')) {
+                        tooltip = "Remove Image";
+                    } else if ($formGroup.hasClass('video-input-form-group')) {
+                        tooltip = "Remove Video";
+                    } else if ($formGroup.hasClass('audio-input-form-group')) {
+                        tooltip = "Remove Audio";
+                    } else if ($formGroup.hasClass('3d-model-input-form-group')) {
+                        tooltip = "Remove 3D Model";
+                    }
+
+                    $field.removeClass('error');
+                    $field.siblings('.error-message').text('');
+                    $.each(data.result[inputName], function (index, file) {
+                        if(file.error == "" || !file.hasOwnProperty('error')) {
+                            // Add caption only if input is a gallery
+                            var captionHtml = '';
+                            if ($formGroup.hasClass('gallery-input-form-group')) {
+                                captionHtml = '<textarea type="text" name="' + capName + '[]" class="caption autosize-js" placeholder="Enter caption here"></textarea>';
+                            }
+                            // File card html
+                            var fileCardHtml = '<div class="card file-card file-card-js">' +
+                                '<input type="hidden" name="' + inputName + '[]" value ="' + file.name + '">' +
+                                '<div class="header">' +
                                 '<div class="left">' +
-                                    '<div class="move-actions">' +
-                                        '<a class="action move-action-js up-js" href="">' +
-                                            '<i class="icon icon-arrow-up"></i>' +
-                                        '</a>' +
-                                        '<a class="action move-action-js down-js" href="">' +
-                                            '<i class="icon icon-arrow-down"></i>' +
-                                        '</a>' +
-                                    '</div>' +
-                                    '<span class="title">' + file.name + '</span>' +
+                                '<div class="move-actions">' +
+                                '<a class="action move-action-js up-js" href="">' +
+                                '<i class="icon icon-arrow-up"></i>' +
+                                '</a>' +
+                                '<a class="action move-action-js down-js" href="">' +
+                                '<i class="icon icon-arrow-down"></i>' +
+                                '</a>' +
+                                '</div>' +
+                                '<span class="title">' + file.name + '</span>' +
                                 '</div>' +
                                 '<div class="card-toggle-wrap">' +
-                                    '<a href="#" class="file-delete upload-filedelete-js ml-sm tooltip" tooltip="'+tooltip+'" data-url="' + file.deleteUrl + '">' +
-                                        '<i class="icon icon-trash danger"></i>' +
-                                    '</a>' +
+                                '<a href="#" class="file-delete upload-filedelete-js ml-sm tooltip" tooltip="'+tooltip+'" data-url="' + file.deleteUrl + '">' +
+                                '<i class="icon icon-trash danger"></i>' +
+                                '</a>' +
                                 '</div>' +
                                 captionHtml +
-                            '</div>' +
-                        '</div>';
+                                '</div>' +
+                                '</div>';
 
-                        // Add file card to list of cards
-                        $formGroup.find(fileDiv).append(fileCardHtml);
+                            // Add file card to list of cards
+                            $formGroup.find(fileDiv).append(fileCardHtml);
 
-                        // Change directions text
-                        $formGroup.find('.directions-empty-js').removeClass('active');
-                        $formGroup.find('.directions-not-empty-js').addClass('active');
+                            // Change directions text
+                            $formGroup.find('.directions-empty-js').removeClass('active');
+                            $formGroup.find('.directions-not-empty-js').addClass('active');
 
-                        // Reinitialize inputs
-                        Kora.Fields.TypedFieldInputs.Initialize();
-                        Kora.Inputs.Textarea();
+                            // Reinitialize inputs
+                            Kora.Fields.TypedFieldInputs.Initialize();
+                            Kora.Inputs.Textarea();
+                        } else {
+                            $field.addClass('error');
+                            $field.siblings('.error-message').text(file.error);
+                            return false;
+                        }
+                    });
+
+                    //Reset progress bar
+                    var progressBar = '.progress-bar-'+lastClickedFlid+'-js';
+                    $formGroup.find(progressBar).css(
+                        {"width": 0, "height": 0, "margin-top": 0}
+                    );
+                },
+                fail: function (e,data){
+                    var $uploadInput = $(this);
+                    var $errorMessage = $uploadInput.siblings('.error-message');
+
+                    var error = data.jqXHR['responseText'];
+                    lastClickedFlid = $uploadInput.attr('flid');
+
+                    var $field = $uploadInput.siblings('#'+lastClickedFlid);
+
+                    $field.removeClass('error');
+                    $field.siblings('.error-message').text('');
+                    if(error=='InvalidType'){
+                        $field.addClass('error');
+                        $errorMessage.text('Invalid file type provided');
+                    } else if(error=='TooManyFiles'){
+                        $field.addClass('error');
+                        $errorMessage.text('Max file limit was reached');
+                    } else if(error=='MaxSizeReached'){
+                        $field.addClass('error');
+                        $errorMessage.text('One or more uploaded files is bigger than limit');
                     } else {
                         $field.addClass('error');
-                        $field.siblings('.error-message').text(file.error);
-                        return false;
+                        $errorMessage.text('Error uploading file');
                     }
-                });
+                },
+                progressall: function (e, data) {
+                    var $uploadInput = $(this);
+                    var $formGroup = $uploadInput.parent();
+                    var progressBar = '.progress-bar-'+lastClickedFlid+'-js';
+                    var progress = parseInt(data.loaded / data.total * 100, 10);
 
-                //Reset progress bar
-                var progressBar = '.progress-bar-'+lastClickedFlid+'-js';
-                $formGroup.find(progressBar).css(
-                    {"width": 0, "height": 0, "margin-top": 0}
-                );
-            },
-            fail: function (e,data){
-                var $uploadInput = $(this);
-                var $errorMessage = $uploadInput.siblings('.error-message');
-
-                var error = data.jqXHR['responseText'];
-                lastClickedFlid = $uploadInput.attr('flid');
-
-                var $field = $uploadInput.siblings('#'+lastClickedFlid);
-
-                $field.removeClass('error');
-                $field.siblings('.error-message').text('');
-                if(error=='InvalidType'){
-                    $field.addClass('error');
-                    $errorMessage.text('Invalid file type provided');
-                } else if(error=='TooManyFiles'){
-                    $field.addClass('error');
-                    $errorMessage.text('Max file limit was reached');
-                } else if(error=='MaxSizeReached'){
-                    $field.addClass('error');
-                    $errorMessage.text('One or more uploaded files is bigger than limit');
-                } else {
-                    $field.addClass('error');
-                    $errorMessage.text('Error uploading file');
+                    $formGroup.find(progressBar).css(
+                        {"width": progress + '%', "height": '18px', "margin-top": '10px'}
+                    );
                 }
-            },
-            progressall: function (e, data) {
-                var $uploadInput = $(this);
-                var $formGroup = $uploadInput.parent();
-                var progressBar = '.progress-bar-'+lastClickedFlid+'-js';
-                var progress = parseInt(data.loaded / data.total * 100, 10);
-
-                $formGroup.find(progressBar).css(
-                    {"width": progress + '%', "height": '18px', "margin-top": '10px'}
-                );
-            }
+            });
         });
 
         $fileCardsContainer.on('click', '.upload-filedelete-js', function(e) {
