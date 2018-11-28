@@ -18,15 +18,24 @@
     margin: 0;
   }
 
-  ::-webkit-input-placeholder {
+  &::-webkit-input-placeholder {
     color: palette('gray', text);
     font-family: $ubuntu-italic;
+    font-style: italic;
     opacity: .6;
   }
 
-  :-ms-input-placeholder {
+  &::-moz-placholder {
     color: palette('gray', text);
     font-family: $ubuntu-italic;
+    font-style: italic;
+    opacity: .6;
+  }
+
+  &:-moz-placholder {
+    color: palette('gray', text);
+    font-family: $ubuntu-italic;
+    font-style: italic;
     opacity: .6;
   }
 
@@ -116,6 +125,7 @@
 
   // Specialty Field Inputs
   @import 'inputs/file';
+  @import 'inputs/geolocator';
   @import 'inputs/list';
 }
 
