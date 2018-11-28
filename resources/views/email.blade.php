@@ -151,7 +151,7 @@
         }
 
         .email > .content > .footer-text {
-            font-family: 'Ubuntu-Bold', sans-serif;
+            font-family: 'Ubuntu-Medium', sans-serif;
             font-size: 14px;
             line-height: 24px;
             margin-top: 40px;

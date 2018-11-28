@@ -13,22 +13,6 @@ Kora.OptionPresets.Create = function() {
         width: '100%',
     });
 
-    function initializeSelectAddition() {
-        $('.chosen-search-input').on('keyup', function(e) {
-            var container = $(this).parents('.chosen-container').first();
-
-            if (e.which === 13 && (container.find('li.no-results').length > 0 || container.find('li.active-result').length == 0)) {
-                var option = $("<option>").val(this.value.trim()).text(this.value.trim());
-
-                var select = container.siblings('.modify-select').first();
-
-                select.append(option);
-                select.find(option).prop('selected', true);
-                select.trigger("chosen:updated");
-            }
-        });
-    }
-
     function initializeOptionPresetSwitcher() {
         $('.preset-type-js').change(function() {
             var fieldType = $(this).val();
@@ -85,12 +69,15 @@ Kora.OptionPresets.Create = function() {
         function enableOptionInput(order) {
             var textInput = $('.open-text-js').find('.text-input').first();
             textInput.attr('disabled',order[0]);
-            var listInput = $('.open-list-js').find('.modify-select').first();
-            listInput.attr('disabled',order[1]);
-            listInput.trigger("chosen:updated");
+
+            $(".list-option-js").each(function() {
+                $(this).attr('disabled',order[1]);
+            });
+
             var scheduleInput = $('.open-schedule-js').find('.schedule-event-js').first();
             scheduleInput.attr('disabled',order[2]);
             scheduleInput.trigger("chosen:updated");
+
             var geoInput = $('.open-geolocator-js').find('.geolocator-location-js').first();
             geoInput.attr('disabled',order[3]);
             geoInput.trigger("chosen:updated");
@@ -401,11 +388,166 @@ Kora.OptionPresets.Create = function() {
         });
     }
 
-    initializeSelectAddition();
+    function initializeList() {
+        function setCardTitleWidth() {
+            var $cards = $('.list-option-card-js');
+
+            $cards.each(function() {
+                var $card = $(this);
+                var $value = $card.find('.title');
+
+                var maxValueWidth = $card.outerWidth() * .75;
+                $value.css('max-width', maxValueWidth);
+            })
+        }
+
+        // Function to add list options and the respective cards
+        function initializeListAddOption() {
+            var $addButton = $('.list-option-add-js');
+            var $newListOptionInput = $('.new-list-option-js');
+            var $cardContainer = $('.list-option-card-container-js');
+
+            $newListOptionInput.keypress(function(e) {
+                var keycode =  (e.keyCode ? e.keyCode : e.which);
+                if (keycode == '13') {
+                    e.preventDefault();
+
+                    // Enter key pressed, trigger 'add' button click
+                    $addButton.click();
+                }
+            });
+
+            // Add new list option card after 'add' button pressed
+            $addButton.click(function(e) {
+                e.preventDefault();
+
+                var newListOption = $newListOptionInput.val();
+
+                if(newListOption!='') {
+                    // Prevent duplicate entries
+
+                    // Create and display new card
+                    var newCardHtml = '<div class="card list-option-card list-option-card-js" data-list-value="' + newListOption + '">' +
+                        '<input type="hidden" class="list-option-js" name="preset[]" value="' + newListOption + '">' +
+                        '<div class="header">' +
+                        '<div class="left">' +
+                        '<div class="move-actions">' +
+                        '<a class="action move-action-js up-js" href="">' +
+                        '<i class="icon icon-arrow-up"></i>' +
+                        '</a>' +
+                        '<a class="action move-action-js down-js" href="">' +
+                        '<i class="icon icon-arrow-down"></i>' +
+                        '</a>' +
+                        '</div>' +
+                        '<span class="title">' + newListOption + '</span>' +
+                        '</div>' +
+                        '<div class="card-toggle-wrap">' +
+                        '<a class="list-option-delete list-option-delete-js" href=""><i class="icon icon-trash"></i></a>' +
+                        '</div>' +
+                        '</div>' +
+                        '</div>';
+
+                    $cardContainer.append(newCardHtml);
+
+                    // Initialize functionality for all the cards again
+                    $('.move-action-js').unbind();
+                    setCardTitleWidth();
+                    initializeListSort();
+                    initializeListOptionDelete();
+
+                    // Clear input after everything is finished
+                    $newListOptionInput.val("");
+                }
+            });
+        }
+
+        function initializeListSort() {
+            $('.move-action-js').click(function(e) {
+                e.preventDefault();
+
+                var $this = $(this);
+                var $headerInnerWrapper = $this.parent().parent();
+                var $header = $headerInnerWrapper.parent();
+                var $card = $header.parent();
+                // $form.prev().before(current);
+                if ($this.hasClass('up-js')) {
+                    var $previousForm = $card.prev();
+                    if ($previousForm.length == 0) {
+                        return;
+                    }
+
+                    $previousForm.css('z-index', 999)
+                        .css('position', 'relative')
+                        .animate({
+                            top: $card.height()
+                        }, 300);
+                    $card.css('z-index', 1000)
+                        .css('position', 'relative')
+                        .animate({
+                            top: '-' + $previousForm.height()
+                        }, 300, function() {
+                            $previousForm.css('z-index', '')
+                                .css('top', '')
+                                .css('position', '');
+                            $card.css('z-index', '')
+                                .css('top', '')
+                                .css('position', '')
+                                .insertBefore($previousForm);
+                        });
+                } else {
+                    var $nextForm = $card.next();
+                    if ($nextForm.length == 0) {
+                        return;
+                    }
+
+                    $nextForm.css('z-index', 999)
+                        .css('position', 'relative')
+                        .animate({
+                            top: '-' + $card.height()
+                        }, 300);
+                    $card.css('z-index', 1000)
+                        .css('position', 'relative')
+                        .animate({
+                            top: $nextForm.height()
+                        }, 300, function() {
+                            $nextForm.css('z-index', '')
+                                .css('top', '')
+                                .css('position', '');
+                            $card.css('z-index', '')
+                                .css('top', '')
+                                .css('position', '')
+                                .insertAfter($nextForm);
+                        });
+                }
+            });
+        }
+
+        function initializeListOptionDelete() {
+            var $listOptionCards = $('.list-option-card-js');
+
+            $listOptionCards.each(function() {
+                var $card = $(this);
+                var $deleteButton = $card.find('.list-option-delete-js');
+
+                $deleteButton.click(function(e) {
+                    e.preventDefault();
+
+                    $card.remove();
+                });
+            });
+        }
+
+        setCardTitleWidth();
+        initializeListAddOption();
+        initializeListSort();
+        initializeListOptionDelete();
+    }
+
     initializeOptionPresetSwitcher();
     initializeSpecialInputs();
     initializeScheduleOptions();
     intializeGeolocatorOptions();
+    initializeList();
     initializeDeletePresetModal();
     initializeValidation();
 }

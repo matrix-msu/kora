@@ -1,6 +1,7 @@
 .form-group {
   color: palette('gray', text);
   font-family: $ubuntu;
+  position: relative;
   text-align: left;
 
   label {
@@ -17,15 +18,24 @@
     margin: 0;
   }
 
-  ::-webkit-input-placeholder {
+  &::-webkit-input-placeholder {
     color: palette('gray', text);
     font-family: $ubuntu-italic;
+    font-style: italic;
     opacity: .6;
   }
 
-  :-ms-input-placeholder {
+  &::-moz-placholder {
     color: palette('gray', text);
     font-family: $ubuntu-italic;
+    font-style: italic;
+    opacity: .6;
+  }
+
+  &:-moz-placholder {
+    color: palette('gray', text);
+    font-family: $ubuntu-italic;
+    font-style: italic;
     opacity: .6;
   }
 
@@ -108,13 +118,15 @@
 
   @import 'inputs/buttons';
   @import 'inputs/check-boxes';
-  @import 'inputs/file';
+  @import 'inputs/profile';
+  @import 'inputs/number';
   @import 'inputs/selects';
   @import 'inputs/text';
 
-  &.specialty-field-group {
-    @import 'inputs/list';
-  }
+  // Specialty Field Inputs
+  @import 'inputs/file';
+  @import 'inputs/geolocator';
+  @import 'inputs/list';
 }
 
 @import 'inputs/new-object-button';

@@ -106,7 +106,10 @@ Kora.Auth.Register = function() {
             });
         }
       
-        form.submit(function(e) {
+        //form.submit(function(e) {
+		$('.validate-user-js').click(function (e) {
+            var $this = $(this);
+
             e.preventDefault();
 
             var $this = $(this);
@@ -117,7 +120,7 @@ Kora.Auth.Register = function() {
                     values[field.name] = field.value;
                 });
 
-                //console.log(values)
+                // console.log(values)
                 // for ( var pair of values.entries() ) {
                 //     console.log(pair[0] + ', ' + pair[1]);
                 //     //console.log(typeof pair[1]);
@@ -131,6 +134,7 @@ Kora.Auth.Register = function() {
 					method: 'POST',
 					data: values,
 					success: function(data) {
+                        // console.log(data)
 						$('.user-form').submit();
 					},
 					error: function(err) {

@@ -1,13 +1,16 @@
 {!! Form::hidden('advanced',true) !!}
-<div class="form-group mt-xxxl">
-    {!! Form::label('default','Default Value') !!}
-    <select multiple class="multi-select default-location-js" name="default[]"
-        data-placeholder="Add Locations Below"></select>
-</div>
+<div class="form-group geolocator-form-group geolocator-form-group-js mt-xxxl">
+  {!! Form::label('default','Default Locations') !!}
+  <div class="form-input-container">
+    <p class="directions">Add Default Locations below, and order them via drag & drop or their arrow icons.</p>
 
-<form class="new-object-button low-margin form-group">
-    <input type="button" class="add-new-default-location-js" value="Create New Default Location">
-</form>
+    <div class="geolocator-card-container geolocator-card-container-js"></div>
+
+    <section class="new-object-button">
+        <input class="add-new-default-location-js" type="button" value="Create New Default Location">
+    </section>
+  </div>
+</div>
 
 <div class="form-group mt-xl">
     {!! Form::label('map','Map Display') !!}

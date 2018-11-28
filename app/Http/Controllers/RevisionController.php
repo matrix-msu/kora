@@ -357,6 +357,7 @@ class RevisionController extends Controller {
             $field["data"] = $data;
             return $field;
         }
+        //TODO::modular?
         switch($type) {
             case 'Date':
                 $stringDate = '';
@@ -371,7 +372,6 @@ class RevisionController extends Controller {
                 $data = $stringNumber;
                 break;
             case 'Documents':
-            case 'Gallery':
             case 'Model':
             case 'Playlist':
             case 'Video':
@@ -379,6 +379,18 @@ class RevisionController extends Controller {
                 $stringFile = '';
                 foreach($data as $file) {
                     $stringFile .= '<div>'.explode('[Name]',$file)[1].'</div>';
+                }
+                $data = $stringFile;
+                break;
+            case 'Gallery':
+                $names = explode('[!]', $data['names']);
+                $captions = explode('[!]', $data['captions']);
+                $stringFile = '';
+                for($gi=0;$gi<count($names);$gi++) {
+                    $capString = '';
+                    if($captions[$gi] != '')
+                        $capString = ' - '.$captions[$gi];
+                    $stringFile .= '<div>'.explode('[Name]',$names[$gi])[1].$capString.'</div>';
                 }
                 $data = $stringFile;
                 break;

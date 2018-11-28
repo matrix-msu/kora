@@ -408,9 +408,15 @@ class UserController extends Controller {
     public function activateshow() {
         if(is_null(\Auth::user()))
             return redirect('register');
-        elseif (!\Auth::user()->active)
-            return view('auth.activate');
-        else
+        elseif (!\Auth::user()->active) {
+			$notification = array(
+				'message' => '',
+				'description' => '',
+				'warning' => false,
+				'static' => false
+			);
+			return view('auth.activate', compact('notification'));
+        } else
             return redirect('projects');
     }
 

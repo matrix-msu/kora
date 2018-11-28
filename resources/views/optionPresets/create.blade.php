@@ -10,6 +10,7 @@
 
 @section('leftNavLinks')
     @include('partials.menu.project', ['pid' => $project->pid])
+    @include('partials.menu.fieldValPresets')
 @stop
 
 @section('header')
@@ -55,11 +56,29 @@
             </section>
 
             <section class="open-list-js hidden">
-                <div class="form-group mt-xl">
-                    <label>List Options: </label>
+                <div class="form-group specialty-field-group list-input-form-group mt-xxxl">
+                    {!! Form::label('options','List Options') !!}
                     <span class="error-message">{{array_key_exists("preset", $errors->messages()) ? $errors->messages()["preset"][0] : ''}}</span>
-                    {!! Form::select('preset[]', [], null, ['class' => 'multi-select modify-select', 'multiple', 'disabled',
-                        'data-placeholder' => "Enter list value and press enter to submit"]) !!}
+
+                    <div class="form-input-container">
+                        <p class="directions">Add List Options below, and order them via drag & drop or their arrow icons.</p>
+
+                        <!-- Cards of list options -->
+                        <div class="list-option-card-container list-option-card-container-js"></div>
+
+                        <!-- Card to add list options -->
+                        <div class="card new-list-option-card new-list-option-card-js">
+                            <div class="header">
+                                <div class="left">
+                                    <input class="new-list-option new-list-option-js" type="text" placeholder='Type here and hit the enter key or "Add" to add new list options'>
+                                </div>
+
+                                <div class="card-toggle-wrap">
+                                    <a class="list-option-add list-option-add-js" href=""><span>Add</span></a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </section>
 
