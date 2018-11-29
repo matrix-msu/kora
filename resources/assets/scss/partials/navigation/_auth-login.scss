@@ -22,27 +22,31 @@
     }
 
     .language-select {
-	  top: 80px;
+	    top: 80px;
 
       li {
 	      margin: 5px 0;
 
-	    &:first-of-type {
-		  margin: 0 0 5px;
-	    }
+        &:first-of-type {
+          margin: 0 0 5px;
+        }
 
-		&:last-of-type {
-		  margin: 5px 0 0;
-		}
+        &:last-of-type {
+          margin: 5px 0 0;
+        }
 
-		a {
-		  margin: 0;
-		}
+        a {
+          margin: 0;
+        }
       }
 
-	  li:hover:last-of-type { /* temporary for 'More languages coming soon...' */
-		cursor: default;
-	  }
+      li:last-of-type { /* temporary for 'More languages coming soon...' */
+        opacity: 0.4;
+
+        &:hover {
+          cursor: default;
+        }
+      }
     }
   }
 
