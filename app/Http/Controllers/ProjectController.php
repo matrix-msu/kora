@@ -4,6 +4,7 @@ use App\User;
 use App\Project;
 use App\ProjectGroup;
 use App\Http\Requests\ProjectRequest;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Mail;
@@ -87,24 +88,23 @@ class ProjectController extends Controller {
         $prevUrlArray = $request->session()->get('_previous');
         $prevUrl = reset($prevUrlArray);
         // we do not need to see notification every time we reload the page
-        if ($prevUrl !== url()->current()) {
+        if($prevUrl !== url()->current()) {
           $session = $request->session()->get('k3_global_success');
-          if ($session) {
-            if ($session == 'project_deleted')
+          if($session) {
+            if($session == 'project_deleted')
               $notification['message'] = 'Project Successfully Deleted';
-            else if ($session == 'project_archived')
+            else if($session == 'project_archived')
               $notification['message'] = 'Project Successfully Archived!';
-            else if ($session == 'project_imported')
+            else if($session == 'project_imported')
               $notification['message'] = 'Project Successfully Imported!';
-		    else if ($session == "password_reset")
+		    else if($session == "password_reset")
 				$notification['message'] = 'Password Successfully Reset!';
           } else {
             $session = $request->session()->get('k3_global_error');
             $notification['warning'] = true;
             $notification['static'] = true;
-            if (strpos($session, 'cant') !== false || strpos($session, 'admin') !== false) {
+            if(strpos($session, 'cant') !== false || strpos($session, 'admin') !== false)
               $notification['message'] = 'Insufficient Permissions';
-            }
           }
         }
 
@@ -115,17 +115,14 @@ class ProjectController extends Controller {
      * Gets modal to request project permissions
      *
      * @param  Request $request
-     * @return String contents of view
+     * @return View
      */
-	public function getProjectPermissionsModal(Request $request)
-	{	
+	public function getProjectPermissionsModal(Request $request) {
 		$projectCollections = Project::all()->sortBy("name", SORT_NATURAL|SORT_FLAG_CASE);
 		$requestableProjects = array();
 		foreach($projectCollections as $project) {
 			if($project->active and !(\Auth::user()->inAProjectGroup($project)))
-			{
 				$requestableProjects[$project->pid] = $project->name. " (" . $project->slug.")";
-			}
 		}
 		
 		return view('partials.projects.projectRequestModalForm', ['requestableProjects' => $requestableProjects])->render();
@@ -196,7 +193,6 @@ class ProjectController extends Controller {
             return redirect('projects')->with('k3_global_error', 'not_admin');
 
         $currentUser = auth()->user();
-        //$users = User::pluck('username', 'id')->all();
         $users = User::where('id', '!=', $currentUser->id)->pluck('username', 'id')->all();
         $projectMode = "project_create";
 
@@ -266,24 +262,23 @@ class ProjectController extends Controller {
         $prevUrlArray = $request->session()->get('_previous');
         $prevUrl = reset($prevUrlArray);
         // we do not need to see notification every time we reload the page
-        if ($prevUrl !== url()->current()) {
+        if($prevUrl !== url()->current()) {
           $session = $request->session()->get('k3_global_success');
-          if ($session) {
-            if ($session == 'project_updated')
+          if($session) {
+            if($session == 'project_updated')
               $notification['message'] = 'Project Sucessfully Updated!';
-            else if ($session == 'project_created')
+            else if($session == 'project_created')
               $notification['message'] = 'Project Successfully Created!';
-            else if ($session == 'form_deleted')
+            else if($session == 'form_deleted')
               $notification['message'] = 'Form Successfully Deleted!';
-            else if ($session == 'form_imported')
+            else if($session == 'form_imported')
               $notification['message'] = 'Form Successfully Imported!';
           } else {
             $session = $request->session()->get('k3_global_error');
             $notification['warning'] = true;
             $notification['static'] = true;
-            if (strpos($session, 'cant') !== false || strpos($session, 'admin') !== false) {
+            if(strpos($session, 'cant') !== false || strpos($session, 'admin') !== false)
               $notification['message'] = 'Insufficient Permissions';
-            }
           }
         }
 
@@ -300,7 +295,6 @@ class ProjectController extends Controller {
         if(!self::validProj($id))
             return redirect('projects')->with('k3_global_error', 'project_invalid');
 
-        $user = \Auth::user();
         $project = self::getProject($id);
 
         if(!\Auth::user()->isProjectAdmin($project))
@@ -431,6 +425,7 @@ class ProjectController extends Controller {
      * Validates a project request.
      *
      * @param  ProjectRequest $request
+     * @return JsonResponse
      */
     public function validateProjectFields(ProjectRequest $request) {
         return response()->json(["status"=>true, "message"=>"Project Valid", 200]);

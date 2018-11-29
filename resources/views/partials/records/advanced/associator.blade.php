@@ -5,7 +5,7 @@
         $request = new \Illuminate\Http\Request();
         $request->replace(['keyword' => '']);
 
-        $results = $asc->assocSearch($field->pid,$field->fid,$field->flid,$request);
+        $results = $asc->assocSearch($field->flid,$request);
         $rids = array();
         foreach($results as $kid => $prevArray) {
             $preview = implode(" | ", $prevArray);
