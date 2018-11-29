@@ -362,7 +362,7 @@ class RestfulController extends Controller {
                             break;
                         case 'legacy_kid':
                             //do a kid search
-                            if (!isset($query->kids))
+                            if(!isset($query->kids))
                                 return response()->json(["status"=>false,"error"=>"You must provide KIDs in a Legacy KID search for form: " . $form->name],500);
                             $kids = $query->kids;
                             $rids = array();
@@ -856,7 +856,7 @@ class RestfulController extends Controller {
      *
      * @param  int $fid - Form ID
      * @param  array $rids - Record IDs to search for
-     * @param  int $count - Minimum occurances required for a filter to return
+     * @param  int $count - Minimum occurances required for a filter to return (Maybe reimplement later?)
      * @param  array $flids - Specifies the fields we need filters from
      * @return array - The array of filters
      */

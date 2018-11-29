@@ -1,4 +1,5 @@
-<div class="no-fields pt-m pb-xxl">
+@php $count = count($page['fields']); @endphp
+<div class="no-fields pt-m pb-xxl {{ $count == 0 ? null : 'hidden' }}">
   <div class="top pb-xxxl">
     <div class="line"></div>
     <i class="icon icon-field-EmptyState"></i>

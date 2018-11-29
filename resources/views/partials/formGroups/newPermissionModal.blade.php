@@ -91,7 +91,7 @@
             data-placeholder="Search and select users to be added to the permissions group    "
             multiple >
             @foreach($all_users as $user)
-              <option value="{{$user->id}}">{{$user->first_name}} {{$user->last_name}}</option>
+              <option value="{{$user->id}}">{{$user->first_name}} {{$user->last_name}} ({{$user->username}})</option>
             @endforeach
           </select>
         </div>

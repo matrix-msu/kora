@@ -507,7 +507,7 @@ class ImportController extends Controller {
                                     "record_validation_error" => [$request->kid => "$fieldSlug: trouble finding file $name"]], 500);
                         }
                         copy($currDir . '/' . $name, $newDir . '/' . $name);
-                        if (file_exists($currDir . '/thumbnail'))
+                        if(file_exists($currDir . '/thumbnail'))
                             copy($currDir . '/thumbnail/' . $name, $newDir . '/thumbnail/' . $name);
                         else {
                             $smallParts = explode('x', FieldController::getFieldOption(FieldController::getField($flid), 'ThumbSmall'));
@@ -515,7 +515,7 @@ class ImportController extends Controller {
                             $tImage->thumbnailImage($smallParts[0], $smallParts[1], true);
                             $tImage->writeImage($newDir . '/thumbnail/' . $name);
                         }
-                        if (file_exists($currDir . '/medium'))
+                        if(file_exists($currDir . '/medium'))
                             copy($currDir . '/medium/' . $name, $newDir . '/medium/' . $name);
                         else {
                             $largeParts = explode('x', FieldController::getFieldOption(FieldController::getField($flid), 'ThumbLarge'));
@@ -543,7 +543,7 @@ class ImportController extends Controller {
                                         "record_validation_error" => [$request->kid => "$fieldSlug: trouble finding file $name"]], 500);
                             }
                             copy($currDir . '/' . $name, $newDir . '/' . $name);
-                            if (file_exists($currDir . '/thumbnail'))
+                            if(file_exists($currDir . '/thumbnail'))
                                 copy($currDir . '/thumbnail/' . $name, $newDir . '/thumbnail/' . $name);
                             else {
                                 $smallParts = explode('x', FieldController::getFieldOption(FieldController::getField($flid), 'ThumbSmall'));
@@ -551,7 +551,7 @@ class ImportController extends Controller {
                                 $tImage->thumbnailImage($smallParts[0], $smallParts[1], true);
                                 $tImage->writeImage($newDir . '/thumbnail/' . $name);
                             }
-                            if (file_exists($currDir . '/medium'))
+                            if(file_exists($currDir . '/medium'))
                                 copy($currDir . '/medium/' . $name, $newDir . '/medium/' . $name);
                             else {
                                 $largeParts = explode('x', FieldController::getFieldOption(FieldController::getField($flid), 'ThumbLarge'));

@@ -37,12 +37,11 @@ function getDefaultTypes($type) {
 }
 
 /**
- * Returns a thing
+ * Returns array of links
  *
- * @return bool - is installed
+ * @return array - the links
  */
 function getDashboardBlockLink($block, $link_type) {
-    $options = json_decode($block->options, true);
     switch ($block->type) {
         case 'Project':
             return getDashboardProjectBlockLink($block, $link_type);
@@ -55,6 +54,11 @@ function getDashboardBlockLink($block, $link_type) {
     }
 }
 
+/**
+ * Returns array of links
+ *
+ * @return array - the links
+ */
 function getDashboardProjectBlockLink($block, $link_type) {
   $options = json_decode($block->options, true);
   switch ($link_type) {
@@ -105,6 +109,11 @@ function getDashboardProjectBlockLink($block, $link_type) {
   }
 }
 
+/**
+ * Returns array of links
+ *
+ * @return array - the links
+ */
 function getDashboardFormBlockLink($block, $link_type) {
   $options = json_decode($block->options, true);
   $form = \App\Http\Controllers\FormController::getForm($options['fid']);
@@ -157,6 +166,11 @@ function getDashboardFormBlockLink($block, $link_type) {
   }
 }
 
+/**
+ * Returns array of links
+ *
+ * @return array - the links
+ */
 function getDashboardRecordBlockLink($record) {
     return array(
         [

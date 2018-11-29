@@ -88,7 +88,7 @@ class MultiSelectListField extends BaseField {
         $reqDefs = $request->default;
         $default = $reqDefs[0];
         if(!is_null($default)) {
-            for ($i = 1; $i < sizeof($reqDefs); $i++) {
+            for($i = 1; $i < sizeof($reqDefs); $i++) {
                 $default .= '[!]' . $reqDefs[$i];
             }
         }
@@ -96,7 +96,7 @@ class MultiSelectListField extends BaseField {
         $reqOpts = $request->options;
         $options = $reqOpts[0];
         if(!is_null($options)) {
-            for ($i = 1; $i < sizeof($reqOpts); $i++) {
+            for($i = 1; $i < sizeof($reqOpts); $i++) {
                 $options .= '[!]' . $reqOpts[$i];
             }
         }

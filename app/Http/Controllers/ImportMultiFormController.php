@@ -470,7 +470,7 @@ class ImportMultiFormController extends Controller {
                                     "record_validation_error" => [$request->kid => "$fieldSlug: trouble finding file $name"]], 500);
                         }
                         copy($currDir . '/' . $name, $newDir . '/' . $name);
-                        if (file_exists($currDir . '/thumbnail'))
+                        if(file_exists($currDir . '/thumbnail'))
                             copy($currDir . '/thumbnail/' . $name, $newDir . '/thumbnail/' . $name);
                         else {
                             $smallParts = explode('x', FieldController::getFieldOption($field, 'ThumbSmall'));
@@ -478,7 +478,7 @@ class ImportMultiFormController extends Controller {
                             $tImage->thumbnailImage($smallParts[0], $smallParts[1], true);
                             $tImage->writeImage($newDir . '/thumbnail/' . $name);
                         }
-                        if (file_exists($currDir . '/medium'))
+                        if(file_exists($currDir . '/medium'))
                             copy($currDir . '/medium/' . $name, $newDir . '/medium/' . $name);
                         else {
                             $largeParts = explode('x', FieldController::getFieldOption($field, 'ThumbLarge'));
@@ -493,7 +493,7 @@ class ImportMultiFormController extends Controller {
                         if(empty($field->File))
                             return response()->json(["status"=>false,"message"=>"xml_validation_error",
                                 "record_validation_error"=>[$request->kid => "$fieldSlug format is incorrect for a File Type Field"]],500);
-                        foreach ($field->File as $file) {
+                        foreach($field->File as $file) {
                             $name = (string)$file->Name;
                             $caption = isset($file->Caption) ? (string)$file->Caption : '';
                             //move file from imp temp to tmp files
@@ -506,7 +506,7 @@ class ImportMultiFormController extends Controller {
                                         "record_validation_error" => [$request->kid => "$fieldSlug: trouble finding file $name"]], 500);
                             }
                             copy($currDir . '/' . $name, $newDir . '/' . $name);
-                            if (file_exists($currDir . '/thumbnail'))
+                            if(file_exists($currDir . '/thumbnail'))
                                 copy($currDir . '/thumbnail/' . $name, $newDir . '/thumbnail/' . $name);
                             else {
                                 $smallParts = explode('x', FieldController::getFieldOption($field, 'ThumbSmall'));
@@ -514,7 +514,7 @@ class ImportMultiFormController extends Controller {
                                 $tImage->thumbnailImage($smallParts[0], $smallParts[1], true);
                                 $tImage->writeImage($newDir . '/thumbnail/' . $name);
                             }
-                            if (file_exists($currDir . '/medium'))
+                            if(file_exists($currDir . '/medium'))
                                 copy($currDir . '/medium/' . $name, $newDir . '/medium/' . $name);
                             else {
                                 $largeParts = explode('x', FieldController::getFieldOption($field, 'ThumbLarge'));

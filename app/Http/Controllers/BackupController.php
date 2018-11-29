@@ -45,8 +45,8 @@ class BackupController extends Controller {
 
         //Custom middleware for handling root user checks
         $this->middleware(function ($request, $next) {
-            if (Auth::check())
-                if (Auth::user()->id != 1)
+            if(Auth::check())
+                if(Auth::user()->id != 1)
                     return redirect("/projects")->with('k3_global_error', 'not_admin')->send();
 
             return $next($request);
@@ -192,7 +192,7 @@ class BackupController extends Controller {
         //Get an instance of Flysystem disk, to use Amazon AWS, SFTP, or Dropbox, change this!
         $backup_fs = Storage::disk('local');
         $backup_disk = "local";
-        //
+
         $backup_fs->makeDirectory($backupFilepath);
 
         $this->saveDatabase($backup_disk, $backupFilepath, $request->backupData);
@@ -272,7 +272,7 @@ class BackupController extends Controller {
                     for($i = 0; $i < $loopSize; $i++) {
                         $subDir .= $subDirArr[$i];
                     }
-                    if (!file_exists($newfilepath . $subDir))
+                    if(!file_exists($newfilepath . $subDir))
                         mkdir($newfilepath . $subDir, 0775, true);
                     //copy file over
                     copy($filepath . $subPath, $newfilepath . $subPath);
@@ -377,7 +377,7 @@ class BackupController extends Controller {
      * Initiates the restore process and returns the restore view.
      *
      * @param  Request $request
-     * @return View - The
+     * @return View
      */
     public function startRestore(Request $request) {
         $this->validate($request,[
@@ -467,7 +467,7 @@ class BackupController extends Controller {
             $job->handle();
 
             $ac = new AdminController();
-            foreach ($ac->DATA_TABLES as $table) {
+            foreach($ac->DATA_TABLES as $table) {
                 $job = new RestoreTable($table["name"], $dir, $restore_id);
                 $job->handle();
             }
@@ -556,7 +556,7 @@ class BackupController extends Controller {
      * Locks all users to prevent them from logging in during the restore/backup process. That way data will not be
      *  manipulated during them.
      *
-     * @param  Collection $exemptions - A list of users excempt from the lockout
+     * @param  Collection $exemptions - A list of users exempt from the lockout
      */
     public function lockUsers(Collection $exemptions) {
         $users = User::all();
@@ -575,7 +575,7 @@ class BackupController extends Controller {
      *
      * @return string - Success or error message
      */
-    public function unlockUsers(){
+    public function unlockUsers() {
         try {
             $users = User::all();
             foreach($users as $user) {
@@ -631,7 +631,7 @@ class BackupController extends Controller {
                 if((Carbon::createFromFormat('Y#m#d G#i#s', ($user_support->updated_at))->diffInMinutes(Carbon::now()) < 2)) {
                     if($user_support->accessed>0)
                         DB::table('backup_support')->where('id', $user_support->id)->update(['accessed' => $user_support->accessed - 1, 'updated_at' => Carbon::now()]);
-                } else if ((Carbon::createFromFormat('Y#m#d G#i#s', ($user_support->hasRun))->diffInMinutes(Carbon::now()) > 30) && ($user_support->accessed % 10 == 0 && $user_support->accessed != 0)) {
+                } else if((Carbon::createFromFormat('Y#m#d G#i#s', ($user_support->hasRun))->diffInMinutes(Carbon::now()) > 30) && ($user_support->accessed % 10 == 0 && $user_support->accessed != 0)) {
                     DB::table('backup_support')->where('id', $user_support->id)->update(['hasRun' => Carbon::now(), 'accessed' => 0, 'updated_at' => Carbon::now()]);
                     $request->session()->flash('user_backup_support',true);
                 } else {
