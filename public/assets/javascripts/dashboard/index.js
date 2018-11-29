@@ -68,19 +68,23 @@ Kora.Dashboard.Index = function() {
 		let $card = event.target.parentElement.parentElement.parentElement.parentElement
 		$card = $('#' + $card.parentElement.id + ' #' + $card.id + '.card');
 
-		let $previousCard = $card.prev();
+        let $previousCard = $card.prev();
 		if ($previousCard.length == 0)
-			return
+            return
+
+        if ($previousCard.hasClass('line-container'))
+            $previousCard = $card.prev().prev();
 
 		$previousCard.css('z-index', 999)
 			.css('position', 'relative')
 			.animate({
 				top: $card.height()
 			}, 300);
-		$card.css('z-index', 1000)
+
+        $card.css('z-index', 1000)
 			.css('position', 'relative')
 			.animate({
-				top: '-' + $previousCard.height()
+				top: '-' + $card.height()
 			}, 300, function() {
 				$previousCard.css('z-index', '')
 					.css('top', '')
@@ -100,17 +104,21 @@ Kora.Dashboard.Index = function() {
 
 		let $nextCard = $card.next();
 		if ($nextCard.length == 0)
-			return
+            return
+
+        if ($nextCard.hasClass('line-container'))
+            $nextCard = $card.next().next();
 
 		$nextCard.css('z-index', 999)
 			.css('position', 'relative')
 			.animate({
 				top: '-' + $card.height()
 			}, 300);
-		$card.css('z-index', 1000)
+
+        $card.css('z-index', 1000)
 			.css('position', 'relative')
 			.animate({
-				top: $nextCard.height()
+				top: $card.height()
 			}, 300, function() {
 				$nextCard.css('z-index', '')
 					.css('top', '')
@@ -198,7 +206,6 @@ Kora.Dashboard.Index = function() {
 
             let cardContainer = document.getElementById('card-container')
 
-			//let cards = document.getElementById('card-container-top')
             let $linkOpts = $(this).parent().parent().parent().siblings('.element-link-container').children('.element-link:not(.right)');
             $.each($linkOpts, function (i) {
 				let clone = document.importNode(template.content, true)
@@ -209,7 +216,6 @@ Kora.Dashboard.Index = function() {
 				clone.querySelector('.up-js').addEventListener('click', moveUp)
 				clone.querySelector('.down-js').addEventListener('click', moveDown)
 
-                //cards.appendChild(clone)
                 cardContainer.appendChild(clone)
             });
 
@@ -384,6 +390,7 @@ Kora.Dashboard.Index = function() {
                 $('.sections .section-js.hidden').find('.edit-section-title-js').attr('placeholder', section.sec_title);
                 $('.sections .section-js.hidden').find('.delete-section-js').attr('data-id', section.sec_id);
                 $('.sections .section-js.hidden').attr('id', section.sec_id);
+                $('.sections .section-js.hidden').addClass('no-children');
                 $('.sections .section-js.hidden').removeClass('hidden');
 
                 $('.add-section-input-js').val('');
