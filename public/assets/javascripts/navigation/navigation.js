@@ -83,21 +83,24 @@ $navBar.on('click', '.side-menu-toggle-js', function(e) {
     $icon.addClass('active');
 
     setCookie('sidebar', 1);
+
     $('.toolbar').addClass('with-aside');
     $('.center, .floating-buttons').addClass('with-aside');
     $('.field.card').addClass('with-aside');
     $('.allowed-actions').addClass('with-aside');
     $('.notification').addClass('with-aside');
-	$('.dashboard .grid').addClass('with-aside');
+    $('.dashboard .section-js').addClass('with-aside');
+    $('.done-editing-dash-js').addClass('pre-fixed-with-aside');
     if (getBrowserWidth() > 870)
       $('.pre-fixed-js').addClass('pre-fixed-with-aside');
   } else {
     $('.toolbar').removeClass('with-aside');
     $('.center, .floating-buttons').removeClass('with-aside');
     $('.field.card').removeClass('with-aside');
-	$('.allowed-actions').removeClass('with-aside');
+	  $('.allowed-actions').removeClass('with-aside');
     $('.notification').removeClass('with-aside');
-	$('.dashboard .grid').removeClass('with-aside');
+	  $('.dashboard .section-js').removeClass('with-aside');
+    $('.done-editing-dash-js').removeClass('pre-fixed-with-aside');
     if (getBrowserWidth() > 870)
       $('.pre-fixed-js').removeClass('pre-fixed-with-aside');
 
