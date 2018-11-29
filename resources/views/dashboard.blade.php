@@ -296,7 +296,6 @@
 				<span class="left title"><input class="add-section-input-js" type="text" name="sectionTitle" value="" placeholder="Type Here and Hit Enter to Add a New Section"></span>
 				<div class="line-container"><span class="line"></span></div>
 			</h1>
-			<div class="container"></div>
 		</section>
 	</div>
 
