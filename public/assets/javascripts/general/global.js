@@ -115,6 +115,7 @@ $(document).ready(function() {
     $('.side-menu-js').addClass('active');
     $(".center, .floating-buttons").addClass('with-aside');
     $('.field.card').addClass('with-aside');
+    $('.sections .section-js').addClass('with-aside');
 
   	var welcome_notification = $('.welcome-body').find(".notification");
   	if (welcome_notification.length == 0) {
