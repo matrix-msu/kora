@@ -610,12 +610,18 @@ Kora.Dashboard.Index = function() {
 
             if(proj)
                 $('.project-block-fields-js').removeClass('hidden');
-            if(form)
+            else if (form)
                 $('.form-block-fields-js').removeClass('hidden');
-            if(rec)
+            else if (rec)
                 $('.record-block-fields-js').removeClass('hidden');
-            if(note)
+            else if (note)
                 $('.note-block-fields-js').removeClass('hidden');
+            else {
+                $('.project-block-fields-js').addClass('hidden');
+                $('.form-block-fields-js').addClass('hidden');
+                $('.record-block-fields-js').addClass('hidden');
+                $('.note-block-fields-js').addClass('hidden');
+            }
         }
 
         $('.block-type-selected-js').change(function(e) {
@@ -629,6 +635,8 @@ Kora.Dashboard.Index = function() {
                 setAddBlockVisibility(0,0,1,0);
             else if(typeVal == 'Note')
                 setAddBlockVisibility(0,0,0,1);
+            else
+                setAddBlockVisibility(0,0,0,0)
 
             $('.section-to-add-js').prop('disabled', false).trigger("chosen:updated");
             $('.add-block-section-js .chosen-default span').text('Select a section to add to');
