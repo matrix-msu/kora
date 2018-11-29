@@ -500,7 +500,7 @@ class DocumentsField extends FileTypeField {
     public function formatBytes($bytes) {
         $units = ['b', 'kb', 'mb', 'gb', 'tb'];
 
-        for ($i = 0; $bytes > 1024; $i++) {
+        for($i = 0; $bytes > 1024; $i++) {
             $bytes /= 1024;
         }
 

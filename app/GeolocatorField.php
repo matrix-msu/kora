@@ -745,7 +745,7 @@ SQL;
             $con = app('geocoder');
             try {
                 $res = $con->reverse($lat, $lon)->get()->first();
-                if ($res !== null) {
+                if($res !== null) {
                     $addr = $res->getDisplayName();
                 } else {
                     $addr = 'Address Not Found';
