@@ -108,10 +108,9 @@ Kora.Auth.Register = function() {
       
         //form.submit(function(e) {
 		$('.validate-user-js').click(function (e) {
-            var $this = $(this);
-
             e.preventDefault();
 
+            display_loader()
             var $this = $(this);
 
             if (!droppedPicFile) {
@@ -138,6 +137,7 @@ Kora.Auth.Register = function() {
 						$('.user-form').submit();
 					},
 					error: function(err) {
+                        hide_loader()
 						console.log(err);
 						console.log(err.message);
 						$('.error-message').text('');
