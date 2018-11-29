@@ -370,7 +370,7 @@ $( document ).ajaxSend(function(event, xhr, options) {
   var display = true;
 
   // loader exclusion cases for AJAX requests
-  if (url.search("validate") != -1) // exclude validation requests
+  if (url.search("validate") != -1 && !window.location.href.includes('invitedactivate')) // exclude validation requests // also excluding signup from email invite account activation
   {
 	display = false;
   }
@@ -381,12 +381,12 @@ $( document ).ajaxSend(function(event, xhr, options) {
 $( document ).ajaxComplete(function(event, xhr, options) {
   var url = options.url;
   var hide = true;
-  
+
   // hide loader exclusion cases for AJAX requests
-  if (url.search("validate") != -1) { // exclude validation requests
+  if (url.search("validate") != -1 && !window.location.href.includes('invitedactivate')) { // exclude validation requests
 	hide = false;
   }
-  
+
   if (hide) {
     hide_loader();
   }

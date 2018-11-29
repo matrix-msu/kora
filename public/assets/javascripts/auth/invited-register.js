@@ -204,13 +204,9 @@ Kora.Auth.Register = function() {
                 url: validationUrl,
                 method: 'POST',
                 data: values,
-                success: function (resp) {
-                    console.log(resp)
-                    console.warn('success! No errors found')
-                },
                 error: function(err) {
-                    console.log(err)
-                    console.log(err.responseJSON.errors[field])
+                    // console.log(err)
+                    // console.log(err.responseJSON.errors[field])
                     if (err.responseJSON.errors[field] !== undefined) {
                         $('#'+field).addClass('error');
                         $('#'+field).siblings('.error-message').text(err.responseJSON.errors[field][0]);
