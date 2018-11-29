@@ -136,6 +136,10 @@
             margin: 0 0 0 15px;
         }
 
+        .email > .content > .post-action-text > a {
+            font-family: 'Ubuntu-medium', sans-serif;
+        }
+
         .email > .content > .line {
             border: 2px solid rgba(21,39,48,0.05);
             box-sizing: border-box;
