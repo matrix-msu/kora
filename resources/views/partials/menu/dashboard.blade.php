@@ -13,7 +13,7 @@
               </a>
           </li>
           <li class="spacer full"></li>
-          <li class="link">
+          <li class="link first">
               <a href="#">Edit Dashboard</a>
           </li>
           <li class="link">
