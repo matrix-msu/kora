@@ -346,7 +346,7 @@ Kora.Dashboard.Index = function() {
                     });
             } else {
                 var $nextSection = $section.next();
-                if ($nextSection.length == 0)
+                if ($nextSection.length == 0 || $nextSection.hasClass('add-section'))
                     return
 
                 $nextSection.css('z-index', 999)
