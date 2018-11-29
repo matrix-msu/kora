@@ -261,7 +261,7 @@ Kora.Dashboard.Index = function() {
             $('.sections').sortable({
                 disabled: false
             });
-            $('.section-js .container').sortable({
+            $('#sections .section-js .container').sortable({
                 disabled: false
             });
             window.localStorage.setItem('edit-mode', true)
@@ -283,7 +283,7 @@ Kora.Dashboard.Index = function() {
             $('.sections').sortable({
                 disabled: true
             });
-            $('.section-js .container').sortable({
+            $('#sections .section-js .container').sortable({
                 disabled: true
             });
             window.localStorage.clear()
@@ -316,7 +316,8 @@ Kora.Dashboard.Index = function() {
             update: function(event, ui) {
                 reorderSections()
             },
-            disabled: true
+            disabled: true,
+            cancel: '.add-section'
         });
 
         $('.move-action-js').click(function(e) {
@@ -391,6 +392,29 @@ Kora.Dashboard.Index = function() {
                 $('.sections .section-js.hidden').find('.delete-section-js').attr('data-id', section.sec_id);
                 $('.sections .section-js.hidden').attr('id', section.sec_id);
                 $('.sections .section-js.hidden').addClass('no-children');
+
+                $(".sections").sortable({
+                    helper: 'clone',
+                    revert: true,
+                    containment: ".dashboard",
+                    update: function(event, ui) {
+                        reorderSections()
+                    },
+                    disabled: false,
+                    cancel: '.add-section'
+                });
+
+                $("#sections .section-js .container").sortable({
+                    helper: 'clone',
+                    containment: ".dashboard",
+                    connectWith: '.container',
+                    items: '.element',
+                    update: function(event, ui) {
+                        reorderBlocks()
+                    },
+                    disabled: false
+                });
+
                 $('.sections .section-js.hidden').removeClass('hidden');
 
                 $('.add-section-input-js').val('');
@@ -527,10 +551,8 @@ Kora.Dashboard.Index = function() {
     }
 
     function initializeEditBlocks() {
-        $(".section-js .container").sortable({
+        $("#sections .section-js .container").sortable({
             helper: 'clone',
-            //revert: true,
-
             containment: ".dashboard",
             connectWith: '.container',
             items: '.element',
