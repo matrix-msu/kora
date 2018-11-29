@@ -2,12 +2,8 @@
 
 use App\AssociatorField;
 use App\ComboListField;
-use App\DateField;
-use App\ListField;
-use App\NumberField;
 use App\Record;
 use App\Search;
-use App\TextField;
 use Illuminate\Http\Request;
 
 class AssociatorSearchController extends Controller {
@@ -33,13 +29,11 @@ class AssociatorSearchController extends Controller {
     /**
      * Handles the request for an association search.
      *
-     * @param  int $pid - Project ID
-     * @param  int $fid - Form ID
      * @param  int $flid - Field ID
      * @param  Request $request
      * @return array - The results from the search
      */
-    public function assocSearch($pid, $fid, $flid, Request $request) {
+    public function assocSearch($flid, Request $request) {
         $field = FieldController::getField($flid);
         $keyword = $request->keyword;
 
@@ -114,8 +108,6 @@ class AssociatorSearchController extends Controller {
      * @return array - RID results from the search
      */
     private function search($pid, $fid, $arg, $method=Search::SEARCH_OR) {
-        $rids = [];
-
         // Inform the user about arguments that will be ignored.
         if($arg!="") {
             $search = new Search($pid, $fid, $arg, $method);

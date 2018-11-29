@@ -85,6 +85,15 @@ class ExportController extends Controller {
         }
     }
 
+    /**
+     * Export a subset of records.
+     *
+     * @param  int $pid - Project ID
+     * @param  int $fid - Form ID
+     * @param  string $type - Type of export format
+     * @param  Request $request
+     * @return Redirect
+     */
     public function exportSelectedRecords($pid, $fid, $type, Request $request) {
       if(!FormController::validProjForm($pid,$fid))
         return redirect('projects/'.$pid.'/forms/'.$fid.'/records');
@@ -96,14 +105,6 @@ class ExportController extends Controller {
 
       $rids = $request->rid;
       $rids = array_map('intval', explode(',', $rids));
-      //dd($rids); // array of strings which is no good for exportWithRids()
-
-      //foreach($rid as $rid) {
-        //$records[] = DB::table("records")->where("fid", "=", $fid)->where('rid', '=', $rid)->get(); 
-        // seems to work, I get an array of three StdObjects(?), all contain an array of the record information
-        // not sure I need to do this, only doing it because that is what the above function does
-        // but the above function does this just to get all RIDs from a form, whereas I pass in the requested RIDs directly
-      //}
 
       $options = ["revAssoc" => true, "meta" => false, "fields" => 'ALL', "data" => true, "realnames" => false, "assoc" => false];
       $output = $this->exportWithRids($rids, $type, false, $options);
@@ -171,7 +172,7 @@ class ExportController extends Controller {
                     return response()->json(["status"=>false,"message"=>"zip_too_big"],500);
 
                 // Skip directories (they would be added automatically)
-                if (!$file->isDir()) {
+                if(!$file->isDir()) {
                     // Get real and relative path for current file
                     $filePath = $file->getRealPath();
                     $relativePath = substr($filePath, strlen($path) + 1);
@@ -226,19 +227,19 @@ class ExportController extends Controller {
             $zip = new \ZipArchive();
             $zip->open($zipPath . $subPath, \ZipArchive::CREATE);
 
-            if (file_exists($path)) {
+            if(file_exists($path)) {
                 //add files
                 $files = new \RecursiveIteratorIterator(
                     new \RecursiveDirectoryIterator($path),
                     \RecursiveIteratorIterator::LEAVES_ONLY
                 );
 
-                foreach ($files as $name => $file) {
+                foreach($files as $name => $file) {
                     if($fileSizeCount > 5)
                         return redirect('projects/' . $pid . '/forms/' . $fid)->with('k3_global_error', 'zip_too_big');
 
                     // Skip directories (they would be added automatically)
-                    if (!$file->isDir()) {
+                    if(!$file->isDir()) {
                         // Get real and relative path for current file
                         $filePath = $file->getRealPath();
                         $relativePath = substr($filePath, strlen($path) + 1);
@@ -415,7 +416,7 @@ class ExportController extends Controller {
     public function exportWithRids($rids, $format = self::JSON, $dataOnly = false, $options = null) {
         $format = strtoupper($format);
 
-        if(! self::isValidFormat($format))
+        if(!self::isValidFormat($format))
             return null;
 
         $chunks = array_chunk($rids, 500);
