@@ -101,7 +101,7 @@ function getDashboardProjectBlockLink($block, $link_type) {
       case 'presets':
           return [
             'tooltip' => 'Field Value Presets',
-            'icon-class' => 'icon-preset-little',
+            'icon-class' => 'icon-preset-Little',
             'href' => action('OptionPresetController@index', ['pid'=>$options['pid']]),
 			'type' => 'presets'
           ];
@@ -183,7 +183,7 @@ function getDashboardFormBlockLink($block, $link_type) {
       case 'revisions':
           return [
             'tooltip' => 'Manage Record Revisions',
-            'icon-class' => 'icon-preset-little',
+            'icon-class' => 'icon-preset-Little',
             'href' => action('RevisionController@index', ['pid'=>$form->pid, 'fid'=>$form->fid]),
 			'type' => 'revisions'
           ];
