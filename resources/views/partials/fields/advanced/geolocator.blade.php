@@ -4,7 +4,7 @@
   <div class="form-input-container">
     <p class="directions">Add Default Locations below, and order them via drag & drop or their arrow icons.</p>
 
-    <div class="geolocator-card-container geolocator-card-container-js"></div>
+    <div class="geolocator-card-container geolocator-card-container-js mb-xxl"></div>
 
     <section class="new-object-button">
         <input class="add-new-default-location-js" type="button" value="Create New Default Location">
