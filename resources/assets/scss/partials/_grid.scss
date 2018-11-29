@@ -37,11 +37,15 @@
     display: flex;
     flex-direction: row;
     flex-flow: row wrap;
-    min-height: 10px;
+    min-height: 50px;
   }
 
   .container:hover .element:hover {
     box-shadow: 0 6px 12px 0 palette('box-shadow', base, .06);
+  }
+
+  &.no-children {
+    margin-top: 20px;
   }
 
   @import 'grid/element';

@@ -509,6 +509,11 @@ Kora.Dashboard.Index = function() {
             $('.section-js.no-section').addClass('mt-xxxl');
         else
             $('.section-js.no-section').removeClass('mt-xxxl');
+
+        if ($('.sections .section-js:not(.add-section, .no-section) .container').children().length == 0)
+            $('.sections .section-js:not(.add-section, .no-section)').addClass('no-children');
+        else
+            $('.sections .section-js:not(.add-section, .no-section)').removeClass('no-children');
     }
 
     function initializeEditBlocks() {
@@ -735,6 +740,11 @@ Kora.Dashboard.Index = function() {
             $('.section-js.no-section').addClass('mt-xxxl');
         else
             $('.section-js.no-section').removeClass('mt-xxxl');
+
+        if ($('.sections .section-js:not(.add-section, .no-section) .container').children().length == 0)
+            $('.sections .section-js:not(.add-section, .no-section)').addClass('no-children');
+        else
+            $('.sections .section-js:not(.add-section, .no-section)').removeClass('no-children');
     });
 
     initializeSelects();
