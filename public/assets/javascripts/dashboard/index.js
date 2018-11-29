@@ -517,10 +517,13 @@ Kora.Dashboard.Index = function() {
         else
             $('.section-js.no-section').removeClass('mt-xxxl');
 
-        if ($('.sections .section-js:not(.add-section, .no-section) .container').children().length == 0)
-            $('.sections .section-js:not(.add-section, .no-section)').addClass('no-children');
-        else
-            $('.sections .section-js:not(.add-section, .no-section)').removeClass('no-children');
+        $.each($('.sections .section-js:not(.add-section, .no-section)'), function () {
+            if ($(this).children('.container').children().length > 0) {
+                $(this).removeClass('no-children');
+            } else {
+                $(this).addClass('no-children');
+            }
+        });
     }
 
     function initializeEditBlocks() {
@@ -748,10 +751,13 @@ Kora.Dashboard.Index = function() {
         else
             $('.section-js.no-section').removeClass('mt-xxxl');
 
-        if ($('.sections .section-js:not(.add-section, .no-section) .container').children().length == 0)
-            $('.sections .section-js:not(.add-section, .no-section)').addClass('no-children');
-        else
-            $('.sections .section-js:not(.add-section, .no-section)').removeClass('no-children');
+        $.each($('.sections .section-js:not(.add-section, .no-section)'), function () {
+            if ($(this).children('.container').children().length > 0) {
+                $(this).removeClass('no-children');
+            } else {
+                $(this).addClass('no-children');
+            }
+        });
     });
 
     initializeSelects();
