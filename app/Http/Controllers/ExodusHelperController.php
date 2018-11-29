@@ -529,7 +529,8 @@ class ExodusHelperController extends Controller {
                                 'rid' => $recModel->rid,
                                 'fid' => $recModel->fid,
                                 'flid' => $field->flid,
-                                'rawtext' => $value
+                                'rawtext' => $value,
+                                'searchable_rawtext' => strip_tags($value)
                             ];
                             array_push($richtextfields,$rich);
 
