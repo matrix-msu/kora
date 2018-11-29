@@ -101,7 +101,7 @@
     <div class="form-record-management">
       <p class="title">Test Record Management</p>
       <div class="button-container">
-        <a href="#" class="btn half-sub-btn create-test-js">Create Test Record</a>
+        <a href="#" class="btn half-sub-btn create-test-js">Create Test Record(s)</a>
           @if($form->records()->where('isTest','=',1)->count()==0)
             <a href="#" class="btn half-sub-btn warning delete-test-js disabled">Delete All Test Records?</a>
           @else
