@@ -73,7 +73,7 @@
 
 	  @if ($project->forms()->count() == 0)
 		<span class="form">
-		  <a class="form-link inactive">This project does not have any forms.</a>
+		  <a class="form-link inactive">This project does not have any forms</a>
 		</span>
 	  @endif
     </div>

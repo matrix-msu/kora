@@ -19,9 +19,10 @@
 
 .forms {
   margin-bottom: 20px;
-  .attribute {
+
+  /* .attribute {
     padding-right: 14px;
-  }
+  } */
 
   .form {
     color: palette('green', accent);
@@ -32,5 +33,10 @@
     display: inline-block;
     margin: 0 14px 0 0;
     padding: 0 0 #{ $underline-padding };
+
+    &.inactive {
+      color: palette('gray', base);
+      font-family: $ubuntu;
+    }
   }
 }
