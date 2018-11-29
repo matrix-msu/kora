@@ -99,7 +99,7 @@ class RichTextField extends BaseField {
      * @param  Request $request
      */
     public function createNewRecordField($field, $record, $value, $request){
-        if (!empty($value) && !is_null($value)) {
+        if(!empty($value) && !is_null($value)) {
             $this->flid = $field->flid;
             $this->rid = $record->rid;
             $this->fid = $field->fid;
@@ -115,10 +115,10 @@ class RichTextField extends BaseField {
      * @param  Request $request
      */
     public function editRecordField($value, $request) {
-        if(!is_null($this) && !is_null($value)){
+        if(!is_null($this) && !is_null($value)) {
             $this->rawtext = $value;
             $this->save();
-        }elseif(!is_null($this) && is_null($value)){
+        } else if(!is_null($this) && is_null($value)) {
             $this->delete();
         }
     }
@@ -193,7 +193,7 @@ class RichTextField extends BaseField {
      * @param  Field $field - The field to represent record data
      * @param  Record $record - Test record being created
      */
-    public function createTestRecordField($field, $record){
+    public function createTestRecordField($field, $record) {
         $this->flid = $field->flid;
         $this->rid = $record->rid;
         $this->fid = $field->fid;
@@ -252,12 +252,10 @@ class RichTextField extends BaseField {
      * @return array - The updated $data
      */
     public function getRecordPresetArray($data, $exists=true) {
-        if ($exists) {
+        if($exists)
             $data['rawtext'] = $this->rawtext;
-        }
-        else {
+        else
             $data['rawtext'] = null;
-        }
 
         return $data;
     }

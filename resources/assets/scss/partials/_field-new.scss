@@ -17,6 +17,7 @@
     max-width: calc(#{ $max-site-width } - 600px);
     width: $max-site-width;
 
+	/*
     .form-group {
       padding-left: 45px;
       padding-right: 45px;
@@ -31,6 +32,7 @@
         }
       }
     }
+	*/
 
     .field-meme-link {
       color: palette('green', accent);

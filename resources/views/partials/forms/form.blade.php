@@ -25,13 +25,13 @@
 @if($submitButtonText == 'Create Form')
   <div class="form-group mt-xl">
     {!! Form::label('admins', 'Select Additional Form Admins') !!}
-    {!! Form::select('admins[]', $users, null, [
+    {!! Form::select('admins[]', $userNames, null, [
       'class' => 'multi-select',
       'multiple',
       'data-placeholder' => "Search and select the form admins",
       'id' => 'admins'
     ]) !!}
-    <p class="sub-text  mt-xxs">
+    <p class="sub-text mt-xs">
       Project admins are automatically assigned as admins to this new form, but you may select additional form admins above.  As the creator of this form, you are automatically added as a form admin as well.
     </p>
   </div>
@@ -101,7 +101,7 @@
     <div class="form-record-management">
       <p class="title">Test Record Management</p>
       <div class="button-container">
-        <a href="#" class="btn half-sub-btn create-test-js">Create Test Record</a>
+        <a href="#" class="btn half-sub-btn create-test-js">Create Test Record(s)</a>
           @if($form->records()->where('isTest','=',1)->count()==0)
             <a href="#" class="btn half-sub-btn warning delete-test-js disabled">Delete All Test Records?</a>
           @else

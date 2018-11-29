@@ -44,26 +44,28 @@ class FormController extends Controller {
             return redirect('projects/'.$pid.'/forms')->with('k3_global_error', 'cant_create_form');
 
         $project = ProjectController::getProject($pid);
-        $users = User::pluck('username', 'id')->all();
+		$users = User::all();
         $currProjectAdmins = $project->adminGroup()->first()->users()->get();
         $admins = User::where("admin","=",1)->get();
-        foreach($admins as $admin) {
-            if(array_key_exists($admin->id,$users)) {
-                unset($users[$admin->id]);
-            }
-        }
-        foreach($currProjectAdmins as $pAdmin) {
-            if(array_key_exists($pAdmin->id,$users)) {
-                unset($users[$pAdmin->id]);
-            }
-        }
 
+		$userNames = array();
+		foreach ($users as $user) {
+			if (!$currProjectAdmins->contains($user) && !$admins->contains($user)) {
+				$firstName = $user->first_name;
+				$lastName = $user->last_name;
+				$userName = $user->username;
+
+				$pushThis = $firstName.' '.$lastName.' ('.$userName.')';
+				array_push($userNames, $pushThis);
+			}
+		}
+		natcasesort($userNames);
 
         $presets = array();
         foreach(Form::where('preset', '=', 1, 'and', 'pid', '=', $pid)->get() as $form)
             $presets[$form->fid] = $form->project->name.' - '.$form->name;
 
-        return view('forms.create', compact('project', 'users', 'presets')); //pass in
+        return view('forms.create', compact('project', 'userNames', 'presets')); //pass in
 	}
 
     /**
