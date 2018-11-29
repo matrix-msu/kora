@@ -616,7 +616,6 @@ Kora.Fields.Options = function(fieldType) {
                         '</div>';
 
                     $geoCardContainer.append(newCardHtml);
-                    $geoCardContainer.addClass('mb-xxl');
 
                     initializeMoveAction($geoCardContainer.find('.geolocator-card-js'));
                     initializeDelete();
@@ -640,7 +639,6 @@ Kora.Fields.Options = function(fieldType) {
                     $card.remove();
 
                     if ($geoCardContainer.children().length == 0) {
-                        $geoCardContainer.removeClass('mb-xxl');
                     }
                 })
             });

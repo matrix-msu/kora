@@ -70,11 +70,11 @@ class ProjectGroupController extends Controller {
             return redirect('projects/'.$pid.'/manage/projectgroups')->with('k3_global_error', 'group_name_missing');
 		
 		// send invite emails & create new users
-	    if (is_string($request->emails) && $request->emails !== '') {
+	    if(is_string($request->emails) && $request->emails !== '') {
 		  $request->return_user_ids = true;
 		  $user_ids = (new AdminController())->batch($request); // this action creates the new users in db and sends invite emails
 		  
-		  if (is_array($request->users))
+		  if(is_array($request->users))
 		    $request->users = array_merge($request->users, $user_ids);
 		  else
 		    $request->users = $user_ids;
@@ -108,7 +108,7 @@ class ProjectGroupController extends Controller {
                 if($newUser) {
                     //add to all forms
                     $forms = Form::where('pid', '=', $group->pid)->get();
-                    foreach ($forms as $form) {
+                    foreach($forms as $form) {
                         $defGroup = FormGroup::where('name', '=', $form->name . ' Default Group')->get()->first();
                         $FGC = new FormGroupController();
                         $request->formGroup = $defGroup->id;
@@ -140,7 +140,7 @@ class ProjectGroupController extends Controller {
     public function removeUser(Request $request) {
         $instance = ProjectGroup::where('id', '=', $request->projectGroup)->first();
 
-        if ($request->pid == $instance->id)
+        if($request->pid == $instance->id)
             self::wipeAdminRights($request);
 
         $forms = Form::where('pid', '=', $instance->pid)->get();
@@ -177,7 +177,7 @@ class ProjectGroupController extends Controller {
 		$instance = ProjectGroup::where('id', '=', $request->projectGroup)->first();
 
 		$new_users = array();
-		foreach ($request->userIDs as $userID) {
+		foreach($request->userIDs as $userID) {
 			//get any groups the user belongs to
 			$currGroups = DB::table('project_group_user')->where('user_id', $userID)->get();
 			$currGroups_ids = array();
@@ -194,7 +194,7 @@ class ProjectGroupController extends Controller {
 
 			foreach($groups as $group) {
 				if($group == null){Log::info("Null group"); continue;}
-				if ($group->pid == $instance->pid) {
+				if($group->pid == $instance->pid) {
 					$newUser = false;
 					$idOld = $group->id;
 					break;
@@ -231,8 +231,12 @@ class ProjectGroupController extends Controller {
 		}
 
 		$possible_formgroups = FormGroup::whereIn('name', $names)->get();
+<<<<<<< HEAD
 		$wanted_form_group_ids = array();
 
+=======
+		
+>>>>>>> master
 		foreach ($possible_formgroups as $form_group) {
 			if (isset($fids[$form_group->fid])) { // this filters out form groups with same name but different fid
 				$FGC = new FormGroupController();
@@ -257,7 +261,7 @@ class ProjectGroupController extends Controller {
         $users = $instance->users()->get();
         $forms = Form::where('pid', '=', $instance->pid)->get();
         foreach($users as $user) {
-            foreach ($forms as $form) {
+            foreach($forms as $form) {
                 $formGroups = FormGroup::where('fid','=',$form->fid)->get();
                 foreach($formGroups as $fg) {
                     DB::table('form_group_user')->where('user_id', $user->id)->where('form_group_id', $fg->id)->delete();
@@ -373,13 +377,13 @@ class ProjectGroupController extends Controller {
         $name = DB::table('users')->where('id', $uid)->value('first_name');
         $group = ProjectGroup::where('id', '=', $pgid)->first();
         $project = ProjectController::getProject($group->pid);
-        if($type=="added") {
+        if($type=="added")
             $email = 'emails.project.added';
-        } else if($type=="removed") {
+        else if($type=="removed")
             $email = 'emails.project.removed';
-        } else if($type=="changed") {
+        else if($type=="changed")
             $email = 'emails.project.changed';
-        }
+
         try {
             Mail::send($email, compact('project', 'name', 'group'), function ($message) use ($userMail) {
                 $message->from(config('mail.from.address'));

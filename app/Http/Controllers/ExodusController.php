@@ -325,9 +325,8 @@ class ExodusController extends Controller {
         //Option Presets
         $optPresets = $con->query("select * from controlPreset");
         while($o = $optPresets->fetch_assoc()) {
-            if($o['project']==0 | !isset($projectArray[$o['project']])) {
+            if($o['project']==0 | !isset($projectArray[$o['project']]))
                 continue; //this is either an old global preset, or doesn't belong to a migrated project
-            }
 
             $optionPID = $projectArray[$o['project']];
 
@@ -502,14 +501,13 @@ class ExodusController extends Controller {
     /**
      * Returns the current progress of the Exodus migration.
      *
-     * @param  Request $request
      * @return string - Json array of the progress
      */
-    public function checkProgress(Request $request) {
+    public function checkProgress() {
         $overall = DB::table('exodus_overall_progress')->where('created_at',DB::table('exodus_overall_progress')->max('created_at'))->first();
-        if(is_null($overall)) {
+        if(is_null($overall))
             return 'inprogress';
-        }
+
         $partial = DB::table('exodus_partial_progress')->where('exodus_id',$overall->id)->get();
 
         return response()->json(["overall"=>$overall,"partial"=>$partial],200);
@@ -667,7 +665,6 @@ class ExodusController extends Controller {
      * @return string - Success or error message
      */
     public function unlockUsers() {
-
         try {
             $users = User::all();
             foreach($users as $user) {

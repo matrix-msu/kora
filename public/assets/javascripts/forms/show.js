@@ -106,6 +106,11 @@ Kora.Forms.Show = function() {
         var $pages = $('.page').map(function() { return $(this).attr('page-id') }).get();
         $.each($pages, function(i, page) {
           layout[page] = $('.page[page-id="'+page+'"]').find('.field.card').map(function() { return this.id }).get();
+
+          if (layout[page].length == 0)
+              $('.page[page-id="'+page+'"]').find('.no-fields').removeClass('hidden');
+          else
+              $('.page[page-id="'+page+'"]').find('.no-fields').addClass('hidden');
         });
 
         $.ajax({
@@ -288,6 +293,20 @@ Kora.Forms.Show = function() {
         })
       }
     });
+
+	// As of jQuery 1.9, all handlers for .ajaxComplete MUST be attached to $(document)
+	// http://api.jquery.com/ajaxcomplete/
+    $(document).ajaxComplete(function () {
+	  setTimeout(function () {
+	    $.each($('.field-sort-js'), function () {
+		  if ($(this).children().length > 0) {
+		    $(this).siblings('.no-fields').addClass('hidden');
+		  } else {
+		    $(this).siblings('.no-fields').removeClass('hidden');
+		  }
+		});
+	  }, 500)
+	});
   }
 
   function initializePage() {

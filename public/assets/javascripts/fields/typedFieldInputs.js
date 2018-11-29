@@ -34,8 +34,6 @@ Kora.Fields.TypedFieldInputs.Initialize = function() {
 
     function initializeGeolocator() {
         $('.geolocator-form-group-js').each(function() {
-            var $newLocationButton = $('.add-new-default-location-js');
-            var $geolocatorContainer = $('.geolocator-container-js');
         });
     }
 

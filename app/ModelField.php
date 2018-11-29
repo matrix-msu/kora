@@ -218,9 +218,8 @@ class ModelField extends FileTypeField  {
             $this->model = $infoString;
             $this->save();
 
-            if(!$mod_files_exist){
+            if(!$mod_files_exist)
                 $this->delete();
-            }
         } else {
             //DELETE THE FILES SINCE WE REMOVED THEM
             $field = FieldController::getField($this->flid);

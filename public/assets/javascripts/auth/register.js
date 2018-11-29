@@ -134,7 +134,7 @@ Kora.Auth.Register = function() {
 					method: 'POST',
 					data: values,
 					success: function(data) {
-                        // console.log(data)
+						display_loader();
 						$('.user-form').submit();
 					},
 					error: function(err) {
@@ -162,6 +162,7 @@ Kora.Auth.Register = function() {
 					processData: false,
 					contentType: false,
 					success: function(data) {
+						display_loader();
 						$('.user-form').submit();
 					},
 					error: function(err) {
