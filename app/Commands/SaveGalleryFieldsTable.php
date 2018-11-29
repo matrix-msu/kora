@@ -49,6 +49,7 @@ class SaveGalleryFieldsTable extends Command implements ShouldQueue {
                 $individual_galleryfields_data->put("fid", $gal->fid);
                 $individual_galleryfields_data->put("flid", $gal->flid);
                 $individual_galleryfields_data->put("images", $gal->images);
+                $individual_galleryfields_data->put("captions", $gal->captions);
                 $individual_galleryfields_data->put("created_at", $gal->created_at->toDateTimeString());
                 $individual_galleryfields_data->put("updated_at", $gal->updated_at->toDateTimeString());
 

@@ -92,6 +92,29 @@
             <p class="progress-bar-text progress-text-js">0 of 1000 Records Submitted</p>
         </div>
     </section>
+
+    <section class="allrecords-section hidden">
+        <div class="form-group">
+            <div class="records-imported-label records-imported-label-js">N of X Records Succesfully Imported!</div>
+
+            <p class="records-imported-text-js mt-m">Way to have your data organized! We found zero errors with this import. Woohoo!</p>
+        </div>
+
+        <div class="form-group mt-xxl">
+            <div class="form-quick-options">
+                <div class="button-container button-container-js">
+                    <a href="{{ action('RecordController@index',['pid' => $form->pid, 'fid' => $form->fid]) }}" class="btn half-btn import-thin-btn-text">View Imported Records</a>
+                </div>
+            </div>
+
+            <p class="download-report-js hidden">
+                <a class="success-link failed-reasons-js" href="#">Download Failed Records Report</a>
+                <form action="{{ action('ImportController@downloadFailedReasons',['pid'=>$form->pid,'fid'=>$form->fid]) }}" method="post" class="reasons-form-js" style="display:none;">'
+                    <input type="hidden" name="_token" value="{{ csrf_token() }}"/>
+                </form>
+            </p>
+        </div>
+    </section>
 @stop
 
 @section('javascripts')
@@ -102,8 +125,6 @@
         var matchUpFieldsUrl = '{{ action('ImportController@matchupFields',['pid'=>$form->pid,'fid'=>$form->fid])}}';
         var importRecordUrl = '{{ action('ImportController@importRecord',['pid'=>$form->pid,'fid'=>$form->fid]) }}';
         var downloadFailedUrl = '{{ action('ImportController@downloadFailedRecords',['pid'=>$form->pid,'fid'=>$form->fid]) }}';
-        var downloadReasonsUrl = '{{ action('ImportController@downloadFailedReasons',['pid'=>$form->pid,'fid'=>$form->fid]) }}';
-        var showRecordUrl = '{{ action('RecordController@index',['pid' => $form->pid, 'fid' => $form->fid]) }}';
         var CSRFToken = '{{ csrf_token() }}';
 
         Kora.Records.Import();

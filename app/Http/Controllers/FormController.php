@@ -5,6 +5,7 @@ use App\Page;
 use App\User;
 use App\Field;
 use App\FormGroup;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use App\Http\Requests\FormRequest;
 use Illuminate\Support\Facades\Redirect;
@@ -121,26 +122,26 @@ class FormController extends Controller {
         );
         $prevUrlArray = $request->session()->get('_previous');
         $prevUrl = reset($prevUrlArray);
-        if ($prevUrl !== url()->current()) {
+        if($prevUrl !== url()->current()) {
           $session = $request->session()->get('k3_global_success');
 
-          if ($session == 'form_created')
+          if($session == 'form_created')
             $notification['message'] = 'Form Sucessfully Created!';
-          else if ($session == 'field_created')
+          else if($session == 'field_created')
             $notification['message'] = 'Field Successfully Created!';
-          else if ($session == 'field_options_updated')
+          else if($session == 'field_options_updated')
             $notification['message'] = 'Field Successfully Created!';
-          else if ($session == 'field_updated')
+          else if($session == 'field_updated')
             $notification['message'] = 'Field Successfully Updated!';
-          else if ($session == 'record_deleted')
+          else if($session == 'record_deleted')
             $notification['message'] = 'Record Successfully Deleted';
-          else if ($session == 'all_record_deleted')
+          else if($session == 'all_record_deleted')
             $notification['message'] = 'All Form Records Deleted';
-          else if ($session == 'form_updated')
+          else if($session == 'form_updated')
             $notification['message'] = 'Form Successfully Updated!';
-          else if ($session == 'old_records_deleted')
+          else if($session == 'old_records_deleted')
             $notification['message'] = 'Old Record Files Deleted';
-          else if ($session == 'form_imported')
+          else if($session == 'form_imported')
             $notification['message'] = 'Form Successfully Imported!';
         }
 
@@ -186,10 +187,8 @@ class FormController extends Controller {
             return redirect('projects/'.$pid.'/forms/')->with('k3_global_error', 'cant_edit_form');
 
         $form = self::getForm($fid);
-        $originalName = $form->name;
 
         $form->update($request->all());
-        $name = $form->name;
 
         if(isset($request->preset)) {
             $form->preset = $request->preset;
@@ -225,6 +224,12 @@ class FormController extends Controller {
         return redirect('projects/'.$pid)->with('k3_global_success', 'form_deleted');
 	}
 
+    /**
+     * Validates a new Form object.
+     *
+     * @param  FormRequest $request
+     * @return JsonResponse
+     */
     public function validateFormFields(FormRequest $request) {
         return response()->json(["status"=>true, "message"=>"Form Valid", 200]);
     }

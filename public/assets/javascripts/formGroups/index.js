@@ -581,6 +581,8 @@ Kora.FormGroups.Index = function() {
 	  
 	  if (!valid_name || !valid_options) {
 		e.preventDefault();
+	  } else {
+		display_loader();
 	  }
 	});
   }

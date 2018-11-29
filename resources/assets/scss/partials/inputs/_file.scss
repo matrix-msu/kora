@@ -53,12 +53,15 @@
     background: palette('white', base);
     border: 1px dashed palette('gray', slate, .15);
     border-radius: 5px;
+    box-shadow: 0 3px 5px 0 palette('gray', slate, .05);
     cursor: pointer;
     display: block;
+    @include transition();
     padding: 20px;
 
     .directions {
       color: palette('gray', text);
+      display: none;
       font-style: normal;
       margin: 40px 0 20px;
       text-align: center;
@@ -70,6 +73,24 @@
       .text-green {
         color: palette('green', accent);
       }
+
+      &.active {
+        display: block;
+      }
+    }
+
+    &:hover {
+      border: 1px dashed palette('green', accent, .5);
+      box-shadow: 0 7px 10px 0 palette('gray', slate, .05);
+    }
+  }
+
+  // Document specific
+  &.document-input-form-group {
+    .file-card {
+      .tooltip:hover::after {
+        left: -57px;
+      }
     }
   }
 
@@ -79,6 +100,7 @@
       border: 0;
       color: palette('gray', text, .8);
       font-size: 13px;
+      font-family: $ubuntu;
       height: 13px;
       margin: 20px 20px 0;
       outline: none;

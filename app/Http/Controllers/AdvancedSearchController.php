@@ -241,10 +241,10 @@ class AdvancedSearchController extends Controller {
                         if($request[$flid.'_left'] != '' | $request[$flid.'_right'] != '') {
                             $processed[$flid][$flid . '_left'] = isset($request[$flid . '_left']) ? $request[$flid . '_left'] : '';
                             $processed[$flid][$flid . '_right'] = isset($request[$flid . '_right']) ? $request[$flid . '_right'] : '';
-                            if (isset($request[$flid . '_invert']))
+                            if(isset($request[$flid . '_invert']))
                                 $processed[$flid][$flid . '_invert'] = $request[$flid . '_invert'];
-                            break;
                         }
+                        break;
                     case 'Combo List':
                         //Main
                         if(isset($request[$flid.'_one_input']) && $request[$flid.'_one_input'] != '')

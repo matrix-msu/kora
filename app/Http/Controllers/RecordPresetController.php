@@ -259,8 +259,7 @@ class RecordPresetController extends Controller {
                 else
                     unlink($file->getRealPath());
             }
-        }
-        else {
+        } else {
             mkdir($tempPath, 0775, true);
         }
 
@@ -280,12 +279,12 @@ class RecordPresetController extends Controller {
         if(file_exists($src)) {
             $dir = opendir($src);
 
-            if (!is_dir($dst) && !is_file($dst))
+            if(!is_dir($dst) && !is_file($dst))
                 mkdir($dst, 0775, true);
 
-            while (false !== ($file = readdir($dir))) {
-                if (($file != '.') && ($file != '..')) {
-                    if (is_dir($src . '/' . $file))
+            while(false !== ($file = readdir($dir))) {
+                if(($file != '.') && ($file != '..')) {
+                    if(is_dir($src . '/' . $file))
                         self::recurse_copy($src . '/' . $file, $dst . '/' . $file);
                     else
                         copy($src . '/' . $file, $dst . '/' . $file);

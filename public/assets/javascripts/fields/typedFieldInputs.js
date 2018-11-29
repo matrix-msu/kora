@@ -33,8 +33,7 @@ Kora.Fields.TypedFieldInputs.Initialize = function() {
     }
 
     function initializeGeolocator() {
-        $('.geolocator-map-js').each(function() {
-
+        $('.geolocator-form-group-js').each(function() {
         });
     }
 

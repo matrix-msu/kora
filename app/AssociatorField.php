@@ -645,7 +645,7 @@ class AssociatorField extends BaseField {
                 $html .= "<div>".$val."</div>";
         }
 
-        $html = $html .= "</div>";
+        $html .= "</div>";
 
         return $html;
     }

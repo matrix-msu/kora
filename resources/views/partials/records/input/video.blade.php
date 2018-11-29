@@ -71,46 +71,17 @@
             <div class="file-upload-progress progress-bar-{{$field->flid}}-js"></div>
         </div>
 
-        <div class="directions">
+        <div class="directions directions-not-empty-js">
             <p class="mb-m">Drag & Drop Another File Here</p>
             <p class="text-green">Or Select Another File</p>
+        </div>
+
+        <div class="directions directions-empty-js active">
+            <p class="mb-m">Drag & Drop a File Here</p>
+            <p class="text-green">Or Select a File</p>
         </div>
     </label>
 
     <input type="file" flid="{{$field->flid}}" id="file{{$field->flid}}" name="file{{$field->flid}}[]" class="kora-file-upload-js hidden"
                data-url="{{ url('saveTmpFile/'.$field->flid) }}" multiple>
 </div>
-
-<!-- <div class="form-group mt-xxxl">
-    <label>@if($field->required==1)<span class="oval-icon"></span> @endif{{$field->name}}</label>
-	<span class="error-message"></span>
-    {!! Form::hidden($field->flid,'f'.$field->flid.'u'.\Auth::user()->id) !!}
-</div>
-
-<section class="filenames filenames-{{$field->flid}}-js preset-clear-file-js">
-    @foreach($value as $file)
-        <div class="form-group mt-xxs uploaded-file">
-            <input type="hidden" name="file{{$field->flid}}[]" value ="{{$file}}">
-            <a href="#" class="upload-fileup-js">
-                <i class="icon icon-arrow-up"></i>
-            </a>
-            <a href="#" class="upload-filedown-js">
-                <i class="icon icon-arrow-down"></i>
-            </a>
-            <span class="ml-sm">{{$file}}</span>
-            <a href="#" class="upload-filedelete-js ml-sm" data-url="{{ url('deleteTmpFile/'.$folder.'/'.urlencode($file)) }}">
-                <i class="icon icon-trash danger"></i>
-            </a>
-        </div>
-    @endforeach
-</section>
-
-<div class="form-group progress-bar-div">
-    <div class="file-upload-progress progress-bar-{{$field->flid}}-js"></div>
-</div>
-
-<div class="form-group new-object-button low-margin">
-    <input type="button" class="kora-file-button-js" value="Add New File" flid="{{$field->flid}}" >
-    <input type="file" name="file{{$field->flid}}[]" class="kora-file-upload-js hidden"
-           data-url="{{ url('saveTmpFile/'.$field->flid) }}" multiple>
-</div> -->

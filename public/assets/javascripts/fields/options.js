@@ -16,6 +16,70 @@ Kora.Fields.Options = function(fieldType) {
         });
     }
 
+    function initializeMoveAction($cards) {
+        $cards.each(function() {
+            var $card = $(this);
+            var $moveActions = $card.find('.move-action-js');
+
+            $moveActions.unbind();
+            $moveActions.click(function(e) {
+                e.preventDefault();
+
+                var $moveAction = $(this);
+                if ($moveAction.hasClass('up-js')) {
+                    var $previousForm = $card.prev();
+                    if ($previousForm.length == 0) {
+                        return;
+                    }
+
+                    $previousForm.css('z-index', 999)
+                        .css('position', 'relative')
+                        .animate({
+                            top: $card.height()
+                        }, 300);
+                    $card.css('z-index', 1000)
+                        .css('position', 'relative')
+                        .animate({
+                            top: '-' + $previousForm.height()
+                        }, 300, function() {
+                            $previousForm.css('z-index', '')
+                                .css('top', '')
+                                .css('position', '');
+                            $card.css('z-index', '')
+                                .css('top', '')
+                                .css('position', '')
+                                .insertBefore($previousForm);
+                        });
+                } else {
+                    var $nextForm = $card.next();
+                    if ($nextForm.length == 0) {
+                        return;
+                    }
+
+                    $nextForm.css('z-index', 999)
+                        .css('position', 'relative')
+                        .animate({
+                            top: '-' + $card.height()
+                        }, 300);
+                    $card.css('z-index', 1000)
+                        .css('position', 'relative')
+                        .animate({
+                            top: $nextForm.height()
+                        }, 300, function() {
+                            $nextForm.css('z-index', '')
+                                .css('top', '')
+                                .css('position', '');
+                            $card.css('z-index', '')
+                                .css('top', '')
+                                .css('position', '')
+                                .insertAfter($nextForm);
+                        });
+                }
+            });
+        });
+    }
+
+
     function initializeSelectAddition() {
         $('.chosen-search-input').on('keyup', function(e) {
             var container = $(this).parents('.chosen-container').first();
@@ -390,9 +454,22 @@ Kora.Fields.Options = function(fieldType) {
         });
     }
 
-    function intializeGeolocatorOptions() {
+    function initializeGeolocatorOptions() {
         Kora.Modal.initialize();
 
+        var $geoCardContainer = $('.geolocator-card-container-js');
+        var $geoCards = $geoCardContainer.find('.geolocator-card-js');
+
+        // Action arrows on the cards
+        initializeMoveAction($geoCards);
+
+        // Drag cards to sort
+        $geoCardContainer.sortable();
+
+        // Delete card
+        initializeDelete();
+
+        // Open Geolocator modal when adding new location
         $('.add-new-default-location-js').click(function(e) {
             e.preventDefault();
 
@@ -509,27 +586,66 @@ Kora.Fields.Options = function(fieldType) {
                 type: 'POST',
                 data: data,
                 success:function(result) {
+                    // Get Values
                     var desc = $('.location-desc-js').val();
                     var fullresult = '[Desc]'+desc+'[Desc]'+result;
-                    var latlon = result.split('[LatLon]');
-                    var utm = result.split('[UTM]');
-                    var addr = result.split('[Address]');
-                    var fulltext = 'Description: '+desc+' | LatLon: '+latlon[1]+' | UTM: '+utm[1]+' | Address: '+addr[1];
-                    var option = $("<option/>", { value: fullresult, text: fulltext });
+                    var latlon = result.split('[LatLon]')[1].split(',').join(', ');
+                    var utm = result.split('[UTM]')[1];
+                    var addr = result.split('[Address]')[1];
 
-                    var select = $('.default-location-js');
-                    select.append(option);
-                    select.find(option).prop('selected', true);
-                    select.trigger("chosen:updated");
+                    // Create and display new geolocation card
+                    var newCardHtml = '<div class="card geolocator-card geolocator-card-js">' +
+                        '<input type="hidden" class="list-option-js" name="default[]" value="' + fullresult + '">' +
+                        '<div class="header">' +
+                        '<div class="left">' +
+                        '<div class="move-actions">' +
+                        '<a class="action move-action-js up-js" href="">' +
+                        '<i class="icon icon-arrow-up"></i>' +
+                        '</a>' +
+                        '<a class="action move-action-js down-js" href="">' +
+                        '<i class="icon icon-arrow-down"></i>' +
+                        '</a>' +
+                        '</div>' +
+                        '<span class="title">' + desc + '</span>' +
+                        '</div>' +
+                        '<div class="card-toggle-wrap">' +
+                        '<a class="geolocator-delete geolocator-delete-js tooltip" tooltip="Delete Location" href=""><i class="icon icon-trash"></i></a>' +
+                        '</div>' +
+                        '</div>' +
+                        '<div class="content"><p class="location"><span class="bold">LatLon:</span> '+ latlon +'</p></div>' +
+                        '</div>';
 
+                    $geoCardContainer.append(newCardHtml);
+
+                    initializeMoveAction($geoCardContainer.find('.geolocator-card-js'));
+                    initializeDelete();
+
+                    // Reset Modal
                     $('.location-desc-js').val('');
                     Kora.Modal.close($('.geolocator-add-location-modal-js'));
                 }
             });
         }
+
+        function initializeDelete() {
+            $geoCardContainer.find('.geolocator-card-js').each(function() {
+                var $card = $(this);
+                var $deleteButton = $card.find('.geolocator-delete-js');
+
+                $deleteButton.unbind();
+                $deleteButton.click(function(e) {
+                    e.preventDefault();
+
+                    $card.remove();
+
+                    if ($geoCardContainer.children().length == 0) {
+                    }
+                })
+            });
+        }
     }
 
-    function intializeAssociatorOptions() {
+    function initializeAssociatorOptions() {
         //Sets up association configurations
         $('.association-check-js').click(function() {
             var assocDiv = $(this).closest('.form-group').next();
@@ -1011,7 +1127,7 @@ Kora.Fields.Options = function(fieldType) {
             initializeList();
             break;
         case 'Geolocator':
-            intializeGeolocatorOptions();
+            initializeGeolocatorOptions();
             break;
         case 'Multi-Select List':
             initializeList();
@@ -1020,7 +1136,7 @@ Kora.Fields.Options = function(fieldType) {
             initializeScheduleOptions();
             break;
         case 'Associator':
-            intializeAssociatorOptions();
+            initializeAssociatorOptions();
             break;
         case 'Combo List':
             initializeComboListOptions();

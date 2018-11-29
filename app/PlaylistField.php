@@ -214,9 +214,8 @@ class PlaylistField extends FileTypeField  {
             $this->audio = $infoString;
             $this->save();
 
-            if(!$pla_files_exist) {
+            if(!$pla_files_exist)
                 $this->delete();
-            }
         } else {
             //DELETE THE FILES SINCE WE REMOVED THEM
             $field = FieldController::getField($this->flid);

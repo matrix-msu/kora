@@ -274,12 +274,11 @@ class RecordController extends Controller {
         );
         $prevUrlArray = $request->session()->get('_previous');
         $prevUrl = reset($prevUrlArray);
-        if ($prevUrl !== url()->current()) {
+        if($prevUrl !== url()->current()) {
           $session = $request->session()->get('k3_global_success');
 
-          if ($session == 'record_updated') {
+          if($session == 'record_updated')
             $notification['message'] = 'Record Successfully Updated!';
-          }
         }
 
         return view('records.show', compact('record', 'form', 'owner', 'numRevisions', 'alreadyPreset', 'notification'));
@@ -357,7 +356,7 @@ class RecordController extends Controller {
         $basePath = storage_path('app/files/p'.$pid.'/f'.$fid);
 
         //for each 'r###' directory in $basePath
-        foreach (new \DirectoryIterator($basePath) as $rDir) {
+        foreach(new \DirectoryIterator($basePath) as $rDir) {
             if($rDir->isDot()) continue;
 
             $rid = substr($rDir->getFilename(),1);
@@ -472,8 +471,7 @@ class RecordController extends Controller {
      * @param  bool $mass - Is deleting mass records
      * @return Redirect
      */
-    public function destroy($pid, $fid, $rid, $mass = false) {;
-
+    public function destroy($pid, $fid, $rid, $mass = false) {
         if(!self::validProjFormRecord($pid, $fid, $rid))
             return redirect('projects')->with('k3_global_error', 'record_invalid');
 
@@ -489,11 +487,15 @@ class RecordController extends Controller {
 
         return redirect()->action('FormController@show', ['pid' => $pid, 'fid' => $fid])->with('k3_global_success', 'record_deleted');
     }
-    
+
     /**
-     * Delete multiple records from a form.
+     * Delete multiple records from Kora3.
+     *
+     * @param  int $pid - Project ID
+     * @param  int $fid - Form ID
+     * @param  Request $request
+     * @return Redirect
      */
-    //public function deleteMultipleRecords($pid, $fid, $rid) {
     public function deleteMultipleRecords($pid, $fid, Request $request) {
       $form = FormController::getForm($fid);
       $rid = $request->rid;
@@ -505,7 +507,7 @@ class RecordController extends Controller {
         foreach($rid as $rid) {
           $record = self::getRecord($rid);
 
-          if (!empty($record))
+          if(!empty($record))
             $record->delete();
         }
 
@@ -751,7 +753,13 @@ class RecordController extends Controller {
         return view('records.batchAssignment',compact('form','fields','pid','fid'));
     }
 
-    /* Get view for mass assigning selected records. */
+    /**
+     * Gets the view for mass assigning a subset of records.
+     *
+     * @param  int $pid - Project ID
+     * @param  int $fid - Form ID
+     * @return View
+     */
     public function showSelectedAssignmentView($pid,$fid) {
         if(!FormController::validProjForm($pid, $fid))
             return redirect('projects/'.$pid)->with('k3_global_error', 'form_invalid');
@@ -817,6 +825,9 @@ class RecordController extends Controller {
      * @return JsonResponse
      */
     public function validateMassRecord($pid, $fid, Request $request) {
+        if(!FormController::validProjForm($pid, $fid))
+            return response()->json(['k3_global_error' => 'form_invalid']);
+
         $errors = [];
 
         $flid = $request->input("field_selection");
@@ -838,28 +849,22 @@ class RecordController extends Controller {
      * @return Redirect
      */
     public function massAssignRecordSet($pid, $fid, Request $request) {
-        if(!$this->checkPermissions($fid,'modify')) {
+        if(!$this->checkPermissions($fid,'modify'))
             return redirect()->back();
-        }
 
         $flid = $request->input("field_selection");
-        if(!is_numeric($flid)) {
-            flash()->overlay(trans('controller_record.notvalid'));
+        if(!is_numeric($flid))
             return redirect()->back();
-        }
 
-        if($request->has($flid)) {
+        if($request->has($flid))
             $formFieldValue = $request->input($flid); //Note this only works when there is one form element being submitted, so if you have more, check Date
-        } else {
-            flash()->overlay(trans('controller_record.provide'),trans('controller_record.whoops'));
+        else
             return redirect()->back();
-        }
 
-        if($request->rids) {
+        if($request->rids)
             $rids = explode(',', $request->rids);
-        } else {
+        else
             $rids = array();
-        }
       
         $field = FieldController::getField($flid);
         $typedField = $field->getTypedField();
@@ -870,7 +875,6 @@ class RecordController extends Controller {
     }
 
     public function downloadFiles(Request $request) {
-        dd($request->files);
         $files = $request->files;
         Zipper::make('downloads/k3download.zip')->add($files);
         return response()->download(public_path('downloads/k3download.zip'))->deleteFileAfterSend(true);
