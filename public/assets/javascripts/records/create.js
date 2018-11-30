@@ -275,7 +275,20 @@ Kora.Records.Create = function() {
         var start_year = 1900;
         var end_year = 2020;
 
-        $('.add-new-default-event-js').click(function(e) {
+        var $scheduleCardContainers = $('.schedule-card-container-js');
+        var $scheduleCards = $scheduleCardContainers.find('.schedule-card-js');
+        var $newEventButtons = $('.add-new-default-event-js');
+
+        // Action arrows on the cards
+        initializeMoveAction($scheduleCards);
+
+        // Drag cards to sort
+        $scheduleCardContainers.sortable();
+
+        // Delete card
+        initializeDelete();
+
+        $newEventButtons.click(function(e) {
             e.preventDefault();
 
             flid = $(this).attr('flid');
@@ -331,13 +344,35 @@ Kora.Records.Create = function() {
                     val = name + ': ' + sTime + ' - ' + eTime;
 
                     if(val != '') {
-                        //Value is good so let's add it
-                        var option = $("<option>").val(val).text(val);
-                        var select = $('.'+flid+'-event-js');
+                        // Value is valid
+                        // Create and display new schedule card
+                        var newCardHtml = '<div class="card schedule-card schedule-card-js">' +
+                            '<input type="hidden" class="list-option-js" name="'+flid+'[]" value="' + val + '">' +
+                            '<div class="header">' +
+                            '<div class="left">' +
+                            '<div class="move-actions">' +
+                            '<a class="action move-action-js up-js" href="">' +
+                            '<i class="icon icon-arrow-up"></i>' +
+                            '</a>' +
+                            '<a class="action move-action-js down-js" href="">' +
+                            '<i class="icon icon-arrow-down"></i>' +
+                            '</a>' +
+                            '</div>' +
+                            '<span class="title">' + name + '</span>' +
+                            '</div>' +
+                            '<div class="card-toggle-wrap">' +
+                            '<a class="schedule-delete schedule-delete-js tooltip" tooltip="Delete Event" href=""><i class="icon icon-trash"></i></a>' +
+                            '</div>' +
+                            '</div>' +
+                            '<div class="content"><p class="event-time">'+ sTime + ' - ' + eTime + '</p></div>' +
+                            '</div>';
 
-                        select.append(option);
-                        select.find(option).prop('selected', true);
-                        select.trigger("chosen:updated");
+                        var $scheduleCardContainer = $('.schedule-'+flid+'-js').find('.schedule-card-container-js');
+                        $scheduleCardContainer.append(newCardHtml);
+
+                        initializeMoveAction($scheduleCardContainer.find('.schedule-card-js'));
+                        initializeDelete();
+                        Kora.Fields.TypedFieldInputs.Initialize();
 
                         nameInput.val('');
                         Kora.Modal.close($('.schedule-add-event-modal-js'));
@@ -345,6 +380,20 @@ Kora.Records.Create = function() {
                 }
             }
         });
+
+        function initializeDelete() {
+            $scheduleCardContainers.find('.schedule-card-js').each(function() {
+                var $card = $(this);
+                var $deleteButton = $card.find('.schedule-delete-js');
+
+                $deleteButton.unbind();
+                $deleteButton.click(function(e) {
+                    e.preventDefault();
+
+                    $card.remove();
+                })
+            });
+        }
     }
 
     function intializeGeolocatorOptions() {
@@ -482,8 +531,6 @@ Kora.Records.Create = function() {
                 type: 'POST',
                 data: data,
                 success:function(result) {
-                    console.log(flid);
-
                     // Get Values
                     var desc = $('.location-desc-js').val();
                     var fullresult = '[Desc]'+desc+'[Desc]'+result;
@@ -536,9 +583,6 @@ Kora.Records.Create = function() {
                     e.preventDefault();
 
                     $card.remove();
-
-                    if ($geoCardContainers.children().length == 0) {
-                    }
                 })
             });
         }

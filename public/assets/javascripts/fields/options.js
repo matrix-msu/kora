@@ -386,6 +386,7 @@ Kora.Fields.Options = function(fieldType) {
     function initializeScheduleOptions() {
         Kora.Modal.initialize();
         Kora.Inputs.Number();
+        Kora.Fields.TypedFieldInputs.Initialize();
 
         // Action arrows on the cards
         initializeMoveAction($('.schedule-card-js'));
