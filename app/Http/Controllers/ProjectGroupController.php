@@ -163,15 +163,15 @@ class ProjectGroupController extends Controller {
      * @param  Request $request
      */
     public function addUsers(Request $request) {
-		if(is_string($request->emails) && $request->emails !== '') {
+        if (is_string($request->emails) && $request->emails !== '') {
 			$request->return_user_ids = true;
 			// returns new & existing users' ids
 			$user_ids = (new AdminController())->batch($request); // this action creates the new users in db
-			
-			if(is_array($request->userIDs))
-			    $request->userIDs = array_merge($request->userIDs, $user_ids);
+
+			if (is_array($request->userIDs))
+				$request->userIDs = array_merge($request->userIDs, $user_ids);
 			else
-			    $request->userIDs = $user_ids;
+				$request->userIDs = $user_ids;
 	    }
 
 		$instance = ProjectGroup::where('id', '=', $request->projectGroup)->first();
@@ -184,14 +184,14 @@ class ProjectGroupController extends Controller {
 			foreach($currGroups as $group) {
 				array_push($currGroups_ids, $group->project_group_id);
 			}
-		
+
 			$newUser = true;
 			$group = null;
 			$idOld = 0;
-		
+
 			// for the user's project groups, see if one belongs to the current project
 			$groups = ProjectGroup::whereIn('id', $currGroups_ids)->get();
-			
+
 			foreach($groups as $group) {
 				if($group == null){Log::info("Null group"); continue;}
 				if($group->pid == $instance->pid) {
@@ -200,7 +200,7 @@ class ProjectGroupController extends Controller {
 					break;
 				}
 			}
-			
+
 			if($newUser) {
 				array_push($new_users, $userID);
 			} else {
@@ -209,29 +209,34 @@ class ProjectGroupController extends Controller {
 				$this->emailUserProject("changed", $userID, $instance->id);
 				echo $idOld;
 			}
-	
+
 			$instance->users()->attach($userID);
 		}
-		
+
 	    $proj = ProjectController::getProject($instance->pid);
 		// add the users to the custom project
 		$proj->batchAddUsersAsCustom($request->userIDs);
-		
+
 		if($instance->name == $proj->name.' Admin Group') {
 			$tag = ' Admin Group';
         } else {
 			$tag = ' Default Group';
         }
 		$forms = Form::where('pid', '=', $instance->pid)->get();
-		
+
 		$names = array(); $fids = array();
 		foreach ($forms as $form) {
 			array_push($names, $form->name . $tag);
 			$fids[$form->fid] = true;
 		}
-		
+
 		$possible_formgroups = FormGroup::whereIn('name', $names)->get();
+<<<<<<< HEAD
+		$wanted_form_group_ids = array();
+
+=======
 		
+>>>>>>> master
 		foreach ($possible_formgroups as $form_group) {
 			if (isset($fids[$form_group->fid])) { // this filters out form groups with same name but different fid
 				$FGC = new FormGroupController();

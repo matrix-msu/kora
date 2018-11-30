@@ -381,12 +381,12 @@ $( document ).ajaxSend(function(event, xhr, options) {
 $( document ).ajaxComplete(function(event, xhr, options) {
   var url = options.url;
   var hide = true;
-  
+
   // hide loader exclusion cases for AJAX requests
   if (url.search("validate") != -1) { // exclude validation requests
 	hide = false;
   }
-  
+
   if (hide) {
     hide_loader();
   }

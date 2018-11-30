@@ -27,8 +27,29 @@
 
       @yield('javascripts')
 
-      @if(Auth::guest() || !Auth::user()->active)
+      @if((Auth::guest() || !Auth::user()->active) && $page_class != 'invited-register' )
         @include('partials.auth.javascripts')
+        <script>
+          var langURL ="{{action('WelcomeController@setTemporaryLanguage')}}";
+
+          function setTempLang(selected_lang){
+            console.log("Language change started: "+langURL);
+            $.ajax({
+              url:langURL,
+              method:'POST',
+              data: {
+                "_token": "{{ csrf_token() }}",
+                "templanguage": selected_lang
+              },
+              success: function(data){
+                location.reload();
+              }
+            });
+          }
+
+          Kora.Auth.Auth();
+        </script>
+      @elseif (Auth::guest() || !Auth::user()->active)
         <script>
           var langURL ="{{action('WelcomeController@setTemporaryLanguage')}}";
 

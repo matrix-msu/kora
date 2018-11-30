@@ -35,7 +35,8 @@ class UserRequest extends FormRequest
                 ];
             case 'PATCH':
                 return [
-                    'password' => 'confirmed|min:6',
+                    'username' => 'required|max:255|unique:users',
+                    'password' => 'required|confirmed|min:6',
                     'language'=> 'required|alpha|max:2',
                     'first_name'=> 'required',
                     'last_name'=> 'required',

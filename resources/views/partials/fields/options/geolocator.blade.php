@@ -6,7 +6,7 @@
 @stop
 
 @section('fieldOptions')
-    <div class="form-group geolocator-form-group geolocator-form-group-js mt-xxxl">
+    <div class="form-group geolocator-form-group geolocator-form-group-js geolocator-{{$field->flid}}-js mt-xxxl">
         {!! Form::label('default','Default Locations') !!}
         <div class="form-input-container">
             <p class="directions">Add Default Locations below, and order them via drag & drop or their arrow icons.</p>
@@ -15,7 +15,7 @@
                 @foreach(\App\GeolocatorField::getLocationList($field) as $opt)
                     <?php
                         $desc = explode('[Desc]',$opt)[1];
-                        $latlon = explode('[LatLon]',$opt)[1];
+                        $latlon = implode(', ', explode(',', explode('[LatLon]',$opt)[1]));
                         $utm = explode('[UTM]',$opt)[1];
                         $address = explode('[Address]',$opt)[1];
                     ?>

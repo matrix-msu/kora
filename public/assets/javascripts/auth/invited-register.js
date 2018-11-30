@@ -108,10 +108,9 @@ Kora.Auth.Register = function() {
       
         //form.submit(function(e) {
 		$('.validate-user-js').click(function (e) {
-            var $this = $(this);
-
             e.preventDefault();
 
+            display_loader()
             var $this = $(this);
 
             if (!droppedPicFile) {
@@ -119,8 +118,8 @@ Kora.Auth.Register = function() {
                 $.each($('.user-form').serializeArray(), function(i, field) {
                     values[field.name] = field.value;
                 });
+                values['_method'] = 'PATCH';
 
-                // console.log(values)
                 // for ( var pair of values.entries() ) {
                 //     console.log(pair[0] + ', ' + pair[1]);
                 //     //console.log(typeof pair[1]);
@@ -134,10 +133,11 @@ Kora.Auth.Register = function() {
 					method: 'POST',
 					data: values,
 					success: function(data) {
-						display_loader();
+                        // console.log(data)
 						$('.user-form').submit();
 					},
 					error: function(err) {
+                        hide_loader()
 						console.log(err);
 						console.log(err.message);
 						$('.error-message').text('');
@@ -154,6 +154,7 @@ Kora.Auth.Register = function() {
                 values = new FormData(form.get(0));
                 values.delete('profile');
                 values.append('profile', droppedPicFile);
+                values['_method'] = 'PATCH';
 
 				$.ajax({
 					url: validationUrl,
@@ -162,7 +163,6 @@ Kora.Auth.Register = function() {
 					processData: false,
 					contentType: false,
 					success: function(data) {
-						display_loader();
 						$('.user-form').submit();
 					},
 					error: function(err) {
@@ -196,6 +196,8 @@ Kora.Auth.Register = function() {
             values[field] = this.value;
             if(second)
                 values[field2] = $('#'+field2).val();
+
+            values['_method'] = 'PATCH';
             values['_token'] = CSRFToken;
 
             $.ajax({
@@ -203,7 +205,8 @@ Kora.Auth.Register = function() {
                 method: 'POST',
                 data: values,
                 error: function(err) {
-                    console.log(err.responseJSON.errors[field])
+                    // console.log(err)
+                    // console.log(err.responseJSON.errors[field])
                     if (err.responseJSON.errors[field] !== undefined) {
                         $('#'+field).addClass('error');
                         $('#'+field).siblings('.error-message').text(err.responseJSON.errors[field][0]);
