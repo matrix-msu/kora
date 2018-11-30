@@ -6,7 +6,7 @@
 
 @section('header')
     <section class="head">
-        <a class="back" href="{{ URL::previous() }}"><i class="icon icon-chevron"></i></a>
+        <a class="back" href=""><i class="icon icon-chevron"></i></a>
         <div class="inner-wrap center">
             <h1 class="title">
                 <i class="icon icon-exodus"></i>

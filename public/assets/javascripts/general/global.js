@@ -107,6 +107,12 @@ function getURLParameter(name) {
   return decodeURIComponent((new RegExp('[?|&]' + name + '=' + '([^&;]+?)(&|#|;|$)').exec(location.search) || [null, ''])[1].replace(/\+/g, '%20')) || null;
 }
 
+// back button clicked
+$("a.back").click(function(e) {
+  e.preventDefault();
+  history.back(-1);
+});
+
 $(document).ready(function() {
   setFixedElement(true);
 
