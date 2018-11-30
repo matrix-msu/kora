@@ -65,8 +65,15 @@ Kora.Fields.TypedFieldInputs.Initialize = function() {
     }
 
     function initalizeSchedule() {
-        $('.schedule-cal-js').each(function() {
+        $('.schedule-form-group-js').each(function() {
+            var $formGroup = $(this);
+            var $cards = $formGroup.find('.schedule-card-js');
 
+            sizeCardTitles($cards, 40);
+
+            $(window).resize(function() {
+                sizeCardTitles($cards, 40);
+            });
         });
     }
 

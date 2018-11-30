@@ -385,6 +385,16 @@ Kora.Fields.Options = function(fieldType) {
 
     function initializeScheduleOptions() {
         Kora.Modal.initialize();
+        Kora.Inputs.Number();
+
+        // Action arrows on the cards
+        initializeMoveAction($('.schedule-card-js'));
+
+        // Drag cards to sort
+        $('.schedule-card-container-js').sortable();
+
+        // Delete card
+        initializeDelete();
 
         $('.add-new-default-event-js').click(function(e) {
             e.preventDefault();
@@ -437,14 +447,37 @@ Kora.Fields.Options = function(fieldType) {
                 } else {
                     val = name + ': ' + sTime + ' - ' + eTime;
 
-                    if(val != '') {
-                        //Value is good so let's add it
-                        var option = $("<option>").val(val).text(val);
-                        var select = $('.'+flid+'-event-js');
 
-                        select.append(option);
-                        select.find(option).prop('selected', true);
-                        select.trigger("chosen:updated");
+                    if(val != '') {
+                        // Value is valid
+                        // Create and display new event card
+                        var newCardHtml = '<div class="card schedule-card schedule-card-js">' +
+                            '<input type="hidden" class="list-option-js" name="default[]" value="' + val + '">' +
+                            '<div class="header">' +
+                            '<div class="left">' +
+                            '<div class="move-actions">' +
+                            '<a class="action move-action-js up-js" href="">' +
+                            '<i class="icon icon-arrow-up"></i>' +
+                            '</a>' +
+                            '<a class="action move-action-js down-js" href="">' +
+                            '<i class="icon icon-arrow-down"></i>' +
+                            '</a>' +
+                            '</div>' +
+                            '<span class="title">' + name + '</span>' +
+                            '</div>' +
+                            '<div class="card-toggle-wrap">' +
+                            '<a class="schedule-delete schedule-delete-js tooltip" tooltip="Delete Event" href=""><i class="icon icon-trash"></i></a>' +
+                            '</div>' +
+                            '</div>' +
+                            '<div class="content"><p class="event-time">'+ sTime + ' - ' + eTime + '</p></div>' +
+                            '</div>';
+
+                        $('.schedule-card-container-js').append(newCardHtml);
+
+                        // Initialize New Card
+                        initializeMoveAction($('.schedule-card-js'));
+                        initializeDelete();
+                        Kora.Fields.TypedFieldInputs.Initialize();
 
                         nameInput.val('');
                         Kora.Modal.close($('.schedule-add-event-modal-js'));
@@ -452,6 +485,20 @@ Kora.Fields.Options = function(fieldType) {
                 }
             }
         });
+
+        function initializeDelete() {
+            $('.schedule-card-js').each(function() {
+                var $card = $(this);
+                var $deleteButton = $card.find('.schedule-delete-js');
+
+                $deleteButton.unbind();
+                $deleteButton.click(function(e) {
+                    e.preventDefault();
+
+                    $card.remove();
+                })
+            });
+        }
     }
 
     function initializeGeolocatorOptions() {
@@ -638,9 +685,6 @@ Kora.Fields.Options = function(fieldType) {
                     e.preventDefault();
 
                     $card.remove();
-
-                    if ($geoCardContainer.children().length == 0) {
-                    }
                 })
             });
         }
