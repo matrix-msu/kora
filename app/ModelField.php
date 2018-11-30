@@ -368,7 +368,13 @@ class ModelField extends FileTypeField  {
             case "XML":
                 $xml = '<' . Field::xmlTagClear($slug) . ' type="3D-Model">';
                 $xml .= '<File>';
-                $xml .= '<Name>' . utf8_encode('FILENAME') . '</Name>';
+                $xml .= '<Name>' . utf8_encode('FILENAME 1') . '</Name>';
+                $xml .= '</File>';
+                $xml .= '<File>';
+                $xml .= '<Name>' . utf8_encode('FILENAME 2') . '</Name>';
+                $xml .= '</File>';
+                $xml .= '<File>';
+                $xml .= '<Name>' . utf8_encode('so on...') . '</Name>';
                 $xml .= '</File>';
                 $xml .= '</' . Field::xmlTagClear($slug) . '>';
 
@@ -383,6 +389,14 @@ class ModelField extends FileTypeField  {
 
                 $fileArray = [];
                 $fileArray['name'] = 'FILENAME 1';
+                $fieldArray[$slug]['value'][] = $fileArray;
+
+                $fileArray = [];
+                $fileArray['name'] = 'FILENAME2';
+                $fieldArray[$slug]['value'][] = $fileArray;
+
+                $fileArray = [];
+                $fileArray['name'] = 'so on...';
                 $fieldArray[$slug]['value'][] = $fileArray;
 
                 return $fieldArray;

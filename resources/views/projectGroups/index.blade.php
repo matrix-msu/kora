@@ -216,6 +216,8 @@
     var editNamePath = '{{ action('ProjectGroupController@updateName', ["pid" => $project->pid]) }}';
     var updatePermissionsPath = '{{ action('ProjectGroupController@updatePermissions', ["pid" => $project->pid]) }}';
     var deletePermissionsPath = '{{ action('ProjectGroupController@deleteProjectGroup', ["pid" => $project->pid]) }}';
+    var validateEmailsUrl = '{{ url('/') }}/admin/users/validateEmails';
+
     Kora.ProjectGroups.Index();
   </script>
 @stop

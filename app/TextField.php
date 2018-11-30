@@ -212,7 +212,7 @@ class TextField extends BaseField {
         $this->flid = $field->flid;
         $this->rid = $record->rid;
         $this->fid = $field->fid;
-        $this->text = 'K3TR: This is a test record';
+        $this->text = 'This is sample text for this text field.';
         $this->save();
     }
 
@@ -299,14 +299,14 @@ class TextField extends BaseField {
         switch($type) {
             case "XML":
                 $xml = '<' . Field::xmlTagClear($slug) . ' type="Text">';
-                $xml .= utf8_encode('TEXT VALUE');
+                $xml .= utf8_encode('This is sample text for this text field.');
                 $xml .= '</' . Field::xmlTagClear($slug) . '>';
 
                 return $xml;
                 break;
             case "JSON":
                 $fieldArray = [$slug => ['type' => 'Text']];
-                $fieldArray[$slug]['value'] = 'TEXT VALUE';
+                $fieldArray[$slug]['value'] = 'This is sample text for this text field.';
 
                 return $fieldArray;
                 break;

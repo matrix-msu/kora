@@ -384,11 +384,11 @@ class RevisionController extends Controller {
                 break;
             case 'Gallery':
                 $names = explode('[!]', $data['names']);
-                $captions = explode('[!]', $data['captions']);
+                $captions =  isset($data['captions']) ? explode('[!]', $data['captions']) : null;
                 $stringFile = '';
                 for($gi=0;$gi<count($names);$gi++) {
                     $capString = '';
-                    if($captions[$gi] != '')
+                    if(!is_null($captions) && $captions[$gi] != '')
                         $capString = ' - '.$captions[$gi];
                     $stringFile .= '<div>'.explode('[Name]',$names[$gi])[1].$capString.'</div>';
                 }

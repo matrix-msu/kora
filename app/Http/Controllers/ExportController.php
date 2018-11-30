@@ -623,7 +623,7 @@ class ExportController extends Controller {
                                 $url = url('app/files/p'.$data->pid.'/f'.$data->fid.'/r'.$data->rid.'/fl'.$data->flid) . '/';
                                 $value = array();
                                 $files = explode('[!]',$data->value);
-                                $captions = !is_null($data->val2) ? explode('[!]',$data->val2) : null;
+                                $captions = (!is_null($data->val2) && $data->val2!='') ? explode('[!]',$data->val2) : null;
                                 for($gi=0;$gi<sizeof($files);$gi++) {
                                     $info = [
                                         'name' => explode('[Name]',$files[$gi])[1],
@@ -633,6 +633,8 @@ class ExportController extends Controller {
                                     ];
                                     if(!is_null($captions))
                                         $info['caption'] = $captions[$gi];
+                                    else
+                                        $info['caption']='';
                                     array_push($value,$info);
                                 }
                                 $records[$kid][$fieldIndex]['value'] = $value;
@@ -1036,12 +1038,14 @@ class ExportController extends Controller {
                             case Field::_GALLERY:
                                 $url = url('app/files/p'.$data->pid.'/f'.$data->fid.'/r'.$data->rid.'/fl'.$data->flid) . '/';
                                 $files = explode('[!]',$data->value);
-                                $captions = !is_null($data->val2) ? explode('[!]',$data->val2) : null;
+                                $captions = (!is_null($data->val2) && $data->val2!='') ? explode('[!]',$data->val2) : null;
                                 for($gi=0;$gi<sizeof($files);$gi++) {
                                     $fieldxml .= '<File>';
                                     $fieldxml .= '<Name>' . htmlspecialchars(explode('[Name]',$files[$gi])[1], ENT_XML1, 'UTF-8') . '</Name>';
                                     if(!is_null($captions))
                                         $fieldxml .= '<Caption>' . htmlspecialchars($captions[$gi], ENT_XML1, 'UTF-8') . '</Caption>';
+                                    else
+                                        $fieldxml .= '<Caption></Caption>';
                                     $fieldxml .= '<Size>' . floatval(explode('[Size]',$files[$gi])[1])/1000 . ' mb</Size>';
                                     $fieldxml .= '<Type>' . explode('[Type]',$files[$gi])[1] . '</Type>';
                                     $fieldxml .= '<Url>' . htmlspecialchars($url.explode('[Name]',$files[$gi])[1], ENT_XML1, 'UTF-8') . '</Url>';

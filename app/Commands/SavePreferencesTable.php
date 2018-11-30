@@ -47,7 +47,6 @@ class SavePreferencesTable extends Command implements ShouldQueue {
             foreach($prefs as $pref) {
                 $individual_pref_data = new Collection();
 
-                if ($pref->user_id == 1) continue; //skip the first admin account (the user who will be restoring)
                 $individual_pref_data->put("id", $pref->id);
                 $individual_pref_data->put("user_id", $pref->user_id);
                 $individual_pref_data->put("use_dashboard", $pref->use_dashboard);

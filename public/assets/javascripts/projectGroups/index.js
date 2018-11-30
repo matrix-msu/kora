@@ -124,13 +124,17 @@ Kora.ProjectGroups.Index = function() {
         "_token": CSRFToken,
         "_method": 'patch',
         "userIDs": userIDs,
-		"emails": invited_users_emails,
-		"message": invited_personal_msg,
+        "emails": invited_users_emails,
+        "message": invited_personal_msg,
         "projectGroup": projectGroup
       },
       success: function(data) {
-		window.localStorage.setItem('message', "User(s) Successfully Added to Permissions Group!");
-		location.reload();
+        //console.log(data)
+        window.localStorage.setItem('message', "User(s) Successfully Added to Permissions Group!");
+        window.location.reload();
+      },
+      error: function (err) {
+        console.log(err)
       }
     });
   }
@@ -314,6 +318,47 @@ Kora.ProjectGroups.Index = function() {
     });
   }
 
+  function setError (err) {
+    $('.add-users-modal-js .emails').html('');
+    $('.add-users-modal-js .emails').addClass('error');
+
+    for (let i = 0; i < err.length; i++) {
+      if (i == err.length - 1) {
+        $('.add-users-modal-js .error-message.emails').html($('.add-users-modal-js .error-message.emails').html() + err[i] + ' already exist!');
+      } else if (i == 0) {
+        $('.add-users-modal-js .error-message.emails').html($('.add-users-modal-js .error-message.emails').html() + 'Emails: ' + err[i] + ', ');
+      } else {
+        $('.add-users-modal-js .error-message.emails').html($('.add-users-modal-js .error-message.emails').html() + err[i] + ' ');
+      }
+    }
+
+    $('.add-users-modal-js .btn').addClass('disabled');
+  }
+
+  function initializeValidateEmails () {
+    let token = '_token='+CSRFToken;
+    let values = token + '&' + $(this).serialize();
+
+    $.ajax({
+      url: validateEmailsUrl,
+      type: 'POST',
+      data: values,
+      success: function (data) {
+        if (data.message.length >= 1) {
+          setError(data.message);
+        } else {
+          $('.add-users-modal-js .emails').removeClass('error');
+          $('.add-users-modal-js .error-message.emails').text('');
+          $('.add-users-modal-js .btn').removeClass('disabled');
+        }
+      },
+      error: function (err) {
+        console.log('Error:');
+        console.log(err);
+      }
+    });
+  }
+
   function initializeAddUsersModal() {
     $(document).on('click', '.add-users-js', function(e) {
       e.preventDefault();
@@ -347,8 +392,8 @@ Kora.ProjectGroups.Index = function() {
           e.preventDefault();
 
           var users_to_add = $("#select-" + groupID).chosen().val();
-		  var invited_users_emails = $("#emails-" + groupID).val();
-		  var invited_personal_msg = $("#message-" + groupID).val();
+          var invited_users_emails = $("#emails-" + groupID).val();
+          var invited_personal_msg = $("#message-" + groupID).val();
 
           // Validation: at least one selected
           self.addUsers(groupID, users_to_add, invited_users_emails, invited_personal_msg, $select);
@@ -365,6 +410,7 @@ Kora.ProjectGroups.Index = function() {
       $('.add-users-submit-js').on('click', submitUsers(groupID, $addUserModal, $select));
 		
       Kora.Modal.open($addUserModal);
+      $('.emails').on('blur', initializeValidateEmails);
     });
   }
 
@@ -573,6 +619,7 @@ Kora.ProjectGroups.Index = function() {
   initializeDeletePermissionModal();
   initializeEditGroupNameModal();
   initializeAddUsersModal();
+  // initializeValidateEmails();
   initializeRemoveUserModal();
   initializeViewUserModal();
   initializeUserCardEllipsifying();
