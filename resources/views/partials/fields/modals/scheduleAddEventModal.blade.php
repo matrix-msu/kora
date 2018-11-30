@@ -1,4 +1,4 @@
-<div class="modal modal-js modal-mask schedule-add-event-modal-js">
+<div class="modal modal-js modal-mask schedule-add-event-modal schedule-add-event-modal-js">
     <div class="content">
         <div class="header">
             <span class="title title-js">Add a New Event</span>
@@ -13,12 +13,12 @@
                 <input type="text" class="text-input event-name-js" maxlength="24"
                        placeholder="Enter the Event name here"/>
             </div>
-            <div class="form-group mt-xl half">
+            <div class="form-group mt-xl half date-picker-form-group">
                 {!! Form::label('startdatetime','Start Time') !!}
                 <span class="error-message"></span>
                 <input type='text' class="text-input event-start-time-js"/>
             </div>
-            <div class="form-group mt-xl half cal-padding-fix">
+            <div class="form-group mt-xl half cal-padding-fix date-picker-form-group">
                 {!! Form::label('enddatetime','End Time') !!}
                 <span class="error-message"></span>
                 <input type='text' class="text-input event-end-time-js"/>
