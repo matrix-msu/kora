@@ -307,6 +307,28 @@ class AdminController extends Controller {
 		
         return response()->json(["status" => true, "message" => $message, "action" => $action], 200);
       }
+      
+    /**
+      * Checks whether the email is already taken.
+      *
+      * @param  string $email - Email to compare
+      * @return bool - The result of its existence
+      */
+    public function validateEmails(Request $request) {
+        $emails = str_replace(',', ' ', $request->emails);
+        $emails = preg_replace('!\s+!', ' ', $emails);
+        $emails = array_unique(explode(' ', $emails));
+
+        $existingEmails = array();
+        foreach ($emails as $email) {
+            if (self::emailExists($email)) {
+                array_push($existingEmails, $email);
+            }
+        }
+
+        // return json response of all emails that already exist
+        return response()->json(["status" => true, "message" => $existingEmails], 200);
+    }
 
     /**
      * Batch invites users to Kora3 using list of emails. Creates users in the db if they don't exist.
@@ -319,6 +341,11 @@ class AdminController extends Controller {
         $emails = preg_replace('!\s+!', ' ', $emails);
         $emails = array_unique(explode(' ', $emails));
         $personal_message = $request->message;
+
+        if (isset($request->projectGroup)) {
+            $projectGroup = ProjectGroup::where('id', '=', $request->projectGroup)->first();
+            $project = Project::where('pid','=',$projectGroup->pid)->first();
+        }
 
         $notification = array(
             'message' => '',
@@ -334,10 +361,10 @@ class AdminController extends Controller {
             $skipped = 0;
             $created = 0;
 			$user_ids = array();
-			
-            foreach($emails as $email) {
-				if(filter_var($email, FILTER_VALIDATE_EMAIL)) {
-					$username = explode('@', $email)[0];
+
+            foreach ($emails as $email) {
+                if (filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                    $username = explode('@', $email)[0];
                     $i = 1;
                     $username_array = array();
                     $username_array[0] = $username;
@@ -348,12 +375,12 @@ class AdminController extends Controller {
                         $username = implode($username_array);
                         $i++;
                     }
-					
-					if(!self::emailExists($email)) {
+
+                    if(!self::emailExists($email)) {
                         //
                         // Create the new user.
                         //
-                        $user = new User();
+                        $user = new User;
                         $user->username = $username;
                         $user->email = $email;
                         $password = self::passwordGen();
@@ -362,8 +389,8 @@ class AdminController extends Controller {
                         $token = RegisterController::makeRegToken();
                         $user->regtoken = $token;
                         $user->save();
-						array_push($user_ids, $user->id);
-						
+                        array_push($user_ids, $user->id);
+
                         //
                         // Assign the new user a default set of preferences.
                         //
@@ -380,7 +407,8 @@ class AdminController extends Controller {
                         // Send a confirmation email.
                         //
                         try {
-                            Mail::send('emails.batch-activation', compact('token', 'password', 'username', 'personal_message'), function ($message) use ($email) {
+                            $sender = Auth::User();
+                            Mail::send('emails.batch-activation', compact('token', 'password', 'username', 'personal_message', 'sender', 'project', 'projectGroup'), function ($message) use ($email) {
                                 $message->from(config('mail.from.address'));
                                 $message->to($email);
                                 $message->subject('Kora Account Activation');
@@ -395,19 +423,19 @@ class AdminController extends Controller {
                         }
                         $created++;
                     } else {
-                        if(isset($request->return_user_ids)) { // return user id of existing user
-							$user = User::where('email', '=', $email)->first();
-							array_push($user_ids, $user->id);
-						}
-						$skipped++;
+                        if (isset($request->return_user_ids)) { // return user id of existing user
+                            $user = User::where('email', '=', $email)->first();
+                            array_push($user_ids, $user->id);
+                        }
+                        $skipped++;
                     }
-				}
+		        }
             }
 
 			if(isset($request->return_user_ids))
 				return $user_ids;
 			else
-				return redirect('admin/users')->with('k3_global_success', 'batch_users')->with('batch_users_created', $created)->with('batch_users_skipped', $skipped)->with('notification', $notification);;
+				return redirect('admin/users')->with('k3_global_success', 'batch_users')->with('batch_users_created', $created)->with('batch_users_skipped', $skipped)->with('notification', $notification);
         }
     }
 
