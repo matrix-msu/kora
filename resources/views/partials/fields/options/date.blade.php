@@ -72,13 +72,17 @@
     <div class="form-group mt-xl half pr-m">
         {!! Form::label('start','Start Year') !!}
         <span class="error-message"></span>
-        {!! Form::input('number', 'start', \App\Http\Controllers\FieldController::getFieldOption($field,'Start'), ['class' => 'text-input start-year-js', 'placeholder' => 'Enter start year here']) !!}
+        <div class="number-input-container number-input-container-js">
+            {!! Form::input('number', 'start', \App\Http\Controllers\FieldController::getFieldOption($field,'Start'), ['class' => 'text-input start-year-js', 'placeholder' => 'Enter start year here']) !!}
+        </div>
     </div>
 
     <div class="form-group mt-xl half pl-m">
         {!! Form::label('end','End Year') !!}
         <span class="error-message"></span>
-        {!! Form::input('number', 'end', \App\Http\Controllers\FieldController::getFieldOption($field,'End'), ['class' => 'text-input end-year-js', 'placeholder' => 'Enter end year here']) !!}
+        <div class="number-input-container number-input-container-js">
+            {!! Form::input('number', 'end', \App\Http\Controllers\FieldController::getFieldOption($field,'End'), ['class' => 'text-input end-year-js', 'placeholder' => 'Enter end year here']) !!}
+        </div>
     </div>
 
     <div class="form-group mt-xl">
@@ -94,4 +98,5 @@
 
 @section('fieldOptionsJS')
     Kora.Fields.Options('Date');
+    Kora.Inputs.Number();
 @stop
