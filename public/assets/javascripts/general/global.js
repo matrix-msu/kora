@@ -107,75 +107,13 @@ function getURLParameter(name) {
   return decodeURIComponent((new RegExp('[?|&]' + name + '=' + '([^&;]+?)(&|#|;|$)').exec(location.search) || [null, ''])[1].replace(/\+/g, '%20')) || null;
 }
 
-
-//function popURLStack() {
-//	var url_stack = sessionStorage.getItem("url_stack");
-//	var urls = url_stack.split(" ");
-//	
-//	var new_stack = "";
-//	var first = true;
-//	// ignore the last (we are effectively removing it)
-//	for (var i = 0; i < urls.length - 1; i++) {
-//		if (first) {
-//			first = false;
-//			new_stack = new_stack + urls[i];
-//		} else {
-//			new_stack = new_stack + " " + urls[i];
-//		}
-//	}
-//	
-//	sessionStorage.setItem("url_stack", new_stack);
-//}
+// back button clicked
+$("a.back").click(function(e) {
+  e.preventDefault();
+  history.back(-1);
+});
 
 $(document).ready(function() {
-  // TODO - do not add to stack if same as last url (page refresh case)
-  //var current_url = window.location;
-  ////var url_stack = getCookie("url_stack");
-  //var url_stack = sessionStorage.getItem("url_stack");
-  //
-  //if (url_stack != null) {
-	//var urls = url_stack.split(" ");
-	//var previous_url = urls[urls.length - 1];
-	//
-	//if (previous_url != null && previous_url == current_url) {
-	//  // ignore, do not put it on the stack (likely a page refresh)
-	//  console.log("Ignoring this url");
-	//  var previous_previous_url = urls[urls.length - 2];
-	//  if (previous_previous_url != null) {
-	//    $("a.back").attr("href", previous_previous_url);
-	//  }
-	//} else {
-	//  if (previous_url != null) {
-	//    $("a.back").attr("href", previous_url);
-	//  }
-	//  var new_stack = url_stack + " " + current_url;
-	//  //setCookie("url_stack", new_stack, 1);
-	//  sessionStorage.setItem("url_stack", new_stack);
-	//}
-  //} else {
-	////setCookie("url_stack", current_url, 1);
-	//sessionStorage.setItem("url_stack", current_url);
-  //}
-  //
-  //console.log("Now at: " + current_url);
-  ////console.log("Previous URL: " + previous_url);
-  //
-  //console.log("url_stack: " + sessionStorage.getItem("url_stack"));
-  //console.log("\n");
-  
-  $("a.back").click(function(e) {
-	//popURLStack();
-	e.preventDefault();
-	history.back(-1);
-  });
-  
-  
-  
-  
-  
-  
-  
-	
   setFixedElement(true);
 
   var $sidebarCookie = getCookie('sidebar');
