@@ -197,7 +197,7 @@ class RichTextField extends BaseField {
         $this->flid = $field->flid;
         $this->rid = $record->rid;
         $this->fid = $field->fid;
-        $this->rawtext = '<b>K3TR</b>: This is a <i>test</i> record';
+        $this->rawtext = '<i>This</i> <u>sample text</u> is <b>Rich!</b>';
         $this->save();
     }
 
@@ -281,14 +281,14 @@ class RichTextField extends BaseField {
         switch ($type){
             case "XML":
                 $xml = '<' . Field::xmlTagClear($slug) . ' type="Rich Text">';
-                $xml .= utf8_encode('<b>RICH TEXT VALUE</b>');
+                $xml .= utf8_encode('<i>This</i> <u>sample text</u> is <b>Rich!</b>');
                 $xml .= '</' . Field::xmlTagClear($slug) . '>';
 
                 return $xml;
                 break;
             case "JSON":
                 $fieldArray = [$slug => ['type' => 'Rich Text']];
-                $fieldArray[$slug]['value'] = '<b>RICH TEXT VALUE</b>';
+                $fieldArray[$slug]['value'] = '<i>This</i> <u>sample text</u> is <b>Rich!</b>';
 
                 return $fieldArray;
                 break;

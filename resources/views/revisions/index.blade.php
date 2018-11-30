@@ -3,7 +3,7 @@
 @section('leftNavLinks')
     @include('partials.menu.project', ['pid' => $form->pid])
     @include('partials.menu.form', ['pid' => $form->pid, 'fid' => $form->fid])
-    @if (isset($rid))
+    @if(isset($rid) && !is_null($record))
         @include('partials.menu.record', ['pid' => $form->pid, 'fid' => $form->fid, 'rid' => $rid])
     @endif
     @include('partials.menu.static', ['name' => 'Record Revisions'])

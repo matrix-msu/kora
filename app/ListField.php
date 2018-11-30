@@ -206,7 +206,7 @@ class ListField extends BaseField {
         $this->flid = $field->flid;
         $this->rid = $record->rid;
         $this->fid = $field->fid;
-        $this->option = 'K3TR';
+        $this->option = 'This is the list option that was selected';
         $this->save();
     }
 
@@ -294,14 +294,14 @@ class ListField extends BaseField {
         switch($type) {
             case "XML":
                 $xml = '<' . Field::xmlTagClear($slug) . ' type="List">';
-                $xml .= utf8_encode('LIST VALUE');
+                $xml .= utf8_encode('This is the list option that was selected');
                 $xml .= '</' . Field::xmlTagClear($slug) . '>';
 
                 return $xml;
                 break;
             case "JSON":
                 $fieldArray = [$slug => ['type' => 'List']];
-                $fieldArray[$slug]['value'] = 'VALUE';
+                $fieldArray[$slug]['value'] = 'This is the list option that was selected';
 
                 return $fieldArray;
                 break;

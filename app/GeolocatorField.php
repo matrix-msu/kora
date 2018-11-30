@@ -314,7 +314,7 @@ class GeolocatorField extends BaseField {
         $this->fid = $field->fid;
         $this->save();
 
-        $this->addLocations(['[Desc]K3TR[Desc][LatLon]13,37[LatLon][UTM]37P:283077.41182513,1437987.6443346[UTM][Address] Appelstra�e Hanover Lower Saxony[Address]']);
+        $this->addLocations(['[Desc]Matrix[Desc][LatLon]42.7314094,-84.476258[LatLon][UTM]16T:706605.1715423,4734077.6308044[UTM][Address]288 Farm Ln, East Lansing, MI 48823[Address]']);
     }
 
     /**
@@ -392,19 +392,21 @@ class GeolocatorField extends BaseField {
      * @param  string $slug - Field nickname
      * @param  string $expType - Type of export
      * @return mixed - The example
+     *
+     * [Desc]Matrix[Desc][LatLon]42.7314094,-84.476258[LatLon][UTM]16T:706605.1715423,4734077.6308044[UTM][Address]288 Farm Ln, East Lansing, MI 48823[Address]
      */
     public function getExportSample($slug,$type) {
         switch($type) {
             case "XML":
                 $xml = '<' . Field::xmlTagClear($slug) . ' type="Geolocator">';
                 $xml .= '<Location>';
-                $xml .= '<Desc>' . utf8_encode('LOCATION DESCRIPTION') . '</Desc>';
-                $xml .= '<Lat>' . utf8_encode('i.e. 13') . '</Lat>';
-                $xml .= '<Lon>' . utf8_encode('i.e. 14.5') . '</Lon>';
-                $xml .= '<Zone>' . utf8_encode('i.e. 38T') . '</Zone>';
-                $xml .= '<East>' . utf8_encode('i.e. 59233.235234') . '</East>';
-                $xml .= '<North>' . utf8_encode('i.e. 52833.265454') . '</North>';
-                $xml .= '<Address>' . utf8_encode('TEXTUAL REPRESENTATION OF LOCATION') . '</Address>';
+                $xml .= '<Desc>' . utf8_encode('Matrix') . '</Desc>';
+                $xml .= '<Lat>' . utf8_encode('42.7314094') . '</Lat>';
+                $xml .= '<Lon>' . utf8_encode('-84.476258') . '</Lon>';
+                $xml .= '<Zone>' . utf8_encode('16T') . '</Zone>';
+                $xml .= '<East>' . utf8_encode('706605.1715423') . '</East>';
+                $xml .= '<North>' . utf8_encode('4734077.6308044') . '</North>';
+                $xml .= '<Address>' . utf8_encode('288 Farm Ln, East Lansing, MI 48823') . '</Address>';
                 $xml .= '</Location>';
                 $xml .= '</' . Field::xmlTagClear($slug) . '>';
 
@@ -415,13 +417,13 @@ class GeolocatorField extends BaseField {
 
                 $locArray = array();
 
-                $locArray['desc'] = 'LOCATION DESCRIPTION';
-                $locArray['lat'] = 'i.e. 13';
-                $locArray['lon'] = 'i.e. 14.5';
-                $locArray['zone'] = 'i.e. 38T';
-                $locArray['east'] = 'i.e. 59233.235234';
-                $locArray['north'] = 'i.e. 52833.265454';
-                $locArray['address'] = 'TEXTUAL REPRESENTATION OF LOCATION';
+                $locArray['desc'] = 'Matrix';
+                $locArray['lat'] = '42.7314094';
+                $locArray['lon'] = '-84.476258';
+                $locArray['zone'] = '16T';
+                $locArray['east'] = '706605.1715423';
+                $locArray['north'] = '4734077.6308044';
+                $locArray['address'] = '288 Farm Ln, East Lansing, MI 48823';
                 $fieldArray[$slug]['value'] = $locArray;
 
                 return $fieldArray;
