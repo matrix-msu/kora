@@ -21,7 +21,7 @@ Kora.Inputs.Number = function() {
 
     $numberInputs.each(function() {
       var $input = $(this);
-      var val = $input.val();
+      var val = ($input.val() && $.isNumeric($input.val()) ? parseFloat($input.val()) : 0);
       var step = ($input.attr('step') && $.isNumeric($input.attr('step')) ? parseFloat($input.attr('step')) : 1);
 
       // Set decimal places for val
@@ -35,7 +35,7 @@ Kora.Inputs.Number = function() {
     var $arrowsContainer = $input.siblings('.num-arrows');
     var $arrows = $arrowsContainer.find('.arrow-js');
 
-    var num = ($input.val() && $.isNumeric($input.val()) ? parseInt($input.val()) : 0);
+    var num = ($input.val() && $.isNumeric($input.val()) ? parseFloat($input.val()) : 0);
     var min = ($input.attr('min') ? parseInt($input.attr('min')) : 'unlimited');
     var max = ($input.attr('max') ? parseInt($input.attr('max')) : 'unlimited');
     var step = ($input.attr('step') && $.isNumeric($input.attr('step')) ? parseFloat($input.attr('step')) : 1);
