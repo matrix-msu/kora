@@ -443,7 +443,7 @@
   }
 
   .audio-filename {
-    margin: 0 0 20px 20px;
+    margin: 5px 0 10px 10px;
   }
 }
 
@@ -451,26 +451,42 @@
   margin: auto;
 }
 
-.model-player-div {
-  margin: auto;
-  position: relative;
-  width: 800px;
-}
-
+// Rich Text
 .richtext-field-display {
   .richtext {
     box-sizing: border-box;
     margin: 0;
     min-height: 77px;
-    padding: 0 20px 0 0;
+    padding: 0 10px;
   }
 }
 
-//IF YOU CHANGE THIS HEIGHT, CHANGE IT IN THE RECORD DISPLAY FULLSCREEN JAVASCRIPT FUNCTIONS
+// Schedule
+.fc-icon {
+  height: 100%;
+
+  &::after {
+    top: 5%;
+  }
+}
+
+// 3D Model
+// IF YOU CHANGE THIS HEIGHT, CHANGE IT IN THE RECORD DISPLAY FULLSCREEN JAVASCRIPT FUNCTIONS
 .model-player-canvas {
-  border: 1px solid;
-  height: 400px;
-  width: 800px;
+  border-radius: 5px;
+  width: 100%;
+}
+
+.model-player-div {
+  margin: auto;
+  position: relative;
+  width: 100%;
+}
+
+.model-wrapper {
+  border-radius: 5px;
+  overflow: hidden;
+  width: 100%;
 }
 
 /***** Fullscreen Modal *****/
