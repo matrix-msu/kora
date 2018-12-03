@@ -61,15 +61,16 @@ class DashboardController extends Controller {
 
         $results = DB::table('dashboard_sections')->where('uid','=',Auth::user()->id)->orderBy('order')->get();
 
-        if(count($results) == 0) {
+        if(count($results) == 0) { // if we have no sections, then we have no blocks
             $this->addSection('No Section');
+
             if(sizeof(Auth::User()->allowedProjects()) > 0)
-                $this->makeDefaultBlock('Project'); // create section + block
+                $results = $this->makeDefaultBlock('Project'); // create section + block
             else
-                $this->makeDefaultBlock('Fun'); // If no projects, make an inspiration quote
-        } elseif (count($results) > 1) {
+                $results = $this->makeDefaultBlock('Fun'); // If no projects, make an inspiration quote
+
+        } else
             $this->makeNonSectionFirst();
-        }
 
         foreach($results as $sec) {
             $s = array();
@@ -215,13 +216,13 @@ class DashboardController extends Controller {
         switch($type) {
             case "Project":
                 $sec_id = DB::table('dashboard_sections')->insertGetId(
-                    ['uid' => Auth::User()->id, 'title' => 'Projects', 'order' => 0]
+                    ['uid' => Auth::User()->id, 'title' => 'Projects', 'order' => 1]
                 );
 
                 $proj_id = Auth::User()->allowedProjects()[0]->pid;
                 $options_string = '{"pid": ' . $proj_id .
                     ', "displayed": ["edit", "search", "form-new", "form-import", "permissions", "presets"]' .
-                    ', "hidden": []}';
+                    ', "hidden": ["import", "import2k", "export"]}';
 
                 DB::table('dashboard_blocks')->insert([
                     'sec_id' => $sec_id,
@@ -230,11 +231,13 @@ class DashboardController extends Controller {
                     'options' => $options_string
                 ]);
 
+                //$this->addSection('No Section');
                 return DB::table('dashboard_sections')->where('uid','=',Auth::user()->id)->orderBy('order')->get();
+                //return redirect('dashboard')->with('k3_global_success', 'block_modified');
                 break;
             case "Fun":
                 $sec_id = DB::table('dashboard_sections')->insertGetId(
-                    ['uid' => Auth::User()->id, 'title' => 'Example', 'order' => 0]
+                    ['uid' => Auth::User()->id, 'title' => 'Example', 'order' => 1]
                 );
 
                 $options_string = '{}';
@@ -246,6 +249,7 @@ class DashboardController extends Controller {
                     'options' => $options_string
                 ]);
 
+                $this->addSection('No Section');
                 return DB::table('dashboard_sections')->where('uid','=',Auth::user()->id)->orderBy('order')->get();
                 break;
         }
@@ -546,6 +550,15 @@ class DashboardController extends Controller {
         return response()->json(["status"=>true, "message"=>"Block destroyed", 200]);
     }
 
+    private function reorderBlocks($secID) {
+        $blocks = DB::table("dashboard_blocks")->where("sec_id", "=", $secID)->orderBy('order','asc')->get();
+        $int = 0;
+        foreach($blocks as $block) {
+            DB::table('dashboard_blocks')->where('id', $block->id)->update(['order' => $int]);
+            $int++;
+        }
+    }
+
     private function makeNonSectionFirst () {
         $firstSection = DB::table("dashboard_sections")->where('uid','=',Auth::user()->id)->orderBy('order','asc')->first()->order - 1;
 
@@ -562,15 +575,6 @@ class DashboardController extends Controller {
         $int = 0;
         foreach ($sections as $section) {
             DB::table('dashboard_sections')->where('id', $section->id)->update(['order' => $int]);
-            $int++;
-        }
-    }
-
-    private function reorderBlocks($secID) {
-        $blocks = DB::table("dashboard_blocks")->where("sec_id", "=", $secID)->orderBy('order','asc')->get();
-        $int = 0;
-        foreach($blocks as $block) {
-            DB::table('dashboard_blocks')->where('id', $block->id)->update(['order' => $int]);
             $int++;
         }
     }

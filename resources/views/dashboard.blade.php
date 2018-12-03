@@ -50,7 +50,7 @@
                 <i class="icon icon-edit"></i>
             </a>
         </div>
-    </div>
+	</div>
 
     <div class="sections" id="sections">
     @foreach($sections as $section)
@@ -95,7 +95,7 @@
 								{{ $block['description'] }}
 							</p>
 							<div class="element-link-container">
-							@if (\Auth::user()->admin ||  \Auth::user()->isProjectAdmin(\App\Http\Controllers\ProjectController::getProject($pid)))
+							@if (\Auth::user()->admin ||  \Auth::user()->isProjectAdmin(\App\Http\Controllers\ProjectController::getProject($block['pid'])))
 								@foreach($block['displayedOpts'] as $link)
 									<a href="{{ $link['href'] }}" class="element-link tooltip {{ $link['type'] }}"
 									tooltip="{{ $link['tooltip'] }}" quickAction="{{ $link['type'] }}">

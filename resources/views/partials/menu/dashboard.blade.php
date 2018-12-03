@@ -2,7 +2,6 @@
 @if (\App\Http\Controllers\Auth\UserController::returnUserPrefs($pref) == "1")
   <li class="navigation-item nav-dashboard">
       <a href="{{ url('/dashboard') }}">
-        <i class="icon icon-dashboard"></i>
         <span>Dashboard</span>
       </a>
   </li>
