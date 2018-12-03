@@ -39,17 +39,8 @@ class Handler extends ExceptionHandler {
 	 * @return \Illuminate\Http\Response
 	 */
 	public function render($request, Exception $exception)
-	{
-		if ($this->isHttpException($exception)) {
-			switch ($exception->getStatusCode()) {
-				case 404:
-					return response()->view('errors.404', ['install_admin_email' => $install_admin->email], 404);
-					break;
-			}
-		}
-		
+	{		
 		if ($exception instanceof \ErrorException) {
-			Log::info("ErrorException!");
 			$install_admin = User::where('id','=',1)->first();
 			return response()->view('errors.500', ['install_admin_email' => $install_admin->email], 500);
 		}

@@ -6,14 +6,11 @@
     <div class="e500">
         <div class="form-container center">
 			<div class="subheader mt-m">Whoops, something went wrong.</div>
-			
 			<div class="main-info mt-xxxl">Feel free to contact the Installation Admin</div>
-			
 			<a href="mailto:{{$install_admin_email}}" class="link">{{$install_admin_email}}</a>
-			
 			<div class="main-info">about this problem, or ...</div>
 			
-			<button id="home-button" class="footer-spacing btn mt-xxxl" type="submit">Go Back</button>
+			<button id="back-button" class="footer-spacing btn mt-xxxl" type="submit">Go Back</button>
         </div>
     </div>
   </div>
@@ -39,8 +36,8 @@
 	])->withFullUrl() !!}
 	
 	<script type="text/javascript">
-		$("#home-button").click(function() {
-			window.location.replace("{{URL::previous()}}");
+		$("#back-button").click(function() {
+			history.back(-1);
 		});
 	</script>
 @stop

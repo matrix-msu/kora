@@ -5,13 +5,9 @@
     <div class="e404">
         <div class="form-container center">
             <div class="header">404</div>
-			
 			<div class="subheader mt-sm">We couldn't find the page you're looking for.</div>
-			
 			<div class="main-info mt-xxl">Feel free to contact the Installation Admin</div>
-			
 			<a href="mailto:{{$install_admin_email}}" class="link">{{$install_admin_email}}</a>
-			
 			<div class="main-info">about this problem, or ...</div>
 			
 			<button id="home-button" class="footer-spacing btn mt-xl" type="submit">Go to Kora Home</button>
