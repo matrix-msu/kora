@@ -5,8 +5,6 @@ use Exception;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 
-use Illuminate\Support\Facades\Log;
-
 class Handler extends ExceptionHandler {
 
 	/**
