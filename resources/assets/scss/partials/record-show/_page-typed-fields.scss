@@ -1,4 +1,38 @@
 /***** UNIVERSAL *****/
+.field-btn {
+  background: palette('white', base);
+  border: 1px solid palette('gray', slate, .1);
+  border-radius: 5px;
+  box-shadow: 0 3px 5px 0 palette('gray', slate, .05);
+  cursor: pointer;
+  display: flex;
+  height: 32px;
+  position: relative;
+  @include transition();
+  width: 32px;
+  z-index: 1;
+
+  .icon {
+    margin: auto;
+  }
+
+  &:hover {
+    background: #f4f4f4;
+  }
+
+  &-circle {
+    border-radius: 18px;
+    height: 36px;
+    width: 36px;
+  }
+
+  &.modal-toggle {
+    position: absolute;
+    right: 10px;
+    top: 10px;
+  }
+}
+
 .field-display {
   width: calc(100% - 44px);
 }
@@ -125,34 +159,6 @@
   padding-bottom: #{ $underline-padding };
 }
 
-.field-btn {
-  background: palette('white', base);
-  border: 1px solid palette('gray', slate, .1);
-  border-radius: 5px;
-  box-shadow: 0 3px 5px 0 palette('gray', slate, .05);
-  cursor: pointer;
-  display: flex;
-  height: 32px;
-  position: relative;
-  @include transition();
-  width: 32px;
-  z-index: 1;
-
-  .icon {
-    margin: auto;
-  }
-
-  &:hover {
-    background: palette('gray', slate, .05);
-  }
-
-  &-circle {
-    border-radius: 18px;
-    height: 36px;
-    width: 36px;
-  }
-}
-
 /***** DOCUMENT *****/
 .document-field-display {
   .filename {
@@ -259,6 +265,7 @@
 
   .slide {
     bottom: 0;
+    cursor: pointer;
     display: flex;
     left: 2000px;
     position: absolute;
@@ -278,33 +285,37 @@
 }
 
 .gallery-modal {
+  .caption-container {
+    margin: auto;
+    padding: 0 0 20px;
+    width: 90%;
+  }
+
   .content {
     display: block;
-    height: 80vh;
+    height: 90vh;
+    max-width: none;
     overflow-y: unset;
+    padding: 0;
+    width: 90vw;
 
     .body {
       height: 100%;
-      padding: 100px 40px 40px;
+      padding: 0;
       width: 100%;
     }
 
     .gallery-field-display {
-      height: calc(100% - 58px);
+      height: 75%;
+      min-height: 400px;
       width: 100%;
     }
   }
 
   .gallery-controls {
-    width: 100%;
-  }
-
-  @media screen and (max-width: $max-mobile-med-width) {
-    .content {
-      .body {
-        padding: 100px 0 40px;
-      }
-    }
+    margin: auto;
+    padding: 20px 0;
+    width: 90%;
   }
 }
 
@@ -341,13 +352,49 @@
 
 .geolocator-map-modal {
   .content {
+    max-width: none;
+    padding: 0;
+    height: 100vh;
+    width: 100vw;
+
     .body {
-      padding: 100px 0 20px;
+      height: 100vh;
+      padding: 0;
     }
   }
 
   .geolocator-modal-map {
-    height: 60vh;
+    height: 100%;
+  }
+
+  .modal-toggle {
+    background: palette('white', base);
+    border: 1px solid palette('gray', slate, .1);
+    border-radius: 5px;
+    box-shadow: 0 3px 5px 0 palette('gray', slate);
+    cursor: pointer;
+    display: flex;
+    height: 32px;
+    position: absolute;
+    right: 10px;
+    top: 10px;
+    @include transition();
+    width: 32px;
+    z-index: 1;
+
+    .icon {
+      margin: auto;
+    }
+
+    &:hover {
+      background: #f4f4f4;
+    }
+
+    &-circle {
+      border-radius: 18px;
+      height: 36px;
+      width: 36px;
+    }
   }
 }
 

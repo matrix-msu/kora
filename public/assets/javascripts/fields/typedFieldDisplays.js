@@ -7,6 +7,7 @@ Kora.Fields.TypedFieldDisplays.Initialize = function() {
         $('.gallery-field-display-js').each(function() {
             var $this = $(this);
             var $slides = $this.find('.slide-js');
+            var $galleryModal = $this.parent().siblings('.modal-js');
             var $dotsContainer = $this.next().find('.dots-js');
             var slideCount = $slides.length;
             var currentSlide = 0;
@@ -47,6 +48,12 @@ Kora.Fields.TypedFieldDisplays.Initialize = function() {
 
             // Initialize Caption
             updateCaption(0);
+
+            // Clicking on a slide opens the modal
+            $slides.click(function(e) {
+                Kora.Modal.close();
+                Kora.Modal.open($galleryModal);
+            });
 
             // Need to wait for images to load before getting heights and widths
             $(window).load(function() {
