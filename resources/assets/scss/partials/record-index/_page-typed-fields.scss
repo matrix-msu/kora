@@ -365,7 +365,7 @@
 /***** AUDIO *****/
 .audio-field-display {
   .audio-container {
-    margin: 0 0 0 20px;
+    margin: 0 10px;
 
     .audio-button {
       color: palette('green', accent);
@@ -394,10 +394,18 @@
       vertical-align: middle;
       width: calc(100% - 60px);
 
+      .current-time,
+      .duration-time {
+        display: inline-block;
+        vertical-align: middle;
+      }
+
       .slider-bar {
         background: palette('gray', slate, .05);
+        display: inline-block;
         height: 4px;
         width: calc(100% - 120px);
+        vertical-align: middle;
       }
 
       .slider-button {
@@ -405,7 +413,7 @@
         left: calc(0% + 20px);
         padding: 10px;
         position: absolute;
-        top: -14px;
+        top: -6px;
         transition: .2s padding ease-in-out;
         z-index: 1;
 
@@ -443,7 +451,7 @@
   }
 
   .audio-filename {
-    margin: 5px 0 10px 10px;
+    margin: 5px 0 22px 10px;
   }
 }
 
