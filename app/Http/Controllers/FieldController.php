@@ -7,6 +7,7 @@ use App\Http\Requests\FieldRequest;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\File;
 use Illuminate\View\View;
@@ -353,7 +354,9 @@ class FieldController extends Controller {
         $options = $field->options;
         $tag = '[!'.$key.'!]';
         $value = explode($tag,$options)[1];
-
+		
+		//Log::info("FieldController:getFieldOption for field ".$field->name." and key ".$key." is ".(string)$value);
+		
         return $value;
     }
 

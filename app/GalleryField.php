@@ -61,8 +61,8 @@ class GalleryField extends FileTypeField  {
      * @return string - The default options
      */
     public function getDefaultOptions(Request $request) {
-        return '[!FieldSize!]0[!FieldSize!][!ThumbSmall!]150x150[!ThumbSmall!][!ThumbLarge!]300x300[!ThumbLarge!]
-        [!MaxFiles!]0[!MaxFiles!][!FileTypes!]image/jpeg[!]image/gif[!]image/png[!]image/bmp[!FileTypes!]';
+        return '[!FieldSize!][!FieldSize!][!ThumbSmall!]150x150[!ThumbSmall!][!ThumbLarge!]300x300[!ThumbLarge!]
+        [!MaxFiles!][!MaxFiles!][!FileTypes!]image/jpeg[!]image/gif[!]image/png[!]image/bmp[!FileTypes!]';
     }
 
     /**
@@ -95,12 +95,7 @@ class GalleryField extends FileTypeField  {
         for($i=1;$i<sizeof($request->filetype);$i++) {
             $filetype .= '[!]'.$request->filetype[$i];
         }
-
-        if($request->filesize=='')
-            $request->filesize = 0;
-
-        if($request->maxfiles=='')
-            $request->maxfiles = 0;
+		
 
         $sx = $request->small_x;
         $sy = $request->small_y;

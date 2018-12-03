@@ -60,7 +60,7 @@ class ModelField extends FileTypeField  {
      * @return string - The default options
      */
     public function getDefaultOptions(Request $request) {
-        return '[!FieldSize!]0[!FieldSize!][!MaxFiles!]0[!MaxFiles!][!FileTypes!]obj[!]stl[!]application/octet-stream[!]
+        return '[!FieldSize!][!FieldSize!][!MaxFiles!][!MaxFiles!][!FileTypes!]obj[!]stl[!]application/octet-stream[!]
         image/jpeg[!]image/png[!FileTypes!][!ModelColor!]#ddd[!ModelColor!][!BackColorOne!]#2E4F5E[!BackColorOne!]
         [!BackColorTwo!]#152730[!BackColorTwo!]';
     }
@@ -97,12 +97,12 @@ class ModelField extends FileTypeField  {
             $filetype .= '[!]'.$request->filetype[$i];
         }
 
-        if($request->filesize=='')
-            $request->filesize = 0;
 
         $field->updateRequired($request->required);
         $field->updateSearchable($request);
-        $field->updateOptions('FieldSize', $request->filesize);
+		if (isset($request->filesize)) {
+			$field->updateOptions('FieldSize', $request->filesize);
+		}
         $field->updateOptions('FileTypes', $filetype);
         $field->updateOptions('ModelColor', $request->color);
         $field->updateOptions('BackColorOne', $request->backone);

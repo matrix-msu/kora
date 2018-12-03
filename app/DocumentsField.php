@@ -96,12 +96,6 @@ class DocumentsField extends FileTypeField {
 			}
 		}
 
-        if($request->filesize=='')
-            $request->filesize = 0;
-
-        if($request->maxfiles=='')
-            $request->maxfiles = 0;
-
         $field->updateRequired($request->required);
         $field->updateSearchable($request);
         $field->updateOptions('FieldSize', $request->filesize);
