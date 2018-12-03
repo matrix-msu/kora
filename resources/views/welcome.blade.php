@@ -74,7 +74,6 @@
 @stop
 
 @section('javascripts')
-  @include('partials.auth.javascripts')
   
   <script type="text/javascript">
     var CSRFToken = '{{ csrf_token() }}';
