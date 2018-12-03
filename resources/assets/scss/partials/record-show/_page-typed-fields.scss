@@ -293,7 +293,8 @@
 
   .content {
     display: block;
-    height: 90vh;
+    height: auto;
+    max-height: 90vh;
     max-width: none;
     overflow-y: unset;
     padding: 0;
@@ -309,6 +310,10 @@
       height: 75%;
       min-height: 400px;
       width: 100%;
+
+      + .caption-container {
+        padding: 20px 0;
+      }
     }
   }
 
@@ -416,7 +421,7 @@
 /***** AUDIO *****/
 .audio-field-display {
   .audio-container {
-    margin: 0 10px;
+    margin: 0 10px 7px;
 
     .audio-button {
       color: palette('green', accent);
@@ -461,7 +466,7 @@
 
       .slider-button {
         cursor: pointer;
-        left: calc(0% + 20px);
+        left: calc(0% + 25px);
         padding: 10px;
         position: absolute;
         top: -6px;
@@ -502,7 +507,7 @@
   }
 
   .audio-filename {
-    margin: 5px 0 22px 10px;
+    margin: 5px 0 15px 10px;
   }
 }
 

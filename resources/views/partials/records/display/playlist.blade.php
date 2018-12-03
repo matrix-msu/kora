@@ -15,10 +15,10 @@
                     <div class="slider slider-js no-select ml-m">
                         <div class="slider-button slider-button-js"><div class="inner-button"></div></div>
 
-                        <span class="current-time current-time-js mr-xs">0:00</span>
+                        <span class="current-time current-time-js mr-sm">0:00</span>
                         <div class="slider-bar slider-bar-js"></div>
                         <div class="slider-progress-bar slider-progress-bar-js"></div>
-                        <span class="duration-time duration-time-js ml-xs">0:00</span>
+                        <span class="duration-time duration-time-js ml-sm">0:00</span>
                     </div>
 
                     <audio class="audio-clip audio-clip-js">

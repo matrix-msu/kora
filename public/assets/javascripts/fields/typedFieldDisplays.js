@@ -390,7 +390,7 @@ Kora.Fields.TypedFieldDisplays.Initialize = function() {
 
                 // Left as a percentage of the slider
                 function setSlider(left) {
-                    var leftPx = (left * sliderWidth / 100) + 20; //< Plus 20 because button initially shifted 20px right
+                    var leftPx = (left * sliderWidth / 100) + 25; //< Plus 20 because button initially shifted 20px right
                     $sliderButton.css('left', leftPx);
                 }
 
