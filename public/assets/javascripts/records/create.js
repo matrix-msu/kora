@@ -268,6 +268,34 @@ Kora.Records.Create = function() {
         });
     }
 
+    function initializeDateOptions() {
+        var $dateFormGroups = $('.date-input-form-group-js');
+        var $dateListInputs = $dateFormGroups.find('.chosen-container');
+
+        $eraCheckboxes = $('.era-check-js');
+
+        $eraCheckboxes.click(function() {
+            var $selected = $(this);
+
+            $eraCheckboxes.prop('checked', false);
+            $selected.prop('checked', true);
+        });
+
+        setTextInputWidth();
+
+        $(window).resize(setTextInputWidth);
+
+        function setTextInputWidth() {
+            if ($(window).outerWidth() < 875) {
+                // Window is small, full width Inputs
+                $dateListInputs.css('width', '100%');
+            } else {
+                // Window is large, 1/3 width Inputs
+                $dateListInputs.css('width', '33%');
+            }
+        }
+    }
+
     function initializeScheduleOptions() {
         Kora.Modal.initialize();
 
@@ -1214,6 +1242,7 @@ Kora.Records.Create = function() {
     initializeSpecialInputs();
     intializeAssociatorOptions();
     initializeComboListOptions();
+    initializeDateOptions();
     initializeScheduleOptions();
     intializeGeolocatorOptions();
     intializeFileUploaderOptions();
