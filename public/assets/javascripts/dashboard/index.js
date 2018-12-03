@@ -562,6 +562,20 @@ Kora.Dashboard.Index = function() {
             disabled: true
         });
 
+        // allows blocks to be dragged by the 'edit-block' button
+        // taken from https://stackoverflow.com/questions/22254701/drag-a-draggable-when-clicking-on-child?rq=1 -> http://jsfiddle.net/55bxX/1/
+        $(".container .edit-block-js").on('mousedown', function (e) {
+            var mdown = document.createEvent("MouseEvents");
+            mdown.initMouseEvent("mousedown", true, true, window, 0, e.screenX, e.screenY, e.clientX, e.clientY, true, false, false, true, 0, null);
+            $(this).closest('.edit-mode')[0].dispatchEvent(mdown);
+        }).on('click', function (e) {
+            var $draggable = $(this).closest('.edit-mode');
+            if ($draggable.data("preventBehaviour")) {
+                e.preventDefault();
+                $draggable.data("preventBehaviour", false)
+            }
+        });
+
         function updateNoteBlock (noteBlock) {
             let blockId = noteBlock.attr('id');
             let noteTitle = noteBlock.find('.note-title-js');
