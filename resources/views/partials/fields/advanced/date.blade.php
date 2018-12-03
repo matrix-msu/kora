@@ -1,36 +1,32 @@
 {!! Form::hidden('advanced',true) !!}
-<div class="form-group mt-xxxl">
-    {!! Form::label('default_month','Default Month') !!}
-    {!! Form::select('default_month',['' => '', '0' => 'Current Month',
-        '1' => '01 - '.date("F", mktime(0, 0, 0, 1, 10)), '2' => '02 - '.date("F", mktime(0, 0, 0, 2, 10)),
-        '3' => '03 - '.date("F", mktime(0, 0, 0, 3, 10)), '4' => '04 - '.date("F", mktime(0, 0, 0, 4, 10)),
-        '5' => '05 - '.date("F", mktime(0, 0, 0, 5, 10)), '6' => '06 - '.date("F", mktime(0, 0, 0, 6, 10)),
-        '7' => '07 - '.date("F", mktime(0, 0, 0, 7, 10)), '8' => '08 - '.date("F", mktime(0, 0, 0, 8, 10)),
-        '9' => '09 - '.date("F", mktime(0, 0, 0, 9, 10)), '10' => '10 - '.date("F", mktime(0, 0, 0, 10, 10)),
-        '11' => '11 - '.date("F", mktime(0, 0, 0, 11, 10)), '12' => '12 - '.date("F", mktime(0, 0, 0, 12, 10))],
-        null, ['class' => 'single-select', 'data-placeholder'=>"Select a Month"]) !!}
-</div>
+<div class="form-group date-input-form-group mt-xxxl">
+    <label>Select Date</label>
 
-<div class="form-group mt-xl">
-    {!! Form::label('default_day','Default Day') !!}
-    <select name="default_day" class="single-select" data-placeholder="Select a Day">
-        <option value=""></option>
-        <?php
+    <div class="date-inputs-container date-inputs-container-js">
+        {!! Form::select('default_month',['' => '', '0' => 'Current Month',
+            '1' => '01 - '.date("F", mktime(0, 0, 0, 1, 10)), '2' => '02 - '.date("F", mktime(0, 0, 0, 2, 10)),
+            '3' => '03 - '.date("F", mktime(0, 0, 0, 3, 10)), '4' => '04 - '.date("F", mktime(0, 0, 0, 4, 10)),
+            '5' => '05 - '.date("F", mktime(0, 0, 0, 5, 10)), '6' => '06 - '.date("F", mktime(0, 0, 0, 6, 10)),
+            '7' => '07 - '.date("F", mktime(0, 0, 0, 7, 10)), '8' => '08 - '.date("F", mktime(0, 0, 0, 8, 10)),
+            '9' => '09 - '.date("F", mktime(0, 0, 0, 9, 10)), '10' => '10 - '.date("F", mktime(0, 0, 0, 10, 10)),
+            '11' => '11 - '.date("F", mktime(0, 0, 0, 11, 10)), '12' => '12 - '.date("F", mktime(0, 0, 0, 12, 10))],
+            null, ['class' => 'single-select', 'data-placeholder'=>"Select a Month"]) !!}
+
+        <select name="default_day" class="single-select" data-placeholder="Select a Day">
+            <option value=""></option>
+            <?php
             echo "<option value=" . 0 . ">Current Day</option>";
             $i = 1;
             while($i <= 31) {
                 echo "<option value=" . $i . ">" . $i . "</option>";
                 $i++;
             }
-        ?>
-    </select>
-</div>
+            ?>
+        </select>
 
-<div class="form-group mt-xl">
-    {!! Form::label('default_year','Default Year') !!}
-    <select name="default_year" class="single-select default-year-js" data-placeholder="Select a Year">
-        <option value=""></option>
-        <?php
+        <select name="default_year" class="single-select default-year-js" data-placeholder="Select a Year">
+            <option value=""></option>
+            <?php
             echo "<option value=" . 0 . ">Current Year</option>";
             $i = 1900;
             $j = 2020;
@@ -38,8 +34,9 @@
                 echo "<option value=" . $i . ">" . $i . "</option>";
                 $i++;
             }
-        ?>
-    </select>
+            ?>
+        </select>
+    </div>
 </div>
 
 <div class="form-group mt-xl">

@@ -271,6 +271,7 @@ Kora.Records.Create = function() {
     function initializeDateOptions() {
         var $dateFormGroups = $('.date-input-form-group-js');
         var $dateListInputs = $dateFormGroups.find('.chosen-container');
+        var scrollBarWidth = 17;
 
         $eraCheckboxes = $('.era-check-js');
 
@@ -286,12 +287,14 @@ Kora.Records.Create = function() {
         $(window).resize(setTextInputWidth);
 
         function setTextInputWidth() {
-            if ($(window).outerWidth() < 875) {
+            if ($(window).outerWidth() < 1000 - scrollBarWidth) {
                 // Window is small, full width Inputs
                 $dateListInputs.css('width', '100%');
+                $dateListInputs.css('margin-bottom', '10px');
             } else {
                 // Window is large, 1/3 width Inputs
                 $dateListInputs.css('width', '33%');
+                $dateListInputs.css('margin-bottom', '');
             }
         }
     }

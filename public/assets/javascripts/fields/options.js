@@ -99,9 +99,29 @@ Kora.Fields.Options = function(fieldType) {
     //Fields that have specific functionality will have their own initialization process
 
     function initializeDateOptions() {
+        var $dateInputsContainers = $('.date-inputs-container-js');
+        var $dateListInputs = $dateInputsContainers.find('.chosen-container');
+        var scrollBarWidth = 17;
+
         $('.start-year-js').change(printYears);
 
         $('.end-year-js').change(printYears);
+
+        setTextInputWidth();
+
+        $(window).resize(setTextInputWidth);
+
+        function setTextInputWidth() {
+            if ($(window).outerWidth() < 1000 - scrollBarWidth) {
+                // Window is small, full width Inputs
+                $dateListInputs.css('width', '100%');
+                $dateListInputs.css('margin-bottom', '10px');
+            } else {
+                // Window is large, 1/3 width Inputs
+                $dateListInputs.css('width', '33%');
+                $dateListInputs.css('margin-bottom', '');
+            }
+        }
 
         function printYears(){
             start = $('.start-year-js').val(); end = $('.end-year-js').val();
@@ -213,7 +233,7 @@ Kora.Fields.Options = function(fieldType) {
                         '<span class="title">' + newListOption + '</span>' +
                         '</div>' +
                         '<div class="card-toggle-wrap">' +
-                        '<a class="list-option-delete list-option-delete-js" href=""><i class="icon icon-trash"></i></a>' +
+                        '<a class="list-option-delete list-option-delete-js tooltip" tooltip="Delete List Option" href=""><i class="icon icon-trash"></i></a>' +
                         '</div>' +
                         '</div>' +
                         '</div>';

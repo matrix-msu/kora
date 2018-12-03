@@ -12,7 +12,7 @@
     </div>
 </div>
 
-<div class="form-group mt-xl">
+<div class="form-group half mt-xl pr-sm">
     {!! Form::label('start','Start Year') !!}
     <span class="error-message"></span>
     <div class="number-input-container number-input-container-js">
@@ -20,7 +20,7 @@
     </div>
 </div>
 
-<div class="form-group mt-xl">
+<div class="form-group half mt-xl pl-sm">
     {!! Form::label('end','End Year') !!}
     <span class="error-message"></span>
     <div class="number-input-container number-input-container-js">

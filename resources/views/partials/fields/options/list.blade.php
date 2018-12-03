@@ -61,7 +61,7 @@
                 Create a New Value Preset from these List Options</a></div>
     </div>
 
-    <div class="form-group mt-xxxl">
+    <div class="form-group mt-70-xl">
         {!! Form::label('default','Default') !!}
         {!! Form::select('default',\App\ListField::getList($field,true), $field->default,
         ['class' => 'single-select list-default-js', 'data-placeholder' => 'Select the default value here (Value must be added above in order to select)']) !!}
