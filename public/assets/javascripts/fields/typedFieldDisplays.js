@@ -429,6 +429,20 @@ Kora.Fields.TypedFieldDisplays.Initialize = function() {
         });
     }
 
+    function initializeRichtext() {
+        $('.richtext-field-display-js').each(function() {
+            var $fieldDisplay = $(this);
+            var $sidebar = $fieldDisplay.siblings('.richtext-sidebar-js')
+            var $modal = $fieldDisplay.siblings('.modal-js');
+
+            $sidebar.find('.full-screen-button-js').click(function() {
+                Kora.Modal.close();
+                Kora.Modal.open($modal);
+                $modal.find('.content').addClass('active');
+            });
+        });
+    }
+
     function initalizeSchedule() {
         $('.schedule-cal-js').each(function() {
             var eve = [];
@@ -481,35 +495,6 @@ Kora.Fields.TypedFieldDisplays.Initialize = function() {
                 }
             });
         });
-
-
-        /*$('.jp-video-js').each(function() {
-          var videoID = $(this).attr('video-id');
-          var videoLink = $(this).attr('video-link');
-          var swfpath = $(this).attr('swf-path');
-
-          var cssSelector = {
-            jPlayer: "#jquery_jplayer_"+videoID,
-            cssSelectorAncestor: "#jp_container_"+videoID
-          };
-          var playlist = [];
-          $(this).children('.jp-video-file-js').each(function() {
-            var videoName = $(this).attr('video-name');
-            var videoType = $(this).attr('video-type');
-
-            if(videoType=="video/mp4")
-              var videoVal = {title: videoName, m4v: videoLink+videoName};
-            else if(videoType=="video/ogg")
-              var videoVal = {title: videoName, ogv: videoLink+videoName};
-
-            playlist.push(videoVal);
-          });
-          var options = {
-            swfPath: swfpath,
-            supplied: "m4v, ogv"
-          };
-          var myPlaylist = new jPlayerPlaylist(cssSelector, playlist, options);
-        });*/
     }
 
     function initalize3DModel() {
@@ -570,6 +555,7 @@ Kora.Fields.TypedFieldDisplays.Initialize = function() {
     initializeGeolocator();
     intializeAudio();
     initializeVideo();
+    initializeRichtext();
     initalizeSchedule();
     initalize3DModel();
 };

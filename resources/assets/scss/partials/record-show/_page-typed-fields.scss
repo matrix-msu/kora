@@ -516,6 +516,16 @@
   width: 800px;
 }
 
+// Rich text
+.richtext-field-display {
+  .richtext {
+    box-sizing: border-box;
+    margin: 0;
+    min-height: 77px;
+    padding: 0 10px;
+  }
+}
+
 //IF YOU CHANGE THIS HEIGHT, CHANGE IT IN THE RECORD DISPLAY FULLSCREEN JAVASCRIPT FUNCTIONS
 .model-player-canvas {
   border: 1px solid;
