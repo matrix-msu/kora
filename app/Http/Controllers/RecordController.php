@@ -13,6 +13,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\View\View;
 use RecursiveIteratorIterator;
@@ -472,6 +473,8 @@ class RecordController extends Controller {
      * @return Redirect
      */
     public function destroy($pid, $fid, $rid, $mass = false) {
+		//Log::info("RecordController@destroy entered");
+		
         if(!self::validProjFormRecord($pid, $fid, $rid))
             return redirect('projects')->with('k3_global_error', 'record_invalid');
 
@@ -485,7 +488,7 @@ class RecordController extends Controller {
 
         $record->delete();
 
-        return redirect()->action('FormController@show', ['pid' => $pid, 'fid' => $fid])->with('k3_global_success', 'record_deleted');
+		return redirect('projects/' . $pid . '/forms/' . $fid . '/records')->with('k3_global_success', 'record_deleted');
     }
 
     /**
@@ -500,8 +503,11 @@ class RecordController extends Controller {
       $form = FormController::getForm($fid);
       $rid = $request->rid;
       $rid = explode(',', $rid);
+	  
+	  //Log::info("RecordController@deleteMultipleRecords entered");
 
       if(!\Auth::user()->isFormAdmin($form)) {
+		//Log::info("RecordController@deleteMultipleRecords Not a form admin");
         return redirect('projects')->with('k3_global_error', 'not_form_admin');
       } else {
         foreach($rid as $rid) {
