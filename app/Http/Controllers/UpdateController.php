@@ -88,9 +88,7 @@ class UpdateController extends Controller {
         ignore_user_abort(true);
         set_time_limit(1200);
 
-        //
         // Run scripts that have not yet been run.
-        //
         foreach(Script::all() as $script) {
             if(!$script->hasRun) {
                 $includeString = base_path('scripts/' . $script->filename);
@@ -102,9 +100,7 @@ class UpdateController extends Controller {
         self::refresh();
         self::storeVersion();
 
-        //
         // Inform the user they have successfully updated.
-        //
         ignore_user_abort(false);
         return redirect('update')->with('k3_global_success', 'k3_updated');
     }
@@ -113,18 +109,14 @@ class UpdateController extends Controller {
      * Clears the view cache after an update to make sure new features show up in the browser.
      */
     private function refresh() {
-        //
         // Clear cached views.
-        //
         $viewsPath = storage_path('framework/views');
         $views = array_diff(scandir($viewsPath), array('..', '.', '.gitignore'));
 
         foreach($views as $view)
             unlink($viewsPath . DIRECTORY_SEPARATOR . $view);
 
-        //
         // Clear Laravel's caches.
-        //
         Artisan::call('clear-compiled');
     }
 

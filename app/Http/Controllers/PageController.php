@@ -270,7 +270,7 @@ class PageController extends Controller {
      * @param  Request $request
      * @return JsonResponse
      */
-    public function moveField($pid,$fid,$flid,Request $request) {
+    public function moveField($pid, $fid, $flid, Request $request) {
         if(!FieldController::checkPermissions($fid, 'edit'))
             return response()->json(["status"=>false,"message"=>"cant_edit_field"],500);
 
@@ -283,7 +283,6 @@ class PageController extends Controller {
 
         //We will need to see if we can move to a new page so we wan
         $form = FormController::getForm($fid);
-        $numPagesInForm = $form->pages()->count();
 
         switch($direction) {
             case self::_UP:

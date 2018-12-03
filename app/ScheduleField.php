@@ -291,7 +291,7 @@ class ScheduleField extends BaseField {
         $this->fid = $field->fid;
         $this->save();
 
-        $this->addEvents(['K3TR: 01/03/1937 - 01/03/1937']);
+        $this->addEvents(['Event Title: 03/03/1903 - 03/03/2003']);
     }
 
     /**
@@ -375,16 +375,16 @@ class ScheduleField extends BaseField {
             case "XML":
                 $xml = '<' . Field::xmlTagClear($slug) . ' type="Schedule">';
                 $value = '<Event>';
-                $value .= '<Title>' . utf8_encode('EVENT TITLE 1') . '</Title>';
-                $value .= '<Begin>' . '08/19/1990 12:00 AM' . '</Begin>';
-                $value .= '<End>' . '08/19/1990 12:30 AM' . '</End>';
-                $value .= '<All_Day>' . utf8_encode('0 FOR TIMED EVENT') . '</All_Day>';
+                $value .= '<Title>' . utf8_encode('Event Title') . '</Title>';
+                $value .= '<Begin>' . '03/03/1903 3:33 AM' . '</Begin>';
+                $value .= '<End>' . '03/03/2003 3:33 PM' . '</End>';
+                $value .= '<All_Day>' . utf8_encode('0 for TIMED EVENT') . '</All_Day>';
                 $value .= '</Event>';
                 $value .= '<Event>';
-                $value .= '<Title>' . utf8_encode('EVENT TITLE 2') . '</Title>';
-                $value .= '<Begin>' . '08/19/1990' . '</Begin>';
-                $value .= '<End>' . '08/20/1990' . '</End>';
-                $value .= '<All_Day>' . utf8_encode('1 FOR ALL DAY EVENT') . '</All_Day>';
+                $value .= '<Title>' . utf8_encode('Event Title 2') . '</Title>';
+                $value .= '<Begin>' . '03/03/1903' . '</Begin>';
+                $value .= '<End>' . '03/03/2003' . '</End>';
+                $value .= '<All_Day>' . utf8_encode('1 for ALL DAY EVENT') . '</All_Day>';
                 $value .= '</Event>';
                 $xml .= $value;
                 $xml .= '</' . Field::xmlTagClear($slug) . '>';
@@ -395,17 +395,17 @@ class ScheduleField extends BaseField {
                 $fieldArray = [$slug => ['type' => 'Schedule']];
 
                 $eventArray = array();
-                $eventArray['title'] = 'EVENT TITLE 1';
-                $eventArray['begin'] = '08/19/1990 12:00 AM';
-                $eventArray['end'] = '08/19/1990 12:30 AM';
-                $eventArray['allday'] = '0 FOR TIMED EVENT';
+                $eventArray['title'] = 'Event Title 1';
+                $eventArray['begin'] = '03/03/1903 3:33 AM';
+                $eventArray['end'] = '03/03/2003 3:33 PM';
+                $eventArray['allday'] = '0 for TIMED EVENT';
                 $fieldArray[$slug]['value'] = $eventArray;
 
                 $eventArray = array();
-                $eventArray['title'] = 'EVENT TITLE 2';
-                $eventArray['begin'] = '08/19/1990';
-                $eventArray['end'] = '08/20/1990';
-                $eventArray['allday'] = '1 FOR ALL DAY EVENT';
+                $eventArray['title'] = 'Event Title 2';
+                $eventArray['begin'] = '03/03/1903';
+                $eventArray['end'] = '03/03/2003';
+                $eventArray['allday'] = '1 for ALL DAY EVENT';
                 $fieldArray[$slug]['value'] = $eventArray;
 
                 return $fieldArray;

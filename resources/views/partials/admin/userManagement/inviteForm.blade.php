@@ -1,6 +1,6 @@
 <div class="form-group">
     <label for="emails">Enter Email(s) to Invite Users</label>
-	<span class="error-message"></span>
+    <span class="error-message emails"></span>
     <input type="text" class="text-input" id="emails" name="emails" placeholder="Enter invitee email(s) here. Seperate multiple emails with a space or a comma.">
 </div>
 

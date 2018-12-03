@@ -64,12 +64,11 @@
 
 <div class="modal modal-js modal-mask gallery-modal gallery-modal-js full-screen-modal">
     <div class="content">
-        <div class="header">
-            <a href="#" class="modal-toggle modal-toggle-js">
+        <div class="body">
+            <a href="#" class="modal-toggle modal-toggle-js field-btn">
                 <i class="icon icon-cancel"></i>
             </a>
-        </div>
-        <div class="body">
+
             <div class="gallery-field-display gallery-field-display-js">
                 @foreach($images as $img)
                     @if($img != '')

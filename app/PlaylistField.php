@@ -214,9 +214,8 @@ class PlaylistField extends FileTypeField  {
             $this->audio = $infoString;
             $this->save();
 
-            if(!$pla_files_exist) {
+            if(!$pla_files_exist)
                 $this->delete();
-            }
         } else {
             //DELETE THE FILES SINCE WE REMOVED THEM
             $field = FieldController::getField($this->flid);
@@ -264,21 +263,20 @@ class PlaylistField extends FileTypeField  {
         $this->rid = $record->rid;
         $this->fid = $field->fid;
         $infoArray = array();
-        $maxfiles = FieldController::getFieldOption($field,'MaxFiles');
-        if($maxfiles==0) {$maxfiles=1;}
+
         $newPath = storage_path('app/files/p' . $field->pid . '/f' . $field->fid . '/r' . $record->rid . '/fl' . $field->flid);
         mkdir($newPath, 0775, true);
-        for($q=0;$q<$maxfiles;$q++) {
-            $types = self::getMimeTypes();
-            if(!array_key_exists('mp3', $types))
-                $type = 'application/octet-stream';
-            else
-                $type = $types['mp3'];
-            $info = '[Name]playlist' . $q . '.mp3[Name][Size]198658[Size][Type]' . $type . '[Type]';
-            $infoArray['playlist' . $q . '.mp3'] = $info;
-            copy(public_path('assets/testFiles/playlist.mp3'),
-                $newPath . '/playlist' . $q . '.mp3');
-        }
+
+        $types = self::getMimeTypes();
+        if(!array_key_exists('mp3', $types))
+            $type = 'application/octet-stream';
+        else
+            $type = $types['mp3'];
+        $info = '[Name]kora.mp3[Name][Size]372001[Size][Type]' . $type . '[Type]';
+        $infoArray['kora.mp3'] = $info;
+        copy(public_path('assets/testFiles/kora.mp3'),
+            $newPath . '/kora.mp3');
+
         $infoString = implode('[!]',$infoArray);
         $this->audio = $infoString;
         $this->save();

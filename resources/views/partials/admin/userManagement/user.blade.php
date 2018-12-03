@@ -28,7 +28,7 @@
     <div class="organization">
       <span class="attribute">Organization:</span>
       <span class="mr-xl">{{ ($user->organization ? $user->organization : 'None') }}</span>
-      <span>{{$user->email}}</span>
+      <span class="email">{{$user->email}}</span>
     </div>
 
     <div class="status">

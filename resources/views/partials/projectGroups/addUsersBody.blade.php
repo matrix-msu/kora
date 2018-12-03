@@ -8,15 +8,16 @@
         multiple >
         @foreach($all_users as $user)
           @if(!$projectGroup->hasUser($user) && \Auth::user()->id != $user->id)
-            <option value="{{$user->id}}">{{$user->first_name}} {{$user->last_name}}</option>
+            <option value="{{$user->id}}">{{$user->first_name}} {{$user->last_name}} ({{ $user->username }})</option>
           @endif
         @endforeach
       </select>
     </div>
 	
-	<div class="form-group mt-xxl">
+	<div class="form-group mt-xxl add-users-email-js">
 	  <label for="emails">Not Listed Above? Invite Users Via Email</label>
-	  <input type="text" class="text-input" id="emails-{{$projectGroup->id}}" name="emails" placeholder="Enter invitee email(s) here. Seperate multiple emails with a space or a comma.">
+    <span class="error-message emails"></span>
+	  <input type="text" class="text-input emails" id="emails-{{$projectGroup->id}}" name="emails" placeholder="Enter invitee email(s) here. Seperate multiple emails with a space or a comma.">
 	</div>
 	
 	<div class="form-group mt-xxl">
@@ -27,7 +28,5 @@
     <div class="form-group mt-xxl add-users-submit add-users-submit-js">
       {!! Form::submit('Add User(s) to Permissions Group',['class' => 'btn']) !!}
     </div>
-  @else
-
   @endif
 </div>

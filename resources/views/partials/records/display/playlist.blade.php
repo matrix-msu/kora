@@ -5,7 +5,7 @@
         ?>
         <div class="record-data-card">
             <div class="field-display audio-field-display">
-                <p class="audio-filenmame">{{explode('[Name]',$aud)[1]}}</p>
+                <p class="audio-filename">{{explode('[Name]',$aud)[1]}}</p>
 
                 <div class="audio-container">
                     <i class="icon icon-play audio-button audio-button-js play-button-js active"></i>
@@ -15,8 +15,10 @@
                     <div class="slider slider-js no-select ml-m">
                         <div class="slider-button slider-button-js"><div class="inner-button"></div></div>
 
+                        <span class="current-time current-time-js mr-xs">0:00</span>
                         <div class="slider-bar slider-bar-js"></div>
                         <div class="slider-progress-bar slider-progress-bar-js"></div>
+                        <span class="duration-time duration-time-js ml-xs">0:00</span>
                     </div>
 
                     <audio class="audio-clip audio-clip-js">

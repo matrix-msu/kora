@@ -263,21 +263,20 @@ class VideoField extends FileTypeField {
         $this->rid = $record->rid;
         $this->fid = $field->fid;
         $infoArray = array();
-        $maxfiles = FieldController::getFieldOption($field,'MaxFiles');
-        if($maxfiles==0) {$maxfiles=1;}
+
         $newPath = storage_path('app/files/p' . $field->pid . '/f' . $field->fid . '/r' . $record->rid . '/fl' . $field->flid);
         mkdir($newPath, 0775, true);
-        for($q=0;$q<$maxfiles;$q++) {
-            $types = self::getMimeTypes();
-            if(!array_key_exists('mp4', $types))
-                $type = 'application/octet-stream';
-            else
-                $type = $types['mp4'];
-            $info = '[Name]video' . $q . '.mp4[Name][Size]1055736[Size][Type]' . $type . '[Type]';
-            $infoArray['video' . $q . '.mp4'] = $info;
-            copy(public_path('assets/testFiles/video.mp4'),
-                $newPath . '/video' . $q . '.mp4');
-        }
+
+        $types = self::getMimeTypes();
+        if(!array_key_exists('mp4', $types))
+            $type = 'application/octet-stream';
+        else
+            $type = $types['mp4'];
+        $info = '[Name]earth.mp4[Name][Size]1570024[Size][Type]' . $type . '[Type]';
+        $infoArray['earth.mp4'] = $info;
+        copy(public_path('assets/testFiles/earth.mp4'),
+            $newPath . '/earth.mp4');
+
         $infoString = implode('[!]',$infoArray);
         $this->video = $infoString;
         $this->save();

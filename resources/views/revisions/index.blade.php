@@ -3,7 +3,7 @@
 @section('leftNavLinks')
     @include('partials.menu.project', ['pid' => $form->pid])
     @include('partials.menu.form', ['pid' => $form->pid, 'fid' => $form->fid])
-    @if (isset($rid))
+    @if(isset($rid) && !is_null($record))
         @include('partials.menu.record', ['pid' => $form->pid, 'fid' => $form->fid, 'rid' => $rid])
     @endif
     @include('partials.menu.static', ['name' => 'Record Revisions'])
@@ -20,7 +20,7 @@
 
 @section('header')
     <section class="head">
-        <a class="back" href="{{ URL::previous() }}"><i class="icon icon-chevron"></i></a>
+        <a class="back" href=""><i class="icon icon-chevron"></i></a>
         <div class="inner-wrap center">
             <h1 class="title">
                 <i class="icon icon-clock"></i>

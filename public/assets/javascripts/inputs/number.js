@@ -27,8 +27,8 @@ Kora.Inputs.Number = function() {
     var $arrowsContainer = $input.siblings('.num-arrows');
     var $arrows = $arrowsContainer.find('.arrow-js');
 
-    var num = parseInt($input.val());
-    var min = ($input.attr('min') ? parseInt($input.attr('min')) : '0');
+    var num = ($input.val() && $.isNumeric($input.val()) ? parseInt($input.val()) : 0);
+    var min = ($input.attr('min') ? parseInt($input.attr('min')) : 'unlimited');
     var max = ($input.attr('max') ? parseInt($input.attr('max')) : 'unlimited');
     var step = ($input.attr('step') && $.isNumeric($input.attr('step')) ? parseFloat($input.attr('step')) : 1);
     var decimalPlaces = getDecimalPlaces(step);
@@ -43,7 +43,7 @@ Kora.Inputs.Number = function() {
         }
       } else if ($arrow.hasClass('arrow-down-js')) {
         num = num - step;
-        if (num < min) {
+        if (min != 'unlimited' && num < min) {
           num = min;
         }
       }

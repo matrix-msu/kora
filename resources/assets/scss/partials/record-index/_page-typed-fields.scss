@@ -1,4 +1,38 @@
 /***** UNIVERSAL *****/
+.field-btn {
+  background: palette('white', base);
+  border: 1px solid palette('gray', slate, .1);
+  border-radius: 5px;
+  box-shadow: 0 3px 5px 0 palette('gray', slate, .05);
+  cursor: pointer;
+  display: flex;
+  height: 32px;
+  position: relative;
+  @include transition();
+  width: 32px;
+  z-index: 1;
+
+  .icon {
+    margin: auto;
+  }
+
+  &:hover {
+    background: #f4f4f4;
+  }
+
+  &-circle {
+    border-radius: 18px;
+    height: 36px;
+    width: 36px;
+  }
+
+  &.modal-toggle {
+    position: absolute;
+    right: 10px;
+    top: 10px;
+  }
+}
+
 .field-display {
   width: calc(100% - 44px);
 }
@@ -72,34 +106,6 @@
   color: palette('green', accent);
   font-family: $ubuntu-medium;
   padding-bottom: #{ $underline-padding };
-}
-
-.field-btn {
-  background: palette('white', base);
-  border: 1px solid palette('gray', slate, .1);
-  border-radius: 5px;
-  box-shadow: 0 3px 5px 0 palette('gray', slate, .05);
-  cursor: pointer;
-  display: flex;
-  height: 32px;
-  position: relative;
-  @include transition();
-  width: 32px;
-  z-index: 1;
-
-  .icon {
-    margin: auto;
-  }
-
-  &:hover {
-    background: palette('gray', slate, .05);
-  }
-
-  &-circle {
-    border-radius: 18px;
-    height: 36px;
-    width: 36px;
-  }
 }
 
 /***** DOCUMENT *****/
@@ -208,6 +214,7 @@
 
   .slide {
     bottom: 0;
+    cursor: pointer;
     display: flex;
     left: 2000px;
     position: absolute;
@@ -227,33 +234,37 @@
 }
 
 .gallery-modal {
+  .caption-container {
+    margin: auto;
+    padding: 0 0 20px;
+    width: 90%;
+  }
+
   .content {
     display: block;
-    height: 80vh;
+    height: 90vh;
+    max-width: none;
     overflow-y: unset;
+    padding: 0;
+    width: 90vw;
 
     .body {
       height: 100%;
-      padding: 100px 40px 40px;
+      padding: 0;
       width: 100%;
     }
 
     .gallery-field-display {
-      height: calc(100% - 58px);
+      height: 75%;
+      min-height: 400px;
       width: 100%;
     }
   }
 
   .gallery-controls {
-    width: 100%;
-  }
-
-  @media screen and (max-width: $max-mobile-med-width) {
-    .content {
-      .body {
-        padding: 100px 0 40px;
-      }
-    }
+    margin: auto;
+    padding: 20px 0;
+    width: 90%;
   }
 }
 
@@ -265,6 +276,7 @@
 /***** GEOLOCATOR *****/
 .geolocator-map {
   border-radius: 5px;
+  box-shadow: 0 3px 5px 0 rgba(57,67,89,0.05);
   height: 270px;
 
   .lower-right-corner {
@@ -289,13 +301,49 @@
 
 .geolocator-map-modal {
   .content {
+    max-width: none;
+    padding: 0;
+    height: 100vh;
+    width: 100vw;
+
     .body {
-      padding: 100px 0 20px;
+      height: 100vh;
+      padding: 0;
     }
   }
 
   .geolocator-modal-map {
-    height: 60vh;
+    height: 100%;
+  }
+
+  .modal-toggle {
+    background: palette('white', base);
+    border: 1px solid palette('gray', slate, .1);
+    border-radius: 5px;
+    box-shadow: 0 3px 5px 0 palette('gray', slate, .05);
+    cursor: pointer;
+    display: flex;
+    height: 32px;
+    position: absolute;
+    right: 10px;
+    top: 10px;
+    @include transition();
+    width: 32px;
+    z-index: 1;
+
+    .icon {
+      margin: auto;
+    }
+
+    &:hover {
+      background: #f4f4f4;
+    }
+
+    &-circle {
+      border-radius: 18px;
+      height: 36px;
+      width: 36px;
+    }
   }
 }
 
@@ -317,6 +365,8 @@
 /***** AUDIO *****/
 .audio-field-display {
   .audio-container {
+    margin: 0 0 0 20px;
+
     .audio-button {
       color: palette('green', accent);
       cursor: pointer;
@@ -342,21 +392,22 @@
       display: inline-block;
       position: relative;
       vertical-align: middle;
-      width: calc(100% - 75px);
+      width: calc(100% - 60px);
 
       .slider-bar {
         background: palette('gray', slate, .05);
         height: 4px;
-        width: 100%;
+        width: calc(100% - 120px);
       }
 
       .slider-button {
         cursor: pointer;
-        left: calc(0% - 17px);
+        left: calc(0% + 20px);
         padding: 10px;
         position: absolute;
         top: -14px;
         transition: .2s padding ease-in-out;
+        z-index: 1;
 
         .inner-button {
           background: palette('green', accent);
@@ -383,16 +434,16 @@
       .slider-progress-bar {
         background: palette('green', accent, .3);
         height: 4px;
-        left: 0;
+        left: 35px;
         position: absolute;
-        top: 0;
+        top: 9px;
         width: 0;
       }
     }
   }
 
   .audio-filename {
-    margin: 10px 0 11px;
+    margin: 0 0 20px 20px;
   }
 }
 
@@ -404,6 +455,15 @@
   margin: auto;
   position: relative;
   width: 800px;
+}
+
+.richtext-field-display {
+  .richtext {
+    box-sizing: border-box;
+    margin: 0;
+    min-height: 77px;
+    padding: 0 20px 0 0;
+  }
 }
 
 //IF YOU CHANGE THIS HEIGHT, CHANGE IT IN THE RECORD DISPLAY FULLSCREEN JAVASCRIPT FUNCTIONS

@@ -63,14 +63,15 @@ Kora.Admin.Users = function() {
       });
 
       $('.search-js i, .search-js input').keyup(function() {
-          var searchVal = $(this).val().toLowerCase();
+          let searchVal = $(this).val().toLowerCase();
 
           $('.user.card').each(function() {
-              var fname = $(this).find('.firstname').first().text().toLowerCase();
-              var lname = $(this).find('.lastname').first().text().toLowerCase();
-              var uname = $(this).find('.username').first().text().toLowerCase();
+              let fname = $(this).find('.firstname').first().text().toLowerCase();
+              let lname = $(this).find('.lastname').first().text().toLowerCase();
+              let uname = $(this).find('.username').first().text().toLowerCase();
+			  let email = $(this).find('.email').first().text().toLowerCase();
 
-              if(fname.includes(searchVal) | lname.includes(searchVal) | uname.includes(searchVal))
+              if(fname.includes(searchVal) | lname.includes(searchVal) | uname.includes(searchVal) | email.includes(searchVal))
                   $(this).removeClass('hidden');
               else
                   $(this).addClass('hidden');
@@ -248,6 +249,67 @@ Kora.Admin.Users = function() {
 
       Kora.Modal.open();
     });
+
+    function setError (err) {
+	  $('.error-message.emails').html('');
+      $('.text-input#emails').addClass('error');
+      for (let i = 0; i < err.length; i++) {
+        if (i == err.length - 1) {
+          $('.error-message.emails').html($('.error-message.emails').html() + err[i] + ' already exist!');
+        } else if (i == 0) {
+          $('.error-message.emails').html($('.error-message.emails').html() + 'Emails: ' + err[i] + ', ');
+        } else {
+          $('.error-message.emails').html($('.error-message.emails').html() + err[i] + ' ');
+        }
+      }
+
+	  $('.invite-content-js .btn-primary').addClass('disabled');
+    }
+
+    // check if any entered emails already exist in the system
+    $('.text-input#emails').on('blur', function (e) {
+      e.preventDefault();
+
+      let $formData = $('.invite-content-js :not(input[name="_method"])').serialize();
+      $.ajax({
+        url: validateEmailsUrl,
+        type: 'POST',
+        data: $formData,
+        success: function (data) {
+          if (data.message.length >= 1) {
+            setError(data.message);
+          } else {
+            $('.text-input#emails').removeClass('error');
+            $('.invite-content-js .error-message.emails').text('');
+            $('.invite-content-js .btn-primary').removeClass('disabled');
+          }
+        },
+        error: function (err) {
+          console.log('Error:');
+          console.log(err);
+        }
+      });
+    });
+
+	$('.invite-content-js .btn-primary').click(function(e) {
+		e.preventDefault();
+
+		let $form = $('.invite-content-js');
+		let $formUrl = $form.prop('action');
+		let $formData = $('.invite-content-js').serialize();
+
+		$.ajax({
+			url: $formUrl,
+			type: 'POST',
+			data: $formData,
+			success: function (data) {
+				$form.submit();
+			},
+			error: function (err) {
+				console.log(err);
+			}
+		});
+	});
   }
 
   /**

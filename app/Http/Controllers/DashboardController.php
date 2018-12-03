@@ -11,6 +11,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Redirect;
 use Illuminate\View\View;
 
 class DashboardController extends Controller {
@@ -256,6 +257,7 @@ class DashboardController extends Controller {
      * Creates a block and adds it to a section.
      *
      * @param  BlockRequest $request
+     * @return Redirect
      */
     public function addBlock(BlockRequest $request) {
         $secID = $request->section_to_add;

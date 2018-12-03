@@ -1,24 +1,31 @@
 {!! Form::hidden('advanced',true) !!}
-<div class="form-group mt-xxxl">
-    {!! Form::label('default','Default Value') !!}
-    <select multiple class="multi-select default-event-js" name="default[]"
-        data-placeholder="Add Events Below"></select>
-</div>
+<div class="form-group schedule-form-group schedule-form-group-js mt-xxxl">
+    {!! Form::label('default','Default Events') !!}
+    <div class="form-input-container">
+        <p class="directions">Add Default Events below, and order them via drag & drop or their arrow icons.</p>
 
-<form class="new-object-button low-margin form-group">
-    <input type="button" class="add-new-default-event-js" value="Create New Default Event">
-</form>
+        <div class="schedule-card-container schedule-card-container-js mb-xxl"></div>
+
+        <section class="new-object-button">
+            <input class="add-new-default-event-js" type="button" value="Create New Default Event">
+        </section>
+    </div>
+</div>
 
 <div class="form-group mt-xl">
     {!! Form::label('start','Start Year') !!}
     <span class="error-message"></span>
-    {!! Form::input('number', 'start', null, ['class' => 'text-input start-year-js', 'placeholder' => 'Enter start year here', 'min' => 0, 'max' => 9999]) !!}
+    <div class="number-input-container number-input-container-js">
+        {!! Form::input('number', 'start', null, ['class' => 'text-input start-year-js', 'placeholder' => 'Enter start year here', 'min' => 0, 'max' => 9999]) !!}
+    </div>
 </div>
 
 <div class="form-group mt-xl">
     {!! Form::label('end','End Year') !!}
     <span class="error-message"></span>
-    {!! Form::input('number', 'end', null, ['class' => 'text-input end-year-js', 'placeholder' => 'Enter end year here', 'min' => 0, 'max' => 9999]) !!}
+    <div class="number-input-container number-input-container-js">
+        {!! Form::input('number', 'end', null, ['class' => 'text-input end-year-js', 'placeholder' => 'Enter end year here', 'min' => 0, 'max' => 9999]) !!}
+    </div>
 </div>
 
 <div class="form-group mt-xl">

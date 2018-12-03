@@ -227,7 +227,7 @@ class GeneratedListField extends BaseField {
         $this->flid = $field->flid;
         $this->rid = $record->rid;
         $this->fid = $field->fid;
-        $this->options = 'K3TR[!]1337[!]Test[!]Record';
+        $this->options = 'This is one of the list options that was selected[!]This is another list option that was selected[!]This is a list option that user created when creating this record';
         $this->save();
     }
 
@@ -319,16 +319,18 @@ class GeneratedListField extends BaseField {
         switch($type) {
             case "XML":
                 $xml = '<' . Field::xmlTagClear($slug) . ' type="Generated List">';
-                $xml .= '<value>' . utf8_encode('LIST VALUE 1') . '</value>';
-                $xml .= '<value>' . utf8_encode('LIST VALUE 2') . '</value>';
-                $xml .= '<value>' . utf8_encode('so on...') . '</value>';
+                $xml .= '<value>' . utf8_encode('This is one of the list options that was selected') . '</value>';
+                $xml .= '<value>' . utf8_encode('This is another list option that was selected') . '</value>';
+                $xml .= '<value>' . utf8_encode('This is a list option that user created when creating this record') . '</value>';
                 $xml .= '</' . Field::xmlTagClear($slug) . '>';
 
                 return $xml;
                 break;
             case "JSON":
                 $fieldArray = [$slug => ['type' => 'Generated List']];
-                $fieldArray[$slug]['value'] = array('LIST VALUE 1','LIST VALUE 2','so on...');
+                $fieldArray[$slug]['value'] = array('This is one of the list options that was selected',
+                    'This is another list option that was selected',
+                    'This is a list option that user created when creating this record');
 
                 return $fieldArray;
                 break;

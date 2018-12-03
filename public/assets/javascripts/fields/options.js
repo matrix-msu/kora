@@ -16,6 +16,7 @@ Kora.Fields.Options = function(fieldType) {
         });
     }
 
+    // Arrows to move cards up and down
     function initializeMoveAction($cards) {
         $cards.each(function() {
             var $card = $(this);
@@ -78,7 +79,6 @@ Kora.Fields.Options = function(fieldType) {
             });
         });
     }
-
 
     function initializeSelectAddition() {
         $('.chosen-search-input').on('keyup', function(e) {
@@ -385,6 +385,17 @@ Kora.Fields.Options = function(fieldType) {
 
     function initializeScheduleOptions() {
         Kora.Modal.initialize();
+        Kora.Inputs.Number();
+        Kora.Fields.TypedFieldInputs.Initialize();
+
+        // Action arrows on the cards
+        initializeMoveAction($('.schedule-card-js'));
+
+        // Drag cards to sort
+        $('.schedule-card-container-js').sortable();
+
+        // Delete card
+        initializeDelete();
 
         $('.add-new-default-event-js').click(function(e) {
             e.preventDefault();
@@ -437,14 +448,37 @@ Kora.Fields.Options = function(fieldType) {
                 } else {
                     val = name + ': ' + sTime + ' - ' + eTime;
 
-                    if(val != '') {
-                        //Value is good so let's add it
-                        var option = $("<option>").val(val).text(val);
-                        var select = $('.'+flid+'-event-js');
 
-                        select.append(option);
-                        select.find(option).prop('selected', true);
-                        select.trigger("chosen:updated");
+                    if(val != '') {
+                        // Value is valid
+                        // Create and display new event card
+                        var newCardHtml = '<div class="card schedule-card schedule-card-js">' +
+                            '<input type="hidden" class="list-option-js" name="default[]" value="' + val + '">' +
+                            '<div class="header">' +
+                            '<div class="left">' +
+                            '<div class="move-actions">' +
+                            '<a class="action move-action-js up-js" href="">' +
+                            '<i class="icon icon-arrow-up"></i>' +
+                            '</a>' +
+                            '<a class="action move-action-js down-js" href="">' +
+                            '<i class="icon icon-arrow-down"></i>' +
+                            '</a>' +
+                            '</div>' +
+                            '<span class="title">' + name + '</span>' +
+                            '</div>' +
+                            '<div class="card-toggle-wrap">' +
+                            '<a class="schedule-delete schedule-delete-js tooltip" tooltip="Delete Event" href=""><i class="icon icon-trash"></i></a>' +
+                            '</div>' +
+                            '</div>' +
+                            '<div class="content"><p class="event-time">'+ sTime + ' - ' + eTime + '</p></div>' +
+                            '</div>';
+
+                        $('.schedule-card-container-js').append(newCardHtml);
+
+                        // Initialize New Card
+                        initializeMoveAction($('.schedule-card-js'));
+                        initializeDelete();
+                        Kora.Fields.TypedFieldInputs.Initialize();
 
                         nameInput.val('');
                         Kora.Modal.close($('.schedule-add-event-modal-js'));
@@ -452,6 +486,20 @@ Kora.Fields.Options = function(fieldType) {
                 }
             }
         });
+
+        function initializeDelete() {
+            $('.schedule-card-js').each(function() {
+                var $card = $(this);
+                var $deleteButton = $card.find('.schedule-delete-js');
+
+                $deleteButton.unbind();
+                $deleteButton.click(function(e) {
+                    e.preventDefault();
+
+                    $card.remove();
+                })
+            });
+        }
     }
 
     function initializeGeolocatorOptions() {
@@ -502,9 +550,9 @@ Kora.Fields.Options = function(fieldType) {
             //check to see if description provided
             var desc = $('.location-desc-js').val();
             if(desc=='') {
-                geoError = $('.location-desc-js');
-                geoError.addClass('error');
-                geoError.siblings('.error-message').text('Location description required');
+                $geoError = $('.location-desc-js');
+                $geoError.addClass('error');
+                $geoError.siblings('.error-message').text('Location description required');
             } else {
                 var type = $('.location-type-js').val();
 
@@ -515,16 +563,16 @@ Kora.Fields.Options = function(fieldType) {
                     var lon = $('.location-lon-js').val();
 
                     if(lat == '') {
-                        geoError = $('.location-lat-js');
-                        geoError.addClass('error');
-                        geoError.siblings('.error-message').text('Latitude value required');
+                        $geoError = $('.location-lat-js');
+                        $geoError.addClass('error');
+                        $geoError.siblings('.error-message').text('Latitude value required');
                         valid = false;
                     }
 
                     if(lon == '') {
-                        geoError = $('.location-lon-js');
-                        geoError.addClass('error');
-                        geoError.siblings('.error-message').text('Longitude value required');
+                        $geoError = $('.location-lon-js');
+                        $geoError.addClass('error');
+                        $geoError.siblings('.error-message').text('Longitude value required');
                         valid = false;
                     }
                 } else if(type == 'UTM') {
@@ -533,32 +581,32 @@ Kora.Fields.Options = function(fieldType) {
                     var north = $('.location-north-js').val();
 
                     if(zone == '') {
-                        geoError = $('.location-zone-js');
-                        geoError.addClass('error');
-                        geoError.siblings('.error-message').text('UTM Zone is required');
+                        $geoError = $('.location-zone-js');
+                        $geoError.addClass('error');
+                        $geoError.siblings('.error-message').text('UTM Zone is required');
                         valid = false;
                     }
 
                     if(east == '') {
-                        geoError = $('.location-east-js');
-                        geoError.addClass('error');
-                        geoError.siblings('.error-message').text('UTM Easting required');
+                        $geoError = $('.location-east-js');
+                        $geoError.addClass('error');
+                        $geoError.siblings('.error-message').text('UTM Easting required');
                         valid = false;
                     }
 
                     if(north == '') {
-                        geoError = $('.location-north-js');
-                        geoError.addClass('error');
-                        geoError.siblings('.error-message').text('UTM Northing required');
+                        $geoError = $('.location-north-js');
+                        $geoError.addClass('error');
+                        $geoError.siblings('.error-message').text('UTM Northing required');
                         valid = false;
                     }
                 } else if(type == 'Address') {
                     var addr = $('.location-addr-js').val();
 
                     if(addr == '') {
-                        geoError = $('.location-addr-js');
-                        geoError.addClass('error');
-                        geoError.siblings('.error-message').text('Location address required');
+                        $geoError = $('.location-addr-js');
+                        $geoError.addClass('error');
+                        $geoError.siblings('.error-message').text('Location address required');
                         valid = false;
                     }
                 }
@@ -616,10 +664,10 @@ Kora.Fields.Options = function(fieldType) {
                         '</div>';
 
                     $geoCardContainer.append(newCardHtml);
-                    $geoCardContainer.addClass('mb-xxl');
 
                     initializeMoveAction($geoCardContainer.find('.geolocator-card-js'));
                     initializeDelete();
+                    Kora.Fields.TypedFieldInputs.Initialize();
 
                     // Reset Modal
                     $('.location-desc-js').val('');
@@ -638,10 +686,6 @@ Kora.Fields.Options = function(fieldType) {
                     e.preventDefault();
 
                     $card.remove();
-
-                    if ($geoCardContainer.children().length == 0) {
-                        $geoCardContainer.removeClass('mb-xxl');
-                    }
                 })
             });
         }
