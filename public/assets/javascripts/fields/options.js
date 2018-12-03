@@ -1107,6 +1107,9 @@ Kora.Fields.Options = function(fieldType) {
         var $multiLineShow = $('.edit-form .multi-line-js');
 
         if($multiLineCheck.is(':checked')) {
+            $('.text-default-js').attr('disabled','disabled');
+            $('.text-area-default-js').removeAttr('disabled');
+
             $singleLine.addClass('hidden');
             $multiLine.removeClass('hidden');
             $singleLineShow.addClass('hidden');
@@ -1114,6 +1117,9 @@ Kora.Fields.Options = function(fieldType) {
             var input = $singleLineShow.children('input').val();
             $multiLineShow.children('textarea').val(''+input+'');
         } else {
+            $('.text-default-js').removeAttr('disabled');
+            $('.text-area-default-js').attr('disabled','disabled');
+
             $singleLineShow.removeClass('hidden');
             $multiLineShow.addClass('hidden');
             $singleLine.removeClass('hidden');
@@ -1128,11 +1134,17 @@ Kora.Fields.Options = function(fieldType) {
 
         $multiLineCheck.click(function () {
             if($multiLineCheck.is(':checked')) {
+                $('.text-default-js').attr('disabled','disabled');
+                $('.text-area-default-js').removeAttr('disabled');
+
                 $singleLine.addClass('hidden');
                 $multiLine.removeClass('hidden');
                 $singleLineShow.addClass('hidden');
                 $multiLineShow.removeClass('hidden');
             } else {
+                $('.text-default-js').removeAttr('disabled');
+                $('.text-area-default-js').attr('disabled','disabled');
+
                 $singleLine.removeClass('hidden');
                 $multiLine.addClass('hidden');
                 $singleLineShow.removeClass('hidden');

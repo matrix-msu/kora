@@ -8,7 +8,7 @@
 <div class="form-group mt-xxxl multi-line-js hidden">
     {!! Form::label('default','Default') !!}
     <span class="error-message multi-line"></span>
-    {!! Form::textarea('default', null, ['class' => 'text-area text-area-default text-area-default-js', 'placeholder' => "Enter default value here"]) !!}
+    {!! Form::textarea('default', null, ['class' => 'text-area text-area-default text-area-default-js', 'placeholder' => "Enter default value here", 'disabled' => 'disabled']) !!}
 </div>
 
 <div class="form-group mt-xl">
