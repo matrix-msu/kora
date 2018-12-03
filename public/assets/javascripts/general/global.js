@@ -107,6 +107,12 @@ function getURLParameter(name) {
   return decodeURIComponent((new RegExp('[?|&]' + name + '=' + '([^&;]+?)(&|#|;|$)').exec(location.search) || [null, ''])[1].replace(/\+/g, '%20')) || null;
 }
 
+// back button clicked
+$("a.back").click(function(e) {
+  e.preventDefault();
+  history.back(-1);
+});
+
 $(document).ready(function() {
   setFixedElement(true);
 
@@ -381,12 +387,12 @@ $( document ).ajaxSend(function(event, xhr, options) {
 $( document ).ajaxComplete(function(event, xhr, options) {
   var url = options.url;
   var hide = true;
-  
+
   // hide loader exclusion cases for AJAX requests
   if (url.search("validate") != -1) { // exclude validation requests
 	hide = false;
   }
-  
+
   if (hide) {
     hide_loader();
   }

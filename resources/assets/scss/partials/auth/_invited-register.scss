@@ -1,0 +1,30 @@
+.invited-register {
+    .form-container {
+        .logo {
+            border: 3px solid palette('green', accent);
+            border-radius: 50%;
+            box-shadow: 0 10px 19px 0 palette('box-shadow', accent, 0.5);
+            height: 150px;
+            margin: 0 auto;
+            width: 150px;
+        }
+        .head {
+            margin: 55px 0 60px;
+
+            .title {
+                margin: 0 0 24px;
+                padding: 0;
+            }
+
+            .sub-title {
+                font-weight: unset;
+                margin: 0;
+            }
+
+            .title,
+            .sub-title {
+                text-align: center;
+            }
+        }
+    }
+}

@@ -12,8 +12,11 @@ Kora.Inputs.Number = function() {
   });
 
   function initializeNumberArrows() {
+    // Remove any existing arrows
+    $('.num-arrows-js').remove();
+
     // Add on arrows to number inputs
-    $numberInputs.after('<div class="num-arrows"><div class="arrow arrow-js arrow-up arrow-up-js"><i class="icon icon-chevron"></i></div><div class="spacer"></div><div class="arrow arrow-js arrow-down arrow-down-js"><i class="icon icon-chevron"></i></div></div>');
+    $numberInputs.after('<div class="num-arrows num-arrows-js"><div class="arrow arrow-js arrow-up arrow-up-js"><i class="icon icon-chevron"></i></div><div class="spacer"></div><div class="arrow arrow-js arrow-down arrow-down-js"><i class="icon icon-chevron"></i></div></div>');
 
     $numberInputs.each(function() {
       updateArrows($(this));
@@ -24,26 +27,35 @@ Kora.Inputs.Number = function() {
     var $arrowsContainer = $input.siblings('.num-arrows');
     var $arrows = $arrowsContainer.find('.arrow-js');
 
-    var num = parseInt($input.val());
-    var min = ($input.attr('min') ? parseInt($input.attr('min')) : '0');
+    var num = ($input.val() && $.isNumeric($input.val()) ? parseInt($input.val()) : 0);
+    var min = ($input.attr('min') ? parseInt($input.attr('min')) : 'unlimited');
     var max = ($input.attr('max') ? parseInt($input.attr('max')) : 'unlimited');
+    var step = ($input.attr('step') && $.isNumeric($input.attr('step')) ? parseFloat($input.attr('step')) : 1);
+    var decimalPlaces = getDecimalPlaces(step);
 
     $arrows.click(function() {
       var $arrow = $(this);
 
       if ($arrow.hasClass('arrow-up-js')) {
-        num = num + 1;
+        num = num + step;
         if (max != 'unlimited' && num > max) {
           num = max;
         }
       } else if ($arrow.hasClass('arrow-down-js')) {
-        num = num - 1;
-        if (num < min) {
+        num = num - step;
+        if (min != 'unlimited' && num < min) {
           num = min;
         }
       }
 
-      $input.val(num);
+      $input.val(num.toFixed(decimalPlaces));
     });
+  }
+
+  function getDecimalPlaces(num) {
+    var numStr = num.toString();
+    var decIndex = numStr.indexOf('.') + 1;
+
+    return !decIndex ? 0 : numStr.length - decIndex;
   }
 }

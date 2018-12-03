@@ -1,9 +1,7 @@
 <?php namespace App;
 
-use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\FormController;
 use App\Http\Controllers\ProjectController;
-use App\Preference;
 use Carbon\Carbon;
 use Illuminate\Auth\Authenticatable;
 use Illuminate\Database\Eloquent\Model;
@@ -11,7 +9,6 @@ use Illuminate\Auth\Passwords\CanResetPassword;
 use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
 use Illuminate\Contracts\Auth\CanResetPassword as CanResetPasswordContract;
 use Illuminate\Database\Query\Builder;
-use Illuminate\Foundation\Auth\RegistersUsers;
 use Illuminate\Http\Request;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\DB;
@@ -80,7 +77,7 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
     public static function verifyRegisterRecaptcha($request) {
         $recaptcha = new ReCaptcha(config('auth.recap_private'));
         $resp = $recaptcha->verify($request['g-recaptcha-response'], $_SERVER['REMOTE_ADDR']);
-
+        
         if($resp->isSuccess())
             return true;
         else
@@ -211,7 +208,7 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
      * @return bool - Can create forms
      */
     public function canCreateForms(Project $project) {
-        if ($this->admin) return true;
+        if($this->admin) return true;
 
         $projectGroups = $project->groups()->get();
         foreach($projectGroups as $projectGroup) {
@@ -228,7 +225,7 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
      * @return bool - Can edit forms
      */
     public function canEditForms(Project $project) {
-        if ($this->admin) return true;
+        if($this->admin) return true;
 
         $projectGroups = $project->groups()->get();
         foreach($projectGroups as $projectGroup) {
@@ -245,7 +242,7 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
      * @return bool - Can delete forms
      */
     public function canDeleteForms(Project $project) {
-        if ($this->admin) return true;
+        if($this->admin) return true;
 
         $projectGroups = $project->groups()->get();
         foreach($projectGroups as $projectGroup) {
@@ -283,7 +280,7 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
      */
     public function getProjectGroup(Project $project) {
         $adminGroup = $project->adminGroup()->first();
-        if ($adminGroup->hasUser($this)) {
+        if($adminGroup->hasUser($this)) {
             return ['id' => $adminGroup->id, 'name' => 'Admin Group'];
         } else {
             $projectGroups = $project->groups()->get();
@@ -305,14 +302,13 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
      */
     public function getFormGroup(Form $form) {
         $adminGroup = $form->adminGroup()->first();
-        if ($adminGroup->hasUser($this)) {
+        if($adminGroup->hasUser($this)) {
             return ['id' => $adminGroup->id, 'name' => 'Admin Group'];
         } else {
             $formGroups = $form->groups()->get();
-            foreach ($formGroups as $formGroup) {
-                if ($formGroup->hasUser($this)) {
+            foreach($formGroups as $formGroup) {
+                if($formGroup->hasUser($this))
                     return ['id' => $formGroup->id, 'name' => $formGroup->name];
-                }
             }
         }
 
@@ -347,7 +343,7 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
             return true;
 
         $adminGroup = $project->adminGroup()->first();
-        if ($adminGroup->hasUser($this))
+        if($adminGroup->hasUser($this))
             return true;
 
         return false;
@@ -360,9 +356,9 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
      * @return bool - Can create fields in form
      */
     public function canCreateFields(Form $form) {
-        if ($this->admin) return true;
+        if($this->admin) return true;
 
-        if ($this->isProjectAdmin(ProjectController::getProject($form->pid))) return true;
+        if($this->isProjectAdmin(ProjectController::getProject($form->pid))) return true;
 
         $formGroups = $form->groups()->get();
         foreach($formGroups as $formGroup) {
@@ -379,9 +375,9 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
      * @return bool - Can edit fields in form
      */
     public function canEditFields(Form $form) {
-        if ($this->admin) return true;
+        if($this->admin) return true;
 
-        if ($this->isProjectAdmin(ProjectController::getProject($form->pid))) return true;
+        if($this->isProjectAdmin(ProjectController::getProject($form->pid))) return true;
 
         $formGroups = $form->groups()->get();
         foreach($formGroups as $formGroup) {
@@ -398,9 +394,9 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
      * @return bool - Can delete fields in form
      */
     public function canDeleteFields(Form $form) {
-        if ($this->admin) return true;
+        if($this->admin) return true;
 
-        if ($this->isProjectAdmin(ProjectController::getProject($form->pid))) return true;
+        if($this->isProjectAdmin(ProjectController::getProject($form->pid))) return true;
 
         $formGroups = $form->groups()->get();
         foreach($formGroups as $formGroup) {
@@ -417,9 +413,9 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
      * @return bool - Can create records in form
      */
     public function canIngestRecords(Form $form) {
-        if ($this->admin) return true;
+        if($this->admin) return true;
 
-        if ($this->isProjectAdmin(ProjectController::getProject($form->pid))) return true;
+        if($this->isProjectAdmin(ProjectController::getProject($form->pid))) return true;
 
         $formGroups = $form->groups()->get();
         foreach($formGroups as $formGroup) {
@@ -436,9 +432,9 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
      * @return bool - Can edit records in form
      */
     public function canModifyRecords(Form $form) {
-        if ($this->admin) return true;
+        if($this->admin) return true;
 
-        if ($this->isProjectAdmin(ProjectController::getProject($form->pid))) return true;
+        if($this->isProjectAdmin(ProjectController::getProject($form->pid))) return true;
 
         $formGroups = $form->groups()->get();
         foreach($formGroups as $formGroup) {
@@ -455,9 +451,9 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
      * @return bool - Can delete records in form
      */
     public function canDestroyRecords(Form $form) {
-        if ($this->admin) return true;
+        if($this->admin) return true;
 
-        if ($this->isProjectAdmin(ProjectController::getProject($form->pid))) return true;
+        if($this->isProjectAdmin(ProjectController::getProject($form->pid))) return true;
 
         $formGroups = $form->groups()->get();
         foreach($formGroups as $formGroup) {
@@ -474,7 +470,7 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
      * @return bool - Is owner
      */
     public function isOwner(Record $record) {
-        if ($this->id == $record->owner)
+        if($this->id == $record->owner)
             return true;
         else
             return false;
@@ -489,7 +485,7 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
     public function inAFormGroup(Form $form) {
         if($this->admin) return true;
 
-        if ($this->isProjectAdmin(ProjectController::getProject($form->pid))) return true;
+        if($this->isProjectAdmin(ProjectController::getProject($form->pid))) return true;
 
         $formGroups = $form->groups()->get();
         foreach($formGroups as $formGroup) {
@@ -508,10 +504,10 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
     public function isFormAdmin(Form $form) {
         if($this->admin) return true;
 
-        if ($this->isProjectAdmin(ProjectController::getProject($form->pid))) return true;
+        if($this->isProjectAdmin(ProjectController::getProject($form->pid))) return true;
 
         $adminGroup = $form->adminGroup()->first();
-        if ($adminGroup->hasUser($this))
+        if($adminGroup->hasUser($this))
             return true;
         else
             return false;
@@ -652,9 +648,11 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
             );
         }
     }
-	
-	public function addNewAdminToAllCustomProjects()
-	{	
+
+    /**
+     * Adds a new admin to all projects for custom view.
+     */
+	public function addNewAdminToAllCustomProjects() {
 		DB::transaction(function() {
 			$projects = Project::all();
 			$sequence = DB::table("project_custom")->where("uid", "=", $this->id)->max("sequence");
@@ -665,22 +663,18 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
 			
 			$user_data = DB::table("project_custom")->where("uid", "=", $this->id)->get();
 			
-			foreach ($projects as $project)
-			{
+			foreach($projects as $project) {
 				$pid = $project->pid;
 				
 				$already_exists = false;
-				foreach ($user_data as $user_record)
-				{
-					if ($user_record->pid == $pid)
-					{
+				foreach($user_data as $user_record) {
+					if($user_record->pid == $pid) {
 						$already_exists = true;
 						break;
 					}
 				}
 				
-				if (!$already_exists)
-				{
+				if(!$already_exists) {
 					$sequence = $sequence + 1;
 					
 					array_push($inserts, ['uid' => $this->id, 'pid' => $pid, 'sequence' => $sequence,
@@ -722,33 +716,31 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
             );
         }
     }
-	
-	public function addNewAdminToAllCustomForms()
-	{	
+
+    /**
+     * Adds a new admin to all forms for custom view.
+     */
+	public function addNewAdminToAllCustomForms() {
 		DB::transaction(function() {
 			$now = Carbon::now();
 			$forms = Form::all();
 			$user_forms = DB::table("form_custom")->where("uid", "=", $this->id)->get();
 			$inserts = array();
 			
-			foreach ($forms as $form)
-			{
+			foreach($forms as $form) {
 				$fid = $form->fid;
 				$pid = $form->pid;
 				
 				// Check if it already exists
 				$already_exists = false;
-				foreach ($user_forms as $user_form)
-				{
-					if ($user_form->pid == $pid && $user_form->fid == $fid)
-					{
+				foreach($user_forms as $user_form) {
+					if($user_form->pid == $pid && $user_form->fid == $fid) {
 						$already_exists = true;
 						break;
 					}
 				}
 				
-				if (!($already_exists))
-				{
+				if(!($already_exists)) {
 					$sequence = DB::table("form_custom")->where("uid", "=", $this->id)
 					->where("pid", "=", $pid)->max("sequence");
 					
@@ -802,9 +794,13 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
             DB::table('project_custom')->where('id', '=', $delCustom->id)->delete();
 		
     }
-	
-	public function bulkRemoveCustomProjects($pids)
-	{
+
+    /**
+     * Removes many projects from a user's custom list
+     *
+     * @param  int $pids - Project IDs
+     */
+	public function bulkRemoveCustomProjects($pids) {
 		$customs = DB::table("project_custom")->where("uid", "=", $this->id)->orderBy('sequence', 'asc')
             ->get()->toArray(); // contains all entries in this table for user, but we don't want actually to remove all of them
 			
@@ -814,10 +810,8 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
 		DB::table('project_custom')->whereIn('uid', array($this->id))->delete(); // bulk delete ALL entries
 		
 		// remove ones we don't want
-		foreach($customs as $index=>$project_record)
-		{
-			if (in_array($project_record->pid, $pids))
-			{
+		foreach($customs as $index=>$project_record) {
+			if(in_array($project_record->pid, $pids)) {
 				unset($customs[$index]);
 			}
 		}
@@ -825,29 +819,22 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
 		
 		// fix sequences
 		$next_sequence = 0;
-		foreach($customs as $index=>$project_record)
-		{
+		foreach($customs as $index=>$project_record) {
 			$found = false;
 			
-			while($found == false)
-			{
-				foreach($customs as $index2=>$project_record2)
-				{
-					if ($project_record2->sequence == $next_sequence)
-					{
+			while($found == false) {
+				foreach($customs as $index2=>$project_record2) {
+					if($project_record2->sequence == $next_sequence) {
 						$found = true;
 						break;
 					}
 				}
 				
-				if ($found == false)
-				{ // shift all remaining indexes down by one
-					foreach($customs as $index3=>$project_record3)
-					{
-						if ($project_record3->sequence > $next_sequence)
-						{
+				if($found == false) {
+                    // shift all remaining indexes down by one
+					foreach($customs as $index3=>$project_record3) {
+						if($project_record3->sequence > $next_sequence)
 							$project_record3->sequence = $project_record3->sequence - 1;
-						}
 					}			
 				}
 			}
@@ -857,8 +844,8 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
 		
 		// bulk insert with fixed sequences
 		$inserts = array();
-		foreach($customs as $project_record) // convert from stdClass to array
-		{
+        // convert from stdClass to array
+		foreach($customs as $project_record) {
 			array_push($inserts, ['id' => $project_record->id,
 				'uid' => $project_record->uid,
 				'pid' => $project_record->pid,
@@ -870,14 +857,17 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
 		
 		DB::table('project_custom')->insert($inserts); // bulk insert
 	}
-	
-	
+
+    /**
+     * Removes many forms from a user's custom list
+     *
+     * @param  int $fids - Form IDs
+     */
 	public function bulkRemoveCustomForms($fids)
 	{
 		// get the pids for the query
 		$pids = array();
-		foreach ($fids as $fid)
-		{
+		foreach($fids as $fid) {
 			$pid = FormController::getForm($fid)->pid;
 			array_push($pids, $pid);
 		}
@@ -893,55 +883,39 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
 		
 		// remove ones we don't want and group the forms by their pid
 		$pids_data = array();
-		foreach($customs as $index=>$form_record)
-		{
-			if (in_array($form_record->fid, $fids))
-			{
+		foreach($customs as $index=>$form_record) {
+			if(in_array($form_record->fid, $fids)) {
 				unset($customs[$index]);
-			}
-			else // all the data that isn't being deleted
-			{
+			} else {
+                // all the data that isn't being deleted
 				if (!array_key_exists($form_record->pid, $pids_data))
-				{
-					$pids_data[$form_record->pid] = array($form_record);
-				}
+				    $pids_data[$form_record->pid] = array($form_record);
 				else
-				{
-					array_push($pids_data[$form_record->pid], $form_record);
-				}
+				    array_push($pids_data[$form_record->pid], $form_record);
 			}
 		}
 		
 		$customs = array_values($customs); // fix indexes after unsetting, doesn't re-order
 		
 		// fix sequences
-		foreach($pids_data as $index=>$form_record_array)
-		{
+		foreach($pids_data as $index=>$form_record_array) {
 			$next_sequence = 0;
-			foreach($form_record_array as $index=>$form_record)
-			{
+			foreach($form_record_array as $index=>$form_record) {
 				$found = false;
 				
-				while($found == false)
-				{
-					foreach($form_record_array as $index2=>$form_record2)
-					{
-						if ($form_record2->sequence == $next_sequence)
-						{
+				while($found == false) {
+					foreach($form_record_array as $index2=>$form_record2) {
+						if($form_record2->sequence == $next_sequence) {
 							$found = true;
 							break;
 						}
 					}
 					
-					if ($found == false)
-					{ // shift all remaining indexes down by one
-						foreach($form_record_array as $index3=>$form_record3)
-						{
-							if ($form_record3->sequence > $next_sequence)
-							{
+					if($found == false) { // shift all remaining indexes down by one
+						foreach($form_record_array as $index3=>$form_record3) {
+							if($form_record3->sequence > $next_sequence)
 								$form_record3->sequence = $form_record3->sequence - 1;
-							}
-						}			
+						}
 					}
 				}
 				
@@ -951,10 +925,8 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
 		
 		// bulk insert with fixed sequences
 		$inserts = array();
-		foreach($pids_data as $index=>$form_record_array)
-		{
-			foreach($form_record_array as $form_record)
-			{
+		foreach($pids_data as $index=>$form_record_array) {
+			foreach($form_record_array as $form_record) {
 				array_push($inserts, ['id' => $form_record->id,
 					'uid' => $form_record->uid,
 					'pid' => $form_record->pid,
@@ -1035,26 +1007,21 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
 	/**
      * Returns full name if both first name and last name are defined,
 	 * otherwise return first or last name (whichever one is defined),
-	 * otherwise return username
+	 * otherwise return username.
      *
-     * @return string identifier for user
+     * @return string - identifier for user
      */
-	public function getNameOrUsername()
-	{
+	public function getNameOrUsername() {
 		$has_first = $this->first_name !== '';
 		$has_last = $this->last_name !== '';
 		
-		if ($has_first && $has_last) {
+		if($has_first && $has_last)
 			return $this->first_name . " " . $this->last_name;
-		}
-		else if (!$has_first && !$has_last) {
+		else if(!$has_first && !$has_last)
 			return $this->username;
-		}
-		else if ($has_first) {
+		else if($has_first)
 			return $this->first_name;
-		}
-		else {
+		else
 			return $this->last_name;
-		}
 	}
 }

@@ -235,7 +235,7 @@ class NumberField extends BaseField {
         $this->flid = $field->flid;
         $this->rid = $record->rid;
         $this->fid = $field->fid;
-        $this->number = 1337;
+        $this->number = 3;
         $this->save();
     }
 
@@ -330,14 +330,14 @@ class NumberField extends BaseField {
         switch($type) {
             case "XML":
                 $xml = '<' . Field::xmlTagClear($slug) . ' type="Number">';
-                $xml .= utf8_encode('1337');
+                $xml .= utf8_encode('3');
                 $xml .= '</' . Field::xmlTagClear($slug) . '>';
 
                 return $xml;
                 break;
             case "JSON":
                 $fieldArray = [$slug => ['type' => 'Number']];
-                $fieldArray[$slug]['value'] = 1337;
+                $fieldArray[$slug]['value'] = 3;
 
                 return $fieldArray;
                 break;

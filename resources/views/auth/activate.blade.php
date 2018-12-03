@@ -42,7 +42,7 @@
             <input type="hidden" name="regtoken" value="{{\App\Http\Controllers\Auth\RegisterController::makeRegToken()}}">
 
             <div class="form-group" >
-              <button type="submit" class="btn secondary">Request Another Email</button>
+              <button id="resend-email" type="submit" class="btn secondary">Request Another Email</button>
             </div>
           </form>
         </div>

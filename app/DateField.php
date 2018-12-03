@@ -293,10 +293,10 @@ class DateField extends BaseField {
         $this->flid = $field->flid;
         $this->rid = $record->rid;
         $this->fid = $field->fid;
-        $this->circa = 1;
-        $this->month = 1;
+        $this->circa = 0;
+        $this->month = 3;
         $this->day = 3;
-        $this->year = 1937;
+        $this->year = 2003;
         $this->era = 'CE';
         $this->save();
     }
@@ -449,11 +449,11 @@ class DateField extends BaseField {
         switch($type) {
             case "XML":
                 $xml = '<' . Field::xmlTagClear($slug) . ' type="Date">';
-                $value = '<Circa>' . utf8_encode('1 IF CIRCA. 0 IF NOT') . '</Circa>';
-                $value .= '<Month>' . utf8_encode('NUMERIC VALUE OF MONTH (i.e. 08)') . '</Month>';
-                $value .= '<Day>' . utf8_encode('19') . '</Day>';
-                $value .= '<Year>' . utf8_encode('1990') . '</Year>';
-                $value .= '<Era>' . utf8_encode('CE OR BCE') . '</Era>';
+                $value = '<Circa>' . utf8_encode('1 if CIRCA. 0 if NOT CIRCA (Tag is optional)') . '</Circa>';
+                $value .= '<Month>' . utf8_encode('NUMERIC VALUE OF MONTH (i.e. 03)') . '</Month>';
+                $value .= '<Day>' . utf8_encode('3') . '</Day>';
+                $value .= '<Year>' . utf8_encode('2003') . '</Year>';
+                $value .= '<Era>' . utf8_encode('CE or BCE (Tag is optional)') . '</Era>';
                 $xml .= $value;
                 $xml .= '</' . Field::xmlTagClear($slug) . '>';
 
@@ -466,11 +466,11 @@ class DateField extends BaseField {
             case "JSON":
                 $fieldArray = [$slug => ['type' => 'Date']];
 
-                $fieldArray[$slug]['value']['circa'] = '1 IF CIRCA. 0 IF NOT';
-                $fieldArray[$slug]['value']['month'] = 'NUMERIC VALUE OF MONTH (i.e. 08)';
-                $fieldArray[$slug]['value']['day'] = 19;
-                $fieldArray[$slug]['value']['year'] = 1990;
-                $fieldArray[$slug]['value']['era'] = 'CE OR BCE';
+                $fieldArray[$slug]['value']['circa'] = '1 if CIRCA. 0 if NOT CIRCA (Index is optional)';
+                $fieldArray[$slug]['value']['month'] = 'NUMERIC VALUE OF MONTH (i.e. 03)';
+                $fieldArray[$slug]['value']['day'] = 3;
+                $fieldArray[$slug]['value']['year'] = 2003;
+                $fieldArray[$slug]['value']['era'] = 'CE or BCE (Index is optional)';
 
                 return $fieldArray;
                 break;

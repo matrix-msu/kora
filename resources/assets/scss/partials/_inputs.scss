@@ -18,15 +18,24 @@
     margin: 0;
   }
 
-  ::-webkit-input-placeholder {
+  &::-webkit-input-placeholder {
     color: palette('gray', text);
     font-family: $ubuntu-italic;
+    font-style: italic;
     opacity: .6;
   }
 
-  :-ms-input-placeholder {
+  &::-moz-placholder {
     color: palette('gray', text);
     font-family: $ubuntu-italic;
+    font-style: italic;
+    opacity: .6;
+  }
+
+  &:-moz-placholder {
+    color: palette('gray', text);
+    font-family: $ubuntu-italic;
+    font-style: italic;
     opacity: .6;
   }
 
@@ -53,6 +62,12 @@
     font-size: 12px;
     line-height: 18px;
     margin-bottom: 0;
+  }
+
+  &.date-picker-form-group {
+    label {
+      display: block;
+    }
   }
 
   &.half {
@@ -115,8 +130,11 @@
   @import 'inputs/text';
 
   // Specialty Field Inputs
+  @import 'inputs/date';
   @import 'inputs/file';
+  @import 'inputs/geolocator';
   @import 'inputs/list';
+  @import 'inputs/schedule';
 }
 
 @import 'inputs/new-object-button';

@@ -293,7 +293,7 @@ class AssociatorField extends BaseField {
         $this->fid = $field->fid;
         $this->save();
 
-        $this->addRecords(array('1-3-37','1-3-37','1-3-37','1-3-37'));
+        $this->addRecords(array('0-3-0','0-3-1','0-3-2','0-3-3'));
     }
 
     /**
@@ -393,15 +393,17 @@ class AssociatorField extends BaseField {
         switch($type) {
             case "XML":
                 $xml = '<' . Field::xmlTagClear($slug) . ' type="Associator">';
-                $xml .= "<Record>".utf8_encode('0-0-0')."</Record>";
-                $xml .= "<Record>".utf8_encode('0-0-1')."</Record>";
+                $xml .= "<Record>".utf8_encode('0-3-0')."</Record>";
+                $xml .= "<Record>".utf8_encode('0-3-1')."</Record>";
+                $xml .= "<Record>".utf8_encode('0-3-2')."</Record>";
+                $xml .= "<Record>".utf8_encode('0-3-3')."</Record>";
                 $xml .= '</' . Field::xmlTagClear($slug) . '>';
 
                 return $xml;
                 break;
             case "JSON":
                 $fieldArray = [$slug => ['type' => 'Associator']];
-                $fieldArray[$slug]['value'] = array("0-0-0","0-0-1");
+                $fieldArray[$slug]['value'] = array('0-3-0','0-3-1','0-3-2','0-3-3');
 
                 return $fieldArray;
                 break;
@@ -645,7 +647,7 @@ class AssociatorField extends BaseField {
                 $html .= "<div>".$val."</div>";
         }
 
-        $html = $html .= "</div>";
+        $html .= "</div>";
 
         return $html;
     }

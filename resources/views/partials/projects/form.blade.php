@@ -23,13 +23,13 @@
 @if($projectMode == 'project_create')
 <div class="form-group mt-xl">
     {!! Form::label('admins', 'Select Project Admins') !!}
-    {!! Form::select('admins[]', $users, null, [
+    {!! Form::select('admins[]', $userNames, null, [
       'class' => 'multi-select',
       'multiple',
       'data-placeholder' => "Search and select the project admins",
       'id' => 'admins'
     ]) !!}
-    <p class="sub-text mt-sm">
+    <p class="sub-text mt-xs">
       As the creator of this project, you are automatically added as a project admin.
     </p>
 </div>

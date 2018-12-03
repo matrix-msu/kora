@@ -156,11 +156,10 @@ class FormGroupController extends Controller {
      * @param  Request $request
      */
     public function addUser(Request $request) {
-		if (isset($request->_internal)) { // from PGC::addUsers()
+		if(isset($request->_internal)) // from PGC::addUsers()
 			$instance = $request->formGroup;
-		} else {
+		else
 			$instance = FormGroup::where('id', '=', $request->formGroup)->first();
-		}
 		
 		$inserts = array();
 		$has_inserts = false;
@@ -169,7 +168,7 @@ class FormGroupController extends Controller {
             //get any groups the user belongs to
             $currGroups = DB::table('form_group_user')->where('user_id', $userID)->get();
 			$currGroups_ids = array();
-			foreach ($currGroups as $group) {
+			foreach($currGroups as $group) {
 				array_push($currGroups_ids, $group->form_group_id);
 			}
 			
@@ -290,12 +289,11 @@ class FormGroupController extends Controller {
     /**
      * The function that physically builds the new group.
      *
-     * @param  int $pid - Project ID
      * @param  int $fid - Form ID
      * @param  Request $request
      * @return FormGroup - Returns the group model
      */
-    private function buildGroup($pid, $fid, Request $request) {
+    private function buildGroup($fid, Request $request) {
         $group = new FormGroup();
         $group->name = $request->name;
         $group->fid = $fid;
@@ -303,7 +301,7 @@ class FormGroupController extends Controller {
         $permissions = ['create','edit','delete','ingest','modify','destroy'];
 
         foreach($permissions as $permission) {
-            if (!is_null($request[$permission]))
+            if(!is_null($request[$permission]))
                 $group[$permission] = 1;
             else
                 $group[$permission] = 0;

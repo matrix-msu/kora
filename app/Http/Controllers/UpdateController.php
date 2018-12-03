@@ -43,11 +43,10 @@ class UpdateController extends Controller {
 
         //Determine if an update is needed (this is determined independent of how Kora was acquired).
         $update = self::checkVersion();
-        $notes = self::getCurrentNotes();
         $ready = self::hasPulled();
-        $currVer = self::getCurrentVersion();
+        $info = self::processUpdate();
 
-        return view('update.index', compact('git', 'update', 'notes', 'ready', 'currVer'));
+        return view('update.index', compact('git', 'update', 'ready', 'info'));
     }
 
     /**
@@ -60,49 +59,24 @@ class UpdateController extends Controller {
         $thisVersion = DB::table('versions')->orderBy('created_at', 'desc')->first()->version;
 
         //Current version of Kora 3
-        $currentVersion = self::getCurrentVersion();
+        $currentVersion = self::processUpdate()['version'];
 
         return version_compare($currentVersion, $thisVersion, ">");
     }
 
     /**
-     * Fetches the version number from Github.
+     * Reads the github page and grabs array of info.
      *
-     * @return string - Version number
+     * @return array - The version info
      */
-    static public function getCurrentVersion() {
-        //
-        // Get the html of the github page, then find the current version in the html.
-        //
-        $search = "Current Kora Version: ";
+    public static function processUpdate() {
         $html = file_get_contents(self::UPDATE_PAGE);
 
-        $pos = strpos($html, $search) + strlen($search); //Position of the version string.
-        $sub = substr($html, $pos);
-        $pos = strpos($sub, "<");
+        $html = explode('<body>',$html)[1];
+        $html = explode('</body>',$html)[0];
 
-        //Current version of Kora 3
-        return trim(substr($sub, 0, $pos));
+        return json_decode($html, true);
     }
-
-    /**
-     * Fetches the version number from Github.
-     *
-     * @return string - Version number
-     */
-    static public function getCurrentNotes() {
-        //
-        // Get the html of the github page, then find the patch notes in the html.
-        //
-        $html = file_get_contents(self::UPDATE_PAGE);
-
-        $parts = explode("<!--PATCH_START-->\n\t\t\t", $html)[1];
-        $notes = explode("\n\t\t\t<!--PATCH_END-->", $parts)[0];
-
-        //Current version of Kora 3
-        return $notes;
-    }
-
 
     /**
      * Runs an update script to update Kora3.
@@ -114,9 +88,7 @@ class UpdateController extends Controller {
         ignore_user_abort(true);
         set_time_limit(1200);
 
-        //
         // Run scripts that have not yet been run.
-        //
         foreach(Script::all() as $script) {
             if(!$script->hasRun) {
                 $includeString = base_path('scripts/' . $script->filename);
@@ -128,9 +100,7 @@ class UpdateController extends Controller {
         self::refresh();
         self::storeVersion();
 
-        //
         // Inform the user they have successfully updated.
-        //
         ignore_user_abort(false);
         return redirect('update')->with('k3_global_success', 'k3_updated');
     }
@@ -139,18 +109,14 @@ class UpdateController extends Controller {
      * Clears the view cache after an update to make sure new features show up in the browser.
      */
     private function refresh() {
-        //
         // Clear cached views.
-        //
         $viewsPath = storage_path('framework/views');
         $views = array_diff(scandir($viewsPath), array('..', '.', '.gitignore'));
 
         foreach($views as $view)
             unlink($viewsPath . DIRECTORY_SEPARATOR . $view);
 
-        //
         // Clear Laravel's caches.
-        //
         Artisan::call('clear-compiled');
     }
 
@@ -159,7 +125,7 @@ class UpdateController extends Controller {
      */
     private function storeVersion() {
         $v = Version::all()->first();
-        $v->version = self::getCurrentVersion();
+        $v->version = self::processUpdate()['version'];
         $v->save();
     }
 

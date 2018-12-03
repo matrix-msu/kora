@@ -7,6 +7,7 @@ Kora.Fields.TypedFieldDisplays.Initialize = function() {
         $('.gallery-field-display-js').each(function() {
             var $this = $(this);
             var $slides = $this.find('.slide-js');
+            var $galleryModal = $this.parent().siblings('.modal-js');
             var $dotsContainer = $this.next().find('.dots-js');
             var slideCount = $slides.length;
             var currentSlide = 0;
@@ -47,6 +48,12 @@ Kora.Fields.TypedFieldDisplays.Initialize = function() {
 
             // Initialize Caption
             updateCaption(0);
+
+            // Clicking on a slide opens the modal
+            $slides.click(function(e) {
+                Kora.Modal.close();
+                Kora.Modal.open($galleryModal);
+            });
 
             // Need to wait for images to load before getting heights and widths
             $(window).load(function() {
@@ -244,139 +251,195 @@ Kora.Fields.TypedFieldDisplays.Initialize = function() {
 
     function intializeAudio() {
         $('.audio-field-display').each(function() {
-            console.log('audio initialized');
             var $audio = $(this);
-            var $audioClip = $audio.find('.audio-clip-js');
-            var audioClip = $audioClip[0];
-            var $sliderButton = $audio.find('.slider-button-js');
-            var $sliderBar = $audio.find('.slider-bar-js');
-            var $progressBar = $audio.find('.slider-progress-bar-js');
 
-            // Main buttons
-            var $audioButtons = $audio.find('.audio-button-js');
-            var $playButton = $audio.find('.play-button-js');
-            var $pauseButton = $audio.find('.pause-button-js');
-            var $replayButton = $audio.find('.replay-button-js');
+            $(window).load(function() {
+                var $audioClip = $audio.find('.audio-clip-js');
+                var audioClip = $audioClip[0];
+                var $sliderButton = $audio.find('.slider-button-js');
+                var $sliderBar = $audio.find('.slider-bar-js');
+                var $progressBar = $audio.find('.slider-progress-bar-js');
+                var $currentTime = $audio.find('.current-time-js');
+                var $durationTime = $audio.find('.duration-time-js');
 
-            // Audio & Slider vars
-            var playing = false;
-            var dragging = false;
-            var audioLength = audioClip.duration;
-            var sliderLeft = $sliderBar.offset().left;
-            var sliderWidth = $sliderBar.width();
+                // Main buttons
+                var $audioButtons = $audio.find('.audio-button-js');
+                var $playButton = $audio.find('.play-button-js');
+                var $pauseButton = $audio.find('.pause-button-js');
+                var $replayButton = $audio.find('.replay-button-js');
 
-            // Play Button
-            $playButton.click(function() {
-                playing = true;
-                audioClip.play();
-                playSlider(true);
+                // Audio & Slider vars
+                var playing = false;
+                var dragging = false;
+                var audioLength = audioClip.duration;
+                var sliderLeft = $sliderBar.offset().left;
+                var sliderWidth = $sliderBar.width();
 
-                $audioButtons.removeClass('active');
-                $pauseButton.addClass('active');
-            });
+                $durationTime.html(formatTime(parseInt(audioClip.duration)));
 
-            // Pause Button
-            $pauseButton.click(function() {
-                playing = false;
-                audioClip.pause();
+                // Play Button
+                $playButton.click(function() {
+                    playing = true;
+                    playSlider(true);
 
-                $audioButtons.removeClass('active');
-                $playButton.addClass('active');
-            });
+                    $audioButtons.removeClass('active');
+                    $pauseButton.addClass('active');
+                });
 
-            // Replay Button
-            $replayButton.click(function() {
-                audioClip.currentTime = 0;
-                playing = true;
-                audioClip.play();
-                playSlider(true);
-
-                $audioButtons.removeClass('active');
-                $pauseButton.addClass('active');
-            });
-
-            // Dragging slider
-            $sliderButton.mousedown(function(e) {
-                // Only fire when switching to drag mode
-                if (!dragging) {
-                    dragging = true;
+                // Pause Button
+                $pauseButton.click(function() {
+                    playing = false;
                     audioClip.pause();
-                    updateSliderButton(e);
-                }
-            });
 
-            $(document).mousemove(function(e) {
-                if (dragging) {
-                    updateSliderButton(e);
-                }
-            });
+                    $audioButtons.removeClass('active');
+                    $playButton.addClass('active');
+                });
 
-            $(document).mouseup(function() {
-                if (dragging) {
-                    dragging = false;
+                // Replay Button
+                $replayButton.click(function() {
+                    audioClip.currentTime = 0;
+                    playSlider(true);
 
-                    if (playing) {
+                    $audioButtons.removeClass('active');
+                    $pauseButton.addClass('active');
+                });
+
+                // Dragging slider
+                $sliderButton.mousedown(function(e) {
+                    // Only fire when switching to drag mode
+                    if (!dragging) {
+                        dragging = true;
+                        audioClip.pause();
+                        updateSliderButton(e);
+                    }
+                });
+
+                $(document).mousemove(function(e) {
+                    if (dragging) {
+                        updateSliderButton(e);
+                    }
+                });
+
+                $(document).mouseup(function() {
+                    if (dragging) {
+                        dragging = false;
+
+                        if (playing) {
+                            audioClip.play();
+                        }
+                    }
+                });
+
+                function playSlider(starting = false) {
+                    if (starting) {
+                        playing = true;
                         audioClip.play();
                     }
-                }
-            });
 
-            function playSlider(starting = false) {
-                if (starting) {
-                    playing = true;
-                }
+                    if (playing) {
+                        // Do not move while someone is dragging the slider
+                        if (!dragging) {
+                            // Audio ends
+                            if (!starting && audioClip.ended) {
+                                playing = false;
+                                $audioButtons.removeClass('active');
+                                $replayButton.addClass('active');
+                                return;
+                            }
 
-                if (playing) {
-                    // Do not move while someone is dragging the slider
-                    if (!dragging) {
-                        // Audio ends
-                        if (audioClip.ended) {
-                            playing = false;
-                            $audioButtons.removeClass('active');
-                            $replayButton.addClass('active');
-                            return;
+                            // Percent of video played
+                            var percent = audioClip.currentTime * 100 / audioLength;
+                            var progressWidth = sliderWidth * percent / 100;
+                            //console.log(audioClip.currentTime, audioLength);
+                            //console.log(percent);
+                            $progressBar.css('width', progressWidth);
+
+                            updateSliderButton();
+                            setSlider(percent);
+                            updateCurrentTime();
                         }
 
-                        // Percent of video played
-                        var percent = audioClip.currentTime * 100 / audioLength;
-                        $progressBar.css('width', percent + "%");
+                        // About 50 frames per second for sliding button
+                        setTimeout(playSlider, 20);
+                    }
+                }
 
-                        updateSliderButton();
-                        setSlider(percent);
+                function updateSliderButton(e = null) {
+                    // 18px makes the offset relative to center of button
+                    var pageX = (e !== null ? e.pageX : $sliderButton.offset().left) + 18;
+
+                    //console.log(pageX, sliderLeft);
+
+                    if (dragging && pageX >= sliderLeft && pageX <= (sliderLeft + sliderWidth)) {
+                        var slideTimePercentage = (pageX - sliderLeft) / sliderWidth;
+                        $progressBar.css('width', (slideTimePercentage * sliderWidth));
+                        setSlider(slideTimePercentage * 100);
+
+                        // Set audio to dragged time
+                        var seconds = audioLength * slideTimePercentage;
+                        seconds = seconds.toFixed(3);
+                        audioClip.currentTime = seconds;
+                        updateCurrentTime();
+
+                        // if (audioClip.currentTime != audioClip.duration) {
+                        //     $audioButtons.removeClass('active');
+                        //     $playButton.addClass('active');
+                        // }
+                    }
+                }
+
+                // Left as a percentage of the slider
+                function setSlider(left) {
+                    var leftPx = (left * sliderWidth / 100) + 20; //< Plus 20 because button initially shifted 20px right
+                    $sliderButton.css('left', leftPx);
+                }
+
+                function updateCurrentTime() {
+                    var currentTimeStr = formatTime(parseInt(audioClip.currentTime));
+                    $currentTime.html(currentTimeStr);
+                }
+
+                // Time is in seconds
+                function formatTime(time) {
+                    var timeStr = "";
+
+                    var hours = Math.floor(time / 3600);
+                    time = time - (hours * 3600);
+
+                    var minutes = Math.floor(time / 60);
+                    time = time - (minutes * 60);
+
+                    var seconds = Math.floor(time);
+                    if (seconds < 10) {
+                        seconds = "0"+seconds;
                     }
 
-                    // About 50 frames per second for sliding button
-                    setTimeout(playSlider, 20);
+                    if (hours > 0) {
+                        if (minutes < 10) {
+                            minutes = "0"+minutes;
+                        }
+                        timeStr = hours+":"+minutes+":"+seconds;
+                    } else {
+                        timeStr = minutes+":"+seconds;
+                    }
+
+                    return timeStr;
                 }
-            }
+            });
+        });
+    }
 
-            function updateSliderButton(e = null) {
-                // 18px makes the offset relative to center of button
-                var pageX = (e !== null ? e.pageX : $sliderButton.offset().left) + 18;
+    function initializeRichtext() {
+        $('.richtext-field-display-js').each(function() {
+            var $fieldDisplay = $(this);
+            var $sidebar = $fieldDisplay.siblings('.richtext-sidebar-js')
+            var $modal = $fieldDisplay.siblings('.modal-js');
 
-                console.log(pageX, sliderLeft);
-
-                if (dragging && pageX >= sliderLeft && pageX <= (sliderLeft + sliderWidth)) {
-                    var slideTimePercentage = (pageX - sliderLeft) / sliderWidth;
-                    $progressBar.css('width', (slideTimePercentage * 100) + "%");
-                    setSlider(slideTimePercentage * 100);
-
-                    // Set audio to dragged time
-                    var seconds = audioLength * slideTimePercentage;
-                    seconds = seconds.toFixed(3);
-                    audioClip.currentTime = seconds;
-
-                    // if (audioClip.currentTime != audioClip.duration) {
-                    //     $audioButtons.removeClass('active');
-                    //     $playButton.addClass('active');
-                    // }
-                }
-            }
-
-            // Left as a percentage of the slider
-            function setSlider(left) {
-                $sliderButton.css('left', 'calc('+left+'% - 17px)');
-            }
+            $sidebar.find('.full-screen-button-js').click(function() {
+                Kora.Modal.close();
+                Kora.Modal.open($modal);
+                $modal.find('.content').addClass('active');
+            });
         });
     }
 
@@ -432,35 +495,6 @@ Kora.Fields.TypedFieldDisplays.Initialize = function() {
                 }
             });
         });
-
-
-        /*$('.jp-video-js').each(function() {
-          var videoID = $(this).attr('video-id');
-          var videoLink = $(this).attr('video-link');
-          var swfpath = $(this).attr('swf-path');
-
-          var cssSelector = {
-            jPlayer: "#jquery_jplayer_"+videoID,
-            cssSelectorAncestor: "#jp_container_"+videoID
-          };
-          var playlist = [];
-          $(this).children('.jp-video-file-js').each(function() {
-            var videoName = $(this).attr('video-name');
-            var videoType = $(this).attr('video-type');
-
-            if(videoType=="video/mp4")
-              var videoVal = {title: videoName, m4v: videoLink+videoName};
-            else if(videoType=="video/ogg")
-              var videoVal = {title: videoName, ogv: videoLink+videoName};
-
-            playlist.push(videoVal);
-          });
-          var options = {
-            swfPath: swfpath,
-            supplied: "m4v, ogv"
-          };
-          var myPlaylist = new jPlayerPlaylist(cssSelector, playlist, options);
-        });*/
     }
 
     function initalize3DModel() {
@@ -521,6 +555,7 @@ Kora.Fields.TypedFieldDisplays.Initialize = function() {
     initializeGeolocator();
     intializeAudio();
     initializeVideo();
+    initializeRichtext();
     initalizeSchedule();
     initalize3DModel();
 };

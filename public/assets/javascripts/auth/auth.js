@@ -9,6 +9,12 @@ Kora.Auth.Auth = function() {
     });
   }
   
+  function initializeLoadingIcon() {
+    $("#resend-email").click(function() {
+	  display_loader();
+	});
+  }
+  
   function setTempLang(selected_lang) {        
     console.log("Language change started: "+langURL);
     $.ajax({
@@ -26,4 +32,5 @@ Kora.Auth.Auth = function() {
   }
   
   initializeLogout();
+  initializeLoadingIcon();
 }

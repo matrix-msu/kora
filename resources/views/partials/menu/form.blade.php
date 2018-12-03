@@ -53,25 +53,47 @@
               </a>
 			  
 			  <?php
-			  // Sort forms by name
-			  $name_flid_fields = [];
-			  $fids = [];
+			  $fields_by_page_id = [];
+			  $pageid_to_sequence = [];
 			  
-			  foreach ($fieldsInForm as $field)
-			  {
-				$name_flid_fields[$field->flid] = $field->name;
-				$fids[$field->flid] = $field->fid;
+			  // map page ids to page sequences
+			  $pages = \App\Page::where('fid', '=', $fid)->get();
+			  foreach ($pages as $page) {
+				$pageid_to_sequence[$page->id] = $page->sequence;
 			  }
 			  
-			  asort($name_flid_fields, SORT_NATURAL | SORT_FLAG_CASE);
+			  
+			  // divide it up by page sequences and field sequences within that
+			  // both of these sequences are sequential (0->count) so we dont need any sorting
+			  $page_count = 0;
+			  foreach ($fieldsInForm as $field) {
+			    if (!array_key_exists($pageid_to_sequence[$field->page_id], $fields_by_page_id)) {
+					$fields_by_page_id[$pageid_to_sequence[$field->page_id]] = [];
+					$page_count = $page_count + 1;
+				}
+				
+				$fields_by_page_id[$pageid_to_sequence[$field->page_id]][$field->sequence] = $field;;
+			   }
+				
 			  ?>
 
               <ul class="navigation-deep-menu navigation-deep-menu-js">
-                  @foreach($name_flid_fields as $field_flid => $field_name)
-                      <li class="deep-menu-item">
-                          <a class="padding-fix" href="{{ url('/projects/'.$pid).'/forms/'.$fids[$field_flid] .'/fields/'.$field_flid.'/options'}}">{{ $field_name }}</a>
-                      </li>
-                  @endforeach
+                @for ($page_sequence = 0; $page_sequence < $page_count; $page_sequence++)
+					@php
+					if (isset($fields_by_page_id[$page_sequence])) {
+						$fields_in_page = count($fields_by_page_id[$page_sequence]);
+					} else {
+						$page_count++;
+						continue; // skip pages with 0 fields, push loop back to account for this
+					}
+					@endphp
+					@for ($field_sequence = 0; $field_sequence < $fields_in_page; $field_sequence++)
+						@php $field = $fields_by_page_id[$page_sequence][$field_sequence]; @endphp
+						<li class="deep-menu-item">
+							<a class="padding-fix" href="{{ url('/projects/'.$pid).'/forms/'.$fid.'/fields/'.$field->flid.'/options'}}">{{ $field->name }}</a>
+						</li>
+					@endfor
+			    @endfor
               </ul>
           </li>
       @endif

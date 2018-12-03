@@ -5,11 +5,11 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Requests\UserRequest;
 use App\User;
 use App\Http\Controllers\Controller;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Foundation\Auth\RegistersUsers;
 
-class RegisterController extends Controller
-{
+class RegisterController extends Controller {
     /*
     |--------------------------------------------------------------------------
     | Register Controller
@@ -35,8 +35,7 @@ class RegisterController extends Controller
      *
      * @return void
      */
-    public function __construct()
-    {
+    public function __construct() {
         $this->middleware('guest');
     }
 
@@ -46,8 +45,7 @@ class RegisterController extends Controller
      * @param  array  $data
      * @return \Illuminate\Contracts\Validation\Validator
      */
-    protected function validator(array $data)
-    {
+    protected function validator(array $data) {
         return Validator::make($data, [
             'username' => 'required|max:255|unique:users', //Check to not contain 'a'
             'email' => 'required|email|max:255|unique:users',
@@ -65,8 +63,7 @@ class RegisterController extends Controller
      * @param  array  $data
      * @return User
      */
-    protected function create(array $data)
-    {
+    protected function create(array $data)  {
         return User::create([
             'username' => $data['username'],
             'first_name' => $data['first_name'],
@@ -79,6 +76,11 @@ class RegisterController extends Controller
         ]);
     }
 
+    /**
+     * Validates a new user model.
+     *
+     * @return JsonResponse
+     */
     public function validateUserFields(UserRequest $request) {
         return response()->json(["status"=>true, "message"=>"User Valid", 200]);
     }
@@ -88,15 +90,16 @@ class RegisterController extends Controller
      *
      * @return string - The token
      */
-    public static function makeRegToken(){
+    public static function makeRegToken() {
         $valid = 'abcdefghijklmnopqrstuvwxyz';
         $valid .= 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
         $valid .= '0123456789';
 
         $token = '';
-        for ($i = 0; $i < 31; $i++){
+        for($i = 0; $i < 31; $i++) {
             $token .= $valid[( rand() % 62 )];
         }
+
         return $token;
     }
 }

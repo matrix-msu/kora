@@ -47,6 +47,7 @@ Route::group(['middleware' => 'web'], function () {
 //admin routes
     Route::get('/admin/users', 'AdminController@users');
     Route::get('/admin/users/{id}/edit', 'AdminController@editUser');
+    Route::post('/admin/users/validateEmails', 'AdminController@validateEmails');
     Route::patch('/admin/update/{id}', 'AdminController@update');
     Route::patch('/admin/updateActivation/{id}', 'AdminController@updateActivation');
     Route::patch('/admin/updateStatus/{id}', 'AdminController@updateStatus');
@@ -186,6 +187,7 @@ Route::group(['middleware' => 'web'], function () {
     Route::post('/projects/{pid}/forms/{fid}/cleanUp', 'RecordController@cleanUp');
     Route::get('/projects/{pid}/forms/{fid}/clone/{rid}', 'RecordController@cloneRecord');
     Route::get('/projects/{pid}/forms/{fid}/records/{rid}/fields/{flid}/geolocator', 'FieldController@singleGeolocator');
+    Route::get('/projects/{pid}/forms/{fid}/records/{rid}/fields/{flid}/richtext', 'FieldController@singleRichtext');
     Route::get('/projects/{pid}/forms/{fid}/records/{rid}/fields/{flid}/{filename}', 'FieldController@singleResource');
 
 //revision routes
@@ -197,6 +199,7 @@ Route::group(['middleware' => 'web'], function () {
     Route::get('/user', 'Auth\UserController@redirect');
     Route::get('/auth/activate', 'Auth\UserController@activateshow');
     Route::get('/user/activate/{token}', 'Auth\UserController@activate');
+    Route::get('/user/invitedactivate/{token}', 'Auth\UserController@activateFromInvite');
     Route::get('/user/{uid}/edit', 'Auth\UserController@editProfile');
     Route::get('/user/{uid}/preferences', 'Auth\UserController@preferences'); // get all user prefs
     Route::get('/user/{uid}/{section?}', 'Auth\UserController@index');
@@ -205,6 +208,7 @@ Route::group(['middleware' => 'web'], function () {
     Route::patch('/user/validate/{uid}', 'Auth\UserController@validateUserFields');
     Route::patch('/user/changepw', 'Auth\UserController@changepw');
     Route::patch('/user/{uid}/update', 'Auth\UserController@update');
+    Route::patch('/user/{uid}/updateFromEmail', 'Auth\UserController@updateFromEmail');
     Route::patch('/user/{uid}/preferences', 'Auth\UserController@updatePreferences'); // edit user prefs from user prefs page
     Route::post('/auth/resendActivate', 'Auth\UserController@resendActivation');
     Route::post('/auth/activator', 'Auth\UserController@activator');
@@ -268,16 +272,18 @@ Route::group(['middleware' => 'web'], function () {
 
 //twitter routes
     Route::get("/twitter", "TwitterController@index");
-	
+
 //reset password routes
 	Route::post("/reset/email/validate", "Auth\ResetPasswordController@preValidateEmail");
 
 //user auth
-    Auth::routes();
+    Auth::routes(); // generates user authentication routes 
 
     Route::post("/user/projectCustom", "Auth\UserController@saveProjectCustomOrder");
     Route::post("/user/formCustom/{pid}", "Auth\UserController@saveFormCustomOrder");
 
+	// fallback route (allows for serving 404 with sessions, auth, cookies)
+	Route::fallback('FallbackController@routeNotFound');
 });
 
 Route::group(['middleware' => 'api'], function () {

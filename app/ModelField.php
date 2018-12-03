@@ -61,8 +61,8 @@ class ModelField extends FileTypeField  {
      */
     public function getDefaultOptions(Request $request) {
         return '[!FieldSize!]0[!FieldSize!][!MaxFiles!]0[!MaxFiles!][!FileTypes!]obj[!]stl[!]application/octet-stream[!]
-        image/jpeg[!]image/png[!FileTypes!][!ModelColor!]#CAA618[!ModelColor!][!BackColorOne!]#ffffff[!BackColorOne!]
-        [!BackColorTwo!]#383840[!BackColorTwo!]';
+        image/jpeg[!]image/png[!FileTypes!][!ModelColor!]#ddd[!ModelColor!][!BackColorOne!]#2E4F5E[!BackColorOne!]
+        [!BackColorTwo!]#152730[!BackColorTwo!]';
     }
 
     /**
@@ -218,9 +218,8 @@ class ModelField extends FileTypeField  {
             $this->model = $infoString;
             $this->save();
 
-            if(!$mod_files_exist){
+            if(!$mod_files_exist)
                 $this->delete();
-            }
         } else {
             //DELETE THE FILES SINCE WE REMOVED THEM
             $field = FieldController::getField($this->flid);
@@ -369,7 +368,13 @@ class ModelField extends FileTypeField  {
             case "XML":
                 $xml = '<' . Field::xmlTagClear($slug) . ' type="3D-Model">';
                 $xml .= '<File>';
-                $xml .= '<Name>' . utf8_encode('FILENAME') . '</Name>';
+                $xml .= '<Name>' . utf8_encode('FILENAME 1') . '</Name>';
+                $xml .= '</File>';
+                $xml .= '<File>';
+                $xml .= '<Name>' . utf8_encode('FILENAME 2') . '</Name>';
+                $xml .= '</File>';
+                $xml .= '<File>';
+                $xml .= '<Name>' . utf8_encode('so on...') . '</Name>';
                 $xml .= '</File>';
                 $xml .= '</' . Field::xmlTagClear($slug) . '>';
 
@@ -384,6 +389,14 @@ class ModelField extends FileTypeField  {
 
                 $fileArray = [];
                 $fileArray['name'] = 'FILENAME 1';
+                $fieldArray[$slug]['value'][] = $fileArray;
+
+                $fileArray = [];
+                $fileArray['name'] = 'FILENAME2';
+                $fieldArray[$slug]['value'][] = $fileArray;
+
+                $fileArray = [];
+                $fileArray['name'] = 'so on...';
                 $fieldArray[$slug]['value'][] = $fileArray;
 
                 return $fieldArray;

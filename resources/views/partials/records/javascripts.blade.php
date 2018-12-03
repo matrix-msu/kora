@@ -15,6 +15,7 @@
   '/assets/javascripts/vendor/jsc3d/jsc3d.touch.js',
   '/assets/javascripts/vendor/slick/slick.js',
   '/assets/javascripts/general/global.js',
+  '/assets/javascripts/inputs/number.js',
   '/assets/javascripts/inputs/textarea.js',
   '/assets/javascripts/navigation/navigation.js',
   '/assets/javascripts/fields/typedFieldDisplays.js',

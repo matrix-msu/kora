@@ -1,5 +1,5 @@
 <section class="head">
-    <a class="back" href="{{ URL::previous() }}"><i class="icon icon-chevron"></i></a>
+    <a class="back" href=""><i class="icon icon-chevron"></i></a>
     <div class="inner-wrap center">
         <h1 class="title">
             <div class="profile-pic-cont profile-pic-cont-js">
@@ -18,9 +18,9 @@
         </h1>
         <div class="content-sections">
             <div class="content-sections-scroll">
-                <a href="{{url('user', ['uid' => $user->id])}}" class="section select-section-js underline-middle underline-middle-hover {{($section == 'profile' ? 'active' : '')}}">Profile</a>
-                <a href="{{url('user', ['uid' => $user->id, 'section' => 'permissions'])}}" class="section select-section-js underline-middle underline-middle-hover {{($section == 'permissions' ? 'active' : '')}}">Permissions</a>
-                <a href="{{url('user', ['uid' => $user->id, 'section' => 'history'])}}" class="section select-section-js underline-middle underline-middle-hover {{($section == 'history' ? 'active' : '')}}">Record History</a>
+                <a href="{{url('user', ['uid' => $user->id])}}" onclick="display_loader()" class="section select-section-js underline-middle underline-middle-hover {{($section == 'profile' ? 'active' : '')}}">Profile</a>
+                <a href="{{url('user', ['uid' => $user->id, 'section' => 'permissions'])}}" onclick="display_loader()" class="section select-section-js underline-middle underline-middle-hover {{($section == 'permissions' ? 'active' : '')}}">Permissions</a>
+                <a href="{{url('user', ['uid' => $user->id, 'section' => 'history'])}}" onclick="display_loader()" class="section select-section-js underline-middle underline-middle-hover {{($section == 'history' ? 'active' : '')}}">Record History</a>
             </div>
         </div>
     </div>

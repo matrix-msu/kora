@@ -27,7 +27,7 @@
 </div>
 
 <div class="form-group mt-xl">
-    {!! Form::label('default_year','Default '.trans('fields_options_date.year')) !!}
+    {!! Form::label('default_year','Default Year') !!}
     <select name="default_year" class="single-select default-year-js" data-placeholder="Select a Year">
         <option value=""></option>
         <?php
@@ -52,13 +52,17 @@
 <div class="form-group mt-xl half pr-m">
     {!! Form::label('start','Start Year') !!}
     <span class="error-message"></span>
-    {!! Form::input('number', 'start', null, ['class' => 'text-input start-year-js', 'placeholder' => 'Enter start year here']) !!}
+    <div class="number-input-container number-input-container-js">
+        {!! Form::input('number', 'start', null, ['class' => 'text-input start-year-js', 'placeholder' => 'Enter start year here']) !!}
+    </div>
 </div>
 
 <div class="form-group mt-xl half pl-m">
     {!! Form::label('end','End Year') !!}
     <span class="error-message"></span>
-    {!! Form::input('number', 'end', null, ['class' => 'text-input end-year-js', 'placeholder' => 'Enter end year here']) !!}
+    <div class="number-input-container number-input-container-js">
+        {!! Form::input('number', 'end', null, ['class' => 'text-input end-year-js', 'placeholder' => 'Enter end year here']) !!}
+    </div>
 </div>
 
 <div class="form-group mt-xl">
@@ -73,4 +77,5 @@
 
 <script>
     Kora.Fields.Options('Date');
+    Kora.Inputs.Number();
 </script>

@@ -2,6 +2,7 @@
 
 use App\Association;
 use App\Form;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
@@ -35,33 +36,33 @@ class AssociationController extends Controller {
      * @param  int $fid - Form ID
      * @return View
      */
-	public function index($pid, $fid, Request $request) {
+	public function index($pid, $fid) {
         if(!FormController::validProjForm($pid, $fid))
             return redirect('projects/'.$pid)->with('k3_global_error', 'form_invalid');
 
-		$form = FormController::getForm($fid);
-		$project = $form->project()->first();
+        $form = FormController::getForm($fid);
+        $project = $form->project()->first();
 
-		if(!(\Auth::user()->isFormAdmin($form)))
-			return redirect('projects/'.$pid)->with('k3_global_error', 'not_form_admin');
+        if(!(\Auth::user()->isFormAdmin($form)))
+            return redirect('projects/'.$pid)->with('k3_global_error', 'not_form_admin');
 
-		//Associations to this form
-		$assocs = self::getAllowedAssociations($fid);
-		//Create an array of fids of those associations
-		$associatedForms = array();
-		foreach($assocs as $a) {
-			array_push($associatedForms, FormController::getForm($a->assocForm));
-    }
-    $associatable_forms = Form::all();
-    $available_associations = self::getAvailableAssociations($fid);
-    $requestable_associations = self::getRequestableAssociations($fid);
+        //Associations to this form
+        $assocs = self::getAllowedAssociations($fid);
+        //Create an array of fids of those associations
+        $associatedForms = array();
+        foreach($assocs as $a) {
+            array_push($associatedForms, FormController::getForm($a->assocForm));
+        }
+        $associatable_forms = Form::all();
+        $available_associations = self::getAvailableAssociations($fid);
+        $requestable_associations = self::getRequestableAssociations($fid);
 
-    $notification = array(
-      'message' => '',
-      'description' => '',
-      'warning' => false,
-      'static' => true /* the only notification to appear on this page will be static */
-    );
+        $notification = array(
+          'message' => '',
+          'description' => '',
+          'warning' => false,
+          'static' => true /* the only notification to appear on this page will be static */
+        );
 
 		return view('association.index', compact('form', 'assocs', 'associatedForms', 'project', 'available_associations', 'requestable_associations', 'associatable_forms', 'notification'));
 	}
@@ -72,8 +73,12 @@ class AssociationController extends Controller {
      * @param  int $pid - Project ID
      * @param  int $fid - Form ID
      * @param  Request $request
+     * @return JsonResponse
      */
 	public function create($pid, $fid, Request $request) {
+        if(!FormController::validProjForm($pid, $fid))
+            return response()->json(['k3_global_error' => 'form_invalid']);
+
 		$assocFormID = $request->assocfid;
 
 		$assoc = new Association();
@@ -98,8 +103,12 @@ class AssociationController extends Controller {
      * @param  int $pid - Project ID
      * @param  int $fid - Form ID
      * @param  Request $request
+     * @return JsonResponse
      */
 	public function destroy($pid, $fid, Request $request) {
+        if(!FormController::validProjForm($pid, $fid))
+            return response()->json(['k3_global_error' => 'form_invalid']);
+
 		$assocFormID = $request->assocfid;
 
 		$assoc = Association::where('dataForm','=',$fid)->where('assocForm','=',$assocFormID)->first();
@@ -123,8 +132,12 @@ class AssociationController extends Controller {
      * @param  int $pid - Project ID
      * @param  int $fid - Form ID
      * @param  Request $request
+     * @return JsonResponse
      */
     public function destroyReverse($pid, $fid, Request $request) {
+        if(!FormController::validProjForm($pid, $fid))
+            return response()->json(['k3_global_error' => 'form_invalid']);
+
         $dataFormID = $request->assocfid;
 
         $assoc = Association::where('assocForm','=',$fid)->where('dataForm','=',$dataFormID)->first();
@@ -201,9 +214,12 @@ class AssociationController extends Controller {
      * @param  int $pid - Project ID
      * @param  int $fid - Form ID
      * @param  Request $request
-     * @return View
+     * @return JsonResponse
      */
     public function requestAccess($pid, $fid, Request $request) {
+        if(!FormController::validProjForm($pid, $fid))
+            return response()->json(['k3_global_error' => 'form_invalid']);
+
         $myForm = FormController::getForm($fid);
         $myProj = ProjectController::getProject($myForm->pid);
         $theirForm = FormController::getForm($request->rfid);
