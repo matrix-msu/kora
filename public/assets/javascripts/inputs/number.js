@@ -2,6 +2,7 @@ var Kora = Kora || {};
 Kora.Inputs = Kora.Inputs || {};
 
 Kora.Inputs.Number = function() {
+    console.log('yoo');
   var $numberInputContainers = $('.number-input-container-js');
   var $numberInputs = $numberInputContainers.find('input[type=number]');
 
@@ -19,7 +20,14 @@ Kora.Inputs.Number = function() {
     $numberInputs.after('<div class="num-arrows num-arrows-js"><div class="arrow arrow-js arrow-up arrow-up-js"><i class="icon icon-chevron"></i></div><div class="spacer"></div><div class="arrow arrow-js arrow-down arrow-down-js"><i class="icon icon-chevron"></i></div></div>');
 
     $numberInputs.each(function() {
-      updateArrows($(this));
+      var $input = $(this);
+      var val = $input.val();
+      var step = ($input.attr('step') && $.isNumeric($input.attr('step')) ? parseFloat($input.attr('step')) : 1);
+
+      // Set decimal places for val
+      $input.val(val.toFixed(getDecimalPlaces(step)));
+        
+      updateArrows($input);
     });
   }
 
