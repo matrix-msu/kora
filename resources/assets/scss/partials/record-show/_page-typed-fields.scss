@@ -416,6 +416,8 @@
 /***** AUDIO *****/
 .audio-field-display {
   .audio-container {
+    margin: 0 0 10px 20px;
+
     .audio-button {
       color: palette('green', accent);
       cursor: pointer;
@@ -441,21 +443,30 @@
       display: inline-block;
       position: relative;
       vertical-align: middle;
-      width: calc(100% - 75px);
+      width: calc(100% - 60px);
+
+      .current-time,
+      .duration-time {
+        display: inline-block;
+        vertical-align: middle;
+      }
 
       .slider-bar {
         background: palette('gray', slate, .05);
+        display: inline-block;
         height: 4px;
-        width: 100%;
+        width: calc(100% - 120px);
+        vertical-align: middle;
       }
 
       .slider-button {
         cursor: pointer;
-        left: calc(0% - 17px);
+        left: calc(0% + 20px);
         padding: 10px;
         position: absolute;
-        top: -14px;
+        top: -6px;
         transition: .2s padding ease-in-out;
+        z-index: 1;
 
         .inner-button {
           background: palette('green', accent);
@@ -482,16 +493,16 @@
       .slider-progress-bar {
         background: palette('green', accent, .3);
         height: 4px;
-        left: 0;
+        left: 35px;
         position: absolute;
-        top: 0;
+        top: 9px;
         width: 0;
       }
     }
   }
 
   .audio-filename {
-    margin: 10px 0 11px;
+    margin: 5px 0 10px 20px;
   }
 }
 
