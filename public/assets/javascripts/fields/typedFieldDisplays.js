@@ -365,8 +365,7 @@ Kora.Fields.TypedFieldDisplays.Initialize = function() {
                 }
 
                 function updateSliderButton(e = null) {
-                    // 18px makes the offset relative to center of button
-                    var pageX = (e !== null ? e.pageX : $sliderButton.offset().left) + 18;
+                    var pageX = (e !== null ? e.pageX : $sliderButton.offset().left);
 
                     //console.log(pageX, sliderLeft);
 

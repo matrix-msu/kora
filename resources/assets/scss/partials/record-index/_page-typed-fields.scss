@@ -378,18 +378,17 @@
       display: none;
       font-size: 32px;
       height: 32px;
+      transform-origin: center;
+      @include transition();
       vertical-align: middle;
       width: 32px;
 
-      &.active {
-        display: inline-block;
+      &:hover {
+        transform: scale(1.1);
       }
 
-      &.icon-replay-big {
-        font-size: 24px;
-        height: 24px;
-        padding: 4px;
-        width: 24px;
+      &.active {
+        display: inline-block;
       }
     }
 
@@ -447,7 +446,7 @@
       .slider-progress-bar {
         background: palette('green', accent, .3);
         height: 4px;
-        left: 35px;
+        left: 45px;
         position: absolute;
         top: 9px;
         width: 0;
@@ -470,7 +469,7 @@
     box-sizing: border-box;
     margin: 0;
     min-height: 77px;
-    padding: 0 10px;
+    padding: 5px;
   }
 }
 
