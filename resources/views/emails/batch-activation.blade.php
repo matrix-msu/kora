@@ -12,7 +12,9 @@
 @endsection
 
 @section('sub-text')
-    "{{ $personal_message }}"
+    @if (!empty($personal_message))
+        "{{ $personal_message }}"
+    @endif
 @endsection
 
 @section('button-link')
