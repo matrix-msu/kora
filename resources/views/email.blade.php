@@ -192,9 +192,9 @@
     <div class="content max-width-regular">
         <div class="main-text">@yield('main-text')</div>
 
-        <div class="project-text bold-highlight">@yield('project-text')</div>
+        <div class="bold-highlight">@yield('project-text')</div>
 
-        <div class="sub-text">@yield('sub-text')</div>
+        <div>@yield('sub-text')</div>
 
         <div class="action-btn">
             <a href="@yield('button-link')">
