@@ -20,10 +20,6 @@
 .forms {
   margin-bottom: 20px;
 
-  /* .attribute {
-    padding-right: 14px;
-  } */
-
   .form {
     color: palette('green', accent);
     font-family: $ubuntu-medium;
@@ -37,6 +33,7 @@
     &.inactive {
       color: palette('gray', base);
       font-family: $ubuntu;
+      opacity: 0.6;
     }
   }
 }
