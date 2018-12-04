@@ -6,6 +6,10 @@
   .description {
     font-size: 13px;
 
+    &.delete-block {
+      font-family: $ubuntu;
+    }
+
     &.record-validation {
       > p:last-of-type {
         font-family: $ubuntu-medium;

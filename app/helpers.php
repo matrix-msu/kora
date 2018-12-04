@@ -66,44 +66,74 @@ function getDashboardProjectBlockLink($block, $link_type) {
           return [
             'tooltip' => 'Edit Project',
             'icon-class' => 'icon-edit-little',
-            'href' => action('ProjectController@edit', ['pid'=>$options['pid']])
+            'href' => action('ProjectController@edit', ['pid'=>$options['pid']]),
+			'type' => 'edit'
           ];
           break;
       case 'search':
           return [
             'tooltip' => 'Search Project Records',
             'icon-class' => 'icon-search',
-            'href' => action('ProjectSearchController@keywordSearch', ['pid'=>$options['pid']])
+            'href' => action('ProjectSearchController@keywordSearch', ['pid'=>$options['pid']]),
+			'type' => 'search'
           ];
           break;
       case 'form-import':
           return [
             'tooltip' => 'Import Form',
             'icon-class' => 'icon-form-import-little',
-            'href' => action('FormController@importFormView', ['pid'=>$options['pid']])
+            'href' => action('FormController@importFormView', ['pid'=>$options['pid']]),
+			'type' => 'form-import'
           ];
           break;
       case 'form-new':
           return [
             'tooltip' => 'Create New Form',
             'icon-class' => 'icon-form-new-little',
-            'href' => action('FormController@create', ['pid'=>$options['pid']])
+            'href' => action('FormController@create', ['pid'=>$options['pid']]),
+			'type' => 'form-new'
           ];
           break;
       case 'permissions':
           return [
             'tooltip' => 'Project Permissions',
             'icon-class' => 'icon-star',
-            'href' => action('ProjectGroupController@index', ['pid'=>$options['pid']])
+            'href' => action('ProjectGroupController@index', ['pid'=>$options['pid']]),
+			'type' => 'permissions'
           ];
           break;
       case 'presets':
           return [
             'tooltip' => 'Field Value Presets',
-            'icon-class' => 'icon-preset-little',
-            'href' => action('OptionPresetController@index', ['pid'=>$options['pid']])
+            'icon-class' => 'icon-preset-Little',
+            'href' => action('OptionPresetController@index', ['pid'=>$options['pid']]),
+			'type' => 'presets'
           ];
           break;
+	  case 'import':
+	      return [
+            'tooltip' => 'Import Multi-Form Records Setup',
+            'icon-class' => 'icon-importMFRecords-little',
+		    'href' => url('/').'/projects/'.$options['pid'].'/importMF',
+		    'type' => 'import'
+		  ];
+		  break;
+	  case 'import2k':
+          return [
+            'tooltip' => 'Kora 2 Scheme Importer',
+            'icon-class' => 'icon-k2SchemeImporter-little',
+            'href' => url('/').'/projects/'.$options['pid'].'/forms/importk2',
+            'type' => 'import2k'
+          ];
+          break;
+	  case 'export':
+	      return [
+            'tooltip' => 'Export Project',
+            'icon-class' => 'icon-exportProject-little',
+		    'href' => action('ExportController@exportProject',['pid' => $options['pid']]),
+		    'type' => 'export'
+		  ];
+		  break;
       default:
         return [];
   }
@@ -122,21 +152,24 @@ function getDashboardFormBlockLink($block, $link_type) {
           return [
             'tooltip' => 'Edit Form',
             'icon-class' => 'icon-edit-little',
-            'href' => action('FormController@edit', ['pid' => $form->pid, 'fid' => $form->fid])
+            'href' => action('FormController@edit', ['pid' => $form->pid, 'fid' => $form->fid]),
+			'type' => 'edit'
           ];
           break;
       case 'search':
           return [
             'tooltip' => 'Search Form Records',
             'icon-class' => 'icon-search',
-            'href' => action('RecordController@index', ['pid' => $form->pid, 'fid' => $form->fid])
+            'href' => action('RecordController@index', ['pid' => $form->pid, 'fid' => $form->fid]),
+			'type' => 'search'
           ];
           break;
       case 'record-new':
           return [
             'tooltip' => 'Create New Record',
             'icon-class' => 'icon-record-new-little',
-            'href' => action('RecordController@create',['pid' => $form->pid, 'fid' => $form->fid])
+            'href' => action('RecordController@create',['pid' => $form->pid, 'fid' => $form->fid]),
+			'type' => 'record-new'
           ];
           break;
       case 'field-new':
@@ -144,21 +177,64 @@ function getDashboardFormBlockLink($block, $link_type) {
           return [
             'tooltip' => 'Create New Field',
             'icon-class' => 'icon-form-new-little',
-            'href' => action('FieldController@create', ['pid'=>$form->pid, 'fid' => $form->fid, 'rootPage' =>$lastPage->id])
+            'href' => action('FieldController@create', ['pid'=>$form->pid, 'fid' => $form->fid, 'rootPage' => $lastPage['id']]),
+			'type' => 'field-new'
           ];
           break;
-      case 'permissions':
+      case 'form-permissions':
           return [
             'tooltip' => 'Form Permissions',
             'icon-class' => 'icon-star',
-            'href' => action('FormGroupController@index', ['pid' => $form->pid, 'fid' => $form->fid])
+            'href' => action('FormGroupController@index', ['pid' => $form->pid, 'fid' => $form->fid]),
+			'type' => 'form-permissions'
           ];
           break;
       case 'revisions':
           return [
             'tooltip' => 'Manage Record Revisions',
-            'icon-class' => 'icon-preset-little',
-            'href' => action('RevisionController@index', ['pid'=>$form->pid, 'fid'=>$form->fid])
+            'icon-class' => 'icon-preset-Little',
+            'href' => action('RevisionController@index', ['pid'=>$form->pid, 'fid'=>$form->fid]),
+			'type' => 'revisions'
+          ];
+          break;
+	  case 'import':
+	      return [
+            'tooltip' => 'Import Records',
+            'icon-class' => 'icon-importrecords-little',
+		    'href' => action('RecordController@importRecordsView', ['pid' => $form->pid, 'fid' => $form->fid]),
+		    'type' => 'import'
+		  ];
+          break;
+      case 'batch':
+          return [
+            'tooltip' => 'Batch Assign Field Values',
+            'icon-class' => 'icon-batchAssign-little',
+            'href' => action('RecordController@showMassAssignmentView',['pid' => $form->pid, 'fid' => $form->fid]),
+            'type' => 'batch'
+          ];
+          break;
+      case 'export-records':
+          return [
+            'tooltip' => 'Export All Records',
+            'icon-class' => 'icon-exportRecords-Little',
+            'href' => '#',
+            'type' => 'export-records'
+          ];
+          break;
+      case 'assoc-permissions':
+          return [
+            'tooltip' => 'Association Permissions',
+            'icon-class' => 'icon-associationPermissions-little',
+            'href' => action('AssociationController@index', ['fid' => $form->fid, 'pid' => $form->pid]),
+            'type' => 'assoc-permissions'
+          ];
+          break;
+      case 'export-form':
+          return [
+            'tooltip' => 'Export Form',
+            'icon-class' => 'icon-exportForm-Little',
+            'href' => action('ExportController@exportForm',['fid'=>$form->fid, 'pid' => $form->pid]),
+            'type' => 'export-form'
           ];
           break;
       default:

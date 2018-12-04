@@ -7,9 +7,101 @@
   height: 210px;
   margin: 5px;
   min-width: 303px;
+  position: relative;
   text-align: left;
   transition: all .2s linear;
   width: calc(25% - 10px);
+
+  .edit-block {
+	  @include transition(opacity);
+
+	  background: palette('gray', slate, 0.9);
+	  border-radius: 5px;
+	  box-sizing: border-box;
+	  color: palette('white', base);
+	  display: none;
+	  height: 100%;
+	  left: 0;
+	  opacity: 0;
+	  padding: 20px;
+	  position: absolute;
+	  top: 0;
+	  width: 100%;
+
+	  .wrap {
+		  height: 100%;
+		  position: relative;
+		  width: 100%;
+	  }
+
+	  p {
+		  font-family: $ubuntu;
+		  font-size: 14px;
+		  margin: 0;
+		  
+		  &:first-child {
+			  font-size: 12px;
+			  font-style: italic;
+		  }
+	  }
+
+	  .new-object-button {
+		  align-items: center;
+		  bottom: 0;
+		  display: flex;
+		  left: 0;
+		  margin: 0 auto;
+		  position: absolute;
+		  right: 0;
+		  top: 0;
+		  width: 140px;
+
+		  > input {
+			background-color: rgba(240, 240, 240, 0.1);
+			border: 1px solid palette('gray', background, 0.5);
+			box-shadow: none;
+			color: inherit;
+
+			&:hover {
+				background-color: rgba(255, 255, 255, 0.9);
+				color: palette('gray', slate);
+			}
+		  }
+	  }
+
+	  .bottom {
+		  bottom: 0;
+		  display: flex;
+		  justify-content: space-between;
+		  position: absolute;
+		  width: 100%;
+
+		  .remove-block {
+			  color: palette('white', base); 
+			  text-decoration: none;
+
+			  .icon {
+				  @include transition(transform);
+				  
+				  display: inline-block;
+				  will-change: transform;
+			  }
+
+			  &:hover .icon {
+				  transform: scale(1.25);
+			  }
+		  }
+	  }
+  }
+
+  &.edit-mode .edit-block {
+	  display: block;
+  }
+
+  &.edit-mode:hover .edit-block {
+	  cursor: pointer;
+	  opacity: 1;
+  }
 
   .icon-project,
   .icon-form {
@@ -21,20 +113,25 @@
   .title-container {
     display: inline-block;
     margin-top: 15px;
+    width: 100%;
 
     .no-link-no-icon {
       font-family: $ubuntu;
       font-size: 14px;
       margin-left: 20px;
+
+      &.note-title {
+        margin: 0;
+        padding-left: 20px;
+      }
     }
   }
 
   .name {
     color: palette('green', accent);
     display: inline-block;
-    font-family: $ubuntu;
+    font-family: $ubuntu-medium;
     font-size: 14px;
-    font-weight: 600;
     line-height: 20px;
     margin: #{ $underline-padding } 0 0 10px;
     padding-bottom: $underline-padding;
@@ -70,6 +167,44 @@
 
   .element-link-container {
     padding: 0 20px;
+
+	.element-link-right-tooltips {
+		background: palette('gray', dropdown);
+		border-radius: 5px;
+		bottom: 30px;
+		font-size: 12px;
+		line-height: 13px;
+		opacity: 0;
+		padding: 5px 10px;
+		position: absolute;
+		right: -35px;
+		z-index: -1;
+
+		ul {
+			list-style: none;
+			margin: 0;
+			padding: 0;
+		}
+
+		a {
+			@include transition(color);
+
+			color: palette('white');
+			display: inline-block;
+			margin: 5px 0;
+			text-decoration: none;
+			width: 110px;
+
+			&:hover {
+				color: palette('green', accent);
+			}
+		}
+
+		&:hover {
+			opacity: 1;
+			z-index: 2;
+		}
+	}
   }
 
   .element-link {
@@ -80,10 +215,20 @@
 
     &:first-child {
       padding-left: 0;
-    }
+		}
+
+		&.form-permissions {
+			margin: 0;
+			width: unset;
+		}
 
     &.right {
       padding: 0;
+
+	  &:hover + .element-link-right-tooltips {
+		animation: fadein .2s forwards;
+		z-index: 2;
+	  }
     }
 
     .icon {

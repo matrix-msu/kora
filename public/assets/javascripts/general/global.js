@@ -121,13 +121,15 @@ $(document).ready(function() {
     $('.side-menu-js').addClass('active');
     $(".center, .floating-buttons").addClass('with-aside');
     $('.field.card').addClass('with-aside');
+    $('.sections .section-js').addClass('with-aside');
+    $('.done-editing-dash-js').addClass('pre-fixed-with-aside');
+    $('.pre-fixed-js').addClass('pre-fixed-with-aside');
+    $('.toolbar').addClass('with-aside');
 
   	var welcome_notification = $('.welcome-body').find(".notification");
   	if (welcome_notification.length == 0) {
   	  $('.notification').addClass('with-aside'); // this breaks welcome page notification styling
   	}
-    $('.pre-fixed-js').addClass('pre-fixed-with-aside');
-    $('.toolbar').addClass('with-aside');
   } else {
     // the case where we want the aside lock to still work on refresh for larger screens
     // but not on mobile.

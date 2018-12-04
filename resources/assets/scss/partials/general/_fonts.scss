@@ -103,6 +103,61 @@ i {
   text-transform: none;
 }
 
+.icon-preset-Little {
+  &:before {
+    content: $icon-preset-Little; 
+  }
+}
+.icon-exportRecords-Little {
+  &:before {
+    content: $icon-exportRecords-Little; 
+  }
+}
+.icon-importMFRecords-little {
+  &:before {
+    content: $icon-importMFRecords-little; 
+  }
+}
+.icon-importrecords-little {
+  &:before {
+    content: $icon-importrecords-little; 
+  }
+}
+.icon-k2SchemeImporter-little {
+  &:before {
+    content: $icon-k2SchemeImporter-little; 
+  }
+}
+.icon-associationPermissions-little {
+  &:before {
+    content: $icon-associationPermissions-little; 
+  }
+}
+.icon-batchAssign-little {
+  &:before {
+    content: $icon-batchAssign-little; 
+  }
+}
+.icon-exportForm-Little {
+  &:before {
+    content: $icon-exportForm-Little; 
+  }
+}
+.icon-exportProject-little {
+  &:before {
+    content: $icon-exportProject-little; 
+  }
+}
+.icon-chevron-up-dark-large {
+  &:before {
+    content: $icon-chevron-up-dark-large; 
+  }
+}
+.icon-chevron-down-dark-large {
+  &:before {
+    content: $icon-chevron-down-dark-large; 
+  }
+}
 .icon-replay {
   &:before {
     content: $icon-replay;

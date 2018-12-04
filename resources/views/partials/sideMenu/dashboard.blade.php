@@ -1,26 +1,10 @@
 @php $pref = 'use_dashboard' @endphp
 @if (\App\Http\Controllers\Auth\UserController::returnUserPrefs($pref) == "1")
 <div class="drawer-element drawer-element-js">
-  <a href="#" class="drawer-toggle drawer-toggle-js" data-drawer="{{ $openDashboardDrawer or '0' }}">
+  <a href="{{ url('/dashboard') }}" class="drawer-toggle" data-drawer="{{ $openDashboardDrawer or '0' }}">
     <i class="icon icon-dashboard"></i>
     <span>Dashboard</span>
-    <i class="icon icon-chevron"></i>
   </a>
-  <ul class="drawer-content drawer-content-js">
-    <li class="content-link content-link-js" data-page="dashboard">
-      <a href="{{ url('/dashboard') }}">
-        <span>Dashboard Home</span>
-      </a>
-    </li>
-
-    <li class="content-link content-link-js">
-        <a href="#">Edit Dashboard</a>
-    </li>
-
-    <li class="content-link content-link-js">
-        <a href="{{ url('/dashboard?state=1') }}">Add Dashboard Block</a>
-    </li>
-  </ul>
 </div>
 @endif
 
