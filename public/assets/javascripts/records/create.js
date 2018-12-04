@@ -287,7 +287,7 @@ Kora.Records.Create = function() {
         $(window).resize(setTextInputWidth);
 
         function setTextInputWidth() {
-            if ($(window).outerWidth() < 1000 - scrollBarWidth) {
+            if ($(window).outerWidth() < 1175 - scrollBarWidth) {
                 // Window is small, full width Inputs
                 $dateListInputs.css('width', '100%');
                 $dateListInputs.css('margin-bottom', '10px');

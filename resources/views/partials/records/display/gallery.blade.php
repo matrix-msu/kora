@@ -69,7 +69,7 @@
                 <i class="icon icon-cancel"></i>
             </a>
 
-            <div class="gallery-field-display gallery-field-display-js">
+            <div class="gallery-field-display gallery-field-display-js {{($single && $captions[0] == "") ? 'full-height' : ''}}">
                 @foreach($images as $img)
                     @if($img != '')
                         <?php
@@ -99,9 +99,10 @@
                 </div>
             @endif
 
+            {{--{{dd($single)}}--}}
             <div class="caption-container caption-container-js">
                 @foreach ($captions as $index => $caption)
-                    <div class="caption caption-js {{ ($index == 0 ? 'active' : '') }}">{{ $caption }}</div>
+                    <div class="caption caption-js modal-caption-js {{ ($index == 0 ? 'active' : '') }}">{{ $caption }}</div>
                 @endforeach
             </div>
             <a class="caption-more caption-more-js underline-middle-hover" showing="less" href="#">Show Full Caption</a>

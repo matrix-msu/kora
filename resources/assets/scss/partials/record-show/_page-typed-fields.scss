@@ -307,12 +307,17 @@
     }
 
     .gallery-field-display {
+      border-radius: 0;
       height: 75%;
       min-height: 400px;
       width: 100%;
 
       + .caption-container {
         padding: 20px 0;
+      }
+
+      &.full-height {
+        height: 100%;
       }
     }
   }
@@ -516,11 +521,58 @@
 
 // Rich text
 .richtext-field-display {
+  width: 100%;
+  
   .richtext {
     box-sizing: border-box;
     margin: 0;
+    max-height: 500px;
     min-height: 77px;
-    padding: 5px 10px;
+    overflow: hidden;
+    overflow-wrap: break-word;
+    padding: 5px;
+    position: relative;
+
+    p {
+      margin: 0;
+    }
+
+    &.more {
+      max-height: none;
+      padding: 5px 5px 47px;
+    }
+  }
+
+  .show-more-richtext {
+    background: palette('white');
+    bottom: 0;
+    border: 2px solid palette('green', accent, .3);
+    border-radius: 5px;
+    box-shadow: 0 3px 5px 0 palette('box-shadow', base, .05), 0px -15px 30px 3px palette('white');
+    box-sizing: border-box;
+    color: palette('green', accent);
+    cursor: pointer;
+    display: none;
+    font-family: $ubuntu-medium;
+    left: 0;
+    padding: 8px 0;
+    position: absolute;
+    right: 0;
+    text-align: center;
+    @include transition();
+    width: 100%;
+
+    &[showing=more] {
+      box-shadow: 0 3px 5px 0 palette('box-shadow', base, .05), 0px -15px 30px 3px palette('white', base, 0);
+    }
+
+    &.active {
+      display: block;
+    }
+
+    &:hover {
+      border: 2px solid palette('green', accent);
+    }
   }
 }
 
