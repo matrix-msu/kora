@@ -1,5 +1,5 @@
-<div class="form-group specialty-field-group list-input-form-group list-input-form-group-combo mt-xxxl">
-    {!! Form::label('options_{{$fnum}}','List Options') !!}
+<div class="form-group specialty-field-group list-input-form-group list-input-form-group-combo mt-xxl">
+    {!! Form::label('options_'.$fnum,'List Options') !!}
 
     <div class="form-input-container">
         <p class="directions">Add List Options below, and order them via drag & drop or their arrow icons.</p>
@@ -48,4 +48,6 @@
     </div>
 
     <div><a href="#" class="field-preset-link open-regex-modal-js">Use a Value Preset for these List Options</a></div>
+
+    <div class="pb-xl"></div>
 </div>

@@ -61,8 +61,8 @@ class ModelField extends FileTypeField  {
      */
     public function getDefaultOptions(Request $request) {
         return '[!FieldSize!]0[!FieldSize!][!MaxFiles!]0[!MaxFiles!][!FileTypes!]obj[!]stl[!]application/octet-stream[!]
-        image/jpeg[!]image/png[!FileTypes!][!ModelColor!]#CAA618[!ModelColor!][!BackColorOne!]#ffffff[!BackColorOne!]
-        [!BackColorTwo!]#383840[!BackColorTwo!]';
+        image/jpeg[!]image/png[!FileTypes!][!ModelColor!]#ddd[!ModelColor!][!BackColorOne!]#2E4F5E[!BackColorOne!]
+        [!BackColorTwo!]#152730[!BackColorTwo!]';
     }
 
     /**

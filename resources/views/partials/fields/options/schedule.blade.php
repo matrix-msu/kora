@@ -58,18 +58,22 @@
                 Create a New Value Preset from these Events</a></div>
     </section>
 
-    <div class="form-group mt-xxxl">
+    <div class="form-group half mt-xxxl pr-sm">
         {!! Form::label('start','Start Year') !!}
         <span class="error-message"></span>
-        {!! Form::input('number', 'start', \App\Http\Controllers\FieldController::getFieldOption($field,'Start'),
-            ['class' => 'text-input start-year-js', 'min' => 0, 'max' => 9999, 'placeholder' => 'Enter start year here']) !!}
+        <div class="number-input-container number-input-container-js">
+            {!! Form::input('number', 'start', \App\Http\Controllers\FieldController::getFieldOption($field,'Start'),
+                ['class' => 'text-input start-year-js', 'min' => 0, 'max' => 9999, 'placeholder' => 'Enter start year here']) !!}
+        </div>
     </div>
 
-    <div class="form-group mt-xl">
+    <div class="form-group half mt-xxxl pl-sm">
         {!! Form::label('end','End Year') !!}
         <span class="error-message"></span>
-        {!! Form::input('number', 'end', \App\Http\Controllers\FieldController::getFieldOption($field,'End'),
-            ['class' => 'text-input end-year-js', 'min' => 0, 'max' => 9999, 'placeholder' => 'Enter end year here']) !!}
+        <div class="number-input-container number-input-container-js">
+            {!! Form::input('number', 'end', \App\Http\Controllers\FieldController::getFieldOption($field,'End'),
+                ['class' => 'text-input end-year-js', 'min' => 0, 'max' => 9999, 'placeholder' => 'Enter end year here']) !!}
+        </div>
     </div>
 
     <div class="form-group mt-xl">

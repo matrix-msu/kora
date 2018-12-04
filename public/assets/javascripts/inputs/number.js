@@ -2,6 +2,7 @@ var Kora = Kora || {};
 Kora.Inputs = Kora.Inputs || {};
 
 Kora.Inputs.Number = function() {
+    console.log('yoo');
   var $numberInputContainers = $('.number-input-container-js');
   var $numberInputs = $numberInputContainers.find('input[type=number]');
 
@@ -19,7 +20,14 @@ Kora.Inputs.Number = function() {
     $numberInputs.after('<div class="num-arrows num-arrows-js"><div class="arrow arrow-js arrow-up arrow-up-js"><i class="icon icon-chevron"></i></div><div class="spacer"></div><div class="arrow arrow-js arrow-down arrow-down-js"><i class="icon icon-chevron"></i></div></div>');
 
     $numberInputs.each(function() {
-      updateArrows($(this));
+      var $input = $(this);
+      var val = ($input.val() && $.isNumeric($input.val()) ? parseFloat($input.val()) : 0);
+      var step = ($input.attr('step') && $.isNumeric($input.attr('step')) ? parseFloat($input.attr('step')) : 1);
+
+      // Set decimal places for val
+      $input.val(val.toFixed(getDecimalPlaces(step)));
+        
+      updateArrows($input);
     });
   }
 
@@ -27,7 +35,7 @@ Kora.Inputs.Number = function() {
     var $arrowsContainer = $input.siblings('.num-arrows');
     var $arrows = $arrowsContainer.find('.arrow-js');
 
-    var num = ($input.val() && $.isNumeric($input.val()) ? parseInt($input.val()) : 0);
+    var num = ($input.val() && $.isNumeric($input.val()) ? parseFloat($input.val()) : 0);
     var min = ($input.attr('min') ? parseInt($input.attr('min')) : 'unlimited');
     var max = ($input.attr('max') ? parseInt($input.attr('max')) : 'unlimited');
     var step = ($input.attr('step') && $.isNumeric($input.attr('step')) ? parseFloat($input.attr('step')) : 1);

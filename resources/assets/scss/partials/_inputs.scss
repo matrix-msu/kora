@@ -43,8 +43,8 @@
     background: palette('gray', page, 1);
     border: 1px solid palette('box-shadow', base, 0.05);
     border-radius: 5px;
-    box-shadow: 0 40px 85px 0 palette('box-shadow', base, 0.05);
-    left: -45px;
+    box-shadow: 0 5px 15px 0 palette('box-shadow', base, 0.03);
+    box-sizing: border-box;
     padding: 30px 45px;
     position: relative;
     width: 100%;
@@ -103,6 +103,10 @@
   }
 
   @media screen and (max-width: $max-mobile-med-width) {
+    .form-input-container {
+      padding: 30px 20px;
+    }
+
     &.half {
       padding-right: 0;
       width: 100%;

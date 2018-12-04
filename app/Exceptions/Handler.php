@@ -1,5 +1,6 @@
 <?php namespace App\Exceptions;
 
+use App\User;
 use Exception;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
@@ -35,9 +36,14 @@ class Handler extends ExceptionHandler {
 	 * @param  \Exception  $e
 	 * @return \Illuminate\Http\Response
 	 */
-	public function render($request, Exception $e)
-	{
-		return parent::render($request, $e);
+	public function render($request, Exception $exception)
+	{		
+		if ($exception instanceof \ErrorException) {
+			$install_admin = User::where('id','=',1)->first();
+			return response()->view('errors.500', ['install_admin_email' => $install_admin->email], 500);
+		}
+		
+		return parent::render($request, $exception);
 	}
 
     /**

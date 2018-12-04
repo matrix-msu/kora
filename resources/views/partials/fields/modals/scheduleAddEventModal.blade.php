@@ -10,8 +10,7 @@
             <div class="form-group">
                 {!! Form::label('eventname','Event Name') !!}
                 <span class="error-message"></span>
-                <input type="text" class="text-input event-name-js" maxlength="24"
-                       placeholder="Enter the Event name here"/>
+                <input type="text" class="text-input event-name-js" placeholder="Enter the Event name here"/>
             </div>
             <div class="form-group mt-xl half date-picker-form-group">
                 {!! Form::label('startdatetime','Start Time') !!}

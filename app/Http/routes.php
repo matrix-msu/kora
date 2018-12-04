@@ -285,11 +285,13 @@ Route::group(['middleware' => 'web'], function () {
 	Route::post("/reset/email/validate", "Auth\ResetPasswordController@preValidateEmail");
 
 //user auth
-    Auth::routes();
+    Auth::routes(); // generates user authentication routes 
 
     Route::post("/user/projectCustom", "Auth\UserController@saveProjectCustomOrder");
     Route::post("/user/formCustom/{pid}", "Auth\UserController@saveFormCustomOrder");
 
+	// fallback route (allows for serving 404 with sessions, auth, cookies)
+	Route::fallback('FallbackController@routeNotFound');
 });
 
 Route::group(['middleware' => 'api'], function () {

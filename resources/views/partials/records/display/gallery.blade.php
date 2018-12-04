@@ -83,19 +83,21 @@
                 @endforeach
             </div>
 
-            <div class="gallery-controls">
-                <div class="field-btn field-btn-circle prev-button prev-button-js">
-                    <i class="icon icon-chevron"></i>
-                </div>
+            @if (!$single)
+                <div class="gallery-controls">
+                    <div class="field-btn field-btn-circle prev-button prev-button-js">
+                        <i class="icon icon-chevron"></i>
+                    </div>
 
-                @if (!$single)
-                    <div class="dots dots-js"></div>
-                @endif
+                    @if (!$single)
+                        <div class="dots dots-js"></div>
+                    @endif
 
-                <div class="field-btn field-btn-circle next-button next-button-js">
-                    <i class="icon icon-chevron"></i>
+                    <div class="field-btn field-btn-circle next-button next-button-js">
+                        <i class="icon icon-chevron"></i>
+                    </div>
                 </div>
-            </div>
+            @endif
 
             <div class="caption-container caption-container-js">
                 @foreach ($captions as $index => $caption)

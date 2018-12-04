@@ -9,12 +9,16 @@
         ?>
     @endif
 @endforeach
-<div class="model-player-div model-player-div-js" model-link="{{$model_link}}" model-id="{{$field->flid}}_{{$record->rid}}"
-    model-color="{{\App\Http\Controllers\FieldController::getFieldOption($field,'ModelColor')}}"
-    bg1-color="{{\App\Http\Controllers\FieldController::getFieldOption($field,'BackColorOne')}}"
-    bg2-color="{{\App\Http\Controllers\FieldController::getFieldOption($field,'BackColorTwo')}}">
-    <canvas id="cv{{$field->flid}}_{{$record->rid}}" class="model-player-canvas">
-        It seems you are using an outdated browser that does not support canvas :-(
-    </canvas><br>
-{{--    <button id="cvfs{{$field->flid}}_{{$record->rid}}" type="button">FULLSCREEN</button>--}}
+<div class="record-data-card">
+    <div class="model-wrapper">
+        <div class="model-player-div model-player-div-js" model-link="{{$model_link}}" model-id="{{$field->flid}}_{{$record->rid}}"
+             model-color="{{\App\Http\Controllers\FieldController::getFieldOption($field,'ModelColor')}}"
+             bg1-color="{{\App\Http\Controllers\FieldController::getFieldOption($field,'BackColorOne')}}"
+             bg2-color="{{\App\Http\Controllers\FieldController::getFieldOption($field,'BackColorTwo')}}">
+            <canvas id="cv{{$field->flid}}_{{$record->rid}}" class="model-player-canvas">
+                It seems you are using an outdated browser that does not support canvas :-(
+            </canvas><br>
+            {{--    <button id="cvfs{{$field->flid}}_{{$record->rid}}" type="button">FULLSCREEN</button>--}}
+        </div>
+    </div>
 </div>
