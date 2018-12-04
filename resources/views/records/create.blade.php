@@ -126,7 +126,7 @@
     @include('partials.records.javascripts')
 
     <script src="{{ url('assets/javascripts/vendor/ckeditor/ckeditor.js') }}"></script>
-    <script src="{{ url('assets/javascripts/records/tabs.js') }}"></script>
+
 
     <script type="text/javascript">
         var getPresetDataUrl = "{{action('RecordPresetController@getData')}}";
