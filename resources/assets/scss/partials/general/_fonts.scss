@@ -763,3 +763,8 @@ i {
     color: #04b6af;
   }
 }
+.icon-replay-circle {
+  &:before {
+    content: $icon-replay-circle;
+  }
+}
