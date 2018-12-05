@@ -16,7 +16,6 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\View\View;
-use Validator;
 
 class AdminController extends Controller {
 
@@ -51,6 +50,7 @@ class AdminController extends Controller {
         ['name' => 'generated_list_fields', 'backup' => 'SaveGeneratedListFieldsTable'],
         ['name' => 'geolocator_fields', 'backup' => 'SaveGeolocatorFieldsTable'],
         ['name' => 'geolocator_support', 'backup' => 'SaveGeolocatorSupportTable'],
+        ['name' => 'global_cache', 'backup' => 'SaveGlobalCacheTable'],
         ['name' => 'list_fields', 'backup' => 'SaveListFieldTable'],
         ['name' => 'metadatas', 'backup' => 'SaveMetadatasTable'],
         ['name' => 'model_fields', 'backup' => 'SaveModelFieldsTable'],
@@ -75,6 +75,7 @@ class AdminController extends Controller {
         ['name' => 'rich_text_fields', 'backup' => 'SaveRichTextFieldsTable'],
         ['name' => 'schedule_fields', 'backup' => 'SaveScheduleFieldsTable'],
         ['name' => 'schedule_support', 'backup' => 'SaveScheduleSupportTable'],
+        ['name' => 'scripts', 'backup' => 'SaveScriptsTable'],
         ['name' => 'text_fields', 'backup' => 'SaveTextFieldsTable'],
         ['name' => 'tokens', 'backup' => 'SaveTokensTable'],
         ['name' => 'video_fields', 'backup' => 'SaveVideoFieldsTable'],
@@ -109,15 +110,15 @@ class AdminController extends Controller {
         $prevUrlArray = $request->session()->get('_previous');
         $prevUrl = reset($prevUrlArray);
         $profChangesArray = $request->session()->get('user_changes');
-        if ($profChangesArray) $profChanges = reset($profChangesArray);
-        if ($prevUrl !== url()->current()) {
+        if($profChangesArray) $profChanges = reset($profChangesArray);
+        if($prevUrl !== url()->current()) {
           $session = $request->session()->get('k3_global_success');
 
-          if ($session == 'user_updated' && $profChanges == 'password')
+          if($session == 'user_updated' && $profChanges == 'password')
             $notification['message'] = 'Password Successfully Updated!';
-          else if ($session == 'user_updated')
+          else if($session == 'user_updated')
             $notification['message'] = 'User Successfully Updated!';
-        } else if ($request->session()->get('k3_global_success') == 'batch_users') {
+        } else if($request->session()->get('k3_global_success') == 'batch_users') {
           $notification['message'] = 'User(s) Successfully Invited!';
         }
 
@@ -142,28 +143,28 @@ class AdminController extends Controller {
         $confirm = $request->password_confirmation;
 
         // Look for changes, update what was changed
-        if (!empty($newFirstName) && $newFirstName != $user->first_name) {
+        if(!empty($newFirstName) && $newFirstName != $user->first_name) {
           $user->first_name = $newFirstName;
           array_push($message, "first_name");
         }
 
-        if (!empty($newLastName) && $newLastName != $user->last_name) {
+        if(!empty($newLastName) && $newLastName != $user->last_name) {
           $user->last_name = $newLastName;
           array_push($message, "last_name");
         }
 
-        if (!empty($newProfilePic)) {
+        if(!empty($newProfilePic)) {
           $user->profile = $newProfilePic;
           array_push($message, "profile");
         }
 
-        if (!empty($newOrganization) && $newOrganization != $user->organization) {
+        if(!empty($newOrganization) && $newOrganization != $user->organization) {
           $user->organization = $newOrganization;
           array_push($message, "organization");
         }
 
         // Need to test comparing language code vs language name (en vs English)
-        if (!empty($newLanguage) && $newLanguage != $user->language) {
+        if(!empty($newLanguage) && $newLanguage != $user->language) {
           $user->language = $newLanguage;
           array_push($message, "language");
         }
@@ -173,24 +174,20 @@ class AdminController extends Controller {
             // If passwords don't match.
             if($newPass != $confirm)
                 return response()->json(["status" => false, "message" => "passwords_unmatched"], 200);
-                //return redirect('user/'.$user->id.'/edit')->with('k3_global_error', 'passwords_unmatched');
 
             // If password is less than 6 chars
             if(strlen($newPass)<6)
                 return response()->json(["status" => false, "message" => "password_minimum"], 200);
-                //return redirect('user/'.$user->id.'/edit')->with('k3_global_error', 'password_minimum');
 
             // If password contains spaces
             if(preg_match('/\s/',$newPass))
                 return response()->json(["status" => false, "message" => "password_whitespaces"], 200);
-                //return redirect('user/'.$user->id.'/edit')->with('k3_global_error', 'password_whitespaces');
 
             $user->password = bcrypt($newPass);
             array_push($message,"password");
         }
 
         $user->save();
-        //return response()->json(["status" => true, "message" => $message], 200);
         return redirect('admin/users')->with('k3_global_success', 'user_updated')->with('user_changes', $message);
     }
 
@@ -201,13 +198,11 @@ class AdminController extends Controller {
      * @return JsonResponse - User deleted
      */
     public function deleteUser($id) {
-        if(!\Auth::user()->admin) {
+        if(!\Auth::user()->admin)
             return response()->json(["status" => false, "message" => "not_admin"], 200);
-        }
 
-        if ($id == 1) {
+        if($id == 1)
             return response()->json(["status" => false, "message" => "attempt to delete root admin"], 200);
-        }
 
         $user = User::where('id', '=', $id)->first();
         $user->delete();
@@ -216,27 +211,25 @@ class AdminController extends Controller {
     }
 
      /**
-      * Updates admin and activation status of a user
-      * Adds or removes access to projects, forms, and groups
+      * Updates admin and activation status of a user.
+      * Adds or removes access to projects, forms, and groups.
       *
       * @param  int $id - The ID of user to be updated
       * @return JsonResponse - User admin toggled
       */
-	  
       public function updateStatus(Request $request) {
-        if ($request->id == 1) {
+        if($request->id == 1)
           return response()->json(["status" => false, "message" => "root_admin_error"], 200);
-        }
 		
         $user = User::where('id', '=', $request->id)->first();
 		
         $message = array();
 		
-        if ($request->status == "admin") {
+        if($request->status == "admin") {
           // Updating admin status
           $action = "admin";
 
-          if ($user->admin) {
+          if($user->admin) {
             // Revoking admin status
             $user->admin = 0;
 
@@ -244,51 +237,36 @@ class AdminController extends Controller {
             $guPairs = DB::table("project_group_user")->where('user_id', '=', $user->id)->get();
 			
 			$user_project_group_ids = array();
-			foreach($guPairs as $gu)
-			{
+			foreach($guPairs as $gu) {
 				array_push($user_project_group_ids, $gu->project_group_id);
 			}
 			
-			$safe_pids = array();
 			$safe_pids_assoc = array();
 			$pids_data = ProjectGroup::whereIn('id', $user_project_group_ids)->get();
-			foreach($pids_data as $project) // json -> array
-			{
-				array_push($safe_pids, $project->pid);
+			foreach($pids_data as $project) {// json -> array
 				$safe_pids_assoc[$project->pid] = true;
 			}
-			
-			$safe_pids = array_unique($safe_pids);
 
             //Build the list of form groups they are a part of
             $guPairs = DB::table("form_group_user")->where("user_id", "=", $user->id)->get();
 			
 			$user_form_group_ids = array();
-			foreach($guPairs as $gu)
-			{
+			foreach($guPairs as $gu) {
 				array_push($user_form_group_ids, $gu->form_group_id);
 			}
 			
-			$safe_fids = array();
 			$safe_fids_assoc = array();
 			$fids_data = FormGroup::whereIn('id', $user_form_group_ids)->get();
-			foreach($fids_data as $group) // json -> array
-			{
-				array_push($safe_fids, $group->fid);
+			foreach($fids_data as $group) { // json -> array
 				$safe_fids_assoc[$group->fid] = true;
 			}
-			
-            $safe_fids = array_unique($safe_fids);
 
             //If the user isn't a part of the project group, we want to remove their custom access to it
             $projects = Project::all();
 			$pids_to_remove = array();
             foreach($projects as $project) {
                 if(!array_key_exists($project->pid, $safe_pids_assoc))
-				{
-                    //$user->removeCustomProject($project->pid);
 					array_push($pids_to_remove, $project->pid);
-				}
             }
 			$user->bulkRemoveCustomProjects($pids_to_remove);
 			
@@ -297,10 +275,7 @@ class AdminController extends Controller {
 			$fids_to_remove = array();
             foreach($forms as $form) {
                 if(!array_key_exists($form->fid, $safe_fids_assoc))
-				{
-                    //$user->removeCustomForm($form->fid);
 					array_push($fids_to_remove, $form->fid);
-				}
             }
 			$user->bulkRemoveCustomForms($fids_to_remove);
 
@@ -318,7 +293,7 @@ class AdminController extends Controller {
           // Updating activation status
           $action = "activation";
 
-          if ($user->active) {
+          if($user->active) {
             // User already active, need to deactivate
             $user->active = 0;
 
@@ -334,6 +309,28 @@ class AdminController extends Controller {
 		
         return response()->json(["status" => true, "message" => $message, "action" => $action], 200);
       }
+      
+    /**
+      * Checks whether the email is already taken.
+      *
+      * @param  string $email - Email to compare
+      * @return bool - The result of its existence
+      */
+    public function validateEmails(Request $request) {
+        $emails = str_replace(',', ' ', $request->emails);
+        $emails = preg_replace('!\s+!', ' ', $emails);
+        $emails = array_unique(explode(' ', $emails));
+
+        $existingEmails = array();
+        foreach ($emails as $email) {
+            if (self::emailExists($email)) {
+                array_push($existingEmails, $email);
+            }
+        }
+
+        // return json response of all emails that already exist
+        return response()->json(["status" => true, "message" => $existingEmails], 200);
+    }
 
     /**
      * Batch invites users to Kora3 using list of emails. Creates users in the db if they don't exist.
@@ -346,6 +343,11 @@ class AdminController extends Controller {
         $emails = preg_replace('!\s+!', ' ', $emails);
         $emails = array_unique(explode(' ', $emails));
         $personal_message = $request->message;
+
+        if (isset($request->projectGroup)) {
+            $projectGroup = ProjectGroup::where('id', '=', $request->projectGroup)->first();
+            $project = Project::where('pid','=',$projectGroup->pid)->first();
+        }
 
         $notification = array(
             'message' => '',
@@ -361,26 +363,26 @@ class AdminController extends Controller {
             $skipped = 0;
             $created = 0;
 			$user_ids = array();
-			
+
             foreach ($emails as $email) {
-				if (filter_var($email, FILTER_VALIDATE_EMAIL)) {
-					$username = explode('@', $email)[0];
+                if (filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                    $username = explode('@', $email)[0];
                     $i = 1;
                     $username_array = array();
                     $username_array[0] = $username;
 
                     // Increment a count while the username exists.
-                    while (self::usernameExists($username)) {
+                    while(self::usernameExists($username)) {
                         $username_array[1] = $i;
                         $username = implode($username_array);
                         $i++;
                     }
-					
-					if(!self::emailExists($email)) {
+
+                    if(!self::emailExists($email)) {
                         //
                         // Create the new user.
                         //
-                        $user = new User();
+                        $user = new User;
                         $user->username = $username;
                         $user->email = $email;
                         $password = self::passwordGen();
@@ -389,8 +391,8 @@ class AdminController extends Controller {
                         $token = RegisterController::makeRegToken();
                         $user->regtoken = $token;
                         $user->save();
-						array_push($user_ids, $user->id);
-						
+                        array_push($user_ids, $user->id);
+
                         //
                         // Assign the new user a default set of preferences.
                         //
@@ -407,7 +409,8 @@ class AdminController extends Controller {
                         // Send a confirmation email.
                         //
                         try {
-                            Mail::send('emails.batch-activation', compact('token', 'password', 'username', 'personal_message'), function ($message) use ($email) {
+                            $sender = Auth::User();
+                            Mail::send('emails.batch-activation', compact('token', 'password', 'username', 'personal_message', 'sender', 'project', 'projectGroup'), function ($message) use ($email) {
                                 $message->from(config('mail.from.address'));
                                 $message->to($email);
                                 $message->subject('Kora Account Activation');
@@ -423,18 +426,18 @@ class AdminController extends Controller {
                         $created++;
                     } else {
                         if (isset($request->return_user_ids)) { // return user id of existing user
-							$user = User::where('email', '=', $email)->first();
-							array_push($user_ids, $user->id);
-						}
-						$skipped++;
+                            $user = User::where('email', '=', $email)->first();
+                            array_push($user_ids, $user->id);
+                        }
+                        $skipped++;
                     }
-				}
+		        }
             }
 
-			if (isset($request->return_user_ids))
+			if(isset($request->return_user_ids))
 				return $user_ids;
 			else
-				return redirect('admin/users')->with('k3_global_success', 'batch_users')->with('batch_users_created', $created)->with('batch_users_skipped', $skipped)->with('notification', $notification);;
+				return redirect('admin/users')->with('k3_global_success', 'batch_users')->with('batch_users_created', $created)->with('batch_users_skipped', $skipped)->with('notification', $notification);
         }
     }
 

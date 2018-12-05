@@ -1,0 +1,68 @@
+&.date-input-form-group {
+  label {
+    display: block;
+  }
+
+  .check-box-half {
+    display: inline-block;
+  }
+
+  .date-inputs-container {
+    background: palette('white');
+    border-radius: 5px;
+    box-shadow: 0 3px 5px 0 palette('gray', slate, .05);
+
+    .chosen-container-single {
+      .chosen-single {
+        border-radius: 0;
+        border-right: 2px solid palette('gray', slate, .05);
+        box-shadow: none;
+
+        &:focus {
+          border-right: 2px solid palette('green', accent);
+        }
+
+        &:hover {
+          border-right: 2px solid palette('green', accent, .7);
+        }
+      }
+
+      &:first-of-type {
+        .chosen-single {
+          border-top-left-radius: 5px;
+          border-bottom-left-radius: 5px;
+        }
+      }
+
+      &:last-of-type {
+        .chosen-single {
+          border-top-right-radius: 5px;
+          border-bottom-right-radius: 5px;
+          border-right: 2px solid palette('white');
+
+          &:focus {
+            border-right: 2px solid palette('green', accent);
+          }
+
+          &:hover {
+            border-right: 2px solid palette('green', accent, .7);
+          }
+        }
+      }
+    }
+  }
+
+  @media screen and (max-width: 1175px) {
+    .date-inputs-container {
+      background: transparent;
+      box-shadow: none;
+
+      .chosen-container-single {
+        .chosen-single {
+          border-radius: 5px;
+          box-shadow: 0 3px 5px 0 palette('gray', slate, .05);
+        }
+      }
+    }
+  }
+}

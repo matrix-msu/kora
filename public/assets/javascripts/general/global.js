@@ -107,6 +107,12 @@ function getURLParameter(name) {
   return decodeURIComponent((new RegExp('[?|&]' + name + '=' + '([^&;]+?)(&|#|;|$)').exec(location.search) || [null, ''])[1].replace(/\+/g, '%20')) || null;
 }
 
+// back button clicked
+$("a.back").click(function(e) {
+  e.preventDefault();
+  history.back(-1);
+});
+
 $(document).ready(function() {
   setFixedElement(true);
 
@@ -115,13 +121,15 @@ $(document).ready(function() {
     $('.side-menu-js').addClass('active');
     $(".center, .floating-buttons").addClass('with-aside');
     $('.field.card').addClass('with-aside');
+    $('.sections .section-js').addClass('with-aside');
+    $('.done-editing-dash-js').addClass('pre-fixed-with-aside');
+    $('.pre-fixed-js').addClass('pre-fixed-with-aside');
+    $('.toolbar').addClass('with-aside');
 
   	var welcome_notification = $('.welcome-body').find(".notification");
   	if (welcome_notification.length == 0) {
   	  $('.notification').addClass('with-aside'); // this breaks welcome page notification styling
   	}
-    $('.pre-fixed-js').addClass('pre-fixed-with-aside');
-    $('.toolbar').addClass('with-aside');
   } else {
     // the case where we want the aside lock to still work on refresh for larger screens
     // but not on mobile.
@@ -381,12 +389,12 @@ $( document ).ajaxSend(function(event, xhr, options) {
 $( document ).ajaxComplete(function(event, xhr, options) {
   var url = options.url;
   var hide = true;
-  
+
   // hide loader exclusion cases for AJAX requests
   if (url.search("validate") != -1) { // exclude validation requests
 	hide = false;
   }
-  
+
   if (hide) {
     hide_loader();
   }

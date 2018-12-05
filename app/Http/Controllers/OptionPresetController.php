@@ -51,12 +51,12 @@ class OptionPresetController extends Controller {
         );
         $prevUrlArray = $request->session()->get('_previous');
         $prevUrl = reset($prevUrlArray);
-        if ($prevUrl !== url()->current()) {
+        if($prevUrl !== url()->current()) {
           $session = $request->session()->get('k3_global_success');
 
-          if ($session == 'field_preset_created')
+          if($session == 'field_preset_created')
             $notification['message'] = 'Field Value Preset Created!';
-          else if ($session == 'field_preset_edited')
+          else if($session == 'field_preset_edited')
             $notification['message'] = 'Field Value Preset Updated!';
         }
 

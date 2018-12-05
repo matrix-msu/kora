@@ -11,6 +11,10 @@
     font-size: 20px;
     padding: 35px 0 40px 35px;
     width: calc(100% - 62px);
+
+    &.delete-block {
+      text-align: left;
+    }
   }
 
   .modal-toggle {

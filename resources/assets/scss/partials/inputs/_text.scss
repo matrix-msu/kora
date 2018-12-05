@@ -37,6 +37,25 @@
   &.error {
     border: 2px solid palette('yellow');
   }
+
+  &::placeholder {
+    color: palette('gray', text);
+    //font-family: $ubuntu-italic;
+    font-style: italic;
+    opacity: .6;
+  }
+  &:-ms-input-placeholder {
+    color: palette('gray', text);
+    font-family: $ubuntu-italic;
+    font-style: italic;
+    opacity: .6;
+  }
+  &::-ms-input-placeholder {
+    color: palette('gray', text);
+    //font-family: $ubuntu-italic;
+    font-style: italic;
+    opacity: .6;
+  }
 }
 
 .text-area {

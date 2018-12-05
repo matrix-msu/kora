@@ -127,7 +127,7 @@
             </div>
 
             <section class="new-object-button form-group">
-                <input class="combolist-add-new-list-value-modal-js {{ $defs != null || '' ? 'mt-xxl' : '' }}" type="button" value="Add a new Default Value">
+                <input class="combolist-add-new-list-value-modal-js {{ $defs != null || '' ? 'mt-xl' : '' }}" type="button" value="Add a new Default Value">
             </section>
         </div>
     </section>

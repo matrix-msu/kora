@@ -12,6 +12,30 @@
     opacity: 0;
   }
 
+  /* dashboard stuff */
+	.section-quick-actions &:last-child:hover::after {
+		left: -30px;
+  }
+
+  /* centering dash block quick actions */
+  .element .element-link-container &:hover::after {
+    left: -30px;
+  }
+  .element .element-link-container &.form-import:hover::after {
+    left: -15px;
+  }
+  .element .element-link-container &.permissions:hover::after,
+  .element .element-link-container &.presets:hover::after {
+    left: -45px;
+  }
+  .element .element-link-container &.search:hover::after {
+    left: -55px;
+  }
+  .element .element-link-container &.revisions:hover::after {
+    left: -60px;
+  }
+  /* end dash stuff */
+
   &:hover::after {
     animation: fadein .2s forwards;
     background: palette('gray', dropdown);
@@ -95,6 +119,21 @@
     .open-create-regex & {
       left: -140px;
     }
+
+	/* DASHBOARD SECTION */
+	.floating-buttons .edit-blocks & {
+		left: -40px;
+	}
+
+	.element .element-link-container & {
+		z-index: 1;
+	}
+
+	.edit-mode .edit-block & {
+		background: palette('white');
+		color: palette('gray', dropdown);
+	}
+	/* DASHBOARD SECTION END */
     
     @media screen and (max-width: $max-mobile-xs-width) {
       .title & {

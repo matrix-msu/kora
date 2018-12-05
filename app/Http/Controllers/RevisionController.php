@@ -112,7 +112,7 @@ class RevisionController extends Controller {
         $order = app('request')->input('order') === null ? 'lmd' : app('request')->input('order');
         $order_type = substr($order, 0, 2) === "lm" ? "created_at" : "id";
         $order_direction = substr($order, 2, 3) === "a" ? "asc" : "desc";
-        $revisions = DB::table('revisions')->where('rid', '=', $rid)->orderBy('created_at','desc')->paginate($pagination);
+        $revisions = DB::table('revisions')->where('rid', '=', $rid)->orderBy($order_type, $order_direction)->paginate($pagination);
 
         $records = array();
 
@@ -219,7 +219,7 @@ class RevisionController extends Controller {
 
         foreach($form->fields()->get() as $field) {
             $typedField = $field->getTypedFieldFromRID($record->rid);
-            if(!is_null($typedField)){
+            if(!is_null($typedField)) {
                 //Field exists in record already
                 $typedField->rollbackField($field, $revision, true);
             } else {
@@ -384,11 +384,11 @@ class RevisionController extends Controller {
                 break;
             case 'Gallery':
                 $names = explode('[!]', $data['names']);
-                $captions = explode('[!]', $data['captions']);
+                $captions =  isset($data['captions']) ? explode('[!]', $data['captions']) : null;
                 $stringFile = '';
                 for($gi=0;$gi<count($names);$gi++) {
                     $capString = '';
-                    if($captions[$gi] != '')
+                    if(!is_null($captions) && $captions[$gi] != '')
                         $capString = ' - '.$captions[$gi];
                     $stringFile .= '<div>'.explode('[Name]',$names[$gi])[1].$capString.'</div>';
                 }

@@ -53,7 +53,7 @@ Kora.Auth.Register = function() {
         button.click(function(event) {
             fileInput.focus();
         });
-    
+
         // For non drag'n'drop
         fileInput.change(function(event) {
             event.preventDefault();
@@ -112,17 +112,29 @@ Kora.Auth.Register = function() {
 
             e.preventDefault();
 
+            var $this = $(this);
+
             if (!droppedPicFile) {
                 values = {};
                 $.each($('.user-form').serializeArray(), function(i, field) {
                     values[field.name] = field.value;
                 });
 
+                // console.log(values)
+                // for ( var pair of values.entries() ) {
+                //     console.log(pair[0] + ', ' + pair[1]);
+                //     //console.log(typeof pair[1]);
+                //     if (typeof pair[1] === 'object') {
+                //         console.log(pair[1]);
+                //     }
+                // }
+
 				$.ajax({
 					url: validationUrl,
 					method: 'POST',
 					data: values,
 					success: function(data) {
+						display_loader();
 						$('.user-form').submit();
 					},
 					error: function(err) {
@@ -142,14 +154,6 @@ Kora.Auth.Register = function() {
                 values = new FormData(form.get(0));
                 values.delete('profile');
                 values.append('profile', droppedPicFile);
-            
-                // for ( var pair of values.entries() ) {
-                    // console.log(pair[0] + ', ' + pair[1]);
-                    // //console.log(typeof pair[1]);
-                    // if (typeof pair[1] === 'object') {
-                        // console.log(pair[1]);
-                    // }
-                // }
 
 				$.ajax({
 					url: validationUrl,
@@ -158,6 +162,7 @@ Kora.Auth.Register = function() {
 					processData: false,
 					contentType: false,
 					success: function(data) {
+						display_loader();
 						$('.user-form').submit();
 					},
 					error: function(err) {
@@ -198,6 +203,7 @@ Kora.Auth.Register = function() {
                 method: 'POST',
                 data: values,
                 error: function(err) {
+                    console.log(err.responseJSON.errors[field])
                     if (err.responseJSON.errors[field] !== undefined) {
                         $('#'+field).addClass('error');
                         $('#'+field).siblings('.error-message').text(err.responseJSON.errors[field][0]);

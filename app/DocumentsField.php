@@ -268,21 +268,20 @@ class DocumentsField extends FileTypeField {
         $this->rid = $record->rid;
         $this->fid = $field->fid;
         $infoArray = array();
-        $maxfiles = FieldController::getFieldOption($field,'MaxFiles');
-        if($maxfiles==0) {$maxfiles=1;}
+
         $newPath = storage_path('app/files/p' . $field->pid . '/f' . $field->fid . '/r' . $record->rid . '/fl' . $field->flid);
         mkdir($newPath, 0775, true);
-        for($q=0;$q<$maxfiles;$q++) {
-            $types = self::getMimeTypes();
-            if(!array_key_exists('txt', $types))
-                $type = 'application/octet-stream';
-            else
-                $type = $types['txt'];
-            $info = '[Name]documents' . $q . '.txt[Name][Size]24[Size][Type]' . $type . '[Type]';
-            $infoArray['documents' . $q . '.txt'] = $info;
-            copy(public_path('assets/testFiles/documents.txt'),
-                $newPath . '/documents' . $q . '.txt');
-        }
+
+        $types = self::getMimeTypes();
+        if(!array_key_exists('txt', $types))
+            $type = 'application/octet-stream';
+        else
+            $type = $types['txt'];
+        $info = '[Name]documents.txt[Name][Size]24[Size][Type]' . $type . '[Type]';
+        $infoArray['documents.txt'] = $info;
+        copy(public_path('assets/testFiles/documents.txt'),
+            $newPath . '/documents.txt');
+
         $infoString = implode('[!]',$infoArray);
         $this->documents = $infoString;
         $this->save();
@@ -500,7 +499,7 @@ class DocumentsField extends FileTypeField {
     public function formatBytes($bytes) {
         $units = ['b', 'kb', 'mb', 'gb', 'tb'];
 
-        for ($i = 0; $bytes > 1024; $i++) {
+        for($i = 0; $bytes > 1024; $i++) {
             $bytes /= 1024;
         }
 

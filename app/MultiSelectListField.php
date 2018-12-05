@@ -88,7 +88,7 @@ class MultiSelectListField extends BaseField {
         $reqDefs = $request->default;
         $default = $reqDefs[0];
         if(!is_null($default)) {
-            for ($i = 1; $i < sizeof($reqDefs); $i++) {
+            for($i = 1; $i < sizeof($reqDefs); $i++) {
                 $default .= '[!]' . $reqDefs[$i];
             }
         }
@@ -96,7 +96,7 @@ class MultiSelectListField extends BaseField {
         $reqOpts = $request->options;
         $options = $reqOpts[0];
         if(!is_null($options)) {
-            for ($i = 1; $i < sizeof($reqOpts); $i++) {
+            for($i = 1; $i < sizeof($reqOpts); $i++) {
                 $options .= '[!]' . $reqOpts[$i];
             }
         }
@@ -215,7 +215,7 @@ class MultiSelectListField extends BaseField {
         $this->flid = $field->flid;
         $this->rid = $record->rid;
         $this->fid = $field->fid;
-        $this->options = 'K3TR[!]1337[!]Test[!]Record';
+        $this->options = 'This is one of the list options that was selected[!]This is another list option that was selected';
         $this->save();
     }
 
@@ -303,16 +303,16 @@ class MultiSelectListField extends BaseField {
         switch($type) {
             case "XML":
                 $xml = '<' . Field::xmlTagClear($slug) . ' type="Multi-Select List">';
-                $xml .= '<value>' . utf8_encode('LIST VALUE 1') . '</value>';
-                $xml .= '<value>' . utf8_encode('LIST VALUE 2') . '</value>';
-                $xml .= '<value>' . utf8_encode('so on...') . '</value>';
+                $xml .= '<value>' . utf8_encode('This is one of the list options that was selected') . '</value>';
+                $xml .= '<value>' . utf8_encode('This is another list option that was selected') . '</value>';
                 $xml .= '</' . Field::xmlTagClear($slug) . '>';
 
                 return $xml;
                 break;
             case "JSON":
                 $fieldArray = [$slug => ['type' => 'Multi-Select List']];
-                $fieldArray[$slug]['value'] = array('LIST VALUE 1','LIST VALUE 2','so on...');
+                $fieldArray[$slug]['value'] = array('This is one of the list options that was selected',
+                    'This is another list option that was selected');
 
                 return $fieldArray;
                 break;

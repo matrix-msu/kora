@@ -12,17 +12,21 @@
   height: 270px;
 }
 
+.model-player-canvas {
+  border-radius: 5px;
+  width: 100%;
+}
+
 .model-player-div {
   margin: auto;
   position: relative;
-  width: 800px;
+  width: 100%;
 }
 
-//IF YOU CHANGE THIS HEIGHT, CHANGE IT IN THE RECORD DISPLAY FULLSCREEN JAVASCRIPT FUNCTIONS
-.model-player-canvas {
-  border: 1px solid;
-  height: 400px;
-  width: 800px;
+.model-wrapper {
+  border-radius: 5px;
+  overflow: hidden;
+  width: 100%;
 }
 
 .associator {

@@ -31,8 +31,8 @@ class BlockRequest extends Request {
             'block_project' => 'required_if:block_type,Project',
             'block_form' => 'required_if:block_type,Form',
             'block_record' => 'required_if:block_type,Record',
-            'block_note_title' => 'required_if:block_type,Note|max:30',
-            'block_note_content' => 'required_if:block_type,Note|max:300',
+            'block_note_title' => 'required_if:block_type,Note|max:40',
+            'block_note_content' => 'required_if:block_type,Note',
             'section_to_add' => 'required'
         ];
     }

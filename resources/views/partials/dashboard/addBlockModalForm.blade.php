@@ -1,6 +1,6 @@
 {!! csrf_field() !!}
 
-<div class="form-group mt-xxs">
+<div class="form-group mt-xxs add-block-type-js">
     <label for="block_type">Dashboard Block Type</label>
     <span class="error-message"></span>
     <select class="single-select block-type-selected-js" id="block_type" name="block_type">
@@ -18,7 +18,7 @@
     <div class="form-group mt-xl">
         <label for="block_project">Select Project</label>
         <span class="error-message"></span>
-        <select class="single-select" id="block_project" name="block_project">
+        <select class="single-select" id="block_project" name="block_project" data-placeholder="Select a Project">
             <option></option>
             @foreach($userProjects as $proj)
                 <option value="{{$proj->pid}}">{{$proj->name}}</option>
@@ -31,7 +31,7 @@
     <div class="form-group mt-xl">
         <label for="block_form">Select Form</label>
         <span class="error-message"></span>
-        <select class="single-select" id="block_form" name="block_form">
+        <select class="single-select" id="block_form" name="block_form" data-placeholder="Select a Form">
             <option></option>
             @foreach($userForms as $form)
                 <option value="{{$form->fid}}">{{$form->name}}</option>
@@ -44,7 +44,7 @@
     <div class="form-group mt-xl">
         <label for="block_record">Select Record</label>
         <span class="error-message"></span>
-        <select class="single-select" id="block_record" name="block_record">
+        <select class="single-select" id="block_record" name="block_record" data-placeholder="Select a Record">
             <option></option>
             @foreach($userRecords as $rec)
                 <option value="{{$rec}}">{{$rec}}</option>
@@ -67,7 +67,7 @@
     </div>
 </section>
 
-<div class="form-group mt-xl">
+<div class="form-group mt-xl add-block-section-js">
     <label for="section_to_add">Add to Section</label>
     <span class="error-message"></span>
     <select class="single-select section-to-add-js" id="section_to_add" name="section_to_add" disabled>

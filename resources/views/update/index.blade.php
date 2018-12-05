@@ -7,7 +7,7 @@
 
 @section('header')
     <section class="head">
-        <a class="back" href="{{ URL::previous() }}"><i class="icon icon-chevron"></i></a>
+        <a class="back" href=""><i class="icon icon-chevron"></i></a>
         <div class="inner-wrap center">
             <h1 class="title">
                 <i class="icon icon-update"></i>
@@ -31,20 +31,35 @@
 
 @section('body')
     <section class="update-text center">
-        <div class="update-version">KORA {{$currVer}}</div>
+        <div class="update-version">KORA {{$info['version']}}</div>
+        <div class="update-notes mt-xl mb-100-xl">
+            <div class="note-header">Update Notes:</div>
+            <div class="mt-m">{{$info['notes']}}</div>
+            <div class="mt-m">New Features:</div>
+            <ul class="mt-m">
+                @foreach($info['features'] as $feature)
+                    <li>{{$feature}}</li>
+                @endforeach
+            </ul>
+            <div class="mt-m">Bug Fixes:</div>
+            <ul class="mt-m">
+                @foreach($info['bugs'] as $bug)
+                    <li>{{$bug}}</li>
+                @endforeach
+            </ul>
+        </div>
         @if($update)
-            <div class="update-notes">{!! $notes !!}</div>
             <div class="form-group update-button">
                 @if($ready)
                     <form method="get" id="update_form" action={{action("UpdateController@runScripts")}}>
-                        {!! Form::submit("Update Kora to Version $currVer",['class' => 'btn edit-btn update-submit pre-fixed-js']) !!}
+                        {!! Form::submit("Update Kora to Version ".$info['version'],['class' => 'btn edit-btn update-submit pre-fixed-js']) !!}
                     </form>
                 @else
                     {!! Form::submit('Must update Kora3 file set first.',['class' => 'btn edit-btn update-submit pre-fixed-js disabled']) !!}
                 @endif
             </div>
         @else
-            <div class="update-notes mb-100-xl">{!! $notes !!}</div>
+
         @endif
     </section>
 @stop

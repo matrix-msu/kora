@@ -15,7 +15,7 @@
 
 @section('header')
   <section class="head">
-      <a class="back" href="{{ URL::previous() }}"><i class="icon icon-chevron"></i></a>
+      <a class="back" href=""><i class="icon icon-chevron"></i></a>
       <div class="inner-wrap center">
         <h1 class="title">
           <i class="icon icon-project-permissions"></i>
@@ -216,6 +216,8 @@
     var editNamePath = '{{ action('ProjectGroupController@updateName', ["pid" => $project->pid]) }}';
     var updatePermissionsPath = '{{ action('ProjectGroupController@updatePermissions', ["pid" => $project->pid]) }}';
     var deletePermissionsPath = '{{ action('ProjectGroupController@deleteProjectGroup', ["pid" => $project->pid]) }}';
+    var validateEmailsUrl = '{{ url('/') }}/admin/users/validateEmails';
+
     Kora.ProjectGroups.Index();
   </script>
 @stop

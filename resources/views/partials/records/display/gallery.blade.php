@@ -64,13 +64,12 @@
 
 <div class="modal modal-js modal-mask gallery-modal gallery-modal-js full-screen-modal">
     <div class="content">
-        <div class="header">
-            <a href="#" class="modal-toggle modal-toggle-js">
+        <div class="body">
+            <a href="#" class="modal-toggle modal-toggle-js field-btn">
                 <i class="icon icon-cancel"></i>
             </a>
-        </div>
-        <div class="body">
-            <div class="gallery-field-display gallery-field-display-js">
+
+            <div class="gallery-field-display gallery-field-display-js {{($single && $captions[0] == "") ? 'full-height' : ''}}">
                 @foreach($images as $img)
                     @if($img != '')
                         <?php
@@ -84,23 +83,26 @@
                 @endforeach
             </div>
 
-            <div class="gallery-controls">
-                <div class="field-btn field-btn-circle prev-button prev-button-js">
-                    <i class="icon icon-chevron"></i>
+            @if (!$single)
+                <div class="gallery-controls">
+                    <div class="field-btn field-btn-circle prev-button prev-button-js">
+                        <i class="icon icon-chevron"></i>
+                    </div>
+
+                    @if (!$single)
+                        <div class="dots dots-js"></div>
+                    @endif
+
+                    <div class="field-btn field-btn-circle next-button next-button-js">
+                        <i class="icon icon-chevron"></i>
+                    </div>
                 </div>
+            @endif
 
-                @if (!$single)
-                    <div class="dots dots-js"></div>
-                @endif
-
-                <div class="field-btn field-btn-circle next-button next-button-js">
-                    <i class="icon icon-chevron"></i>
-                </div>
-            </div>
-
+            {{--{{dd($single)}}--}}
             <div class="caption-container caption-container-js">
                 @foreach ($captions as $index => $caption)
-                    <div class="caption caption-js {{ ($index == 0 ? 'active' : '') }}">{{ $caption }}</div>
+                    <div class="caption caption-js modal-caption-js {{ ($index == 0 ? 'active' : '') }}">{{ $caption }}</div>
                 @endforeach
             </div>
             <a class="caption-more caption-more-js underline-middle-hover" showing="less" href="#">Show Full Caption</a>

@@ -32,15 +32,12 @@
 
         <div class="full-screen-modal modal modal-js modal-mask geolocator-map-modal geolocator-map-modal-js">
             <div class="content">
-                <div class="header">
+                <div class="body">
                     <a href="#" class="modal-toggle modal-toggle-js">
                         <i class="icon icon-cancel"></i>
                     </a>
-                </div>
-                <div class="body">
-                    <div id="modalmap{{$field->flid}}_{{$record->rid}}" class="geolocator-modal-map geolocator-modal-map-js">
 
-                    </div>
+                    <div id="modalmap{{$field->flid}}_{{$record->rid}}" class="geolocator-modal-map geolocator-modal-map-js"></div>
                 </div>
             </div>
         </div>

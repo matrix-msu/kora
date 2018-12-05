@@ -1,25 +1,9 @@
 @php $pref = 'use_dashboard' @endphp
 @if (\App\Http\Controllers\Auth\UserController::returnUserPrefs($pref) == "1")
-  <li class="navigation-item">
-      <a href="#" class="menu-toggle navigation-toggle-js">
+  <li class="navigation-item nav-dashboard">
+      <a href="{{ url('/dashboard') }}">
         <span>Dashboard</span>
-        <i class="icon icon-chevron"></i>
       </a>
-      <ul class="navigation-sub-menu navigation-sub-menu-js">
-          <li class="link link-head">
-              <a href="{{ url('/dashboard') }}">
-                <i class="icon icon-dashboard"></i>
-                <span>Dashboard</span>
-              </a>
-          </li>
-          <li class="spacer full"></li>
-          <li class="link">
-              <a href="#">Edit Dashboard</a>
-          </li>
-          <li class="link">
-              <a href="{{ url('/dashboard?state=1') }}">Add Dashboard Block</a>
-          </li>
-      </ul>
   </li>
 @endif
 

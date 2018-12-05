@@ -29,6 +29,23 @@
     }
   }
 
+  .edit-section-title {
+    background-color: palette('gray', slate, 0.05);
+    border: 0;
+    border-radius: 5px;
+    box-sizing: border-box;
+    float: left;
+    font-family: inherit;
+    font-size: inherit;
+    height: 40px;
+    margin: -10px 20px 0 0;
+    padding: 10px 20px;
+
+    &:focus {
+      outline: none;
+    }
+  }
+
   .inner-wrap .content-sections {
     display: flex;
     justify-content: center;
@@ -41,10 +58,11 @@
 
     .content {
       color: palette('green', accent);
+      font-family: $ubuntu-medium;
       text-decoration: none;
 
-      &:last-child {
-        padding-left: 45px;
+      &:not(:first-child) {
+        margin-left: 45px;
       }
 
       .icon {
@@ -68,53 +86,216 @@
     }
   }
 
-  .grid {
-    .element {
-      .fp-style {
-        height: auto;
-        margin: 0 20px 0;
+  .sections {
+    .grid {
+      background: palette('gray', background);
+
+      .section-quick-actions {
+        @include transition(width);
+
+        background: palette('gray', background);
+        height: 100%;
+        overflow: hidden;
+        position: absolute;
+        right: 0;
+        top: 0;
+        width: 0;
+
+        > a {
+          color: palette('gray', slate, 0.7);
+          display: inline-block;
+          font-size: 10px;
+          padding: 0 13px;
+          text-decoration: none;
+
+          i {
+            @include transition();
+
+            display: inline-block;
+          }
+
+          &:first-child {
+            padding: 0 13px 0 26px;
+          }
+
+          &:last-child {
+            font-size: 14px;
+          }
+
+          &:hover i {
+            transform: scale(1.25);
+          }
+        }
+
+        &.show {
+          overflow: visible;
+          width: unset;
+        }
       }
 
-      .fp-style:first-of-type {
-        margin-top: 16px;
+      .element {
+        .fp-style {
+          height: auto;
+          margin: 0 20px 0;
+        }
+
+        .fp-style:first-of-type {
+          margin-top: 16px;
+        }
+
+        .fp-style:last-of-type {
+          height: 53px;
+          margin: 16px 20px 10px;
+        }
+
+        .fp-header {
+          font-family: $ubuntu-bold;
+        }
+
+        .form-desc {
+          height: 73px;
+          margin: 16px 20px 10px;
+        }
+
+        .quote-text,
+        .quote-author {
+          color: #1f2833;
+          font-family: $ubuntu;
+          font-size: 14px;
+          height: fit-content;
+          margin: 76px 20px 0;
+        }
+
+        .quote-author {
+          height: 20px;
+          margin: 14px 20px 0;
+        }
+
+        &.note-block {
+          overflow-y: auto;
+
+          &.edit-mode:hover {
+            overflow-y: hidden;
+          }
+        }
+
+        .note-title {
+          border: 0;
+          box-sizing: border-box;
+          width: 100%;
+
+          &::placeholder {
+            color: palette('black', base);
+          }
+
+          &:focus {
+            outline: none;
+          }
+        }
+
+        .note-desc {
+          background: transparent;
+          border: 0;
+          height: 100px;
+          margin: 10px 20px 10px;
+          overflow-y: hidden;
+          resize: none;
+          width: 85%;
+
+          &::placeholder {
+            color: palette('black', base);
+          }
+
+          &:focus {
+            outline: none;
+          }
+        }
+
+        .tweets {
+          margin: 10px 0 0;
+          overflow: visible;
+          width: 100%;
+        }
+
+        &.tweets {
+          overflow-x: hidden;
+          overflow-y: scroll;
+
+          &.edit-mode {
+            overflow: hidden;
+          }
+        }
       }
 
-      .fp-style:last-of-type {
-        height: 53px;
-        margin: 16px 20px 10px;
+      &.no-section {
+        margin: 60px auto 55px;
+
+        &.no-children {
+          margin: 0 auto;
+
+          & + .grid {
+            margin-top: 10px;
+          }
+        }
       }
 
-      .fp-header {
-        font-family: $ubuntu-bold;
-      }
+      &.add-section {
+        padding-bottom: 180px;
 
-      .form-desc {
-        height: 73px;
-        margin: 16px 20px 10px;
-      }
+        .title {
+          background: gradient('background');
+          /* background: linear-gradient(270deg, #00C1B3 0%, #1CC9B0 100%); */
+          border: 1px solid palette('green',accent,0.2);
+          border-radius: 5px;
+          box-shadow: 0 3px 5px 0 rgba(57, 67, 89, 0.05);
+          height: 40px;
+          margin-right: 20px;
+          padding-right: 0;
+          width: 380px;
 
-      .quote-text {
-        font-family: $ubuntu-light-italic;
-        font-size: 14px;
-        height: 20px;
-        margin: 76px 20px 0;
-      }
+          form {
+            height: 100%;
+          }
 
-      .quote-author {
-        font-family: $ubuntu-light-italic;
-        font-size: 14px;
-        height: 20px;
-        margin: 14px 20px 0;
-      }
+          input {
+            background: transparent;
+            border: none;
+            color: palette('green', accent);
+            font-family: $ubuntu;
+            font-size: 16px;
+            height: 100%;
+            padding: 0 20px;
+            width: fill;
 
-      .note-desc {
-        height: 150px;
-        margin: 20px 20px 10px;
+            &::placeholder {
+              color: palette('green', accent);
+              font-family: $ubuntu-medium;
+            }
+
+            &:focus {
+              outline: none;
+            }
+          }
+        }
+
+        .line-container {
+          height: 40px;
+
+          .line {
+            margin: 20px 0 0;
+          }
+        }
       }
     }
   }
+  
+  .dashboard-submit .fixed-bottom-slide {
+	margin: 0 auto 15px;
+  }
 
   .floating-buttons {
+    z-index: 1;
+
     .form-group {
       display: inline-block;
       margin: 25px 7px;
