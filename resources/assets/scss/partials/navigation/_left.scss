@@ -53,6 +53,7 @@
       display: inline-block;
       max-width: 9em;
       overflow: hidden;
+      padding-bottom: 0.5px;
       text-overflow: ellipsis;
       vertical-align: middle;
     }
@@ -73,7 +74,7 @@
 
     .icon-chevron {
       @include transition();
-      
+
       display: inline-block;
       font-size: 6px;
       line-height: 7px;
@@ -87,6 +88,22 @@
 
     .icon-minus {
       color: palette('green', accent);
+    }
+
+    .icon-dashboard {
+      @include transition();
+
+      font-size: 14px;
+      margin-right: 10px;
+    }
+
+    &.nav-dashboard:hover {
+      color: palette('green', accent);
+
+      a {
+        color: inherit;
+        text-decoration: none;
+      }
     }
   }
   // start new

@@ -16,6 +16,70 @@ Kora.Fields.Options = function(fieldType) {
         });
     }
 
+    // Arrows to move cards up and down
+    function initializeMoveAction($cards) {
+        $cards.each(function() {
+            var $card = $(this);
+            var $moveActions = $card.find('.move-action-js');
+
+            $moveActions.unbind();
+            $moveActions.click(function(e) {
+                e.preventDefault();
+
+                var $moveAction = $(this);
+                if ($moveAction.hasClass('up-js')) {
+                    var $previousForm = $card.prev();
+                    if ($previousForm.length == 0) {
+                        return;
+                    }
+
+                    $previousForm.css('z-index', 999)
+                        .css('position', 'relative')
+                        .animate({
+                            top: $card.height()
+                        }, 300);
+                    $card.css('z-index', 1000)
+                        .css('position', 'relative')
+                        .animate({
+                            top: '-' + $previousForm.height()
+                        }, 300, function() {
+                            $previousForm.css('z-index', '')
+                                .css('top', '')
+                                .css('position', '');
+                            $card.css('z-index', '')
+                                .css('top', '')
+                                .css('position', '')
+                                .insertBefore($previousForm);
+                        });
+                } else {
+                    var $nextForm = $card.next();
+                    if ($nextForm.length == 0) {
+                        return;
+                    }
+
+                    $nextForm.css('z-index', 999)
+                        .css('position', 'relative')
+                        .animate({
+                            top: '-' + $card.height()
+                        }, 300);
+                    $card.css('z-index', 1000)
+                        .css('position', 'relative')
+                        .animate({
+                            top: $nextForm.height()
+                        }, 300, function() {
+                            $nextForm.css('z-index', '')
+                                .css('top', '')
+                                .css('position', '');
+                            $card.css('z-index', '')
+                                .css('top', '')
+                                .css('position', '')
+                                .insertAfter($nextForm);
+                        });
+                }
+            });
+        });
+    }
+
     function initializeSelectAddition() {
         $('.chosen-search-input').on('keyup', function(e) {
             var container = $(this).parents('.chosen-container').first();
@@ -35,9 +99,29 @@ Kora.Fields.Options = function(fieldType) {
     //Fields that have specific functionality will have their own initialization process
 
     function initializeDateOptions() {
+        var $dateInputsContainers = $('.date-inputs-container-js');
+        var $dateListInputs = $dateInputsContainers.find('.chosen-container');
+        var scrollBarWidth = 17;
+
         $('.start-year-js').change(printYears);
 
         $('.end-year-js').change(printYears);
+
+        setTextInputWidth();
+
+        $(window).resize(setTextInputWidth);
+
+        function setTextInputWidth() {
+            if ($(window).outerWidth() < 1000 - scrollBarWidth) {
+                // Window is small, full width Inputs
+                $dateListInputs.css('width', '100%');
+                $dateListInputs.css('margin-bottom', '10px');
+            } else {
+                // Window is large, 1/3 width Inputs
+                $dateListInputs.css('width', '33%');
+                $dateListInputs.css('margin-bottom', '');
+            }
+        }
 
         function printYears(){
             start = $('.start-year-js').val(); end = $('.end-year-js').val();
@@ -149,7 +233,7 @@ Kora.Fields.Options = function(fieldType) {
                         '<span class="title">' + newListOption + '</span>' +
                         '</div>' +
                         '<div class="card-toggle-wrap">' +
-                        '<a class="list-option-delete list-option-delete-js" href=""><i class="icon icon-trash"></i></a>' +
+                        '<a class="list-option-delete list-option-delete-js tooltip" tooltip="Delete List Option" href=""><i class="icon icon-trash"></i></a>' +
                         '</div>' +
                         '</div>' +
                         '</div>';
@@ -321,6 +405,17 @@ Kora.Fields.Options = function(fieldType) {
 
     function initializeScheduleOptions() {
         Kora.Modal.initialize();
+        Kora.Inputs.Number();
+        Kora.Fields.TypedFieldInputs.Initialize();
+
+        // Action arrows on the cards
+        initializeMoveAction($('.schedule-card-js'));
+
+        // Drag cards to sort
+        $('.schedule-card-container-js').sortable();
+
+        // Delete card
+        initializeDelete();
 
         $('.add-new-default-event-js').click(function(e) {
             e.preventDefault();
@@ -373,14 +468,37 @@ Kora.Fields.Options = function(fieldType) {
                 } else {
                     val = name + ': ' + sTime + ' - ' + eTime;
 
-                    if(val != '') {
-                        //Value is good so let's add it
-                        var option = $("<option>").val(val).text(val);
-                        var select = $('.'+flid+'-event-js');
 
-                        select.append(option);
-                        select.find(option).prop('selected', true);
-                        select.trigger("chosen:updated");
+                    if(val != '') {
+                        // Value is valid
+                        // Create and display new event card
+                        var newCardHtml = '<div class="card schedule-card schedule-card-js">' +
+                            '<input type="hidden" class="list-option-js" name="default[]" value="' + val + '">' +
+                            '<div class="header">' +
+                            '<div class="left">' +
+                            '<div class="move-actions">' +
+                            '<a class="action move-action-js up-js" href="">' +
+                            '<i class="icon icon-arrow-up"></i>' +
+                            '</a>' +
+                            '<a class="action move-action-js down-js" href="">' +
+                            '<i class="icon icon-arrow-down"></i>' +
+                            '</a>' +
+                            '</div>' +
+                            '<span class="title">' + name + '</span>' +
+                            '</div>' +
+                            '<div class="card-toggle-wrap">' +
+                            '<a class="schedule-delete schedule-delete-js tooltip" tooltip="Delete Event" href=""><i class="icon icon-trash"></i></a>' +
+                            '</div>' +
+                            '</div>' +
+                            '<div class="content"><p class="event-time">'+ sTime + ' - ' + eTime + '</p></div>' +
+                            '</div>';
+
+                        $('.schedule-card-container-js').append(newCardHtml);
+
+                        // Initialize New Card
+                        initializeMoveAction($('.schedule-card-js'));
+                        initializeDelete();
+                        Kora.Fields.TypedFieldInputs.Initialize();
 
                         nameInput.val('');
                         Kora.Modal.close($('.schedule-add-event-modal-js'));
@@ -388,11 +506,38 @@ Kora.Fields.Options = function(fieldType) {
                 }
             }
         });
+
+        function initializeDelete() {
+            $('.schedule-card-js').each(function() {
+                var $card = $(this);
+                var $deleteButton = $card.find('.schedule-delete-js');
+
+                $deleteButton.unbind();
+                $deleteButton.click(function(e) {
+                    e.preventDefault();
+
+                    $card.remove();
+                })
+            });
+        }
     }
 
-    function intializeGeolocatorOptions() {
+    function initializeGeolocatorOptions() {
         Kora.Modal.initialize();
 
+        var $geoCardContainer = $('.geolocator-card-container-js');
+        var $geoCards = $geoCardContainer.find('.geolocator-card-js');
+
+        // Action arrows on the cards
+        initializeMoveAction($geoCards);
+
+        // Drag cards to sort
+        $geoCardContainer.sortable();
+
+        // Delete card
+        initializeDelete();
+
+        // Open Geolocator modal when adding new location
         $('.add-new-default-location-js').click(function(e) {
             e.preventDefault();
 
@@ -425,9 +570,9 @@ Kora.Fields.Options = function(fieldType) {
             //check to see if description provided
             var desc = $('.location-desc-js').val();
             if(desc=='') {
-                geoError = $('.location-desc-js');
-                geoError.addClass('error');
-                geoError.siblings('.error-message').text('Location description required');
+                $geoError = $('.location-desc-js');
+                $geoError.addClass('error');
+                $geoError.siblings('.error-message').text('Location description required');
             } else {
                 var type = $('.location-type-js').val();
 
@@ -438,16 +583,16 @@ Kora.Fields.Options = function(fieldType) {
                     var lon = $('.location-lon-js').val();
 
                     if(lat == '') {
-                        geoError = $('.location-lat-js');
-                        geoError.addClass('error');
-                        geoError.siblings('.error-message').text('Latitude value required');
+                        $geoError = $('.location-lat-js');
+                        $geoError.addClass('error');
+                        $geoError.siblings('.error-message').text('Latitude value required');
                         valid = false;
                     }
 
                     if(lon == '') {
-                        geoError = $('.location-lon-js');
-                        geoError.addClass('error');
-                        geoError.siblings('.error-message').text('Longitude value required');
+                        $geoError = $('.location-lon-js');
+                        $geoError.addClass('error');
+                        $geoError.siblings('.error-message').text('Longitude value required');
                         valid = false;
                     }
                 } else if(type == 'UTM') {
@@ -456,32 +601,32 @@ Kora.Fields.Options = function(fieldType) {
                     var north = $('.location-north-js').val();
 
                     if(zone == '') {
-                        geoError = $('.location-zone-js');
-                        geoError.addClass('error');
-                        geoError.siblings('.error-message').text('UTM Zone is required');
+                        $geoError = $('.location-zone-js');
+                        $geoError.addClass('error');
+                        $geoError.siblings('.error-message').text('UTM Zone is required');
                         valid = false;
                     }
 
                     if(east == '') {
-                        geoError = $('.location-east-js');
-                        geoError.addClass('error');
-                        geoError.siblings('.error-message').text('UTM Easting required');
+                        $geoError = $('.location-east-js');
+                        $geoError.addClass('error');
+                        $geoError.siblings('.error-message').text('UTM Easting required');
                         valid = false;
                     }
 
                     if(north == '') {
-                        geoError = $('.location-north-js');
-                        geoError.addClass('error');
-                        geoError.siblings('.error-message').text('UTM Northing required');
+                        $geoError = $('.location-north-js');
+                        $geoError.addClass('error');
+                        $geoError.siblings('.error-message').text('UTM Northing required');
                         valid = false;
                     }
                 } else if(type == 'Address') {
                     var addr = $('.location-addr-js').val();
 
                     if(addr == '') {
-                        geoError = $('.location-addr-js');
-                        geoError.addClass('error');
-                        geoError.siblings('.error-message').text('Location address required');
+                        $geoError = $('.location-addr-js');
+                        $geoError.addClass('error');
+                        $geoError.siblings('.error-message').text('Location address required');
                         valid = false;
                     }
                 }
@@ -509,27 +654,64 @@ Kora.Fields.Options = function(fieldType) {
                 type: 'POST',
                 data: data,
                 success:function(result) {
+                    // Get Values
                     var desc = $('.location-desc-js').val();
                     var fullresult = '[Desc]'+desc+'[Desc]'+result;
-                    var latlon = result.split('[LatLon]');
-                    var utm = result.split('[UTM]');
-                    var addr = result.split('[Address]');
-                    var fulltext = 'Description: '+desc+' | LatLon: '+latlon[1]+' | UTM: '+utm[1]+' | Address: '+addr[1];
-                    var option = $("<option/>", { value: fullresult, text: fulltext });
+                    var latlon = result.split('[LatLon]')[1].split(',').join(', ');
+                    var utm = result.split('[UTM]')[1];
+                    var addr = result.split('[Address]')[1];
 
-                    var select = $('.default-location-js');
-                    select.append(option);
-                    select.find(option).prop('selected', true);
-                    select.trigger("chosen:updated");
+                    // Create and display new geolocation card
+                    var newCardHtml = '<div class="card geolocator-card geolocator-card-js">' +
+                        '<input type="hidden" class="list-option-js" name="default[]" value="' + fullresult + '">' +
+                        '<div class="header">' +
+                        '<div class="left">' +
+                        '<div class="move-actions">' +
+                        '<a class="action move-action-js up-js" href="">' +
+                        '<i class="icon icon-arrow-up"></i>' +
+                        '</a>' +
+                        '<a class="action move-action-js down-js" href="">' +
+                        '<i class="icon icon-arrow-down"></i>' +
+                        '</a>' +
+                        '</div>' +
+                        '<span class="title">' + desc + '</span>' +
+                        '</div>' +
+                        '<div class="card-toggle-wrap">' +
+                        '<a class="geolocator-delete geolocator-delete-js tooltip" tooltip="Delete Location" href=""><i class="icon icon-trash"></i></a>' +
+                        '</div>' +
+                        '</div>' +
+                        '<div class="content"><p class="location"><span class="bold">LatLon:</span> '+ latlon +'</p></div>' +
+                        '</div>';
 
+                    $geoCardContainer.append(newCardHtml);
+
+                    initializeMoveAction($geoCardContainer.find('.geolocator-card-js'));
+                    initializeDelete();
+                    Kora.Fields.TypedFieldInputs.Initialize();
+
+                    // Reset Modal
                     $('.location-desc-js').val('');
                     Kora.Modal.close($('.geolocator-add-location-modal-js'));
                 }
             });
         }
+
+        function initializeDelete() {
+            $geoCardContainer.find('.geolocator-card-js').each(function() {
+                var $card = $(this);
+                var $deleteButton = $card.find('.geolocator-delete-js');
+
+                $deleteButton.unbind();
+                $deleteButton.click(function(e) {
+                    e.preventDefault();
+
+                    $card.remove();
+                })
+            });
+        }
     }
 
-    function intializeAssociatorOptions() {
+    function initializeAssociatorOptions() {
         //Sets up association configurations
         $('.association-check-js').click(function() {
             var assocDiv = $(this).closest('.form-group').next();
@@ -945,6 +1127,9 @@ Kora.Fields.Options = function(fieldType) {
         var $multiLineShow = $('.edit-form .multi-line-js');
 
         if($multiLineCheck.is(':checked')) {
+            $('.text-default-js').attr('disabled','disabled');
+            $('.text-area-default-js').removeAttr('disabled');
+
             $singleLine.addClass('hidden');
             $multiLine.removeClass('hidden');
             $singleLineShow.addClass('hidden');
@@ -952,6 +1137,9 @@ Kora.Fields.Options = function(fieldType) {
             var input = $singleLineShow.children('input').val();
             $multiLineShow.children('textarea').val(''+input+'');
         } else {
+            $('.text-default-js').removeAttr('disabled');
+            $('.text-area-default-js').attr('disabled','disabled');
+
             $singleLineShow.removeClass('hidden');
             $multiLineShow.addClass('hidden');
             $singleLine.removeClass('hidden');
@@ -966,11 +1154,17 @@ Kora.Fields.Options = function(fieldType) {
 
         $multiLineCheck.click(function () {
             if($multiLineCheck.is(':checked')) {
+                $('.text-default-js').attr('disabled','disabled');
+                $('.text-area-default-js').removeAttr('disabled');
+
                 $singleLine.addClass('hidden');
                 $multiLine.removeClass('hidden');
                 $singleLineShow.addClass('hidden');
                 $multiLineShow.removeClass('hidden');
             } else {
+                $('.text-default-js').removeAttr('disabled');
+                $('.text-area-default-js').attr('disabled','disabled');
+
                 $singleLine.removeClass('hidden');
                 $multiLine.addClass('hidden');
                 $singleLineShow.removeClass('hidden');
@@ -1011,7 +1205,7 @@ Kora.Fields.Options = function(fieldType) {
             initializeList();
             break;
         case 'Geolocator':
-            intializeGeolocatorOptions();
+            initializeGeolocatorOptions();
             break;
         case 'Multi-Select List':
             initializeList();
@@ -1020,7 +1214,7 @@ Kora.Fields.Options = function(fieldType) {
             initializeScheduleOptions();
             break;
         case 'Associator':
-            intializeAssociatorOptions();
+            initializeAssociatorOptions();
             break;
         case 'Combo List':
             initializeComboListOptions();

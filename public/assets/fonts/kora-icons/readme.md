@@ -13,6 +13,6 @@ ICON Addition/Replacement
         - Place it in Kora3/resources/assets/scss/partials/general/_variables.scss
     - Open style.scss and get the variables &:before block
         - Place it in Kora3/resources/assets/scss/partials/general/_fonts.scss
-    - Build you css file
+    - Build your css file
 - Replace Kora3/public/assets/fonts/kora-icons/selection.json with the new selection.json file
 - Replace the kora-icons* files in that same folder with the files inside the fonts folder of the same names

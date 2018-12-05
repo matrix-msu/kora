@@ -7,7 +7,7 @@
 
 @section('header')
   <section class="head">
-    <a class="back" href="{{ URL::previous() }}"><i class="icon icon-chevron"></i></a>
+    <a class="back" href=""><i class="icon icon-chevron"></i></a>
     <div class="inner-wrap center">
       <h1 class="title">
         <i class="icon icon-users"></i>
@@ -86,6 +86,7 @@
     var CSRFToken = '{{ csrf_token() }}';
     var adminId = '{{ \Auth::user()->id }}';
     var loginUrl = '{{ url('/') }}';
+    var validateEmailsUrl = '{{ url('/') }}/admin/users/validateEmails';
 
     Kora.Admin.Users();
 

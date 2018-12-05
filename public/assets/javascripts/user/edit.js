@@ -366,6 +366,7 @@ Kora.User.Edit = function() {
               method: 'POST',
               data: values,
               error: function(err) {
+                console.log(err)
                   if (err.responseJSON.errors[field] !== undefined) {
                       $('#'+field).addClass('error');
                       $('#'+field).siblings('.error-message').text(err.responseJSON.errors[field][0]);

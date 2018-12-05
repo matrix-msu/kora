@@ -328,29 +328,28 @@ class GalleryField extends FileTypeField  {
         $this->fid = $field->fid;
         $infoArray = array();
         $captionArray = array();
-        $maxfiles = FieldController::getFieldOption($field,'MaxFiles');
-        if($maxfiles==0) {$maxfiles=1;}
+        
         $newPath = storage_path('app/files/p' . $field->pid . '/f' . $field->fid . '/r' . $record->rid . '/fl' . $field->flid);
         //make the three directories
         mkdir($newPath, 0775, true);
         mkdir($newPath . '/thumbnail', 0775, true);
         mkdir($newPath . '/medium', 0775, true);
-        for($q=0;$q<$maxfiles;$q++) {
-            $types = self::getMimeTypes();
-            if(!array_key_exists('png', $types))
-                $type = 'application/octet-stream';
-            else
-                $type = $types['png'];
-            $info = '[Name]gallery' . $q . '.png[Name][Size]54827[Size][Type]' . $type . '[Type]';
-            $infoArray['gallery' . $q . '.png'] = $info;
-            array_push($captionArray, 'This is a test caption');
-            copy(public_path('assets/testFiles/gallery.png'),
-                $newPath . '/gallery' . $q . '.png');
-            copy(public_path('assets/testFiles/medium/gallery.png'),
-                $newPath . '/medium/gallery' . $q . '.png');
-            copy(public_path('assets/testFiles/thumbnail/gallery.png'),
-                $newPath . '/thumbnail/gallery' . $q . '.png');
-        }
+
+        $types = self::getMimeTypes();
+        if(!array_key_exists('jpeg', $types))
+            $type = 'application/octet-stream';
+        else
+            $type = $types['jpeg'];
+        $info = '[Name]image.jpeg[Name][Size]154491[Size][Type]' . $type . '[Type]';
+        $infoArray['image.jpeg'] = $info;
+        array_push($captionArray, 'Mountain peaking through the clouds.');
+        copy(public_path('assets/testFiles/image.jpeg'),
+            $newPath . '/image.jpeg');
+        copy(public_path('assets/testFiles/medium/image.jpeg'),
+            $newPath . '/medium/image.jpeg');
+        copy(public_path('assets/testFiles/thumbnail/image.jpeg'),
+            $newPath . '/thumbnail/image.jpeg');
+
         $this->images = implode('[!]',$infoArray);
         $this->captions = implode('[!]',$captionArray);
         $this->save();
@@ -400,8 +399,10 @@ class GalleryField extends FileTypeField  {
             $this->rid = $revision->rid;
         }
 
+        $captions = isset($revision->oldData[Field::_GALLERY][$field->flid]['data']['captions']) ? $revision->oldData[Field::_GALLERY][$field->flid]['data']['captions'] : '';
+
         $this->images = $revision->oldData[Field::_GALLERY][$field->flid]['data']['names'];
-        $this->captions = $revision->oldData[Field::_GALLERY][$field->flid]['data']['captions'];
+        $this->captions = $captions;
         $this->save();
     }
 

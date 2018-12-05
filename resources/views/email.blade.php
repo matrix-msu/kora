@@ -74,14 +74,16 @@
         .email > .content > .project-text {
             font-size: 24px;
             line-height: 28px;
-            padding-top: 22px;
+            margin-top: 22px;
             text-shadow: 0 2px 4px 0 rgba(0,0,0,0.1);
         }
 
         .email > .content > .sub-text {
+            color: #283c46;
             font-size: 14px;
+            font-style: italic;
             line-height: 24px;
-            padding-top: 34px;
+            margin-top: 34px;
         }
 
         .email > .content > .action-btn {
@@ -121,34 +123,62 @@
         .email > .content > .post-action-text {
             font-size: 14px;
             line-height: 24px;
-            padding-top: 57px;
+            margin-top: 57px;
+        }
+
+        .email > .content > .post-action-text > ul {
+            display: inline-block;
+            margin-bottom: 0;
+            padding: 0;
+        }
+
+        .email > .content > .post-action-text > ul > li {
+            margin: 0 0 0 15px;
+        }
+
+        .email > .content > .post-action-text > a {
+            font-family: 'Ubuntu-medium', sans-serif;
         }
 
         .email > .content > .line {
             border: 2px solid rgba(21,39,48,0.05);
             box-sizing: border-box;
             height: 3px;
-            margin-top: 51px;
+            margin-top: 39px;
             width: 100%;
         }
 
         .email > .content > .pre-footer-text {
             font-size: 14px;
             line-height: 24px;
-            padding-top: 39px;
+            margin-top: 39px;
         }
 
         .email > .content > .footer-text {
-            font-family: 'Ubuntu-Bold', sans-serif;
+            font-family: 'Ubuntu-Medium', sans-serif;
             font-size: 14px;
             line-height: 24px;
-            padding-top: 39px;
+            margin-top: 40px;
         }
 
         .email > .content > .footer-email {
             font-size: 12px;
             line-height: 20px;
             padding-top: 5px;
+        }
+
+        .email .green {
+            color: #04b6af;
+        }
+
+        .email .project-title {
+            display: inline-block;
+            margin-top: 34px;
+        }
+
+        .email .green-nolink {
+            color: #04b6af !important;
+            text-decoration: none !important;
         }
     </style>
 </head>
@@ -174,7 +204,7 @@
 
         <div class="post-action-text">@yield('post-action-text')</div>
 
-        <div class="line"> </div>
+        <div class="line"></div>
 
         <div class="pre-footer-text">@yield('pre-footer-text')</div>
 

@@ -15,7 +15,7 @@
 
 @section('header')
   <section class="head">
-    <a class="back" href="{{ URL::previous() }}"><i class="icon icon-chevron"></i></a>
+    <a class="back" href=""><i class="icon icon-chevron"></i></a>
     <div class="inner-wrap center">
       <h1 class="title">
         <i class="icon icon-form"></i>
@@ -54,7 +54,7 @@
     if (count($page["fields"]) > 0)
   	{
 	  $page_has_fields = true;
-	  break;	
+	  break;
   	}
   }
   ?>
@@ -166,10 +166,9 @@
               <input type="submit" value="Create New Field Here">
             </div>
           </form>
-          @if (!count($page["fields"]) > 0)
-            @include('forms.layout.no-fields')
-          @endif
         @endif
+
+        @include('forms.layout.no-fields')
       </div>
 
       @if(\Auth::user()->canCreateFields($form))

@@ -162,8 +162,6 @@
     
     .content-sections-scroll {
       display: flex;
-      /*flex-wrap: wrap;*/
-
       flex-wrap: nowrap; // for tabs
       overflow-x: auto;
       overflow-y: hidden;

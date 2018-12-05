@@ -66,7 +66,7 @@ class TokenController extends Controller {
         $token->delete = isset($request->token_delete) ? true : false;
         $token->save();
 
-        if (!is_null($request->token_projects))
+        if(!is_null($request->token_projects))
             $token->projects()->attach($request->token_projects);
     }
 

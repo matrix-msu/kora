@@ -182,10 +182,10 @@
       font-size: 1em;
       height: 36px;
       line-height: normal;
-      margin: 1px 20px;
+      margin: 1px 16px 15px;
       outline: 0;
       padding: 4px 20px 4px 5px;
-      width: calc(100% - 40px);
+      width: calc(100% - 30px);
     }
   }
 
@@ -249,11 +249,13 @@
     &.group-result {
       cursor: default;
       display: list-item;
-      font-weight: bold;
+      font-family: $ubuntu-medium;
     }
 
     &.group-option {
-      padding-left: 15px;
+      + .group-result {
+        margin-top: 20px;
+      }
     }
 
     em {

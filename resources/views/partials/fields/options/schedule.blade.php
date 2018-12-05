@@ -10,35 +10,70 @@
 @stop
 
 @section('fieldOptions')
-    <div class="form-group">
-        {!! Form::label('default','Default Value') !!}
-        <select multiple class="multi-select default-event-js" name="default[]" data-placeholder="Add Events Below">
-            @foreach(\App\ScheduleField::getDateList($field) as $opt)
-                <option value="{{$opt}}" selected>{{$opt}}</option>
-            @endforeach
-        </select>
+    <div class="form-group schedule-form-group schedule-form-group-js schedule-{{$field->flid}}-js mt-xxxl">
+        {!! Form::label('default','Default Events') !!}
+        <div class="form-input-container">
+            <p class="directions">Add Default Events below, and order them via drag & drop or their arrow icons.</p>
+
+            <div class="schedule-card-container schedule-card-container-js mb-xxl">
+                @foreach(\App\ScheduleField::getDateList($field) as $opt)
+                    <?php
+                    $event = explode(': ', $opt, 2);
+                    $name = $event[0];
+                    $times = $event[1];
+                    ?>
+                    <div class="card schedule-card schedule-card-js">
+                        <input type="hidden" class="list-option-js" name="default[]" value="{{$opt}}'">
+                        <div class="header">
+                            <div class="left">
+                                <div class="move-actions">
+                                    <a class="action move-action-js up-js" href="">
+                                        <i class="icon icon-arrow-up"></i>
+                                    </a>
+                                    <a class="action move-action-js down-js" href="">
+                                        <i class="icon icon-arrow-down"></i>
+                                    </a>
+                                </div>
+                                <span class="title">{{$name}}</span>
+                            </div>
+                            <div class="card-toggle-wrap">
+                                <a class="schedule-delete schedule-delete-js tooltip" tooltip="Delete Event" href=""><i class="icon icon-trash"></i></a>
+                            </div>
+                        </div>
+                        <div class="content"><p class="event-time">{{$times}}</p></div>
+                    </div>
+                @endforeach
+            </div>
+
+            <section class="new-object-button">
+                <input class="add-new-default-event-js" type="button" value="Create New Default Event">
+            </section>
+        </div>
     </div>
 
-    <section class="new-object-button low-margin form-group">
-        <input type="button" class="add-new-default-event-js" value="Create New Default Event">
+    <section class="form-group">
         <div><a href="#" class="field-preset-link open-event-modal-js">Use a Value Preset for these Events</a></div>
         <div class="open-create-regex"><a href="#" class="field-preset-link open-create-event-modal-js right
             @if(empty(\App\ScheduleField::getDateList($field))) disabled tooltip @endif" tooltip="You must submit or update the field before creating a New Value Preset">
                 Create a New Value Preset from these Events</a></div>
     </section>
 
-    <div class="form-group mt-xxxl">
+    <div class="form-group half mt-xxxl pr-sm">
         {!! Form::label('start','Start Year') !!}
         <span class="error-message"></span>
-        {!! Form::input('number', 'start', \App\Http\Controllers\FieldController::getFieldOption($field,'Start'),
-            ['class' => 'text-input start-year-js', 'min' => 0, 'max' => 9999, 'placeholder' => 'Enter start year here']) !!}
+        <div class="number-input-container number-input-container-js">
+            {!! Form::input('number', 'start', \App\Http\Controllers\FieldController::getFieldOption($field,'Start'),
+                ['class' => 'text-input start-year-js', 'min' => 0, 'max' => 9999, 'placeholder' => 'Enter start year here']) !!}
+        </div>
     </div>
 
-    <div class="form-group mt-xl">
+    <div class="form-group half mt-xxxl pl-sm">
         {!! Form::label('end','End Year') !!}
         <span class="error-message"></span>
-        {!! Form::input('number', 'end', \App\Http\Controllers\FieldController::getFieldOption($field,'End'),
-            ['class' => 'text-input end-year-js', 'min' => 0, 'max' => 9999, 'placeholder' => 'Enter end year here']) !!}
+        <div class="number-input-container number-input-container-js">
+            {!! Form::input('number', 'end', \App\Http\Controllers\FieldController::getFieldOption($field,'End'),
+                ['class' => 'text-input end-year-js', 'min' => 0, 'max' => 9999, 'placeholder' => 'Enter end year here']) !!}
+        </div>
     </div>
 
     <div class="form-group mt-xl">

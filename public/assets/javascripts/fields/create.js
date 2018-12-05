@@ -335,4 +335,5 @@ Kora.Fields.Create = function() {
     initializeAdvancedOptions();
     initializeComboListFields();
     initializeValidation();
+    Kora.Inputs.Number();
 }

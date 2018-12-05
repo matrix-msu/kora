@@ -5,6 +5,19 @@ Kora.Fields.TypedFieldInputs = Kora.Fields.TypedFieldInputs || {};
 Kora.Fields.TypedFieldInputs.Initialize = function() {
     console.log('Field Inputs Initialized');
 
+    function sizeCardTitles($cards, extra = 0) {
+        $cards.each(function() {
+            var $card = $(this);
+            var cardWidth = $card.outerWidth();
+            var $header = $card.find('.header');
+            var $title = $card.find('.title');
+            var $delete = $card.find('.icon-trash').parent();
+            var $moveAction = $card.find('.move-actions');
+
+            $title.css('max-width', cardWidth - $delete.width() - $moveAction.width() - 40 - extra);
+        });
+    }
+
     function initializeGallery() {
         var $galleryFormGroup = $('.gallery-input-form-group');
 
@@ -33,8 +46,15 @@ Kora.Fields.TypedFieldInputs.Initialize = function() {
     }
 
     function initializeGeolocator() {
-        $('.geolocator-map-js').each(function() {
+        $('.geolocator-form-group-js').each(function() {
+            var $formGroup = $(this);
+            var $cards = $formGroup.find('.geolocator-card-js');
 
+            sizeCardTitles($cards, 40);
+
+            $(window).resize(function() {
+                sizeCardTitles($cards, 40);
+            });
         });
     }
 
@@ -45,8 +65,15 @@ Kora.Fields.TypedFieldInputs.Initialize = function() {
     }
 
     function initalizeSchedule() {
-        $('.schedule-cal-js').each(function() {
+        $('.schedule-form-group-js').each(function() {
+            var $formGroup = $(this);
+            var $cards = $formGroup.find('.schedule-card-js');
 
+            sizeCardTitles($cards, 40);
+
+            $(window).resize(function() {
+                sizeCardTitles($cards, 40);
+            });
         });
     }
 
