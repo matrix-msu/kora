@@ -415,7 +415,7 @@ function initializeRequestProjectPermissionsModal()
 	var modal_loaded = false;
 	var open_immediately = false;
   
-	$(".project-request-perms-js").mouseenter(function() {
+	$(".project-request-perms-js").click(function(e) {
 		if (!received_data)
 		{	
 			$.ajax({
@@ -427,24 +427,17 @@ function initializeRequestProjectPermissionsModal()
               success: function(result) {
 				$(result).appendTo(document.body); // add the modal to body
 			    load_modal(); // initialize the modal
-				modal_loaded = true;
+				Kora.Modal.open($(".nav-request-permissions-modal-js"));
 			  },
 			  error: function(result) {}
 			});
 	
 			received_data = true;
-		}
-    });
-  
-	$(".project-request-perms-js").click(function() {
-		if (modal_loaded)
-		{
+		} else {
 			Kora.Modal.open($(".nav-request-permissions-modal-js"));
 		}
-		else
-		{
-			open_immediately = true;
-		}
+		
+		e.stopPropagation();
     });
    
 	function load_modal()
