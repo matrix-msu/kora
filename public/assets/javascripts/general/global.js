@@ -175,7 +175,7 @@ $(document).ready(function() {
       return false;
     }
 
-    if (link.charAt(0) !== "#" && link.length > 0) {
+    if (link != null && link.charAt(0) !== "#" && link.length > 0) {
       e.preventDefault();
       if (e.metaKey || e.ctrlKey) {
         window.open(link);
