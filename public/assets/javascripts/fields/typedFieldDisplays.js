@@ -183,6 +183,23 @@ Kora.Fields.TypedFieldDisplays.Initialize = function() {
                 var $caption = $($captions[index]);
                 $captionMore.unbind();
 
+                if ($caption.html().length == 0 || $caption.html() == "") {
+                    // No caption for this slide within the modal
+                    $caption.parent().hide();
+                } else {
+                    $caption.parent().show();
+                }
+
+                if ($caption.hasClass('modal-caption-js')) {
+                    // Modal captions
+                    if ($caption.html().length == 0 || $caption.html() == "") {
+                        // No caption for this slide within the modal
+                        $caption.parent().siblings('.gallery-field-display-js').addClass('full-height');
+                    } else {
+                        $caption.parent().siblings('.gallery-field-display-js').removeClass('full-height');
+                    }
+                }
+
                 if ($caption.height() > maxCaptionHeight) {
                     // Show 'more' button
                     $captionMore.addClass('more');
@@ -431,6 +448,36 @@ Kora.Fields.TypedFieldDisplays.Initialize = function() {
     function initializeRichtext() {
         $('.richtext-field-display-js').each(function() {
             var $fieldDisplay = $(this);
+            var $text = $fieldDisplay.find('.richtext-js');
+            var $showMoreButton = $fieldDisplay.find('.show-more-richtext-js');
+
+            var charLength = $text.html().length;
+            var tooLongLimit = 3000;
+
+            if (charLength > tooLongLimit) {
+                // Add show more button
+                $showMoreButton.addClass('active');
+            }
+
+            $showMoreButton.click(function(e) {
+               e.preventDefault();
+
+               var showing = $showMoreButton.attr('showing');
+
+               if (showing == 'more') {
+                   // Showing all, make small
+                   $text.removeClass('more');
+                   $showMoreButton.attr('showing', 'less');
+                   $showMoreButton.html('Show All');
+               } else {
+                   // Showing less, make big
+                   $text.addClass('more');
+                   $showMoreButton.attr('showing', 'more');
+                   $showMoreButton.html('Show Less');
+               }
+            });
+
+            // Sidebar and modal not in use for now
             var $sidebar = $fieldDisplay.siblings('.richtext-sidebar-js')
             var $modal = $fieldDisplay.siblings('.modal-js');
 

@@ -52,7 +52,7 @@
     }
   }
 
-  @media screen and (max-width: 1000px) {
+  @media screen and (max-width: 1175px) {
     .date-inputs-container {
       background: transparent;
       box-shadow: none;
@@ -60,6 +60,7 @@
       .chosen-container-single {
         .chosen-single {
           border-radius: 5px;
+          box-shadow: 0 3px 5px 0 palette('gray', slate, .05);
         }
       }
     }
