@@ -5,6 +5,13 @@
   text-align: left;
   width: 100%;
 
+  img {
+    border-radius: 5px 5px 0 0;
+    height: auto;
+    max-height: 250px;
+    width: 100%;
+  }
+
   .title {
     display: block;
     font-family: $ubuntu;
@@ -14,6 +21,51 @@
 
     &.delete-block {
       text-align: left;
+    }
+  }
+
+  &.onboarding .title {
+    background: linear-gradient(180deg, rgba(21,39,48,0.4) 0%, rgba(21,39,48,0) 100%);
+    border-radius: 5px 5px 0 0;
+    box-shadow: 0 3px 5px 0 rgba(21,39,48,0.05);
+    box-sizing: border-box;
+    color: palette('white', base);
+    font-size: 14px;
+    left: 0;
+    padding: 15px 20px 0;
+    position: absolute;
+    text-align: left;
+    top: 0;
+    width: 100%;
+
+    &:hover {
+      cursor: default;
+    }
+
+    .skip {
+      float: right;
+
+      > span {
+        margin-right: 20px;
+      }
+
+      .modal-toggle {
+        padding: 15px;
+        top: 0;
+
+        .icon {
+          padding: 0;
+          font-size: 14px;
+        }
+      }
+
+      &:hover {
+        cursor: pointer;
+
+        .modal-toggle {
+          transform: rotate(90deg) scale($transform-scale-multiplier);
+        }
+      }
     }
   }
 

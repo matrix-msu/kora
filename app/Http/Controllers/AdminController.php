@@ -403,6 +403,7 @@ class AdminController extends Controller {
                         $preference->logo_target = 1;
                         $preference->proj_page_tab_selection = 3;
                         $preference->single_proj_page_tab_selection = 3;
+                        $preference->onboarding = 1;
                         $preference->save();
 
                         //

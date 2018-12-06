@@ -337,6 +337,7 @@ class UserController extends Controller {
             $preference->logo_target = 1;
             $preference->proj_page_tab_selection = 3;
             $preference->single_proj_page_tab_selection = 3;
+            $preference->onboarding = 1;
             $preference->created_at = Carbon::now();
             $preference->save();
         }
@@ -411,6 +412,27 @@ class UserController extends Controller {
                 $preference->logo_target = 1;
                 $preference->proj_page_tab_selection = 3;
                 $preference->single_proj_page_tab_selection = 3;
+                $preference->onboarding = 1;
+// if you try to get an existing preference, and it doesn't exist for an existing user,
+// create the pref with the default value here
+            } else if (is_null($preference->$pref)) {
+                switch ($pref) {
+                    case 'use_dashboard':
+                        $preference->use_dashboard = 1; 
+                        break;
+                    case 'logo_target':1;
+                        $preference->logo_target = 1;
+                        break;
+                    case 'proj_page_tab_selection':
+                        $preference->proj_page_tab_selection = 3;
+                        break;
+                    case 'single_proj_page_tab_selection':
+                        $preference->single_proj_page_tab_selection = 3;
+                        break;
+                    case 'onboarding':
+                        $preference->onboarding = 1;
+                        break;
+                }
             }
 
             $preference = $preference->$pref;
@@ -419,6 +441,8 @@ class UserController extends Controller {
             // logo_target :: 1 or 2
             // proj_page_tab_selection :: 1, 2, or 3 :: archived//custom//alphabetical
             // single_proj_page_tab_selection :: 2 or 3 :: custom//alphabetical
+
+            // onboarding :: 1 or 0 :: IF 1, then show onboarding and set this to 0
 
             return $preference;
         } else if(\Auth::guest()) {
