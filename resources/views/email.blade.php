@@ -71,14 +71,14 @@
             text-shadow: 0 2px 4px 0 rgba(0,0,0,0.1);
         }
 
-        .email > .content > .project-text {
+        .email > .content .project-text {
             font-size: 24px;
             line-height: 28px;
             margin-top: 22px;
             text-shadow: 0 2px 4px 0 rgba(0,0,0,0.1);
         }
 
-        .email > .content > .sub-text {
+        .email > .content .sub-text {
             color: #283c46;
             font-size: 14px;
             font-style: italic;
