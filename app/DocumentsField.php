@@ -60,7 +60,7 @@ class DocumentsField extends FileTypeField {
      * @return string - The default options
      */
     public function getDefaultOptions(Request $request) {
-        return '[!FieldSize!]0[!FieldSize!][!MaxFiles!]0[!MaxFiles!][!FileTypes!][!FileTypes!]';
+        return '[!FieldSize!][!FieldSize!][!MaxFiles!][!MaxFiles!][!FileTypes!][!FileTypes!]';
     }
 
     /**
@@ -95,12 +95,6 @@ class DocumentsField extends FileTypeField {
 				$filetype .= '[!]'.$request->filetype[$i];
 			}
 		}
-
-        if($request->filesize=='')
-            $request->filesize = 0;
-
-        if($request->maxfiles=='')
-            $request->maxfiles = 0;
 
         $field->updateRequired($request->required);
         $field->updateSearchable($request);
