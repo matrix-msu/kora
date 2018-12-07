@@ -2,6 +2,18 @@
   background: palette('gray', background);
   font-family: $ubuntu-medium;
   min-height: 100vh;
+  
+  .padding-top-medium {
+    padding-top: 15px;
+  }
+  
+  .part-opacity {
+    opacity: 0.8;
+  }
+  
+  .kora-green {
+    color: #04b6af;
+  }
 }
 
 .projects {
@@ -11,4 +23,12 @@
   @import 'projects/filters';
   @import 'projects/project-selection';
   @import 'projects/foot';
+}
+
+.no-projects {
+  a {
+    font-family: Ubuntu-Medium !important;
+	text-decoration: none;
+	cursor: pointer;
+  }
 }
