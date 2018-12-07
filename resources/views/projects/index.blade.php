@@ -23,7 +23,6 @@
 
 @section('body')
   @include('partials.projects.notification')
-  @php //$projects = array(); @endphp
   @php $empty_state = (count($projects) == 0); @endphp
 
   @if (!$empty_state)
