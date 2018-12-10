@@ -177,9 +177,9 @@ class DateField extends BaseField {
         $this->rid = $record->rid;
         $this->fid = $field->fid;
         $this->circa = $request->input('circa_' . $field->flid, '');
-        $this->month = $request->input('month_' . $field->flid);
-        $this->day = $request->input('day_' . $field->flid);
-        $this->year = $request->input('year_' . $field->flid);
+        $this->month = $request->input('month_' . $field->flid, 0);
+        $this->day = $request->input('day_' . $field->flid, 0);
+        $this->year = $request->input('year_' . $field->flid, 0);
         $this->era = $request->input('era_' . $field->flid, 'CE');
         $this->save();
     }
@@ -193,9 +193,9 @@ class DateField extends BaseField {
     public function editRecordField($value, $request) {
         if(!is_null($this) && !(empty($request->input('month_'.$this->flid)) && empty($request->input('day_'.$this->flid)) && empty($request->input('year_'.$this->flid)))) {
             $this->circa = $request->input('circa_'.$this->flid, '');
-            $this->month = $request->input('month_'.$this->flid);
-            $this->day = $request->input('day_'.$this->flid);
-            $this->year = $request->input('year_'.$this->flid);
+            $this->month = $request->input('month_'.$this->flid, 0);
+            $this->day = $request->input('day_'.$this->flid, 0);
+            $this->year = $request->input('year_'.$this->flid, 0);
             $this->era = $request->input('era_'.$this->flid, 'CE');
             $this->save();
         } else if(!is_null($this) && (empty($request->input('month_'.$this->flid)) && empty($request->input('day_'.$this->flid)) && empty($request->input('year_'.$this->flid)))) {
@@ -453,7 +453,7 @@ class DateField extends BaseField {
                 $value .= '<Month>' . utf8_encode('NUMERIC VALUE OF MONTH (i.e. 03)') . '</Month>';
                 $value .= '<Day>' . utf8_encode('3') . '</Day>';
                 $value .= '<Year>' . utf8_encode('2003') . '</Year>';
-                $value .= '<Era>' . utf8_encode('CE or BCE (Tag is optional)') . '</Era>';
+                $value .= '<Era>' . utf8_encode('CE, BCE, BP, or KYA BP (Tag is optional)') . '</Era>';
                 $xml .= $value;
                 $xml .= '</' . Field::xmlTagClear($slug) . '>';
 
@@ -470,7 +470,7 @@ class DateField extends BaseField {
                 $fieldArray[$slug]['value']['month'] = 'NUMERIC VALUE OF MONTH (i.e. 03)';
                 $fieldArray[$slug]['value']['day'] = 3;
                 $fieldArray[$slug]['value']['year'] = 2003;
-                $fieldArray[$slug]['value']['era'] = 'CE or BCE (Index is optional)';
+                $fieldArray[$slug]['value']['era'] = 'CE, BCE, BP, or KYA BP (Index is optional)';
 
                 return $fieldArray;
                 break;
@@ -788,7 +788,8 @@ class DateField extends BaseField {
      */
     public static function isValidEra($string) {
         $string = strtoupper($string);
-        return ($string == "BCE" || $string == "CE");
+        $eras = array("CE", "BCE", "BP", "KYA BP");
+        return in_array($string,$eras);
     }
 
     /**

@@ -25,7 +25,7 @@
                     '7' => '07 - '.date("F", mktime(0, 0, 0, 7, 10)), '8' => '08 - '.date("F", mktime(0, 0, 0, 8, 10)),
                     '9' => '09 - '.date("F", mktime(0, 0, 0, 9, 10)), '10' => '10 - '.date("F", mktime(0, 0, 0, 10, 10)),
                     '11' => '11 - '.date("F", mktime(0, 0, 0, 11, 10)), '12' => '12 - '.date("F", mktime(0, 0, 0, 12, 10))],
-                    $defMonth, ['class' => 'single-select preset-clear-chosen-js', 'data-placeholder'=>"Select a Month"]) !!}
+                    $defMonth, ['class' => 'single-select preset-clear-chosen-js', 'data-placeholder'=>"Select a Month", 'id' => 'month_'.$field->flid]) !!}
 
 
                 <select id="day_{{$field->flid}}" name="day_{{$field->flid}}" class="single-select preset-clear-chosen-js" data-placeholder="Select a Day">
@@ -87,33 +87,49 @@
             </div>
         </div>
 
-        <div class="form-group mt-xl">
-            <?php
-                $isCirca = ($editRecord && $hasData ? $typedField->circa : 0);
-            ?>
-            <div class="check-box-half">
-                <input type="checkbox" value="1" id="preset" class="check-box-input" name="{{'circa_'.$field->flid}}" {{ ($isCirca ? 'checked' : '') }}>
-                <span class="check"></span>
-                <span class="placeholder">Mark this date as an approximate (Circa)?</span>
+        @if(\App\Http\Controllers\FieldController::getFieldOption($field,'Circa') == 'Yes')
+            <div class="form-group mt-xl">
+                <?php
+                    $isCirca = ($editRecord && $hasData ? $typedField->circa : 0);
+                ?>
+                <div class="check-box-half">
+                    <input type="checkbox" value="1" id="preset" class="check-box-input" name="{{'circa_'.$field->flid}}" {{ ($isCirca ? 'checked' : '') }}>
+                    <span class="check"></span>
+                    <span class="placeholder">Mark this date as an approximate (Circa)?</span>
+                </div>
             </div>
-        </div>
+        @endif
 
-        <div class="form-group mt-xl">
-            <?php
-                $era = ($editRecord && $hasData ? $typedField->era : 'CE');
-            ?>
-            <label>Select Era</label>
-            <div class="check-box-half mr-m">
-                <input type="checkbox" value="CE" class="check-box-input era-check-js" name="era_{{$field->flid}}" {{ ($era == 'CE' ? 'checked' : '') }}>
-                <span class="check"></span>
-                <span class="placeholder">CE</span>
-            </div>
+        @if(\App\Http\Controllers\FieldController::getFieldOption($field,'Era') == 'Yes')
+            <div class="form-group mt-xl">
+                <?php
+                    $era = ($editRecord && $hasData ? $typedField->era : 'CE');
+                ?>
+                <label>Select Calendar/Date Notation</label>
+                <div class="check-box-half mr-m">
+                    <input type="checkbox" value="CE" class="check-box-input era-check-js" name="era_{{$field->flid}}" {{ ($era == 'CE' ? 'checked' : '') }} flid="{{$field->flid}}">
+                    <span class="check"></span>
+                    <span class="placeholder">CE</span>
+                </div>
 
-            <div class="check-box-half">
-                <input type="checkbox" value="BCE" class="check-box-input era-check-js" name="era_{{$field->flid}}" {{ ($era == 'BCE' ? 'checked' : '') }}>
-                <span class="check"></span>
-                <span class="placeholder">BCE</span>
+                <div class="check-box-half mr-m">
+                    <input type="checkbox" value="BCE" class="check-box-input era-check-js" name="era_{{$field->flid}}" {{ ($era == 'BCE' ? 'checked' : '') }} flid="{{$field->flid}}">
+                    <span class="check"></span>
+                    <span class="placeholder">BCE</span>
+                </div>
+
+                <div class="check-box-half mr-m">
+                    <input type="checkbox" value="BP" class="check-box-input era-check-js" name="era_{{$field->flid}}" {{ ($era == 'BP' ? 'checked' : '') }} flid="{{$field->flid}}">
+                    <span class="check"></span>
+                    <span class="placeholder">BP</span>
+                </div>
+
+                <div class="check-box-half">
+                    <input type="checkbox" value="KYA BP" class="check-box-input era-check-js" name="era_{{$field->flid}}" {{ ($era == 'KYA BP' ? 'checked' : '') }} flid="{{$field->flid}}">
+                    <span class="check"></span>
+                    <span class="placeholder">KYA BP</span>
+                </div>
             </div>
-        </div>
+        @endif
     </div>
 </div>

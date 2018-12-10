@@ -280,6 +280,23 @@ Kora.Records.Create = function() {
 
             $eraCheckboxes.prop('checked', false);
             $selected.prop('checked', true);
+
+            currEra = $selected.val();
+            flid = $selected.attr('flid');
+            $month = $('#month_'+flid);
+            $day = $('#day_'+flid);
+
+            if(currEra=='BP' | currEra=='KYA BP') {
+                $month.attr('disabled','disabled');
+                $day.attr('disabled','disabled');
+                $month.trigger("chosen:updated");
+                $day.trigger("chosen:updated");
+            } else {
+                $month.removeAttr('disabled');
+                $day.removeAttr('disabled');
+                $month.trigger("chosen:updated");
+                $day.trigger("chosen:updated");
+            }
         });
 
         setTextInputWidth();
