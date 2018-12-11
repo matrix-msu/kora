@@ -30,13 +30,13 @@
   &.onboarding-modal .content {
     overflow: visible;
 
-	section {
-	  box-shadow: 0 3px 5px 0 rgba(21,39,48,0.05);
+    section {
+      box-shadow: 0 3px 5px 0 rgba(21,39,48,0.05);
 
-	  .body {
-		padding: 0 40px 30px;
-	  }
-	}
+      .body {
+        padding: 0 40px 30px;
+      }
+    }
 
     .onboarding-pagination {
       align-items: center;
@@ -116,6 +116,10 @@
         }
       }
     }
+  }
+
+  &.onboarding-modal .content {
+    width: 680px;
   }
 
   .content {
