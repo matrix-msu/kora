@@ -616,14 +616,14 @@ class DateField extends BaseField {
      * @return array - The RIDs that match search
      */
     public function advancedSearchTyped($flid, $query) {
-        $begin_month = ($query[$flid."_begin_month"] == "") ? 1 : intval($query[$flid."_begin_month"]);
-        $begin_day = ($query[$flid."_begin_day"] == "") ? 1 : intval($query[$flid."_begin_day"]);
-        $begin_year = ($query[$flid."_begin_year"] == "") ? 1 : intval($query[$flid."_begin_year"]);
+        $begin_month = (isset($query[$flid."_begin_month"]) && $query[$flid."_begin_month"] != "") ? intval($query[$flid."_begin_month"]) : 1;
+        $begin_day = (isset($query[$flid."_begin_day"]) && $query[$flid."_begin_day"] != "") ? intval($query[$flid."_begin_day"]) : 1;
+        $begin_year = (isset($query[$flid."_begin_year"]) && $query[$flid."_begin_year"] != "") ? intval($query[$flid."_begin_year"]) : 1;
         $begin_era = isset($query[$flid."_begin_era"]) ? $query[$flid."_begin_era"] : "CE";
 
-        $end_month = ($query[$flid."_end_month"] == "") ? 1 : intval($query[$flid."_end_month"]);
-        $end_day = ($query[$flid."_end_day"] == "") ? 1 : intval($query[$flid."_end_day"]);
-        $end_year = ($query[$flid."_end_year"] == "") ? 1 : intval($query[$flid."_end_year"]);
+        $end_month = (isset($query[$flid."_end_month"]) && $query[$flid."_end_month"] != "") ? intval($query[$flid."_end_month"]) : 1;
+        $end_day = (isset($query[$flid."_end_day"]) && $query[$flid."_end_day"] != "") ? intval($query[$flid."_end_day"]) : 1;
+        $end_year = (isset($query[$flid."_end_year"]) && $query[$flid."_end_year"] != "") ? intval($query[$flid."_end_year"]) : 1;
         $end_era = isset($query[$flid."_end_era"]) ? $query[$flid."_end_era"] : "CE";
 
         $query = DB::table("date_fields")
@@ -650,12 +650,24 @@ class DateField extends BaseField {
                         ->whereBetween("date_object", [$era_bound, $end]);
                 });
             });
-        } else { // Normal case, both are CE, the other choice of CE then BCE is invalid.
+        } else if($begin_era == "CE" && $end_era == "CE") { // Normal case, both are CE, the other choice of CE then BCE is invalid.
             $begin = DateTime::createFromFormat("Y-m-d", $begin_year."-".$begin_month."-".$begin_day);
             $end = DateTime::createFromFormat("Y-m-d", $end_year."-".$end_month."-".$end_day);
 
             $query->where("era", "=", "CE")
                 ->whereBetween("date_object", [$begin, $end]);
+        } else if($begin_era == "BP" && $end_era == "BP") {
+            $query->where("era", "=", "BP")
+                ->whereBetween("year", [$begin_year, $end_year]);
+        } else if($begin_era == "KYA BP" && $end_era == "KYA BP") {
+            $query->where("era", "=", "KYA BP")
+                ->whereBetween("year", [$begin_year, $end_year]);
+        } else {
+            //CANT MIX BEYOND THIS. WE FAIL FOR NOW
+            //- Can't mix BP with KYA BP
+            //- Can't mix any BP with any CE
+            //- Can't have CE before BCE
+            return array();
         }
 
         return $query->distinct()

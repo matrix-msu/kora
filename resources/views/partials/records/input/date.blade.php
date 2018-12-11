@@ -107,25 +107,25 @@
                 ?>
                 <label>Select Calendar/Date Notation</label>
                 <div class="check-box-half mr-m">
-                    <input type="checkbox" value="CE" class="check-box-input era-check-js" name="era_{{$field->flid}}" {{ ($era == 'CE' ? 'checked' : '') }} flid="{{$field->flid}}">
+                    <input type="checkbox" value="CE" class="check-box-input era-check-js era-check-{{$field->flid}}-js" name="era_{{$field->flid}}" {{ ($era == 'CE' ? 'checked' : '') }} flid="{{$field->flid}}">
                     <span class="check"></span>
                     <span class="placeholder">CE</span>
                 </div>
 
                 <div class="check-box-half mr-m">
-                    <input type="checkbox" value="BCE" class="check-box-input era-check-js" name="era_{{$field->flid}}" {{ ($era == 'BCE' ? 'checked' : '') }} flid="{{$field->flid}}">
+                    <input type="checkbox" value="BCE" class="check-box-input era-check-js era-check-{{$field->flid}}-js" name="era_{{$field->flid}}" {{ ($era == 'BCE' ? 'checked' : '') }} flid="{{$field->flid}}">
                     <span class="check"></span>
                     <span class="placeholder">BCE</span>
                 </div>
 
                 <div class="check-box-half mr-m">
-                    <input type="checkbox" value="BP" class="check-box-input era-check-js" name="era_{{$field->flid}}" {{ ($era == 'BP' ? 'checked' : '') }} flid="{{$field->flid}}">
+                    <input type="checkbox" value="BP" class="check-box-input era-check-js era-check-{{$field->flid}}-js" name="era_{{$field->flid}}" {{ ($era == 'BP' ? 'checked' : '') }} flid="{{$field->flid}}">
                     <span class="check"></span>
                     <span class="placeholder">BP</span>
                 </div>
 
                 <div class="check-box-half">
-                    <input type="checkbox" value="KYA BP" class="check-box-input era-check-js" name="era_{{$field->flid}}" {{ ($era == 'KYA BP' ? 'checked' : '') }} flid="{{$field->flid}}">
+                    <input type="checkbox" value="KYA BP" class="check-box-input era-check-js era-check-{{$field->flid}}-js" name="era_{{$field->flid}}" {{ ($era == 'KYA BP' ? 'checked' : '') }} flid="{{$field->flid}}">
                     <span class="check"></span>
                     <span class="placeholder">KYA BP</span>
                 </div>

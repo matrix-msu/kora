@@ -220,22 +220,23 @@ class AdvancedSearchController extends Controller {
                 switch($field->type) {
                     case 'Date':
                     case 'Schedule':
-                        if(
-                            $request[$flid.'_begin_month'] != '' && $request[$flid.'_begin_day'] != '' && $request[$flid.'_begin_year'] != '' &&
-                            $request[$flid.'_end_month'] != '' && $request[$flid.'_end_day'] != '' && $request[$flid.'_end_year'] != ''
-                        ) {
+                        if(isset($request[$flid.'_begin_month']))
                             $processed[$flid][$flid.'_begin_month'] = $request[$flid.'_begin_month'];
+                        if(isset($request[$flid.'_begin_day']))
                             $processed[$flid][$flid.'_begin_day'] = $request[$flid.'_begin_day'];
+                        if(isset($request[$flid.'_begin_year']))
                             $processed[$flid][$flid.'_begin_year'] = $request[$flid.'_begin_year'];
+                        if(isset($request[$flid.'_end_month']))
                             $processed[$flid][$flid.'_end_month'] = $request[$flid.'_end_month'];
+                        if(isset($request[$flid.'_end_day']))
                             $processed[$flid][$flid.'_end_day'] = $request[$flid.'_end_day'];
+                        if(isset($request[$flid.'_end_year']))
                             $processed[$flid][$flid.'_end_year'] = $request[$flid.'_end_year'];
 
-                            if(isset($request[$flid.'_begin_era']))
-                                $processed[$flid][$flid.'_begin_era'] = $request[$flid.'_begin_era'];
-                            if(isset($request[$flid.'_end_era']))
-                                $processed[$flid][$flid.'_end_era'] = $request[$flid.'_end_era'];
-                        }
+                        if(isset($request[$flid.'_begin_era']))
+                            $processed[$flid][$flid.'_begin_era'] = $request[$flid.'_begin_era'];
+                        if(isset($request[$flid.'_end_era']))
+                            $processed[$flid][$flid.'_end_era'] = $request[$flid.'_end_era'];
                         break;
                     case 'Number':
                         if($request[$flid.'_left'] != '' | $request[$flid.'_right'] != '') {

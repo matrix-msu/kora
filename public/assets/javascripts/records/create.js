@@ -277,12 +277,12 @@ Kora.Records.Create = function() {
 
         $eraCheckboxes.click(function() {
             var $selected = $(this);
+            flid = $selected.attr('flid');
 
-            $eraCheckboxes.prop('checked', false);
+            $('.era-check-'+flid+'-js').prop('checked', false);
             $selected.prop('checked', true);
 
             currEra = $selected.val();
-            flid = $selected.attr('flid');
             $month = $('#month_'+flid);
             $day = $('#day_'+flid);
 

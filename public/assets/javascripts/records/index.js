@@ -245,7 +245,7 @@ Kora.Records.Index = function() {
 
     function displayKeywords () {
       var keywords = $('.keywords-get-js').val();
-      if (keywords != '') {
+      if (keywords != null && keywords != '') {
         keywords = keywords.split(/\s+/);
         keywords.forEach(function(keyword){
           $('ul.keywords').append('<li class="keyword"><span>' + keyword + '</span><a class="keyword-close"></a></li>');

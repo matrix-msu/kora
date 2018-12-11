@@ -93,5 +93,6 @@
         var deleteRecordURL = "{{action('RecordController@destroy', ['pid' => $form->pid, 'fid' => $form->fid, 'rid' => ''])}}";
 
         Kora.Records.Index();
+        Kora.Records.Advanced();
     </script>
 @stop
