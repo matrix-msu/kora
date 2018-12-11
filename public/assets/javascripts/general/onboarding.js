@@ -49,11 +49,11 @@ function paginate (that) {
 
 	// Change 'Continue' button to read 'Finish' when we reach last page
 	if ( that == ( $('.dots .dot').length - 1 ) ) {
-		$('.onboarding-pagination .next.continue-js').hide();
-		$('.onboarding-pagination .next.finish-js').show();
+		$('.onboarding-pagination .next.next-js').hide();
+		$('.onboarding-pagination .next.modal-toggle-js').show();
 	} else {
-		$('.onboarding-pagination .next.continue-js').show();
-		$('.onboarding-pagination .next.finish-js').hide();
+		$('.onboarding-pagination .next.next-js').show();
+		$('.onboarding-pagination .next.modal-toggle-js').hide();
 	}
 
 	if ( that === 0 ) {
@@ -63,13 +63,13 @@ function paginate (that) {
 	}
 }
 
-$('.onboarding-pagination .prev').click(function (e) {
+$('.onboarding-pagination .prev-js').click(function (e) {
 	e.preventDefault();
 
 	paginate ( $('.dots .dot.active').index() - 1 )
 });
 
-$('.onboarding-pagination .next').click(function (e) {
+$('.onboarding-pagination .next-js').click(function (e) {
 	e.preventDefault();
 
 	paginate ( $('.dots .dot.active').index() + 1 )

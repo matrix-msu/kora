@@ -35,16 +35,16 @@
 		</div>
 
 		<div class="onboarding-pagination hidden">
-			<div class="prev">
+			<div class="prev prev-js">
 				<a><i class="icon icon-arrow-left"></i></a>
 				<span>Previous</span>
 			</div>
 			<div class="dots"></div>
-			<div class="next continue-js">
+			<div class="next next-js">
 				<span>Continue</span>
 				<a><i class="icon icon-arrow-right"></i></a>
 			</div>
-			<div class="next finish finish-js">
+			<div class="next finish modal-toggle-js">
 				<span>Finish</span>
 			</div>
 		</div>
