@@ -47,6 +47,45 @@
       font-size: 14px;
       line-height: 1.7;
     }
+
+    ul {
+      padding: 0 0 0 20px;
+
+      & + p {
+        margin: 25px 0 0 0;
+      }
+    }
+
+    li:not(.active-result) {
+      font-family: $ubuntu;
+      margin: 15px 0;
+    }
+
+    a.green {
+      color: palette('green', accent);
+      text-decoration: none;
+      position: relative;
+
+      &.underline::before,
+      &.underline::after {
+        background-color: palette('green', accent);
+        bottom: 0;
+        content: '';
+        height: 2px;
+        margin: 5px 0 0;
+        opacity: 0.8;
+        position: absolute;
+        width: 50%;
+      }
+
+      &.underline::before {
+        left: calc(50%);
+      }
+
+      &.underline::after {
+        right: calc(50%);
+      }
+    }
   }
 
   .preset-name > label {
