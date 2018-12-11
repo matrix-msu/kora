@@ -944,7 +944,7 @@ Kora.Fields.Options = function(fieldType) {
         });
 
         $('.assoc-select-records-js').change(function() {
-            defaultBox = $(this).parent().siblings().first().children('.assoc-default-records-js');
+            defaultBox = $(this).parent().next().children('.assoc-default-records-js');
 
             $(this).children('option').each(function() {
                 if($(this).is(':selected')) {
