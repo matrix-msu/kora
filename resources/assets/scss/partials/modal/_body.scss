@@ -40,6 +40,10 @@
       font-size: 24px;
       line-height: 1.3;
       margin: 30px 0 25px;
+
+	  @media screen and (max-width: 700px) {
+		  margin: 10px 0 15px;
+	  }
     }
 
     p {
@@ -59,6 +63,10 @@
     li:not(.active-result) {
       font-family: $ubuntu;
       margin: 15px 0;
+
+	  @media screen and (max-width: 700px) {
+		  margin: 5px 0;
+	  }
     }
 
     a.green {
@@ -86,6 +94,22 @@
         right: calc(50%);
       }
     }
+
+	@media screen and (max-width: 700px) {
+		.form-group {
+			height: 110px;
+			margin-top: 15px;
+
+			.btn {
+				display: block;
+				width: 100%;
+
+				&:last-of-type {
+					margin: 10px 0;
+				}
+			}
+		}
+	}
   }
 
   .preset-name > label {

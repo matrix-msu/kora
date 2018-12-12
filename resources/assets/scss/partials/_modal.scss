@@ -35,6 +35,10 @@
 
       .body {
         padding: 0 40px 30px;
+
+		@media screen and (max-width: 700px) {
+			padding: 0 20px 10px;
+		}
       }
     }
 
@@ -114,12 +118,42 @@
             padding: 0 35px;
           }
         }
+
+		@media screen and (max-width: 700px) {
+			width: unset;
+
+			&:not(.finish) {
+				span {
+					display: none;
+				}
+			}
+
+			&:first-of-type {
+				padding: 0 0 0 15px
+			}
+
+			&.next {
+				padding: 0 15px;
+
+				a {
+					padding: 0;
+				}
+
+				&.finish {
+					padding: 0 15px;
+				}
+			}
+		}
       }
     }
   }
 
   &.onboarding-modal .content {
     width: 680px;
+
+	@media screen and (max-width: 700px) {
+		width: 280px;
+	}
   }
 
   .content {

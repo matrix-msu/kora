@@ -1,5 +1,5 @@
 <div class="hidden familiar-with-kora familiar-with-kora-slides-js">
-    <section class="" id="whatsNew">
+    <section class="" id="WhatsNew">
         <div class="header onboarding">
             <span class="title">
                 <span class="skip">
@@ -22,10 +22,10 @@
 				<li>Full backup system to create restore points for Kora3</li>
 				<li>Powerful tools to import your Kora 2 data into Kora3</li>
 			</ul>
-			<p>But wait, there's more!  To read about all of Kora 3.0s new features, feel free to <a class="green">read our post about it here</a>.</p>
+			<p>But wait, there's more!  To read about all of Kora 3.0s new features, feel free to <a href="#" class="green">read our post about it here</a>.</p>
         </div>
     </section>
-    <section class="hidden" id="whatsNew">
+    <section class="hidden" id="Admin">
         <div class="header onboarding">
             <span class="title">
                 <span class="skip">

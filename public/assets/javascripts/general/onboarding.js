@@ -1,12 +1,18 @@
 
-function initializePagination ( path ) {
+function initializePagination () {
 	$('.onboarding-pagination .dots').children().remove();
 	$('.onboarding-pagination').removeClass('hidden');
 
 	let count = $('.paths div:not(.hidden)').children('section').length + 1
-
+ 
 	for ( let i = 0; i < count; i++ ) {
-		$('.onboarding-pagination .dots').append('<span class="dot ' + i + '"></span>');
+
+		let tooltip = $('.paths div:not(.hidden) section:nth-child(' + i + ')').attr('id');
+
+		if ( i === 0 )
+			$('.onboarding-pagination .dots').append('<span class="dot tooltip" tooltip="Welcome"></span>');
+		else
+			$('.onboarding-pagination .dots').append('<span class="dot tooltip" tooltip="' + tooltip + '"></span>');
 	}
 
 	paginate ( 1 )
