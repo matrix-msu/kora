@@ -11,9 +11,13 @@
     @endif
 @endsection
 
-@section('sub-text')
-    "{{ $personal_message }}"
-@endsection
+@if (!empty($personal_message))
+    @section('sub-text')
+    <div class="sub-text">
+        "{{ $personal_message }}"
+    </div>
+    @endsection
+@endif
 
 @section('button-link')
     {{ action('Auth\UserController@activateFromInvite', ['token' => $token]) }}
