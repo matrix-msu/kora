@@ -3,7 +3,6 @@
         <section id="onboarding-home">
             <div class="header onboarding">
                 <span class="title">
-                    <span class="left">Welcome</span>
                     <span class="skip">
                         <span>SKIP INTRO</span>
                         <a href="#" class="modal-toggle modal-toggle-js">
