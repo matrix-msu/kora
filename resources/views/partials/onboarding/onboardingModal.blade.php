@@ -14,7 +14,7 @@
                 <img src="{{ url('/assets/images/onboarding/welcome.png') }}" alt="Onboarding balloons picture">
             </div>
             <div class="body onboarding">
-                <h3>You're in, {{ Auth::User()->first_name }}! Welcome to Kora! :party:</h3>
+                <h3>You're in, {{ Auth::User()->first_name }}! Welcome to Kora! 🎉</h3>
                 <p>Welcome to Kora, the easiest way to manage and publish your data. Before we get started, <span class="bold">are you new to kora?</span> If you are, we’d love to teach you the basics of how Kora is structured! If you’re an experienced Kora user, we’re going to assume you understand the basics, and let you loose into the Kora wild!</p>
                 <div class="form-group mt-xxl">
                     <a class="btn half-sub-btn not-new-js">I have used Kora before!</a>

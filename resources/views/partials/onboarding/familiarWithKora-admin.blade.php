@@ -40,7 +40,7 @@
         <div class="body onboarding">
             <h3>According to our records, you're an Admin!</h3>
 			<p>Since you're an admin, <span class="bold">you have access to special tools and settings</span> like User Management, Backups Management, Token Management, and more!</p>
-			<p><span class="bold">These admin tools are located at the bottom of the kora side-menu.</span>  To get there, hit the (burgericon) icon in the top right corner of the Kora interface, and then look to the bottom of the new open side-menu.  Here you'll see a drawer titled "Management", where you'll find all of the admin tools and settings.</p>
+			<p><span class="bold">These admin tools are located at the bottom of the kora side-menu.</span>  To get there, hit the (<i class="icon icon-hamburger"></i>) icon in the top right corner of the Kora interface, and then look to the bottom of the new open side-menu.  Here you'll see a drawer titled "Management", where you'll find all of the admin tools and settings.</p>
         </div>
     </section>
 </div>
