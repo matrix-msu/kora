@@ -306,7 +306,7 @@ Kora.Admin.Users = function() {
 				$form.submit();
 			},
 			error: function (err) {
-				console.log(err);
+				console.warn(err)
 			}
 		});
 	});
