@@ -177,14 +177,17 @@ class RestfulController extends Controller {
         //next, we authenticate each form
         foreach($forms as $f) {
             //next, we authenticate the form
-            $form = FormController::getForm($f->form);
-            if(is_null($form))
+            if(Form::where('fid','=',$f->form)->count()==1)
+                $piece = 'fid';
+            else if(Form::where('slug','=',$f->form)->count()==1)
+                $piece = 'slug';
+            else
                 return response()->json(["status"=>false,"error"=>"Invalid Form: ".$f->form],500);
 
-            $validated = $this->validateToken($form->pid,$f->token,"search");
+            $validated = $this->validateToken(Form::where($piece,'=',$f->form)->value('pid'),$f->token,"search");
             //Authentication failed
             if(!$validated)
-                return response()->json(["status"=>false,"error"=>"Invalid search token provided for form: ".$form->name],500);
+                return response()->json(["status"=>false,"error"=>"Invalid search token provided for form: ".$f->form],500);
         }
 
         //now we actually do searches per form
@@ -222,7 +225,8 @@ class RestfulController extends Controller {
             //parse the query
             if(!isset($f->query)) {
                 //return all records
-                $returnRIDS = Record::where("fid","=",$form->fid)->pluck('rid')->all();
+                //It's apparently quicker to use our negative results function to all forms RIDs so, here we go
+                $returnRIDS = $this->negative_results($form,array());
 
                 if(!is_null($filters['sort'])) {
                     $returnRIDS = $this->sort_rids($returnRIDS,$filters['sort']);
@@ -243,8 +247,9 @@ class RestfulController extends Controller {
                 else {
                     if($apiFormat==self::XML)
                         $resultsGlobal[] = $this->populateRecords($returnRIDS, $filters, $apiFormat);
-                    else
+                    else {
                         $resultsGlobal[] = json_decode($this->populateRecords($returnRIDS, $filters, $apiFormat));
+                    }
                 }
             } else {
                 $queries = $f->query;
@@ -493,7 +498,7 @@ class RestfulController extends Controller {
     private function negative_results($form, $rids) {
 	    $returnRIDS = array();
 	    $ridString = implode(',',$rids);
-	    
+
 	    //Doing this for pretty much the same reason as keyword search above
 	    $con = mysqli_connect(
 	        config('database.connections.mysql.host'),
@@ -501,26 +506,26 @@ class RestfulController extends Controller {
             config('database.connections.mysql.password'),
             config('database.connections.mysql.database')
         );
-	    
+
 	    //We want to make sure we are doing things in utf8 for special characters
 		if(!mysqli_set_charset($con, "utf8")) {
 		    printf("Error loading character set utf8: %s\n", mysqli_error($con));
 		    exit();
 		}
-		
+
 		if($ridString!="")
 			$select = "SELECT `rid` from ".config('database.connections.mysql.prefix')."records WHERE `fid`=".$form->fid." AND `rid` NOT IN ($ridString)";
 		else
 			$select = "SELECT `rid` from ".config('database.connections.mysql.prefix')."records WHERE `fid`=".$form->fid;
-			
+
 		$negUnclean = $con->query($select);
-		
+
 		while($row = $negUnclean->fetch_assoc()) {
 			array_push($returnRIDS, $row['rid']);
 		}
 
         mysqli_close($con);
-		
+
         return $returnRIDS;
     }
 
