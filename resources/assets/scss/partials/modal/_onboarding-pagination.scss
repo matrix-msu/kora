@@ -1,0 +1,164 @@
+.onboarding-pagination {
+    align-items: center;
+    background: palette('green', accent);
+    border-radius: 0 0 5px 5px;
+    color: palette('white', base);
+    display: inline-flex;
+    height: 60px;
+    justify-content: space-between;
+    width: 100%;
+
+    &.mobile {
+        display: none;
+    }
+
+    @media screen and (max-width: 700px) {
+        &.mobile {
+            border-radius: 0;
+            display: block;
+        }
+    }
+
+    &.hidden {
+        display: none;
+    }
+
+    .dots {
+        @media screen and (max-width: 700px) {
+            margin: 0 auto;
+        }
+
+        .dot {
+            @include transition();
+
+            border: 2px solid palette('white', base);
+            border-radius: 50%;
+            box-sizing: border-box;
+            display: inline-block;
+            height: 10px;
+            margin: 0 2.5px;
+            width: 10px;
+
+            &:hover {
+                background-color: palette('white', base);
+                cursor: pointer;
+                transform: scale(1.2);
+
+                &::after {
+                transform: scale(0.834);
+                }
+            }
+
+            &.active {
+                background-color: palette('white', base);
+            }
+
+            &:first-of-type {
+                margin-left: 0;
+            }
+
+            &:last-of-type {
+                margin-right: 0;
+            }
+        }
+    }
+
+    div:not(.dots) {
+        align-items: center;
+        box-sizing: border-box;
+        display: flex;
+        height: 100%;
+        width: 160px;
+
+        &.hidden {
+            display: none;
+        }
+
+        &:hover {
+            cursor: pointer;
+
+            a {
+                padding-left: 13px;
+            }
+        }
+
+        a {
+            @include transition(padding-left);
+
+            font-size: 12px;
+            padding-left: 8px;
+
+            i {
+                display: block;
+            }
+        }
+
+        @media screen and (max-width: 700px) {
+            width: unset;
+
+            &.prev {
+                padding: 0 15px;
+
+                span {
+                    display: none;
+                }
+
+                &:hover {
+                    padding: 0 10px 0 20px;
+
+                    a {
+                        padding-left: 8px;
+                    }
+                }
+            }
+
+            &.next {
+                display: none;
+
+                &.mobile {
+                    display: flex;
+
+                    &.hidden {
+                        display: none;
+                    }
+                }
+            }
+        }
+    }
+}
+
+.prev {
+    @include transition(padding);
+
+    padding: 0 0 0 45px;
+
+    a {
+        transform: rotate(180deg);
+    }
+
+    &:hover {
+        padding: 0 0 0 40px;
+    }
+}
+
+.next {
+    background: palette('gray', slate, 0.05);
+    padding: 0 55px 0 35px;
+
+    &.mobile {
+        @include transition(padding);
+
+        justify-content: center;
+        padding: 0 5px;
+        width: 100%;
+
+        &:not(.finish):hover {
+            padding: 0 0 0 5px;
+        }
+    }
+
+    &.finish {
+        justify-content: center;
+        padding: 0 35px;
+    }
+}

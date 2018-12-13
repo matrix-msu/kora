@@ -25,7 +25,7 @@
   }
 
   &.onboarding {
-    img {
+	img {
       object-fit: cover;
     }
 
@@ -71,6 +71,14 @@
         }
       }
     }
+
+	@media screen and (max-width: 700px) {
+		height: 110px;
+
+		img {
+			height: 100%;
+		}
+	}
   }
 
   .modal-toggle {

@@ -1,18 +1,18 @@
 
 function initializePagination () {
-	$('.onboarding-pagination .dots').children().remove();
-	$('.onboarding-pagination').removeClass('hidden');
+	$('.onboarding-pagination-js .dots').children().remove();
+	$('.onboarding-pagination-js').removeClass('hidden');
 
 	let count = $('.paths div:not(.hidden)').children('section').length + 1
  
 	for ( let i = 0; i < count; i++ ) {
 
-		let tooltip = $('.paths div:not(.hidden) section:nth-child(' + i + ')').attr('id');
-
 		if ( i === 0 )
-			$('.onboarding-pagination .dots').append('<span class="dot tooltip" tooltip="Welcome"></span>');
-		else
-			$('.onboarding-pagination .dots').append('<span class="dot tooltip" tooltip="' + tooltip + '"></span>');
+			$('.onboarding-pagination-js .dots').append('<span class="dot tooltip" tooltip="Welcome"></span>');
+		else {
+			let tooltip = $('.paths div:not(.hidden) section:nth-child(' + i + ')').attr('id');
+			$('.onboarding-pagination-js .dots').append('<span class="dot tooltip" tooltip="' + tooltip + '"></span>');
+		}
 	}
 
 	paginate ( 1 )
@@ -50,38 +50,38 @@ function paginate (that) {
 		.removeClass('hidden');
 
 	// Update dots
-	$('.onboarding-pagination .dots .dot').removeClass('active');
-	$('.onboarding-pagination .dots .dot')[that].classList.add('active')
+	$('.onboarding-pagination-js .dots .dot').removeClass('active');
+	$('.onboarding-pagination-js .dots .dot')[that].classList.add('active')
 
 	// Change 'Continue' button to read 'Finish' when we reach last page
 	if ( that == ( $('.dots .dot').length - 1 ) ) {
-		$('.onboarding-pagination .next.next-js').hide();
-		$('.onboarding-pagination .next.modal-toggle-js').show();
+		$('.next-js').addClass('hidden');
+		$('.finish-js').removeClass('hidden');
 	} else {
-		$('.onboarding-pagination .next.next-js').show();
-		$('.onboarding-pagination .next.modal-toggle-js').hide();
+		$('.next-js').removeClass('hidden');
+		$('.finish-js').addClass('hidden');
 	}
 
 	if ( that === 0 ) {
-		$('.onboarding-pagination').addClass('hidden');
+		$('.onboarding-pagination-js').addClass('hidden');
 		$('#onboarding-home').removeClass('hidden');
 		$('.paths > div').addClass('hidden');
 	}
 }
 
-$('.onboarding-pagination .prev-js').click(function (e) {
+$('.onboarding-modal-js .prev-js').click(function (e) {
 	e.preventDefault();
 
 	paginate ( $('.dots .dot.active').index() - 1 )
 });
 
-$('.onboarding-pagination .next-js').click(function (e) {
+$('.onboarding-modal-js .next-js').click(function (e) {
 	e.preventDefault();
 
 	paginate ( $('.dots .dot.active').index() + 1 )
 });
 
-$('.onboarding-pagination .dots').on('click', '.dot', function (e) {
+$('.onboarding-pagination-js .dots').on('click', '.dot', function (e) {
 	e.preventDefault();
 
 	paginate ( $(this).index() )

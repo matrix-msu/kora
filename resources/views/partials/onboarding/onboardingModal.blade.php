@@ -33,7 +33,16 @@
 
 		</div>
 
-		<div class="onboarding-pagination hidden">
+		<div class="onboarding-pagination onboarding-pagination-js hidden mobile">
+			<div class="next next-js mobile">
+				<span>Continue</span>
+				<a><i class="icon icon-arrow-right"></i></a>
+			</div>
+			<div class="next finish finish-js modal-toggle-js mobile">
+				<span>Finish</span>
+			</div>
+		</div>
+		<div class="onboarding-pagination onboarding-pagination-js hidden">
 			<div class="prev prev-js">
 				<a><i class="icon icon-arrow-left"></i></a>
 				<span>Previous</span>
@@ -43,7 +52,7 @@
 				<span>Continue</span>
 				<a><i class="icon icon-arrow-right"></i></a>
 			</div>
-			<div class="next finish modal-toggle-js">
+			<div class="next finish finish-js modal-toggle-js">
 				<span>Finish</span>
 			</div>
 		</div>

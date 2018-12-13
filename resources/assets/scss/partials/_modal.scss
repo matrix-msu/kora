@@ -36,134 +36,14 @@
       .body {
         padding: 0 40px 30px;
 
-		@media screen and (max-width: 700px) {
-			padding: 0 15px 15px;
-		}
+        @media screen and (max-width: 700px) {
+          padding: 0 15px 15px;
+        }
       }
     }
 
-    .onboarding-pagination {
-      align-items: center;
-      background: palette('green', accent);
-	  border-radius: 0 0 5px 5px;
-      color: palette('white', base);
-      display: inline-flex;
-      height: 60px;
-      justify-content: space-between;
-      width: 100%;
-
-      &.hidden {
-        display: none;
-      }
-
-      div.dots .dot {
-		@include transition();
-
-        border: 2px solid palette('white', base);
-        border-radius: 50%;
-        box-sizing: border-box;
-        display: inline-block;
-        height: 10px;
-        margin: 0 2.5px;
-        width: 10px;
-
-        &:hover {
-		  background-color: palette('white', base);
-          cursor: pointer;
-		  transform: scale(1.2);
-        }
-
-        &.active {
-          background-color: palette('white', base);
-        }
-
-        &:first-of-type {
-          margin-left: 0;
-        }
-
-        &:last-of-type {
-          margin-right: 0;
-        }
-      }
-
-      div:not(.dots) {
-        align-items: center;
-        box-sizing: border-box;
-        display: flex;
-        height: 100%;
-        width: 160px;
-
-        a {
-		  @include transition(padding-left);
-
-          font-size: 12px;
-          padding-left: 8px;
-
-          i {
-            display: block;
-          }
-        }
-
-        &:first-of-type {
-		  @include transition(padding);
-
-          padding: 0 0 0 45px;
-
-          a {
-            transform: rotate(180deg);
-          }
-
-		  &:hover {
-			padding: 0 0 0 40px;
-		  }
-        }
-
-        &.next {
-          background: palette('gray', slate, 0.05);
-          padding: 0 55px 0 35px;
-
-          &.finish {
-            justify-content: center;
-            padding: 0 35px;
-          }
-        }
-
-        &:hover {
-          cursor: pointer;
-
-		  a {
-			padding-left: 13px;
-		  }
-        }
-
-		@media screen and (max-width: 700px) {
-			width: unset;
-
-			&:not(.finish) {
-				span {
-					display: none;
-				}
-			}
-
-			&:first-of-type {
-				padding: 0 0 0 15px
-			}
-
-			&.next {
-				padding: 0 15px;
-
-				a {
-					padding: 0;
-				}
-
-				&.finish {
-					padding: 0 15px;
-				}
-			}
-		}
-      }
-    }
-  }
+    @import 'modal/onboarding-pagination';
+}
 
   &.onboarding-modal .content {
     width: 680px;
