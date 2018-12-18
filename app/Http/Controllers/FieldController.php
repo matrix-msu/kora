@@ -353,7 +353,7 @@ class FieldController extends Controller {
         $options = $field->options;
         $tag = '[!'.$key.'!]';
         $value = explode($tag,$options)[1];
-
+		
         return $value;
     }
 

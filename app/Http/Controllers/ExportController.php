@@ -70,7 +70,7 @@ class ExportController extends Controller {
 
         //most of these are included to not break JSON, revAssoc is the only one that matters to us for this so we can get
         // the reverse associations. The others are only relevant to the API
-        $options = ["revAssoc" => true, "meta" => false, "fields" => 'ALL', "data" => true, "realnames" => false, "assoc" => false];
+        $options = ["revAssoc" => true, "meta" => false, "fields" => 'ALL', "realnames" => false, "assoc" => false];
         $output = $this->exportWithRids($rids, $type, false, $options);
 
         if(file_exists($output)) { // File exists, so we download it.
@@ -106,7 +106,7 @@ class ExportController extends Controller {
       $rids = $request->rid;
       $rids = array_map('intval', explode(',', $rids));
 
-      $options = ["revAssoc" => true, "meta" => false, "fields" => 'ALL', "data" => true, "realnames" => false, "assoc" => false];
+      $options = ["revAssoc" => true, "meta" => false, "fields" => 'ALL', "realnames" => false, "assoc" => false];
       $output = $this->exportWithRids($rids, $type, false, $options);
 
       if(file_exists($output)) { // File exists, so we download it.
@@ -441,25 +441,31 @@ class ExportController extends Controller {
                     //Next we see if metadata is requested
                     if($useOpts && $options['meta']) {
                         $meta = self::getRecordMetadata($chunk);
-                        $records = array_merge($meta,$records);
+                        self::imitateMerge($records, $meta);
                     }
 
-                    //specifically for file exports
+                    //specifically for file exports, NOT API
                     if($useOpts && isset($options['revAssoc']) && $options['revAssoc']) {
                         $meta = self::getReverseAssociations($chunk);
-                        $records = array_merge($meta,$records);
+                        self::imitateMerge($records, $meta);
+                    }
+
+                    if($useOpts && isset($options['data']) && !$options['data']) {
+                        $kids = self::getKidsFromRids($chunk);
+                        foreach($kids as $kid) {
+                            if(!isset($records[$kid]))
+                                $records[$kid] = [];
+                        }
+                        continue;
                     }
 
                     $datafields = self::getDataRows($chunk,$slugOpts);
+
                     foreach($datafields as $data){
                         $kid = $data->pid.'-'.$data->fid.'-'.$data->rid;
 
                         if(!isset($records[$kid]))
                             $records[$kid] = [];
-
-                        //if we are hiding data
-                        if($useOpts && !$options['data'])
-                            continue; //move on to next row of data
 
                         $fieldIndex = $data->slug;
                         if($useOpts && $options['realnames'])
@@ -723,7 +729,7 @@ class ExportController extends Controller {
                 if($useOpts && $options['assoc']) {
                     //simplify the duplicates
                     $arids = array_unique($assocRIDColl);
-                    $aOpts = ["revAssoc" => false, "meta" => false, "fields" => 'ALL', "data" => true, "realnames" => $options['realnames'], "assoc" => false];
+                    $aOpts = ["revAssoc" => false, "meta" => false, "fields" => 'ALL', "realnames" => $options['realnames'], "assoc" => false];
                     $assocData = json_decode($this->exportWithRids($arids, $format, true, $aOpts),true);
                     foreach($assocMaster as $am) {
                         $value = array();
@@ -766,12 +772,13 @@ class ExportController extends Controller {
 
                 foreach($chunks as $chunk) {
                     if($slugOpts=='KID') {
-                        $records = array_merge(self::getKidsFromRids($chunk),$records);
+                        $kids = self::getKidsFromRids($chunk);
+                        self::imitateMerge($records, $kids);
                         continue;
                     }
 
                     $meta = self::getRecordMetadataForOldKora($chunk);
-                    $records = array_merge($meta,$records);
+                    self::imitateMerge($records, $meta);
 
                     $datafields = self::getDataRows($chunk,$slugOpts);
                     foreach($datafields as $data) {
@@ -1392,19 +1399,38 @@ FROM ".$prefix."associator_support as af left join ".$prefix."fields as fl on af
         $kidPairs = [];
         $rid = implode(', ',$rids);
 
-        $part1 = DB::select("SELECT r.rid, r.kid, r.created_at, r.updated_at, u.username FROM ".$prefix."records as r LEFT JOIN ".$prefix."users as u on r.owner=u.id WHERE r.rid in ($rid) ORDER BY field(r.rid, $rid)");
-        foreach($part1 as $row) {
-            $meta[$row->kid]["created"] = $row->created_at;
-            $meta[$row->kid]["updated"] = $row->updated_at;
-            $meta[$row->kid]["owner"] = $row->username;
-            $kidPairs[$row->rid] = $row->kid;
+        //Doing this for pretty much the same reason as keyword search above
+        $con = mysqli_connect(
+            config('database.connections.mysql.host'),
+            config('database.connections.mysql.username'),
+            config('database.connections.mysql.password'),
+            config('database.connections.mysql.database')
+        );
+
+        //We want to make sure we are doing things in utf8 for special characters
+        if(!mysqli_set_charset($con, "utf8")) {
+            printf("Error loading character set utf8: %s\n", mysqli_error($con));
+            exit();
         }
 
-        $part2 = DB::select("SELECT aSupp.record as main, recs.kid as linker FROM ".$prefix."associator_support as aSupp LEFT JOIN ".$prefix."records as recs on aSupp.rid=recs.rid WHERE aSupp.record in ($rid)");
+        $select = "SELECT r.rid, r.kid, r.created_at, r.updated_at, u.username FROM ".$prefix."records as r LEFT JOIN ".$prefix."users as u on r.owner=u.id WHERE r.rid in ($rid) ORDER BY field(r.rid, $rid)";
+        $metaResults = $con->query($select);
 
-        foreach($part2 as $row) {
-            $meta[$kidPairs[$row->main]]["reverseAssociations"][] = $row->linker;
+        while($row = $metaResults->fetch_assoc()) {
+            $meta[$row["kid"]]["created"] = $row["created_at"];
+            $meta[$row["kid"]]["updated"] = $row["updated_at"];
+            $meta[$row["kid"]]["owner"] = $row["username"];
+            $kidPairs[$row["rid"]] = $row["kid"];
         }
+
+        $select = "SELECT aSupp.record as main, recs.kid as linker FROM ".$prefix."associator_support as aSupp LEFT JOIN ".$prefix."records as recs on aSupp.rid=recs.rid WHERE aSupp.record in ($rid)";
+        $revResults = $con->query($select);
+
+        while($row = $revResults->fetch_assoc()) {
+            $meta[$kidPairs[$row["main"]]]["reverseAssociations"][] = $row["linker"];
+        }
+
+        mysqli_close($con);
 
         return $meta;
     }
@@ -1466,8 +1492,6 @@ FROM ".$prefix."associator_support as af left join ".$prefix."fields as fl on af
         return $meta;
     }
 
-
-
     /**
      * Get the kids back for a set of records for a KID koraSearch.
      *
@@ -1475,17 +1499,37 @@ FROM ".$prefix."associator_support as af left join ".$prefix."fields as fl on af
      * @return array - KIDs for the records
      */
     public static function getKidsFromRids($rids) {
-        $prefix = config('database.connections.mysql.prefix');
-        $rid = implode(', ',$rids);
-        $kids = array();
+        $returnRIDS = array();
+        $ridString = implode(',',$rids);
 
-        $rows = DB::select("SELECT kid FROM ".$prefix."records WHERE rid in ($rid)");
+        //Doing this for pretty much the same reason as keyword search above
+        $con = mysqli_connect(
+            config('database.connections.mysql.host'),
+            config('database.connections.mysql.username'),
+            config('database.connections.mysql.password'),
+            config('database.connections.mysql.database')
+        );
 
-        foreach($rows as $row) {
-            array_push($kids, $row->kid);
+        //We want to make sure we are doing things in utf8 for special characters
+        if(!mysqli_set_charset($con, "utf8")) {
+            printf("Error loading character set utf8: %s\n", mysqli_error($con));
+            exit();
         }
 
-        return $kids;
+        if($ridString!="")
+            $select = "SELECT `kid` from ".config('database.connections.mysql.prefix')."records WHERE `rid` IN ($ridString) ORDER BY FIELD(`rid`, $ridString)";
+        else
+            return $returnRIDS;
+
+        $unclean = $con->query($select);
+
+        while($row = $unclean->fetch_assoc()) {
+            array_push($returnRIDS, $row['kid']);
+        }
+
+        mysqli_close($con);
+
+        return $returnRIDS;
     }
 
     /**
@@ -1496,5 +1540,11 @@ FROM ".$prefix."associator_support as af left join ".$prefix."fields as fl on af
      */
     public static function isValidFormat($format) {
         return in_array(($format), self::VALID_FORMATS);
+    }
+
+    private function imitateMerge(&$array1, &$array2) {
+        foreach($array2 as $i) {
+            $array1[] = $i;
+        }
     }
 }

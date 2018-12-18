@@ -68,7 +68,7 @@
 </div>
 
 <div class="form-group mt-xl">
-    {!! Form::label('era','Show Era?') !!}
+    {!! Form::label('era','Show Calendar/Date Notation?') !!}
     {!! Form::select('era', ['No' => 'No','Yes' => 'Yes'], 'No', ['class' => 'single-select']) !!}
 </div>
 

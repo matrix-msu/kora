@@ -296,9 +296,10 @@ class DashboardController extends Controller {
             case 'Twitter':
                 break;
             case 'Note':
-                $title = $request->block_note_title;
-                $content = $request->block_note_content;
-                $optString = '{"title": "' . $title . '", "content": "' . $content . '"}';
+                $noteArray = [];
+                $noteArray['title'] = $request->block_note_title;
+                $noteArray['content'] = $request->block_note_content;
+                $optString = json_encode($noteArray);
                 break;
             default:
                 break;
@@ -424,9 +425,10 @@ class DashboardController extends Controller {
     * Edit note block title and content.
     */
     public function editNoteBlock (Request $request) {
-        $title = $request->block_note_title;
-        $content = $request->block_note_content;
-        $optString = '{"title": "' . $title . '", "content": "' . $content .'"}';
+        $noteArray = [];
+        $noteArray['title'] = $request->block_note_title;
+        $noteArray['content'] = $request->block_note_content;
+        $optString = json_encode($noteArray);
 
         DB::table('dashboard_blocks')->where('id','=',$request->block_id)->update([
             'options' => $optString

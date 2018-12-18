@@ -18,7 +18,7 @@
     }
 ?>
 <div class="form-group mt-xxxl">
-    <label class="associator-label mb-xs">Associations</label>
+    <label>@if($field->required==1)<span class="oval-icon"></span> @endif{{$field->name}}</label>
 </div>
 <div class="form-group associator">
     <div class="form-group mb-xl">

@@ -29,11 +29,13 @@ class AssociatorSearchController extends Controller {
     /**
      * Handles the request for an association search.
      *
+     * @param  int $pid - Project ID
+     * @param  int $fid - Form ID
      * @param  int $flid - Field ID
      * @param  Request $request
      * @return array - The results from the search
      */
-    public function assocSearch($flid, Request $request) {
+    public function assocSearch($pid, $fid, $flid, Request $request) {
         $field = FieldController::getField($flid);
         $keyword = $request->keyword;
 

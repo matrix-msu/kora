@@ -27,6 +27,11 @@ class DateField extends BaseField {
     const FIELD_DISPLAY_VIEW = "partials.records.display.date";
 
     /**
+     * @var string - Data column used for sort
+     */
+    const SORT_COLUMN = "date_object";
+
+    /**
      * @var string - Month day year format
      */
     const MONTH_DAY_YEAR = "MMDDYYYY";
@@ -100,6 +105,15 @@ class DateField extends BaseField {
      */
     public function getAdvancedFieldOptionsView() {
         return self::FIELD_ADV_OPTIONS_VIEW;
+    }
+
+    /**
+     * Get the field options view for advanced field creation.
+     *
+     * @return string - Column name
+     */
+    public function getSortColumn() {
+        return self::SORT_COLUMN;
     }
 
     /**
@@ -177,9 +191,9 @@ class DateField extends BaseField {
         $this->rid = $record->rid;
         $this->fid = $field->fid;
         $this->circa = $request->input('circa_' . $field->flid, '');
-        $this->month = $request->input('month_' . $field->flid);
-        $this->day = $request->input('day_' . $field->flid);
-        $this->year = $request->input('year_' . $field->flid);
+        $this->month = $request->input('month_' . $field->flid, 0);
+        $this->day = $request->input('day_' . $field->flid, 0);
+        $this->year = $request->input('year_' . $field->flid, 0);
         $this->era = $request->input('era_' . $field->flid, 'CE');
         $this->save();
     }
@@ -193,9 +207,9 @@ class DateField extends BaseField {
     public function editRecordField($value, $request) {
         if(!is_null($this) && !(empty($request->input('month_'.$this->flid)) && empty($request->input('day_'.$this->flid)) && empty($request->input('year_'.$this->flid)))) {
             $this->circa = $request->input('circa_'.$this->flid, '');
-            $this->month = $request->input('month_'.$this->flid);
-            $this->day = $request->input('day_'.$this->flid);
-            $this->year = $request->input('year_'.$this->flid);
+            $this->month = $request->input('month_'.$this->flid, 0);
+            $this->day = $request->input('day_'.$this->flid, 0);
+            $this->year = $request->input('year_'.$this->flid, 0);
             $this->era = $request->input('era_'.$this->flid, 'CE');
             $this->save();
         } else if(!is_null($this) && (empty($request->input('month_'.$this->flid)) && empty($request->input('day_'.$this->flid)) && empty($request->input('year_'.$this->flid)))) {
@@ -453,7 +467,7 @@ class DateField extends BaseField {
                 $value .= '<Month>' . utf8_encode('NUMERIC VALUE OF MONTH (i.e. 03)') . '</Month>';
                 $value .= '<Day>' . utf8_encode('3') . '</Day>';
                 $value .= '<Year>' . utf8_encode('2003') . '</Year>';
-                $value .= '<Era>' . utf8_encode('CE or BCE (Tag is optional)') . '</Era>';
+                $value .= '<Era>' . utf8_encode('CE, BCE, BP, or KYA BP (Tag is optional)') . '</Era>';
                 $xml .= $value;
                 $xml .= '</' . Field::xmlTagClear($slug) . '>';
 
@@ -470,7 +484,7 @@ class DateField extends BaseField {
                 $fieldArray[$slug]['value']['month'] = 'NUMERIC VALUE OF MONTH (i.e. 03)';
                 $fieldArray[$slug]['value']['day'] = 3;
                 $fieldArray[$slug]['value']['year'] = 2003;
-                $fieldArray[$slug]['value']['era'] = 'CE or BCE (Index is optional)';
+                $fieldArray[$slug]['value']['era'] = 'CE, BCE, BP, or KYA BP (Index is optional)';
 
                 return $fieldArray;
                 break;
@@ -537,11 +551,11 @@ class DateField extends BaseField {
      * @return Request - The update request
      */
     public function setRestfulRecordData($jsonField, $flid, $recRequest, $uToken=null) {
-        $recRequest['circa_' . $flid] = $jsonField->value->circa;
-        $recRequest['month_' . $flid] = $jsonField->value->month;
-        $recRequest['day_' . $flid] = $jsonField->value->day;
-        $recRequest['year_' . $flid] = $jsonField->value->year;
-        $recRequest['era_' . $flid] = $jsonField->value->era;
+        $recRequest['circa_' . $flid] = isset($jsonField->value->circa) ? $jsonField->value->circa : null;
+        $recRequest['month_' . $flid] = isset($jsonField->value->month) ? $jsonField->value->month : null;
+        $recRequest['day_' . $flid] = isset($jsonField->value->day) ? $jsonField->value->day : null;
+        $recRequest['year_' . $flid] = isset($jsonField->value->year) ? $jsonField->value->year : null;
+        $recRequest['era_' . $flid] = isset($jsonField->value->era) ? $jsonField->value->era : null;
         $recRequest[$flid] = '';
 
         return $recRequest;
@@ -616,14 +630,14 @@ class DateField extends BaseField {
      * @return array - The RIDs that match search
      */
     public function advancedSearchTyped($flid, $query) {
-        $begin_month = ($query[$flid."_begin_month"] == "") ? 1 : intval($query[$flid."_begin_month"]);
-        $begin_day = ($query[$flid."_begin_day"] == "") ? 1 : intval($query[$flid."_begin_day"]);
-        $begin_year = ($query[$flid."_begin_year"] == "") ? 1 : intval($query[$flid."_begin_year"]);
+        $begin_month = (isset($query[$flid."_begin_month"]) && $query[$flid."_begin_month"] != "") ? intval($query[$flid."_begin_month"]) : 1;
+        $begin_day = (isset($query[$flid."_begin_day"]) && $query[$flid."_begin_day"] != "") ? intval($query[$flid."_begin_day"]) : 1;
+        $begin_year = (isset($query[$flid."_begin_year"]) && $query[$flid."_begin_year"] != "") ? intval($query[$flid."_begin_year"]) : 1;
         $begin_era = isset($query[$flid."_begin_era"]) ? $query[$flid."_begin_era"] : "CE";
 
-        $end_month = ($query[$flid."_end_month"] == "") ? 1 : intval($query[$flid."_end_month"]);
-        $end_day = ($query[$flid."_end_day"] == "") ? 1 : intval($query[$flid."_end_day"]);
-        $end_year = ($query[$flid."_end_year"] == "") ? 1 : intval($query[$flid."_end_year"]);
+        $end_month = (isset($query[$flid."_end_month"]) && $query[$flid."_end_month"] != "") ? intval($query[$flid."_end_month"]) : 1;
+        $end_day = (isset($query[$flid."_end_day"]) && $query[$flid."_end_day"] != "") ? intval($query[$flid."_end_day"]) : 1;
+        $end_year = (isset($query[$flid."_end_year"]) && $query[$flid."_end_year"] != "") ? intval($query[$flid."_end_year"]) : 1;
         $end_era = isset($query[$flid."_end_era"]) ? $query[$flid."_end_era"] : "CE";
 
         $query = DB::table("date_fields")
@@ -650,12 +664,24 @@ class DateField extends BaseField {
                         ->whereBetween("date_object", [$era_bound, $end]);
                 });
             });
-        } else { // Normal case, both are CE, the other choice of CE then BCE is invalid.
+        } else if($begin_era == "CE" && $end_era == "CE") { // Normal case, both are CE, the other choice of CE then BCE is invalid.
             $begin = DateTime::createFromFormat("Y-m-d", $begin_year."-".$begin_month."-".$begin_day);
             $end = DateTime::createFromFormat("Y-m-d", $end_year."-".$end_month."-".$end_day);
 
             $query->where("era", "=", "CE")
                 ->whereBetween("date_object", [$begin, $end]);
+        } else if($begin_era == "BP" && $end_era == "BP") {
+            $query->where("era", "=", "BP")
+                ->whereBetween("year", [$begin_year, $end_year]);
+        } else if($begin_era == "KYA BP" && $end_era == "KYA BP") {
+            $query->where("era", "=", "KYA BP")
+                ->whereBetween("year", [$begin_year, $end_year]);
+        } else {
+            //CANT MIX BEYOND THIS. WE FAIL FOR NOW
+            //- Can't mix BP with KYA BP
+            //- Can't mix any BP with any CE
+            //- Can't have CE before BCE
+            return array();
         }
 
         return $query->distinct()
@@ -666,30 +692,17 @@ class DateField extends BaseField {
     ///////////////////////////////////////////////END ABSTRACT FUNCTIONS///////////////////////////////////////////////
 
     /**
-     * Gets list of RIDs and values for sort.
+     * Returns the mysql string required to sort a set of RIDs.
      *
-     * @param $rids - Record IDs
+     * @param $ridArray - String of record IDs
      * @param $flid - Field ID
-     * @return array - The value array
+     * @param $dir - Direction of sorting
+     * @return string - The MySQL string
      */
-    public function getRidValuesForSort($rids,$flid) {
+    public function getRidValuesForGlobalSort($ridArray,$flids,$dir) {
         $prefix = config('database.connections.mysql.prefix');
-        $ridArray = implode(',',$rids);
-        return DB::select("SELECT `rid`, `date_object` AS `value` FROM ".$prefix."date_fields WHERE `flid`=$flid AND `rid` IN ($ridArray)");
-    }
-
-    /**
-     * Gets list of RIDs and values for sort.
-     *
-     * @param $rids - Record IDs
-     * @param $flids - Field IDs to sort by
-     * @return array - The value array
-     */
-    public function getRidValuesForGlobalSort($rids,$flids) {
-        $prefix = config('database.connections.mysql.prefix');
-        $ridArray = implode(',',$rids);
         $flidArray = implode(',',$flids);
-        return DB::select("SELECT `rid`, `date_object` AS `value` FROM ".$prefix."date_fields WHERE `flid` IN ($flidArray) AND `rid` IN ($ridArray)");
+        return "SELECT `rid`, `date_object` AS `value` FROM ".$prefix."date_fields WHERE `flid` IN ($flidArray) AND `rid` IN ($ridArray) ORDER BY `date_object` $dir";
     }
 
     /**
@@ -788,7 +801,8 @@ class DateField extends BaseField {
      */
     public static function isValidEra($string) {
         $string = strtoupper($string);
-        return ($string == "BCE" || $string == "CE");
+        $eras = array("CE", "BCE", "BP", "KYA BP");
+        return in_array($string,$eras);
     }
 
     /**

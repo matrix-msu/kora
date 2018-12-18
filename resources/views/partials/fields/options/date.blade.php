@@ -2,7 +2,7 @@
 
 @section('fieldOptions')
     <div class="form-group date-input-form-group mt-xxxl">
-        <label>Select Date</label>
+        <label>Select Default Date</label>
 
         <div class="date-inputs-container date-inputs-container-js">
             {!! Form::select('default_month',['' => '', '0' => 'Current Month',
@@ -88,7 +88,7 @@
     </div>
 
     <div class="form-group mt-xl">
-        {!! Form::label('era','Show Era?') !!}
+        {!! Form::label('era','Show Calendar/Date Notation?') !!}
         {!! Form::select('era', ['No' => 'No','Yes' => 'Yes'], \App\Http\Controllers\FieldController::getFieldOption($field,'Era'), ['class' => 'single-select']) !!}
     </div>
 @stop

@@ -62,5 +62,6 @@
 
     <script type="text/javascript">
         Kora.Records.Index();
+        Kora.Records.Advanced();
     </script>
 @stop

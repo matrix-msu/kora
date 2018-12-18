@@ -27,6 +27,11 @@ class DocumentsField extends FileTypeField {
     const FIELD_DISPLAY_VIEW = "partials.records.display.documents";
 
     /**
+     * @var string - Data column used for sort
+     */
+    const SORT_COLUMN = null;
+
+    /**
      * @var array - Attributes that can be mass assigned to model
      */
     protected $fillable = [
@@ -54,13 +59,22 @@ class DocumentsField extends FileTypeField {
     }
 
     /**
+     * Get the field options view for advanced field creation.
+     *
+     * @return string - Column name
+     */
+    public function getSortColumn() {
+        return self::SORT_COLUMN;
+    }
+
+    /**
      * Gets the default options string for a new field.
      *
      * @param  Request $request
      * @return string - The default options
      */
     public function getDefaultOptions(Request $request) {
-        return '[!FieldSize!]0[!FieldSize!][!MaxFiles!]0[!MaxFiles!][!FileTypes!][!FileTypes!]';
+        return '[!FieldSize!][!FieldSize!][!MaxFiles!][!MaxFiles!][!FileTypes!][!FileTypes!]';
     }
 
     /**
@@ -95,12 +109,6 @@ class DocumentsField extends FileTypeField {
 				$filetype .= '[!]'.$request->filetype[$i];
 			}
 		}
-
-        if($request->filesize=='')
-            $request->filesize = 0;
-
-        if($request->maxfiles=='')
-            $request->maxfiles = 0;
 
         $field->updateRequired($request->required);
         $field->updateSearchable($request);

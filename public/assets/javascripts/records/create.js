@@ -151,7 +151,8 @@ Kora.Records.Create = function() {
         });
 
         $('.assoc-select-records-js').change(function() {
-            defaultBox = $(this).parent().siblings().first().children('.assoc-default-records-js');
+            defaultBox = $(this).parent().next().children('.assoc-default-records-js');
+            console.log(defaultBox);
 
             $(this).children('option').each(function() {
                 if($(this).is(':selected')) {
@@ -277,9 +278,26 @@ Kora.Records.Create = function() {
 
         $eraCheckboxes.click(function() {
             var $selected = $(this);
+            flid = $selected.attr('flid');
 
-            $eraCheckboxes.prop('checked', false);
+            $('.era-check-'+flid+'-js').prop('checked', false);
             $selected.prop('checked', true);
+
+            currEra = $selected.val();
+            $month = $('#month_'+flid);
+            $day = $('#day_'+flid);
+
+            if(currEra=='BP' | currEra=='KYA BP') {
+                $month.attr('disabled','disabled');
+                $day.attr('disabled','disabled');
+                $month.trigger("chosen:updated");
+                $day.trigger("chosen:updated");
+            } else {
+                $month.removeAttr('disabled');
+                $day.removeAttr('disabled');
+                $month.trigger("chosen:updated");
+                $day.trigger("chosen:updated");
+            }
         });
 
         setTextInputWidth();

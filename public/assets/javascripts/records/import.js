@@ -188,8 +188,9 @@ Kora.Records.Import = function () {
         function completeImport(succ, total, impType) {
             var recImpLabel = $('.records-imported-label-js');
             var recImpText = $('.records-imported-text-js');
+            var recImpText2 = $('.records-imported-text2-js');
             var btnContainer = $('.button-container-js');
-            var extraText = $('.download-report-js');
+            var btnContainer2 = $('.button-container2-js');
 
             $('.recordresults-section').addClass('hidden');
             $('.allrecords-section').removeClass('hidden');
@@ -200,23 +201,34 @@ Kora.Records.Import = function () {
             if(succ==total) {
                 recImpLabel.text(succ + ' of ' + total + ' Records Successfully Imported!');
                 recImpText.text('Way to have your data organized! We found zero errors with this import. Woohoo!');
+
+                btnContainer.html('<a href="' + viewRecordsUrl + '" class="btn half-btn import-thin-btn-text">View Imported Records</a>');
             } else {
                 recImpLabel.text(succ + ' of ' + total + ' Records Successfully Imported');
-                recImpText.html('Looks like not all of the records made it. However, you can ' +
-                    'download the Failed Records and their report below to identify the problem with their import. You ' +
-                    'may <a class="success-link refresh-records-js" href="#">Try Importing Again</a> at anytime.');
+                recImpText.html('Looks like not all of the records made it. You can download the failed records and ' +
+                    'their report below to identify the problem with their import.');
 
-                btnContainer.prepend('<a href="#" class="btn half-sub-btn import-thick-btn-text failed-records-js">Download Failed Records (' + impType + ')</a>'
+                btnContainer.html('<a href="#" class="btn half-sub-btn import-thick-btn-text failed-records-js">Download Failed Records (' + impType + ')</a>'
                     + '<form action="' + downloadFailedUrl + '" method="post" class="records-form-js" style="display:none;">'
                     + '<input type="hidden" name="type" value="' + impType + '"/>'
                     + '<input type="hidden" name="_token" value="' + CSRFToken + '"/>'
-                    + '</form>')
+                    + '</form>'
+                    + '<a class="btn half-sub-btn import-thick-btn-text failed-reasons-js" href="#">Download Failed Records Report</a>'
+                    + '<form action="' + downloadReasonsUrl + '" method="post" class="reasons-form-js" style="display:none;">'
+                    + '<input type="hidden" name="_token" value="' + CSRFToken + '"/>'
+                    + '</form>');
 
-                extraText.removeClass('hidden');
+
+                recImpText2.text('You may also try importing again at anytime, or view the records that successfully imported.');
+
+                btnContainer2.html('<a class="btn half-sub-btn import-thick-btn-text refresh-records-js" href="#">Try Importing Again</a>' +
+                    '<a href="' + viewRecordsUrl + '" class="btn half-btn import-thin-btn-text">View Imported Records</a>');
             }
         }
 
         $('.button-container-js').on('click', '.failed-records-js', function (e) {
+            e.preventDefault();
+
             var $recForm = $('.records-form-js');
 
             var input = $("<input>")
@@ -227,7 +239,8 @@ Kora.Records.Import = function () {
             $recForm.submit();
         });
 
-        $('.failed-reasons-js').click(function (e) {
+        $('.button-container-js').on('click', '.failed-reasons-js', function (e) {
+            e.preventDefault();
             var $recForm = $('.reasons-form-js');
 
             var input = $("<input>")
@@ -238,7 +251,8 @@ Kora.Records.Import = function () {
             $recForm.submit();
         });
 
-        $('.records-imported-text-js').on('click', '.refresh-records-js', function (e) {
+        $('.button-container2-js').on('click', '.refresh-records-js', function (e) {
+            e.preventDefault();
             location.reload();
         });
     }

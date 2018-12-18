@@ -75,6 +75,7 @@
   }
 }
 
+/* 480px to 980px */
 @media screen and (min-width: $max-mobile-xs-width) and (max-width: $max-tablet-width) {
   // scss-lint:disable ImportantRule
   .center {
@@ -86,6 +87,15 @@
     &.pages.with-aside {
       width: calc(100% - 20px) !important;
     }
+  }
+}
+
+/* fixes issue between 871px to 979px causing page content to be pushed off screen when sidebar toggled on */
+@media screen and (min-width: 870px) and (max-width: $max-tablet-width) {
+  .side-menu.active + .record-create,
+  .side-menu.active + .record-edit,
+  .side-menu.active + .record-clone {
+    width: calc(100% - 250px);
   }
 }
 

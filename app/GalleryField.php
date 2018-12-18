@@ -27,6 +27,11 @@ class GalleryField extends FileTypeField  {
     const FIELD_DISPLAY_VIEW = "partials.records.display.gallery";
 
     /**
+     * @var string - Data column used for sort
+     */
+    const SORT_COLUMN = null;
+
+    /**
      * @var array - Attributes that can be mass assigned to model
      */
     protected $fillable = [
@@ -55,14 +60,23 @@ class GalleryField extends FileTypeField  {
     }
 
     /**
+     * Get the field options view for advanced field creation.
+     *
+     * @return string - Column name
+     */
+    public function getSortColumn() {
+        return self::SORT_COLUMN;
+    }
+
+    /**
      * Gets the default options string for a new field.
      *
      * @param  Request $request
      * @return string - The default options
      */
     public function getDefaultOptions(Request $request) {
-        return '[!FieldSize!]0[!FieldSize!][!ThumbSmall!]150x150[!ThumbSmall!][!ThumbLarge!]300x300[!ThumbLarge!]
-        [!MaxFiles!]0[!MaxFiles!][!FileTypes!]image/jpeg[!]image/gif[!]image/png[!]image/bmp[!FileTypes!]';
+        return '[!FieldSize!][!FieldSize!][!ThumbSmall!]150x150[!ThumbSmall!][!ThumbLarge!]300x300[!ThumbLarge!]
+        [!MaxFiles!][!MaxFiles!][!FileTypes!]image/jpeg[!]image/gif[!]image/png[!]image/bmp[!FileTypes!]';
     }
 
     /**
@@ -95,12 +109,7 @@ class GalleryField extends FileTypeField  {
         for($i=1;$i<sizeof($request->filetype);$i++) {
             $filetype .= '[!]'.$request->filetype[$i];
         }
-
-        if($request->filesize=='')
-            $request->filesize = 0;
-
-        if($request->maxfiles=='')
-            $request->maxfiles = 0;
+		
 
         $sx = $request->small_x;
         $sy = $request->small_y;

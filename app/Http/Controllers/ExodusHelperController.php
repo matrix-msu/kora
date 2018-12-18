@@ -603,6 +603,7 @@ class ExodusHelperController extends Controller {
                                 ]
                             ]);
 
+                            $sched = $field->getTypedFieldFromRID($recModel->rid);
                             $sched->addEvents($formattedDates);
 
                             break;
