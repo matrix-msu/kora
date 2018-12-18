@@ -209,9 +209,9 @@ class RestfulController extends Controller {
             $filters['size'] = isset($f->size) ? $f->size : false; //do we want the number of records in the search result returned instead of data
             $filters['assoc'] = isset($f->assoc) ? $f->assoc : false; //do we want information back about associated records*** TODO
             $filters['revAssoc'] = isset($f->revAssoc) ? $f->revAssoc : true; //do we want information back about reverse associations for XML OUTPUT
-            $filters['filters'] = isset($f->filters) ? $f->filters : false; //do we want information back about result filters [i.e. Field 'First Name', has value 'Tom', '12' times] TODO
-            $filters['filterCount'] = isset($f->filterCount) ? $f->filterCount : 5; //What is the minimum threshold for a filter to return? TODO
-            $filters['filterFlids'] = isset($f->filterFlids) ? $f->filterFlids : 'ALL'; //What fields should filters return for? Should be array TODO
+            $filters['filters'] = isset($f->filters) ? $f->filters : false; //do we want information back about result filters [i.e. Field 'First Name', has value 'Tom', '12' times]
+            $filters['filterCount'] = isset($f->filterCount) ? $f->filterCount : 5; //What is the minimum threshold for a filter to return?
+            $filters['filterFlids'] = isset($f->filterFlids) ? $f->filterFlids : 'ALL'; //What fields should filters return for? Should be array
                 //Note: Filters only captures values from certain fields (mainly single value ones), see ExportController->exportWithRids() to see which ones use it
             $filters['fields'] = isset($f->fields) ? $f->fields : 'ALL'; //which fields do we want data for*** TODO
             $filters['sort'] = isset($f->sort) ? $f->sort : null; //how should the data be sorted
@@ -354,8 +354,8 @@ class RestfulController extends Controller {
                                     continue;
                                 }
                                 $rid = explode("-", $kids[$i])[2];
-                                $record = Record::where('rid',$rid)->get()->first(); //TODO::But what if doesn't exist!!!!
-                                if($record->fid != $form->fid)
+                                $record = Record::where('rid',$rid)->get()->first();
+                                if(is_null($record) || $record->fid != $form->fid)
                                     array_push($minorErrors,"The following KID is not apart of the requested form: " . $kids[$i]);
                                 else
                                     $rids[$i] = $record->rid;
@@ -373,8 +373,8 @@ class RestfulController extends Controller {
                             $rids = array();
                             for($i = 0; $i < sizeof($kids); $i++) {
                                 $legacy_kid = $kids[$i];
-                                $record = Record::where('legacy_kid','=',$legacy_kid)->get()->first(); //TODO::But what if doesn't exist!!!!
-                                if($record->fid != $form->fid)
+                                $record = Record::where('legacy_kid','=',$legacy_kid)->get()->first();
+                                if(is_null($record) || $record->fid != $form->fid)
                                     array_push($minorErrors,"The following legacy KID is not apart of the requested form: " . $kids[$i]);
                                 else
                                     array_push($rids,$record->rid);
@@ -999,7 +999,7 @@ class RestfulController extends Controller {
             else
                 $filters[$convert[$flid]][$value] += 1;
         }
-        
+
         if($count != 1) {
             $newFilters = [];
             foreach($filters as $flid => $valCnt) {
