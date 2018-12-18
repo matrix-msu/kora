@@ -204,21 +204,21 @@ class RestfulController extends Controller {
             //things we will be returning
             //NOTE: Items marked ***, will be overwritten when using globalSort
             $filters = array();
-            $filters['data'] = isset($f->data) ? $f->data : true; //do we want data, or just info about the records theme selves***
-            $filters['meta'] = isset($f->meta) ? $f->meta : false; //get meta data about record***
+            $filters['data'] = isset($f->data) ? $f->data : true; //do we want data, or just info about the records theme selves*** TODO
+            $filters['meta'] = isset($f->meta) ? $f->meta : false; //get meta data about record*** TODO
             $filters['size'] = isset($f->size) ? $f->size : false; //do we want the number of records in the search result returned instead of data
-            $filters['assoc'] = isset($f->assoc) ? $f->assoc : false; //do we want information back about associated records***
-            $filters['revAssoc'] = isset($f->revAssoc) ? $f->revAssoc : true; //do we want information back about reverse associations for XML OUPTUT
-            $filters['filters'] = isset($f->filters) ? $f->filters : false; //do we want information back about result filters [i.e. Field 'First Name', has value 'Tom', '12' times]
-            $filters['filterCount'] = isset($f->filterCount) ? $f->filterCount : 5; //What is the minimum threshold for a filter to return?
-            $filters['filterFlids'] = isset($f->filterFlids) ? $f->filterFlids : 'ALL'; //What fields should filters return for? Should be array
+            $filters['assoc'] = isset($f->assoc) ? $f->assoc : false; //do we want information back about associated records*** TODO
+            $filters['revAssoc'] = isset($f->revAssoc) ? $f->revAssoc : true; //do we want information back about reverse associations for XML OUTPUT
+            $filters['filters'] = isset($f->filters) ? $f->filters : false; //do we want information back about result filters [i.e. Field 'First Name', has value 'Tom', '12' times] TODO
+            $filters['filterCount'] = isset($f->filterCount) ? $f->filterCount : 5; //What is the minimum threshold for a filter to return? TODO
+            $filters['filterFlids'] = isset($f->filterFlids) ? $f->filterFlids : 'ALL'; //What fields should filters return for? Should be array TODO
                 //Note: Filters only captures values from certain fields (mainly single value ones), see ExportController->exportWithRids() to see which ones use it
-            $filters['fields'] = isset($f->fields) ? $f->fields : 'ALL'; //which fields do we want data for***
+            $filters['fields'] = isset($f->fields) ? $f->fields : 'ALL'; //which fields do we want data for*** TODO
             $filters['sort'] = isset($f->sort) ? $f->sort : null; //how should the data be sorted
-            $filters['index'] = isset($f->index) ? $f->index : null; //where the array of results should start***
-            $filters['count'] = isset($f->count) ? $f->count : null; //how many records we should grab from that index***
+            $filters['index'] = isset($f->index) ? $f->index : null; //where the array of results should start*** TODO
+            $filters['count'] = isset($f->count) ? $f->count : null; //how many records we should grab from that index*** TODO
             //WARNING::IF FIELD NAMES SHARE A TITLE WITHIN THE SAME FIELD, THIS WOULD IN THEORY BREAK
-            $filters['realnames'] = isset($f->realnames) ? $f->realnames : false; //do we want records indexed by titles rather than slugs***
+            $filters['realnames'] = isset($f->realnames) ? $f->realnames : false; //do we want records indexed by titles rather than slugs*** TODO
             //THIS SOLELY SERVES LEGACY. YOU PROBABLY WILL NEVER USE THIS. DON'T THINK ABOUT IT
             $filters['under'] = isset($f->under) ? $f->under : false; //Replace field spaces with underscores***
 
@@ -354,7 +354,7 @@ class RestfulController extends Controller {
                                     continue;
                                 }
                                 $rid = explode("-", $kids[$i])[2];
-                                $record = Record::where('rid',$rid)->get()->first();
+                                $record = Record::where('rid',$rid)->get()->first(); //TODO::But what if doesn't exist!!!!
                                 if($record->fid != $form->fid)
                                     array_push($minorErrors,"The following KID is not apart of the requested form: " . $kids[$i]);
                                 else
@@ -373,7 +373,7 @@ class RestfulController extends Controller {
                             $rids = array();
                             for($i = 0; $i < sizeof($kids); $i++) {
                                 $legacy_kid = $kids[$i];
-                                $record = Record::where('legacy_kid','=',$legacy_kid)->get()->first();
+                                $record = Record::where('legacy_kid','=',$legacy_kid)->get()->first(); //TODO::But what if doesn't exist!!!!
                                 if($record->fid != $form->fid)
                                     array_push($minorErrors,"The following legacy KID is not apart of the requested form: " . $kids[$i]);
                                 else
@@ -538,129 +538,78 @@ class RestfulController extends Controller {
      */
     private function sort_rids($rids, $sortFields) {
         //get field
-        $fieldSlug = $sortFields[0];
-        $direction = $sortFields[1];
         $newOrderArray = array();
+        $ridString = implode(',',$rids);
+
+        //Doing this for pretty much the same reason as keyword search above
+        $con = mysqli_connect(
+            config('database.connections.mysql.host'),
+            config('database.connections.mysql.username'),
+            config('database.connections.mysql.password'),
+            config('database.connections.mysql.database')
+        );
+        $prefix = config('database.connections.mysql.prefix');
+
+        //We want to make sure we are doing things in utf8 for special characters
+        if(!mysqli_set_charset($con, "utf8")) {
+            printf("Error loading character set utf8: %s\n", mysqli_error($con));
+            exit();
+        }
 
         //report errors, not 100% sure how we'll get it up a level
 
-        if($fieldSlug=='kora_meta_owner') {
-            $userRecords = DB::table('records')->join('users','users.id','=','records.owner')
-                ->select('records.rid','users.username')
-                ->whereIn('records.rid',$rids)
-                ->orderBy('users.username', $direction)
-                ->get()->toArray();
+        //$selectVals = "";
+        $selectJoins = "";
+        $selectOrdArr = array();
 
-            foreach($userRecords as $rec) {
-                $newOrderArray[$rec->rid] = $rec->username;
-            }
-        } else if($fieldSlug=='kora_meta_created') {
-            $createdRecords = DB::table('records')
-                ->select('rid','created_at')
-                ->whereIn('rid',$rids)
-                ->orderBy('created_at', $direction)
-                ->get()->toArray();
+        for($s=0;$s<sizeof($sortFields);$s=$s+2) {
+            $fieldSlug = $sortFields[$s];
+            $direction = $sortFields[$s+1];
 
-            foreach($createdRecords as $rec) {
-                $newOrderArray[$rec->rid] = $rec->created_at;
-            }
-        } else if($fieldSlug=='kora_meta_updated') {
-            $updatedRecords = DB::table('records')
-                ->select('rid','updated_at')
-                ->whereIn('rid',$rids)
-                ->orderBy('updated_at', $direction)
-                ->get()->toArray();
+            if($fieldSlug=='kora_meta_owner') {
+                //$selectVals .= ", us.`username`";
+                $selectJoins .= "LEFT JOIN ".$prefix."_users as us ON us.id=rec.owner ";
+                array_push($selectOrdArr, "`username` $direction");
+            } else if($fieldSlug=='kora_meta_created') {
+                array_push($selectOrdArr, "`created_at` $direction");
+            } else if($fieldSlug=='kora_meta_updated') {
+                array_push($selectOrdArr, "`updated_at` $direction");
+            } else if($fieldSlug=='kora_meta_kid') {
+                array_push($selectOrdArr, "`rid` $direction");
+            } else {
+                $field = FieldController::getField($fieldSlug);
+                if(is_null($field) || !$field->isSortable())
+                    return false;
+                $typedField = $field->getTypedField();
 
-            foreach($updatedRecords as $rec) {
-                $newOrderArray[$rec->rid] = $rec->updated_at;
-            }
-        } else if($fieldSlug=='kora_meta_kid') {
-            $kidRecords = DB::table('records')
-                ->select('rid')
-                ->whereIn('rid',$rids)
-                ->orderBy('rid', $direction)
-                ->get()->toArray();
+                $flid = $field->flid;
+                $type = $typedField->getSortColumn();
+                $table = $prefix.$typedField->getTable();
 
-            foreach($kidRecords as $rec) {
-                $newOrderArray[$rec->rid] = $rec->rid;
-            }
-        } else {
-            $field = FieldController::getField($fieldSlug);
-            if(is_null($field) || !$field->isSortable())
-                return false;
-
-            $typedField = $field->getTypedField();
-            $chunks = array_chunk($rids, 500);
-
-            //Get the values
-            foreach($chunks as $chunk) {
-                $dataResults = $typedField->getRidValuesForSort($chunk, $field->flid);
-                //Filter results
-                foreach($dataResults as $rec) {
-                    $newOrderArray[$rec->rid] = $rec->value;
+                if(!is_null($type)) {
+                    //$selectVals .= ", field".$flid.".`".$type."` as field".$flid."";
+                    $selectJoins .= "LEFT JOIN ".$table." as field".$flid." ON field".$flid.".rid=rec.rid and field".$flid.".`flid`=".$flid." ";
+                    array_push($selectOrdArr, "field".$flid.".`$type` IS NULL, field".$flid.".`$type` $direction");
                 }
             }
+        }
+        $selectOrders = implode(', ',$selectOrdArr);
 
-            //Sort that stuff
-            if($direction=="ASC")
-                uasort($newOrderArray, 'self::compareASCII');
-            else if($direction=="DESC")
-                uasort($newOrderArray, 'self::rCompareASCII');
+        //$select = "SELECT rec.`rid`, rec.`created_at`, rec.`updated_at`$selectVals from kora3_records as rec $selectJoins";
+        $select = "SELECT rec.`rid` from kora3_records as rec $selectJoins";
+        $select .= "WHERE rec.`rid` IN ($ridString) ORDER BY $selectOrders"; //TODO::LIMIT??
+
+        $sort = $con->query($select);
+
+        while($row = $sort->fetch_assoc()) {
+            array_push($newOrderArray,$row['rid']);
         }
 
-        //Deal with ties
-        //Is there a tiebreaker rule?
-        array_shift($sortFields); //remove field slug
-        array_shift($sortFields); //remove direction
-        if(!empty($sortFields)) {
-            //Since we have a tiebreaker, foreach set of ties, call this function recursively
-            $keysOnly = array_keys($newOrderArray);
-            $finalResult = array();
-
-            //Cycle through result keys (rids)
-            for($i=0;$i<sizeof($keysOnly);$i++) {
-                //This handles the case where we are on the last key, so nothing to compare
-                //Add to results and bounce
-                if(!isset($keysOnly[$i+1])) {
-                    array_push($finalResult,$keysOnly[$i]);
-                    continue;
-                }
-
-                //If the next key's value is the same, do stuff
-                $thisKey = $keysOnly[$i];
-                $nextKey = $keysOnly[$i+1];
-                if($newOrderArray[$thisKey] == $newOrderArray[$nextKey]) {
-                    //First step is to get all keys that match it
-                    $tieKeys = array_keys($newOrderArray,$newOrderArray[$thisKey]);
-                    //Run the tie breaker
-                    $tieResult = $this->sort_rids($tieKeys,$sortFields);
-                    //Add results to the final
-                    $this->imitateMerge($finalResult,$tieResult);
-
-                    //We need to take the size of the tied values, and then increment $i by that size - 1
-                    //The minus one makes up for the fact that the for loop will also add to the index ($i++)
-                    //This will land us on the next proper index to continue
-                    $inc = sizeof($tieKeys)-1;
-                    $i += $inc;
-                } else {
-                    //No tie to settle, so add this key to the finalResult
-                    array_push($finalResult,$thisKey);
-                }
-            }
-        } else {
-            //convert to plain array of rids
-            $finalResult = array_keys($newOrderArray);
-        }
-
-        //Add missing records
-        $missing = array_diff($rids, $finalResult);
-        $this->imitateMerge($finalResult,$missing);
-
-        return $finalResult;
+        return $newOrderArray;
     }
 
     /**
-     * Sorts RIDs by fields.
+     * Sorts RIDs by fields. //TODO::Refactor in new system
      *
      * @param  array $rids - The RIDs to sort
      * @param  array $sortFields - The field arrays to sort by
@@ -671,48 +620,57 @@ class RestfulController extends Controller {
         $fieldSlug = $sortFields[0];
         $direction = $sortFields[1];
         $newOrderArray = array();
+        $ridString = implode(',',$rids);
+
+        //Doing this for pretty much the same reason as keyword search above
+        $con = mysqli_connect(
+            config('database.connections.mysql.host'),
+            config('database.connections.mysql.username'),
+            config('database.connections.mysql.password'),
+            config('database.connections.mysql.database')
+        );
+
+        //We want to make sure we are doing things in utf8 for special characters
+        if(!mysqli_set_charset($con, "utf8")) {
+            printf("Error loading character set utf8: %s\n", mysqli_error($con));
+            exit();
+        }
 
         //report errors, not 100% sure how we'll get it up a level
 
         if(!is_array($fieldSlug) && $fieldSlug=='kora_meta_owner') {
-            $userRecords = DB::table('records')->join('users','users.id','=','records.owner')
-                ->select('records.rid','users.username')
-                ->whereIn('records.rid',$rids)
-                ->orderBy('users.username', $direction)
-                ->get()->toArray();
+            $select = "SELECT `rid`, `username` from ".config('database.connections.mysql.prefix')."records as rec 
+                LEFT JOIN ".config('database.connections.mysql.prefix')."users as us ON us.id=rec.owner WHERE `rid` 
+                IN ($ridString) ORDER BY `username` $direction";
 
-            foreach($userRecords as $rec) {
-                $newOrderArray[$rec->rid] = $rec->username;
+            $sort = $con->query($select);
+
+            while($row = $sort->fetch_assoc()) {
+                $newOrderArray[$row['rid']] = $row['username'];
             }
         } else if(!is_array($fieldSlug) && $fieldSlug=='kora_meta_created') {
-            $createdRecords = DB::table('records')
-                ->select('rid','created_at')
-                ->whereIn('rid',$rids)
-                ->orderBy('created_at', $direction)
-                ->get()->toArray();
+            $select = "SELECT `rid`, `created_at` from ".config('database.connections.mysql.prefix')."records WHERE `rid` IN ($ridString) ORDER BY `created_at` $direction";
 
-            foreach($createdRecords as $rec) {
-                $newOrderArray[$rec->rid] = $rec->created_at;
+            $sort = $con->query($select);
+
+            while($row = $sort->fetch_assoc()) {
+                $newOrderArray[$row['rid']] = $row['created_at'];
             }
         } else if(!is_array($fieldSlug) && $fieldSlug=='kora_meta_updated') {
-            $updatedRecords = DB::table('records')
-                ->select('rid','updated_at')
-                ->whereIn('rid',$rids)
-                ->orderBy('updated_at', $direction)
-                ->get()->toArray();
+            $select = "SELECT `rid`, `updated_at` from ".config('database.connections.mysql.prefix')."records WHERE `rid` IN ($ridString) ORDER BY `updated_at` $direction";
 
-            foreach($updatedRecords as $rec) {
-                $newOrderArray[$rec->rid] = $rec->updated_at;
+            $sort = $con->query($select);
+
+            while($row = $sort->fetch_assoc()) {
+                $newOrderArray[$row['rid']] = $row['updated_at'];
             }
         } else if(!is_array($fieldSlug) && $fieldSlug=='kora_meta_kid') {
-            $kidRecords = DB::table('records')
-                ->select('rid')
-                ->whereIn('rid',$rids)
-                ->orderBy('rid', $direction)
-                ->get()->toArray();
+            $select = "SELECT `rid` from ".config('database.connections.mysql.prefix')."records WHERE `rid` IN ($ridString) ORDER BY `rid` $direction";
 
-            foreach($kidRecords as $rec) {
-                $newOrderArray[$rec->rid] = $rec->rid;
+            $sort = $con->query($select);
+
+            while($row = $sort->fetch_assoc()) {
+                $newOrderArray[$row['rid']] = $row['rid'];
             }
         } else {
             $flids = array();
@@ -732,39 +690,36 @@ class RestfulController extends Controller {
             }
 
             $typedField = Field::getTypedFieldStatic($type);
-            $chunks = array_chunk($rids, 500);
 
-            //Get the values
-            foreach($chunks as $chunk) {
-                $dataResults = $typedField->getRidValuesForGlobalSort($chunk, $flids);
-                //Filter results
-                foreach($dataResults as $rec) {
-                    $newOrderArray[$rec->rid] = $rec->value;
-                }
+            $select = $typedField->getRidValuesForGlobalSort($ridString, $flids, $direction);
+
+            $sort = $con->query($select);
+
+            while($row = $sort->fetch_assoc()) {
+                $newOrderArray[$row['rid']] = $row['value'];
             }
-
-            //Sort that stuff
-            if($direction=="ASC")
-                uasort($newOrderArray, 'self::compareASCII');
-            else if($direction=="DESC")
-                uasort($newOrderArray, 'self::rCompareASCII');
         }
+
+        mysqli_close($con);
 
         //Deal with ties
         //Is there a tiebreaker rule?
         array_shift($sortFields); //remove field slug
         array_shift($sortFields); //remove direction
+
         if(!empty($sortFields)) {
-            //Since we have a tiebreaker, foreach set of ties, call this function recursively
             $keysOnly = array_keys($newOrderArray);
-            $finalResult = array();
+            $finalResult = [];
+
+            //get results of next set
+            $nextResults = $this->sort_rids($rids,$sortFields);
 
             //Cycle through result keys (rids)
             for($i=0;$i<sizeof($keysOnly);$i++) {
                 //This handles the case where we are on the last key, so nothing to compare
                 //Add to results and bounce
                 if(!isset($keysOnly[$i+1])) {
-                    array_push($finalResult,$keysOnly[$i]);
+                    $finalResult[] = $keysOnly[$i];
                     continue;
                 }
 
@@ -774,8 +729,16 @@ class RestfulController extends Controller {
                 if($newOrderArray[$thisKey] == $newOrderArray[$nextKey]) {
                     //First step is to get all keys that match it
                     $tieKeys = array_keys($newOrderArray,$newOrderArray[$thisKey]);
+
                     //Run the tie breaker
-                    $tieResult = $this->sort_rids($tieKeys,$sortFields);
+                    $tieResult = [];
+                    //foreach key in tieKeys
+                    foreach($tieKeys as $tK) {
+                        //put it into array based on index in $nextResults
+                        $tIndex = array_search($tK, $nextResults);
+                        $tieResult[$tIndex] = $tK;
+                    }
+
                     //Add results to the final
                     $this->imitateMerge($finalResult,$tieResult);
 
@@ -786,11 +749,10 @@ class RestfulController extends Controller {
                     $i += $inc;
                 } else {
                     //No tie to settle, so add this key to the finalResult
-                    array_push($finalResult,$thisKey);
+                    $finalResult[] = $thisKey;
                 }
             }
         } else {
-            //convert to plain array of rids
             $finalResult = array_keys($newOrderArray);
         }
 
@@ -799,30 +761,6 @@ class RestfulController extends Controller {
         $this->imitateMerge($finalResult,$missing);
 
         return $finalResult;
-    }
-
-    /**
-     * Compares strings for sort, taking into account special characters to treat them as english. Second is reverse.
-     *
-     * @param  mixed $a
-     * @param  mixed $b
-     * @return int - The comparison result
-     */
-    private function compareASCII($a, $b) {
-        $a = Search::convertCloseChars($a);
-        $b = Search::convertCloseChars($b);
-        if(is_numeric($a) && is_numeric($b))
-            return $a>$b;
-        else
-            return strcasecmp($a, $b);
-    }
-    private function rCompareASCII($a, $b) {
-        $a = Search::convertCloseChars($a);
-        $b = Search::convertCloseChars($b);
-        if(is_numeric($a) && is_numeric($b))
-            return $a<$b;
-        else
-            return strcasecmp($a, $b)*(-1);
     }
 
     /**
@@ -870,14 +808,20 @@ class RestfulController extends Controller {
             return ['total' => 0];
 
         $filters = [];
-        $ridString = implode(',',$rids);
+        $ridIndex = [];
+        foreach($rids as $r) {
+            $ridIndex[$r] = '';
+        }
         $flidSQL = '';
+        $convert = [];
 
         if($flids != 'ALL') {
             //In case slugs are provided, we need flids
             $convertedFlids = array();
             foreach($flids as $fl) {
-                array_push($convertedFlids, FieldController::getField($fl)->flid); //error bad fields, not 100% sure how we'll get it up a level
+                $thisField = FieldController::getField($fl);
+                array_push($convertedFlids, $thisField->flid); //error bad fields, not 100% sure how we'll get it up a level
+                $convert[$thisField->flid] = $thisField->slug;
             }
 
             $flidString = implode(',',$convertedFlids);
@@ -886,6 +830,10 @@ class RestfulController extends Controller {
             $flids = Form::find($fid)->fields()->pluck('flid')->toArray();
             $flidString = implode(',',$flids);
             $flidSQL = " and `flid` in ($flidString)";
+
+            foreach($flids as $id){
+                $convert[$id] = FieldController::getField($id)->slug;
+            }
         }
 
         //Doing this for pretty much the same reason as keyword search above
@@ -895,6 +843,7 @@ class RestfulController extends Controller {
             config('database.connections.mysql.password'),
             config('database.connections.mysql.database')
         );
+        $prefix = config('database.connections.mysql.prefix');
 
         //We want to make sure we are doing things in utf8 for special characters
         if(!mysqli_set_charset($con, "utf8")) {
@@ -902,50 +851,62 @@ class RestfulController extends Controller {
             exit();
         }
 
-        $textOccurrences = DB::raw("select `text`, `flid` from ".config('database.connections.mysql.prefix')."text_fields where `fid`=$fid and `rid` in ($ridString)$flidSQL");
-        $listOccurrences = DB::raw("select `option`, `flid` from ".config('database.connections.mysql.prefix')."list_fields where `fid`=$fid and `rid` in ($ridString)$flidSQL");
-        $msListOccurrences = DB::raw("select `options`, `flid` from ".config('database.connections.mysql.prefix')."multi_select_list_fields where `fid`=$fid and `rid` in ($ridString)$flidSQL");
-        $genListOccurrences = DB::raw("select `options`, `flid` from ".config('database.connections.mysql.prefix')."generated_list_fields where `fid`=$fid and `rid` in ($ridString)$flidSQL");
-        $numberOccurrences = DB::raw("select `number`, `flid` from ".config('database.connections.mysql.prefix')."number_fields where `fid`=$fid and `rid` in ($ridString)$flidSQL");
-        $dateOccurrences = DB::raw("select `month`, `day`, `year`, `flid` from ".config('database.connections.mysql.prefix')."date_fields where `fid`=$fid and `rid` in ($ridString)$flidSQL");
-        $assocOccurrences = DB::raw("select s.`flid`, r.`kid` from ".config('database.connections.mysql.prefix')."associator_support as s left join kora3_records as r on s.`record`=r.`rid` where s.`fid`=$fid and s.`rid` in ($ridString) and s.`flid` in ($flidString)");
-        $rAssocOccurrences = DB::raw("select s.`flid`, r.`kid` from ".config('database.connections.mysql.prefix')."associator_support as s left join kora3_records as r on s.`rid`=r.`rid` where s.`fid`=$fid and s.`rid` in ($ridString) and s.`flid` in ($flidString)");
+        $textOccurrences = "select `text`, `flid`, `rid` from ".$prefix."text_fields where `fid`=$fid $flidSQL";
+        $listOccurrences = "select `option`, `flid`, `rid` from ".$prefix."list_fields where `fid`=$fid $flidSQL";
+        $msListOccurrences = "select `options`, `flid`, `rid` from ".$prefix."multi_select_list_fields where `fid`=$fid $flidSQL";
+        $genListOccurrences = "select `options`, `flid` from ".$prefix."generated_list_fields where `fid`=$fid $flidSQL";
+        $numberOccurrences = "select `number`, `flid`, `rid` from ".$prefix."number_fields where `fid`=$fid $flidSQL";
+        $dateOccurrences = "select `month`, `day`, `year`, `flid`, `rid` from ".$prefix."date_fields where `fid`=$fid $flidSQL";
+        $assocOccurrences = "select s.`flid`, r.`kid`, r.`rid` from ".$prefix."associator_support as s left join kora3_records as r on s.`record`=r.`rid` where s.`fid`=$fid and s.`flid` in ($flidString)";
+        $rAssocOccurrences = "select s.`flid`, r.`kid`, r.`rid` from ".$prefix."associator_support as s left join kora3_records as r on s.`rid`=r.`rid` where s.`fid`=$fid and s.`flid` in ($flidString)";
 
         //Because of the complex data in MS List, we break stuff up and then format
         $msListUnclean = $con->query($msListOccurrences);
         while($occur = $msListUnclean->fetch_assoc()) {
-            $msFlid = $occur['flid'];
+            $flid = $occur['flid'];
+            $rid = $occur['rid'];
             $msOpt = $occur['options'];
+
+            if(!array_key_exists($rid,$ridIndex))
+                continue;
 
             $opts = explode('[!]', $msOpt);
 
             foreach($opts as $opt) {
-                if(!isset($filters[$msFlid][$opt]))
-                    $filters[$msFlid][$opt] = 1;
+                if(!isset($filters[$convert[$flid]][$opt]))
+                    $filters[$convert[$flid]][$opt] = 1;
                 else
-                    $filters[$msFlid][$opt] += 1;
+                    $filters[$convert[$flid]][$opt] += 1;
             }
         }
 
         //repeat for gen list
         $genListUnclean = $con->query($genListOccurrences);
         while($occur = $genListUnclean->fetch_assoc()) {
-            $gsFlid = $occur['flid'];
+            $flid = $occur['flid'];
+            $rid = $occur['rid'];
             $gsOpt = $occur['options'];
+
+            if(!array_key_exists($rid,$ridIndex))
+                continue;
 
             $opts = explode('[!]', $gsOpt);
 
             foreach($opts as $opt) {
-                if(!isset($filters[$gsFlid][$opt]))
-                    $filters[$gsFlid][$opt] = 1;
+                if(!isset($filters[$convert[$flid]][$opt]))
+                    $filters[$convert[$flid]][$opt] = 1;
                 else
-                    $filters[$gsFlid][$opt] += 1;
+                    $filters[$convert[$flid]][$opt] += 1;
             }
         }
 
         $dateUnclean = $con->query($dateOccurrences);
         while($occur = $dateUnclean->fetch_assoc()) {
             $flid = $occur['flid'];
+            $rid = $occur['rid'];
+
+            if(!array_key_exists($rid,$ridIndex))
+                continue;
 
             if($occur['month']==0 && $occur['day']==0)
                 $value = $occur['year'];
@@ -958,72 +919,96 @@ class RestfulController extends Controller {
             else
                 $value = $occur['month'].'-'.$occur['day'].'-'.$occur['year'];
 
-            if(!isset($filters[$flid][$value]))
-                $filters[$flid][$value] = 1;
+            if(!isset($filters[$convert[$flid]][$value]))
+                $filters[$convert[$flid]][$value] = 1;
             else
-                $filters[$flid][$value] += 1;
+                $filters[$convert[$flid]][$value] += 1;
         }
 
         $textUnclean = $con->query($textOccurrences);
         while($occur = $textUnclean->fetch_assoc()) {
             $flid = $occur['flid'];
+            $rid = $occur['rid'];
             $value = $occur['text'];
 
-            if(!isset($filters[$flid][$value]))
-                $filters[$flid][$value] = 1;
+            if(!array_key_exists($rid,$ridIndex))
+                continue;
+
+            if(!isset($filters[$convert[$flid]][$value]))
+                $filters[$convert[$flid]][$value] = 1;
             else
-                $filters[$flid][$value] += 1;
+                $filters[$convert[$flid]][$value] += 1;
         }
 
         $listUnclean = $con->query($listOccurrences);
         while($occur = $listUnclean->fetch_assoc()) {
             $flid = $occur['flid'];
+            $rid = $occur['rid'];
             $value = $occur['option'];
 
-            if(!isset($filters[$flid][$value]))
-                $filters[$flid][$value] = 1;
+            if(!array_key_exists($rid,$ridIndex))
+                continue;
+
+            if(!isset($filters[$convert[$flid]][$value]))
+                $filters[$convert[$flid]][$value] = 1;
             else
-                $filters[$flid][$value] += 1;
+                $filters[$convert[$flid]][$value] += 1;
         }
 
         $numberUnclean = $con->query($numberOccurrences);
         while($occur = $numberUnclean->fetch_assoc()) {
             $flid = $occur['flid'];
+            $rid = $occur['rid'];
             $value = (float)$occur['number'];
 
-            if(!isset($filters[$flid][$value]))
-                $filters[$flid][$value] = 1;
+            if(!array_key_exists($rid,$ridIndex))
+                continue;
+
+            if(!isset($filters[$convert[$flid]][$value]))
+                $filters[$convert[$flid]][$value] = 1;
             else
-                $filters[$flid][$value] += 1;
+                $filters[$convert[$flid]][$value] += 1;
         }
 
         $assocUnclean = $con->query($assocOccurrences);
         while($occur = $assocUnclean->fetch_assoc()) {
             $flid = $occur['flid'];
+            $rid = $occur['rid'];
             $value = $occur['kid'];
 
-            if(!isset($filters[$flid][$value]))
-                $filters[$flid][$value] = 1;
+            if(!array_key_exists($rid,$ridIndex))
+                continue;
+
+            if(!isset($filters[$convert[$flid]][$value]))
+                $filters[$convert[$flid]][$value] = 1;
             else
-                $filters[$flid][$value] += 1;
+                $filters[$convert[$flid]][$value] += 1;
         }
 
         $rAssocUnclean = $con->query($rAssocOccurrences);
         while($occur = $rAssocUnclean->fetch_assoc()) {
             $flid = $occur['flid'];
+            $rid = $occur['rid'];
             $value = $occur['kid'];
 
-            if(!isset($filters[$flid][$value]))
-                $filters[$flid][$value] = 1;
-            else
-                $filters[$flid][$value] += 1;
-        }
+            if(!array_key_exists($rid,$ridIndex))
+                continue;
 
-        //We want to swap out the flids to slugs so it's more predictable/ readable
-        foreach($filters as $flid => $results) {
-            $slug = FieldController::getField($flid)->slug;
-            $filters[$slug] = $results;
-            unset($filters[$flid]);
+            if(!isset($filters[$convert[$flid]][$value]))
+                $filters[$convert[$flid]][$value] = 1;
+            else
+                $filters[$convert[$flid]][$value] += 1;
+        }
+        
+        if($count != 1) {
+            $newFilters = [];
+            foreach($filters as $flid => $valCnt) {
+                foreach($valCnt as $val => $cnt) {
+                    if($cnt >= $count)
+                        $newFilters[$flid][$val] = $cnt;
+                }
+            }
+            $filters = $newFilters;
         }
 
         mysqli_close($con);

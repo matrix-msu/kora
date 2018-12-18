@@ -444,7 +444,7 @@ class ExportController extends Controller {
                         self::imitateMerge($records, $meta);
                     }
 
-                    //specifically for file exports
+                    //specifically for file exports, NOT API
                     if($useOpts && isset($options['revAssoc']) && $options['revAssoc']) {
                         $meta = self::getReverseAssociations($chunk);
                         self::imitateMerge($records, $meta);
@@ -1399,19 +1399,38 @@ FROM ".$prefix."associator_support as af left join ".$prefix."fields as fl on af
         $kidPairs = [];
         $rid = implode(', ',$rids);
 
-        $part1 = DB::select("SELECT r.rid, r.kid, r.created_at, r.updated_at, u.username FROM ".$prefix."records as r LEFT JOIN ".$prefix."users as u on r.owner=u.id WHERE r.rid in ($rid) ORDER BY field(r.rid, $rid)");
-        foreach($part1 as $row) {
-            $meta[$row->kid]["created"] = $row->created_at;
-            $meta[$row->kid]["updated"] = $row->updated_at;
-            $meta[$row->kid]["owner"] = $row->username;
-            $kidPairs[$row->rid] = $row->kid;
+        //Doing this for pretty much the same reason as keyword search above
+        $con = mysqli_connect(
+            config('database.connections.mysql.host'),
+            config('database.connections.mysql.username'),
+            config('database.connections.mysql.password'),
+            config('database.connections.mysql.database')
+        );
+
+        //We want to make sure we are doing things in utf8 for special characters
+        if(!mysqli_set_charset($con, "utf8")) {
+            printf("Error loading character set utf8: %s\n", mysqli_error($con));
+            exit();
         }
 
-        $part2 = DB::select("SELECT aSupp.record as main, recs.kid as linker FROM ".$prefix."associator_support as aSupp LEFT JOIN ".$prefix."records as recs on aSupp.rid=recs.rid WHERE aSupp.record in ($rid)");
+        $select = "SELECT r.rid, r.kid, r.created_at, r.updated_at, u.username FROM ".$prefix."records as r LEFT JOIN ".$prefix."users as u on r.owner=u.id WHERE r.rid in ($rid) ORDER BY field(r.rid, $rid)";
+        $metaResults = $con->query($select);
 
-        foreach($part2 as $row) {
-            $meta[$kidPairs[$row->main]]["reverseAssociations"][] = $row->linker;
+        while($row = $metaResults->fetch_assoc()) {
+            $meta[$row["kid"]]["created"] = $row["created_at"];
+            $meta[$row["kid"]]["updated"] = $row["updated_at"];
+            $meta[$row["kid"]]["owner"] = $row["username"];
+            $kidPairs[$row["rid"]] = $row["kid"];
         }
+
+        $select = "SELECT aSupp.record as main, recs.kid as linker FROM ".$prefix."associator_support as aSupp LEFT JOIN ".$prefix."records as recs on aSupp.rid=recs.rid WHERE aSupp.record in ($rid)";
+        $revResults = $con->query($select);
+
+        while($row = $revResults->fetch_assoc()) {
+            $meta[$kidPairs[$row["main"]]]["reverseAssociations"][] = $row["linker"];
+        }
+
+        mysqli_close($con);
 
         return $meta;
     }
@@ -1498,7 +1517,7 @@ FROM ".$prefix."associator_support as af left join ".$prefix."fields as fl on af
         }
 
         if($ridString!="")
-            $select = "SELECT `kid` from ".config('database.connections.mysql.prefix')."records WHERE `rid` IN ($ridString)";
+            $select = "SELECT `kid` from ".config('database.connections.mysql.prefix')."records WHERE `rid` IN ($ridString) ORDER BY FIELD(`rid`, $ridString)";
         else
             return $returnRIDS;
 
@@ -1527,27 +1546,5 @@ FROM ".$prefix."associator_support as af left join ".$prefix."fields as fl on af
         foreach($array2 as $i) {
             $array1[] = $i;
         }
-    }
-
-    private function imitateIntersect($s1,$s2) {
-        sort($s1);
-        sort($s2);
-        $i=0;
-        $j=0;
-        $N = count($s1);
-        $M = count($s2);
-        $intersection = array();
-
-        while($i<$N && $j<$M) {
-            if($s1[$i]<$s2[$j]) $i++;
-            else if($s1[$i]>$s2[$j]) $j++;
-            else {
-                $intersection[] = $s1[$i];
-                $i++;
-                $j++;
-            }
-        }
-
-        return $intersection;
     }
 }

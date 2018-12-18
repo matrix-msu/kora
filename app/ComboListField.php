@@ -34,6 +34,11 @@ class ComboListField extends BaseField {
     const FIELD_DISPLAY_VIEW = "partials.records.display.combolist";
 
     /**
+     * @var string - Data column used for sort
+     */
+    const SORT_COLUMN = null;
+
+    /**
      * @var array - Attributes that can be mass assigned to model
      */
     protected $fillable = [
@@ -69,6 +74,15 @@ class ComboListField extends BaseField {
      */
     public function getAdvancedFieldOptionsView() {
         return self::FIELD_ADV_OPTIONS_VIEW;
+    }
+
+    /**
+     * Get the field options view for advanced field creation.
+     *
+     * @return string - Column name
+     */
+    public function getSortColumn() {
+        return self::SORT_COLUMN;
     }
 
     /**

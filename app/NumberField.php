@@ -27,6 +27,11 @@ class NumberField extends BaseField {
     const FIELD_DISPLAY_VIEW = "partials.records.display.number";
 
     /**
+     * @var string - Data column used for sort
+     */
+    const SORT_COLUMN = "number";
+
+    /**
      * Epsilon value for comparison purposes. Used to match between values in MySQL.
      *
      * @type float
@@ -58,6 +63,15 @@ class NumberField extends BaseField {
      */
     public function getAdvancedFieldOptionsView() {
         return self::FIELD_ADV_OPTIONS_VIEW;
+    }
+
+    /**
+     * Get the field options view for advanced field creation.
+     *
+     * @return string - Column name
+     */
+    public function getSortColumn() {
+        return self::SORT_COLUMN;
     }
 
     /**
@@ -470,29 +484,16 @@ class NumberField extends BaseField {
     ///////////////////////////////////////////////END ABSTRACT FUNCTIONS///////////////////////////////////////////////
 
     /**
-     * Gets list of RIDs and values for sort.
+     * Returns the mysql string required to sort a set of RIDs.
      *
-     * @param $rids - Record IDs
+     * @param $ridArray - String of record IDs
      * @param $flid - Field ID
-     * @return array - The value array
+     * @param $dir - Direction of sorting
+     * @return string - The MySQL string
      */
-    public function getRidValuesForSort($rids,$flid) {
+    public function getRidValuesForGlobalSort($ridArray,$flids,$dir) {
         $prefix = config('database.connections.mysql.prefix');
-        $ridArray = implode(',',$rids);
-        return DB::select("SELECT `rid`, `number` AS `value` FROM ".$prefix."number_fields WHERE `flid`=$flid AND `rid` IN ($ridArray)");
-    }
-
-    /**
-     * Gets list of RIDs and values for sort.
-     *
-     * @param $rids - Record IDs
-     * @param $flids - Field IDs to sort by
-     * @return array - The value array
-     */
-    public function getRidValuesForGlobalSort($rids,$flids) {
-        $prefix = config('database.connections.mysql.prefix');
-        $ridArray = implode(',',$rids);
         $flidArray = implode(',',$flids);
-        return DB::select("SELECT `rid`, `number` AS `value` FROM ".$prefix."number_fields WHERE `flid` IN ($flidArray) AND `rid` IN ($ridArray)");
+        return "SELECT `rid`, `number` AS `value` FROM ".$prefix."number_fields WHERE `flid` IN ($flidArray) AND `rid` IN ($ridArray) ORDER BY `number` $dir";
     }
 }

@@ -27,6 +27,11 @@ class DateField extends BaseField {
     const FIELD_DISPLAY_VIEW = "partials.records.display.date";
 
     /**
+     * @var string - Data column used for sort
+     */
+    const SORT_COLUMN = "date_object";
+
+    /**
      * @var string - Month day year format
      */
     const MONTH_DAY_YEAR = "MMDDYYYY";
@@ -100,6 +105,15 @@ class DateField extends BaseField {
      */
     public function getAdvancedFieldOptionsView() {
         return self::FIELD_ADV_OPTIONS_VIEW;
+    }
+
+    /**
+     * Get the field options view for advanced field creation.
+     *
+     * @return string - Column name
+     */
+    public function getSortColumn() {
+        return self::SORT_COLUMN;
     }
 
     /**
@@ -537,11 +551,11 @@ class DateField extends BaseField {
      * @return Request - The update request
      */
     public function setRestfulRecordData($jsonField, $flid, $recRequest, $uToken=null) {
-        $recRequest['circa_' . $flid] = $jsonField->value->circa;
-        $recRequest['month_' . $flid] = $jsonField->value->month;
-        $recRequest['day_' . $flid] = $jsonField->value->day;
-        $recRequest['year_' . $flid] = $jsonField->value->year;
-        $recRequest['era_' . $flid] = $jsonField->value->era;
+        $recRequest['circa_' . $flid] = isset($jsonField->value->circa) ? $jsonField->value->circa : null;
+        $recRequest['month_' . $flid] = isset($jsonField->value->month) ? $jsonField->value->month : null;
+        $recRequest['day_' . $flid] = isset($jsonField->value->day) ? $jsonField->value->day : null;
+        $recRequest['year_' . $flid] = isset($jsonField->value->year) ? $jsonField->value->year : null;
+        $recRequest['era_' . $flid] = isset($jsonField->value->era) ? $jsonField->value->era : null;
         $recRequest[$flid] = '';
 
         return $recRequest;
@@ -678,30 +692,17 @@ class DateField extends BaseField {
     ///////////////////////////////////////////////END ABSTRACT FUNCTIONS///////////////////////////////////////////////
 
     /**
-     * Gets list of RIDs and values for sort.
+     * Returns the mysql string required to sort a set of RIDs.
      *
-     * @param $rids - Record IDs
+     * @param $ridArray - String of record IDs
      * @param $flid - Field ID
-     * @return array - The value array
+     * @param $dir - Direction of sorting
+     * @return string - The MySQL string
      */
-    public function getRidValuesForSort($rids,$flid) {
+    public function getRidValuesForGlobalSort($ridArray,$flids,$dir) {
         $prefix = config('database.connections.mysql.prefix');
-        $ridArray = implode(',',$rids);
-        return DB::select("SELECT `rid`, `date_object` AS `value` FROM ".$prefix."date_fields WHERE `flid`=$flid AND `rid` IN ($ridArray)");
-    }
-
-    /**
-     * Gets list of RIDs and values for sort.
-     *
-     * @param $rids - Record IDs
-     * @param $flids - Field IDs to sort by
-     * @return array - The value array
-     */
-    public function getRidValuesForGlobalSort($rids,$flids) {
-        $prefix = config('database.connections.mysql.prefix');
-        $ridArray = implode(',',$rids);
         $flidArray = implode(',',$flids);
-        return DB::select("SELECT `rid`, `date_object` AS `value` FROM ".$prefix."date_fields WHERE `flid` IN ($flidArray) AND `rid` IN ($ridArray)");
+        return "SELECT `rid`, `date_object` AS `value` FROM ".$prefix."date_fields WHERE `flid` IN ($flidArray) AND `rid` IN ($ridArray) ORDER BY `date_object` $dir";
     }
 
     /**
