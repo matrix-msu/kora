@@ -231,6 +231,7 @@ class ProjectGroupController extends Controller {
 		}
 
 		$possible_formgroups = FormGroup::whereIn('name', $names)->get();
+
 		foreach ($possible_formgroups as $form_group) {
 			if (isset($fids[$form_group->fid])) { // this filters out form groups with same name but different fid
 				$FGC = new FormGroupController();
