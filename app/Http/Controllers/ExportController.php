@@ -71,7 +71,7 @@ class ExportController extends Controller {
         //most of these are included to not break JSON, revAssoc is the only one that matters to us for this so we can get
         // the reverse associations. The others are only relevant to the API
         $options = ["revAssoc" => true, "meta" => false, "fields" => 'ALL', "realnames" => false, "assoc" => false];
-        $output = $this->exportWithRids($rids, $type, false, $options);
+        $output = $this->exportFormRecordData($fid, $rids, $type, false, $options);
 
         if(file_exists($output)) { // File exists, so we download it.
             header("Content-Disposition: attachment; filename=\"" . basename($output) . "\"");
@@ -107,7 +107,7 @@ class ExportController extends Controller {
       $rids = array_map('intval', explode(',', $rids));
 
       $options = ["revAssoc" => true, "meta" => false, "fields" => 'ALL', "realnames" => false, "assoc" => false];
-      $output = $this->exportWithRids($rids, $type, false, $options);
+      $output = $this->exportFormRecordData($fid, $rids, $type, false, $options);
 
       if(file_exists($output)) { // File exists, so we download it.
           header("Content-Disposition: attachment; filename=\"" . basename($output) . "\"");
@@ -393,8 +393,17 @@ class ExportController extends Controller {
         exit;
     }
 
-    //TODO::TEST THE POOP OUTTA THIS
-    public function exportFormRecordData($fid, $rids, $format = self::JSON, $dataOnly = false, $options = null) { //TODO::Modularize?
+    /**
+     * Builds out the record data for the given RIDs. TODO::modular?
+     *
+     * @param  int $fid - Form ID
+     * @param  array $rids - Record IDs
+     * @param  string $format - Format of exported data
+     * @param  bool $dataOnly - Do we want just the data, or the created file info
+     * @param  array $options - Options for certain configurations of data
+     * @return mixed - The export results. Array of records, or file download info
+     */
+    public function exportFormRecordData($fid, $rids, $format = self::JSON, $dataOnly = false, $options = null) {
         //TODO::Remove this stuff
 //        $mscOG = microtime(true);
         ini_set('memory_limit','5000M');
@@ -514,7 +523,7 @@ class ExportController extends Controller {
                 $assocMaster = array();
 
                 //Next we see if metadata is requested
-                if($useOpts && $options['meta']) {
+                if($useOpts && isset($options['meta']) && $options['meta']) {
                     $part1 = "SELECT r.`rid`, r.`kid`, r.`created_at`, r.`updated_at`, u.`username` FROM ".$prefix."records as r 
                       LEFT JOIN ".$prefix."users as u on r.owner=u.id where r.`fid`=$fid";
                     $part2 = "SELECT aSupp.record as main, recs.kid as linker FROM ".$prefix."associator_support as aSupp 
@@ -561,7 +570,7 @@ class ExportController extends Controller {
                 }
 
                 $gatherRecordData = true;
-                if($useOpts && isset($options['data']))
+                if($useOpts && isset($options['data']) && isset($options['data']))
                     $gatherRecordData = $options['data'];
 
                 if($gatherRecordData) {
@@ -981,7 +990,7 @@ class ExportController extends Controller {
                         else
                             $fieldIndex = $fields[$row['flid']]['nickname'];
 
-                        if ($useOpts && $options['assoc']) {
+                        if ($useOpts && isset($options['assoc']) && $options['assoc']) {
                             //First we need to format these kids as rids
                             $vals = explode(',', $row['value']);
                             foreach ($vals as $akid) {
@@ -1017,7 +1026,7 @@ class ExportController extends Controller {
                 }
                 break;
             case self::KORA:
-                if($useOpts && $options['fields'] == 'KID')
+                if($useOpts && isset($options['fields']) && $options['fields'] == 'KID')
                     return json_encode(array_keys($records));
 
                 //Meta data function but for old Kora format
@@ -1865,6 +1874,14 @@ class ExportController extends Controller {
         }
     }
 
+    /**
+     * Gets record info for an associated record.
+     *
+     * @param  int $rid - Record ID
+     * @param  \mysqli $con - Connection to DB
+     * @param  int $fid - Form ID
+     * @return array - The record data
+     */
     private function getSingleRecordForAssoc($rid, $con, $fid) {
         $record = [];
 

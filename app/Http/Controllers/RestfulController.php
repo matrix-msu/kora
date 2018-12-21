@@ -246,9 +246,9 @@ class RestfulController extends Controller {
                     $this->imitateMerge($globalRecords,$returnRIDS);
                 else {
                     if($apiFormat==self::XML)
-                        $resultsGlobal[] = $this->populateRecords($returnRIDS, $filters, $apiFormat);
+                        $resultsGlobal[] = $this->populateRecords($returnRIDS, $filters, $apiFormat, $form->fid);
                     else {
-                        $resultsGlobal[] = json_decode($this->populateRecords($returnRIDS, $filters, $apiFormat));
+                        $resultsGlobal[] = json_decode($this->populateRecords($returnRIDS, $filters, $apiFormat, $form->fid));
                     }
                 }
             } else {
@@ -421,9 +421,9 @@ class RestfulController extends Controller {
                     $this->imitateMerge($globalRecords,$returnRIDS);
                 else {
                     if($apiFormat==self::XML)
-                        $resultsGlobal[] = $this->populateRecords($returnRIDS, $filters, $apiFormat);
+                        $resultsGlobal[] = $this->populateRecords($returnRIDS, $filters, $apiFormat, $form->fid);
                     else
-                        $resultsGlobal[] = json_decode($this->populateRecords($returnRIDS, $filters, $apiFormat));
+                        $resultsGlobal[] = json_decode($this->populateRecords($returnRIDS, $filters, $apiFormat, $form->fid));
                 }
             }
         }
@@ -448,7 +448,7 @@ class RestfulController extends Controller {
             $filters['under'] = isset($f->under) ? $f->under : false; //Replace field spaces with underscores***
 
             $globalSorted = $this->sortGlobalRids($globalRecords, $globalSortArray);
-            $resultsGlobal = json_decode($this->populateRecords($globalSorted, $filters, $apiFormat));
+            $resultsGlobal = json_decode($this->populateRecords($globalSorted, $filters, $apiFormat, null)); //TODO
         }
 
         $countArray["global"] = $countGlobal;
@@ -1204,9 +1204,10 @@ class RestfulController extends Controller {
      * @param  array $rids - List of Record IDs
      * @param  array $filters - Filters from the search
      * @param  string $format - The return format for the results
+     * @param  int $fid - Form ID
      * @return string - Path to the results file
      */
-    private function populateRecords($rids,$filters,$format = self::JSON) {
+    private function populateRecords($rids,$filters,$format = self::JSON,$fid) {
         //Filter options that need to be passed to the export in a normal api search
         if($format == self::JSON) {
             $options = [
@@ -1219,8 +1220,7 @@ class RestfulController extends Controller {
         } else if($format == self::KORA) {
             //Old Kora 2 searches only need field filters
             $options = [
-                'fields' => $filters['fields'],
-                'under' => $filters['under']
+                'fields' => $filters['fields']
             ];
         } else if($format == self::XML) {
             $options = [
@@ -1242,8 +1242,7 @@ class RestfulController extends Controller {
             return "{}";
 
         $expControl = new ExportController();
-        //$output = $expControl->exportWithRids($rids,$format,true,$options);
-        $output = $expControl->exportFormRecordData(105,$rids,$format,true,$options);
+        $output = $expControl->exportFormRecordData($fid,$rids,$format,true,$options);
 
         return $output;
     }
