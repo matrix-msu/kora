@@ -49,19 +49,19 @@ class MetadataController extends Controller {
         }, $rids);
 
         $eC = new ExportController();
-        $output_file = $eC->exportWithRids($rids,'META');
-
-        if($output_file=='no_records')
-            echo "There are no metadata records to export";
-
-        if(file_exists($output_file)) {
-            header("Content-Disposition: attachment; filename=\"" . basename($output_file) . "\"");
-            header("Content-Type: application/rdf+xml");
-            header("Content-Length: " . filesize($output_file));
-
-            readfile($output_file);
-            exit;
-        }
+//        $output_file = $eC->exportWithRids($rids,'META');
+//
+//        if($output_file=='no_records')
+//            echo "There are no metadata records to export";
+//
+//        if(file_exists($output_file)) {
+//            header("Content-Disposition: attachment; filename=\"" . basename($output_file) . "\"");
+//            header("Content-Type: application/rdf+xml");
+//            header("Content-Length: " . filesize($output_file));
+//
+//            readfile($output_file);
+//            exit;
+//        }
     }
 
     /**
@@ -85,19 +85,19 @@ class MetadataController extends Controller {
         }, $rids);
 
         $eC = new ExportController();
-        $output_file = $eC->exportWithRids($rids,'META');
-
-        if($output_file=='no_records')
-            echo "There are no metadata records to export";
-
-        if(file_exists($output_file)) {
-            header("Content-Disposition: attachment; filename=\"" . basename($output_file) . "\"");
-            header("Content-Type: application/rdf+xml");
-            header("Content-Length: " . filesize($output_file));
-
-            readfile($output_file);
-            exit;
-        }
+//        $output_file = $eC->exportWithRids($rids,'META');
+//
+//        if($output_file=='no_records')
+//            echo "There are no metadata records to export";
+//
+//        if(file_exists($output_file)) {
+//            header("Content-Disposition: attachment; filename=\"" . basename($output_file) . "\"");
+//            header("Content-Type: application/rdf+xml");
+//            header("Content-Length: " . filesize($output_file));
+//
+//            readfile($output_file);
+//            exit;
+//        }
     }
 
     /**

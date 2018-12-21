@@ -208,15 +208,15 @@ class RestfulController extends Controller {
             $filters['meta'] = isset($f->meta) ? $f->meta : false; //get meta data about record*** TODO
             $filters['size'] = isset($f->size) ? $f->size : false; //do we want the number of records in the search result returned instead of data
             $filters['assoc'] = isset($f->assoc) ? $f->assoc : false; //do we want information back about associated records*** TODO
-            $filters['revAssoc'] = isset($f->revAssoc) ? $f->revAssoc : true; //do we want information back about reverse associations for XML OUTPUT
+            $filters['revAssoc'] = isset($f->revAssoc) ? $f->revAssoc : true; //do we want information back about reverse associations for XML OUTPUT TODO
             $filters['filters'] = isset($f->filters) ? $f->filters : false; //do we want information back about result filters [i.e. Field 'First Name', has value 'Tom', '12' times]
             $filters['filterCount'] = isset($f->filterCount) ? $f->filterCount : 5; //What is the minimum threshold for a filter to return?
             $filters['filterFlids'] = isset($f->filterFlids) ? $f->filterFlids : 'ALL'; //What fields should filters return for? Should be array
                 //Note: Filters only captures values from certain fields (mainly single value ones), see ExportController->exportWithRids() to see which ones use it
             $filters['fields'] = isset($f->fields) ? $f->fields : 'ALL'; //which fields do we want data for*** TODO
             $filters['sort'] = isset($f->sort) ? $f->sort : null; //how should the data be sorted
-            $filters['index'] = isset($f->index) ? $f->index : null; //where the array of results should start*** TODO
-            $filters['count'] = isset($f->count) ? $f->count : null; //how many records we should grab from that index*** TODO
+            $filters['index'] = isset($f->index) ? $f->index : null; //where the array of results should start***
+            $filters['count'] = isset($f->count) ? $f->count : null; //how many records we should grab from that index***
             //WARNING::IF FIELD NAMES SHARE A TITLE WITHIN THE SAME FIELD, THIS WOULD IN THEORY BREAK
             $filters['realnames'] = isset($f->realnames) ? $f->realnames : false; //do we want records indexed by titles rather than slugs*** TODO
             //THIS SOLELY SERVES LEGACY. YOU PROBABLY WILL NEVER USE THIS. DON'T THINK ABOUT IT
@@ -597,7 +597,7 @@ class RestfulController extends Controller {
 
         //$select = "SELECT rec.`rid`, rec.`created_at`, rec.`updated_at`$selectVals from kora3_records as rec $selectJoins";
         $select = "SELECT rec.`rid` from kora3_records as rec $selectJoins";
-        $select .= "WHERE rec.`rid` IN ($ridString) ORDER BY $selectOrders"; //TODO::LIMIT??
+        $select .= "WHERE rec.`rid` IN ($ridString) ORDER BY $selectOrders";
 
         $sort = $con->query($select);
 
@@ -1242,7 +1242,8 @@ class RestfulController extends Controller {
             return "{}";
 
         $expControl = new ExportController();
-        $output = $expControl->exportWithRids($rids,$format,true,$options);
+        //$output = $expControl->exportWithRids($rids,$format,true,$options);
+        $output = $expControl->exportFormRecordData(105,$rids,$format,true,$options);
 
         return $output;
     }

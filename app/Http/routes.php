@@ -122,7 +122,6 @@ Route::group(['middleware' => 'web'], function () {
     Route::get('/projects/{pid}/forms/{fid}/exportFiles', 'ExportController@exportRecordFiles');
     Route::get('/projects/{pid}/forms/{fid}/exportForm', 'ExportController@exportForm');
     Route::get('/projects/{pid}/exportProj', 'ExportController@exportProject');
-    Route::get('/checkRecordExport/{fid}', 'ExportController@checkRecordExport');
 
 //field routes
     Route::get('/projects/{pid}/forms/{fid}/fields', 'FormController@show'); //alias for form/{id}
