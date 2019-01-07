@@ -395,7 +395,7 @@ class ExportController extends Controller {
     /**
      * Builds out the record data for the given RIDs. TODO::modular?
      *
-     * @param  int $fid - Form ID
+     * @param  int $fid - Form ID (NOTE: Can be an array if records from multiple forms)
      * @param  array $rids - Record IDs
      * @param  string $format - Format of exported data
      * @param  bool $dataOnly - Do we want just the data, or the created file info
@@ -403,13 +403,7 @@ class ExportController extends Controller {
      * @return mixed - The export results. Array of records, or file download info
      */
     public function exportFormRecordData($fid, $rids, $format = self::JSON, $dataOnly = false, $options = null) {
-        //TODO::Remove this stuff
-//        $mscOG = microtime(true);
-        ini_set('memory_limit','5000M');
-//        $msc = microtime(true)-$mscOG;
-//        echo ($msc * 1000) . ' ms DB_CONNECT<br>';
-
-        //If less than 500 records, no need to process everything. But beyond that, form based seems to be faster
+        //If less than 500 records, no need to process everything. But beyond that, form based population seems to be faster
         $ridMode = false;
         if(sizeof($rids)<=500)
             $ridMode = true;
@@ -444,20 +438,40 @@ class ExportController extends Controller {
         DB::statement("SET SESSION group_concat_max_len = 12345;");
 
         //Grab information about the form's fields
-        $form = FormController::getForm($fid);
-        $fieldMods = $form->fields()->get();
         $fields = array();
-        foreach($fieldMods as $field) {
-            $fArray = array();
-            $fArray['flid'] = $field->flid;
-            $fArray['name'] = $field->name;
-            $fArray['type'] = $field->type;
-            $fArray['nickname'] = $field->slug;
-            $fArray['options'] = $field->options;
+        if(is_array($fid)) {
+            //Global sort from API results case
+            foreach($fid as $formID) {
+                $form = FormController::getForm($formID);
+                $fieldMods = $form->fields()->get();
+                foreach($fieldMods as $field) {
+                    $fArray = array();
+                    $fArray['flid'] = $field->flid;
+                    $fArray['name'] = $field->name;
+                    $fArray['type'] = $field->type;
+                    $fArray['nickname'] = $field->slug;
+                    $fArray['options'] = $field->options;
 
-            //We want both so we can get field regardless of having id or slug
-            $fields[$field->flid] = $fArray;
-            $fields[$field->slug] = $fArray;
+                    //We want both so we can get field regardless of having id or slug
+                    $fields[$field->flid] = $fArray;
+                    $fields[$field->slug] = $fArray;
+                }
+            }
+        } else {
+            $form = FormController::getForm($fid);
+            $fieldMods = $form->fields()->get();
+            foreach($fieldMods as $field) {
+                $fArray = array();
+                $fArray['flid'] = $field->flid;
+                $fArray['name'] = $field->name;
+                $fArray['type'] = $field->type;
+                $fArray['nickname'] = $field->slug;
+                $fArray['options'] = $field->options;
+
+                //We want both so we can get field regardless of having id or slug
+                $fields[$field->flid] = $fArray;
+                $fields[$field->slug] = $fArray;
+            }
         }
 
         //First option to check is the fields we want back, so lets pull out the slugs from options
@@ -475,7 +489,12 @@ class ExportController extends Controller {
         }
 
         //Gather the kid/rid pairs for the form
-        $select = "SELECT `kid`, `rid` from ".$prefix."records WHERE `fid`=$fid";
+        if(is_array($fid)) {
+            //Global sort from API results case
+            $fidString = implode(',',$fid);
+            $select = "SELECT `kid`, `rid` from ".$prefix."records WHERE `fid` in ($fidString)";
+        } else
+            $select = "SELECT `kid`, `rid` from ".$prefix."records WHERE `fid`=$fid";
 
         $kids = $con->query($select);
         while($row = $kids->fetch_assoc()) {
@@ -487,10 +506,14 @@ class ExportController extends Controller {
         foreach($rids as $r) {
             $records[$ridsToKids[$r]] = [];
         }
-        
+
         if($ridMode) {
             $ridString = implode(',',$rids);
             $wherePiece = "`rid` IN ($ridString)";
+        } else if(is_array($fid)) {
+            //Global sort from API results case
+            $fidString = implode(',',$fid);
+            $wherePiece = "`fid` in ($fidString)";
         } else
             $wherePiece = "`fid`=$fid";
         
@@ -537,6 +560,10 @@ class ExportController extends Controller {
                     if($ridMode) {
                         $ridString = implode(',',$rids);
                         $wherePiece = "`rid` IN ($ridString)";
+                    } else if(is_array($fid)) {
+                        //Global sort from API results case
+                        $fidString = implode(',',$fid);
+                        $wherePiece = "`fid` in ($fidString)";
                     } else
                         $wherePiece = "`fid`=$fid";
 
@@ -1006,14 +1033,14 @@ class ExportController extends Controller {
                         else
                             $fieldIndex = $fields[$row['flid']]['nickname'];
 
-                        if ($useOpts && isset($options['assoc']) && $options['assoc']) {
+                        if($useOpts && isset($options['assoc']) && $options['assoc']) {
                             //First we need to format these kids as rids
                             $vals = explode(',', $row['value']);
                             foreach ($vals as $akid) {
                                 if(Record::isKIDPattern($akid)) {
                                     $arid = explode('-',$akid)[2];
-                                    $fid = explode('-',$akid)[1];
-                                    $records[$kid][$fieldIndex]['value'][$akid] = $this->getSingleRecordForAssoc($arid, $con, $fid);
+                                    $afid = explode('-',$akid)[1];
+                                    $records[$kid][$fieldIndex]['value'][$akid] = $this->getSingleRecordForAssoc($arid, $con, $afid);
                                 }
                             }
                         } else {
@@ -1048,6 +1075,10 @@ class ExportController extends Controller {
                 if($ridMode) {
                     $ridString = implode(',',$rids);
                     $wherePiece = "`rid` IN ($ridString)";
+                } else if(is_array($fid)) {
+                    //Global sort from API results case
+                    $fidString = implode(',',$fid);
+                    $wherePiece = "`fid` in ($fidString)";
                 } else
                     $wherePiece = "`fid`=$fid";
 
@@ -1897,7 +1928,7 @@ class ExportController extends Controller {
     }
 
     /**
-     * Gets record info for an associated record. TODO::Make better
+     * Gets record info for an associated record. TODO::Maybe down the road improve this
      *
      * @param  int $rid - Record ID
      * @param  \mysqli $con - Connection to DB
