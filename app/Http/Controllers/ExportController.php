@@ -3,7 +3,6 @@
 use App\Field;
 use App\Form;
 use App\Record;
-use App\TextField;
 use Illuminate\Support\Facades\DB;
 use App\Metadata;
 use App\OptionPreset;
@@ -410,6 +409,11 @@ class ExportController extends Controller {
 //        $msc = microtime(true)-$mscOG;
 //        echo ($msc * 1000) . ' ms DB_CONNECT<br>';
 
+        //If less than 500 records, no need to process everything. But beyond that, form based seems to be faster
+        $ridMode = false;
+        if(sizeof($rids)<=500)
+            $ridMode = true;
+
         $records = array();
         $ridsToKids = [];
 
@@ -483,38 +487,44 @@ class ExportController extends Controller {
         foreach($rids as $r) {
             $records[$ridsToKids[$r]] = [];
         }
-
+        
+        if($ridMode) {
+            $ridString = implode(',',$rids);
+            $wherePiece = "`rid` IN ($ridString)";
+        } else
+            $wherePiece = "`fid`=$fid";
+        
         //Prep the table statements
-        $textselect = "SELECT `rid`, `flid`, `text` FROM ".$prefix."text_fields where `fid`=$fid$slugQL";
-        $numberselect = "SELECT `rid`, `flid`, `number` FROM ".$prefix."number_fields where `fid`=$fid$slugQL";
-        $richtextselect = "SELECT `rid`, `flid`, `rawtext` FROM ".$prefix."rich_text_fields where `fid`=$fid$slugQL";
-        $listselect = "SELECT `rid`, `flid`, `option` FROM ".$prefix."list_fields where `fid`=$fid$slugQL";
-        $multiselectlistselect = "SELECT `rid`, `flid`, `options` FROM ".$prefix."multi_select_list_fields where `fid`=$fid$slugQL";
-        $generatedlistselect = "SELECT `rid`, `flid`, `options` FROM ".$prefix."generated_list_fields where `fid`=$fid$slugQL";
+        $textselect = "SELECT `rid`, `flid`, `text` FROM " . $prefix . "text_fields where $wherePiece$slugQL";
+        $numberselect = "SELECT `rid`, `flid`, `number` FROM " . $prefix . "number_fields where $wherePiece$slugQL";
+        $richtextselect = "SELECT `rid`, `flid`, `rawtext` FROM " . $prefix . "rich_text_fields where $wherePiece$slugQL";
+        $listselect = "SELECT `rid`, `flid`, `option` FROM " . $prefix . "list_fields where $wherePiece$slugQL";
+        $multiselectlistselect = "SELECT `rid`, `flid`, `options` FROM " . $prefix . "multi_select_list_fields where $wherePiece$slugQL";
+        $generatedlistselect = "SELECT `rid`, `flid`, `options` FROM " . $prefix . "generated_list_fields where $wherePiece$slugQL";
         $combolistselect = "SELECT `rid`, `flid`, GROUP_CONCAT(if(`field_num`=1, `data`, null) ORDER BY `list_index` ASC SEPARATOR '[!data!]' ) as `value`,
-                  GROUP_CONCAT(if(`field_num`=2, `data`, null) ORDER BY `list_index` ASC SEPARATOR '[!data!]' ) as `val2`,
-                  GROUP_CONCAT(if(`field_num`=1, `number`, null) ORDER BY `list_index` ASC SEPARATOR '[!data!]' ) as `val3`,
-                  GROUP_CONCAT(if(`field_num`=2, `number`, null) ORDER BY `list_index` ASC SEPARATOR '[!data!]' ) as `val4` 
-                  FROM ".$prefix."combo_support where `fid`=$fid$slugQL group by `rid`, `flid`";
-        $dateselect = "SELECT `rid`, `flid`, `circa`, `month`, `day`, `year`, `era` FROM ".$prefix."date_fields where `fid`=$fid$slugQL";
+              GROUP_CONCAT(if(`field_num`=2, `data`, null) ORDER BY `list_index` ASC SEPARATOR '[!data!]' ) as `val2`,
+              GROUP_CONCAT(if(`field_num`=1, `number`, null) ORDER BY `list_index` ASC SEPARATOR '[!data!]' ) as `val3`,
+              GROUP_CONCAT(if(`field_num`=2, `number`, null) ORDER BY `list_index` ASC SEPARATOR '[!data!]' ) as `val4` 
+              FROM " . $prefix . "combo_support where $wherePiece$slugQL group by `rid`, `flid`";
+        $dateselect = "SELECT `rid`, `flid`, `circa`, `month`, `day`, `year`, `era` FROM " . $prefix . "date_fields where $wherePiece$slugQL";
         $scheduleselect = "SELECT `rid`, `flid`, GROUP_CONCAT(`begin` SEPARATOR '[!]') as `value`, 
-                  GROUP_CONCAT(`end` SEPARATOR '[!]') as `val2`, 
-                  GROUP_CONCAT(`allday` SEPARATOR '[!]') as `val3`,
-                  GROUP_CONCAT(`desc` SEPARATOR '[!]') as `val4` 
-                  FROM ".$prefix."schedule_support where `fid`=$fid$slugQL group by `rid`, `flid`";
-        $documentsselect = "SELECT `rid`, `flid`, `documents` FROM ".$prefix."documents_fields where `fid`=$fid$slugQL";
-        $galleryselect = "SELECT `rid`, `flid`, `images`, `captions` FROM ".$prefix."gallery_fields where `fid`=$fid$slugQL";
-        $playlistselect = "SELECT `rid`, `flid`, `audio` FROM ".$prefix."playlist_fields where `fid`=$fid$slugQL";
-        $videoselect = "SELECT `rid`, `flid`, `video` FROM ".$prefix."video_fields where `fid`=$fid$slugQL";
-        $modelselect = "SELECT `rid`, `flid`, `model` FROM ".$prefix."model_fields where `fid`=$fid$slugQL";
+              GROUP_CONCAT(`end` SEPARATOR '[!]') as `val2`, 
+              GROUP_CONCAT(`allday` SEPARATOR '[!]') as `val3`,
+              GROUP_CONCAT(`desc` SEPARATOR '[!]') as `val4` 
+              FROM " . $prefix . "schedule_support where $wherePiece$slugQL group by `rid`, `flid`";
+        $documentsselect = "SELECT `rid`, `flid`, `documents` FROM " . $prefix . "documents_fields where $wherePiece$slugQL";
+        $galleryselect = "SELECT `rid`, `flid`, `images`, `captions` FROM " . $prefix . "gallery_fields where $wherePiece$slugQL";
+        $playlistselect = "SELECT `rid`, `flid`, `audio` FROM " . $prefix . "playlist_fields where $wherePiece$slugQL";
+        $videoselect = "SELECT `rid`, `flid`, `video` FROM " . $prefix . "video_fields where $wherePiece$slugQL";
+        $modelselect = "SELECT `rid`, `flid`, `model` FROM " . $prefix . "model_fields where $wherePiece$slugQL";
         $geolocatorselect = "SELECT `rid`, `flid`, GROUP_CONCAT(`desc` SEPARATOR '[!]') as `value`, 
-                  GROUP_CONCAT(`address` SEPARATOR '[!]') as `val2`, 
-                  GROUP_CONCAT(CONCAT_WS('[!]', `lat`, `lon`) SEPARATOR '[!latlon!]') as `val3`, 
-                  GROUP_CONCAT(CONCAT_WS('[!]', `zone`, `easting`, `northing`) SEPARATOR '[!utm!]') as `val4` 
-                  FROM ".$prefix."geolocator_support where `fid`=$fid$slugQL group by `rid`, `flid`";
+              GROUP_CONCAT(`address` SEPARATOR '[!]') as `val2`, 
+              GROUP_CONCAT(CONCAT_WS('[!]', `lat`, `lon`) SEPARATOR '[!latlon!]') as `val3`, 
+              GROUP_CONCAT(CONCAT_WS('[!]', `zone`, `easting`, `northing`) SEPARATOR '[!utm!]') as `val4` 
+              FROM " . $prefix . "geolocator_support where $wherePiece$slugQL group by `rid`, `flid`";
         $associatorselect = "SELECT af.rid as `rid`, af.flid as `flid`, GROUP_CONCAT(aRec.kid SEPARATOR ',') as `value` 
-                  FROM ".$prefix."associator_support as af left join ".$prefix."records as aRec on af.record=aRec.rid 
-                  where af.`fid`=$fid$slugQL group by `rid`, `flid`";
+              FROM " . $prefix . "associator_support as af left join " . $prefix . "records as aRec on af.record=aRec.rid 
+              where af.$wherePiece$slugQL group by `rid`, `flid`";
 
         switch($format) {
             case self::JSON:
@@ -524,8 +534,14 @@ class ExportController extends Controller {
 
                 //Next we see if metadata is requested
                 if($useOpts && isset($options['meta']) && $options['meta']) {
+                    if($ridMode) {
+                        $ridString = implode(',',$rids);
+                        $wherePiece = "`rid` IN ($ridString)";
+                    } else
+                        $wherePiece = "`fid`=$fid";
+
                     $part1 = "SELECT r.`rid`, r.`kid`, r.`created_at`, r.`updated_at`, u.`username` FROM ".$prefix."records as r 
-                      LEFT JOIN ".$prefix."users as u on r.owner=u.id where r.`fid`=$fid";
+                      LEFT JOIN ".$prefix."users as u on r.owner=u.id where r.$wherePiece";
                     $part2 = "SELECT aSupp.record as main, recs.kid as linker FROM ".$prefix."associator_support as aSupp 
                       LEFT JOIN ".$prefix."records as recs on aSupp.rid=recs.rid WHERE aSupp.record in (".implode(', ',$rids).")";
 
@@ -1029,9 +1045,15 @@ class ExportController extends Controller {
                 if($useOpts && isset($options['fields']) && $options['fields'] == 'KID')
                     return json_encode(array_keys($records));
 
+                if($ridMode) {
+                    $ridString = implode(',',$rids);
+                    $wherePiece = "`rid` IN ($ridString)";
+                } else
+                    $wherePiece = "`fid`=$fid";
+
                 //Meta data function but for old Kora format
                 $part1 = "SELECT r.`rid`, r.`kid`, r.legacy_kid, r.`created_at`, r.`updated_at`, u.`username` FROM ".$prefix."records as r 
-                      LEFT JOIN ".$prefix."users as u on r.owner=u.id where r.`fid`=$fid";
+                      LEFT JOIN ".$prefix."users as u on r.owner=u.id where r.$wherePiece";
                 $part2 = "SELECT aSupp.record as main, recs.kid as linker FROM ".$prefix."associator_support as aSupp 
                       LEFT JOIN ".$prefix."records as recs on aSupp.rid=recs.rid WHERE aSupp.record in (".implode(', ',$rids).")";
 
@@ -1875,7 +1897,7 @@ class ExportController extends Controller {
     }
 
     /**
-     * Gets record info for an associated record.
+     * Gets record info for an associated record. TODO::Make better
      *
      * @param  int $rid - Record ID
      * @param  \mysqli $con - Connection to DB

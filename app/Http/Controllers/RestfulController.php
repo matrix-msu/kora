@@ -523,6 +523,7 @@ class RestfulController extends Controller {
 		while($row = $negUnclean->fetch_assoc()) {
 			array_push($returnRIDS, $row['rid']);
 		}
+        mysqli_free_result($negUnclean);
 
         mysqli_close($con);
 
@@ -604,6 +605,7 @@ class RestfulController extends Controller {
         while($row = $sort->fetch_assoc()) {
             array_push($newOrderArray,$row['rid']);
         }
+        mysqli_free_result($sort);
 
         return $newOrderArray;
     }
@@ -851,14 +853,20 @@ class RestfulController extends Controller {
             exit();
         }
 
-        $textOccurrences = "select `text`, `flid`, `rid` from ".$prefix."text_fields where `fid`=$fid $flidSQL";
-        $listOccurrences = "select `option`, `flid`, `rid` from ".$prefix."list_fields where `fid`=$fid $flidSQL";
-        $msListOccurrences = "select `options`, `flid`, `rid` from ".$prefix."multi_select_list_fields where `fid`=$fid $flidSQL";
-        $genListOccurrences = "select `options`, `flid` from ".$prefix."generated_list_fields where `fid`=$fid $flidSQL";
-        $numberOccurrences = "select `number`, `flid`, `rid` from ".$prefix."number_fields where `fid`=$fid $flidSQL";
-        $dateOccurrences = "select `month`, `day`, `year`, `flid`, `rid` from ".$prefix."date_fields where `fid`=$fid $flidSQL";
-        $assocOccurrences = "select s.`flid`, r.`kid`, r.`rid` from ".$prefix."associator_support as s left join kora3_records as r on s.`record`=r.`rid` where s.`fid`=$fid and s.`flid` in ($flidString)";
-        $rAssocOccurrences = "select s.`flid`, r.`kid`, r.`rid` from ".$prefix."associator_support as s left join kora3_records as r on s.`rid`=r.`rid` where s.`fid`=$fid and s.`flid` in ($flidString)";
+        if(sizeof($rids)<=500) {
+            $ridString = implode(',',$rids);
+            $wherePiece = "`rid` IN ($ridString)";
+        } else
+            $wherePiece = "`fid`=$fid";
+
+        $textOccurrences = "select `text`, `flid`, `rid` from ".$prefix."text_fields where $wherePiece $flidSQL";
+        $listOccurrences = "select `option`, `flid`, `rid` from ".$prefix."list_fields where $wherePiece $flidSQL";
+        $msListOccurrences = "select `options`, `flid`, `rid` from ".$prefix."multi_select_list_fields where $wherePiece $flidSQL";
+        $genListOccurrences = "select `options`, `flid` from ".$prefix."generated_list_fields where $wherePiece $flidSQL";
+        $numberOccurrences = "select `number`, `flid`, `rid` from ".$prefix."number_fields where $wherePiece $flidSQL";
+        $dateOccurrences = "select `month`, `day`, `year`, `flid`, `rid` from ".$prefix."date_fields where $wherePiece $flidSQL";
+        $assocOccurrences = "select s.`flid`, r.`kid`, r.`rid` from ".$prefix."associator_support as s left join kora3_records as r on s.`record`=r.`rid` where s.$wherePiece and s.`flid` in ($flidString)";
+        $rAssocOccurrences = "select s.`flid`, r.`kid`, r.`rid` from ".$prefix."associator_support as s left join kora3_records as r on s.`rid`=r.`rid` where s.$wherePiece and s.`flid` in ($flidString)";
 
         //Because of the complex data in MS List, we break stuff up and then format
         $msListUnclean = $con->query($msListOccurrences);
@@ -879,6 +887,7 @@ class RestfulController extends Controller {
                     $filters[$convert[$flid]][$opt] += 1;
             }
         }
+        mysqli_free_result($msListUnclean);
 
         //repeat for gen list
         $genListUnclean = $con->query($genListOccurrences);
@@ -899,6 +908,7 @@ class RestfulController extends Controller {
                     $filters[$convert[$flid]][$opt] += 1;
             }
         }
+        mysqli_free_result($genListUnclean);
 
         $dateUnclean = $con->query($dateOccurrences);
         while($occur = $dateUnclean->fetch_assoc()) {
@@ -924,6 +934,7 @@ class RestfulController extends Controller {
             else
                 $filters[$convert[$flid]][$value] += 1;
         }
+        mysqli_free_result($dateUnclean);
 
         $textUnclean = $con->query($textOccurrences);
         while($occur = $textUnclean->fetch_assoc()) {
@@ -939,6 +950,7 @@ class RestfulController extends Controller {
             else
                 $filters[$convert[$flid]][$value] += 1;
         }
+        mysqli_free_result($textUnclean);
 
         $listUnclean = $con->query($listOccurrences);
         while($occur = $listUnclean->fetch_assoc()) {
@@ -954,6 +966,7 @@ class RestfulController extends Controller {
             else
                 $filters[$convert[$flid]][$value] += 1;
         }
+        mysqli_free_result($listUnclean);
 
         $numberUnclean = $con->query($numberOccurrences);
         while($occur = $numberUnclean->fetch_assoc()) {
@@ -969,6 +982,7 @@ class RestfulController extends Controller {
             else
                 $filters[$convert[$flid]][$value] += 1;
         }
+        mysqli_free_result($numberUnclean);
 
         $assocUnclean = $con->query($assocOccurrences);
         while($occur = $assocUnclean->fetch_assoc()) {
@@ -984,6 +998,7 @@ class RestfulController extends Controller {
             else
                 $filters[$convert[$flid]][$value] += 1;
         }
+        mysqli_free_result($assocUnclean);
 
         $rAssocUnclean = $con->query($rAssocOccurrences);
         while($occur = $rAssocUnclean->fetch_assoc()) {
@@ -999,6 +1014,7 @@ class RestfulController extends Controller {
             else
                 $filters[$convert[$flid]][$value] += 1;
         }
+        mysqli_free_result($rAssocUnclean);
 
         if($count != 1) {
             $newFilters = [];
