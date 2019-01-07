@@ -165,11 +165,8 @@ Kora.Records.Toolbar = function() {
 		  resetSelectAndHideToolbar();
 			
           if (error.status == 200) {
-            //location.reload();
-            console.log(error);
-            console.log(error.status);
+            
           } else {
-            console.log(error);
             var responseJson = error.responseJSON;
             $.each(responseJson, function() {
               console.log('error: ' + this[0]);
