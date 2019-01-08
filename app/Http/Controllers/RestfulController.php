@@ -283,7 +283,7 @@ class RestfulController extends Controller {
                                         array_push($minorErrors, "The following field in keyword search is not externally searchable: " . $fieldMod->name);
                                         continue;
                                     }
-                                    array_push($searchFields,$fieldMod);
+                                    $searchFields[] = $fieldMod;
                                 }
                             } else {
                                 $searchFields = $form->fields()->get();
@@ -313,7 +313,7 @@ class RestfulController extends Controller {
                             $negative = isset($query->not) ? $query->not : false;
                             if($negative)
                                 $rids = $this->negative_results($form,$rids);
-                            array_push($resultSets,$rids);
+                            $resultSets[] = $rids;
                             break;
                         case 'advanced':
                             //do an advanced search
@@ -343,7 +343,7 @@ class RestfulController extends Controller {
                             $negative = isset($query->not) ? $query->not : false;
                             if($negative)
                                 $rids = $this->negative_results($form,$rids);
-                            array_push($resultSets,$rids);
+                            $resultSets[] = $rids;
                             break;
                         case 'kid':
                             //do a kid search
@@ -366,7 +366,7 @@ class RestfulController extends Controller {
                             $negative = isset($query->not) ? $query->not : false;
                             if($negative)
                                 $rids = $this->negative_results($form,$rids);
-                            array_push($resultSets,$rids);
+                            $resultSets[] = $rids;
                             break;
                         case 'legacy_kid':
                             //do a kid search
@@ -380,12 +380,12 @@ class RestfulController extends Controller {
                                 if(is_null($record) || $record->fid != $form->fid)
                                     array_push($minorErrors,"The following legacy KID is not apart of the requested form: " . $kids[$i]);
                                 else
-                                    array_push($rids,$record->rid);
+                                    $rids[] = $record->rid;
                             }
                             $negative = isset($query->not) ? $query->not : false;
                             if($negative)
                                 $rids = $this->negative_results($form,$rids);
-                            array_push($resultSets,$rids);
+                            $resultSets[] = $rids;
                             break;
                         default:
                             return response()->json(["status"=>false,"error"=>"No search query type supplied for form: ". $form->name],500);
@@ -524,7 +524,7 @@ class RestfulController extends Controller {
 		$negUnclean = $con->query($select);
 
 		while($row = $negUnclean->fetch_assoc()) {
-			array_push($returnRIDS, $row['rid']);
+			$returnRIDS[] = $row['rid'];
 		}
         mysqli_free_result($negUnclean);
 
@@ -602,7 +602,7 @@ class RestfulController extends Controller {
         $sort = $con->query($select);
 
         while($row = $sort->fetch_assoc()) {
-            array_push($newOrderArray,$row['rid']);
+            $newOrderArray[] = $row['rid'];
         }
         mysqli_free_result($sort);
 
@@ -692,7 +692,7 @@ class RestfulController extends Controller {
         $sort = $con->query($select);
 
         while($row = $sort->fetch_assoc()) {
-            array_push($newOrderArray,$row['rid']);
+            $newOrderArray[] = $row['rid'];
         }
         mysqli_free_result($sort);
 
@@ -796,7 +796,7 @@ class RestfulController extends Controller {
         $textOccurrences = "select `text`, `flid`, `rid` from ".$prefix."text_fields where $wherePiece $flidSQL";
         $listOccurrences = "select `option`, `flid`, `rid` from ".$prefix."list_fields where $wherePiece $flidSQL";
         $msListOccurrences = "select `options`, `flid`, `rid` from ".$prefix."multi_select_list_fields where $wherePiece $flidSQL";
-        $genListOccurrences = "select `options`, `flid` from ".$prefix."generated_list_fields where $wherePiece $flidSQL";
+        $genListOccurrences = "select `options`, `flid`, `rid` from ".$prefix."generated_list_fields where $wherePiece $flidSQL";
         $numberOccurrences = "select `number`, `flid`, `rid` from ".$prefix."number_fields where $wherePiece $flidSQL";
         $dateOccurrences = "select `month`, `day`, `year`, `flid`, `rid` from ".$prefix."date_fields where $wherePiece $flidSQL";
         $assocOccurrences = "select s.`flid`, r.`kid`, r.`rid` from ".$prefix."associator_support as s left join kora3_records as r on s.`record`=r.`rid` where s.$wherePiece and s.`flid` in ($flidString)";
@@ -1096,7 +1096,7 @@ class RestfulController extends Controller {
                 return response()->json(["status"=>false,"error"=>"The field, $fieldSlug, does not exist"],500);
             //if keepfields scenario, keep track of this field that will be edited
             if($keepFields=="true")
-                array_push($fieldsToEditArray,$field->flid);
+                $fieldsToEditArray[] = $field->flid;
 
             $recRequest = $field->getTypedField()->setRestfulRecordData($jsonField, $field->flid, $recRequest, $uToken);
         }

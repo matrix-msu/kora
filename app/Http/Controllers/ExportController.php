@@ -392,6 +392,12 @@ class ExportController extends Controller {
         exit;
     }
 
+    private function imitateKeyMerge(&$array1, &$array2) {
+        foreach($array2 as $k => $i) {
+            $array1[$k] = $i;
+        }
+    }
+
     /**
      * Builds out the record data for the given RIDs. TODO::modular?
      *
@@ -408,15 +414,13 @@ class ExportController extends Controller {
         if(sizeof($rids)<=500)
             $ridMode = true;
 
-        $records = array();
-        $ridsToKids = [];
+        $records = [];
 
         //Check to see if we should bother with options
         $useOpts = !is_null($options);
 
-        //Make sure format exists
+        //Make sure requested format exists
         $format = strtoupper($format);
-
         if(!self::isValidFormat($format))
             return null;
 
@@ -435,17 +439,17 @@ class ExportController extends Controller {
             exit();
         }
 
+        //Temporary fix for large combolist statements
         DB::statement("SET SESSION group_concat_max_len = 12345;");
 
         //Grab information about the form's fields
-        $fields = array();
+        $fields = [];
         if(is_array($fid)) {
             //Global sort from API results case
             foreach($fid as $formID) {
                 $form = FormController::getForm($formID);
                 $fieldMods = $form->fields()->get();
                 foreach($fieldMods as $field) {
-                    $fArray = array();
                     $fArray['flid'] = $field->flid;
                     $fArray['name'] = $field->name;
                     $fArray['type'] = $field->type;
@@ -461,7 +465,6 @@ class ExportController extends Controller {
             $form = FormController::getForm($fid);
             $fieldMods = $form->fields()->get();
             foreach($fieldMods as $field) {
-                $fArray = array();
                 $fArray['flid'] = $field->flid;
                 $fArray['name'] = $field->name;
                 $fArray['type'] = $field->type;
@@ -489,24 +492,6 @@ class ExportController extends Controller {
         }
 
         //Gather the kid/rid pairs for the form
-        if(is_array($fid)) {
-            //Global sort from API results case
-            $fidString = implode(',',$fid);
-            $select = "SELECT `kid`, `rid` from ".$prefix."records WHERE `fid` in ($fidString)";
-        } else
-            $select = "SELECT `kid`, `rid` from ".$prefix."records WHERE `fid`=$fid";
-
-        $kids = $con->query($select);
-        while($row = $kids->fetch_assoc()) {
-            $ridsToKids[$row['rid']] = $row['kid'];
-        }
-        mysqli_free_result($kids);
-
-        //Prep the results array
-        foreach($rids as $r) {
-            $records[$ridsToKids[$r]] = [];
-        }
-
         if($ridMode) {
             $ridString = implode(',',$rids);
             $wherePiece = "`rid` IN ($ridString)";
@@ -516,75 +501,113 @@ class ExportController extends Controller {
             $wherePiece = "`fid` in ($fidString)";
         } else
             $wherePiece = "`fid`=$fid";
-        
+
+        $ridsToKids = array_fill_keys($rids, null);
+
+        $select = "SELECT r.`rid`, r.`kid`, r.`legacy_kid`, r.`created_at`, r.`updated_at`, u.`username` FROM ".$prefix."records as r
+                      LEFT JOIN ".$prefix."users as u on r.owner=u.id where r.$wherePiece";
+        $kids = $con->query($select);
+        $ridMeta = ($useOpts && isset($options['meta']) && $options['meta']);
+        while($row = $kids->fetch_assoc()) {
+            if(!array_key_exists($row['rid'],$ridsToKids))
+                continue;
+            $ridsToKids[$row['rid']] = $row['kid'];
+
+            if($ridMeta && $format == self::JSON) {
+                $records[$row['kid']] = [
+                    'created_at' => $row['created_at'],
+                    'updated_at' => $row['updated_at'],
+                    'username' => $row['username'],
+                ];
+            } else if($format == self::KORA) {
+                $records[$row['kid']] = [
+                    'kid' => $row['kid'],
+                    'legacy_kid' => $row['legacy_kid'],
+                    'systimestamp' => $row['updated_at'],
+                    'recordowner' => $row['username'],
+                ];
+            } else
+                $records[$row['kid']] = [];
+        }
+        $kids->free();
+
         //Prep the table statements
-        $textselect = "SELECT `rid`, `flid`, `text` FROM " . $prefix . "text_fields where $wherePiece$slugQL";
-        $numberselect = "SELECT `rid`, `flid`, `number` FROM " . $prefix . "number_fields where $wherePiece$slugQL";
-        $richtextselect = "SELECT `rid`, `flid`, `rawtext` FROM " . $prefix . "rich_text_fields where $wherePiece$slugQL";
-        $listselect = "SELECT `rid`, `flid`, `option` FROM " . $prefix . "list_fields where $wherePiece$slugQL";
-        $multiselectlistselect = "SELECT `rid`, `flid`, `options` FROM " . $prefix . "multi_select_list_fields where $wherePiece$slugQL";
-        $generatedlistselect = "SELECT `rid`, `flid`, `options` FROM " . $prefix . "generated_list_fields where $wherePiece$slugQL";
-        $combolistselect = "SELECT `rid`, `flid`, GROUP_CONCAT(if(`field_num`=1, `data`, null) ORDER BY `list_index` ASC SEPARATOR '[!data!]' ) as `value`,
-              GROUP_CONCAT(if(`field_num`=2, `data`, null) ORDER BY `list_index` ASC SEPARATOR '[!data!]' ) as `val2`,
-              GROUP_CONCAT(if(`field_num`=1, `number`, null) ORDER BY `list_index` ASC SEPARATOR '[!data!]' ) as `val3`,
-              GROUP_CONCAT(if(`field_num`=2, `number`, null) ORDER BY `list_index` ASC SEPARATOR '[!data!]' ) as `val4` 
-              FROM " . $prefix . "combo_support where $wherePiece$slugQL group by `rid`, `flid`";
-        $dateselect = "SELECT `rid`, `flid`, `circa`, `month`, `day`, `year`, `era` FROM " . $prefix . "date_fields where $wherePiece$slugQL";
-        $scheduleselect = "SELECT `rid`, `flid`, GROUP_CONCAT(`begin` SEPARATOR '[!]') as `value`, 
-              GROUP_CONCAT(`end` SEPARATOR '[!]') as `val2`, 
-              GROUP_CONCAT(`allday` SEPARATOR '[!]') as `val3`,
-              GROUP_CONCAT(`desc` SEPARATOR '[!]') as `val4` 
-              FROM " . $prefix . "schedule_support where $wherePiece$slugQL group by `rid`, `flid`";
-        $documentsselect = "SELECT `rid`, `flid`, `documents` FROM " . $prefix . "documents_fields where $wherePiece$slugQL";
-        $galleryselect = "SELECT `rid`, `flid`, `images`, `captions` FROM " . $prefix . "gallery_fields where $wherePiece$slugQL";
-        $playlistselect = "SELECT `rid`, `flid`, `audio` FROM " . $prefix . "playlist_fields where $wherePiece$slugQL";
-        $videoselect = "SELECT `rid`, `flid`, `video` FROM " . $prefix . "video_fields where $wherePiece$slugQL";
-        $modelselect = "SELECT `rid`, `flid`, `model` FROM " . $prefix . "model_fields where $wherePiece$slugQL";
-        $geolocatorselect = "SELECT `rid`, `flid`, GROUP_CONCAT(`desc` SEPARATOR '[!]') as `value`, 
-              GROUP_CONCAT(`address` SEPARATOR '[!]') as `val2`, 
-              GROUP_CONCAT(CONCAT_WS('[!]', `lat`, `lon`) SEPARATOR '[!latlon!]') as `val3`, 
-              GROUP_CONCAT(CONCAT_WS('[!]', `zone`, `easting`, `northing`) SEPARATOR '[!utm!]') as `val4` 
-              FROM " . $prefix . "geolocator_support where $wherePiece$slugQL group by `rid`, `flid`";
-        $associatorselect = "SELECT af.rid as `rid`, af.flid as `flid`, GROUP_CONCAT(aRec.kid SEPARATOR ',') as `value` 
-              FROM " . $prefix . "associator_support as af left join " . $prefix . "records as aRec on af.record=aRec.rid 
-              where af.$wherePiece$slugQL group by `rid`, `flid`";
+        if($ridMode) {
+            $ridString = implode(',',$rids);
+            $wherePiece = "`rid` IN ($ridString)";
+        } else if(is_array($fid)) {
+            //Global sort from API results case
+            $fidString = implode(',',$fid);
+            $wherePiece = "`fid` in ($fidString)";
+        } else
+            $wherePiece = "`fid`=$fid";
+
+        //NOTE: ORDER MATTERS WITH HOW TABLES ARE ACCESSED BELOW
+        if($format == self::KORA) {
+            //We only get a select set of field types that are kora 2 supported
+            $dataselects = array(
+                "SELECT `rid`, `flid`, `text` FROM " . $prefix . "text_fields where $wherePiece$slugQL",
+                "SELECT `rid`, `flid`, `number` FROM " . $prefix . "number_fields where $wherePiece$slugQL",
+                "SELECT `rid`, `flid`, `rawtext` FROM " . $prefix . "rich_text_fields where $wherePiece$slugQL",
+                "SELECT `rid`, `flid`, `option` FROM " . $prefix . "list_fields where $wherePiece$slugQL",
+                "SELECT `rid`, `flid`, `options` FROM " . $prefix . "multi_select_list_fields where $wherePiece$slugQL",
+                "SELECT `rid`, `flid`, `options` FROM " . $prefix . "generated_list_fields where $wherePiece$slugQL",
+                "SELECT `rid`, `flid`, `circa`, `month`, `day`, `year`, `era` FROM " . $prefix . "date_fields where $wherePiece$slugQL",
+                "SELECT `rid`, `flid`, GROUP_CONCAT(`begin` SEPARATOR '[!]') as `value`, 
+                  GROUP_CONCAT(`end` SEPARATOR '[!]') as `val2`, 
+                  GROUP_CONCAT(`allday` SEPARATOR '[!]') as `val3`,
+                  GROUP_CONCAT(`desc` SEPARATOR '[!]') as `val4` 
+                  FROM " . $prefix . "schedule_support where $wherePiece$slugQL group by `rid`, `flid`",
+                "SELECT `rid`, `flid`, `documents` FROM " . $prefix . "documents_fields where $wherePiece$slugQL",
+                "SELECT `rid`, `flid`, `images`, `captions` FROM " . $prefix . "gallery_fields where $wherePiece$slugQL",
+                "SELECT af.rid as `rid`, af.flid as `flid`, GROUP_CONCAT(aRec.kid SEPARATOR ',') as `value` 
+                  FROM " . $prefix . "associator_support as af left join " . $prefix . "records as aRec on af.record=aRec.rid 
+                  where af.$wherePiece$slugQL group by `rid`, `flid`"
+            );
+        } else {
+            $dataselects = array(
+                "SELECT `rid`, `flid`, `text` FROM " . $prefix . "text_fields where $wherePiece$slugQL",
+                "SELECT `rid`, `flid`, `number` FROM " . $prefix . "number_fields where $wherePiece$slugQL",
+                "SELECT `rid`, `flid`, `rawtext` FROM " . $prefix . "rich_text_fields where $wherePiece$slugQL",
+                "SELECT `rid`, `flid`, `option` FROM " . $prefix . "list_fields where $wherePiece$slugQL",
+                "SELECT `rid`, `flid`, `options` FROM " . $prefix . "multi_select_list_fields where $wherePiece$slugQL",
+                "SELECT `rid`, `flid`, `options` FROM " . $prefix . "generated_list_fields where $wherePiece$slugQL",
+                "SELECT `rid`, `flid`, GROUP_CONCAT(if(`field_num`=1, `data`, null) ORDER BY `list_index` ASC SEPARATOR '[!data!]' ) as `value`,
+                  GROUP_CONCAT(if(`field_num`=2, `data`, null) ORDER BY `list_index` ASC SEPARATOR '[!data!]' ) as `val2`,
+                  GROUP_CONCAT(if(`field_num`=1, `number`, null) ORDER BY `list_index` ASC SEPARATOR '[!data!]' ) as `val3`,
+                  GROUP_CONCAT(if(`field_num`=2, `number`, null) ORDER BY `list_index` ASC SEPARATOR '[!data!]' ) as `val4` 
+                  FROM " . $prefix . "combo_support where $wherePiece$slugQL group by `rid`, `flid`",
+                "SELECT `rid`, `flid`, `circa`, `month`, `day`, `year`, `era` FROM " . $prefix . "date_fields where $wherePiece$slugQL",
+                "SELECT `rid`, `flid`, GROUP_CONCAT(`begin` SEPARATOR '[!]') as `value`, 
+                  GROUP_CONCAT(`end` SEPARATOR '[!]') as `val2`, 
+                  GROUP_CONCAT(`allday` SEPARATOR '[!]') as `val3`,
+                  GROUP_CONCAT(`desc` SEPARATOR '[!]') as `val4` 
+                  FROM " . $prefix . "schedule_support where $wherePiece$slugQL group by `rid`, `flid`",
+                "SELECT `rid`, `flid`, `documents` FROM " . $prefix . "documents_fields where $wherePiece$slugQL",
+                "SELECT `rid`, `flid`, `images`, `captions` FROM " . $prefix . "gallery_fields where $wherePiece$slugQL",
+                "SELECT `rid`, `flid`, `audio` FROM " . $prefix . "playlist_fields where $wherePiece$slugQL",
+                "SELECT `rid`, `flid`, `video` FROM " . $prefix . "video_fields where $wherePiece$slugQL",
+                "SELECT `rid`, `flid`, `model` FROM " . $prefix . "model_fields where $wherePiece$slugQL",
+                "SELECT `rid`, `flid`, GROUP_CONCAT(`desc` SEPARATOR '[!]') as `value`, 
+                  GROUP_CONCAT(`address` SEPARATOR '[!]') as `val2`, 
+                  GROUP_CONCAT(CONCAT_WS('[!]', `lat`, `lon`) SEPARATOR '[!latlon!]') as `val3`, 
+                  GROUP_CONCAT(CONCAT_WS('[!]', `zone`, `easting`, `northing`) SEPARATOR '[!utm!]') as `val4` 
+                  FROM " . $prefix . "geolocator_support where $wherePiece$slugQL group by `rid`, `flid`",
+                "SELECT af.rid as `rid`, af.flid as `flid`, GROUP_CONCAT(aRec.kid SEPARATOR ',') as `value` 
+                  FROM " . $prefix . "associator_support as af left join " . $prefix . "records as aRec on af.record=aRec.rid 
+                  where af.$wherePiece$slugQL group by `rid`, `flid`"
+            );
+        }
+        $finalDataSelect = implode('; ',$dataselects);
 
         switch($format) {
             case self::JSON:
-                //There exist in case of assoc, but may just be empty
-                $assocRIDColl = array();
-                $assocMaster = array();
-
-                //Next we see if metadata is requested
+                //Next we see if metadata is requested for reverse associations
                 if($useOpts && isset($options['meta']) && $options['meta']) {
-                    if($ridMode) {
-                        $ridString = implode(',',$rids);
-                        $wherePiece = "`rid` IN ($ridString)";
-                    } else if(is_array($fid)) {
-                        //Global sort from API results case
-                        $fidString = implode(',',$fid);
-                        $wherePiece = "`fid` in ($fidString)";
-                    } else
-                        $wherePiece = "`fid`=$fid";
-
-                    $part1 = "SELECT r.`rid`, r.`kid`, r.`created_at`, r.`updated_at`, u.`username` FROM ".$prefix."records as r 
-                      LEFT JOIN ".$prefix."users as u on r.owner=u.id where r.$wherePiece";
-                    $part2 = "SELECT aSupp.record as main, recs.kid as linker FROM ".$prefix."associator_support as aSupp 
+                    $reverse = "SELECT aSupp.record as main, recs.kid as linker FROM ".$prefix."associator_support as aSupp
                       LEFT JOIN ".$prefix."records as recs on aSupp.rid=recs.rid WHERE aSupp.record in (".implode(', ',$rids).")";
 
-                    $datafields = $con->query($part1);
-                    while($row = $datafields->fetch_assoc()) {
-                        $kid = $row['kid'];
-                        if(!array_key_exists($kid,$records))
-                            continue;
-
-                        $records[$kid]["created"] = $row['created_at'];
-                        $records[$kid]["updated"] = $row['updated_at'];
-                        $records[$kid]["owner"] = $row['username'];
-                    }
-                    mysqli_free_result($datafields);
-
-                    $datafields = $con->query($part2);
+                    $datafields = $con->query($reverse);
                     while($row = $datafields->fetch_assoc()) {
                         $kid = $ridsToKids[$row['main']];
                         if(!array_key_exists($kid,$records))
@@ -592,11 +615,11 @@ class ExportController extends Controller {
 
                         $records[$kid]["reverseAssociations"][] = $row['linker'];
                     }
-                    mysqli_free_result($datafields);
+                    $datafields->free();
                 }
 
-                //specifically for file exports, NOT API
-                //It's a little different than META above in the sense we only get reverse associations, and we organize by field ID
+                //specifically for file exports, NOT API. API use the function above
+                //It's a little different than META above in the sense we organize reverse associations by field ID
                 if($useOpts && isset($options['revAssoc']) && $options['revAssoc']) {
                     $revAssoc = "SELECT aSupp.record as main, aSupp.flid as flid, recs.kid as linker FROM ".$prefix."associator_support as aSupp 
                       LEFT JOIN ".$prefix."records as recs on aSupp.rid=recs.rid WHERE aSupp.record in (".implode(', ',$rids).")";
@@ -609,120 +632,114 @@ class ExportController extends Controller {
 
                         $records[$kid]["reverseAssociations"][$row['flid']][] = $row['linker'];
                     }
-                    mysqli_free_result($datafields);
+                    $datafields->free();
                 }
 
+                //Get the data
                 $gatherRecordData = true;
                 if($useOpts && isset($options['data']) && isset($options['data']))
                     $gatherRecordData = $options['data'];
 
+                if($useOpts && $options['realnames'])
+                    $fIndex = 'name';
+                else
+                    $fIndex = 'nickname';
+
                 if($gatherRecordData) {
-                    $datafields = $con->query($textselect);
-                    while ($row = $datafields->fetch_assoc()) {
-                        $kid = $ridsToKids[$row['rid']];
-                        if (!array_key_exists($kid, $records))
+                    $con->multi_query($finalDataSelect);
+
+                    //Text Field
+                    $datafields = $con->store_result();
+                    while($row = $datafields->fetch_assoc()) {
+                        if(!array_key_exists($row['rid'], $ridsToKids))
                             continue;
+                        $kid = $ridsToKids[$row['rid']];
 
-                        if ($useOpts && $options['realnames'])
-                            $fieldIndex = $fields[$row['flid']]['name'];
-                        else
-                            $fieldIndex = $fields[$row['flid']]['nickname'];
+                        $fieldIndex = $fields[$row['flid']][$fIndex];
 
-                        $records[$kid][$fieldIndex]['value'] = $row['text'];
-                        $records[$kid][$fieldIndex]['type'] = $fields[$row['flid']]['type'];
+                        $records[$kid][$fieldIndex] = $row['text'];
                     }
-                    mysqli_free_result($datafields);
+                    $datafields->free();
+                    $con->next_result();
 
-                    $datafields = $con->query($numberselect);
+                    //Number Field
+                    $datafields = $con->store_result();
                     while ($row = $datafields->fetch_assoc()) {
-                        $kid = $ridsToKids[$row['rid']];
-                        if (!array_key_exists($kid, $records))
+                        if(!array_key_exists($row['rid'], $ridsToKids))
                             continue;
+                        $kid = $ridsToKids[$row['rid']];
 
-                        if ($useOpts && $options['realnames'])
-                            $fieldIndex = $fields[$row['flid']]['name'];
-                        else
-                            $fieldIndex = $fields[$row['flid']]['nickname'];
+                        $fieldIndex = $fields[$row['flid']][$fIndex];
 
-                        $records[$kid][$fieldIndex]['value'] = $row['number'];
-                        $records[$kid][$fieldIndex]['type'] = $fields[$row['flid']]['type'];
+                        $records[$kid][$fieldIndex] = $row['number'];
                     }
-                    mysqli_free_result($datafields);
+                    $datafields->free();
+                    $con->next_result();
 
-                    $datafields = $con->query($richtextselect);
+                    //Rich Text Field
+                    $datafields = $con->store_result();
                     while ($row = $datafields->fetch_assoc()) {
-                        $kid = $ridsToKids[$row['rid']];
-                        if (!array_key_exists($kid, $records))
+                        if(!array_key_exists($row['rid'], $ridsToKids))
                             continue;
+                        $kid = $ridsToKids[$row['rid']];
 
-                        if ($useOpts && $options['realnames'])
-                            $fieldIndex = $fields[$row['flid']]['name'];
-                        else
-                            $fieldIndex = $fields[$row['flid']]['nickname'];
+                        $fieldIndex = $fields[$row['flid']][$fIndex];
 
-                        $records[$kid][$fieldIndex]['value'] = $row['rawtext'];
-                        $records[$kid][$fieldIndex]['type'] = $fields[$row['flid']]['type'];
+                        $records[$kid][$fieldIndex] = $row['rawtext'];
                     }
-                    mysqli_free_result($datafields);
+                    $datafields->free();
+                    $con->next_result();
 
-                    $datafields = $con->query($listselect);
+                    //List Field
+                    $datafields = $con->store_result();
                     while ($row = $datafields->fetch_assoc()) {
-                        $kid = $ridsToKids[$row['rid']];
-                        if (!array_key_exists($kid, $records))
+                        if(!array_key_exists($row['rid'], $ridsToKids))
                             continue;
+                        $kid = $ridsToKids[$row['rid']];
 
-                        if ($useOpts && $options['realnames'])
-                            $fieldIndex = $fields[$row['flid']]['name'];
-                        else
-                            $fieldIndex = $fields[$row['flid']]['nickname'];
+                        $fieldIndex = $fields[$row['flid']][$fIndex];
 
-                        $records[$kid][$fieldIndex]['value'] = $row['option'];
-                        $records[$kid][$fieldIndex]['type'] = $fields[$row['flid']]['type'];
+                        $records[$kid][$fieldIndex] = $row['option'];
                     }
-                    mysqli_free_result($datafields);
+                    $datafields->free();
+                    $con->next_result();
 
-                    $datafields = $con->query($multiselectlistselect);
+                    //Multi-Select List Field
+                    $datafields = $con->store_result();
                     while ($row = $datafields->fetch_assoc()) {
-                        $kid = $ridsToKids[$row['rid']];
-                        if (!array_key_exists($kid, $records))
+                        if(!array_key_exists($row['rid'], $ridsToKids))
                             continue;
+                        $kid = $ridsToKids[$row['rid']];
 
-                        if ($useOpts && $options['realnames'])
-                            $fieldIndex = $fields[$row['flid']]['name'];
-                        else
-                            $fieldIndex = $fields[$row['flid']]['nickname'];
+                        $fieldIndex = $fields[$row['flid']][$fIndex];
 
-                        $records[$kid][$fieldIndex]['value'] = explode('[!]', $row['options']);
-                        $records[$kid][$fieldIndex]['type'] = $fields[$row['flid']]['type'];
+                        $records[$kid][$fieldIndex] = explode('[!]', $row['options']);
                     }
-                    mysqli_free_result($datafields);
+                    $datafields->free();
+                    $con->next_result();
 
-                    $datafields = $con->query($generatedlistselect);
+                    //Generated List Field
+                    $datafields = $con->store_result();
                     while ($row = $datafields->fetch_assoc()) {
-                        $kid = $ridsToKids[$row['rid']];
-                        if (!array_key_exists($kid, $records))
+                        if(!array_key_exists($row['rid'], $ridsToKids))
                             continue;
+                        $kid = $ridsToKids[$row['rid']];
 
-                        if ($useOpts && $options['realnames'])
-                            $fieldIndex = $fields[$row['flid']]['name'];
-                        else
-                            $fieldIndex = $fields[$row['flid']]['nickname'];
+                        $fieldIndex = $fields[$row['flid']][$fIndex];
 
-                        $records[$kid][$fieldIndex]['value'] = explode('[!]', $row['options']);
-                        $records[$kid][$fieldIndex]['type'] = $fields[$row['flid']]['type'];
+                        $records[$kid][$fieldIndex] = explode('[!]', $row['options']);
                     }
-                    mysqli_free_result($datafields);
+                    $datafields->free();
+                    $con->next_result();
 
-                    $datafields = $con->query($combolistselect);
+                    //Combo List Field
+                    $datafields = $con->store_result();
                     while ($row = $datafields->fetch_assoc()) {
-                        $kid = $ridsToKids[$row['rid']];
-                        if (!array_key_exists($kid, $records))
+                        if(!array_key_exists($row['rid'], $ridsToKids))
                             continue;
+                        $kid = $ridsToKids[$row['rid']];
 
-                        if ($useOpts && $options['realnames'])
-                            $fieldIndex = $fields[$row['flid']]['name'];
-                        else
-                            $fieldIndex = $fields[$row['flid']]['nickname'];
+                        $fieldIndex = $fields[$row['flid']][$fIndex];
 
                         $value = array();
                         $dataone = explode('[!data!]', $row['value']);
@@ -770,46 +787,42 @@ class ExportController extends Controller {
                             $val[$nameone] = $valone;
                             $val[$nametwo] = $valtwo;
 
-                            array_push($value, $val);
+                            $value[] = $val;
                         }
 
-                        $records[$kid][$fieldIndex]['value'] = $value;
-                        $records[$kid][$fieldIndex]['type'] = $fields[$row['flid']]['type'];
+                        $records[$kid][$fieldIndex] = $value;
                     }
-                    mysqli_free_result($datafields);
+                    $datafields->free();
+                    $con->next_result();
 
-                    $datafields = $con->query($dateselect);
+                    //Date Field
+                    $datafields = $con->store_result();
                     while ($row = $datafields->fetch_assoc()) {
-                        $kid = $ridsToKids[$row['rid']];
-                        if (!array_key_exists($kid, $records))
+                        if(!array_key_exists($row['rid'], $ridsToKids))
                             continue;
+                        $kid = $ridsToKids[$row['rid']];
 
-                        if ($useOpts && $options['realnames'])
-                            $fieldIndex = $fields[$row['flid']]['name'];
-                        else
-                            $fieldIndex = $fields[$row['flid']]['nickname'];
+                        $fieldIndex = $fields[$row['flid']][$fIndex];
 
-                        $records[$kid][$fieldIndex]['value'] = [
+                        $records[$kid][$fieldIndex] = [
                             'circa' => $row['circa'],
                             'month' => $row['month'],
                             'day' => $row['day'],
                             'year' => $row['year'],
                             'era' => $row['era']
                         ];
-                        $records[$kid][$fieldIndex]['type'] = $fields[$row['flid']]['type'];
                     }
-                    mysqli_free_result($datafields);
+                    $datafields->free();
+                    $con->next_result();
 
-                    $datafields = $con->query($scheduleselect);
+                    //Schedule Field
+                    $datafields = $con->store_result();
                     while ($row = $datafields->fetch_assoc()) {
-                        $kid = $ridsToKids[$row['rid']];
-                        if (!array_key_exists($kid, $records))
+                        if(!array_key_exists($row['rid'], $ridsToKids))
                             continue;
+                        $kid = $ridsToKids[$row['rid']];
 
-                        if ($useOpts && $options['realnames'])
-                            $fieldIndex = $fields[$row['flid']]['name'];
-                        else
-                            $fieldIndex = $fields[$row['flid']]['nickname'];
+                        $fieldIndex = $fields[$row['flid']][$fIndex];
 
                         $value = array();
                         $begin = explode('[!]', $row['value']);
@@ -831,24 +844,22 @@ class ExportController extends Controller {
                                 'allday' => $allday[$i],
                                 'desc' => $desc[$i]
                             ];
-                            array_push($value, $info);
+                            $value[] = $info;
                         }
 
-                        $records[$kid][$fieldIndex]['value'] = $value;
-                        $records[$kid][$fieldIndex]['type'] = $fields[$row['flid']]['type'];
+                        $records[$kid][$fieldIndex] = $value;
                     }
-                    mysqli_free_result($datafields);
+                    $datafields->free();
+                    $con->next_result();
 
-                    $datafields = $con->query($documentsselect);
+                    //Documents Field
+                    $datafields = $con->store_result();
                     while ($row = $datafields->fetch_assoc()) {
-                        $kid = $ridsToKids[$row['rid']];
-                        if (!array_key_exists($kid, $records))
+                        if(!array_key_exists($row['rid'], $ridsToKids))
                             continue;
+                        $kid = $ridsToKids[$row['rid']];
 
-                        if ($useOpts && $options['realnames'])
-                            $fieldIndex = $fields[$row['flid']]['name'];
-                        else
-                            $fieldIndex = $fields[$row['flid']]['nickname'];
+                        $fieldIndex = $fields[$row['flid']][$fIndex];
 
                         $url = url('app/files/p' . $form->pid . '/f' . $form->fid . '/r' . $row['rid'] . '/fl' . $row['flid']) . '/';
                         $value = array();
@@ -860,23 +871,21 @@ class ExportController extends Controller {
                                 'type' => explode('[Type]', $file)[1],
                                 'url' => $url . explode('[Name]', $file)[1]
                             ];
-                            array_push($value, $info);
+                            $value[] = $info;
                         }
-                        $records[$kid][$fieldIndex]['value'] = $value;
-                        $records[$kid][$fieldIndex]['type'] = $fields[$row['flid']]['type'];
+                        $records[$kid][$fieldIndex] = $value;
                     }
-                    mysqli_free_result($datafields);
+                    $datafields->free();
+                    $con->next_result();
 
-                    $datafields = $con->query($galleryselect);
+                    //Gallery Field
+                    $datafields = $con->store_result();
                     while ($row = $datafields->fetch_assoc()) {
-                        $kid = $ridsToKids[$row['rid']];
-                        if (!array_key_exists($kid, $records))
+                        if(!array_key_exists($row['rid'], $ridsToKids))
                             continue;
+                        $kid = $ridsToKids[$row['rid']];
 
-                        if ($useOpts && $options['realnames'])
-                            $fieldIndex = $fields[$row['flid']]['name'];
-                        else
-                            $fieldIndex = $fields[$row['flid']]['nickname'];
+                        $fieldIndex = $fields[$row['flid']][$fIndex];
 
                         $url = url('app/files/p' . $form->pid . '/f' . $form->fid . '/r' . $row['rid'] . '/fl' . $row['flid']) . '/';
                         $value = array();
@@ -893,23 +902,21 @@ class ExportController extends Controller {
                                 $info['caption'] = $captions[$gi];
                             else
                                 $info['caption'] = '';
-                            array_push($value, $info);
+                            $value[] = $info;
                         }
-                        $records[$kid][$fieldIndex]['value'] = $value;
-                        $records[$kid][$fieldIndex]['type'] = $fields[$row['flid']]['type'];
+                        $records[$kid][$fieldIndex] = $value;
                     }
-                    mysqli_free_result($datafields);
+                    $datafields->free();
+                    $con->next_result();
 
-                    $datafields = $con->query($playlistselect);
+                    //Playlist Field
+                    $datafields = $con->store_result();
                     while ($row = $datafields->fetch_assoc()) {
-                        $kid = $ridsToKids[$row['rid']];
-                        if (!array_key_exists($kid, $records))
+                        if(!array_key_exists($row['rid'], $ridsToKids))
                             continue;
+                        $kid = $ridsToKids[$row['rid']];
 
-                        if ($useOpts && $options['realnames'])
-                            $fieldIndex = $fields[$row['flid']]['name'];
-                        else
-                            $fieldIndex = $fields[$row['flid']]['nickname'];
+                        $fieldIndex = $fields[$row['flid']][$fIndex];
 
                         $url = url('app/files/p' . $form->pid . '/f' . $form->fid . '/r' . $row['rid'] . '/fl' . $row['flid']) . '/';
                         $value = array();
@@ -921,23 +928,21 @@ class ExportController extends Controller {
                                 'type' => explode('[Type]', $file)[1],
                                 'url' => $url . explode('[Name]', $file)[1]
                             ];
-                            array_push($value, $info);
+                            $value[] = $info;
                         }
-                        $records[$kid][$fieldIndex]['value'] = $value;
-                        $records[$kid][$fieldIndex]['type'] = $fields[$row['flid']]['type'];
+                        $records[$kid][$fieldIndex] = $value;
                     }
-                    mysqli_free_result($datafields);
+                    $datafields->free();
+                    $con->next_result();
 
-                    $datafields = $con->query($videoselect);
+                    //Video Field
+                    $datafields = $con->store_result();
                     while ($row = $datafields->fetch_assoc()) {
-                        $kid = $ridsToKids[$row['rid']];
-                        if (!array_key_exists($kid, $records))
+                        if(!array_key_exists($row['rid'], $ridsToKids))
                             continue;
+                        $kid = $ridsToKids[$row['rid']];
 
-                        if ($useOpts && $options['realnames'])
-                            $fieldIndex = $fields[$row['flid']]['name'];
-                        else
-                            $fieldIndex = $fields[$row['flid']]['nickname'];
+                        $fieldIndex = $fields[$row['flid']][$fIndex];
 
                         $url = url('app/files/p' . $form->pid . '/f' . $form->fid . '/r' . $row['rid'] . '/fl' . $row['flid']) . '/';
                         $value = array();
@@ -949,23 +954,21 @@ class ExportController extends Controller {
                                 'type' => explode('[Type]', $file)[1],
                                 'url' => $url . explode('[Name]', $file)[1]
                             ];
-                            array_push($value, $info);
+                            $value[] = $info;
                         }
-                        $records[$kid][$fieldIndex]['value'] = $value;
-                        $records[$kid][$fieldIndex]['type'] = $fields[$row['flid']]['type'];
+                        $records[$kid][$fieldIndex] = $value;
                     }
-                    mysqli_free_result($datafields);
+                    $datafields->free();
+                    $con->next_result();
 
-                    $datafields = $con->query($modelselect);
+                    //Model Field
+                    $datafields = $con->store_result();
                     while ($row = $datafields->fetch_assoc()) {
-                        $kid = $ridsToKids[$row['rid']];
-                        if (!array_key_exists($kid, $records))
+                        if(!array_key_exists($row['rid'], $ridsToKids))
                             continue;
+                        $kid = $ridsToKids[$row['rid']];
 
-                        if ($useOpts && $options['realnames'])
-                            $fieldIndex = $fields[$row['flid']]['name'];
-                        else
-                            $fieldIndex = $fields[$row['flid']]['nickname'];
+                        $fieldIndex = $fields[$row['flid']][$fIndex];
 
                         $url = url('app/files/p' . $form->pid . '/f' . $form->fid . '/r' . $row['rid'] . '/fl' . $row['flid']) . '/';
                         $value = array();
@@ -977,23 +980,21 @@ class ExportController extends Controller {
                                 'type' => explode('[Type]', $file)[1],
                                 'url' => $url . explode('[Name]', $file)[1]
                             ];
-                            array_push($value, $info);
+                            $value[] = $info;
                         }
-                        $records[$kid][$fieldIndex]['value'] = $value;
-                        $records[$kid][$fieldIndex]['type'] = $fields[$row['flid']]['type'];
+                        $records[$kid][$fieldIndex] = $value;
                     }
-                    mysqli_free_result($datafields);
+                    $datafields->free();
+                    $con->next_result();
 
-                    $datafields = $con->query($geolocatorselect);
+                    //Geolocator Field
+                    $datafields = $con->store_result();
                     while ($row = $datafields->fetch_assoc()) {
-                        $kid = $ridsToKids[$row['rid']];
-                        if (!array_key_exists($kid, $records))
+                        if(!array_key_exists($row['rid'], $ridsToKids))
                             continue;
+                        $kid = $ridsToKids[$row['rid']];
 
-                        if ($useOpts && $options['realnames'])
-                            $fieldIndex = $fields[$row['flid']]['name'];
-                        else
-                            $fieldIndex = $fields[$row['flid']]['nickname'];
+                        $fieldIndex = $fields[$row['flid']][$fIndex];
 
                         $value = array();
                         $desc = explode('[!]', $row['value']);
@@ -1014,24 +1015,22 @@ class ExportController extends Controller {
                                 'address' => $address[$i],
                             ];
 
-                            array_push($value, $info);
+                            $value[] = $info;
                         }
 
-                        $records[$kid][$fieldIndex]['value'] = $value;
-                        $records[$kid][$fieldIndex]['type'] = $fields[$row['flid']]['type'];
+                        $records[$kid][$fieldIndex] = $value;
                     }
-                    mysqli_free_result($datafields);
+                    $datafields->free();
+                    $con->next_result();
 
-                    $datafields = $con->query($associatorselect);
+                    //Associator Field
+                    $datafields = $con->store_result();
                     while ($row = $datafields->fetch_assoc()) {
-                        $kid = $ridsToKids[$row['rid']];
-                        if (!array_key_exists($kid, $records))
+                        if(!array_key_exists($row['rid'], $ridsToKids))
                             continue;
+                        $kid = $ridsToKids[$row['rid']];
 
-                        if ($useOpts && $options['realnames'])
-                            $fieldIndex = $fields[$row['flid']]['name'];
-                        else
-                            $fieldIndex = $fields[$row['flid']]['nickname'];
+                        $fieldIndex = $fields[$row['flid']][$fIndex];
 
                         if($useOpts && isset($options['assoc']) && $options['assoc']) {
                             //First we need to format these kids as rids
@@ -1040,16 +1039,14 @@ class ExportController extends Controller {
                                 if(Record::isKIDPattern($akid)) {
                                     $arid = explode('-',$akid)[2];
                                     $afid = explode('-',$akid)[1];
-                                    $records[$kid][$fieldIndex]['value'][$akid] = $this->getSingleRecordForAssoc($arid, $con, $afid);
+                                    $records[$kid][$fieldIndex][$akid] = $this->getSingleRecordForAssoc($arid, $con, $afid);
                                 }
                             }
                         } else {
-                            $records[$kid][$fieldIndex]['value'] = explode(',', $row['value']);
+                            $records[$kid][$fieldIndex] = explode(',', $row['value']);
                         }
-
-                        $records[$kid][$fieldIndex]['type'] = $fields[$row['flid']]['type'];
                     }
-                    mysqli_free_result($datafields);
+                    $datafields->free();
                 }
 
                 $records = json_encode($records);
@@ -1072,130 +1069,108 @@ class ExportController extends Controller {
                 if($useOpts && isset($options['fields']) && $options['fields'] == 'KID')
                     return json_encode(array_keys($records));
 
-                if($ridMode) {
-                    $ridString = implode(',',$rids);
-                    $wherePiece = "`rid` IN ($ridString)";
-                } else if(is_array($fid)) {
-                    //Global sort from API results case
-                    $fidString = implode(',',$fid);
-                    $wherePiece = "`fid` in ($fidString)";
-                } else
-                    $wherePiece = "`fid`=$fid";
+                //Add those blank values
+                $fieldKeys = [];
+                foreach($fieldMods as $field) {
+                    $fieldKeys[$field['name']] = '';
+                }
+                foreach($records as $kid => $data) {
+                    $this->imitateKeyMerge($records[$kid],$fieldKeys);
+                }
 
                 //Meta data function but for old Kora format
-                $part1 = "SELECT r.`rid`, r.`kid`, r.legacy_kid, r.`created_at`, r.`updated_at`, u.`username` FROM ".$prefix."records as r 
-                      LEFT JOIN ".$prefix."users as u on r.owner=u.id where r.$wherePiece";
-                $part2 = "SELECT aSupp.record as main, recs.kid as linker FROM ".$prefix."associator_support as aSupp 
+                $reverse = "SELECT aSupp.record as main, recs.kid as linker FROM ".$prefix."associator_support as aSupp 
                       LEFT JOIN ".$prefix."records as recs on aSupp.rid=recs.rid WHERE aSupp.record in (".implode(', ',$rids).")";
 
-                $datafields = $con->query($part1);
+                $datafields = $con->query($reverse);
                 while($row = $datafields->fetch_assoc()) {
-                    $kid = $row['kid'];
-                    if(!array_key_exists($kid,$records))
-                        continue;
-
-                    $records[$kid]["kid"] = $kid;
-                    $records[$kid]["legacy_kid"] = $row['legacy_kid'];
-                    $records[$kid]["pid"] = $form->pid;
-                    $records[$kid]["schemeID"] = $form->fid;
-                    $records[$kid]["systimestamp"] = $row['updated_at'];
-                    $records[$kid]["recordowner"] = $row['username'];
-                }
-                mysqli_free_result($datafields);
-
-                $datafields = $con->query($part2);
-                while($row = $datafields->fetch_assoc()) {
-                    $kid = $ridsToKids[$row['main']];
-                    if(!array_key_exists($kid,$records))
-                        continue;
-
-                    $records[$kid]["linkers"][] = $row['linker'];
+                    $records[$row['main']]["linkers"][] = $row['linker'];
                 }
                 mysqli_free_result($datafields);
 
                 //Back to regular data
+                $con->multi_query($finalDataSelect);
 
-                $datafields = $con->query($textselect);
+                //Text Field
+                $datafields = $con->store_result();
                 while($row = $datafields->fetch_assoc()) {
-                    $kid = $ridsToKids[$row['rid']];
-                    if(!array_key_exists($kid,$records))
+                    if(!array_key_exists($row['rid'], $ridsToKids))
                         continue;
+                    $kid = $ridsToKids[$row['rid']];
 
-                    $fieldIndex = $fields[$row['flid']]['name'];
-
-                    $records[$kid][$fieldIndex] = $row['text'];
+                    $records[$kid][$fields[$row['flid']]['name']] = $row['text'];
                 }
-                mysqli_free_result($datafields);
+                $datafields->free();
+                $con->next_result();
 
-                $datafields = $con->query($numberselect);
+                //Number Field
+                $datafields = $con->store_result();
                 while($row = $datafields->fetch_assoc()) {
-                    $kid = $ridsToKids[$row['rid']];
-                    if(!array_key_exists($kid,$records))
+                    if(!array_key_exists($row['rid'], $ridsToKids))
                         continue;
+                    $kid = $ridsToKids[$row['rid']];
 
-                    $fieldIndex = $fields[$row['flid']]['name'];
-
-                    $records[$kid][$fieldIndex] = $row['number'];
+                    $records[$kid][$fields[$row['flid']]['name']] = $row['number'];
                 }
-                mysqli_free_result($datafields);
+                $datafields->free();
+                $con->next_result();
 
-                $datafields = $con->query($richtextselect);
+                //Raw Text Field
+                $datafields = $con->store_result();
                 while($row = $datafields->fetch_assoc()) {
-                    $kid = $ridsToKids[$row['rid']];
-                    if(!array_key_exists($kid,$records))
+                    if(!array_key_exists($row['rid'], $ridsToKids))
                         continue;
+                    $kid = $ridsToKids[$row['rid']];
 
-                    $fieldIndex = $fields[$row['flid']]['name'];
-
-                    $records[$kid][$fieldIndex] = $row['rawtext'];
+                    $records[$kid][$fields[$row['flid']]['name']] = $row['rawtext'];
                 }
-                mysqli_free_result($datafields);
+                $datafields->free();
+                $con->next_result();
 
-                $datafields = $con->query($listselect);
+                //List Field
+                $datafields = $con->store_result();
                 while($row = $datafields->fetch_assoc()) {
-                    $kid = $ridsToKids[$row['rid']];
-                    if(!array_key_exists($kid,$records))
+                    if(!array_key_exists($row['rid'], $ridsToKids))
                         continue;
+                    $kid = $ridsToKids[$row['rid']];
 
-                    $fieldIndex = $fields[$row['flid']]['name'];
-
-                    $records[$kid][$fieldIndex] = $row['option'];
+                    $records[$kid][$fields[$row['flid']]['name']] = $row['option'];
                 }
-                mysqli_free_result($datafields);
+                $datafields->free();
+                $con->next_result();
 
-                $datafields = $con->query($multiselectlistselect);
+                //Multi-Select List Field
+                $datafields = $con->store_result();
                 while($row = $datafields->fetch_assoc()) {
-                    $kid = $ridsToKids[$row['rid']];
-                    if(!array_key_exists($kid,$records))
+                    if(!array_key_exists($row['rid'], $ridsToKids))
                         continue;
+                    $kid = $ridsToKids[$row['rid']];
 
-                    $fieldIndex = $fields[$row['flid']]['name'];
-
-                    $records[$kid][$fieldIndex] = explode('[!]',$row['options']);
+                    $records[$kid][$fields[$row['flid']]['name']] = explode('[!]',$row['options']);
                 }
-                mysqli_free_result($datafields);
+                $datafields->free();
+                $con->next_result();
 
-                $datafields = $con->query($generatedlistselect);
+                //Generated List Field
+                $datafields = $con->store_result();
                 while($row = $datafields->fetch_assoc()) {
-                    $kid = $ridsToKids[$row['rid']];
-                    if(!array_key_exists($kid,$records))
+                    if(!array_key_exists($row['rid'], $ridsToKids))
                         continue;
+                    $kid = $ridsToKids[$row['rid']];
 
-                    $fieldIndex = $fields[$row['flid']]['name'];
-
-                    $records[$kid][$fieldIndex] = explode('[!]',$row['options']);
+                    $records[$kid][$fields[$row['flid']]['name']] = explode('[!]',$row['options']);
                 }
-                mysqli_free_result($datafields);
+                $datafields->free();
+                $con->next_result();
 
-                $datafields = $con->query($dateselect);
+                //Date Field
+                $datafields = $con->store_result();
                 while($row = $datafields->fetch_assoc()) {
-                    $kid = $ridsToKids[$row['rid']];
-                    if(!array_key_exists($kid,$records))
+                    if(!array_key_exists($row['rid'], $ridsToKids))
                         continue;
+                    $kid = $ridsToKids[$row['rid']];
 
-                    $fieldIndex = $fields[$row['flid']]['name'];
-
-                    $records[$kid][$fieldIndex] = [
+                    $records[$kid][$fields[$row['flid']]['name']] = [
                         'prefix' => $row['circa'],
                         'month' => $row['month'],
                         'day' => $row['day'],
@@ -1204,34 +1179,34 @@ class ExportController extends Controller {
                         'suffix' => ''
                     ];
                 }
-                mysqli_free_result($datafields);
+                $datafields->free();
+                $con->next_result();
 
-                $datafields = $con->query($scheduleselect);
+                //Schedule Field
+                $datafields = $con->store_result();
                 while($row = $datafields->fetch_assoc()) {
-                    $kid = $ridsToKids[$row['rid']];
-                    if(!array_key_exists($kid,$records))
+                    if(!array_key_exists($row['rid'], $ridsToKids))
                         continue;
-
-                    $fieldIndex = $fields[$row['flid']]['name'];
+                    $kid = $ridsToKids[$row['rid']];
 
                     $value = array();
                     $begin = explode('[!]',$row['value']);
                     foreach($begin as $date) {
                         $harddate = explode(' ',$date)[0];
-                        array_push($value,$harddate);
+                        $value[] = $harddate;
                     }
 
-                    $records[$kid][$fieldIndex] = $value;
+                    $records[$kid][$fields[$row['flid']]['name']] = $value;
                 }
-                mysqli_free_result($datafields);
+                $datafields->free();
+                $con->next_result();
 
-                $datafields = $con->query($documentsselect);
+                //Documents Field
+                $datafields = $con->store_result();
                 while($row = $datafields->fetch_assoc()) {
-                    $kid = $ridsToKids[$row['rid']];
-                    if(!array_key_exists($kid,$records))
+                    if(!array_key_exists($row['rid'], $ridsToKids))
                         continue;
-
-                    $fieldIndex = $fields[$row['flid']]['name'];
+                    $kid = $ridsToKids[$row['rid']];
 
                     $url = $row['rid'].'/fl'.$row['flid'] . '/';
                     $files = explode('[!]',$row['documents']);
@@ -1243,17 +1218,17 @@ class ExportController extends Controller {
                         'localName' => $url.explode('[Name]',$file)[1]
                     ];
 
-                    $records[$kid][$fieldIndex] = $info;
+                    $records[$kid][$fields[$row['flid']]['name']] = $info;
                 }
-                mysqli_free_result($datafields);
+                $datafields->free();
+                $con->next_result();
 
-                $datafields = $con->query($galleryselect);
+                //Gallery Field
+                $datafields = $con->store_result();
                 while($row = $datafields->fetch_assoc()) {
-                    $kid = $ridsToKids[$row['rid']];
-                    if(!array_key_exists($kid,$records))
+                    if(!array_key_exists($row['rid'], $ridsToKids))
                         continue;
-
-                    $fieldIndex = $fields[$row['flid']]['name'];
+                    $kid = $ridsToKids[$row['rid']];
 
                     $url = $row['rid'].'/fl'.$row['flid'] . '/';
                     $files = explode('[!]',$row['images']);
@@ -1265,29 +1240,21 @@ class ExportController extends Controller {
                         'localName' => $url.explode('[Name]',$file)[1]
                     ];
 
-                    $records[$kid][$fieldIndex] = $info;
+                    $records[$kid][$fields[$row['flid']]['name']] = $info;
                 }
-                mysqli_free_result($datafields);
+                $datafields->free();
+                $con->next_result();
 
-                $datafields = $con->query($associatorselect);
+                //Associator Field
+                $datafields = $con->store_result();
                 while($row = $datafields->fetch_assoc()) {
-                    $kid = $ridsToKids[$row['rid']];
-                    if(!array_key_exists($kid,$records))
+                    if(!array_key_exists($row['rid'], $ridsToKids))
                         continue;
+                    $kid = $ridsToKids[$row['rid']];
 
-                    $fieldIndex = $fields[$row['flid']]['name'];
-
-                    $records[$kid][$fieldIndex] = explode(',',$row['value']);
+                    $records[$kid][$fields[$row['flid']]['name']] = explode(',',$row['value']);
                 }
-                mysqli_free_result($datafields);
-
-                //Add those blank values
-                foreach($records as $kid => $data) {
-                    foreach($fieldMods as $field) {
-                        if(!isset($data[$field['name']]))
-                            $records[$kid][$field['name']] = '';
-                    }
-                }
+                $datafields->free();
 
                 return json_encode($records);
                 break;
@@ -1296,7 +1263,11 @@ class ExportController extends Controller {
                 $recordData = $records;
                 $records = '<?xml version="1.0" encoding="utf-8"?><Records>';
 
-                $datafields = $con->query($textselect);
+                //Begin data
+                $con->multi_query($finalDataSelect);
+
+                //Text Field
+                $datafields = $con->store_result();
                 while($row = $datafields->fetch_assoc()) {
                     $kid = $ridsToKids[$row['rid']];
                     if(!array_key_exists($kid,$recordData))
@@ -1312,9 +1283,11 @@ class ExportController extends Controller {
                     else
                         $recordData[$kid] .= $fieldxml;
                 }
-                mysqli_free_result($datafields);
+                $datafields->free();
+                $con->next_result();
 
-                $datafields = $con->query($numberselect);
+                //Number Field
+                $datafields = $con->store_result();
                 while($row = $datafields->fetch_assoc()) {
                     $kid = $ridsToKids[$row['rid']];
                     if(!array_key_exists($kid,$recordData))
@@ -1330,9 +1303,11 @@ class ExportController extends Controller {
                     else
                         $recordData[$kid] .= $fieldxml;
                 }
-                mysqli_free_result($datafields);
+                $datafields->free();
+                $con->next_result();
 
-                $datafields = $con->query($richtextselect);
+                //Rich Text Field
+                $datafields = $con->store_result();
                 while($row = $datafields->fetch_assoc()) {
                     $kid = $ridsToKids[$row['rid']];
                     if(!array_key_exists($kid,$recordData))
@@ -1348,9 +1323,11 @@ class ExportController extends Controller {
                     else
                         $recordData[$kid] .= $fieldxml;
                 }
-                mysqli_free_result($datafields);
+                $datafields->free();
+                $con->next_result();
 
-                $datafields = $con->query($listselect);
+                //List Field
+                $datafields = $con->store_result();
                 while($row = $datafields->fetch_assoc()) {
                     $kid = $ridsToKids[$row['rid']];
                     if(!array_key_exists($kid,$recordData))
@@ -1366,9 +1343,11 @@ class ExportController extends Controller {
                     else
                         $recordData[$kid] .= $fieldxml;
                 }
-                mysqli_free_result($datafields);
+                $datafields->free();
+                $con->next_result();
 
-                $datafields = $con->query($multiselectlistselect);
+                //Multi-Select List Field
+                $datafields = $con->store_result();
                 while($row = $datafields->fetch_assoc()) {
                     $kid = $ridsToKids[$row['rid']];
                     if(!array_key_exists($kid,$recordData))
@@ -1387,9 +1366,11 @@ class ExportController extends Controller {
                     else
                         $recordData[$kid] .= $fieldxml;
                 }
-                mysqli_free_result($datafields);
+                $datafields->free();
+                $con->next_result();
 
-                $datafields = $con->query($generatedlistselect);
+                //Generated List Field
+                $datafields = $con->store_result();
                 while($row = $datafields->fetch_assoc()) {
                     $kid = $ridsToKids[$row['rid']];
                     if(!array_key_exists($kid,$recordData))
@@ -1408,9 +1389,11 @@ class ExportController extends Controller {
                     else
                         $recordData[$kid] .= $fieldxml;
                 }
-                mysqli_free_result($datafields);
+                $datafields->free();
+                $con->next_result();
 
-                $datafields = $con->query($combolistselect);
+                //Combo List Field
+                $datafields = $con->store_result();
                 while($row = $datafields->fetch_assoc()) {
                     $kid = $ridsToKids[$row['rid']];
                     if(!array_key_exists($kid,$recordData))
@@ -1473,9 +1456,11 @@ class ExportController extends Controller {
                     else
                         $recordData[$kid] .= $fieldxml;
                 }
-                mysqli_free_result($datafields);
+                $datafields->free();
+                $con->next_result();
 
-                $datafields = $con->query($dateselect);
+                //Date Field
+                $datafields = $con->store_result();
                 while($row = $datafields->fetch_assoc()) {
                     $kid = $ridsToKids[$row['rid']];
                     if(!array_key_exists($kid,$recordData))
@@ -1495,9 +1480,11 @@ class ExportController extends Controller {
                     else
                         $recordData[$kid] .= $fieldxml;
                 }
-                mysqli_free_result($datafields);
+                $datafields->free();
+                $con->next_result();
 
-                $datafields = $con->query($scheduleselect);
+                //Schedule Field
+                $datafields = $con->store_result();
                 while($row = $datafields->fetch_assoc()) {
                     $kid = $ridsToKids[$row['rid']];
                     if(!array_key_exists($kid,$recordData))
@@ -1532,9 +1519,11 @@ class ExportController extends Controller {
                     else
                         $recordData[$kid] .= $fieldxml;
                 }
-                mysqli_free_result($datafields);
+                $datafields->free();
+                $con->next_result();
 
-                $datafields = $con->query($documentsselect);
+                //Documents Field
+                $datafields = $con->store_result();
                 while($row = $datafields->fetch_assoc()) {
                     $kid = $ridsToKids[$row['rid']];
                     if(!array_key_exists($kid,$recordData))
@@ -1559,9 +1548,11 @@ class ExportController extends Controller {
                     else
                         $recordData[$kid] .= $fieldxml;
                 }
-                mysqli_free_result($datafields);
+                $datafields->free();
+                $con->next_result();
 
-                $datafields = $con->query($galleryselect);
+                //Gallery Field
+                $datafields = $con->store_result();
                 while($row = $datafields->fetch_assoc()) {
                     $kid = $ridsToKids[$row['rid']];
                     if(!array_key_exists($kid,$recordData))
@@ -1591,9 +1582,11 @@ class ExportController extends Controller {
                     else
                         $recordData[$kid] .= $fieldxml;
                 }
-                mysqli_free_result($datafields);
+                $datafields->free();
+                $con->next_result();
 
-                $datafields = $con->query($playlistselect);
+                //Playlist Field
+                $datafields = $con->store_result();
                 while($row = $datafields->fetch_assoc()) {
                     $kid = $ridsToKids[$row['rid']];
                     if(!array_key_exists($kid,$recordData))
@@ -1618,9 +1611,11 @@ class ExportController extends Controller {
                     else
                         $recordData[$kid] .= $fieldxml;
                 }
-                mysqli_free_result($datafields);
+                $datafields->free();
+                $con->next_result();
 
-                $datafields = $con->query($videoselect);
+                //Video Field
+                $datafields = $con->store_result();
                 while($row = $datafields->fetch_assoc()) {
                     $kid = $ridsToKids[$row['rid']];
                     if(!array_key_exists($kid,$recordData))
@@ -1645,9 +1640,11 @@ class ExportController extends Controller {
                     else
                         $recordData[$kid] .= $fieldxml;
                 }
-                mysqli_free_result($datafields);
+                $datafields->free();
+                $con->next_result();
 
-                $datafields = $con->query($modelselect);
+                //Model Field
+                $datafields = $con->store_result();
                 while($row = $datafields->fetch_assoc()) {
                     $kid = $ridsToKids[$row['rid']];
                     if(!array_key_exists($kid,$recordData))
@@ -1672,9 +1669,11 @@ class ExportController extends Controller {
                     else
                         $recordData[$kid] .= $fieldxml;
                 }
-                mysqli_free_result($datafields);
+                $datafields->free();
+                $con->next_result();
 
-                $datafields = $con->query($geolocatorselect);
+                //Geolocator Field
+                $datafields = $con->store_result();
                 while($row = $datafields->fetch_assoc()) {
                     $kid = $ridsToKids[$row['rid']];
                     if(!array_key_exists($kid,$recordData))
@@ -1707,9 +1706,11 @@ class ExportController extends Controller {
                     else
                         $recordData[$kid] .= $fieldxml;
                 }
-                mysqli_free_result($datafields);
+                $datafields->free();
+                $con->next_result();
 
-                $datafields = $con->query($associatorselect);
+                //Associator Field
+                $datafields = $con->store_result();
                 while($row = $datafields->fetch_assoc()) {
                     $kid = $ridsToKids[$row['rid']];
                     if(!array_key_exists($kid,$recordData))
@@ -1726,7 +1727,7 @@ class ExportController extends Controller {
                     else
                         $recordData[$kid] .= $fieldxml;
                 }
-                mysqli_free_result($datafields);
+                $datafields->free();
 
                 //Next we see if metadata is requested
                 if($useOpts && isset($options['revAssoc']) && $options['revAssoc']) {
@@ -1776,149 +1777,6 @@ class ExportController extends Controller {
                     file_put_contents($path, $records);
                     return $path;
                 }
-                break;
-            case self::META: //TODO:: we will eventually rebuild this
-                /*//Check to see if any records in form
-                if(sizeof($rids)==0)
-                    return "no_records";
-
-                //We need one rid from the set to determine the project and form used in this metadata
-                $tempRid = $rids[0];
-                $tempKid = Record::where('rid','=',$tempRid)->first()->kid;
-                $kidParts = explode('-',$tempKid);
-
-                $resourceTitle = Form::where('fid','=',$kidParts[1])->first()->lod_resource;
-                $metaUrl = url("projects/".$kidParts[0]."/forms/".$kidParts[1]."/metadata/public#");
-
-                $records = '<?xml version="1.0"?><rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" ';
-                $records .= 'xmlns:geo="http://www.w3.org/2003/01/geo/wgs84_pos#" ';
-                $records .= "xmlns:$resourceTitle=\"$metaUrl\">";
-                $recordData = [];
-
-                foreach($chunks as $chunk) {
-                    $datafields = self::getDataRows($chunk);
-
-                    foreach($datafields as $data) {
-                        $kid = $data->pid.'-'.$data->fid.'-'.$data->rid;
-                        $metaObj = Metadata::where('flid','=',$data->flid)->first();
-                        if(is_null($metaObj))
-                            continue;
-
-                        $metaFieldName = $metaObj->name;
-
-                        if($data->type==Field::_ASSOCIATOR)
-                            $fieldxml = "<".$resourceTitle.":".$metaFieldName.">";
-                        else
-                            $fieldxml = "<".$resourceTitle.":".$metaFieldName." rdf:parseType=\"Collection\">";
-
-                        switch($data->type) {
-                            case Field::_TEXT:
-                                $fieldxml .= htmlspecialchars($data->value, ENT_XML1, 'UTF-8');
-                                break;
-                            case Field::_NUMBER:
-                                $fieldxml .= htmlspecialchars((float)$data->value, ENT_XML1, 'UTF-8');
-                                break;
-                            case Field::_LIST:
-                                $fieldxml .= htmlspecialchars($data->value, ENT_XML1, 'UTF-8');
-                                break;
-                            case Field::_MULTI_SELECT_LIST:
-                                $fieldxml .= '<rdf:Seq>';
-                                $opts = explode('[!]',$data->value);
-                                foreach($opts as $opt) {
-                                    $fieldxml .= '<rdf:li>'.htmlspecialchars($opt, ENT_XML1, 'UTF-8').'</rdf:li>';
-                                }
-                                $fieldxml .= '</rdf:Seq>';
-                                break;
-                            case Field::_GENERATED_LIST:
-                                $fieldxml .= '<rdf:Seq>';
-                                $opts = explode('[!]',$data->value);
-                                foreach($opts as $opt) {
-                                    $fieldxml .= '<rdf:li>'.htmlspecialchars($opt, ENT_XML1, 'UTF-8').'</rdf:li>';
-                                }
-                                $fieldxml .= '</rdf:Seq>';
-                                break;
-                            case Field::_DATE:
-                                $info = "";
-                                if($data->value==1)
-                                    $info .= 'circa ';
-                                if($data->val2!="")
-                                    $info .= date("F", mktime(0, 0, 0, $data->val2, 10)).' ';
-                                if($data->val3!="")
-                                    $info .= $data->val3.' ';
-                                if($data->val4!="")
-                                    $info .= $data->val4.' ';
-                                if($data->val5!="")
-                                    $info .= $data->val5.' ';
-
-                                $fieldxml .= htmlspecialchars(trim($info), ENT_XML1, 'UTF-8');
-                                break;
-                            case Field::_GEOLOCATOR:
-                                $fieldxml .= '<rdf:Seq>';
-
-                                $latlon = explode('[!latlon!]',$data->val3);
-                                $desc = explode('[!]',$data->value);
-                                $cnt = sizeof($desc);
-
-                                for($i=0;$i<$cnt;$i++) {
-                                    $ll = explode('[!]',$latlon[$i]);
-                                    $lat = "<geo:lat>".$ll[0]."</geo:lat>";
-                                    $long = "<geo:long>".$ll[1]."</geo:long>";
-                                    $fieldxml .= "<geo:Point>".$lat.$long."</geo:Point>";
-                                }
-                                $fieldxml .= '</rdf:Seq>';
-                                break;
-                            case Field::_ASSOCIATOR:
-                                $aRecs = explode(',',$data->value);
-
-                                foreach($aRecs as $aRec) {
-                                    $aKidParts = explode('-',$aRec);
-
-                                    $aPrimary = Metadata::where('fid','=',$aKidParts[1])->where('primary','=',1)->first()->flid;
-                                    $aResourceIndexValue = TextField::where('flid','=',$aPrimary)->where('rid','=',$aKidParts[2])->first()->text;
-
-                                    $fieldxml .= "<rdf:Description rdf:about=\""
-                                        .url("projects/".$aKidParts[0]."/forms/".$aKidParts[1]."/metadata/public/$aResourceIndexValue")."\" />";
-                                }
-                                break;
-                            default:
-                                break;
-                        }
-
-                        $fieldxml .= "</".$resourceTitle.":".$metaFieldName.">";
-
-                        if(isset($recordData[$kid]))
-                            $recordData[$kid] .= $fieldxml;
-                        else
-                            $recordData[$kid] = $fieldxml;
-                    }
-                }
-
-                //Now we have an array of kids to their field data
-                //We need to loop back and add them to the xml
-                foreach($recordData as $kid => $data) {
-                    $records .= "<rdf:Description ";
-
-                    $parts = explode('-',$kid);
-                    $primary = Metadata::where('fid','=',$parts[1])->where('primary','=',1)->first()->flid;
-                    $resourceIndexValue = TextField::where('flid','=',$primary)->where('rid','=',$parts[2])->first()->text;
-
-                    $records .= "rdf:about=\"".url("projects/".$parts[0]."/forms/".$parts[1]."/metadata/public/".$resourceIndexValue)."\">";
-                    $records .= "$data</rdf:Description>";
-                }
-
-                $records .= '</rdf:RDF>';
-
-                if($dataOnly) {
-                    return $records;
-                } else {
-                    $dt = new \DateTime();
-                    $format = $dt->format('Y_m_d_H_i_s');
-                    $path = storage_path("app/exports/record_export_$format.rdf");
-
-                    file_put_contents($path, $records);
-
-                    return $path;
-                }*/
                 break;
             default:
                 mysqli_close($con);
@@ -1993,8 +1851,7 @@ class ExportController extends Controller {
         while ($row = $datafields->fetch_assoc()) {
             $fieldIndex = $fields[$row['flid']]['nickname'];
 
-            $record[$fieldIndex]['value'] = $row['text'];
-            $record[$fieldIndex]['type'] = $fields[$row['flid']]['type'];
+            $record[$fieldIndex] = $row['text'];
         }
         mysqli_free_result($datafields);
 
@@ -2002,8 +1859,7 @@ class ExportController extends Controller {
         while ($row = $datafields->fetch_assoc()) {
             $fieldIndex = $fields[$row['flid']]['nickname'];
 
-            $record[$fieldIndex]['value'] = $row['number'];
-            $record[$fieldIndex]['type'] = $fields[$row['flid']]['type'];
+            $record[$fieldIndex] = $row['number'];
         }
         mysqli_free_result($datafields);
 
@@ -2011,8 +1867,7 @@ class ExportController extends Controller {
         while ($row = $datafields->fetch_assoc()) {
             $fieldIndex = $fields[$row['flid']]['nickname'];
 
-            $record[$fieldIndex]['value'] = $row['rawtext'];
-            $record[$fieldIndex]['type'] = $fields[$row['flid']]['type'];
+            $record[$fieldIndex] = $row['rawtext'];
         }
         mysqli_free_result($datafields);
 
@@ -2020,8 +1875,7 @@ class ExportController extends Controller {
         while ($row = $datafields->fetch_assoc()) {
             $fieldIndex = $fields[$row['flid']]['nickname'];
 
-            $record[$fieldIndex]['value'] = $row['option'];
-            $record[$fieldIndex]['type'] = $fields[$row['flid']]['type'];
+            $record[$fieldIndex] = $row['option'];
         }
         mysqli_free_result($datafields);
 
@@ -2029,8 +1883,7 @@ class ExportController extends Controller {
         while ($row = $datafields->fetch_assoc()) {
             $fieldIndex = $fields[$row['flid']]['nickname'];
 
-            $record[$fieldIndex]['value'] = explode('[!]', $row['options']);
-            $record[$fieldIndex]['type'] = $fields[$row['flid']]['type'];
+            $record[$fieldIndex] = explode('[!]', $row['options']);
         }
         mysqli_free_result($datafields);
 
@@ -2038,8 +1891,7 @@ class ExportController extends Controller {
         while ($row = $datafields->fetch_assoc()) {
             $fieldIndex = $fields[$row['flid']]['nickname'];
 
-            $record[$fieldIndex]['value'] = explode('[!]', $row['options']);
-            $record[$fieldIndex]['type'] = $fields[$row['flid']]['type'];
+            $record[$fieldIndex] = explode('[!]', $row['options']);
         }
         mysqli_free_result($datafields);
 
@@ -2093,11 +1945,10 @@ class ExportController extends Controller {
                 $val[$nameone] = $valone;
                 $val[$nametwo] = $valtwo;
 
-                array_push($value, $val);
+                $value[] = $val;
             }
 
-            $record[$fieldIndex]['value'] = $value;
-            $record[$fieldIndex]['type'] = $fields[$row['flid']]['type'];
+            $record[$fieldIndex] = $value;
         }
         mysqli_free_result($datafields);
 
@@ -2105,14 +1956,13 @@ class ExportController extends Controller {
         while ($row = $datafields->fetch_assoc()) {
             $fieldIndex = $fields[$row['flid']]['nickname'];
 
-            $record[$fieldIndex]['value'] = [
+            $record[$fieldIndex] = [
                 'circa' => $row['circa'],
                 'month' => $row['month'],
                 'day' => $row['day'],
                 'year' => $row['year'],
                 'era' => $row['era']
             ];
-            $record[$fieldIndex]['type'] = $fields[$row['flid']]['type'];
         }
         mysqli_free_result($datafields);
 
@@ -2140,11 +1990,10 @@ class ExportController extends Controller {
                     'allday' => $allday[$i],
                     'desc' => $desc[$i]
                 ];
-                array_push($value, $info);
+                $value[] = $info;
             }
 
-            $record[$fieldIndex]['value'] = $value;
-            $record[$fieldIndex]['type'] = $fields[$row['flid']]['type'];
+            $record[$fieldIndex] = $value;
         }
         mysqli_free_result($datafields);
 
@@ -2162,10 +2011,9 @@ class ExportController extends Controller {
                     'type' => explode('[Type]', $file)[1],
                     'url' => $url . explode('[Name]', $file)[1]
                 ];
-                array_push($value, $info);
+                $value[] = $info;
             }
-            $record[$fieldIndex]['value'] = $value;
-            $record[$fieldIndex]['type'] = $fields[$row['flid']]['type'];
+            $record[$fieldIndex] = $value;
         }
         mysqli_free_result($datafields);
 
@@ -2188,10 +2036,9 @@ class ExportController extends Controller {
                     $info['caption'] = $captions[$gi];
                 else
                     $info['caption'] = '';
-                array_push($value, $info);
+                $value[] = $info;
             }
-            $record[$fieldIndex]['value'] = $value;
-            $record[$fieldIndex]['type'] = $fields[$row['flid']]['type'];
+            $record[$fieldIndex] = $value;
         }
         mysqli_free_result($datafields);
 
@@ -2209,10 +2056,9 @@ class ExportController extends Controller {
                     'type' => explode('[Type]', $file)[1],
                     'url' => $url . explode('[Name]', $file)[1]
                 ];
-                array_push($value, $info);
+                $value[] = $info;
             }
-            $record[$fieldIndex]['value'] = $value;
-            $record[$fieldIndex]['type'] = $fields[$row['flid']]['type'];
+            $record[$fieldIndex] = $value;
         }
         mysqli_free_result($datafields);
 
@@ -2230,10 +2076,9 @@ class ExportController extends Controller {
                     'type' => explode('[Type]', $file)[1],
                     'url' => $url . explode('[Name]', $file)[1]
                 ];
-                array_push($value, $info);
+                $value[] = $info;
             }
-            $record[$fieldIndex]['value'] = $value;
-            $record[$fieldIndex]['type'] = $fields[$row['flid']]['type'];
+            $record[$fieldIndex] = $value;
         }
         mysqli_free_result($datafields);
 
@@ -2251,10 +2096,9 @@ class ExportController extends Controller {
                     'type' => explode('[Type]', $file)[1],
                     'url' => $url . explode('[Name]', $file)[1]
                 ];
-                array_push($value, $info);
+                $value[] = $info;
             }
-            $record[$fieldIndex]['value'] = $value;
-            $record[$fieldIndex]['type'] = $fields[$row['flid']]['type'];
+            $record[$fieldIndex] = $value;
         }
         mysqli_free_result($datafields);
 
@@ -2281,11 +2125,10 @@ class ExportController extends Controller {
                     'address' => $address[$i],
                 ];
 
-                array_push($value, $info);
+                $value[] = $info;
             }
 
-            $record[$fieldIndex]['value'] = $value;
-            $record[$fieldIndex]['type'] = $fields[$row['flid']]['type'];
+            $record[$fieldIndex] = $value;
         }
         mysqli_free_result($datafields);
 
@@ -2293,8 +2136,7 @@ class ExportController extends Controller {
         while ($row = $datafields->fetch_assoc()) {
             $fieldIndex = $fields[$row['flid']]['nickname'];
 
-            $record[$fieldIndex]['value'] = explode(',', $row['value']);
-            $record[$fieldIndex]['type'] = $fields[$row['flid']]['type'];
+            $record[$fieldIndex] = explode(',', $row['value']);
         }
         mysqli_free_result($datafields);
 
