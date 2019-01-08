@@ -90,5 +90,10 @@ $('.onboarding-pagination-js .dots').on('click', '.dot', function (e) {
 $(document).ready(function () {
     Kora.Modal.initialize();
 
-    Kora.Modal.open($('.onboarding-modal-js'));
+	Kora.Modal.open($('.onboarding-modal-js'));
+
+	$('.body.onboarding .single-select').chosen({
+		disable_search_threshold: 1,
+		width: '100%'
+	});
 });

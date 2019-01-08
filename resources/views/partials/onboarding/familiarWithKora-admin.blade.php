@@ -1,5 +1,5 @@
 <div class="hidden familiar-with-kora familiar-with-kora-slides-js">
-    <section class="" id="WhatsNew">
+    <section class="" id="Whats New">
         <div class="header onboarding">
             <span class="title">
                 <span class="skip">
