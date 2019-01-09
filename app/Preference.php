@@ -28,12 +28,10 @@ class Preference extends Model {
     );
 
     // Projects Page Tab Selection Options
-    const ARCHIVED = 1;
     const CUSTOM = 2;
     const ALPHABETICAL = 3;
 
     protected static $projPageTabSelOptions = array(
-        self::ARCHIVED => 'Archived',
         self::CUSTOM  => 'Custom',
         self::ALPHABETICAL => 'Alphabetical'
     );
