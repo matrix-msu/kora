@@ -28,7 +28,7 @@ class InstallController extends Controller {
     /**
      * @var string - The version that will be assigned when you install Kora.
      */
-	const INSTALLED_VERSION = '3.0';
+	const INSTALLED_VERSION = '3.0.2';
 
     /**
      * @var array - Directories that will be created upon installation.

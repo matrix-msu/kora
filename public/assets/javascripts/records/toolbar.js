@@ -158,15 +158,15 @@ Kora.Records.Toolbar = function() {
         data: values,
         success: function(data) {
           $form.submit();
-          //console.log('success!');
+          
+		  resetSelectAndHideToolbar();
         },
         error: function(error) {
+		  resetSelectAndHideToolbar();
+			
           if (error.status == 200) {
-            //location.reload();
-            console.log(error);
-            console.log(error.status);
+            
           } else {
-            console.log(error);
             var responseJson = error.responseJSON;
             $.each(responseJson, function() {
               console.log('error: ' + this[0]);
@@ -179,9 +179,27 @@ Kora.Records.Toolbar = function() {
       });
     });
   }
+  
+  function resetSelectAndHideToolbar() {
+	  $('.checked').trigger('click'); // unselect the checkboxes
+	  
+	  window.localStorage.removeItem('selectedRecords');
+	  selected = [];
+	  count = selected.length;
+	  
+	  $('.toolbar').addClass('hidden'); // hide the toolbar
+	  $('.record-index').removeClass('with-bottom');
+	}
+	
+  function initializeSingleRecordDelete() {
+	$(".single-record-delete-js").click(function() {
+	  resetSelectAndHideToolbar();
+	});
+  }
 
   initializeDeleteRecord();
   initializeExportRecords();
+  initializeSingleRecordDelete();
   recordSelect();
   batchAssign();
   deleteMultiple();
