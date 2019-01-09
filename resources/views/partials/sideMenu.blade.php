@@ -28,10 +28,6 @@
 
       @if (null !== \Auth::user() && \Auth::user()->admin)
         @include('partials.sideMenu.management', ['openDrawer' => (isset($openManagement) && $openManagement)])
-
-        @if (sizeof(\Auth::user()->getActivePlugins()) > 0)
-          @include('partials.sideMenu.plugins')
-        @endif
       @endif
     <div>
   </aside>
