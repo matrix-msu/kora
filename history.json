@@ -1,0 +1,21 @@
+[
+{
+	"version": "3.0.1",
+	"notes": "The first patch for Kora 3! It contains many minor additions, as well as several bug fixes discovered at launch.",
+	"features": [
+		"Added new calendar notations to the Date Field (BP & KYA BP)",
+		"The failed page for Importing Records is redesigned and contains more information on steps for user to take",
+		"Made updates to the empty-state for the Projects page",
+		"Max File Size and Max File Amount for File Type Fields can now be submitted with no value, which represents 'unlimited'",
+		"Added several speed improvements to the Kora 3 API, including improvements for sort and filters"
+	],
+	"bugs": [
+		"Fixed a front end bug that prevented the use of Associator Fields in new/edit record",
+		"Kora Home button now properly targets Projects page or Dashboard page upon login",
+		"Adding scrolling to new/edit record for when amount of Form Pages exceeds width of tab container",
+		"Note blocks on the Dashboard now properly save when edited",
+		"Fixed an API error with KID searches that included non-existent KIDs",
+		"Several styling tweaks and bug fixes"
+	]
+}
+]
