@@ -657,7 +657,7 @@ class ExportController extends Controller {
 
                         $fieldIndex = $fields[$row['flid']][$fIndex];
 
-                        $records[$kid][$fieldIndex] = $row['text'];
+                        $records[$kid][$fieldIndex]['value'] = $row['text'];
                     }
                     $datafields->free();
                     $con->next_result();
@@ -671,7 +671,7 @@ class ExportController extends Controller {
 
                         $fieldIndex = $fields[$row['flid']][$fIndex];
 
-                        $records[$kid][$fieldIndex] = $row['number'];
+                        $records[$kid][$fieldIndex]['value'] = $row['number'];
                     }
                     $datafields->free();
                     $con->next_result();
@@ -685,7 +685,7 @@ class ExportController extends Controller {
 
                         $fieldIndex = $fields[$row['flid']][$fIndex];
 
-                        $records[$kid][$fieldIndex] = $row['rawtext'];
+                        $records[$kid][$fieldIndex]['value'] = $row['rawtext'];
                     }
                     $datafields->free();
                     $con->next_result();
@@ -699,7 +699,7 @@ class ExportController extends Controller {
 
                         $fieldIndex = $fields[$row['flid']][$fIndex];
 
-                        $records[$kid][$fieldIndex] = $row['option'];
+                        $records[$kid][$fieldIndex]['value'] = $row['option'];
                     }
                     $datafields->free();
                     $con->next_result();
@@ -713,7 +713,7 @@ class ExportController extends Controller {
 
                         $fieldIndex = $fields[$row['flid']][$fIndex];
 
-                        $records[$kid][$fieldIndex] = explode('[!]', $row['options']);
+                        $records[$kid][$fieldIndex]['value'] = explode('[!]', $row['options']);
                     }
                     $datafields->free();
                     $con->next_result();
@@ -727,7 +727,7 @@ class ExportController extends Controller {
 
                         $fieldIndex = $fields[$row['flid']][$fIndex];
 
-                        $records[$kid][$fieldIndex] = explode('[!]', $row['options']);
+                        $records[$kid][$fieldIndex]['value'] = explode('[!]', $row['options']);
                     }
                     $datafields->free();
                     $con->next_result();
@@ -790,7 +790,7 @@ class ExportController extends Controller {
                             $value[] = $val;
                         }
 
-                        $records[$kid][$fieldIndex] = $value;
+                        $records[$kid][$fieldIndex]['value'] = $value;
                     }
                     $datafields->free();
                     $con->next_result();
@@ -804,7 +804,7 @@ class ExportController extends Controller {
 
                         $fieldIndex = $fields[$row['flid']][$fIndex];
 
-                        $records[$kid][$fieldIndex] = [
+                        $records[$kid][$fieldIndex]['value'] = [
                             'circa' => $row['circa'],
                             'month' => $row['month'],
                             'day' => $row['day'],
@@ -847,7 +847,7 @@ class ExportController extends Controller {
                             $value[] = $info;
                         }
 
-                        $records[$kid][$fieldIndex] = $value;
+                        $records[$kid][$fieldIndex]['value'] = $value;
                     }
                     $datafields->free();
                     $con->next_result();
@@ -873,7 +873,7 @@ class ExportController extends Controller {
                             ];
                             $value[] = $info;
                         }
-                        $records[$kid][$fieldIndex] = $value;
+                        $records[$kid][$fieldIndex]['value'] = $value;
                     }
                     $datafields->free();
                     $con->next_result();
@@ -904,7 +904,7 @@ class ExportController extends Controller {
                                 $info['caption'] = '';
                             $value[] = $info;
                         }
-                        $records[$kid][$fieldIndex] = $value;
+                        $records[$kid][$fieldIndex]['value'] = $value;
                     }
                     $datafields->free();
                     $con->next_result();
@@ -930,7 +930,7 @@ class ExportController extends Controller {
                             ];
                             $value[] = $info;
                         }
-                        $records[$kid][$fieldIndex] = $value;
+                        $records[$kid][$fieldIndex]['value'] = $value;
                     }
                     $datafields->free();
                     $con->next_result();
@@ -956,7 +956,7 @@ class ExportController extends Controller {
                             ];
                             $value[] = $info;
                         }
-                        $records[$kid][$fieldIndex] = $value;
+                        $records[$kid][$fieldIndex]['value'] = $value;
                     }
                     $datafields->free();
                     $con->next_result();
@@ -982,7 +982,7 @@ class ExportController extends Controller {
                             ];
                             $value[] = $info;
                         }
-                        $records[$kid][$fieldIndex] = $value;
+                        $records[$kid][$fieldIndex]['value'] = $value;
                     }
                     $datafields->free();
                     $con->next_result();
@@ -1018,7 +1018,7 @@ class ExportController extends Controller {
                             $value[] = $info;
                         }
 
-                        $records[$kid][$fieldIndex] = $value;
+                        $records[$kid][$fieldIndex]['value'] = $value;
                     }
                     $datafields->free();
                     $con->next_result();
@@ -1043,7 +1043,7 @@ class ExportController extends Controller {
                                 }
                             }
                         } else {
-                            $records[$kid][$fieldIndex] = explode(',', $row['value']);
+                            $records[$kid][$fieldIndex]['value'] = explode(',', $row['value']);
                         }
                     }
                     $datafields->free();
