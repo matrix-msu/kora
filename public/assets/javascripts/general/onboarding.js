@@ -92,7 +92,7 @@ $(document).ready(function () {
 
 	Kora.Modal.open($('.onboarding-modal-js'));
 
-	$('.body.onboarding .single-select').chosen({
+	$('.body.onboarding .multi-select').chosen({
 		disable_search_threshold: 1,
 		width: '100%'
 	});

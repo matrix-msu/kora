@@ -48,7 +48,7 @@
 			<div class="form-group mt-xxl">
                 <label for="projects">Select the Project to Request Permissions</label>
                 <span class="error-message"></span>
-                <select class="single-select" name="projects" data-placeholder="Select the project you would like to request permissions to here">
+                <select class="multi-select" name="projects" data-placeholder="Select the project you would like to request permissions to here">
                     <option></option>
                     <option value="project 1">project 1</option>
                     <option value="project 2">project 2</option>

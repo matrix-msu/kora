@@ -58,7 +58,7 @@
       }
     }
 
-    ul {
+    ul:not(.chosen-choices) {
       padding: 0 0 0 20px;
 
       & + p {
@@ -66,7 +66,7 @@
       }
     }
 
-    li:not(.active-result) {
+    li:not(.active-result):not(.search-field) {
       font-family: $ubuntu;
       margin: 15px 0;
 
@@ -77,7 +77,9 @@
 
     a.green {
       color: palette('green', accent);
+      font-family: $ubuntu-medium;
       text-decoration: none;
+      padding-bottom: 3px;
       position: relative;
 
       &.underline::before,

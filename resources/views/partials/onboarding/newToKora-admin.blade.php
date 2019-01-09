@@ -98,7 +98,7 @@
         </div>
         <div class="body onboarding">
             <h3>Thats it!  See, that wasn't too hard.</h3>
-            <p>Kora was designed to be simple and easy to use, but if at any point you're still not sure how things work or are structured, feel free to visit our <a href="#" class="green underline pb-xxs">Kora Documentation</a>, where we dive deeper into what Kora is, how it all works, and share examples of how people use Kora.  <span class="bold">You can always access the documentation at the bottom of Kora's side menu.</span></p>
+            <p>Kora was designed to be simple and easy to use, but if at any point you're still not sure how things work or are structured, feel free to visit our <a href="#" class="green underline">Kora Documentation</a>, where we dive deeper into what Kora is, how it all works, and share examples of how people use Kora.  <span class="bold">You can always access the documentation at the bottom of Kora's side menu.</span></p>
         </div>
     </section>
     <section class="hidden" id="Sandbox">

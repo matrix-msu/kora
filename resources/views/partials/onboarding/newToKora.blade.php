@@ -98,7 +98,7 @@
         </div>
         <div class="body onboarding">
             <h3>Thats it!  See, that wasn't too hard.</h3>
-            <p>Kora was designed to be simple and easy to use, but if at any point you're still not sure how things work or are structured, feel free to visit our <a href="#" class="green underline pb-xxs">Kora Documentation</a>, where we dive deeper into what Kora is, how it all works, and share examples of how people use Kora.  <span class="bold">You can always access the documentation at the bottom of Kora's side menu.</span></p>
+            <p>Kora was designed to be simple and easy to use, but if at any point you're still not sure how things work or are structured, feel free to visit our <a href="#" class="green underline">Kora Documentation</a>, where we dive deeper into what Kora is, how it all works, and share examples of how people use Kora.  <span class="bold">You can always access the documentation at the bottom of Kora's side menu.</span></p>
         </div>
     </section>
     <section class="hidden" id="Sandbox">
@@ -139,9 +139,10 @@
 				<li>Other Project Name</li>
 			</ul>
 			<div class="form-group mt-xxl">
+                <!--
                 <label for="projects">Select the Project to Request Permissions</label>
                 <span class="error-message"></span>
-                <select class="single-select" name="projects" data-placeholder="Select the project you would like to request permissions to here">
+                <select class="multi-select" name="projects" data-placeholder="Select the project you would like to request permissions to here">
                     <option></option>
                     <option value="project 1">project 1</option>
                     <option value="project 2">project 2</option>
@@ -150,6 +151,23 @@
                     <option value="project 5">project 5</option>
                     <option value="project 6">project 6</option>
                 </select>
+                -->
+
+                <?php $projects = array('1' => 'project 1', '2' => 'project 2', '3' => 'project 3', '4' => 'project 4', '5' => 'project 5', '6' => 'project 6'); ?>
+                {!! Form::label('projects', 'Select the Project to Request Permissions') !!}
+                {!! Form::select('projects[]', $projects, null, [
+                    'class' => 'multi-select',
+                    'multiple',
+                    'data-placeholder' => "Select the project you would like to request permissions to here"
+                ]) !!}
+
+{{--
+                {!! Form::select('default[]',\App\MultiSelectListField::getList($field,false), explode('[!]',$field->default), [
+                    'class' => 'multi-select list-default-js',
+                    'multiple',
+                    'data-placeholder' => 'Select the default values here (Values must be added above in order to select)'
+                ]) !!}
+--}}
             </div>
         </div>
     </section>
