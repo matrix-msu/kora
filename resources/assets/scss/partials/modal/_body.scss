@@ -58,7 +58,7 @@
       }
     }
 
-    ul:not(.chosen-choices) {
+    ul:not(.chosen-choices):not(.chosen-results) {
       padding: 0 0 0 20px;
 
       & + p {
@@ -66,7 +66,7 @@
       }
     }
 
-    li:not(.active-result):not(.search-field) {
+    li:not(.active-result):not(.search-field):not(.search-choice) {
       font-family: $ubuntu;
       margin: 15px 0;
 
