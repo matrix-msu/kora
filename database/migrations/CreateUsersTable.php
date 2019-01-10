@@ -14,22 +14,14 @@ class CreateUsersTable extends Migration {
     {
         Schema::create('users', function(Blueprint $table)
         {
-            $table->engine = 'MyISAM';
-
             $table->increments('id');
             $table->boolean('admin');
             $table->boolean('active');
             $table->string('username')->unique();
-            $table->string('first_name');
-            $table->string('last_name');
-            $table->string('profile')->nullable();
-            $table->string('email')->unique();
+            $table->string('email', 60)->unique();
             $table->string('password', 60);
-            $table->string('organization');
-            $table->string('language');
-            $table->string('regtoken');
-            $table->boolean("dash")->default(0);
-            $table->boolean("locked_out");
+            $table->string('regtoken',100);
+            $table->json('preferences');
             $table->rememberToken();
             $table->timestamps();
         });

@@ -14,11 +14,9 @@ class CreateScriptsTable extends Migration {
 	{
 		Schema::create('scripts', function(Blueprint $table)
 		{
-			$table->engine = 'MyISAM';
-
 			$table->increments('id');
 			$table->string('filename')->unique();
-			$table->boolean('hasRun');
+			$table->boolean('has_run');
 			$table->timestamps();
 		});
 

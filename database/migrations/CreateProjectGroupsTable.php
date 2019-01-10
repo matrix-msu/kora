@@ -14,24 +14,20 @@ class CreateProjectGroupsTable extends Migration {
 	{
 		Schema::create('project_groups', function(Blueprint $table)
 		{
-			$table->engine = 'MyISAM';
-
 			$table->increments('id');
-            $table->string('name');
-            $table->integer('pid')->unsigned();
+            $table->string('name',80);
+            $table->integer('project_id')->unsigned();
             $table->boolean('create');
             $table->boolean('edit');
             $table->boolean('delete');
 			$table->timestamps();
 
-            $table->foreign('pid')->references('pid')->on('projects')->onDelete('cascade');
+            $table->foreign('project_id')->references('id')->on('projects')->onDelete('cascade');
 		});
 
         Schema::create('project_group_user', function(Blueprint $table)
         {
-			$table->engine = 'MyISAM';
-
-            $table->integer('project_group_id')->unsigned()->index();
+			$table->integer('project_group_id')->unsigned()->index();
             $table->foreign('project_group_id')->references('id')->on('project_groups')->onDelete('cascade');
 
             $table->integer('user_id')->unsigned()->index();

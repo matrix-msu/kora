@@ -14,20 +14,16 @@ class CreateFormsTable extends Migration {
 	{
 		Schema::create('forms', function(Blueprint $table)
 		{
-			$table->engine = 'MyISAM';
-
-			$table->increments('fid');
-			$table->integer('pid')->unsigned();
-            $table->integer('adminGID')->unsigned();
-			$table->string('name');
-			$table->string('slug')->unique();
-			$table->string('description');
-            $table->boolean('preset');
-            $table->boolean('public_metadata');
-            $table->string('lod_resource')->default('');
+			$table->increments('id');
+			$table->integer('project_id')->unsigned();
+			$table->string('name',60);
+			$table->string('internal_name',60)->unique();
+			$table->string('description',100);
+            $table->integer('adminGroup_id')->unsigned();
+            $table->json('layout');
 			$table->timestamps();
 
-            $table->foreign('pid')->references('pid')->on('projects')->onDelete('cascade');
+            $table->foreign('project_id')->references('id')->on('projects')->onDelete('cascade');
 		});
 	}
 

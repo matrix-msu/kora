@@ -14,15 +14,13 @@ class CreateAssociationsTable extends Migration {
 	{
 		Schema::create('associations', function(Blueprint $table)
 		{
-			$table->engine = 'MyISAM';
-
 			$table->increments('id');
-			$table->integer('dataForm')->unsigned();
-			$table->integer('assocForm')->unsigned();
+			$table->integer('data_form')->unsigned();
+			$table->integer('assoc_form')->unsigned();
 			$table->timestamps();
 
-			$table->foreign('dataForm')->references('fid')->on('forms')->onDelete('cascade');
-			$table->foreign('assocForm')->references('fid')->on('forms')->onDelete('cascade');
+			$table->foreign('data_form')->references('id')->on('forms')->onDelete('cascade');
+			$table->foreign('assoc_form')->references('id')->on('forms')->onDelete('cascade');
 		});
 	}
 

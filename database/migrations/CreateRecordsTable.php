@@ -12,21 +12,7 @@ class CreateRecordsTable extends Migration {
 	 */
 	public function up()
 	{
-		Schema::create('records', function(Blueprint $table)
-		{
-			$table->engine = 'MyISAM';
 
-			$table->increments('rid');
-            $table->string('kid');
-            $table->string('legacy_kid')->nullable();
-            $table->integer('pid')->unsigned();
-            $table->integer('fid')->unsigned();
-            $table->integer('owner')->unsigned();
-            $table->boolean('isTest');
-            $table->timestamps();
-
-            $table->foreign(['pid', 'fid'])->references(['pid', 'fid'])->on('forms')->onDelete('cascade');
-		});
 	}
 
 	/**
@@ -36,7 +22,27 @@ class CreateRecordsTable extends Migration {
 	 */
 	public function down()
 	{
-		Schema::drop('records');
+
 	}
 
+    /**
+     * Dynamically creates a form's record table.
+     *
+     * @param
+     * @return void
+     */
+	public function createFormRecordsTable($fid) {
+        Schema::create("records_$fid", function(Blueprint $table)
+        {
+            $table->increments('id');
+            $table->string('kid');
+            $table->string('legacy_kid')->nullable();
+            $table->integer('project_id')->unsigned();
+            $table->integer('form_id')->unsigned();
+            $table->integer('owner')->unsigned();
+            $table->timestamps();
+
+            $table->foreign(['project_id', 'form_id'])->references(['id', 'id'])->on('forms')->onDelete('cascade');
+        });
+    }
 }

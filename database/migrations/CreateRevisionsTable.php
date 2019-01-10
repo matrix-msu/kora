@@ -14,20 +14,13 @@ class CreateRevisionsTable extends Migration {
 	{
 		Schema::create('revisions', function(Blueprint $table)
 		{
-			$table->engine = 'MyISAM';
-
 			$table->increments('id');
-            $table->integer('fid')->unsigned();
-            $table->integer('rid')->unsigned();
-            $table->integer('owner')->unsinged();
-            $table->string('username');
-            $table->string('type');
-            $table->binary('data');
-            $table->binary('oldData');
-            $table->boolean('rollback');
+            $table->integer('form_id')->unsigned();
+            $table->string('record_kid',20);
+            $table->json('revision');
 			$table->timestamps();
 
-            $table->foreign('fid')->references('fid')->on('forms')->onDelete('cascade');
+            $table->foreign('form_id')->references('id')->on('forms')->onDelete('cascade');
 		});
 	}
 

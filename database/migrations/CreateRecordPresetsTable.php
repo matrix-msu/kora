@@ -14,16 +14,13 @@ class CreateRecordpresetsTable extends Migration {
 	{
 		Schema::create('record_presets', function(Blueprint $table)
 		{
-			$table->engine = 'MyISAM';
-
 			$table->increments('id');
-            $table->integer('fid')->unsigned();
-            $table->integer('rid')->unsigned();
-            $table->string('name');
-			$table->binary('preset');
+            $table->integer('form_id')->unsigned();
+            $table->string('record_kid',20);
+			$table->json('preset');
 			$table->timestamps();
 
-            $table->foreign('fid')->references('fid')->on('forms')->onDelete('cascade');
+            $table->foreign('form_id')->references('id')->on('forms')->onDelete('cascade');
 		});
 	}
 

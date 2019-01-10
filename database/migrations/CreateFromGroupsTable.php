@@ -14,11 +14,9 @@ class CreateFormGroupsTable extends Migration {
 	{
 		Schema::create('form_groups', function(Blueprint $table)
 		{
-			$table->engine = 'MyISAM';
-
 			$table->increments('id');
-            $table->string('name');
-            $table->integer('fid')->unsigned();
+            $table->string('name',80);
+            $table->integer('form_id')->unsigned();
             $table->boolean('create');
             $table->boolean('edit');
             $table->boolean('delete');
@@ -27,13 +25,11 @@ class CreateFormGroupsTable extends Migration {
             $table->boolean('destroy');
 			$table->timestamps();
 
-            $table->foreign('fid')->references('fid')->on('forms')->onDelete('cascade');
+            $table->foreign('form_id')->references('id')->on('forms')->onDelete('cascade');
 		});
 
         Schema::create('form_group_user', function(Blueprint $table)
         {
-			$table->engine = 'MyISAM';
-
 			$table->integer('form_group_id')->unsigned()->index();
             $table->foreign('form_group_id')->references('id')->on('form_groups')->onDelete('cascade');
 

@@ -14,14 +14,12 @@ class CreateProjectsTable extends Migration {
 	{
 		Schema::create('projects', function(Blueprint $table)
 		{
-			$table->engine = 'MyISAM';
-
-			$table->increments('pid');
-			$table->string('name');
-			$table->string('slug')->unique();
-			$table->string('description');
-            $table->integer('adminGID')->unsigned();
-			$table->boolean('active');
+			$table->increments('id');
+			$table->string('name',60);
+			$table->string('internal_name',60)->unique();
+			$table->string('description',100);
+            $table->boolean('active');
+            $table->integer('adminGroup_id')->unsigned();
 			$table->timestamps();
 		});
 	}

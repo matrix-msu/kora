@@ -14,17 +14,14 @@ class CreateFormCustomTable extends Migration
     {
         Schema::create('form_custom', function(Blueprint $table)
         {
-            $table->engine = 'MyISAM';
-
             $table->increments('id');
-            $table->integer('uid')->unsigned();
-            $table->foreign('uid')->references('id')->on('users')->onDelete('cascade');
-            $table->integer('pid')->unsigned();
-            $table->foreign('pid')->references('pid')->on('projects')->onDelete('cascade');
-            $table->integer('fid')->unsigned();
-            $table->foreign('fid')->references('fid')->on('forms')->onDelete('cascade');
-            $table->integer('sequence')->unsigned();
+            $table->integer('user_id')->unsigned();
+            $table->integer('form_id')->unsigned();
+            $table->json('organization');
             $table->timestamps();
+
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+            $table->foreign('form_id')->references('id')->on('forms')->onDelete('cascade');
         });
     }
 
