@@ -16,6 +16,12 @@
             <a href="{{ action('TokenController@index') }}">Token Management</a>
         </li>
 
+        @if (null !== \Auth::user() && \Auth::user()->id == 1)
+          <li class="content-link content-link-js" data-page="backup-management">
+              <a href="{{ action('BackupController@index') }}">Backups Management</a>
+          </li>
+        @endif
+
         <li class="content-link content-link-js" data-page="edit-config">
             <a href="{{ action('InstallController@editEnvConfigs') }}">Kora Configuration File</a>
         </li>
@@ -25,10 +31,6 @@
         </li>
 
         @if (null !== \Auth::user() && \Auth::user()->id == 1)
-          <li class="content-link content-link-js" data-page="backup-management">
-              <a href="{{ action('BackupController@index') }}">Backups Management</a>
-          </li>
-
           <li class="content-link content-link-js" data-page="kora-exodus">
               <a href="{{ action('ExodusController@index') }}">Kora 2 Exodus</a>
           </li>
