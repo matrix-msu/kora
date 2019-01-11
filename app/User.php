@@ -547,7 +547,7 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
      * @return array - Forms user can access
      */
     public function allowedForms($pid) {
-        $form_projects = Form::where('pid', '=', $pid)->get();
+        $form_projects = Form::where('project_id', '=', $pid)->get();
         $forms = array(); //Array of forms the user is allowed to view in a certain project.
 
         foreach($form_projects as $form) {
@@ -574,17 +574,13 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
      * Gets a sequence value a form for the user's custom view.
      *
      * @param  int $pid - Project ID
-     * @param  int $fid - Form ID
      * @return int - The sequence
      */
-    public function getCustomFormSequence($fid) {
-        $form = FormController::getForm($fid);
-        $pid = $form->project_id;
-
+    public function getCustomFormSequence($pid) {
         $check = DB::table("form_custom")->where("user_id", "=", $this->id)
             ->where("project_id", "=", $pid)->first();
 
-        return is_null($check) ? null : $check->sequence;
+        return is_null($check) ? null : json_decode($check->organization);
     }
 
     /**

@@ -1,8 +1,7 @@
 @extends('app', ['page_title' => "Editing {$project->name}", 'page_class' => 'project-edit'])
 
 @section('leftNavLinks')
-  {{--TODO::CASTLE--}}
-  {{--@include('partials.menu.project', ['pid' => $project->id])--}}
+  @include('partials.menu.project', ['pid' => $project->id])
   @include('partials.menu.static', ['name' => 'Edit Project'])
 @stop
 
@@ -11,8 +10,7 @@
 @stop
 
 @section('aside-content')
-  {{--TODO::CASTLE--}}
-  {{--@include('partials.sideMenu.project', ['pid' => $project->id, 'openDrawer' => true])--}}
+  @include('partials.sideMenu.project', ['pid' => $project->id, 'openDrawer' => true])
 @stop
 
 @section('header')

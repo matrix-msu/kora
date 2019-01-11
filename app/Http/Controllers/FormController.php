@@ -77,20 +77,23 @@ class FormController extends Controller {
 	public function store(FormRequest $request) {
 	    $form = Form::create($request->all());
 
-        $form->save();
-
-        if($request->preset[0]=="") //Since the preset is copying the target form, no need to make a default page
-            PageController::makePageOnForm($form->fid,$form->slug." Default Page");
+	    //TODO::CASTLE
+        //if($request->preset[0]=="") //Since the preset is copying the target form, no need to make a default page
+            //PageController::makePageOnForm($form->fid,$form->name." Default Page");
 
         $adminGroup = FormGroup::makeAdminGroup($form, $request);
         FormGroup::makeDefaultGroup($form);
-        $form->adminGID = $adminGroup->id;
+        $form->adminGroup_id = $adminGroup->id;
+        $form->internal_name = str_replace(" ","_", $form->name).'_'.$form->project_id.'_'.$form->id.'_';
         $form->save();
 
-        if($request->preset[0]!="")
-            self::addPresets($form, $request->preset[0]);
+        //TODO::MAKE THE RECORDS TABLE
 
-        return redirect('projects/'.$form->pid.'/forms/'.$form->fid)->with('k3_global_success', 'form_created');
+        //TODO::CASTLE
+        //if($request->preset[0]!="")
+            //self::addPresets($form, $request->preset[0]);
+
+        return redirect('projects/'.$form->project_id.'/forms/'.$form->id)->with('k3_global_success', 'form_created');
 	}
 
     /**
@@ -196,6 +199,7 @@ class FormController extends Controller {
             $form->preset = 0;
         }
 
+        $form->internal_name = str_replace(" ","_", $form->name).'_'.$form->project_id.'_'.$form->id.'_';
         $form->save();
 
         FormGroupController::updateMainGroupNames($form);
@@ -296,7 +300,7 @@ class FormController extends Controller {
      * @return Form - The requested form
      */
     public static function getForm($fid) {
-        $form = Form::where('fid','=',$fid)->first();
+        $form = Form::where('id','=',$fid)->first();
         if(is_null($form))
             $form = Form::where('slug','=',$fid)->first();
 

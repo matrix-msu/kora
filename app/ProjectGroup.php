@@ -58,13 +58,13 @@ class ProjectGroup extends Model {
      * Delete's the connections between group and users, and then deletes self.
      */
     public function delete() {
-        $guBuilder = DB::table("project_group_user")->where("project_group_id", "=", $this->id);
+        $guBuilder = DB::table("project_group_user")->where("project_group_id", "=", $this->project_id);
         $group_users = $guBuilder->get();
 
-        foreach($group_users as $group_user) { //TODO::CASTLE
+        foreach($group_users as $group_user) {
             //remove this project from that users custom list
             $user = User::where("id","=",$group_user->user_id)->first();
-            $user->removeCustomProject($this->pid);
+            $user->removeCustomProject($this->project_id);
         }
 
         parent::delete();
@@ -107,7 +107,7 @@ class ProjectGroup extends Model {
         }
 		
 		$proj = ProjectController::getProject($adminGroup->project_id);
-		//$proj->batchAddUsersAsCustom($users_to_add); //TODO::CASTLE
+		$proj->batchAddUsersAsCustom($users_to_add);
 
         $adminGroup->create = 1;
         $adminGroup->edit = 1;

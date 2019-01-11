@@ -55,7 +55,7 @@ class ProjectController extends Controller {
                     if(is_null($customseq) || !in_array($project->id,$customseq)) {
                         //Project missing from custom so add it and repull the sequence
                         $user->addCustomProject($project->id);
-                        $customseq = \Auth::user()->getCustomProjectSequence();
+                        array_push($customseq,$project->id);
                     }
 
                     $custom[array_search($project->id,$customseq)] = $project;
@@ -238,7 +238,7 @@ class ProjectController extends Controller {
 	}
 
     /**
-     * Gets the view for an individual project page. //TODO::CASTLE
+     * Gets the view for an individual project page.
      *
      * @param  int $id - Project ID
      * @return View
@@ -252,19 +252,21 @@ class ProjectController extends Controller {
 
         $project = self::getProject($id);
         $formCollections = $project->forms()->get()->sortBy("name", SORT_NATURAL|SORT_FLAG_CASE);
+        $user = \Auth::user();
 
         $forms = array();
         $custom = array();
+        $customseq = $user->getCustomFormSequence($id);
         foreach($formCollections as $form){
             array_push($forms,$form);
 
-            $seq = \Auth::user()->getCustomFormSequence($form->fid);
-            if($seq == null) {
-                \Auth::user()->addCustomForm($form->fid);
-                $seq = \Auth::user()->getCustomFormSequence($form->fid);
+            if(is_null($customseq) || !in_array($form->id,$customseq)) {
+                //Project missing from custom so add it and repull the sequence
+                $user->addCustomForm($form->id);
+                array_push($customseq,$form->id);
             }
 
-            $custom[$seq] = $form;
+            $custom[array_search($form->id,$customseq)] = $project;
         }
 
         //We need to sort the custom array

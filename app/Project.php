@@ -49,7 +49,7 @@ class Project extends Model {
      * @return BelongsTo
      */
     public function adminGroup() {
-        return $this->belongsTo('App\ProjectGroup', 'adminGID');
+        return $this->belongsTo('App\ProjectGroup', 'adminGroup_id');
     }
 
     /**
@@ -58,7 +58,7 @@ class Project extends Model {
      * @return HasMany
      */
     public function groups() {
-        return $this->hasMany('App\ProjectGroup','pid');
+        return $this->hasMany('App\ProjectGroup','project_id');
     }
 
     /**
@@ -67,7 +67,7 @@ class Project extends Model {
      * @return HasMany
      */
     public function optionPresets() {
-        return $this->hasMany('App\OptionPreset','pid');
+        return $this->hasMany('App\OptionPreset','project_id');
     }
 
     /**

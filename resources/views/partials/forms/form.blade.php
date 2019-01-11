@@ -1,4 +1,4 @@
-{!! Form::hidden('pid',$pid) !!}
+{!! Form::hidden('project_id',$pid) !!}
 
 <div class="form-group">
   {!! Form::label('name', 'Form Name') !!}
@@ -11,15 +11,9 @@
 </div>
 
 <div class="form-group mt-xl">
-  {!! Form::label('slug', 'Unique Form Identifier') !!}
-    <span class="error-message">{{array_key_exists("slug", $errors->messages()) ? $errors->messages()["slug"][0] : ''}}</span>
-  {!! Form::text('slug', null, ['class' => 'text-input' . (array_key_exists("slug", $errors->messages()) ? ' error' : ''), 'placeholder' => "Enter the form's unique ID here (no spaces, alpha-numeric values only)"]) !!}
-</div>
-
-<div class="form-group mt-xl">
   {!! Form::label('description', 'Description') !!}
     <span class="error-message">{{array_key_exists("description", $errors->messages()) ? $errors->messages()["description"][0] : ''}}</span>
-  {!! Form::textarea('description', null, ['class' => 'text-area' . (array_key_exists("description", $errors->messages()) ? ' error' : ''), 'placeholder' => "Enter the form's description here (max. 255 characters)"]) !!}
+  {!! Form::textarea('description', null, ['class' => 'text-area' . (array_key_exists("description", $errors->messages()) ? ' error' : ''), 'placeholder' => "Enter the form's description here (max. 500 characters)"]) !!}
 </div>
 
 @if($submitButtonText == 'Create Form')
@@ -102,11 +96,12 @@
       <p class="title">Test Record Management</p>
       <div class="button-container">
         <a href="#" class="btn half-sub-btn create-test-js">Create Test Record(s)</a>
-          @if($form->records()->where('isTest','=',1)->count()==0)
-            <a href="#" class="btn half-sub-btn warning delete-test-js disabled">Delete All Test Records?</a>
-          @else
-            <a href="#" class="btn half-sub-btn warning delete-test-js">Delete All Test Records?</a>
-          @endif
+        {{--TODO::CASTLE--}}
+          {{--@if($form->records()->where('isTest','=',1)->count()==0)--}}
+            {{--<a href="#" class="btn half-sub-btn warning delete-test-js disabled">Delete All Test Records?</a>--}}
+          {{--@else--}}
+            {{--<a href="#" class="btn half-sub-btn warning delete-test-js">Delete All Test Records?</a>--}}
+          {{--@endif--}}
       </div>
     </div>
 
@@ -123,11 +118,12 @@
         @else
           <a href="#" class="btn half-sub-btn warning delete-files-js">Delete Old Record Files</a>
         @endif
-        @if($form->records()->count()==0)
-            <a href="#" class="btn half-sub-btn warning delete-records-js disabled">Delete All Form Records?</a>
-        @else
-            <a href="#" class="btn half-sub-btn warning delete-records-js">Delete All Form Records?</a>
-        @endif
+          {{--TODO::CASTLE--}}
+        {{--@if($form->records()->count()==0)--}}
+            {{--<a href="#" class="btn half-sub-btn warning delete-records-js disabled">Delete All Form Records?</a>--}}
+        {{--@else--}}
+            {{--<a href="#" class="btn half-sub-btn warning delete-records-js">Delete All Form Records?</a>--}}
+        {{--@endif--}}
       </div>
     </div>
 

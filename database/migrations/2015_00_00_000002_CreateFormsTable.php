@@ -20,6 +20,7 @@ class CreateFormsTable extends Migration {
 			$table->string('internal_name',60)->unique();
 			$table->string('description',100);
             $table->integer('adminGroup_id')->unsigned();
+            $table->boolean('preset');
             $table->jsonb('layout');
 			$table->timestamps();
 

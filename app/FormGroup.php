@@ -65,17 +65,14 @@ class FormGroup extends Model {
      * Delete's the connections between group and users, and then deletes self.
      */
     public function delete() {
-        $guBuilder = DB::table("form_group_user")->where("form_group_id", "=", $this->id);
+        $guBuilder = DB::table("form_group_user")->where("form_group_id", "=", $this->form_id);
         $group_users = $guBuilder->get();
 
         foreach($group_users as $group_user) {
             //remove this project from that users custom list
             $user = User::where("id","=",$group_user->user_id)->first();
-            $user->removeCustomForm($this->fid);
+            $user->removeCustomForm($this->form_id);
         }
-
-        //then delete the group connections
-        $guBuilder->delete();
 
         parent::delete();
     }
@@ -93,7 +90,7 @@ class FormGroup extends Model {
 
         $adminGroup = new FormGroup();
         $adminGroup->name = $groupName;
-        $adminGroup->fid = $form->fid;
+        $adminGroup->form_id = $form->id;
         $adminGroup->save();
 
         $formProject = $form->project()->first();
@@ -116,14 +113,14 @@ class FormGroup extends Model {
 
             foreach($idArray as $uid) {
                 $user = User::where("id","=",$uid)->first();
-                $user->addCustomForm($adminGroup->fid);
+                $user->addCustomForm($adminGroup->form_id);
             }
         }
 
         //We want to now give this form to the custom list of all system admins
         $admins = User::where("admin","=",1)->get();
         foreach($admins as $admin) {
-            $admin->addCustomForm($adminGroup->fid);
+            $admin->addCustomForm($adminGroup->form_id);
         }
 
         $adminGroup->create = 1;
@@ -149,7 +146,7 @@ class FormGroup extends Model {
 
         $defaultGroup = new FormGroup();
         $defaultGroup->name = $groupName;
-        $defaultGroup->fid = $form->fid;
+        $defaultGroup->form_id = $form->id;
         $defaultGroup->save();
 
         $defaultGroup->create = 0;
