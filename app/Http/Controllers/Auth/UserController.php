@@ -30,6 +30,45 @@ class UserController extends Controller {
     |
     */
 
+    // Logo Target Options
+    const DASHBOARD = 1;
+    const PROJECTS = 2;
+
+    protected static $logoTargetOptions = array(
+        self::DASHBOARD => 'Dashboard',
+        self::PROJECTS  => 'Projects',
+    );
+
+    // Projects Page Tab Selection Options
+    const CUSTOM = 1;
+    const ALPHABETICAL = 2;
+
+    protected static $projPageTabSelOptions = array(
+        self::CUSTOM  => 'Custom',
+        self::ALPHABETICAL => 'Alphabetical'
+    );
+
+    // Single Project Page Tab Selection
+    const SINGLE_CUSTOM = 1;
+    const SINGLE_ALPHABETICAL = 2;
+
+    protected static $singleProjTabSelOptions = array(
+        self::SINGLE_CUSTOM  => 'Custom',
+        self::SINGLE_ALPHABETICAL => 'Alphabetical'
+    );
+
+    public static function logoTargetOptions() {
+        return static::$logoTargetOptions;
+    }
+
+    public static function projPageTabSelOptions() {
+        return static::$projPageTabSelOptions;
+    }
+
+    public static function singleProjTabSelOptions() {
+        return static::$singleProjTabSelOptions;
+    }
+
     /**
      * Constructs the controller and checks if user is authenticated and activated.
      */
@@ -143,7 +182,7 @@ class UserController extends Controller {
     }
 
     /**
-     * User updating profile information. //TODO
+     * User updating profile information.
      *
      * @param  Request $request
      * @return Redirect
@@ -163,17 +202,17 @@ class UserController extends Controller {
 
       // Look for changes, update what was changed
       if(!empty($newFirstName) && $newFirstName != $user->first_name) {
-        $user->first_name = $newFirstName;
+        $user->preferences['first_name'] = $newFirstName;
         array_push($message, "first_name");
       }
 
       if(!empty($newLastName) && $newLastName != $user->last_name) {
-        $user->last_name = $newLastName;
+        $user->preferences['last_name'] = $newLastName;
         array_push($message, "last_name");
       }
 
       if(!empty($newOrganization) && $newOrganization != $user->organization) {
-        $user->organization = $newOrganization;
+        $user->preferences['organization'] = $newOrganization;
         array_push($message, "organization");
       }
 
@@ -207,7 +246,7 @@ class UserController extends Controller {
     }
 
     /**
-     * Create account from email invite //TODO
+     * Create account from email invite
      * Since we 'create' the account when we invite the user, we are updating their things rather than creating them
      * Can't use the 'Update' function above since we need this function to send the activation email
      * 
@@ -231,17 +270,17 @@ class UserController extends Controller {
 
       // Look for changes, update what was changed
       if (!empty($newFirstName) && $newFirstName != $user->first_name) {
-        $user->first_name = $newFirstName;
+        $user->preferences['first_name'] = $newFirstName;
         array_push($message, "first_name");
       }
 
       if (!empty($newLastName) && $newLastName != $user->last_name) {
-        $user->last_name = $newLastName;
+        $user->preferences['last_name'] = $newLastName;
         array_push($message, "last_name");
       }
 
       if (!empty($newOrganization) && $newOrganization != $user->organization) {
-        $user->organization = $newOrganization;
+        $user->preferences['organization'] = $newOrganization;
         array_push($message, "organization");
       }
 
@@ -319,27 +358,14 @@ class UserController extends Controller {
      * @param  int $uid - User's Id
      * @return View
      */
-    public function preferences($uid) { //TODO
+    public function preferences($uid) {
         if(\Auth::user()->id != $uid)
             return redirect('user')->with('k3_global_error', 'cannot_edit_preferences');
 
         $user = \Auth::user();
-        $preference = Preference::where('user_id', '=' ,$user->id)->first();
-        $logoTargetOptions = Preference::logoTargetOptions();
-        $projPageTabSelOptions = Preference::projPageTabSelOptions();
-        $singleProjTabSelOptions = Preference::singleProjTabSelOptions();
-
-        if(is_null($preference)) {
-            // Must create user preference
-            $preference = new Preference;
-            $preference->user_id = $user->id;
-            $preference->use_dashboard = 1;
-            $preference->logo_target = 1;
-            $preference->proj_page_tab_selection = 3;
-            $preference->single_proj_page_tab_selection = 3;
-            $preference->created_at = Carbon::now();
-            $preference->save();
-        }
+        $logoTargetOptions = self::logoTargetOptions();
+        $projPageTabSelOptions = self::projPageTabSelOptions();
+        $singleProjTabSelOptions = self::singleProjTabSelOptions();
 
         $notification = array(
             'message' => '',
@@ -358,31 +384,20 @@ class UserController extends Controller {
      * @param  Request $request
      * @return View
      */
-    public function updatePreferences($uid, Request $request) { //TODO
+    public function updatePreferences($uid, Request $request) {
         if(\Auth::user()->id != $uid)
             return redirect('user/'.\Auth::user()->id.'/preferences')->with('k3_global_error', 'cannot_edit_preferences');
 
         $user = \Auth::user();
 
-        $preference = Preference::where('user_id', '=', $user->id)->first();
+        $user->preferences['use_dashboard'] = ($request->useDashboard == "true" ? 1 : 0);
+        $user->preferences['logo_target'] = $request->logoTarget;
+        $user->preferences['proj_tab_selection'] = $request->projPageTabSel;
+        $user->preferences['form_tab_selection'] = $request->singleProjPageTabSel;
 
-        if(is_null($preference)) {
-            // Must create user preference
-            $preference = new Preference;
-            $preference->user_id = $user->id;
-            $preference->created_at = Carbon::now();
-        }
-
-        $preference->use_dashboard = ($request->useDashboard == "true" ? 1 : 0);
-        $preference->logo_target = $request->logoTarget;
-        $preference->proj_page_tab_selection = $request->projPageTabSel;
-        $preference->single_proj_page_tab_selection = $request->singleProjPageTabSel;
-
-        $preference->save();
-
-        $logoTargetOptions = Preference::logoTargetOptions();
-        $projPageTabSelOptions = Preference::projPageTabSelOptions();
-        $singleProjTabSelOptions = Preference::singleProjTabSelOptions();
+        $logoTargetOptions = self::logoTargetOptions();
+        $projPageTabSelOptions = self::projPageTabSelOptions();
+        $singleProjTabSelOptions = self::singleProjTabSelOptions();
 
         $notification = array(
             'message' => 'Preferences Successfully Updated!',
@@ -398,40 +413,21 @@ class UserController extends Controller {
      * Return a specific user preference
      *
      * @param  string $pref - The requested preference
-     * @return string - The preference value
+     * @return array - The preference value
      */
-    public static function returnUserPrefs($pref) { //TODO
+    public static function returnUserPrefs($pref) {
         if(\Auth::user()) {
             $user = \Auth::user();
-            $preference = Preference::where('user_id', '=', $user->id)->first();
-
-            if(is_null($preference)) {
-                $preference = new Preference();
-                $preference->use_dashboard = 1;
-                $preference->logo_target = 1;
-                $preference->proj_page_tab_selection = 3;
-                $preference->single_proj_page_tab_selection = 3;
-            }
-
-            $preference = $preference->$pref;
-
-            // use_dashboard :: 0 or 1
-            // logo_target :: 1 or 2
-            // proj_page_tab_selection :: 1, 2, or 3 :: archived//custom//alphabetical
-            // single_proj_page_tab_selection :: 2 or 3 :: custom//alphabetical
-
-            return $preference;
+            return $user->preferences[$pref];
         } else if(\Auth::guest()) {
             // if user is guest, create default set of preferences
-            $preference = new Preference;
-            $preference->use_dashboard = 1;
-            $preference->logo_target = 1;
-            $preference->proj_page_tab_selection = 3;
-            $preference->single_proj_page_tab_selection = 3;
+            $preferences = array();
+            $preferences['use_dashboard'] = 1;
+            $preferences['logo_target'] = 2;
+            $preferences['proj_tab_selection'] = 2;
+            $preferences['form_tab_selection'] = 2;
 
-            $preference = $preference->$pref;
-
-            return $preference;
+            return $preferences[$pref];
         }
     }
 
@@ -451,7 +447,7 @@ class UserController extends Controller {
      * @param  Request $request
      * @return JsonResponse
      */
-    public function changepicture(Request $request, $user) { //TODO
+    public function changepicture(Request $request, $user) {
         $file = $request->profile;
         $pDir = storage_path('app/profiles/'.$user->id.'/');
         $pURL = url('app/profiles/'.$user->id).'/';
@@ -464,7 +460,7 @@ class UserController extends Controller {
         //set new pic to db
         $newFilename = $file->getClientOriginalName();
 
-        $user->profile = $newFilename;
+        $user->preferences['profile_pic'] = $newFilename;
         $user->save();
 
         //move photo and return new path
@@ -771,7 +767,7 @@ class UserController extends Controller {
     }
 
     /**
-     * Builds the string that represents a User's permissions for saving. //TODO
+     * Builds the string that represents a User's permissions for saving.
      *
      * @param  string $permissions - Pre-formatted permissions
      * @return string - The formatted string
@@ -787,17 +783,5 @@ class UserController extends Controller {
             $permissionsArray[$lastIndex] = 'and ' . $permissionsArray[$lastIndex];
             return implode(', ', $permissionsArray);
         }
-    }
-
-    /**
-     * Changes the user profile picture and returns the pic URI. //TODO
-     *
-     * @param  int $uid - User ID
-     */
-    public static function savePreferences($uid) {
-        if(!\Auth::user()->id != $uid)
-            return redirect('user')->with('k3_global_error', 'cannot_edit_preferences');
-
-        $preference = Preference::firstOrNew(array('uid' => $uid));
     }
 }

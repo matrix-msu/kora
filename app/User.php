@@ -134,12 +134,11 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
         }
 
         //Assign new user preferences
-        $preferences['dashboard'] = 1;
-        $preferences['use_dashboard'] = 0;
-        $preferences['logo_target'] = 1;
-        $preferences['proj_tab_selection'] = 3;
-        $preferences['form_tab_selection'] = 3;
-        $user->preferences = json_encode($preferences);
+        $preferences['use_dashboard'] = 1;
+        $preferences['logo_target'] = 2;
+        $preferences['proj_tab_selection'] = 2;
+        $preferences['form_tab_selection'] = 2;
+        $user->preferences = $preferences;
         $user->save();
 
         //Send email
