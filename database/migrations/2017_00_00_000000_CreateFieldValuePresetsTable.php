@@ -16,7 +16,7 @@ class CreateFieldValuePresetsTable extends Migration {
         {
 			$table->increments('id');
             $table->integer('project_id')->unsigned()->nullable();
-            $table->json('preset');
+            $table->jsonb('preset');
             $table->timestamps();
 
             $table->foreign('project_id')->references('id')->on('projects')->onDelete('cascade');

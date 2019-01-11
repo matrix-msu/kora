@@ -143,7 +143,7 @@ class UserController extends Controller {
     }
 
     /**
-     * User updating profile information.
+     * User updating profile information. //TODO
      *
      * @param  Request $request
      * @return Redirect
@@ -207,7 +207,7 @@ class UserController extends Controller {
     }
 
     /**
-     * Create account from email invite
+     * Create account from email invite //TODO
      * Since we 'create' the account when we invite the user, we are updating their things rather than creating them
      * Can't use the 'Update' function above since we need this function to send the activation email
      * 
@@ -319,7 +319,7 @@ class UserController extends Controller {
      * @param  int $uid - User's Id
      * @return View
      */
-    public function preferences($uid) {
+    public function preferences($uid) { //TODO
         if(\Auth::user()->id != $uid)
             return redirect('user')->with('k3_global_error', 'cannot_edit_preferences');
 
@@ -358,7 +358,7 @@ class UserController extends Controller {
      * @param  Request $request
      * @return View
      */
-    public function updatePreferences($uid, Request $request) {
+    public function updatePreferences($uid, Request $request) { //TODO
         if(\Auth::user()->id != $uid)
             return redirect('user/'.\Auth::user()->id.'/preferences')->with('k3_global_error', 'cannot_edit_preferences');
 
@@ -400,7 +400,7 @@ class UserController extends Controller {
      * @param  string $pref - The requested preference
      * @return string - The preference value
      */
-    public static function returnUserPrefs($pref) {
+    public static function returnUserPrefs($pref) { //TODO
         if(\Auth::user()) {
             $user = \Auth::user();
             $preference = Preference::where('user_id', '=', $user->id)->first();
@@ -451,7 +451,7 @@ class UserController extends Controller {
      * @param  Request $request
      * @return JsonResponse
      */
-    public function changepicture(Request $request, $user) {
+    public function changepicture(Request $request, $user) { //TODO
         $file = $request->profile;
         $pDir = storage_path('app/profiles/'.$user->id.'/');
         $pURL = url('app/profiles/'.$user->id).'/';
@@ -771,7 +771,7 @@ class UserController extends Controller {
     }
 
     /**
-     * Builds the string that represents a User's permissions for saving.
+     * Builds the string that represents a User's permissions for saving. //TODO
      *
      * @param  string $permissions - Pre-formatted permissions
      * @return string - The formatted string
@@ -790,7 +790,7 @@ class UserController extends Controller {
     }
 
     /**
-     * Changes the user profile picture and returns the pic URI.
+     * Changes the user profile picture and returns the pic URI. //TODO
      *
      * @param  int $uid - User ID
      */

@@ -36,15 +36,19 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
     /**
      * @var array - Attributes that can be mass assigned to model
      */
-	protected $fillable = ['username', 'first_name', 'last_name', 'email', 'password', 'organization', 'language', 'regtoken'];
+	protected $fillable = ['username', 'email', 'password', 'regtoken', 'preferences'];
     /**
      * @var array - Attributes that ignored in the model representation
      */
 	protected $hidden = ['password', 'remember_token'];
+
+    protected $casts = [
+        'preferences' => 'array'
+    ];
 	
 
     public function getFullNameAttribute() {
-        return $this->first_name . " " . $this->last_name;
+        return $this->preferences['first_name'].' '.$this->preferences['last_name'];
     }
 
     /**
@@ -53,7 +57,7 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
      * @return HasOne
      */
     public function permissions() {
-        return $this->hasOne('App\Preferences', 'preferences_id');
+        return $this->preferences;
     }
 
     /**
@@ -62,7 +66,7 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
      * @return Builder
      */
     public function gsCaches() {
-        return DB::table("global_cache")->where("user_id", "=", $this->id);
+        return DB::table("global_cache")->where("user_id", "=", $this->id)->first();
     }
 
     ////THESE FUNCTIONS WILL HANDLE MODIFICATIONS TO AUTHENTICATION IN LARAVEL//////////////////////////////////////////
@@ -106,7 +110,15 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
     public static function finishRegistration($request) {
         $user = \Auth::user();
         $token = $user->token;
+        $preferences = array();
 
+        //Metadata stuff
+        $preferences['first_name'] = $request->first_name;
+        $preferences['last_name'] = $request->last_name;
+        $preferences['organization'] = $request->organization;
+        $preferences['language'] = 'en';
+
+        //Profile picture
         if(!is_null($request->file('profile'))) {
             //get the file object
             $file = $request->file('profile');
@@ -114,24 +126,21 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
             //path where file will be stored
             $destinationPath = storage_path('app/profiles/'.$user->id.'/');
             //store filename in user model
-            $user->profile = $filename;
-            $user->save();
+            $preferences['profile_pic'] = $filename;
             //move the file
             $file->move($destinationPath,$filename);
+        } else {
+            $preferences['profile_pic'] = '';
         }
 
         //Assign new user preferences
-        $preference = Preference::where('user_id', '=' ,$user->id)->first();
-        if (is_null($preference)) {
-            $preference = new Preference;
-            $preference->user_id = $user->id;
-            $preference->created_at = Carbon::now();
-            $preference->use_dashboard = 1;
-            $preference->logo_target = 1;
-            $preference->proj_page_tab_selection = 3;
-            $preference->single_proj_page_tab_selection = 3;
-            $preference->save();
-        }
+        $preferences['dashboard'] = 1;
+        $preferences['use_dashboard'] = 0;
+        $preferences['logo_target'] = 1;
+        $preferences['proj_tab_selection'] = 3;
+        $preferences['form_tab_selection'] = 3;
+        $user->preferences = json_encode($preferences);
+        $user->save();
 
         //Send email
         try {
@@ -552,49 +561,7 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
     }
 
     /**
-     * Deletes users connections to other models, then deletes self.
-     */
-    public function delete() {
-        DB::table("project_group_user")->where("user_id", "=", $this->id)->delete();
-        DB::table("project_custom")->where("uid", "=", $this->id)->delete();
-        DB::table("form_group_user")->where("user_id", "=", $this->id)->delete();
-        DB::table("form_custom")->where("uid", "=", $this->id)->delete();
-        DB::table("backup_support")->where("user_id", "=", $this->id)->delete();
-        DB::table("global_cache")->where("user_id", "=", $this->id)->delete();
-        DB::table("preferences")->where("user_id", "=", $this->id)->delete();
-
-        //Delete dashboard stuff
-        $sections = DB::table("dashboard_sections")->where("uid", "=", $this->id)->get();
-        foreach($sections as $sec) {
-            DB::table("dashboard_blocks")->where("sec_id", "=", $sec->id)->delete();
-            DB::table("dashboard_sections")->where("id", "=", $sec->id)->delete();
-        }
-
-        parent::delete();
-    }
-
-    /**
-     * Gets a list of active plugins user belongs to.
-     *
-     * @return array - The plugins
-     */
-    public function getActivePlugins() {
-        $plugins = Plugin::where('active','=',1)->get();
-        $myPlugins = array();
-
-        foreach($plugins as $plug) {
-            $project = ProjectController::getProject($plug->pid);
-            $group = ProjectGroup::where('id','=',$project->adminGID)->get()->first();
-
-            if(\Auth::user()->admin | $group->hasUser(\Auth::user()))
-                array_push($myPlugins,$plug);
-        }
-
-        return $myPlugins;
-    }
-
-    /**
-     * Gets a sequence value a project for the user's custom view.
+     * Gets a sequence value a project for the user's custom view. //TODO::CASTLE
      *
      * @param  int $pid - Project ID
      * @return int - The sequence
@@ -607,7 +574,7 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
     }
 
     /**
-     * Gets a sequence value a form for the user's custom view.
+     * Gets a sequence value a form for the user's custom view. //TODO::CASTLE
      *
      * @param  int $pid - Project ID
      * @param  int $fid - Form ID
@@ -625,7 +592,7 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
     }
 
     /**
-     * Adds a project to a user's custom list
+     * Adds a project to a user's custom list //TODO::CASTLE
      *
      * @param  int $pid - Project ID
      */
@@ -652,7 +619,7 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
     /**
      * Adds a new admin to all projects for custom view.
      */
-	public function addNewAdminToAllCustomProjects() {
+	public function addNewAdminToAllCustomProjects() { //TODO::CASTLE
 		DB::transaction(function() {
 			$projects = Project::all();
 			$sequence = DB::table("project_custom")->where("uid", "=", $this->id)->max("sequence");
@@ -692,7 +659,7 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
      *
      * @param  int $fid - Form ID
      */
-    public function addCustomForm($fid) {
+    public function addCustomForm($fid) { //TODO::CASTLE
         $form = FormController::getForm($fid);
         $pid = $form->pid;
 
@@ -718,7 +685,7 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
     }
 
     /**
-     * Adds a new admin to all forms for custom view.
+     * Adds a new admin to all forms for custom view. //TODO::CASTLE
      */
 	public function addNewAdminToAllCustomForms() {
 		DB::transaction(function() {
@@ -759,7 +726,7 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
 	}
 
     /**
-     * Removes a project from a user's custom list
+     * Removes a project from a user's custom list //TODO::CASTLE
      *
      * @param  int $pid - Project ID
      */
@@ -796,7 +763,7 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
     }
 
     /**
-     * Removes many projects from a user's custom list
+     * Removes many projects from a user's custom list //TODO::CASTLE
      *
      * @param  int $pids - Project IDs
      */
@@ -859,7 +826,7 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
 	}
 
     /**
-     * Removes many forms from a user's custom list
+     * Removes many forms from a user's custom list //TODO::CASTLE
      *
      * @param  int $fids - Form IDs
      */
@@ -942,7 +909,7 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
 	}
 
     /**
-     * Removes a form from a user's custom list
+     * Removes a form from a user's custom list //TODO::CASTLE
      *
      * @param  int $fid - Form ID
      */
@@ -986,8 +953,8 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
      * @return string - URI of profile pic
      */
     public function getProfilePicUrl() {
-        if(!is_null($this->profile))
-            return url('app/profiles/'.$this->id.'/'.$this->profile);
+        if($this->preferences['profile_pic'] != '')
+            return url('app/profiles/'.$this->id.'/'.$this->preferences['profile_pic']);
         else
             return url('assets/images/blank_profile.jpg');
     }
@@ -998,8 +965,8 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
      * @return string Filename of profile
      */
     public function getProfilePicFilename() {
-        if(!is_null($this->profile))
-            return $this->profile;
+        if($this->preferences['profile_pic'] != '')
+            return $this->preferences['profile_pic'];
         else
             return 'blank_profile.jpg';
     }
@@ -1012,16 +979,16 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
      * @return string - identifier for user
      */
 	public function getNameOrUsername() {
-		$has_first = $this->first_name !== '';
-		$has_last = $this->last_name !== '';
+		$has_first = $this->preferences['first_name'] !== '';
+		$has_last = $this->preferences['last_name'] !== '';
 		
 		if($has_first && $has_last)
-			return $this->first_name . " " . $this->last_name;
+			return $this->preferences['first_name'] . " " . $this->preferences['last_name'];
 		else if(!$has_first && !$has_last)
 			return $this->username;
 		else if($has_first)
-			return $this->first_name;
+			return $this->preferences['first_name'];
 		else
-			return $this->last_name;
+			return $this->preferences['last_name'];
 	}
 }

@@ -20,7 +20,7 @@ class CreateFormsTable extends Migration {
 			$table->string('internal_name',60)->unique();
 			$table->string('description',100);
             $table->integer('adminGroup_id')->unsigned();
-            $table->json('layout');
+            $table->jsonb('layout');
 			$table->timestamps();
 
             $table->foreign('project_id')->references('id')->on('projects')->onDelete('cascade');

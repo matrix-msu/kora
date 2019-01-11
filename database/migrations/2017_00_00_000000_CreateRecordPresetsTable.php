@@ -17,7 +17,7 @@ class CreateRecordpresetsTable extends Migration {
 			$table->increments('id');
             $table->integer('form_id')->unsigned();
             $table->string('record_kid',20);
-			$table->json('preset');
+			$table->jsonb('preset');
 			$table->timestamps();
 
             $table->foreign('form_id')->references('id')->on('forms')->onDelete('cascade');

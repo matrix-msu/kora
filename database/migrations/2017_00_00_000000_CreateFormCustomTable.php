@@ -17,7 +17,7 @@ class CreateFormCustomTable extends Migration
             $table->increments('id');
             $table->integer('user_id')->unsigned();
             $table->integer('form_id')->unsigned();
-            $table->json('organization');
+            $table->jsonb('organization');
             $table->timestamps();
 
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');

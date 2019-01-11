@@ -3,7 +3,7 @@
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateDashboardTable extends Migration
+class CreateGlobalCacheTable extends Migration
 {
     /**
      * Run the migrations.
@@ -12,11 +12,11 @@ class CreateDashboardTable extends Migration
      */
     public function up()
     {
-        Schema::create('dashboard', function(Blueprint $table)
+        Schema::create('global_cache', function(Blueprint $table)
         {
             $table->increments('id');
             $table->integer('user_id')->unsigned();
-            $table->json('organization');
+            $table->jsonb("searches");
             $table->timestamps();
 
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
@@ -30,7 +30,6 @@ class CreateDashboardTable extends Migration
      */
     public function down()
     {
-        Schema::drop('dashboard_blocks');
-        Schema::drop('dashboard_sections');
+        Schema::drop('global_cache');
     }
 }
