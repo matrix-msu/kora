@@ -1,7 +1,5 @@
 <?php namespace App\Http\Requests;
 
-use App\Http\Controllers\ProjectController;
-
 class ProjectRequest extends Request {
 
     /*
@@ -28,39 +26,10 @@ class ProjectRequest extends Request {
 	 * @return array
 	 */
 	public function rules() {
-        $id = $this->route('projects');
-        $project = ProjectController::getProject($id);
-
-        switch($this->method())  {
-            case 'POST':
-                return [
-                    'name' => 'required|min:3',
-                    'slug' => 'required|alpha_dash|min:3|unique:projects',
-                    'description' => 'required|max:255',
-                ];
-            case 'PATCH':
-                return [
-                    'name' => 'required|min:3',
-                    'slug' => 'required|alpha_dash|min:3|unique:projects,slug,'.$project->pid.',pid',
-                    'description' => 'required|max:255',
-                ];
-            default:
-                break;
-        }
-	}
-
-    /**
-     * Get the custom error messages for Projects.
-     *
-     * @return array
-     */
-	public function messages() {
-		return [
-			'slug.required' => "The unique ID field is required.",
-			'slug.alpha_dash' => "The unique ID may only contain letters, numbers, underscores, and hyphens.",
-			'slug.min' => "The unique ID must be at least 3 characters.",
-            'slug.unique' => "The unique ID already exists. Please try another one."
-		];
+        return [
+            'name' => 'required|min:3|regex:/^[a-zA-Z0-9\s]+$/',
+            'description' => 'required|max:500',
+        ];
 	}
 
 }

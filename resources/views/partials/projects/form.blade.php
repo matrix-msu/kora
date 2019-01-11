@@ -9,15 +9,9 @@
 </div>
 
 <div class="form-group mt-xl">
-  {!! Form::label('slug', 'Unique Project Identifier') !!}
-  <span class="error-message">{{array_key_exists("slug", $errors->messages()) ? $errors->messages()["slug"][0] : ''}}</span>
-  {!! Form::text('slug', null, ['class' => 'text-input' . (array_key_exists("slug", $errors->messages()) ? ' error' : ''), 'placeholder' => "Enter the project's unique ID here (no spaces, alpha-numeric values only)"]) !!}
-</div>
-
-<div class="form-group mt-xl">
     {!! Form::label('description', 'Description') !!}
     <span class="error-message">{{array_key_exists("description", $errors->messages()) ? $errors->messages()["description"][0] : ''}}</span>
-    {!! Form::textarea('description', null, ['class' => 'text-area' . (array_key_exists("description", $errors->messages()) ? ' error' : ''), 'placeholder' => "Enter the projects description here (max. 255 characters)"]) !!}
+    {!! Form::textarea('description', null, ['class' => 'text-area' . (array_key_exists("description", $errors->messages()) ? ' error' : ''), 'placeholder' => "Enter the projects description here (max. 500 characters)"]) !!}
 </div>
 
 @if($projectMode == 'project_create')

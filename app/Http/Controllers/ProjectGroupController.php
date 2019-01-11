@@ -397,8 +397,8 @@ class ProjectGroupController extends Controller {
      * @param  Project $project - Project to update
      */
     public static function updateMainGroupNames($project) {
-        $admin = ProjectGroup::where('pid', '=', $project->pid)->where('name', 'like', '% Admin Group')->get()->first();
-        $default = ProjectGroup::where('pid', '=', $project->pid)->where('name', 'like', '% Default Group')->get()->first();
+        $admin = ProjectGroup::where('project_id', '=', $project->id)->where('name', 'like', '% Admin Group')->get()->first();
+        $default = ProjectGroup::where('project_id', '=', $project->id)->where('name', 'like', '% Default Group')->get()->first();
 
         $admin->name = $project->name.' Admin Group';
         $admin->save();

@@ -37,6 +37,7 @@ class ProjectController extends Controller {
      */
 	public function index(Request $request) {
         $projectCollections = Project::all()->sortBy("name", SORT_NATURAL|SORT_FLAG_CASE);
+        $user = \Auth::user();
 
         $projects = array();
         $inactive = array();
@@ -44,19 +45,20 @@ class ProjectController extends Controller {
         $pSearch = array();
         $hasProjects = false;
         $requestableProjects = array();
+        $customseq = $user->getCustomProjectSequence();
         foreach($projectCollections as $project) {
-            if(\Auth::user()->admin || \Auth::user()->inAProjectGroup($project)) {
+            if($user->admin || $user->inAProjectGroup($project)) {
                 if($project->active) {
                     array_push($projects, $project);
                     array_push($pSearch, $project);
 
-                    $seq = \Auth::user()->getCustomProjectSequence($project->pid);
-                    if($seq == null) {
-                        \Auth::user()->addCustomProject($project->pid);
-                        $seq = \Auth::user()->getCustomProjectSequence($project->pid);
+                    if(is_null($customseq) || !in_array($project->id,$customseq)) {
+                        //Project missing from custom so add it and repull the sequence
+                        $user->addCustomProject($project->id);
+                        $customseq = \Auth::user()->getCustomProjectSequence();
                     }
 
-                    $custom[$seq] = $project;
+                    $custom[array_search($project->id,$customseq)] = $project;
                 } else {
                     array_push($inactive, $project);
                     array_push($pSearch, $project);
@@ -79,7 +81,7 @@ class ProjectController extends Controller {
           'static' => false
         );
 
-        if(\Auth::user()->admin) {
+        if($user->admin) {
             $current = new UpdateController();
             if($current->checkVersion())
                 $notification['message'] = 'Update Available!';
@@ -112,7 +114,7 @@ class ProjectController extends Controller {
 	}
 	
 	/**
-     * Gets modal to request project permissions
+     * Gets modal to request project permissions //TODO::CASTLE
      *
      * @param  Request $request
      * @return View
@@ -129,7 +131,7 @@ class ProjectController extends Controller {
 	}
 
     /**
-     * Sends an access request to admins of project(s).
+     * Sends an access request to admins of project(s). //TODO::CASTLE
      *
      * @param  Request $request
      * @return Redirect
@@ -200,8 +202,8 @@ class ProjectController extends Controller {
 		foreach ($users as $user) {
 			if ($user->id != $currentUser->id) {
 
-				$firstName = $user->first_name;
-				$lastName = $user->last_name;
+				$firstName = $user->preferences['first_name'];
+				$lastName = $user->preferences['last_name'];
 				$userName = $user->username;
 
 				$pushThis = $firstName.' '.$lastName.' ('.$userName.')';
@@ -227,15 +229,16 @@ class ProjectController extends Controller {
 
         $adminGroup = ProjectGroup::makeAdminGroup($project, $request);
         ProjectGroup::makeDefaultGroup($project);
-        $project->adminGID = $adminGroup->id;
+        $project->adminGroup_id = $adminGroup->id;
         $project->active = 1;
+        $project->internal_name = str_replace(" ","_", $project->name).'_'.$project->id.'_';
         $project->save();
 
         return redirect('projects/'.$project->pid)->with('k3_global_success', 'project_created');
 	}
 
     /**
-     * Gets the view for an individual project page.
+     * Gets the view for an individual project page. //TODO::CASTLE
      *
      * @param  int $id - Project ID
      * @return View
@@ -333,6 +336,8 @@ class ProjectController extends Controller {
             return redirect('projects')->with('k3_global_error', 'not_project_admin');
 
         $project->update($request->all());
+        $project->internal_name = str_replace(" ","_", $project->name).'_'.$project->id.'_';
+        $project->save();
 
         ProjectGroupController::updateMainGroupNames($project);
 
@@ -384,9 +389,9 @@ class ProjectController extends Controller {
      * @return Project - Project model matching ID/slug
      */
     public static function getProject($id) {
-        $project = Project::where('pid','=',$id)->first();
+        $project = Project::where('id',$id)->first();
         if(is_null($project))
-            $project = Project::where('slug','=',$id)->first();
+            $project = Project::where('internal_name','=',$id)->first();
 
         return $project;
     }
@@ -402,7 +407,7 @@ class ProjectController extends Controller {
     }
 
     /**
-     * Gets the view for importing a k3Proj file.
+     * Gets the view for importing a k3Proj file. //TODO::CASTLE
      *
      * @return View
      */

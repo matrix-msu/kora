@@ -1,11 +1,9 @@
 <?php namespace App;
 
-use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Support\Facades\DB;
 
 class Project extends Model {
 
@@ -23,15 +21,9 @@ class Project extends Model {
      */
 	protected $fillable = [
         'name',
-        'slug',
         'description',
-        'adminGID'
+        'adminGroup_id'
     ];
-
-    /**
-     * @var string - Database column that represents the primary key
-     */
-    protected $primaryKey = "pid";
 
     /**
      * Returns the forms associated with a project.
@@ -39,7 +31,7 @@ class Project extends Model {
      * @return HasMany
      */
     public function forms() {
-        return $this->hasMany('App\Form','pid');
+        return $this->hasMany('App\Form','project_id');
     }
 
     /**
@@ -77,7 +69,20 @@ class Project extends Model {
     public function optionPresets() {
         return $this->hasMany('App\OptionPreset','pid');
     }
-	
+
+    /**
+     * Deletes all data belonging to the project, then deletes self.
+     */
+    public function delete() {
+        $users = User::all();
+
+        //Manually delete from custom
+        foreach($users as $user) {
+            $user->removeCustomProject($this->id);
+        }
+
+        parent::delete();
+    }
 	
 	/**
      * Adds a project to multiple users' custom lists
@@ -87,67 +92,12 @@ class Project extends Model {
      */
 	public function batchAddUsersAsCustom($user_ids) {
 		$user_ids = array_unique($user_ids); // remove dupes
-		$inserts = array();
-		$now = Carbon::now();
 		// get all users' custom projects
-		$batch_projects = DB::table("project_custom")->whereIn("uid", $user_ids)->get();
-		$has_inserts = false;
-		
-		$sequence_maxes = array();
-		$found = array();
-		foreach($user_ids as $id) {
-			$sequence_maxes[$id] = -1;
-			$found[$id] = false;
-		}
-		 
-		foreach($batch_projects as $entry) {
-			if($this->pid == $entry->pid) {
-				$found[$entry->uid] = true;
-			}
-			else {
-				if($entry->sequence > $sequence_maxes[$entry->uid]) {
-					$sequence_maxes[$entry->uid] = $entry->sequence;
-				}
-			}
-		}
-		
-		foreach($user_ids as $id) {
-			$new_sequence = $sequence_maxes[$id] + 1;
-			if(!$found[$id]) {
-				array_push($inserts, ['uid' => $id, 'pid' => $this->pid, 'sequence' => $new_sequence,
-                    "created_at" =>  $now,
-                    "updated_at" =>  $now]);
-				$has_inserts = true;
-			}
-		}
-		
-		if($has_inserts) {
-			DB::table('project_custom')->insert($inserts);
-		}
+		$users = User::whereIn('id',$user_ids)->get();
+		foreach($users as $user) {
+		    $user->addCustomProject($this->id);
+        }
 	}
-
-    /**
-     * Deletes all data belonging to the project, then deletes self.
-     */
-    public function delete() {
-        DB::table("project_token")->where("project_pid", "=", $this->pid)->delete();
-        DB::table("project_custom")->where("pid", "=", $this->pid)->delete();
-        DB::table("option_presets")->where("pid", "=", $this->pid)->delete();
-
-        $project_groups = ProjectGroup::where("pid", "=", $this->pid)->get();
-
-        foreach($project_groups as $project_group) {
-            $project_group->delete();
-        }
-
-        // We don't delete the forms as above because we need their delete methods to be called.
-        $forms = Form::where("pid", "=", $this->pid)->get();
-        foreach($forms as $form) {
-            $form->delete();
-        }
-
-        parent::delete();
-    }
 
     /**
      * Builds up an array of a project and its forms to be send to Javascript.
@@ -157,12 +107,12 @@ class Project extends Model {
     public function buildFormSelectorArray() {
         $forms = $this->forms()->get();
 
-        $arr = ["pid" => $this->pid,
+        $arr = ["pid" => $this->id,
             "name" => $this->name,
             "forms" => []];
 
         foreach($forms as $form) {
-            $arr["forms"][] = ["fid" => $form->fid,
+            $arr["forms"][] = ["fid" => $form->id,
                 "name" => $form->name];
         }
 

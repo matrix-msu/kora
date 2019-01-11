@@ -1,7 +1,8 @@
 @extends('app', ['page_title' => "Editing {$project->name}", 'page_class' => 'project-edit'])
 
 @section('leftNavLinks')
-  @include('partials.menu.project', ['pid' => $project->pid])
+  {{--TODO::CASTLE--}}
+  {{--@include('partials.menu.project', ['pid' => $project->id])--}}
   @include('partials.menu.static', ['name' => 'Edit Project'])
 @stop
 
@@ -10,7 +11,8 @@
 @stop
 
 @section('aside-content')
-  @include('partials.sideMenu.project', ['pid' => $project->pid, 'openDrawer' => true])
+  {{--TODO::CASTLE--}}
+  {{--@include('partials.sideMenu.project', ['pid' => $project->id, 'openDrawer' => true])--}}
 @stop
 
 @section('header')
@@ -28,8 +30,8 @@
 
 @section('body')
   <section class="edit-form">
-    {!! Form::model($project,  ['method' => 'PATCH', 'action' => ['ProjectController@update', $project->pid], 'class' => 'edit-form center']) !!}
-    @include('partials.projects.form',['projectMode' => $projectMode, 'pid' => $project->pid, 'type' => 'edit'])
+    {!! Form::model($project,  ['method' => 'PATCH', 'action' => ['ProjectController@update', $project->id], 'class' => 'edit-form center']) !!}
+    @include('partials.projects.form',['projectMode' => $projectMode, 'pid' => $project->id, 'type' => 'edit'])
     {!! Form::close() !!}
 
     <div class="modal modal-js modal-mask project-cleanup-modal-js">
@@ -57,7 +59,7 @@
   @include('partials.projects.javascripts')
 
   <script type="text/javascript">
-    var validationUrl = "{{ action('ProjectController@validateProjectFields', ["projects" => $project->pid]) }}";
+    var validationUrl = "{{ action('ProjectController@validateProjectFields', ["projects" => $project->id]) }}";
     var csrfToken = "{{ csrf_token() }}";
 
     Kora.Projects.Edit();

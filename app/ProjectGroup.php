@@ -23,7 +23,7 @@ class ProjectGroup extends Model {
     /**
      * @var array - Attributes that can be mass assigned to model
      */
-	protected $fillable = ['name', 'pid', 'create', 'edit', 'delete'];
+	protected $fillable = ['name', 'project_id', 'create', 'edit', 'delete'];
 
     /**
      * Returns projects associated with a project group.
@@ -61,14 +61,11 @@ class ProjectGroup extends Model {
         $guBuilder = DB::table("project_group_user")->where("project_group_id", "=", $this->id);
         $group_users = $guBuilder->get();
 
-        foreach($group_users as $group_user) {
+        foreach($group_users as $group_user) { //TODO::CASTLE
             //remove this project from that users custom list
             $user = User::where("id","=",$group_user->user_id)->first();
             $user->removeCustomProject($this->pid);
         }
-
-        //then delete the group connections
-        $guBuilder->delete();
 
         parent::delete();
     }
@@ -86,7 +83,7 @@ class ProjectGroup extends Model {
 
         $adminGroup = new ProjectGroup();
         $adminGroup->name = $groupName;
-        $adminGroup->pid = $project->pid;
+        $adminGroup->project_id = $project->id;
         $adminGroup->save();
 		
 		$users_to_add = array();
@@ -109,8 +106,8 @@ class ProjectGroup extends Model {
 			array_push($users_to_add, $admin->id);
         }
 		
-		$proj = ProjectController::getProject($adminGroup->pid);
-		$proj->batchAddUsersAsCustom($users_to_add);
+		$proj = ProjectController::getProject($adminGroup->project_id);
+		//$proj->batchAddUsersAsCustom($users_to_add); //TODO::CASTLE
 
         $adminGroup->create = 1;
         $adminGroup->edit = 1;
@@ -128,10 +125,12 @@ class ProjectGroup extends Model {
      * @param  int $pgid - Project Group ID
      */
     private static function emailProjectAdmin($uid, $pgid) {
-        $userMail = DB::table('users')->where('id', $uid)->value('email');
-        $name = DB::table('users')->where('id', $uid)->value('first_name');
+        $user = User::where('id', $uid)->first();
+        $userMail = $user->email;
+        $name = $user->preferences['first_name'];
+
         $group = ProjectGroup::where('id', '=', $pgid)->first();
-        $project = ProjectController::getProject($group->pid);
+        $project = ProjectController::getProject($group->project_id);
         $email = 'emails.project.added';
 
         try {
@@ -157,7 +156,7 @@ class ProjectGroup extends Model {
 
         $defaultGroup = new ProjectGroup();
         $defaultGroup->name = $groupName;
-        $defaultGroup->pid = $project->pid;
+        $defaultGroup->project_id = $project->id;
         $defaultGroup->save();
 
         $defaultGroup->create = 0;

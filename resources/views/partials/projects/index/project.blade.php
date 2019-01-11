@@ -1,4 +1,4 @@
-<div class="project card {{ $index == 0 ? 'active' : '' }}" id="{{$project->pid}}">
+<div class="project card {{ $index == 0 ? 'active' : '' }}" id="{{$project->id}}">
   <div class="header {{ $index == 0 ? 'active' : '' }}">
     <div class="left {{ !$isCustom ? 'pl-m' : null}}">
       @if ($isCustom)
@@ -13,7 +13,7 @@
         </div>
       @endif
 
-      <a class="title {{$archived ? 'inactive': 'underline-middle-hover'}}" href="{{ action("ProjectController@show",["pid" => $project->pid]) }}">
+      <a class="title {{$archived ? 'inactive': 'underline-middle-hover'}}" href="{{ action("ProjectController@show",["pid" => $project->id]) }}">
         <span class="name">{{$project->name}}</span>
         @if (!$archived)
           <i class="icon icon-arrow-right"></i>
@@ -31,7 +31,7 @@
   <div class="content content-js {{ $index == 0 ? 'active' : '' }}">
     <div class="id">
       <span class="attribute">Unique Project ID: </span>
-      <span>{{$project->slug}}</span>
+      <span>{{$project->internal_name}}</span>
     </div>
 
     <div class="description">
@@ -39,6 +39,7 @@
     </div>
 
     <div class="admins">
+      {{--TODO::CASTLE--}}
       <span class="attribute">Project Admins: </span>
       @foreach($project->adminGroup()->get() as $adminGroup)
         <span>
@@ -65,7 +66,7 @@
 
       @foreach($project->forms()->get() as $form)
         <span class="form">
-          <a class="form-link {{$archived ? 'inactive': 'underline-middle-hover'}}" href="{{action("FormController@show",["pid" => $project->pid,"fid" => $form->fid])}}">
+          <a class="form-link {{$archived ? 'inactive': 'underline-middle-hover'}}" href="{{action("FormController@show",["pid" => $project->id,"fid" => $form->fid])}}">
             {{$form->name}}
           </a>
         </span>
@@ -80,17 +81,17 @@
 
     @if (!$archived)
       <div class="footer">
-        <a class="quick-action underline-middle-hover" href="{{ action('ProjectController@edit',['pid' => $project->pid]) }}">
+        <a class="quick-action underline-middle-hover" href="{{ action('ProjectController@edit',['pid' => $project->id]) }}">
           <i class="icon icon-edit-little"></i>
           <span>Edit Project Info</span>
         </a>
 
-        <a class="quick-action underline-middle-hover" href="{{ action('ProjectSearchController@keywordSearch', ['pid'=>$project->pid]) }}">
+        <a class="quick-action underline-middle-hover" href="{{ action('ProjectSearchController@keywordSearch', ['pid'=>$project->id]) }}">
           <i class="icon icon-search"></i>
           <span>Search Project Records</span>
         </a>
 
-        <a class="quick-action underline-middle-hover" href="{{ action('ProjectController@show',['pid' => $project->pid]) }}">
+        <a class="quick-action underline-middle-hover" href="{{ action('ProjectController@show',['pid' => $project->id]) }}">
           <span>Go to Project</span>
           <i class="icon icon-arrow-right"></i>
         </a>

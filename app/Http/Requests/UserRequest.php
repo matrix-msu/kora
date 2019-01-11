@@ -25,9 +25,9 @@ class UserRequest extends FormRequest
         switch($this->method())  {
             case 'POST':
                 return [
-                    'username' => 'required|max:255|unique:users',
-                    'email' => 'required|email|max:255|unique:users',
-                    'password' => 'required|confirmed|min:6',
+                    'username' => 'required|max:20|unique:users',
+                    'email' => 'required|email|max:60|unique:users',
+                    'password' => 'required|max:60|confirmed|min:6',
                     'language'=> 'required|alpha|max:2',
                     'first_name'=> 'required',
                     'last_name'=> 'required',
@@ -35,8 +35,8 @@ class UserRequest extends FormRequest
                 ];
             case 'PATCH':
                 return [
-                    'username' => 'required|max:255|unique:users',
-                    'password' => 'required|confirmed|min:6',
+                    'username' => 'required|max:60|unique:users',
+                    'password' => 'required|max:60|confirmed|min:6',
                     'language'=> 'required|alpha|max:2',
                     'first_name'=> 'required',
                     'last_name'=> 'required',

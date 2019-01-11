@@ -33,11 +33,11 @@
         <i class="icon icon-cancel icon-cancel-js"></i>
       </div>
       <div class="sort-options sort-options-js">
-          @php $pref = 'proj_page_tab_selection' @endphp
+          @php $pref = 'proj_tab_selection' @endphp
           <!-- <a href="modified" class="option underline-middle">Recently Modified</a> -->
-          <a href="#custom" class="option underline-middle underline-middle-hover {{ \App\Http\Controllers\Auth\UserController::returnUserPrefs($pref) == "2" ? 'active' : ''}}">Custom</a> <!-- 2 -->
-          <a href="#active" class="option underline-middle underline-middle-hover {{ \App\Http\Controllers\Auth\UserController::returnUserPrefs($pref) == "3" ? 'active' : ''}}">Alphabetical</a> <!-- 3 -->
-          <a href="#inactive" class="option underline-middle underline-middle-hover {{ \App\Http\Controllers\Auth\UserController::returnUserPrefs($pref) == "1" ? 'active' : ''}}">Archived</a> <!-- 1 - this corresponds to 'recently modded' which is not an option? so instead it will be 'archived' for now -->
+          <a href="#custom" class="option underline-middle underline-middle-hover {{ \App\Http\Controllers\Auth\UserController::returnUserPrefs($pref) == "1" ? 'active' : ''}}">Custom</a> <!-- 2 -->
+          <a href="#active" class="option underline-middle underline-middle-hover {{ \App\Http\Controllers\Auth\UserController::returnUserPrefs($pref) == "2" ? 'active' : ''}}">Alphabetical</a> <!-- 3 -->
+          <a href="#inactive" class="option underline-middle underline-middle-hover">Archived</a> <!-- 1 - this corresponds to 'recently modded' which is not an option? so instead it will be 'archived' for now -->
       </div>
   </section>
   @endif
@@ -52,9 +52,9 @@
 
   <section class="project-selection center project-js project-selection-js">
     @if (!$empty_state)
-      @include("partials.projects.index.active", ['isCustom' => false, 'active' => \App\Http\Controllers\Auth\UserController::returnUserPrefs($pref) == "3" ? true : false, 'archived' => false])
-      @include("partials.projects.index.inactive", ['isCustom' => false, 'active' => \App\Http\Controllers\Auth\UserController::returnUserPrefs($pref) == "1" ? true : false, 'archived' => true])
-      @include("partials.projects.index.custom", ['isCustom' => true, 'active' => \App\Http\Controllers\Auth\UserController::returnUserPrefs($pref) == "2" ? true : false, 'archived' => false])
+      @include("partials.projects.index.active", ['isCustom' => false, 'active' => \App\Http\Controllers\Auth\UserController::returnUserPrefs($pref) == "2" ? true : false, 'archived' => false])
+      @include("partials.projects.index.inactive", ['isCustom' => false, 'active' => false, 'archived' => true])
+      @include("partials.projects.index.custom", ['isCustom' => true, 'active' => \App\Http\Controllers\Auth\UserController::returnUserPrefs($pref) == "1" ? true : false, 'archived' => false])
     @else
       @include('partials.projects.index.no-projects')
     @endif

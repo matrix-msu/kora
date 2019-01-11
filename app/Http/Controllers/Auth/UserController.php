@@ -2,7 +2,6 @@
 
 use App\Form;
 use App\Http\Requests\UserRequest;
-use App\Preference;
 use App\Project;
 use App\ProjectGroup;
 use App\Record;
@@ -642,21 +641,25 @@ class UserController extends Controller {
      */
     public function saveProjectCustomOrder(Request $request) {
         $pids = $request->pids;
+        $user = Auth::user();
 
         //We are going to delete the old ones, and just rebuild the list entirely for the user
-        DB::table("project_custom")->where("uid", "=", \Auth::user()->id)->delete();
+        $check = DB::table("project_custom")->where("user_id", "=", $user->id)->first();
+        $time = Carbon::now();
 
-        //Rebuild it!
-        $rows = array();
-        $index = 0;
-        foreach($pids as $pid) {
-            $row = ["uid"=>\Auth::user()->id,"pid"=>$pid,"sequence"=>$index];
-            array_push($rows,$row);
-            $index++;
+        //Create or edit custom project list for user
+        if(is_null($check)) {
+            DB::table('project_custom')->insert(
+                ['user_id' => $user->id, 'organization' => json_encode($pids),
+                    "created_at" => $time,
+                    "updated_at" => $time]
+            );
+        } else {
+            DB::table('project_custom')->where("id", "=", $check->id)->update(
+                ['organization' => json_encode($pids),
+                    "updated_at" => $time]
+            );
         }
-
-        //Now save the new order
-        DB::table('project_custom')->insert($rows);
     }
 
     /**
@@ -667,22 +670,26 @@ class UserController extends Controller {
      */
     public function saveFormCustomOrder($pid, Request $request) {
         $fids = $request->fids;
+        $user = Auth::user();
 
         //We are going to delete the old ones, and just rebuild the list entirely for the user
-        DB::table("form_custom")->where("uid", "=", \Auth::user()->id)
-            ->where("pid", "=", $pid)->delete();
+        $check = DB::table("form_custom")->where("user_id", "=", $user->id)
+            ->where("project_id", "=", $pid)->first();
+        $time = Carbon::now();
 
-        //Rebuild it!
-        $rows = array();
-        $index = 0;
-        foreach($fids as $fid) {
-            $row = ["uid"=>\Auth::user()->id,"pid"=>$pid,"fid"=>$fid,"sequence"=>$index];
-            array_push($rows,$row);
-            $index++;
+        //Create or edit custom form list for user
+        if(is_null($check)) {
+            DB::table('form_custom')->insert(
+                ['user_id' => $user->id, 'project_id' => $pid,'organization' => json_encode($fids),
+                    "created_at" => $time,
+                    "updated_at" => $time]
+            );
+        } else {
+            DB::table('form_custom')->where("id", "=", $check->id)->update(
+                ['organization' => json_encode($fids),
+                    "updated_at" => $time]
+            );
         }
-
-        //Now save the new order
-        DB::table('form_custom')->insert($rows);
     }
 
     /**
