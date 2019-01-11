@@ -12,7 +12,7 @@
         display: none;
     }
 
-    @media screen and (max-width: 700px) {
+    @media screen and (max-width: 530px) {
         &.mobile {
             border-radius: 0;
             display: block;
@@ -24,7 +24,7 @@
     }
 
     .dots {
-        @media screen and (max-width: 700px) {
+        @media screen and (max-width: 530px) {
             margin: 0 auto;
         }
 
@@ -93,7 +93,7 @@
             }
         }
 
-        @media screen and (max-width: 700px) {
+        @media screen and (max-width: 530px) {
             width: unset;
 
             &.prev {

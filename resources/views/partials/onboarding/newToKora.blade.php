@@ -139,35 +139,13 @@
 				<li>Other Project Name</li>
 			</ul>
 			<div class="form-group mt-xxl">
-                <!--
-                <label for="projects">Select the Project to Request Permissions</label>
-                <span class="error-message"></span>
-                <select class="multi-select" name="projects" data-placeholder="Select the project you would like to request permissions to here">
-                    <option></option>
-                    <option value="project 1">project 1</option>
-                    <option value="project 2">project 2</option>
-                    <option value="project 3">project 3</option>
-                    <option value="project 4">project 4</option>
-                    <option value="project 5">project 5</option>
-                    <option value="project 6">project 6</option>
-                </select>
-                -->
-
-                <?php $projects = array('1' => 'project 1', '2' => 'project 2', '3' => 'project 3', '4' => 'project 4', '5' => 'project 5', '6' => 'project 6'); ?>
+                <?php $projects = array('1' => 'project 1', '2' => 'project 2', '3' => 'project 3', '4' => 'project 4', '5' => 'project 5', '6' => 'project 6', '7' => 'project 7', '8' => 'project 8', '9' => 'project 9', '10' => 'project 10', '11' => 'project 11', '12' => 'project 12', '13' => 'project 13'); ?>
                 {!! Form::label('projects', 'Select the Project to Request Permissions') !!}
                 {!! Form::select('projects[]', $projects, null, [
                     'class' => 'multi-select',
                     'multiple',
                     'data-placeholder' => "Select the project you would like to request permissions to here"
                 ]) !!}
-
-{{--
-                {!! Form::select('default[]',\App\MultiSelectListField::getList($field,false), explode('[!]',$field->default), [
-                    'class' => 'multi-select list-default-js',
-                    'multiple',
-                    'data-placeholder' => 'Select the default values here (Values must be added above in order to select)'
-                ]) !!}
---}}
             </div>
         </div>
     </section>

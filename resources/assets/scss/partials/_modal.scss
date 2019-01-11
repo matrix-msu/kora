@@ -24,6 +24,10 @@
       opacity: 1;
     }
   }
+
+  &.onboarding-modal {
+    overflow: auto;
+  }
   
   &.add-users-modal .content,
   &.nav-request-permissions-modal-js .content,
@@ -36,7 +40,7 @@
       .body {
         padding: 0 40px 30px;
 
-        @media screen and (max-width: 700px) {
+        @media screen and (max-width: $max-mobile-med-width) {
           padding: 0 15px 15px;
         }
       }
@@ -45,10 +49,8 @@
     @import 'modal/onboarding-pagination';
 }
 
-  &.onboarding-modal .content {
-    width: 680px;
-
-    @media screen and (max-width: 700px) {
+  @media screen and (max-width: 420px) {
+    &.onboarding-modal .content {
       width: 280px;
     }
   }
@@ -95,7 +97,7 @@
 }
 
 @media screen and (max-width: $max-mobile-xs-width) {
-  .modal {
+  .modal:not(.onboarding-modal) {
     .content {
       height: 90%;
 
