@@ -286,6 +286,7 @@ Kora.User.Edit = function() {
             });
             values['_method'] = 'PATCH';
 
+			display_loader();
             $.ajax({
                 url: validationUrl,
                 method: 'POST',
@@ -294,6 +295,8 @@ Kora.User.Edit = function() {
                     $('.user-form').submit();
                 },
                 error: function(err) {
+					hide_loader();
+					
                     $('.error-message').text('');
                     $('.text-input').removeClass('error');
 
