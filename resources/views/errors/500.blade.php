@@ -7,7 +7,7 @@
         <div class="form-container center">
 			<div class="subheader mt-m">Whoops, something went wrong.</div>
 			<div class="main-info mt-xxxl">Feel free to contact the Installation Admin</div>
-			<a href="mailto:{{$install_admin_email}}" class="link">{{$install_admin_email}}</a>
+			<a href="mailto:{{DB::table('users')->where('id', '=', 1)->first()->email}}" class="link">{{DB::table('users')->where('id', '=', 1)->first()->email}}</a>
 			<div class="main-info">about this problem, or ...</div>
 			
 			<button id="back-button" class="footer-spacing btn mt-xxxl" type="submit">Go Back</button>
