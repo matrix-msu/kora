@@ -87,10 +87,26 @@ $('.onboarding-pagination-js .dots').on('click', '.dot', function (e) {
 	paginate ( $(this).index() )
 });
 
+function checkHeight () {
+	let onboardModal = $('.onboarding-modal-js.active .content');
+	if ( onboardModal.height() && onboardModal.height() > window.innerHeight )
+		onboardModal.addClass('smallBrowser');
+	else
+		onboardModal.removeClass('smallBrowser');
+}
+
+$(window).resize(function (e) {
+	e.preventDefault();
+
+	if ( $('.onboarding-modal-js.active .content') )
+		checkHeight ()
+});
+
 $(document).ready(function () {
     Kora.Modal.initialize();
 
 	Kora.Modal.open($('.onboarding-modal-js'));
+	checkHeight ()
 
 	$('.body.onboarding .multi-select').chosen({
 		disable_search_threshold: 1,
