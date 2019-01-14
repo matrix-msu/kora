@@ -30,7 +30,7 @@
 
     <section class="combo-list-options-one">
         <div class="label-spacer">
-            <label>Field Options for {{ $oneType }} field "{{ $oneName }}"</label>
+            <label>Field Options for {{ $oneType }} Field "{{ $oneName }}"</label>
             <div class="spacer"></div>
         </div>
         @if($oneType=='Text')
