@@ -29,18 +29,15 @@
     </li>
     @if(\Auth::user()->admin==1)
       <li class="spacer mt-0"></li>
-      <li class="link first">
-        <a href="{{ action('TokenController@index') }}">Token Management</a>
-      </li>
-      <li class="link {{ \Auth::user()->id==1 ? '' : 'pre-spacer' }}">
+      <li class="link first {{ \Auth::user()->id==1 ? '' : 'pre-spacer' }}">
         <a href="{{ action('AdminController@users') }}">User Management</a>
       </li>
+      <li class="link">
+        <a href="{{ action('TokenController@index') }}">Token Management</a>
+      </li>
       @if(\Auth::user()->id==1)
-          <li class="link">
-              <a href="{{ action('BackupController@index') }}">Backup Management</a>
-          </li>
           <li class="link pre-spacer">
-              <a href="{{ action('ExodusController@index') }}">Kora 2 Exodus</a>
+              <a href="{{ action('BackupController@index') }}">Backup Management</a>
           </li>
       @endif
     @endif
