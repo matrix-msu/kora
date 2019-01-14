@@ -1,7 +1,5 @@
 <?php namespace App\Http\Controllers;
 
-use App\Field;
-use App\Page;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -42,33 +40,40 @@ class PageController extends Controller {
      * @param  int $resizeIndex - What index new page will take
      */
     public static function makePageOnForm($fid,$name,$resize=false,$resizeIndex=0) {
-        $page = new Page();
-
-        $page->title = $name;
-        $page->fid = $fid;
+        $pageArray = [];
+        $pageArray['title'] = $name;
+        $pageArray['fields'] = [];
 
         $form = FormController::getForm($fid);
-        $currPages = $form->pages()->get();
+        $currPages = $form->layout;
 
-        //In this case, we are placing a page in between pages
-        if($resize) {
-            $found = false;
-            foreach($currPages as $cPage) {
-                if($found) {
-                    //Once we've found the page we are placing after, we need to change the sequence of any
-                    // pages that follow.
-                    $cPage->sequence += 1;
-                    $cPage->save();
+        if(is_null($currPages)) {
+            $form->layout = [$pageArray];
+        } else {
+            if($resize) {
+                array_push($currPages, $pageArray);
+                $form->layout = $currPages;
+            } else {
+                $finalArray = [];
+                $done = false;
+                for($i=0;$i<sizeof($currPages);$i++) {
+                    if($i==$resizeIndex) {
+                        //Add the new page
+                        array_push($finalArray, $pageArray);
+                        $done = true;
+                    }
+
+                    array_push($finalArray, $currPages[$i]);
                 }
+                //Case where the requested index was for it to be the last page
+                if(!$done)
+                    array_push($finalArray, $pageArray);
 
-                if($cPage->id == $resizeIndex)
-                    $page->sequence = $cPage->sequence + 1;
+                $form->layout = $finalArray;
             }
-        } else { //Here we just add it to the end
-            $page->sequence = $currPages->count();
         }
 
-        $page->save();
+        $form->save();
     }
 
     /**
@@ -80,22 +85,9 @@ class PageController extends Controller {
     public static function getFormLayout($fid) {
         $form = FormController::getForm($fid);
 
-        $pages = $form->pages()->get();
-        $layout = array();
+        $pages = $form->layout;
 
-        foreach($pages as $page) {
-            $pArr = array();
-
-            $pArr["fields"] = $page->fields()->get();
-
-            $pArr["title"] = $page->title;
-            $pArr["id"] = $page->id;
-            $seq = $page->sequence;
-
-            $layout[$seq] = $pArr;
-        }
-
-        return $layout;
+        return is_null($pages) ? [] : $pages;
     }
 
     /**
@@ -103,18 +95,18 @@ class PageController extends Controller {
      *
      * @param  int $pageID - Page ID
      */
-    public static function restructurePageSequence($pageID) {
-        $page = self::getPage($pageID);
-
-        $fields = $page->fields()->get();
-        $index = 0;
-
-        foreach($fields as $field) {
-            $field->sequence = $index;
-            $field->save();
-            $index++;
-        }
-    }
+//    public static function restructurePageSequence($pageID) { //TODO::CASTLE
+//        $page = self::getPage($pageID);
+//
+//        $fields = $page->fields()->get();
+//        $index = 0;
+//
+//        foreach($fields as $field) {
+//            $field->sequence = $index;
+//            $field->save();
+//            $index++;
+//        }
+//    }
 
     /**
      * Gets a particular page model.
@@ -122,11 +114,11 @@ class PageController extends Controller {
      * @param  int $pageID - Page ID
      * @return Page - The requested page
      */
-    public static function getPage($pageID) {
-        $page = Page::where('id','=',$pageID)->first();
-
-        return $page;
-    }
+//    public static function getPage($pageID) { //TODO::CASTLE
+//        $page = Page::where('id','=',$pageID)->first();
+//
+//        return $page;
+//    }
 
     /**
      * Gets the next field sequence value for a particular page.
@@ -134,16 +126,16 @@ class PageController extends Controller {
      * @param  int $pageID - Page ID
      * @return int - Sequence value
      */
-    public static function getNewPageFieldSequence($pageID) {
-        $page = self::getPage($pageID);
-
-        $lField = $page->fields()->get()->last();
-
-        if(is_null($lField))
-            return 0;
-        else
-            return $lField->sequence+1;
-    }
+//    public static function getNewPageFieldSequence($pageID) { //TODO::CASTLE
+//        $page = self::getPage($pageID);
+//
+//        $lField = $page->fields()->get()->last();
+//
+//        if(is_null($lField))
+//            return 0;
+//        else
+//            return $lField->sequence+1;
+//    }
 
     /**
      * Modify a form by adding, removing, and moving pages.
@@ -159,104 +151,72 @@ class PageController extends Controller {
 
         $method = $request->method;
         $form = FormController::getForm($fid);
-        $pages = $form->pages()->get();
+        $pages = $form->layout;
+        $index = $request->pageID;
 
         switch($method) {
+            case self::_RENAME:
+                $name = $request->updatedName;
+                $pages[$index]['title'] = $name;
+                break;
             case self::_UP:
-                $id = $request->pageID;
-                $page = self::getPage($id);
-                $currSeq = $page->sequence;
+                if($index != 0) {
+                    $currPage = $pages[$index];
+                    $prevPage = $pages[$index-1];
 
-                if($currSeq != 0) {
-                    $aPage = Page::where('sequence','=',$currSeq-1)->where('fid','=',$fid)->get()->first();
-
-                    $page->sequence = $currSeq-1;
-                    $aPage->sequence = $currSeq;
-
-                    $page->save();
-                    $aPage->save();
+                    $pages[$index] = $prevPage;
+                    $pages[$index-1] = $currPage;
                 }
-
                 break;
             case self::_DOWN:
-                $id = $request->pageID;
-                $page = self::getPage($id);
-                $currSeq = $page->sequence;
+                if($index != sizeof($pages)-1) {
+                    $currPage = $pages[$index];
+                    $nextPage = $pages[$index+1];
 
-                if($currSeq != ($pages->count()-1)) {
-                    $aPage = Page::where('sequence','=',$currSeq+1)->where('fid','=',$fid)->get()->first();
-
-                    $page->sequence = $currSeq+1;
-                    $aPage->sequence = $currSeq;
-
-                    $page->save();
-                    $aPage->save();
+                    $pages[$index] = $nextPage;
+                    $pages[$index+1] = $currPage;
                 }
-
                 break;
             case self::_DELETE:
-                $id = $request->pageID;
-
-                $found = false;
-                $delPage = null;
-                foreach($pages as $page) {
-                    if($found) {
-                        //Once we've found the page we are deleting, we need to change the sequence of any
-                        // pages that follow.
-                        $page->sequence -= 1;
-                        $page->save();
-                    }
-
-                    if($page->id == $id) {
-                        $found = true;
-                        $delPage = $page;
-                        $page->sequence = 1337;
-                        $page->save();
+                $newLayout = [];
+                foreach($pages as $i => $page) {
+                    if($i != $index)
+                        array_push($newLayout,$page);
+                    else {
+                        //DELETE THE FIELD //TODO::CASTLE
                     }
                 }
-
-                if(!is_null($delPage))
-                    $delPage->delete();
+                $pages = $newLayout;
                 break;
             case self::_ADD:
                 $name = $request->newPageName;
                 if($name=='')
                     response()->json(["status"=>false,"message"=>"page_name_required"],500);
-                $aboveID = $request->aboveID;
 
-                $found = false;
-                foreach($pages as $page) {
-                    if($found) {
-                        //Once we've found the page we are placing after, we need to change the sequence of any
-                        // pages that follow.
-                        $page->sequence += 1;
-                        $page->save();
+                $pageArray = ['title' => $name, 'fields' => []];
+                $newLayout = [];
+                $done = false;
+                for($i=0;$i<sizeof($pages);$i++) {
+                    if($i==$index) {
+                        //Add the new page
+                        array_push($newLayout, $pageArray);
+                        $done = true;
                     }
 
-                    if($page->id == $aboveID) {
-                        $found = true;
-                        $nPage = new Page();
-
-                        $nPage->title = $name;
-                        $nPage->fid = $fid;
-                        $nPage->sequence = $page->sequence + 1;
-
-                        $nPage->save();
-                    }
+                    array_push($newLayout, $pages[$i]);
                 }
-                break;
-            case self::_RENAME:
-                $id = $request->pageID;
-                $name = $request->updatedName;
-                $page = self::getPage($id);
-
-                $page->title = $name;
-                $page->save();
+                //Case where the requested index was for it to be the last page
+                if(!$done)
+                    array_push($newLayout, $pageArray);
+                $pages = $newLayout;
                 break;
             default:
                 return response()->json(["status"=>false,"message"=>"illegal_page_method"],500);
                 break;
         }
+
+        $form->layout = $pages;
+        $form->save();
 
         return response()->json(["status"=>true,"message"=>"page_layout_modified"],200);
     }
@@ -270,7 +230,7 @@ class PageController extends Controller {
      * @param  Request $request
      * @return JsonResponse
      */
-    public function moveField($pid, $fid, $flid, Request $request) {
+    public function moveField($pid, $fid, $flid, Request $request) { //TODO::CASTLE
         if(!FieldController::checkPermissions($fid, 'edit'))
             return response()->json(["status"=>false,"message"=>"cant_edit_field"],500);
 
@@ -365,7 +325,7 @@ class PageController extends Controller {
      * @param  Request $request
      * @return JsonResponse
      */
-    public function saveFullFormLayout($pid, $fid, Request $request) {
+    public function saveFullFormLayout($pid, $fid, Request $request) { //TODO::CASTLE
         if(!FieldController::checkPermissions($fid, 'edit'))
             return response()->json(["status"=>false,"message"=>"cant_edit_field"],500);
 

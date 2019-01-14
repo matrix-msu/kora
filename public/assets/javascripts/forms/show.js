@@ -505,7 +505,6 @@ Kora.Forms.Show = function() {
 
     $('.pages-js').on('click', '.new-page-js', function(e) {
       e.preventDefault();
-      var pageID = $(this).data('prev-page');
       var newPageNumber = $(this).data('new-page');
       var title = 'Page #' + newPageNumber;
 
@@ -517,7 +516,7 @@ Kora.Forms.Show = function() {
         data: {
           '_token': CSRFToken,
           'method': addMethod,
-          'aboveID': pageID,
+          'pageID': newPageNumber,
           'newPageName': title
         },
         success: function(result) {

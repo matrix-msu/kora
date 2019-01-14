@@ -9,7 +9,7 @@
         <div class="body">
             {!! Form::open([
               'method' => 'DELETE',
-              'action' => ['FormController@destroy', 'pid' => $form->pid, 'fid' => $form->fid]
+              'action' => ['FormController@destroy', 'pid' => $form->project_id, 'fid' => $form->id]
             ]) !!}
               <span class="description">
                 Are you sure you wish to delete this form? This cannot be undone.

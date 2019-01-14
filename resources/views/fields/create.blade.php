@@ -1,13 +1,13 @@
 @extends('app', ['page_title' => 'Create a Field', 'page_class' => 'field-create'])
 
 @section('leftNavLinks')
-    @include('partials.menu.project', ['pid' => $form->pid])
-    @include('partials.menu.form', ['pid' => $form->pid, 'fid' => $form->fid])
+    @include('partials.menu.project', ['pid' => $form->project_id])
+    @include('partials.menu.form', ['pid' => $form->project_id, 'fid' => $form->id])
     @include('partials.menu.static', ['name' => 'New Field'])
 @stop
 
 @section('aside-content')
-  @include('partials.sideMenu.form', ['pid' => $form->pid, 'fid' => $form->fid, 'openDrawer' => true])
+  @include('partials.sideMenu.form', ['pid' => $form->project_id, 'fid' => $form->id, 'openDrawer' => true])
 @stop
 
 @section('stylesheets')
@@ -33,9 +33,10 @@
     @include("partials.fields.modals.fieldTypeDescriptionsModal")
 
     <section class="create-field center">
-        {!! Form::model($field = new \App\Field, ['url' => 'projects/'.$form->pid.'/forms/'.$form->fid, 'class' => 'create-form']) !!}
-        @include('partials.fields.form', ['submitButtonText' => 'Create Field', 'pid' => $form->pid, 'fid' => $form->fid])
-        {!! Form::close() !!}
+        <form method="POST" action="{{ action('FieldController@store', ['pid' => $form->project_id, 'fid' => $form->id]) }}" class="create-form">
+            <input type="hidden" name="_token" value="{{csrf_token()}}">
+            @include('partials.fields.form', ['submitButtonText' => 'Create Field', 'pid' => $form->project_id, 'fid' => $form->id])
+        </form>
     </section>
 @stop
 
@@ -48,8 +49,8 @@
     @include('partials.fields.javascripts')
 
     <script type="text/javascript">
-        var validationUrl = "{{ url("projects/$form->pid/forms/$form->fid/fields/validate") }}";
-        advanceCreateURL = "{{ action('FieldAjaxController@getAdvancedOptionsPage',['pid' => $form->pid,'fid'=>$form->fid]) }}";
+        var validationUrl = "{{ url("projects/$form->project_id/forms/$form->id/fields/validate") }}";
+        advanceCreateURL = "{{ action('FieldAjaxController@getAdvancedOptionsPage',['pid' => $form->project_id,'fid'=>$form->id]) }}";
         csrfToken = "{{ csrf_token() }}";
 
         Kora.Fields.Create();

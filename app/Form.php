@@ -24,6 +24,49 @@ class Form extends Model {
         'description',
     ];
 
+    protected $casts = [
+        'layout' => 'array'
+    ];
+
+    /**
+     * @var array - This is an array of field type values for creation
+     */
+    static public $validFieldTypes = [ //TODO::NEWFIELD
+        'Text Fields' => array('Text' => 'Text'),
+        //'Text Fields' => array('Text' => 'Text', 'Rich Text' => 'Rich Text', 'Integer' => 'Integer', 'Floating Point' => 'Floating Point'),
+        //'List Fields' => array('List' => 'List', 'Multi-Select List' => 'Multi-Select List', 'Generated List' => 'Generated List', 'Combo List' => 'Combo List'),
+        //'Date Fields' => array('Date' => 'Date', 'Schedule' => 'Schedule'),
+        //'File Fields' => array('Documents' => 'Documents','Gallery' => 'Gallery (jpg, gif, png)','Playlist' => 'Playlist (mp3, wav)', 'Video' => 'Video (mp4)','3D-Model' => '3D-Model (obj, stl)'),
+        //'Specialty Fields' => array('Geolocator' => 'Geolocator (latlon, utm, textual)','Associator' => 'Associator')
+    ];
+
+    /**
+     * @var string - These are the possible field types at the moment  //TODO::NEWFIELD
+     */
+    const _TEXT = "Text";
+//    const _RICH_TEXT = "Rich Text";
+//    const _NUMBER = "Number";
+//    const _LIST = "List";
+//    const _MULTI_SELECT_LIST = "Multi-Select List";
+//    const _GENERATED_LIST = "Generated List";
+//    const _DATE = "Date";
+//    const _SCHEDULE = "Schedule";
+//    const _GEOLOCATOR = "Geolocator";
+//    const _DOCUMENTS = "Documents";
+//    const _GALLERY = "Gallery";
+//    const _3D_MODEL = "3D-Model";
+//    const _PLAYLIST = "Playlist";
+//    const _VIDEO = "Video";
+//    const _COMBO_LIST = "Combo List";
+//    const _ASSOCIATOR = "Associator";
+
+    /**
+     * @var array - Maps field constant names to model name
+     */
+    public static $fieldModelMap = [ //TODO::NEWFIELD
+        self::_TEXT => "TextField"
+    ];
+
     /**
      * Returns the project associated with a form.
      *
@@ -80,6 +123,18 @@ class Form extends Model {
             $user->removeCustomForm($this->id);
         }
 
+        //Delete other record related stuff before dropping records table
+        //TODO::CASTLE
+
+        //Drop the records table
+        $rTable = new \CreateRecordsTable();
+        $rTable->removeFormRecordsTable($this->id);
+
         parent::delete();
+    }
+
+    public function getFieldModel($type) {
+        $modName = 'App\\KoraFields\\'.self::$fieldModelMap[$type];
+        return new $modName();
     }
 }

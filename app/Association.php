@@ -16,6 +16,6 @@ class Association extends Model {
     /**
      * @var array - Attributes that can be mass assigned to model
      */
-    protected $fillable = ['dataForm', 'assocForm'];
+    protected $fillable = ['data_form', 'assoc_form'];
 
 }

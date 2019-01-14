@@ -10,20 +10,14 @@ class CreateRecordsTable extends Migration {
 	 *
 	 * @return void
 	 */
-	public function up()
-	{
-
-	}
+	public function up() {}
 
 	/**
 	 * Reverse the migrations.
 	 *
 	 * @return void
 	 */
-	public function down()
-	{
-
-	}
+	public function down() {}
 
     /**
      * Dynamically creates a form's record table.
@@ -41,8 +35,18 @@ class CreateRecordsTable extends Migration {
             $table->integer('form_id')->unsigned();
             $table->integer('owner')->unsigned();
             $table->timestamps();
+        });
+    }
 
-            $table->foreign(['project_id', 'form_id'])->references(['id', 'id'])->on('forms')->onDelete('cascade');
+    public function removeFormRecordsTable($fid) {
+        Schema::drop("records_$fid");
+    }
+
+    //TODO::NEWFIELD
+    public function addTextColumn($fid, $slug) {
+        Schema::table("records_$fid", function(Blueprint $table) use ($slug)
+        {
+            $table->text($slug)->nullable();
         });
     }
 }

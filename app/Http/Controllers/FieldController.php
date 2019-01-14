@@ -2,7 +2,7 @@
 
 use App\AssociatorField;
 use App\ComboListField;
-use App\Field;
+use App\Form;
 use App\Http\Requests\FieldRequest;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
@@ -35,10 +35,10 @@ class FieldController extends Controller {
      *
      * @param  int $pid - Project ID
      * @param  int $fid - Form ID
-     * @param  int $rootPage - Page that will own this field
+     * @param  int $pageIndex - Page that will own this field
      * @return View
      */
-	public function create($pid, $fid, $rootPage) {
+	public function create($pid, $fid, $pageIndex) {
         if(!FormController::validProjForm($pid, $fid))
             return redirect('projects/'.$pid)->with('k3_global_error', 'form_invalid');
 
@@ -46,10 +46,11 @@ class FieldController extends Controller {
             return redirect('projects/'.$pid.'/forms/'.$fid.'/fields')->with('k3_global_error', 'cant_create_field');
 
         $form = FormController::getForm($fid);
-        $validFieldTypes = Field::$validFieldTypes;
-        $validComboListFieldTypes = ComboListField::$validComboListFieldTypes;
+        $validFieldTypes = Form::$validFieldTypes;
+        //$validComboListFieldTypes = ComboListField::$validComboListFieldTypes; //TODO::CASTLE
+        $validComboListFieldTypes = [];
 
-        return view('fields.create', compact('form','rootPage', 'validFieldTypes', 'validComboListFieldTypes'));
+        return view('fields.create', compact('form','pageIndex', 'validFieldTypes', 'validComboListFieldTypes'));
 	}
 
     /**
@@ -59,36 +60,56 @@ class FieldController extends Controller {
      * @return Redirect
      */
 	public function store(FieldRequest $request) {
-	    //special error check for combo list field
-        if($request->type=='Combo List' && ($request->cfname1 == '' | $request->cfname2 == ''))
-            return redirect()->back()->withInput()->with('k3_global_error', 'combo_name_missing');
+	    if(!FormController::validProjForm($request->pid, $request->fid))
+            return redirect('projects/'.$request->pid)->with('k3_global_error', 'form_invalid');
 
-        $seq = PageController::getNewPageFieldSequence($request->page_id); //we do this before anything so the new field isnt counted in it's logic
-        $field = Field::Create($request->all());
+	    $field = [];
+        $form = FormController::getForm($request->fid);
+        $slug = str_replace(" ","_", $request->name).'_'.$form->project_id.'_'.$form->id.'_';
+        $layout = $form->layout;
 
-        $field->options = $field->getTypedField()->getDefaultOptions($request);
-        $field->default = '';
+        //Make sure slug doesn't already exist
+        if(array_key_exists($slug,$layout[$request->page_id]["fields"]))
+            return redirect('projects/'.$request->pid.'/forms/'.$request->fid)->with('k3_global_error', 'field_name_error');
 
-        $field->sequence = $seq;
+        //Fill out its data
+        $field['type'] = $request->type;
+        $field['name'] = $request->name;
+        $field['description'] = $request->desc;
+        $field['default'] = null;
+        $field['required'] = isset($request->required) && $request->required ? 1 : 0;
+        $field['searchable'] = isset($request->searchable) && $request->searchable ? 1 : 0;
+        $field['advanced_search'] = isset($request->advsearch) && $request->advsearch ? 1 : 0;
+        $field['external_search'] = isset($request->extsearch) && $request->extsearch ? 1 : 0;
+        $field['viewable'] = isset($request->viewable) && $request->viewable ? 1 : 0;
+        $field['viewable_in_results'] = isset($request->viewresults) && $request->viewresults ? 1 : 0;
+        $field['external_view'] = isset($request->extview) && $request->extview ? 1 : 0;
 
-        $field->save();
+        //Field Specific Stuff
+        $fieldMod = $form->getFieldModel($request->type);
+        $field['options'] = $fieldMod->getDefaultOptions();
+        $fieldMod->addDatabaseColumn($form->id, $slug);
+
+        //Add to form
+        $layout[$request->page_id]["fields"][$slug] = $field;
+        $form->layout = $layout;
+        $form->save();
 
         //if advanced options was selected we should call the correct one
-        $advError = false;
+        $advError = false; //TODO::CASTLE
         if($request->advanced) {
-            $result = $field->getTypedField()->updateOptions($field, $request, false);
-            if($result != '')
-                $advError = true;
+//            $result = $field->getTypedField()->updateOptions($field, $request, false);
+//            if($result != '')
+//                $advError = true;
         }
 
-        //A field has been changed, so current record rollbacks become invalid.
-        $form = FormController::getForm($field->fid);
-        RevisionController::wipeRollbacks($form->fid);
+        //A field has been changed, so current record rollbacks become invalid.  //TODO::CASTLE
+        //RevisionController::wipeRollbacks($form->fid);
 
         if(!$advError) //if we error on the adv page we should hide the success message so error can display
-            return redirect('projects/'.$field->pid.'/forms/'.$field->fid)->with('k3_global_success', 'field_created');
+            return redirect('projects/'.$request->pid.'/forms/'.$request->fid)->with('k3_global_success', 'field_created');
         else
-            return redirect('projects/'.$field->pid.'/forms/'.$field->fid)->with('k3_global_error', 'field_advanced_error');
+            return redirect('projects/'.$request->pid.'/forms/'.$request->fid)->with('k3_global_error', 'field_advanced_error');
 	}
 
     /**
@@ -99,7 +120,7 @@ class FieldController extends Controller {
      * @param  int $flid - Field ID
      * @return View
      */
-	public function show($pid, $fid, $flid) {
+	public function show($pid, $fid, $flid) { //TODO::CASTLE
         if(!self::validProjFormField($pid, $fid, $flid))
             return redirect('projects/'.$pid.'/forms/'.$fid)->with('k3_global_error', 'field_invalid');
 
@@ -181,7 +202,7 @@ class FieldController extends Controller {
      * @param  int $flid - Field ID
      * @return Redirect
      */
-	public function edit($pid, $fid, $flid) {
+	public function edit($pid, $fid, $flid) { //TODO::CASTLE
         return redirect('projects/'.$pid.'/forms/'.$fid.'/fields/'.$flid.'/options');
 	}
 
@@ -194,7 +215,7 @@ class FieldController extends Controller {
      * @param  FieldRequest $request
      * @return Redirect
      */
-    public function update($pid, $fid, $flid, FieldRequest $request) {
+    public function update($pid, $fid, $flid, FieldRequest $request) { //TODO::CASTLE
         if(!self::validProjFormField($pid, $fid, $flid))
             return redirect('projects/'.$pid.'/forms/'.$fid)->with('k3_global_error', 'field_invalid');
 
@@ -223,7 +244,7 @@ class FieldController extends Controller {
      * @param  Request $request
      * @return JsonResponse
      */
-    public function updateFlag($pid, $fid, $flid, Request $request){
+    public function updateFlag($pid, $fid, $flid, Request $request) { //TODO::CASTLE
         if(!FieldController::validProjFormField($pid, $fid, $flid))
             return response()->json(["status"=>false,"message"=>"field_invalid"],500);
 
@@ -274,7 +295,7 @@ class FieldController extends Controller {
      * @param  int $fid - Form ID
      * @param  int $flid - Field ID
      */
-	public function destroy($pid, $fid, $flid, Request $request) {
+	public function destroy($pid, $fid, $flid, Request $request) { //TODO::CASTLE
         if(!self::validProjFormField($pid, $fid, $flid))
             return redirect()->action('FormController@show', ['pid' => $pid, 'fid' => $fid])->with('k3_global_error', 'field_invalid');
 
@@ -299,7 +320,7 @@ class FieldController extends Controller {
      *
      * @return JsonResponse
      */
-    public function validateFieldFields(FieldRequest $request) {
+    public function validateFieldFields(FieldRequest $request) { //TODO::CASTLE
         //Note:: This does work. The FieldRequest class validates the field itself, and if we get here, we return all clear!
         return response()->json(["status"=>true, "message"=>"Form Valid", 200]);
     }
@@ -310,7 +331,7 @@ class FieldController extends Controller {
      * @param  mixed $flid - The flid or slug of the field
      * @return Field - The represented field
      */
-    public static function getField($flid) {
+    public static function getField($flid) { //TODO::CASTLE
         $field = Field::where('flid', '=', $flid)->first();
         if(is_null($field))
             $field = Field::where('slug','=',$flid)->first();
@@ -326,7 +347,7 @@ class FieldController extends Controller {
      * @param  int $flid - Field ID
      * @return bool - The validity of the IDs
      */
-    public static function validProjFormField($pid, $fid, $flid) {
+    public static function validProjFormField($pid, $fid, $flid) { //TODO::CASTLE
         $field = self::getField($flid);
         $form = FormController::getForm($fid);
         $proj = ProjectController::getProject($pid);
@@ -349,7 +370,7 @@ class FieldController extends Controller {
      * @param  string $key - The option name
      * @return string - The value of the option
      */
-    public static function getFieldOption($field, $key) {
+    public static function getFieldOption($field, $key) { //TODO::CASTLE
         $options = $field->options;
         $tag = '[!'.$key.'!]';
         $value = explode($tag,$options)[1];
@@ -364,7 +385,7 @@ class FieldController extends Controller {
      * @param  string $permission - Permission to check for
      * @return bool - Has the permission
      */
-    public static function checkPermissions($fid, $permission='') {
+    public static function checkPermissions($fid, $permission='') { //TODO::CASTLE
         switch($permission) {
             case 'create':
                 if(!(\Auth::user()->canCreateFields(FormController::getForm($fid))))
@@ -397,7 +418,7 @@ class FieldController extends Controller {
      * @param  string $filename - Image filename
      * @return Redirect
      */
-    public function singleResource($pid, $fid, $rid, $flid, $filename) {
+    public function singleResource($pid, $fid, $rid, $flid, $filename) { //TODO::CASTLE
         $relative_src = 'files/p'.$pid.'/f'.$fid.'/r'.$rid.'/fl'.$flid.'/'.$filename;
         $src = url('app/'.$relative_src);
 
@@ -451,7 +472,7 @@ class FieldController extends Controller {
      * @param  string $filename - Image filename
      * @return Redirect
      */
-    public function singleGeolocator($pid, $fid, $rid, $flid) {
+    public function singleGeolocator($pid, $fid, $rid, $flid) { //TODO::CASTLE
         $field = self::getField($flid);
         $record = RecordController::getRecord($rid);
         $typedField = $field->getTypedFieldFromRID($rid);
@@ -469,7 +490,7 @@ class FieldController extends Controller {
      * @param  string $filename - Image filename
      * @return Redirect
      */
-    public function singleRichtext($pid, $fid, $rid, $flid) {
+    public function singleRichtext($pid, $fid, $rid, $flid) { //TODO::CASTLE
         $field = self::getField($flid);
         $record = RecordController::getRecord($rid);
         $typedField = $field->getTypedFieldFromRID($rid);

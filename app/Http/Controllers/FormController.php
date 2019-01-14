@@ -1,9 +1,7 @@
 <?php namespace App\Http\Controllers;
 
 use App\Form;
-use App\Page;
 use App\User;
-use App\Field;
 use App\FormGroup;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -79,7 +77,7 @@ class FormController extends Controller {
 
 	    //TODO::CASTLE
         //if($request->preset[0]=="") //Since the preset is copying the target form, no need to make a default page
-            //PageController::makePageOnForm($form->fid,$form->name." Default Page");
+            PageController::makePageOnForm($form->id,$form->name." Default Page");
 
         $adminGroup = FormGroup::makeAdminGroup($form, $request);
         FormGroup::makeDefaultGroup($form);
@@ -87,7 +85,9 @@ class FormController extends Controller {
         $form->internal_name = str_replace(" ","_", $form->name).'_'.$form->project_id.'_'.$form->id.'_';
         $form->save();
 
-        //TODO::MAKE THE RECORDS TABLE
+        //Make the form's records table
+        $rTable = new \CreateRecordsTable();
+        $rTable->createFormRecordsTable($form->id);
 
         //TODO::CASTLE
         //if($request->preset[0]!="")
@@ -113,9 +113,14 @@ class FormController extends Controller {
         $form = self::getForm($fid);
         $proj = ProjectController::getProject($pid);
         $projName = $proj->name;
-        $hasFields = (Field::where('fid','=',$fid)->count() > 0);
 
-        $pageLayout = PageController::getFormLayout($fid);
+        //Build the layout from the DB
+        $hasFields = false;
+        $pageLayout = $form->layout;
+        foreach($pageLayout as $page) {
+            if(!empty($page['fields']))
+                $hasFields = true;
+        }
 
         $notification = array(
           'message' => '',
@@ -320,7 +325,7 @@ class FormController extends Controller {
 
         if(is_null($form) || is_null($proj))
             return false;
-        else if($proj->pid==$form->pid)
+        else if($proj->id==$form->project_id)
             return true;
         else
             return false;
@@ -357,7 +362,7 @@ class FormController extends Controller {
     }
 
     /**
-     * Copys a form's information from another preset form.
+     * Copys a form's information from another preset form. //TODO::CASTLE
      *
      * @param  Form $form - Form being created
      * @param  int $fid - Form ID of preset form

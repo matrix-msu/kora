@@ -3,7 +3,7 @@
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class OptionPreset extends Model {
+class FieldValuePreset extends Model {
 
     /*
     |--------------------------------------------------------------------------
@@ -17,7 +17,7 @@ class OptionPreset extends Model {
     /**
      * @var array - Attributes that can be mass assigned to model
      */
-    protected $fillable = ['pid', 'type', 'name', 'preset', 'created_at', 'updated_at'];
+    protected $fillable = ['project_id', 'preset'];
 
     /**
      * Returns the project this preset is owned by.
@@ -25,7 +25,7 @@ class OptionPreset extends Model {
      * @return BelongsTo - DESCRIPTION
      */
 	public function project() {
-        return $this->belongsTo('App\Project','pid');
+        return $this->belongsTo('App\Project','project_id');
     }
 
 }

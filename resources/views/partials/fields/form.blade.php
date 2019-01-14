@@ -1,6 +1,6 @@
 {!! Form::hidden('pid',$pid) !!}
 {!! Form::hidden('fid',$fid) !!}
-{!! Form::hidden('page_id',$rootPage) !!}
+{!! Form::hidden('page_id',$pageIndex) !!}
 
 <div class="form-group">
     {!! Form::label('name', 'Field Name') !!}
@@ -9,15 +9,9 @@
 </div>
 
 <div class="form-group mt-xl">
-    {!! Form::label('slug', 'Unique Field Identifier') !!}
-    <span class="error-message">{{array_key_exists("slug", $errors->messages()) ? $errors->messages()["slug"][0] : ''}}</span>
-    {!! Form::text('slug', null, ['class' => 'text-input' . (array_key_exists("slug", $errors->messages()) ? ' error' : ''), 'placeholder' => "Enter the field's unique ID here (no spaces, alpha-numeric values only)"]) !!}
-</div>
-
-<div class="form-group mt-xl">
     {!! Form::label('desc', 'Description') !!}
     <span class="error-message">{{array_key_exists("desc", $errors->messages()) ? $errors->messages()["desc"][0] : ''}}</span>
-    {!! Form::textarea('desc', null, ['class' => 'text-area' . (array_key_exists("desc", $errors->messages()) ? ' error' : ''), 'placeholder' => "Enter the field's description here (max. 255 characters)"]) !!}
+    {!! Form::textarea('desc', null, ['class' => 'text-area' . (array_key_exists("desc", $errors->messages()) ? ' error' : ''), 'placeholder' => "Enter the field's description here (max. 500 characters)"]) !!}
 </div>
 
 <div class="form-group mt-xl">
@@ -53,6 +47,7 @@
     </section>
 </section>
 
+{{--TODO::CASTLE--}}
 <div class="form-group mt-xxxl">
     <section class="advanced-options-show">
         <a href="#" class="btn half-sub-btn extend advanced-options-btn-js">Show Advanced Field Options</a>
@@ -116,7 +111,7 @@
 <div class="form-group mt-xl">
     <label for="extsearch">Externally Searchable?</label>
     <div class="check-box">
-        <input type="checkbox" value="1" id="preset" class="check-box-input" name="extsearch" />
+        <input type="checkbox" value="1" id="preset" class="check-box-input" name="extsearch" checked />
         <div class="check-box-background"></div>
         <span class="check"></span>
         <span class="placeholder">Set field as externally searchable</span>
@@ -154,14 +149,14 @@
     </div>
 
     <p class="sub-text mt-sm">
-        Data in this field will be shown in all records belonging to this form
+        Data in this field will be shown in all search results within Kora
     </p>
 </div>
 
 <div class="form-group mt-xl">
     <label for="extview">Externally Viewable?</label>
     <div class="check-box">
-        <input type="checkbox" value="1" id="preset" class="check-box-input" name="extview" />
+        <input type="checkbox" value="1" id="preset" class="check-box-input" name="extview" checked />
         <div class="check-box-background"></div>
         <span class="check"></span>
         <span class="placeholder">Set field as externally viewable</span>

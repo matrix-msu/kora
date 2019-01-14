@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\DB;
 
 class Record extends Model {
 
+    //TODO::CASTLE
     /*
     |--------------------------------------------------------------------------
     | Record

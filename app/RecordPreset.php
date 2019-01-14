@@ -16,6 +16,6 @@ class RecordPreset extends Model {
     /**
      * @var array - Attributes that can be mass assigned to model
      */
-    protected $fillable = ['name', 'fid', 'rid'];
+    protected $fillable = ['preset', 'form_id', 'record_kid'];
 
 }

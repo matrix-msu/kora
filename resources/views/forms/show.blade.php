@@ -1,12 +1,12 @@
 @extends('app', ['page_title' => "{$form->name} Form", 'page_class' => 'form-show'])
 
 @section('leftNavLinks')
-    @include('partials.menu.project', ['pid' => $form->pid])
-    @include('partials.menu.form', ['pid' => $form->pid, 'fid' => $form->fid])
+    @include('partials.menu.project', ['pid' => $form->project_id])
+    @include('partials.menu.form', ['pid' => $form->project_id, 'fid' => $form->id])
 @stop
 
 @section('aside-content')
-  @include('partials.sideMenu.form', ['pid' => $form->pid, 'fid' => $form->fid, 'openDrawer' => true])
+  @include('partials.sideMenu.form', ['pid' => $form->project_id, 'fid' => $form->id, 'openDrawer' => true])
 @stop
 
 @section('stylesheets')
@@ -19,7 +19,7 @@
     <div class="inner-wrap center">
       <h1 class="title">
         <i class="icon icon-form"></i>
-        <a href="{{ action('FormController@edit',['pid' => $form->pid, 'fid' => $form->fid]) }}" class="head-button tooltip" tooltip="Edit Form">
+        <a href="{{ action('FormController@edit',['pid' => $form->project_id, 'fid' => $form->id]) }}" class="head-button tooltip" tooltip="Edit Form">
           <i class="icon icon-edit right"></i>
         </a>
         <span>{{ $form->name }}</span>
@@ -33,9 +33,12 @@
       <div class="form-group">
         <div class="form-quick-options">
           <div class="button-container">
-			<?php $count = count($form->records) ?>
-            <a href="{{ url('/projects/'.$form->pid).'/forms/'.$form->fid.'/records'}}" class="btn half-sub-btn">Form Records & Search ({{ $count }})</a>
-            <a href="@if ($hasFields) {{ action('RecordController@create',['pid' => $form->pid, 'fid' => $form->fid]) }} @endif" class="btn half-sub-btn
+			<?php
+                  $count = 0 //TODO::CASTLE
+              //$count = count($form->records)
+            ?>
+            <a href="{{ url('/projects/'.$form->project_id).'/forms/'.$form->id.'/records'}}" class="btn half-sub-btn">Form Records & Search ({{ $count }})</a>
+            <a href="@if ($hasFields) {{ action('RecordController@create',['pid' => $form->project_id, 'fid' => $form->id]) }} @endif" class="btn half-sub-btn
                 @if(!$hasFields) disabled tooltip @endif" tooltip="Whoops, you can’t create a new record when the form has no fields.">Create New Record</a>
           </div>
         </div>
@@ -46,18 +49,16 @@
 
 
 @section('body')
-  <?php
-  $page_has_fields = false;
+  @php
+    $page_has_fields = false;
 
-  foreach($pageLayout as $page)
-  {
-    if (count($page["fields"]) > 0)
-  	{
-	  $page_has_fields = true;
-	  break;
-  	}
-  }
-  ?>
+    foreach($pageLayout as $page) {
+      if(sizeof($page["fields"]) > 0) {
+        $page_has_fields = true;
+        break;
+      }
+    }
+  @endphp
 
   @include('partials.projects.notification')
 
@@ -119,39 +120,43 @@
   </div>
 
   <section class="pages pages-js center {{ $page_has_fields ? '' : 'mt-xxxl' }}">
-    <?php $pages_count = count($pageLayout); ?>
+    @php
+      $pages_count = sizeof($pageLayout);
+    @endphp
+    
     @foreach($pageLayout as $idx=>$page)
-      <div class="page" page-id="{{$page["id"]}}">
+      <div class="page" page-id="{{$idx}}">
         <div class="page-header">
           <div class="move-actions">
-            <a class="action move-action-page-js up-js" page_id="{{$page["id"]}}" href="#">
+            <a class="action move-action-page-js up-js" page_id="{{$idx}}" href="#">
               <i class="icon icon-arrow-up"></i>
             </a>
 
-            <a class="action move-action-page-js down-js" page_id="{{$page["id"]}}" href="#">
+            <a class="action move-action-page-js down-js" page_id="{{$idx}}" href="#">
               <i class="icon icon-arrow-down"></i>
             </a>
           </div>
 
           <div class="form-group title-container">
-            {!! Form::text('name', null, ['class' => 'title page-title-js', 'placeholder' => $page["title"], 'pageid' => $page["id"]]) !!}
+            {!! Form::text('name', null, ['class' => 'title page-title-js', 'placeholder' => $page["title"], 'pageid' => $idx]) !!}
           </div>
 
           @if ($pages_count > 1)
 		  <div>
-		    <a href="#" data-page='{{$page["id"]}}' class="cancel-container delete-page-js tooltip" tooltip="Delete Page">
+		    <a href="#" data-page='{{$idx}}' class="cancel-container delete-page-js tooltip" tooltip="Delete Page">
 		  	  <i class="icon icon-cancel"></i>
 		    </a>
 		  </div>
 		  @elseif ($pages_count == 1)
 		  <div>
-		    <a href="#" data-page='{{$page["id"]}}' class="cancel-container-disabled delete-page-js delete-disabled not-allowed">
+		    <a href="#" data-page='{{$idx}}' class="cancel-container-disabled delete-page-js delete-disabled not-allowed">
 		  	  <i class="icon-cancel not-allowed"></i>
 		   </a>
 		  </div>
 		  @endif
         </div>
 
+        {{--TODO::CASTLE--}}
         <div class="field-sort-js" style="min-height: 10px;">
         @foreach($page["fields"] as $index=>$field)
             <div class="field-container">
@@ -161,7 +166,7 @@
         </div>
 
         @if(\Auth::user()->canCreateFields($form))
-          <form method="DET" action="{{action('FieldController@create', ['pid' => $form->pid, 'fid' => $form->fid, 'rootPage' => $page['id']]) }}">
+          <form method="DET" action="{{action('FieldController@create', ['pid' => $form->project_id, 'fid' => $form->id, 'rootPage' => $idx]) }}">
             <div class="form-group new-field-button">
               <input type="submit" value="Create New Field Here">
             </div>
@@ -173,7 +178,7 @@
 
       @if(\Auth::user()->canCreateFields($form))
         <div class="form-group new-page-button">
-          <a href="#" data-new-page="{{$idx + 2}}" data-prev-page="{{$page["id"]}}" class="new-page-js btn transparent">Create New Form Page Here</a>
+          <a href="#" data-new-page="{{$idx + 1}}" class="new-page-js btn transparent">Create New Form Page Here</a>
         </div>
       @endif
 
@@ -185,8 +190,8 @@
   @include('partials.forms.javascripts')
 
   <script type="text/javascript">
-    var modifyFormPageRoute = "{{ action('PageController@modifyFormPage', ['pid' => $form->pid, 'fid' => $form->fid]) }}";
-    var saveFullFormLayoutRoute = "{{ action('PageController@saveFullFormLayout', ['pid' => $form->pid, 'fid' => $form->fid]) }}";
+    var modifyFormPageRoute = "{{ action('PageController@modifyFormPage', ['pid' => $form->project_id, 'fid' => $form->id]) }}";
+    var saveFullFormLayoutRoute = "{{ action('PageController@saveFullFormLayout', ['pid' => $form->project_id, 'fid' => $form->id]) }}"; //TODO::CASTLE
     var addMethod = "{{\App\Http\Controllers\PageController::_ADD}}";
     var delMethod = "{{\App\Http\Controllers\PageController::_DELETE}}";
     var renameMethod = "{{\App\Http\Controllers\PageController::_RENAME}}";

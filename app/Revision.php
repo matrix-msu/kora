@@ -17,7 +17,7 @@ class Revision extends Model {
     /**
      * @var array - Attributes that can be mass assigned to model
      */
-    protected $fillable = ['id','fid','rid','type','username','data','oldData','rollback'];
+    protected $fillable = ['form_id','record_kid','revision'];
 
     /**
      * @var string - The individual types of a revision
@@ -42,7 +42,7 @@ class Revision extends Model {
      * @return BelongsTo
      */
     public function record() {
-        return $this->belongsTo('App\Record', 'rid');
+        return $this->belongsTo('App\Record', 'record_kid');
     }
 
     /**
@@ -51,6 +51,6 @@ class Revision extends Model {
      * @return BelongsTo
      */
     public function form() {
-        return $this->belongsTo('App\Form', 'fid');
+        return $this->belongsTo('App\Form', 'form_id');
     }
 }

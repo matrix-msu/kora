@@ -47,13 +47,4 @@ class Token extends Model {
         $thisProjects = $this->projects()->get();
         return $thisProjects->contains($project);
     }
-
-    /**
-     * Deletes the tokens connections to projects, then deletes self.
-     */
-    public function delete() {
-        DB::table("project_token")->where("token_id", "=", $this->id)->delete();
-
-        parent::delete();
-    }
 }

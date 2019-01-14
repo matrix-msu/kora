@@ -16,6 +16,6 @@ class Script extends Model {
     /**
      * @var array - Attributes that can be mass assigned to model
      */
-    protected $fillable = ['id', 'filename', 'hasRun'];
+    protected $fillable = ['id', 'filename', 'has_run'];
 
 }
