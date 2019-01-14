@@ -184,13 +184,15 @@ Kora.Records.Show = function() {
                 function setImageSize($slideImg, imgAspectRatio) {
                     if (imgAspectRatio > galAspectRatio) {
                         // Image is wider than gallery container
-                        $slideImg.css('height', 'auto');
-                        $slideImg.css('width', '100%');
+                        //$slideImg.css('height', 'auto');
+                        //$slideImg.css('width', '100%');
                     } else {
                         // Image is tall or same aspect ratio as gallery container
-                        $slideImg.css('height', '100%');
-                        $slideImg.css('width', 'auto');
+                        //$slideImg.css('height', '100%');
+                        //$slideImg.css('width', 'auto');
                     }
+
+                    console.warn ( 'setImageSize' )
                 }
             });
 
