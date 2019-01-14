@@ -334,7 +334,7 @@ class UserController extends Controller {
             $preference = new Preference;
             $preference->user_id = $user->id;
             $preference->use_dashboard = 1;
-            $preference->logo_target = 1;
+            $preference->logo_target = 2; // 1 is dashboard, 2 is projects page
             $preference->proj_page_tab_selection = 3;
             $preference->single_proj_page_tab_selection = 3;
             $preference->created_at = Carbon::now();
@@ -408,7 +408,7 @@ class UserController extends Controller {
             if(is_null($preference)) {
                 $preference = new Preference();
                 $preference->use_dashboard = 1;
-                $preference->logo_target = 1;
+                $preference->logo_target = 2; // 1 is dashboard, 2 is projects page
                 $preference->proj_page_tab_selection = 3;
                 $preference->single_proj_page_tab_selection = 3;
             }
@@ -425,7 +425,7 @@ class UserController extends Controller {
             // if user is guest, create default set of preferences
             $preference = new Preference;
             $preference->use_dashboard = 1;
-            $preference->logo_target = 1;
+            $preference->logo_target = 2; // 1 is dashboard, 2 is projects page
             $preference->proj_page_tab_selection = 3;
             $preference->single_proj_page_tab_selection = 3;
 
