@@ -1,5 +1,6 @@
 <?php namespace App;
 
+use App\KoraFields\BaseField;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -113,6 +114,62 @@ class Form extends Model {
     }
 
     /**
+     * Updates a field within a form. Potentially reindex field name.
+     */
+    public function updateField($flid, $fieldArray, $newFlid=null) {
+        $layout = $this->layout;
+        $saveIndex = null;
+
+        foreach($layout as $index => $page) {
+            if(array_key_exists($flid,$page['fields'])) {
+                $saveIndex = $index;
+                break;
+            }
+        }
+
+        if(is_null($newFlid))
+            $layout[$saveIndex]['fields'][$flid] = $fieldArray;
+        else {
+            $reindexedFields = [];
+            foreach($layout[$saveIndex]['fields'] as $id => $fieldData) {
+                if($flid==$id)
+                    $reindexedFields[$newFlid] = $fieldArray;
+                else
+                    $reindexedFields[$id] = $fieldData;
+            }
+            $layout[$saveIndex]['fields'] = $reindexedFields;
+
+            $rTable = new \CreateRecordsTable();
+            $rTable->renameColumn($this->id,$flid,$newFlid);
+        }
+        $this->layout = $layout;
+        $this->save();
+    }
+
+    /**
+     * Updates a field within a form.
+     */
+    public function deleteField($flid) {
+        $layout = $this->layout;
+        $pageIndex = null;
+
+        foreach($layout as $index => $page) {
+            if(array_key_exists($flid,$page['fields'])) {
+                $pageIndex = $index;
+                break;
+            }
+        }
+
+        unset($layout[$pageIndex]['fields'][$flid]);
+        $this->layout = $layout;
+        $this->save();
+
+        //Remove table column
+        $rTable = new \CreateRecordsTable();
+        $rTable->dropColumn($this->id,$flid);
+    }
+
+    /**
      * Deletes all data belonging to the form, then deletes self.
      */
     public function delete() {
@@ -133,6 +190,11 @@ class Form extends Model {
         parent::delete();
     }
 
+    /**
+     * Returns the field type model.
+     *
+     * @return BaseField
+     */
     public function getFieldModel($type) {
         $modName = 'App\\KoraFields\\'.self::$fieldModelMap[$type];
         return new $modName();

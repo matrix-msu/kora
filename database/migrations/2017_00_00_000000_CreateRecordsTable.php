@@ -44,9 +44,20 @@ class CreateRecordsTable extends Migration {
 
     //TODO::NEWFIELD
     public function addTextColumn($fid, $slug) {
-        Schema::table("records_$fid", function(Blueprint $table) use ($slug)
-        {
+        Schema::table("records_$fid", function(Blueprint $table) use ($slug) {
             $table->text($slug)->nullable();
+        });
+    }
+
+    public function renameColumn($fid, $slug, $newSlug) {
+        Schema::table("records_$fid", function (Blueprint $table) use ($slug, $newSlug) {
+            $table->renameColumn($slug,$newSlug);
+        });
+    }
+
+    public function dropColumn($fid, $slug) {
+        Schema::table("records_$fid", function (Blueprint $table) use ($slug) {
+            $table->dropColumn($slug);
         });
     }
 }

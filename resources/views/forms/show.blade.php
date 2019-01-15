@@ -158,10 +158,12 @@
 
         {{--TODO::CASTLE--}}
         <div class="field-sort-js" style="min-height: 10px;">
-        @foreach($page["fields"] as $index=>$field)
+          @php $index = 0; @endphp
+        @foreach($page["fields"] as $flid=>$field)
             <div class="field-container">
-              @include('forms.layout.field', ['field' => $field])
+              @include('forms.layout.field', ['flid' => $flid, 'field' => $field, 'pid' => $form->project_id, 'fid' => $form->id])
             </div>
+            @php $index++; @endphp
           @endforeach
         </div>
 

@@ -1,11 +1,11 @@
-<div class="field card {{ $index == 0 ? 'active' : '' }}" id="{{$field->flid}}" 
-  delete-url="{{action('FieldController@destroy', ['pid' => $field->pid, 'fid' => $field->fid, 'flid' => $field->flid])}}"
-  move-url="{{action('PageController@moveField', ['pid' => $field->pid, 'fid' => $field->fid, 'flid' => $field->flid])}}"
-  sequence="{{$field->sequence}}"
+<div class="field card {{ $index == 0 ? 'active' : '' }}" id="{{$flid}}" 
+  delete-url="{{action('FieldController@destroy', ['pid' => $pid, 'fid' => $fid, 'flid' => $flid])}}"
+  move-url="{{action('PageController@moveField', ['pid' => $pid, 'fid' => $fid, 'flid' => $flid])}}"
+  sequence="{{$flid}}"
   >
   <div class="header {{ $index == 0 ? 'active' : '' }}">
     <div class="left">
-      @if(\Auth::user()->canEditForms(\App\Http\Controllers\ProjectController::getProject($field->pid)))
+      @if(\Auth::user()->canEditForms(\App\Http\Controllers\ProjectController::getProject($pid)))
         <div class="move-actions">
           <a class="action move-action-js up-js" href="">
             <i class="icon icon-arrow-up"></i>
@@ -17,27 +17,27 @@
         </div>
       @endif
 
-      @if($field->type=='Associator' and sizeof(\App\Http\Controllers\AssociationController::getAvailableAssociations($field->fid))==0)
+      @if($field['type']=='Associator' and sizeof(\App\Http\Controllers\AssociationController::getAvailableAssociations($fid))==0)
         {{-- TODO: Change this to indicate action needs to be taken --}}
-        <a class="title underline-middle-hover" href="{{ action('FieldController@show', ['pid' => $form->pid, 'fid' => $form->fid, 'flid' => $field->flid]) }}">
-          <span class="name">{{$field->name}}</span>
+        <a class="title underline-middle-hover" href="{{ action('FieldController@show', ['pid' => $pid, 'fid' => $fid, 'flid' => $flid]) }}">
+          <span class="name">{{$field['name']}}</span>
           <i class="icon icon-arrow-right"></i>
         </a>
       @elseif(\Auth::user()->canEditFields($form))
-        <a class="title underline-middle-hover" href="{{ action('FieldController@show',['pid' => $form->pid, 'fid' => $form->fid, 'flid' => $field->flid]) }}">
-          <span class="name">{{$field->name}}</span>
+        <a class="title underline-middle-hover" href="{{ action('FieldController@show',['pid' => $pid, 'fid' => $fid, 'flid' => $flid]) }}">
+          <span class="name">{{$field['name']}}</span>
           <i class="icon icon-arrow-right"></i>
         </a>
       @else
         <a class="title inactive underline-middle-hover" href="#">
-          <span class="name">{{$field->name}}</span>
+          <span class="name">{{$field['name']}}</span>
         </a>
       @endif
     </div>
 
     <div class="card-toggle-wrap">
       <a href="#" class="card-toggle field-toggle-js">
-        <span class="chevron-text">{{$field->type}}</span>
+        <span class="chevron-text">{{$field['type']}}</span>
         <i class="icon icon-chevron {{ $index == 0 ? 'active' : '' }}"></i>
       </a>
     </div>
@@ -46,19 +46,19 @@
   <div class="content content-js {{ $index == 0 ? 'active' : '' }}">
     <div class="id">
       <span class="attribute">Unique Field ID: </span>
-      <span>{{$field->slug}}</span>
+      <span>{{$flid}}</span>
     </div>
 
     <div class="description">
-      {{$field->desc}}
+      {{$field['description']}}
     </div>
 
-    <div class="allowed-actions" update-flag-url="{{ action('FieldController@updateFlag', ['pid' => $field->pid, 'fid' => $field->fid, 'flid' => $field->flid]) }}">
+    <div class="allowed-actions" update-flag-url="{{ action('FieldController@updateFlag', ['pid' => $pid, 'fid' => $fid, 'flid' => $flid]) }}">
       <div class="form-group action">
         <div class="action-column">
           <div class="check-box-half check-box-rectangle">
             <input type="checkbox"
-              @if ($field->required)
+              @if ($field['required'])
                 checked
               @endif
               class="check-box-input preset-input-js"
@@ -69,7 +69,7 @@
           </div>
           <div class="check-box-half check-box-rectangle">
             <input type="checkbox"
-              @if ($field->viewable)
+              @if ($field['viewable'])
                 checked
               @endif
               class="check-box-input preset-input-js"
@@ -85,7 +85,7 @@
         <div class="action-column">
          <div class="check-box-half check-box-rectangle">
             <input type="checkbox"
-              @if ($field->searchable)
+              @if ($field['searchable'])
                 checked
               @endif
               class="check-box-input preset-input-js"
@@ -96,7 +96,7 @@
           </div>
           <div class="check-box-half check-box-rectangle">
             <input type="checkbox"
-              @if ($field->viewresults)
+              @if ($field['viewable_in_results'])
                 checked
               @endif
               class="check-box-input preset-input-js"
@@ -112,7 +112,7 @@
         <div class="action-column">
          <div class="check-box-half check-box-rectangle">
             <input type="checkbox"
-              @if ($field->extsearch)
+              @if ($field['external_search'])
                 checked
               @endif
               class="check-box-input preset-input-js"
@@ -123,7 +123,7 @@
           </div>
           <div class="check-box-half check-box-rectangle">
             <input type="checkbox"
-              @if ($field->extview)
+              @if ($field['external_view'])
                 checked
               @endif
               class="check-box-input preset-input-js"
@@ -139,7 +139,7 @@
         <div class="action-column">
           <div class="check-box-half check-box-rectangle">
             <input type="checkbox"
-              @if ($field->advsearch)
+              @if ($field['advanced_search'])
                 checked
               @endif
               class="check-box-input preset-input-js"
@@ -160,7 +160,7 @@
       @endif
 
       @if(\Auth::user()->canEditFields($form))
-        <a class="quick-action underline-middle-hover" href="{{ action('FieldController@show',['pid' => $form->pid, 'fid' => $form->fid, 'flid' => $field->flid]) }}">
+        <a class="quick-action underline-middle-hover" href="{{ action('FieldController@show',['pid' => $pid, 'fid' => $fid, 'flid' => $flid]) }}">
           <span>View Field Options</span>
           <i class="icon icon-arrow-right"></i>
         </a>

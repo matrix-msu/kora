@@ -91,24 +91,6 @@ class PageController extends Controller {
     }
 
     /**
-     * Gets an reindexes all the fields in a page.
-     *
-     * @param  int $pageID - Page ID
-     */
-//    public static function restructurePageSequence($pageID) { //TODO::CASTLE
-//        $page = self::getPage($pageID);
-//
-//        $fields = $page->fields()->get();
-//        $index = 0;
-//
-//        foreach($fields as $field) {
-//            $field->sequence = $index;
-//            $field->save();
-//            $index++;
-//        }
-//    }
-
-    /**
      * Gets a particular page model.
      *
      * @param  int $pageID - Page ID

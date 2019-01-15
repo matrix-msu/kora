@@ -9,7 +9,7 @@
         <div class="body">
             {!! Form::open([
               'method' => 'DELETE',
-              'action' => ['FieldController@destroy', 'pid' => $field->pid, 'fid' => $field->fid, 'flid' => $field->flid],
+              'action' => ['FieldController@destroy', 'pid' => $pid, 'fid' => $fid, 'flid' => $flid],
               'style' => 'display:none',
               'class' => "delete-content-js"
             ]) !!}

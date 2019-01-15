@@ -66,7 +66,7 @@
 
       @foreach($project->forms()->get() as $form)
         <span class="form">
-          <a class="form-link {{$archived ? 'inactive': 'underline-middle-hover'}}" href="{{action("FormController@show",["pid" => $project->id,"fid" => $form->fid])}}">
+          <a class="form-link {{$archived ? 'inactive': 'underline-middle-hover'}}" href="{{action("FormController@show",["pid" => $project->id,"fid" => $form->id])}}">
             {{$form->name}}
           </a>
         </span>
