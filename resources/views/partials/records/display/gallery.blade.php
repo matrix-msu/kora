@@ -74,7 +74,7 @@
                     @if($img != '')
                         <?php
                         $name = explode('[Name]',$img)[1];
-                        $link = action('FieldAjaxController@getImgDisplay',['flid' => $field->flid, 'rid' => $record->rid, 'filename' => $name, 'type' => 'medium']);
+                        $link = action('FieldAjaxController@getImgDisplay',['flid' => $field->flid, 'rid' => $record->rid, 'filename' => $name, 'type' => 'large']);
                         ?>
                         <div class="slide slide-js">
                             <img class="slide-img slide-img-js" src="{{$link}}" alt="{{$name}}">

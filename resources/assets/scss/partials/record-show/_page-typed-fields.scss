@@ -264,27 +264,26 @@
   width: calc(100% - 44px);
 
   .slide {
-    /*bottom: 0;*/
+    bottom: 0;
     cursor: pointer;
     display: flex;
-    /*left: 2000px;
+    left: 2000px;
     position: absolute;
-    right: 0;*/
+    right: 0;
     text-align: center;
-    /*top: 0;*/
+    top: 0;
     width: 100%;
-/*
+
     &:first-child {
       left: 0;
-    }*/
-
-    &:not(:last-child) {
-      display: none;
     }
   }
 
   .slide-img {
+    display: block;
     margin: auto;
+    max-height: 100%;
+    max-width: 100%;
   }
 }
 
@@ -322,6 +321,24 @@
 
       &.full-height {
         height: 100%;
+      }
+
+      .slide {
+        max-height: 75vh;
+      }
+
+      .currentSlide {
+        display: block;
+        position: static;
+
+        &.small {
+          display: flex;
+          position: absolute;
+
+          .slide-img {
+            height: 100%;
+          }
+        }
       }
     }
   }
