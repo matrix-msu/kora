@@ -67,6 +67,9 @@ function paginate (that) {
 		$('#onboarding-home').removeClass('hidden');
 		$('.paths > div').addClass('hidden');
 	}
+
+	if ( $('.onboarding-modal-js.active .content').height() > window.innerHeight )
+		$('.onboarding-modal-js').animate({scrollTop:0}, 200);
 }
 
 $('.onboarding-modal-js .prev-js').click(function (e) {
@@ -104,8 +107,8 @@ $(window).resize(function (e) {
 
 $(document).ready(function () {
     Kora.Modal.initialize();
-
 	Kora.Modal.open($('.onboarding-modal-js'));
+
 	checkHeight ()
 
 	$('.body.onboarding .multi-select').chosen({
