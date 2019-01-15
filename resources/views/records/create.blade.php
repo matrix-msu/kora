@@ -1,13 +1,13 @@
 @extends('app', ['page_title' => 'Create a Record', 'page_class' => 'record-create'])
 
 @section('leftNavLinks')
-    @include('partials.menu.project', ['pid' => $form->pid])
-    @include('partials.menu.form', ['pid' => $form->pid, 'fid' => $form->fid])
+    @include('partials.menu.project', ['pid' => $form->project_id])
+    @include('partials.menu.form', ['pid' => $form->project_id, 'fid' => $form->id])
     @include('partials.menu.static', ['name' => 'New Record'])
 @stop
 
 @section('aside-content')
-  @include('partials.sideMenu.form', ['pid' => $form->pid, 'fid' => $form->fid, 'openDrawer' => true])
+  @include('partials.sideMenu.form', ['pid' => $form->project_id, 'fid' => $form->id, 'openDrawer' => true])
 @stop
 
 @section('stylesheets')
@@ -26,7 +26,7 @@
                 multiple pages, use the pagination found at the bottom of each page to navigate to the next.</p>
             <div class="content-sections">
                 <div class="content-sections-scroll">
-                    @foreach(\App\Http\Controllers\PageController::getFormLayout($form->fid) as $page)
+                    @foreach($form->layout as $page)
                         <a href="#{{$page["title"]}}" class="section underline-middle underline-middle-hover toggle-by-name">{{$page["title"]}}</a>
                     @endforeach
                 </div>
@@ -66,12 +66,12 @@
             </select>
         </div>
 
-        {!! Form::model($record = new \App\Record, ['url' => 'projects/'.$form->pid.'/forms/'.$form->fid.'/records',
+        {!! Form::model($record = new \App\Record, ['url' => 'projects/'.$form->project_id.'/forms/'.$form->id.'/records',
             'enctype' => 'multipart/form-data', 'id' => 'new_record_form', 'class' => 'record-form']) !!}
 
-            @include('partials.records.form',['form' => $form, 'editRecord' => false])
+            @include('partials.records.form',['form' => $form, 'editRecord' => false, 'layout' => $form->layout])
 
-            @include('partials.records.pagination-form', ['layout' => \App\Http\Controllers\PageController::getFormLayout($form->fid)])
+            @include('partials.records.pagination-form', ['layout' => $form->layout])
 
             <div class="form-group mt-xxxl">
                 <div class="spacer"></div>
@@ -131,11 +131,11 @@
     <script type="text/javascript">
         var getPresetDataUrl = "{{action('RecordPresetController@getData')}}";
         var moveFilesUrl = '{{action('RecordPresetController@moveFilesToTemp')}}';
-        var geoConvertUrl = '{{ action('FieldAjaxController@geoConvert',['pid' => $form->pid, 'fid' => $form->fid, 'flid' => 0]) }}';
+        var geoConvertUrl = '{{ action('FieldAjaxController@geoConvert',['pid' => $form->project_id, 'fid' => $form->id, 'flid' => 0]) }}';
         var csrfToken = "{{ csrf_token() }}";
         var userID = "{{\Auth::user()->id}}";
         var baseFileUrl = "{{url('deleteTmpFile')}}/";
-        var validationUrl = "{{action('RecordController@validateRecord',['pid' => $form->pid, 'fid' => $form->fid])}}";
+        var validationUrl = "{{action('RecordController@validateRecord',['pid' => $form->project_id, 'fid' => $form->id])}}";
 
         Kora.Records.Create();
         Kora.Records.Validate();

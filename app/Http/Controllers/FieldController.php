@@ -80,6 +80,8 @@ class FieldController extends Controller {
         $field['viewable'] = isset($request->viewable) && $request->viewable ? 1 : 0;
         $field['viewable_in_results'] = isset($request->viewresults) && $request->viewresults ? 1 : 0;
         $field['external_view'] = isset($request->extview) && $request->extview ? 1 : 0;
+        if($request->advanced)
+            $field = $form->getFieldModel($request->type)->updateOptions($field, $request);
 
         //Field Specific Stuff
         $fieldMod = $form->getFieldModel($request->type);
@@ -91,21 +93,10 @@ class FieldController extends Controller {
         $form->layout = $layout;
         $form->save();
 
-        //if advanced options was selected we should call the correct one
-        $advError = false; //TODO::CASTLE
-        if($request->advanced) {
-//            $result = $field->getTypedField()->updateOptions($field, $request, false);
-//            if($result != '')
-//                $advError = true;
-        }
-
         //A field has been changed, so current record rollbacks become invalid.  //TODO::CASTLE
         //RevisionController::wipeRollbacks($form->fid);
 
-        if(!$advError) //if we error on the adv page we should hide the success message so error can display
-            return redirect('projects/'.$request->pid.'/forms/'.$request->fid)->with('k3_global_success', 'field_created');
-        else
-            return redirect('projects/'.$request->pid.'/forms/'.$request->fid)->with('k3_global_error', 'field_advanced_error');
+        return redirect('projects/'.$request->pid.'/forms/'.$request->fid)->with('k3_global_error', 'field_advanced_error');
 	}
 
     /**

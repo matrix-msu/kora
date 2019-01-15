@@ -138,7 +138,6 @@ Route::group(['middleware' => 'web'], function () {
     Route::post('/projects/{pid}/forms/{fid}/fields/{flid}/options/validateCombo', 'FieldAjaxController@validateComboListOpt');
     Route::post('/projects/{pid}/forms/{fid}/fields/{flid}/options/geoConvert', 'FieldAjaxController@geoConvert');
     Route::post('/projects/{pid}/forms/{fid}/fields/{flid}/options/assoc', 'AssociatorSearchController@assocSearch');
-    Route::post('/projects/{pid}/forms/{fid}/fields/{flid}/move', 'PageController@moveField');
     Route::post('/projects/{pid}/forms/{fid}', 'FieldController@store');
     Route::post('/saveTmpFile/{flid}', 'FieldAjaxController@saveTmpFile');
     Route::patch('/saveTmpFile/{flid}', 'FieldAjaxController@saveTmpFile');

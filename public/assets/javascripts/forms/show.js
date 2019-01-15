@@ -95,6 +95,28 @@ Kora.Forms.Show = function() {
 
     });
 
+    function saveLayout() {
+      var layout = {};
+      var $pages = $('.page').map(function() { return $(this).attr('page-id') }).get();
+      $.each($pages, function(i, page) {
+        layout[page] = $('.page[page-id="'+page+'"]').find('.field.card').map(function() { return this.id }).get();
+
+        if (layout[page].length == 0)
+          $('.page[page-id="'+page+'"]').find('.no-fields').removeClass('hidden');
+        else
+          $('.page[page-id="'+page+'"]').find('.no-fields').addClass('hidden');
+      });
+
+      $.ajax({
+        url: saveFullFormLayoutRoute,
+        type: 'POST',
+        data: {
+          "_token": CSRFToken,
+          "layout": JSON.stringify(layout),
+        }
+      });
+    }
+
     $('.field-sort-js').sortable({
       helper: 'clone',
       // revert: true,
@@ -102,25 +124,7 @@ Kora.Forms.Show = function() {
       connectWith: '.field-sort-js',
       items: '.field-container',
       update: function(event, ui) {
-        var layout = {};
-        var $pages = $('.page').map(function() { return $(this).attr('page-id') }).get();
-        $.each($pages, function(i, page) {
-          layout[page] = $('.page[page-id="'+page+'"]').find('.field.card').map(function() { return this.id }).get();
-
-          if (layout[page].length == 0)
-              $('.page[page-id="'+page+'"]').find('.no-fields').removeClass('hidden');
-          else
-              $('.page[page-id="'+page+'"]').find('.no-fields').addClass('hidden');
-        });
-
-        $.ajax({
-          url: saveFullFormLayoutRoute,
-          type: 'POST',
-          data: {
-            "_token": CSRFToken,
-            "layout": JSON.stringify(layout),
-          }
-        });
+        saveLayout();
       }
     });
 
@@ -133,7 +137,6 @@ Kora.Forms.Show = function() {
       var $field = $header.parent();
       var $fieldContainer = $field.parent();
       var $page = $fieldContainer.parent().parent();
-      var url = $field.attr('move-url');
       var seq = $field.attr('sequence');
       // $field.prev().before(current);
       if ($this.hasClass('up-js')) {
@@ -206,16 +209,6 @@ Kora.Forms.Show = function() {
                 .insertBefore($previousField);
             });
         }
-        
-        $.ajax({
-          url: url,
-          type: 'POST',
-          data: {
-            '_token': CSRFToken,
-            'direction': upMethod,
-            'sequence': seq
-          }
-        });
       } else {
         var $nextField = $fieldContainer.next();
         if ($nextField.length == 0 || !$nextField.hasClass('field-container')) {
@@ -281,17 +274,10 @@ Kora.Forms.Show = function() {
                 .insertAfter($nextField);
             });
         }
-
-        $.ajax({
-          url: url,
-          type: 'POST',
-          data: {
-            '_token': CSRFToken,
-            'direction': downMethod,
-            'sequence': seq
-          }
-        })
       }
+      setTimeout(function () {
+        saveLayout();
+      }, 500); //500 because the animations are 300
     });
 
 	// As of jQuery 1.9, all handlers for .ajaxComplete MUST be attached to $(document)

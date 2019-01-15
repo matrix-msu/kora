@@ -1,6 +1,5 @@
 <div class="field card {{ $index == 0 ? 'active' : '' }}" id="{{$flid}}" 
   delete-url="{{action('FieldController@destroy', ['pid' => $pid, 'fid' => $fid, 'flid' => $flid])}}"
-  move-url="{{action('PageController@moveField', ['pid' => $pid, 'fid' => $fid, 'flid' => $flid])}}"
   sequence="{{$flid}}"
   >
   <div class="header {{ $index == 0 ? 'active' : '' }}">

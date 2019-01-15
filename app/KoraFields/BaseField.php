@@ -5,7 +5,7 @@ use Illuminate\Http\Request;
 
 abstract class BaseField extends Model {
 
-    /*
+    /* //TODO::NEWFIELD
     |--------------------------------------------------------------------------
     | Base Field
     |--------------------------------------------------------------------------
@@ -19,8 +19,30 @@ abstract class BaseField extends Model {
      *
      * @return string - The view
      */
-    abstract public function getFieldOptionsView(); //TODO::NEWFIELD
+    abstract public function getFieldOptionsView();
 
+    /**
+     * Get the field options view for advanced field creation.
+     *
+     * @return string - The view
+     */
+    abstract public function getAdvancedFieldOptionsView();
+
+    /**
+     * Get the field input view for record creation.
+     *
+     * @return string - The view
+     */
+    abstract public function getFieldInputView();
+
+    /**
+     * Gets the default options string for a new field.
+     *
+     * @param  int $fid - Form ID
+     * @param  string $slug - Name of database column based on field internal name
+     * @param  array $options - Extra information we may need to set up about the field
+     * @return array - The default options
+     */
     abstract public function addDatabaseColumn($fid, $slug, $options = null);
 
     /**
@@ -39,4 +61,14 @@ abstract class BaseField extends Model {
      * @return array - The updated field array
      */
     abstract public function updateOptions($field, Request $request);
+
+    //TODO::NEWFIELD formerly createNewRecordField
+    /**
+     * Formats data for record entry.
+     *
+     * @param  array $field - The field to represent record data
+     * @param  string $value - Data to add
+     * @param  Request $request
+     */
+    abstract public function processRecordData($field, $value, $request);
 }

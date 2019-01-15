@@ -3,13 +3,11 @@
 use App\Http\Controllers\RecordController;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Facades\DB;
 
 class Record extends Model {
 
-    //TODO::CASTLE
     /*
     |--------------------------------------------------------------------------
     | Record
@@ -23,25 +21,16 @@ class Record extends Model {
      * @var array - Attributes that can be mass assigned to model
      */
     protected $fillable = [
-        'id',
-        'pid',
-        'fid',
-        'owner',
-        'kid'
+        'kid',
+        'legacy_kid',
+        'project_id',
+        'form_id',
+        'owner'
     ];
 
-    /**
-     * @var string - Database column that represents the primary key
-     */
-    protected $primaryKey = "rid";
-
-    /**
-     * Returns the Preset associated with a Record.
-     *
-     * @return BelongsTo
-     */
-    public function preset() {
-        return $this->belongsTo('App/Preset');
+    public function __construct(array $attributes = array(), $fid = null){
+        parent::__construct($attributes);
+        $this->table = "records_$fid";
     }
 
     /**
@@ -50,151 +39,7 @@ class Record extends Model {
      * @return BelongsTo
      */
     public function form() {
-        return $this->belongsTo('App\Form', 'fid');
-    }
-
-    /**
-     * Returns the text fields associated with a Record.
-     *
-     * @return HasMany
-     */
-    public function textfields() {
-        return $this->hasMany('App\TextField', 'rid');
-    }
-
-    /**
-     * Returns the rich text fields associated with a Record.
-     *
-     * @return HasMany
-     */
-    public function richtextfields() {
-        return $this->hasMany('App\RichTextField', 'rid');
-    }
-
-    /**
-     * Returns the number fields associated with a Record.
-     *
-     * @return HasMany
-     */
-    public function numberfields() {
-        return $this->hasMany('App\NumberField', 'rid');
-    }
-
-    /**
-     * Returns the list fields associated with a Record.
-     *
-     * @return HasMany
-     */
-    public function listfields() {
-        return $this->hasMany('App\ListField', 'rid');
-    }
-
-    /**
-     * Returns the multi-select list fields associated with a Record.
-     *
-     * @return HasMany
-     */
-    public function multiselectlistfields() {
-        return $this->hasMany('App\MultiSelectListField', 'rid');
-    }
-
-    /**
-     * Returns the generated list fields associated with a Record.
-     *
-     * @return HasMany
-     */
-    public function generatedlistfields() {
-        return $this->hasMany('App\GeneratedListField', 'rid');
-    }
-
-    /**
-     * Returns the combo list fields associated with a Record.
-     *
-     * @return HasMany
-     */
-    public function combolistfields() {
-        return $this->hasMany('App\ComboListField', 'rid');
-    }
-
-    /**
-     * Returns the date fields associated with a Record.
-     *
-     * @return HasMany
-     */
-    public function datefields() {
-        return $this->hasMany('App\DateField', 'rid');
-    }
-
-    /**
-     * Returns the schedule fields associated with a Record.
-     *
-     * @return HasMany
-     */
-    public function schedulefields() {
-        return $this->hasMany('App\ScheduleField', 'rid');
-    }
-
-    /**
-     * Returns the geolocator fields associated with a Record.
-     *
-     * @return HasMany
-     */
-    public function geolocatorfields() {
-        return $this->hasMany('App\GeolocatorField', 'rid');
-    }
-
-    /**
-     * Returns the documents fields associated with a Record.
-     *
-     * @return HasMany
-     */
-    public function documentsfields() {
-        return $this->hasMany('App\DocumentsField', 'rid');
-    }
-
-    /**
-     * Returns the gallery fields associated with a Record.
-     *
-     * @return HasMany
-     */
-    public function galleryfields() {
-        return $this->hasMany('App\GalleryField', 'rid');
-    }
-
-    /**
-     * Returns the playlist fields associated with a Record.
-     *
-     * @return HasMany
-     */
-    public function playlistfields() {
-        return $this->hasMany('App\PlaylistField', 'rid');
-    }
-
-    /**
-     * Returns the video fields associated with a Record.
-     *
-     * @return HasMany
-     */
-    public function videofields() {
-        return $this->hasMany('App\VideoField', 'rid');
-    }
-
-    /**
-     * Returns the model fields associated with a Record.
-     *
-     * @return HasMany
-     */
-    public function modelfields() {
-        return $this->hasMany('App\ModelField', 'rid');
-    }
-
-    /**
-     * Returns the associator fields associated with a Record.
-     *
-     * @return HasMany
-     */
-    public function associatorfields() {
-        return $this->hasMany('App\AssociatorField', 'rid');
+        return $this->belongsTo('App\Form', 'form_id');
     }
 
     /**
@@ -210,12 +55,7 @@ class Record extends Model {
      * Deletes all data fields belonging to a record, then deletes self.
      */
     public function delete() {
-        BaseField::deleteBaseFieldsByRID($this->rid);
-
-        //Delete reverse associations for everyones sake
-        DB::table(AssociatorField::SUPPORT_NAME)
-            ->where("record", "=", $this->rid)
-            ->delete();
+        //Delete reverse associations for everyone's sake //TODO::CASTLE
 
         parent::delete();
     }
@@ -225,7 +65,7 @@ class Record extends Model {
      *
      * @return bool - Is a preset
      */
-    public function isPreset() {
+    public function isPreset() { //TODO::CASTLE
         return (RecordPreset::where('rid',$this->rid)->count()>0);
     }
 
@@ -246,7 +86,7 @@ class Record extends Model {
      *
      * @return array - Records that associate it
      */
-    public function getAssociatedRecords() {
+    public function getAssociatedRecords() { //TODO::CASTLE
         $assoc = DB::table(AssociatorField::SUPPORT_NAME)
             ->select("rid")
             ->distinct()
@@ -266,7 +106,7 @@ class Record extends Model {
      *
      * @return string - The preview value
      */
-    public function getReversePreview() {
+    public function getReversePreview() { //TODO::CASTLE
         $form = $this->form()->first();
 
         $firstPage = Page::where('fid','=',$form->fid)->where('sequence','=',0)->first();

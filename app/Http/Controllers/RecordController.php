@@ -1,8 +1,5 @@
 <?php namespace App\Http\Controllers;
 
-use App\AssociatorField;
-use App\Field;
-use App\FileTypeField;
 use App\RecordPreset;
 use App\Revision;
 use App\User;
@@ -44,7 +41,7 @@ class RecordController extends Controller {
      * @param  int $fid - Form ID
      * @return View
      */
-	public function index($pid, $fid, Request $request) {
+	public function index($pid, $fid, Request $request) { //TODO::CASTLE
         if(!FormController::validProjForm($pid, $fid))
             return redirect('projects/'.$pid)->with('k3_global_error', 'form_invalid');
 
@@ -55,11 +52,12 @@ class RecordController extends Controller {
 
         $pagination = app('request')->input('page-count') === null ? 10 : app('request')->input('page-count');
         $order = app('request')->input('order') === null ? 'lmd' : app('request')->input('order');
-        $order_type = substr($order, 0, 2) === "lm" ? "updated_at" : "rid";
+        $order_type = substr($order, 0, 2) === "lm" ? "updated_at" : "kid";
         $order_direction = substr($order, 2, 3) === "a" ? "asc" : "desc";
-        $records = Record::where('fid', '=', $fid)->orderBy($order_type, $order_direction)->paginate($pagination);
+        $recordMod = new Record(array(),$fid);
+        $records = $recordMod->newQuery()->orderBy($order_type, $order_direction)->paginate($pagination);
 
-        $total = Record::where('fid', '=', $fid)->count();
+        $total = $recordMod->newQuery()->count();
 
         $notification = array(
           'message' => '',
@@ -78,7 +76,7 @@ class RecordController extends Controller {
             $notification['message'] = 'Record Successfully Duplicated!';
           else if ($session == 'mass_records_updated')
             $notification['message'] = 'Batch Assign Successful!';
-          else if ($session == 'test_records_created') { 
+          else if ($session == 'test_records_created') {
             $numRecs = $request->session()->get('num_test_recs');
             $notification['message'] = $numRecs.' Test Records Created!'; 
           }
@@ -101,20 +99,18 @@ class RecordController extends Controller {
         if(!self::checkPermissions($fid, 'ingest'))
             return redirect('projects/'.$pid.'/forms/'.$fid)->with('k3_global_error', 'cant_create_records');
 
-        if(Field::where('fid','=',$fid)->count() == 0)
+        $form = FormController::getForm($fid);
+        if(!$form->hasFields())
             return redirect('projects/'.$pid.'/forms/'.$fid)->with('k3_global_error', 'no_fields_record');
 
         $form = FormController::getForm($fid);
         $presets = array();
 
-        foreach(RecordPreset::where('fid', '=', $fid)->get() as $preset)
-            $presets[] = ['id' => $preset->id, 'name' => $preset->name];
+        foreach(RecordPreset::where('form_id', '=', $fid)->get() as $preset) {
+            //$presets[] = ['id' => $preset->id, 'name' => $preset->name]; //TODO::CASTLE
+        }
 
-        $fields = array(); //array of field ids
-        foreach($form->fields()->get() as $field)
-            $fields[] = $field->flid;
-
-        return view('records.create', compact('form', 'presets', 'fields'));
+        return view('records.create', compact('form', 'presets'));
 	}
 
     /**
@@ -126,27 +122,31 @@ class RecordController extends Controller {
      * @return Redirect
      */
 	public function store($pid, $fid, Request $request) {
-	    //Validates records
-        foreach($request->all() as $key => $value) {
-            if(!is_numeric($key))
-                continue;
-            $field = FieldController::getField($key);
-            $message = $field->getTypedField()->validateField($field, $request);
-            if(!empty($message)) {
-                $arrayed_keys = array();
+	    //These are the values in $request that we can ignore and assume are not field names
+	    $form = FormController::getForm($fid);
+	    $fieldsArray = $form->getJustFieldsArray();
 
-                foreach($request->all() as $akey => $avalue) {
-                    if(is_array($avalue))
-                        array_push($arrayed_keys,$akey);
-                }
-
-                if($request->api)
-                    return response()->json(["status"=>false,"message"=>"record_validation_error","record_validation_error"=>$message],500);
-                else
-                    return redirect()->back()->withInput($request->except($arrayed_keys))
-                        ->with('k3_global_error', 'record_validation_error')->with('record_validation_error', $message);
-            }
-        }
+	    //Validates records //TODO::CASTLE
+//        foreach($request->all() as $key => $value) {
+//            if(!is_numeric($key))
+//                continue;
+//            $field = FieldController::getField($key);
+//            $message = $field->getTypedField()->validateField($field, $request);
+//            if(!empty($message)) {
+//                $arrayed_keys = array();
+//
+//                foreach($request->all() as $akey => $avalue) {
+//                    if(is_array($avalue))
+//                        array_push($arrayed_keys,$akey);
+//                }
+//
+//                if($request->api)
+//                    return response()->json(["status"=>false,"message"=>"record_validation_error","record_validation_error"=>$message],500);
+//                else
+//                    return redirect()->back()->withInput($request->except($arrayed_keys))
+//                        ->with('k3_global_error', 'record_validation_error')->with('record_validation_error', $message);
+//            }
+//        }
 
         //Handle Mass Creation
         $numRecs = 1;
@@ -157,84 +157,88 @@ class RecordController extends Controller {
                 $numRecs = 1000;
         }
 
-        //Handle record preset
-        $makePreset = false;
-        $presetName = '';
-        if(isset($request->record_preset_name)) {
-            $presetName = $request->record_preset_name;
-            if(strlen($presetName) < 3)
-                return redirect()->back()->withInput($request)->with('k3_global_error', 'record_validation_error')->with('record_validation_error', 'present_name_short');
-            $makePreset = true;
-        }
+        //Handle record preset //TODO::CASTLE
+//        $makePreset = false;
+//        $presetName = '';
+//        if(isset($request->record_preset_name)) {
+//            $presetName = $request->record_preset_name;
+//            if(strlen($presetName) < 3)
+//                return redirect()->back()->withInput($request)->with('k3_global_error', 'record_validation_error')->with('record_validation_error', 'present_name_short');
+//            $makePreset = true;
+//        }
 
         for($i = 0; $i < $numRecs ; $i++) {
-            $record = new Record();
-            $record->pid = $pid;
-            $record->fid = $fid;
+            $record = new Record(array(),$fid);
+            $record->project_id = $pid;
+            $record->form_id = $fid;
             if($request->assignRoot)
                 $record->owner = 1;
             else
                 $record->owner = $request->userId;
-            $record->save(); //need to save to create rid needed to make kid
-            $record->kid = $pid . '-' . $fid . '-' . $record->rid;
-            $record->save();
+            $record->save(); //need to save to create id needed to make kid
+            $record->kid = $pid . '-' . $fid . '-' . $record->id;
 
             foreach($request->all() as $key => $value) {
-                if(!is_numeric($key))
+                //Skip request variables that are not fields
+                if(!array_key_exists($key,$fieldsArray))
                     continue;
-                $field = FieldController::getField($key);
-                $field->getTypedField()->createNewRecordField($field, $record, $value, $request);
+
+                $field = $fieldsArray[$key];
+                $processedData = $form->getFieldModel($field['type'])->processRecordData($field, $value, $request);
+                $record->{$key} = $processedData;
             }
 
-            //Now let's handle reverseAssociations assuming we are coming from the importer or the API
-            if(isset($request->newRecRevAssoc)) {
-                foreach($request->newRecRevAssoc as $flid => $akids) {
-                    foreach($akids as $akid) {
-                        //NOTE: We do these next two checks so that if we take exported records to a new installation, we don't
-                        // accidentally connect to a record that has nothing to do with us
-                        //Let's make sure the request record exists
-                        if(Record::isKIDPattern($akid) && Record::where('kid','=',$akid)->count()==1) {
-                            $recParts = explode('-', $akid);
+            $record->save();
 
-                            //Make sure this associator exists first
-                            if(Field::where('flid','=',$flid)->where('fid','=',$recParts[1])->where('type','=','Associator')->count()==0)
-                                continue;
-
-                            //See if the associator field for the reverse record already exists or if we need a new one
-                            $assocField = AssociatorField::where('flid','=',$flid)->where('rid','=',$recParts[2])->first();
-                            if(is_null($assocField)) {
-                                $assocField = new AssociatorField();
-                                $assocField->fid = $recParts[1];
-                                $assocField->flid = $flid;
-                                $assocField->rid = $recParts[2];
-                                $assocField->save();
-                            }
-
-                            $assocField->addRecords(array($record->kid));
-                        }
-                    }
-                }
-            }
+            //Now let's handle reverseAssociations assuming we are coming from the importer or the API //TODO::CASTLE
+//            if(isset($request->newRecRevAssoc)) {
+//                foreach($request->newRecRevAssoc as $flid => $akids) {
+//                    foreach($akids as $akid) {
+//                        //NOTE: We do these next two checks so that if we take exported records to a new installation, we don't
+//                        // accidentally connect to a record that has nothing to do with us
+//                        //Let's make sure the request record exists
+//                        if(Record::isKIDPattern($akid) && Record::where('kid','=',$akid)->count()==1) {
+//                            $recParts = explode('-', $akid);
+//
+//                            //Make sure this associator exists first
+//                            if(Field::where('flid','=',$flid)->where('fid','=',$recParts[1])->where('type','=','Associator')->count()==0)
+//                                continue;
+//
+//                            //See if the associator field for the reverse record already exists or if we need a new one
+//                            $assocField = AssociatorField::where('flid','=',$flid)->where('rid','=',$recParts[2])->first();
+//                            if(is_null($assocField)) {
+//                                $assocField = new AssociatorField();
+//                                $assocField->fid = $recParts[1];
+//                                $assocField->flid = $flid;
+//                                $assocField->rid = $recParts[2];
+//                                $assocField->save();
+//                            }
+//
+//                            $assocField->addRecords(array($record->kid));
+//                        }
+//                    }
+//                }
+//            }
 
             //
-            // Only create a revision if the record was not mass created.
+            // Only create a revision if the record was not mass created. //TODO::CASTLE
             // This prevents clutter from an operation that the user
             // will likely not want to undo using revisions.
             //
-            if($numRecs == 1)
-                RevisionController::storeRevision($record->rid, Revision::CREATE);
+//            if($numRecs == 1)
+//                RevisionController::storeRevision($record->rid, Revision::CREATE);
 
-            //If we are making a preset, let's make sure it's done, and done once
-            if($makePreset) {
-                $makePreset = false; //prevents a preset being made for every duplicate record
-
-                $rpc = new RecordPresetController();
-                $presetRequest = new Request();
-                $presetRequest->name = $presetName;
-                $presetRequest->rid = $record->rid;
-
-                $rpc->presetRecord($presetRequest);
-            }
+            //If we are making a preset, let's make sure it's done, and done once  //TODO::CASTLE
+//            if($makePreset) {
+//                $makePreset = false; //prevents a preset being made for every duplicate record
+//
+//                $rpc = new RecordPresetController();
+//                $presetRequest = new Request();
+//                $presetRequest->name = $presetName;
+//                $presetRequest->rid = $record->rid;
+//
+//                $rpc->presetRecord($presetRequest);
+//            }
         }
 
         if($request->api)
@@ -253,7 +257,7 @@ class RecordController extends Controller {
      * @param  int $rid - Record ID
      * @return View
      */
-	public function show($pid, $fid, $rid, Request $request) {
+	public function show($pid, $fid, $rid, Request $request) { //TODO::CASTLE
         if(!self::validProjFormRecord($pid, $fid, $rid))
             return redirect('projects')->with('k3_global_error', 'record_invalid');
 
@@ -292,7 +296,7 @@ class RecordController extends Controller {
      * @param  int $rid - Record ID
      * @return View
      */
-	public function edit($pid, $fid, $rid) {
+	public function edit($pid, $fid, $rid) { //TODO::CASTLE
         if(!self::validProjFormRecord($pid, $fid, $rid))
             return redirect('projects')->with('k3_global_error', 'record_invalid');
 
@@ -313,7 +317,7 @@ class RecordController extends Controller {
      * @param  int $rid - Record ID
      * @return View
      */
-    public function cloneRecord($pid, $fid, $rid) {
+    public function cloneRecord($pid, $fid, $rid) { //TODO::CASTLE
         if(!self::validProjFormRecord($pid, $fid, $rid))
             return redirect('projects')->with('k3_global_error', 'record_invalid');
 
@@ -323,15 +327,15 @@ class RecordController extends Controller {
         return view('records.clone', compact('record', 'form'));
     }
 
-    public function validateRecord($pid, $fid, Request $request) {
+    public function validateRecord($pid, $fid, Request $request) { //TODO::CASTLE
         $errors = [];
         $form = FormController::getForm($fid);
 
-        foreach($form->fields()->get() as $field) {
-            $message = $field->getTypedField()->validateField($field, $request);
-            if(!empty($message))
-                $errors += $message; //We add these arrays because it maintains the keys, where array_merge re-indexes
-        }
+//        foreach($form->fields()->get() as $field) {
+//            $message = $field->getTypedField()->validateField($field, $request);
+//            if(!empty($message))
+//                $errors += $message; //We add these arrays because it maintains the keys, where array_merge re-indexes
+//        }
 
         return response()->json(["status"=>true,"errors"=>$errors],200);
     }
@@ -345,7 +349,7 @@ class RecordController extends Controller {
      * @return array - The records that were removed
      *
      */
-    public function cleanUp($pid, $fid) {
+    public function cleanUp($pid, $fid) { //TODO::CASTLE
         $form = FormController::getForm($fid);
 
         if(!(\Auth::user()->isFormAdmin($form)))
@@ -395,7 +399,7 @@ class RecordController extends Controller {
      * @param  Request $request
      * @return Redirect
      */
-	public function update($pid, $fid, $rid, Request $request) {
+	public function update($pid, $fid, $rid, Request $request) { //TODO::CASTLE
 	    //Validate record
         foreach($request->all() as $key => $value) {
             if(!is_numeric($key))
@@ -471,7 +475,7 @@ class RecordController extends Controller {
      * @param  bool $mass - Is deleting mass records
      * @return Redirect
      */
-    public function destroy($pid, $fid, $rid, $mass = false) {
+    public function destroy($pid, $fid, $rid, $mass = false) { //TODO::CASTLE
         if(!self::validProjFormRecord($pid, $fid, $rid))
             return redirect('projects')->with('k3_global_error', 'record_invalid');
 
@@ -496,7 +500,7 @@ class RecordController extends Controller {
      * @param  Request $request
      * @return Redirect
      */
-    public function deleteMultipleRecords($pid, $fid, Request $request) {
+    public function deleteMultipleRecords($pid, $fid, Request $request) { //TODO::CASTLE
       $form = FormController::getForm($fid);
       $rid = $request->rid;
       $rid = explode(',', $rid);
@@ -522,7 +526,7 @@ class RecordController extends Controller {
      * @param  int $fid - Form ID
      * @return JsonResponse
      */
-    public function deleteAllRecords($pid, $fid) {
+    public function deleteAllRecords($pid, $fid) { //TODO::CASTLE
         $form = FormController::getForm($fid);
 
         if(!\Auth::user()->isFormAdmin($form)) {
@@ -544,7 +548,7 @@ class RecordController extends Controller {
      * @param  int $fid - Form ID
      * @return View
      */
-    public function importRecordsView($pid,$fid) {
+    public function importRecordsView($pid,$fid) { //TODO::CASTLE
         if(!FormController::validProjForm($pid, $fid))
             return redirect('projects/'.$pid)->with('k3_global_error', 'form_invalid');
 
@@ -562,7 +566,7 @@ class RecordController extends Controller {
      * @param  int $rid - Record ID
      * @return Record - Requested record
      */
-    public static function getRecord($rid) {
+    public static function getRecord($rid) { //TODO::CASTLE
         $record = Record::where('rid', '=', $rid)->first();
 
         return $record;
@@ -574,7 +578,7 @@ class RecordController extends Controller {
      * @param  int $kid - Kora ID
      * @return Record - Requested record
      */
-    public static function getRecordByKID($kid) {
+    public static function getRecordByKID($kid) { //TODO::CASTLE
         $record = Record::where('kid', '=', $kid)->first();
 
         return $record;
@@ -586,7 +590,7 @@ class RecordController extends Controller {
      * @param  int $rid - Record ID
      * @return bool - Does exist
      */
-    public static function exists($rid) {
+    public static function exists($rid) { //TODO::CASTLE
         return !is_null(Record::where('rid','=',$rid)->first());
     }
 
@@ -598,7 +602,7 @@ class RecordController extends Controller {
      * @param  int $rid - Record ID
      * @return bool - Valid pairs
      */
-    public static function validProjFormRecord($pid, $fid, $rid) {
+    public static function validProjFormRecord($pid, $fid, $rid) { //TODO::CASTLE
         $record = self::getRecord($rid);
         $form = FormController::getForm($fid);
         $proj = ProjectController::getProject($pid);
@@ -620,7 +624,7 @@ class RecordController extends Controller {
      * @param  string $permission - Permission to search for
      * @return bool - Has permissions
      */
-    private static function checkPermissions($fid, $permission='') {
+    private static function checkPermissions($fid, $permission='') { //TODO::CASTLE
         switch($permission) {
             case 'ingest':
                 if(!(\Auth::user()->canIngestRecords(FormController::getForm($fid))))
@@ -647,7 +651,7 @@ class RecordController extends Controller {
      * @param  int $fid - Form ID
      * @return string - File size
      */
-    public function getFormFilesize($fid) {
+    public function getFormFilesize($fid) { //TODO::CASTLE
         $form = FormController::getForm($fid);
         $pid = $form->pid;
         $filesize = 0;
@@ -666,7 +670,7 @@ class RecordController extends Controller {
      * @param  string $dir - Directory to scan
      * @return int - Size in bytes
      */
-    private function dirCrawl($dir) {
+    private function dirCrawl($dir) { //TODO::CASTLE
         $filesize = 0;
 
         if(file_exists($dir)) {
@@ -690,7 +694,7 @@ class RecordController extends Controller {
      * @param  int $bytes - Size in bytes
      * @return string - The readable size value
      */
-    private function fileSizeConvert($bytes) {
+    private function fileSizeConvert($bytes) { //TODO::CASTLE
         $result = "0 B";
         $bytes = floatval($bytes);
         $arBytes = array(
@@ -733,7 +737,7 @@ class RecordController extends Controller {
      * @param  int $fid - Form ID
      * @return View
      */
-    public function showMassAssignmentView($pid,$fid) {
+    public function showMassAssignmentView($pid,$fid) { //TODO::CASTLE
         if(!FormController::validProjForm($pid, $fid))
             return redirect('projects/'.$pid)->with('k3_global_error', 'form_invalid');
 
@@ -760,7 +764,7 @@ class RecordController extends Controller {
      * @param  int $fid - Form ID
      * @return View
      */
-    public function showSelectedAssignmentView($pid,$fid) {
+    public function showSelectedAssignmentView($pid,$fid) { //TODO::CASTLE
         if(!FormController::validProjForm($pid, $fid))
             return redirect('projects/'.$pid)->with('k3_global_error', 'form_invalid');
 
@@ -788,7 +792,7 @@ class RecordController extends Controller {
      * @param  Request $request
      * @return Redirect
      */
-    public function massAssignRecords($pid, $fid, Request $request) {
+    public function massAssignRecords($pid, $fid, Request $request) { //TODO::CASTLE
         if(!self::checkPermissions($fid, 'modify'))
             return redirect('projects/'.$pid.'/forms/'.$fid)->with('k3_global_error', 'cant_edit_records');
 
@@ -824,7 +828,7 @@ class RecordController extends Controller {
      * @param  Request $request
      * @return JsonResponse
      */
-    public function validateMassRecord($pid, $fid, Request $request) {
+    public function validateMassRecord($pid, $fid, Request $request) { //TODO::CASTLE
         if(!FormController::validProjForm($pid, $fid))
             return response()->json(['k3_global_error' => 'form_invalid']);
 
@@ -848,7 +852,7 @@ class RecordController extends Controller {
      * @param  Request $request
      * @return Redirect
      */
-    public function massAssignRecordSet($pid, $fid, Request $request) {
+    public function massAssignRecordSet($pid, $fid, Request $request) { //TODO::CASTLE
         if(!$this->checkPermissions($fid,'modify'))
             return redirect()->back();
 
@@ -874,7 +878,7 @@ class RecordController extends Controller {
         return redirect()->action('RecordController@index',compact('pid','fid'));
     }
 
-    public function downloadFiles(Request $request) {
+    public function downloadFiles(Request $request) { //TODO::CASTLE
         $files = $request->files;
         Zipper::make('downloads/k3download.zip')->add($files);
         return response()->download(public_path('downloads/k3download.zip'))->deleteFileAfterSend(true);
@@ -888,7 +892,7 @@ class RecordController extends Controller {
      * @param  Request $request
      * @return Redirect
      */
-    public function createTest($pid, $fid, Request $request) {
+    public function createTest($pid, $fid, Request $request) { //TODO::CASTLE
         $numRecs = $request->test_records_num;
 
         $form = FormController::getForm($fid);
@@ -919,7 +923,7 @@ class RecordController extends Controller {
      * @param  int $fid - Form ID
      * @return JsonResponse
      */
-    public function deleteTestRecords($pid, $fid) {
+    public function deleteTestRecords($pid, $fid) { //TODO::CASTLE
         $form = FormController::getForm($fid);
 
         if(!\Auth::user()->isFormAdmin($form)) {

@@ -114,6 +114,40 @@ class Form extends Model {
     }
 
     /**
+     * Determines if a form has any fields.
+     *
+     * @return bool - has fields
+     */
+    public function hasFields() {
+        $layout = $this->layout;
+
+        foreach($layout as $index => $page) {
+            if(!empty($page['fields']))
+                return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Gets an array of field information, separate from the form structure.
+     *
+     * @return array - The fields array
+     */
+    public function getJustFieldsArray() {
+        $layout = $this->layout;
+        $fields = [];
+
+        foreach($layout as $page) {
+            foreach($page['fields'] as $flid => $field) {
+                $fields[$flid] = $field;
+            }
+        }
+
+        return $fields;
+    }
+
+    /**
      * Updates a field within a form. Potentially reindex field name.
      */
     public function updateField($flid, $fieldArray, $newFlid=null) {

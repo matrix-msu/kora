@@ -10,7 +10,7 @@ use Illuminate\View\View;
 
 class FieldAjaxController extends Controller {
 
-    /* //TODO::CASTLE
+    /*
     |--------------------------------------------------------------------------
     | Field Ajax Controller
     |--------------------------------------------------------------------------
@@ -41,7 +41,7 @@ class FieldAjaxController extends Controller {
      * @param  Request $request
      * @return JsonResponse - Returns success/error message
      */
-    public function validateComboListOpt($pid, $fid, $flid, Request $request) {
+    public function validateComboListOpt($pid, $fid, $flid, Request $request) { //TODO::CASTLE
         if(!FieldController::validProjFormField($pid, $fid, $flid))
             return response()->json(["status"=>false,"message"=>"field_invalid"],500);
 
@@ -54,7 +54,7 @@ class FieldAjaxController extends Controller {
      * @param  Request $request
      * @return bool - Result of address validity
      */
-    public function validateAddress(Request $request) {
+    public function validateAddress(Request $request) { //TODO::CASTLE
         return GeolocatorField::validateAddress($request);
     }
 
@@ -64,7 +64,7 @@ class FieldAjaxController extends Controller {
      * @param  Request $request
      * @return string - Geolocator formatted string of the converted coordinates
      */
-    public function geoConvert(Request $request) {
+    public function geoConvert(Request $request) { //TODO::CASTLE
         return GeolocatorField::geoConvert($request);
     }
 
@@ -74,7 +74,7 @@ class FieldAjaxController extends Controller {
      * @param  int $flid - File field that record file will be loaded to
      * @param  Request $request
      */
-    public function saveTmpFile($flid) {
+    public function saveTmpFile($flid) { //TODO::CASTLE
         FileTypeField::saveTmpFile($flid);
     }
 
@@ -85,7 +85,7 @@ class FieldAjaxController extends Controller {
      * @param  string $name - Name of the file to delete
      * @param  Request $request
      */
-    public function delTmpFile($flid, $filename) {
+    public function delTmpFile($flid, $filename) { //TODO::CASTLE
         FileTypeField::delTmpFile($flid, $filename);
     }
 
@@ -97,11 +97,11 @@ class FieldAjaxController extends Controller {
      * @param  string $filename - Name of the file
      * @return string - html for the file download
      */
-    public function getFileDownload($rid, $flid, $filename) {
+    public function getFileDownload($rid, $flid, $filename) { //TODO::CASTLE
         return FileTypeField::getFileDownload($rid, $flid, $filename);
     }
 
-    public function getZipDownload($rid, $flid, $filename) {
+    public function getZipDownload($rid, $flid, $filename) { //TODO::CASTLE
         return FileTypeField::getZipDownload($rid, $flid, $filename);
     }
 
@@ -114,7 +114,7 @@ class FieldAjaxController extends Controller {
      * @param  string $type - Get either the full image or a thumbnail of the image
      * @return string - html for the file download
      */
-    public function getImgDisplay($rid, $flid, $filename, $type){
+    public function getImgDisplay($rid, $flid, $filename, $type){ //TODO::CASTLE
         $field = FieldController::getField($flid);
         $galleryField = $field->getTypedFieldFromRID($rid);
         return $galleryField->getImgDisplay($field->pid, $filename, $type);
@@ -132,9 +132,10 @@ class FieldAjaxController extends Controller {
         if(!FormController::validProjForm($pid, $fid))
             return redirect('projects/'.$pid)->with('k3_global_error', 'form_invalid');
 
+        $form = FormController::getForm($fid);
         $type = $request->type;
 
-        return view(Field::getTypedFieldStatic($type)->getAdvancedFieldOptionsView(), compact('fid'));
+        return view($form->getFieldModel($type)->getAdvancedFieldOptionsView(), compact('fid'));
     }
 
     /**
@@ -147,7 +148,7 @@ class FieldAjaxController extends Controller {
      * @param  string $filename - Image filename
      * @return Redirect
      */
-    public function singleResource($pid, $fid, $rid, $flid, $filename) {
+    public function singleResource($pid, $fid, $rid, $flid, $filename) { //TODO::CASTLE
         $relative_src = 'files/p'.$pid.'/f'.$fid.'/r'.$rid.'/fl'.$flid.'/'.$filename;
         $src = url('app/'.$relative_src);
 
@@ -201,7 +202,7 @@ class FieldAjaxController extends Controller {
      * @param  string $filename - Image filename
      * @return Redirect
      */
-    public function singleGeolocator($pid, $fid, $rid, $flid) {
+    public function singleGeolocator($pid, $fid, $rid, $flid) { //TODO::CASTLE
         $field = self::getField($flid);
         $record = RecordController::getRecord($rid);
         $typedField = $field->getTypedFieldFromRID($rid);
@@ -219,7 +220,7 @@ class FieldAjaxController extends Controller {
      * @param  string $filename - Image filename
      * @return Redirect
      */
-    public function singleRichtext($pid, $fid, $rid, $flid) {
+    public function singleRichtext($pid, $fid, $rid, $flid) { //TODO::CASTLE
         $field = self::getField($flid);
         $record = RecordController::getRecord($rid);
         $typedField = $field->getTypedFieldFromRID($rid);

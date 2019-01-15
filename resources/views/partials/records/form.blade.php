@@ -1,27 +1,21 @@
 <input type="hidden" name="userId" value="{{\Auth::user()->id}}">
 
-@foreach(\App\Http\Controllers\PageController::getFormLayout($form->fid) as $page)
+@foreach($layout as $page)
     <section id="#{{$page["title"]}}" class="page-section-js hidden">
-        @foreach($page["fields"] as $field)
-            <?php
-                if($editRecord) {
-                    $typedField = $field->getTypedFieldFromRID($record->rid);
-                    $hasData = true;
-                    if(is_null($typedField)) {
-                        $typedField = $field->getTypedField();
-                        $hasData = false;
-                    }
-                } else {
-                    $typedField = $field->getTypedField();
+        @foreach($page["fields"] as $flid => $field)
+            @php
+                $typedField = $form->getFieldModel($field['type']);
+                if($editRecord)
+                    $hasData = false; //TODO::CASTLE
+                else
                     $hasData = false;
-                }
-            ?>
+            @endphp
             
-            @include($typedField::FIELD_INPUT_VIEW, ['field' => $field, 'hasData' => $hasData, 'editRecord' => $editRecord])
+            @include($typedField->getFieldInputView(), ['flid' => $flid,'field' => $field, 'hasData' => $hasData, 'editRecord' => $editRecord])
         
             <div class="form-group mt-xs">
                 <p class="sub-text">
-                    {{$field->desc}}
+                    {{$field['description']}}
                 </p>
             </div>
         @endforeach
