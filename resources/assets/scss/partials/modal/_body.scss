@@ -68,6 +68,7 @@
 
     li:not(.active-result):not(.search-field):not(.search-choice) {
       font-family: $ubuntu;
+      font-size: 14px;
       margin: 15px 0;
 
       @media screen and (max-width: 420px) {
