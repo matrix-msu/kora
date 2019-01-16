@@ -146,13 +146,13 @@ class Search {
         return $rids;
     }
 
-    private function imitateMerge(&$array1, &$array2) { //TODO::CASTLE
+    private function imitateMerge(&$array1, &$array2) {
         foreach($array2 as $i) {
             $array1[] = $i;
         }
     }
 
-    private function imitateIntersect($s1,$s2) { //TODO::CASTLE
+    private function imitateIntersect($s1,$s2) {
         sort($s1);
         sort($s2);
         $i=0;
