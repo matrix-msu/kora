@@ -9,7 +9,7 @@
         <div class="body">
             {!! Form::open([
               'method' => 'POST',
-              'action' => ['RecordController@createTest', 'pid' => $form->pid, 'fid' => $form->fid]
+              'action' => ['RecordController@createTest', 'pid' => $form->project_id, 'fid' => $form->id]
             ]) !!}
 
             <div class="description">

@@ -9,7 +9,7 @@
         <div class="body">
             {!! Form::open([
               'method' => 'DELETE',
-              'action' => ['RecordController@deleteAllRecords', 'pid' => $form->pid, 'fid' => $form->fid]
+              'action' => ['RecordController@deleteAllRecords', 'pid' => $form->project_id, 'fid' => $form->id]
             ]) !!}
             <span class="description">
                 Are you sure you wish to delete all the records within this form?

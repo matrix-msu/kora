@@ -1,15 +1,15 @@
 @extends('app', ['page_title' => 'Duplicate Record', 'page_class' => 'record-clone'])
 
 @section('leftNavLinks')
-    @include('partials.menu.project', ['pid' => $form->pid])
-    @include('partials.menu.form', ['pid' => $form->pid, 'fid' => $form->fid])
-    @include('partials.menu.record', ['pid' => $record->pid, 'fid' => $record->fid, 'rid' => $record->rid])
+    @include('partials.menu.project', ['pid' => $form->project_id])
+    @include('partials.menu.form', ['pid' => $form->project_id, 'fid' => $form->id])
+    @include('partials.menu.record', ['pid' => $record->project_id, 'fid' => $record->form_id, 'rid' => $record->id])
     @include('partials.menu.static', ['name' => 'Duplicate Record'])
 @stop
 
 @section('aside-content')
-  @include('partials.sideMenu.form', ['pid' => $form->pid, 'fid' => $form->fid])
-  @include('partials.sideMenu.record', ['pid' => $record->pid, 'fid' => $record->fid, 'rid' => $record->rid, 'openDrawer' => true])
+  @include('partials.sideMenu.form', ['pid' => $form->project_id, 'fid' => $form->id])
+  @include('partials.sideMenu.record', ['pid' => $record->project_id, 'fid' => $record->form_id, 'rid' => $record->id, 'openDrawer' => true])
 @stop
 
 @section('stylesheets')
@@ -32,7 +32,7 @@
             </div>
             <div class="content-sections">
                 <div class="content-sections-scroll">
-                  @foreach(\App\Http\Controllers\PageController::getFormLayout($form->fid) as $page)
+                  @foreach($form->layout['pages'] as $page)
                     <a href="#{{$page["title"]}}" class="section underline-middle underline-middle-hover toggle-by-name">{{$page["title"]}}</a>
                   @endforeach
                 </div>
@@ -52,7 +52,7 @@
     </section>
 
     <section class="create-record center">
-        {!! Form::model($cloneRecord = new \App\Record, ['url' => 'projects/'.$form->pid.'/forms/'.$form->fid.'/records',
+        {!! Form::model($cloneRecord = new \App\Record, ['url' => 'projects/'.$form->project_id.'/forms/'.$form->id.'/records',
             'enctype' => 'multipart/form-data', 'id' => 'new_record_form']) !!}            
         
         <div class="form-group mt-xxxl duplicate-record-js hidden">
@@ -60,7 +60,7 @@
             <input type="number" name="mass_creation_num" class="text-input" value="2" step="1" max="1000" min="1">
         </div>    
         
-        @include('partials.records.form',['form' => $form, 'editRecord' => true])
+        @include('partials.records.form',['form' => $form, 'editRecord' => true, 'layout' => $form->layout])
 
         <div class="form-group mt-xxxl">
             <div class="spacer"></div>
@@ -102,11 +102,11 @@
     <script type="text/javascript">
         getPresetDataUrl = "{{action('RecordPresetController@getData')}}";
         moveFilesUrl = '{{action('RecordPresetController@moveFilesToTemp')}}';
-        geoConvertUrl = '{{ action('FieldAjaxController@geoConvert',['pid' => $form->pid, 'fid' => $form->fid, 'flid' => 0]) }}';
+        geoConvertUrl = '{{ action('FieldAjaxController@geoConvert',['pid' => $form->project_id, 'fid' => $form->id, 'flid' => 0]) }}';
         csrfToken = "{{ csrf_token() }}";
         userID = "{{\Auth::user()->id}}";
         baseFileUrl = "{{url('deleteTmpFile')}}/";
-        var validationUrl = "{{action('RecordController@validateRecord',['pid' => $form->pid, 'fid' => $form->fid])}}";
+        var validationUrl = "{{action('RecordController@validateRecord',['pid' => $form->project_id, 'fid' => $form->id])}}";
 
         Kora.Records.Create();
         Kora.Records.Validate();

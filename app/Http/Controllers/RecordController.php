@@ -322,16 +322,24 @@ class RecordController extends Controller {
      * @param  int $rid - Record ID
      * @return View
      */
-    public function cloneRecord($pid, $fid, $rid) { //TODO::CASTLE
+    public function cloneRecord($pid, $fid, $rid) {
         if(!self::validProjFormRecord($pid, $fid, $rid))
             return redirect('projects')->with('k3_global_error', 'record_invalid');
 
         $form = FormController::getForm($fid);
-        $record = self::getRecord($rid);
+        $kid = "$pid-$fid-$rid";
+        $record = self::getRecord($kid);
 
         return view('records.clone', compact('record', 'form'));
     }
 
+    /**
+     * Validates a record for creation.
+     *
+     * @param  int $pid - Project ID
+     * @param  int $fid - Form ID
+     * @return JsonResponse
+     */
     public function validateRecord($pid, $fid, Request $request) { //TODO::CASTLE
         $errors = [];
         $form = FormController::getForm($fid);
@@ -404,7 +412,7 @@ class RecordController extends Controller {
      * @param  Request $request
      * @return Redirect
      */
-	public function update($pid, $fid, $rid, Request $request) { //TODO::CASTLE
+	public function update($pid, $fid, $rid, Request $request) {
         //These are the values in $request that we can ignore and assume are not field names
         $form = FormController::getForm($fid);
         $fieldsArray = $form->layout['fields'];
@@ -475,17 +483,18 @@ class RecordController extends Controller {
      * @param  bool $mass - Is deleting mass records
      * @return Redirect
      */
-    public function destroy($pid, $fid, $rid, $mass = false) { //TODO::CASTLE
+    public function destroy($pid, $fid, $rid, $mass = false) {
         if(!self::validProjFormRecord($pid, $fid, $rid))
             return redirect('projects')->with('k3_global_error', 'record_invalid');
 
-        if(!\Auth::user()->isOwner(self::getRecord($rid)) && !self::checkPermissions($fid, 'destroy'))
+        $kid = "$pid-$fid-$rid";
+        $record = self::getRecord($kid);
+
+        if(!\Auth::user()->isOwner($record) && !self::checkPermissions($fid, 'destroy'))
             return redirect('projects/'.$pid.'/forms/'.$fid)->with('k3_global_error', 'cant_delete_record');
 
-        $record = self::getRecord($rid);
-
-        if(!$mass)
-            RevisionController::storeRevision($record->rid, Revision::DELETE);
+        //if(!$mass)
+            //RevisionController::storeRevision($record->rid, Revision::DELETE); //TODO::CASTLE
 
         $record->delete();
 
@@ -500,19 +509,20 @@ class RecordController extends Controller {
      * @param  Request $request
      * @return Redirect
      */
-    public function deleteMultipleRecords($pid, $fid, Request $request) { //TODO::CASTLE
+    public function deleteMultipleRecords($pid, $fid, Request $request) {
       $form = FormController::getForm($fid);
       $rid = $request->rid;
-      $rid = explode(',', $rid);
+      $rids = explode(',', $rid);
 
       if(!\Auth::user()->isFormAdmin($form)) {
         return redirect('projects')->with('k3_global_error', 'not_form_admin');
       } else {
-        foreach($rid as $rid) {
-          $record = self::getRecord($rid);
+        foreach($rids as $rid) {
+            $kid = "$pid-$fid-$rid";
+            $record = self::getRecord($kid);
 
-          if(!empty($record))
-            $record->delete();
+            if(!is_null($record))
+                $record->delete();
         }
 
         return redirect('projects/' . $pid . '/forms/' . $fid . '/records')->with('k3_global_success', 'multiple_records_deleted');
@@ -526,13 +536,14 @@ class RecordController extends Controller {
      * @param  int $fid - Form ID
      * @return JsonResponse
      */
-    public function deleteAllRecords($pid, $fid) { //TODO::CASTLE
+    public function deleteAllRecords($pid, $fid) {
         $form = FormController::getForm($fid);
 
         if(!\Auth::user()->isFormAdmin($form)) {
             return redirect('projects')->with('k3_global_error', 'not_form_admin');
         } else {
-            $records = Record::where("fid", "=", $fid)->get();
+            $recordMod = new Record(array(),$fid);
+            $records = $recordMod->newQuery()->get();
             foreach($records as $rec) {
                 $rec->delete();
             }
@@ -884,25 +895,26 @@ class RecordController extends Controller {
      * @param  Request $request
      * @return Redirect
      */
-    public function createTest($pid, $fid, Request $request) { //TODO::CASTLE
+    public function createTest($pid, $fid, Request $request) {
         $numRecs = $request->test_records_num;
 
         $form = FormController::getForm($fid);
-        $fields = $form->fields()->get();
+        $user = Auth::user();
 
         for($i = 0; $i < $numRecs ; $i++) {
-            $record = new Record();
-            $record->pid = $pid;
-            $record->fid = $fid;
-            $record->owner = Auth::user()->id;
-            $record->isTest = 1;
-            $record->save(); //need to save to create rid needed to make kid
-            $record->kid = $pid . '-' . $fid . '-' . $record->rid;
-            $record->save();
+            $record = new Record(array(),$fid);
+            $record->project_id = $pid;
+            $record->form_id = $fid;
+            $record->owner = $user->id;
+            $record->is_test = 1;
+            $record->save(); //need to save to create id needed to make kid
+            $record->kid = $pid . '-' . $fid . '-' . $record->id;
 
-            foreach($fields as $field) {
-                $field->getTypedField()->createTestRecordField($field, $record);
+            foreach($form->layout['fields'] as $flid => $field) {
+                $record->{$flid} = $form->getFieldModel($field['type'])->getTestData();
             }
+
+            $record->save();
         }
 
         return redirect()->action('RecordController@index',compact('pid','fid'))->with('k3_global_success', 'test_records_created')->with('num_test_recs', $numRecs);
@@ -915,13 +927,14 @@ class RecordController extends Controller {
      * @param  int $fid - Form ID
      * @return JsonResponse
      */
-    public function deleteTestRecords($pid, $fid) { //TODO::CASTLE
+    public function deleteTestRecords($pid, $fid) {
         $form = FormController::getForm($fid);
 
         if(!\Auth::user()->isFormAdmin($form)) {
             return redirect('projects')->with('k3_global_error', 'not_form_admin');
         } else {
-            Record::where("fid", "=", $fid)->where("isTest", "=", 1)->delete();
+            $recordMod = new Record(array(),$fid);
+            $recordMod->newQuery()->where("is_test", "=", 1)->delete();
 
             return redirect()->action('RecordController@index',compact('pid','fid'))->with('k3_global_success', 'test_records_deleted');
         }

@@ -129,4 +129,11 @@ class TextField extends BaseField {
         else
             return $value;
     }
+
+    /**
+     * For a test record, add test data to field.
+     */
+    public function getTestData() {
+        return 'This is sample text for this text field.';
+    }
 }

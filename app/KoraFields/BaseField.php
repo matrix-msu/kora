@@ -86,4 +86,9 @@ abstract class BaseField extends Model {
      * @param  string $value - Data to display
      */
     abstract public function processDisplayData($field, $value);
+
+    /**
+     * For a test record, add test data to field.
+     */
+    abstract public function getTestData();
 }

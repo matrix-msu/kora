@@ -216,4 +216,18 @@ class Form extends Model {
         $modName = 'App\\KoraFields\\'.self::$fieldModelMap[$type];
         return new $modName();
     }
+
+    /**
+     * Get number of records in form.
+     *
+     * @return int
+     */
+    public function getRecordCount() {
+        $recordMod = new Record(array(),$this->id);
+        return $recordMod->newQuery()->count();
+    }
+    public function getTestRecordCount() {
+        $recordMod = new Record(array(),$this->id);
+        return $recordMod->newQuery()->where('is_test','=',1)->count();
+    }
 }

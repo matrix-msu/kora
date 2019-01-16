@@ -96,12 +96,11 @@
       <p class="title">Test Record Management</p>
       <div class="button-container">
         <a href="#" class="btn half-sub-btn create-test-js">Create Test Record(s)</a>
-        {{--TODO::CASTLE--}}
-          {{--@if($form->records()->where('isTest','=',1)->count()==0)--}}
-            {{--<a href="#" class="btn half-sub-btn warning delete-test-js disabled">Delete All Test Records?</a>--}}
-          {{--@else--}}
-            {{--<a href="#" class="btn half-sub-btn warning delete-test-js">Delete All Test Records?</a>--}}
-          {{--@endif--}}
+          @if($form->getTestRecordCount()==0)
+            <a href="#" class="btn half-sub-btn warning delete-test-js disabled">Delete All Test Records?</a>
+          @else
+            <a href="#" class="btn half-sub-btn warning delete-test-js">Delete All Test Records?</a>
+          @endif
       </div>
     </div>
 
@@ -118,12 +117,12 @@
         @else
           <a href="#" class="btn half-sub-btn warning delete-files-js">Delete Old Record Files</a>
         @endif
-          {{--TODO::CASTLE--}}
-        {{--@if($form->records()->count()==0)--}}
-            {{--<a href="#" class="btn half-sub-btn warning delete-records-js disabled">Delete All Form Records?</a>--}}
-        {{--@else--}}
-            {{--<a href="#" class="btn half-sub-btn warning delete-records-js">Delete All Form Records?</a>--}}
-        {{--@endif--}}
+
+        @if($form->getRecordCount()==0)
+            <a href="#" class="btn half-sub-btn warning delete-records-js disabled">Delete All Form Records?</a>
+        @else
+            <a href="#" class="btn half-sub-btn warning delete-records-js">Delete All Form Records?</a>
+        @endif
       </div>
     </div>
 

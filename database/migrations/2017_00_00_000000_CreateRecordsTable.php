@@ -34,6 +34,7 @@ class CreateRecordsTable extends Migration {
             $table->integer('project_id')->unsigned();
             $table->integer('form_id')->unsigned();
             $table->integer('owner')->unsigned();
+            $table->bool('is_test')->unsigned();
             $table->timestamps();
         });
     }
