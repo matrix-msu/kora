@@ -114,7 +114,7 @@ class AdminController extends Controller {
         if($prevUrl !== url()->current()) {
           $session = $request->session()->get('k3_global_success');
 
-          if($session == 'user_updated' && $profChanges == 'password')
+          if($session == 'user_updated' && isset($profChanges) && $profChanges == 'password')
             $notification['message'] = 'Password Successfully Updated!';
           else if($session == 'user_updated')
             $notification['message'] = 'User Successfully Updated!';

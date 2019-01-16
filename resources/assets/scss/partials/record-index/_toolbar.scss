@@ -10,7 +10,8 @@
   font-size: 14px;
   height: 50px;
   margin: 0;
-  overflow-x: auto;
+  /*overflow-x: auto;*/
+  overflow: visible;
   position: fixed;
   white-space: nowrap;
   width: 100%;
@@ -33,11 +34,24 @@
     width: fill;
   }
 
+  i {
+    @include transition();
+
+    display: inline-block;
+  }
+
   .left {
+    @include transition();
+
     color: palette('red', base);
 
     &:hover {
-    cursor: pointer;
+      cursor: pointer;
+      opacity: 0.8;
+
+      i {
+        transform: scale(1.2);
+      }
     }
   }
 
@@ -46,19 +60,8 @@
     margin: 0 auto;
 
     a {
-    color: inherit;
-    text-decoration: none;
-    }
-  }
-
-  .middle,
-  .right {
-    span:hover {
-    cursor: pointer;
-    }
-
-    i {
-    font-size: 13px;
+      color: inherit;
+      text-decoration: none;
     }
   }
 
@@ -66,33 +69,51 @@
     color: palette('gray', slate);
 
     i {
-    font-size: 11px;
+      font-size: 11px;
     }
   }
 
-  span {
-    @include transition();
-  }
+  .middle,
+  .right {
 
-  span:hover {
-    opacity: 0.8;
+    i {
+      font-size: 13px;
+    }
+
+    > span {
+      @include transition();
+
+      display: inline-block;
+
+      &:hover {
+        cursor: pointer;
+        opacity: 0.8;
+
+        i {
+          transform: scale(1.2);
+        }
+      }
+    }
   }
 
   @media screen and (max-width: $max-mobile-width) {
     .line {
-    margin: 0 10px;
+      margin: 0 10px;
     }
 
     .middle {
-    span:first-child {
-      margin-left: 15px;
+
+      span:first-child {
+        margin-left: 15px;
+      }
+
+      > span:last-child {
+        margin-right: 15px;
+      }
     }
-    > span:last-child {
-      margin-right: 15px;
-    }
-    }
+
     .right {
-    padding-right: 20px;
+      padding-right: 20px;
     }
   }
 }
