@@ -1039,7 +1039,7 @@ class ExportController extends Controller {
                                 if(Record::isKIDPattern($akid)) {
                                     $arid = explode('-',$akid)[2];
                                     $afid = explode('-',$akid)[1];
-                                    $records[$kid][$fieldIndex][$akid] = $this->getSingleRecordForAssoc($arid, $con, $afid);
+                                    $records[$kid][$fieldIndex][$akid] = $this->getSingleRecordForAssoc($arid, $con, $afid, $fIndex);
                                 }
                             }
                         } else {
@@ -1791,9 +1791,10 @@ class ExportController extends Controller {
      * @param  int $rid - Record ID
      * @param  \mysqli $con - Connection to DB
      * @param  int $fid - Form ID
+     * @param  string $fIndex - What name index we should grab
      * @return array - The record data
      */
-    private function getSingleRecordForAssoc($rid, $con, $fid) {
+    private function getSingleRecordForAssoc($rid, $con, $fid, $fIndex) {
         $record = [];
 
         $prefix = config('database.connections.mysql.prefix');
@@ -1849,7 +1850,7 @@ class ExportController extends Controller {
 
         $datafields = $con->query($textselect);
         while ($row = $datafields->fetch_assoc()) {
-            $fieldIndex = $fields[$row['flid']]['nickname'];
+            $fieldIndex = $fields[$row['flid']][$fIndex];
 
             $record[$fieldIndex] = $row['text'];
         }
@@ -1857,7 +1858,7 @@ class ExportController extends Controller {
 
         $datafields = $con->query($numberselect);
         while ($row = $datafields->fetch_assoc()) {
-            $fieldIndex = $fields[$row['flid']]['nickname'];
+            $fieldIndex = $fields[$row['flid']][$fIndex];
 
             $record[$fieldIndex] = $row['number'];
         }
@@ -1865,7 +1866,7 @@ class ExportController extends Controller {
 
         $datafields = $con->query($richtextselect);
         while ($row = $datafields->fetch_assoc()) {
-            $fieldIndex = $fields[$row['flid']]['nickname'];
+            $fieldIndex = $fields[$row['flid']][$fIndex];
 
             $record[$fieldIndex] = $row['rawtext'];
         }
@@ -1873,7 +1874,7 @@ class ExportController extends Controller {
 
         $datafields = $con->query($listselect);
         while ($row = $datafields->fetch_assoc()) {
-            $fieldIndex = $fields[$row['flid']]['nickname'];
+            $fieldIndex = $fields[$row['flid']][$fIndex];
 
             $record[$fieldIndex] = $row['option'];
         }
@@ -1881,7 +1882,7 @@ class ExportController extends Controller {
 
         $datafields = $con->query($multiselectlistselect);
         while ($row = $datafields->fetch_assoc()) {
-            $fieldIndex = $fields[$row['flid']]['nickname'];
+            $fieldIndex = $fields[$row['flid']][$fIndex];
 
             $record[$fieldIndex] = explode('[!]', $row['options']);
         }
@@ -1889,7 +1890,7 @@ class ExportController extends Controller {
 
         $datafields = $con->query($generatedlistselect);
         while ($row = $datafields->fetch_assoc()) {
-            $fieldIndex = $fields[$row['flid']]['nickname'];
+            $fieldIndex = $fields[$row['flid']][$fIndex];
 
             $record[$fieldIndex] = explode('[!]', $row['options']);
         }
@@ -1897,7 +1898,7 @@ class ExportController extends Controller {
 
         $datafields = $con->query($combolistselect);
         while ($row = $datafields->fetch_assoc()) {
-            $fieldIndex = $fields[$row['flid']]['nickname'];
+            $fieldIndex = $fields[$row['flid']][$fIndex];
 
             $value = array();
             $dataone = explode('[!data!]', $row['value']);
@@ -1954,7 +1955,7 @@ class ExportController extends Controller {
 
         $datafields = $con->query($dateselect);
         while ($row = $datafields->fetch_assoc()) {
-            $fieldIndex = $fields[$row['flid']]['nickname'];
+            $fieldIndex = $fields[$row['flid']][$fIndex];
 
             $record[$fieldIndex] = [
                 'circa' => $row['circa'],
@@ -1968,7 +1969,7 @@ class ExportController extends Controller {
 
         $datafields = $con->query($scheduleselect);
         while ($row = $datafields->fetch_assoc()) {
-            $fieldIndex = $fields[$row['flid']]['nickname'];
+            $fieldIndex = $fields[$row['flid']][$fIndex];
 
             $value = array();
             $begin = explode('[!]', $row['value']);
@@ -1999,7 +2000,7 @@ class ExportController extends Controller {
 
         $datafields = $con->query($documentsselect);
         while ($row = $datafields->fetch_assoc()) {
-            $fieldIndex = $fields[$row['flid']]['nickname'];
+            $fieldIndex = $fields[$row['flid']][$fIndex];
 
             $url = url('app/files/p' . $form->pid . '/f' . $form->fid . '/r' . $row['rid'] . '/fl' . $row['flid']) . '/';
             $value = array();
@@ -2019,7 +2020,7 @@ class ExportController extends Controller {
 
         $datafields = $con->query($galleryselect);
         while ($row = $datafields->fetch_assoc()) {
-            $fieldIndex = $fields[$row['flid']]['nickname'];
+            $fieldIndex = $fields[$row['flid']][$fIndex];
 
             $url = url('app/files/p' . $form->pid . '/f' . $form->fid . '/r' . $row['rid'] . '/fl' . $row['flid']) . '/';
             $value = array();
@@ -2044,7 +2045,7 @@ class ExportController extends Controller {
 
         $datafields = $con->query($playlistselect);
         while ($row = $datafields->fetch_assoc()) {
-            $fieldIndex = $fields[$row['flid']]['nickname'];
+            $fieldIndex = $fields[$row['flid']][$fIndex];
 
             $url = url('app/files/p' . $form->pid . '/f' . $form->fid . '/r' . $row['rid'] . '/fl' . $row['flid']) . '/';
             $value = array();
@@ -2064,7 +2065,7 @@ class ExportController extends Controller {
 
         $datafields = $con->query($videoselect);
         while ($row = $datafields->fetch_assoc()) {
-            $fieldIndex = $fields[$row['flid']]['nickname'];
+            $fieldIndex = $fields[$row['flid']][$fIndex];
 
             $url = url('app/files/p' . $form->pid . '/f' . $form->fid . '/r' . $row['rid'] . '/fl' . $row['flid']) . '/';
             $value = array();
@@ -2084,7 +2085,7 @@ class ExportController extends Controller {
 
         $datafields = $con->query($modelselect);
         while ($row = $datafields->fetch_assoc()) {
-            $fieldIndex = $fields[$row['flid']]['nickname'];
+            $fieldIndex = $fields[$row['flid']][$fIndex];
 
             $url = url('app/files/p' . $form->pid . '/f' . $form->fid . '/r' . $row['rid'] . '/fl' . $row['flid']) . '/';
             $value = array();
@@ -2104,7 +2105,7 @@ class ExportController extends Controller {
 
         $datafields = $con->query($geolocatorselect);
         while ($row = $datafields->fetch_assoc()) {
-            $fieldIndex = $fields[$row['flid']]['nickname'];
+            $fieldIndex = $fields[$row['flid']][$fIndex];
 
             $value = array();
             $desc = explode('[!]', $row['value']);
@@ -2134,7 +2135,7 @@ class ExportController extends Controller {
 
         $datafields = $con->query($associatorselect);
         while ($row = $datafields->fetch_assoc()) {
-            $fieldIndex = $fields[$row['flid']]['nickname'];
+            $fieldIndex = $fields[$row['flid']][$fIndex];
 
             $record[$fieldIndex] = explode(',', $row['value']);
         }
