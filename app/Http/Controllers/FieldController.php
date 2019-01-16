@@ -61,11 +61,11 @@ class FieldController extends Controller {
 
 	    $field = [];
         $form = FormController::getForm($request->fid);
-        $slug = str_replace(" ","_", $request->name).'_'.$form->project_id.'_'.$form->id.'_';
+        $flid = str_replace(" ","_", $request->name).'_'.$form->project_id.'_'.$form->id.'_';
         $layout = $form->layout;
 
         //Make sure slug doesn't already exist
-        if(array_key_exists($slug,$layout[$request->page_id]["fields"]))
+        if(array_key_exists($flid,$layout["fields"]))
             return redirect('projects/'.$request->pid.'/forms/'.$request->fid)->with('k3_global_error', 'field_name_error');
 
         //Fill out its data
@@ -86,10 +86,11 @@ class FieldController extends Controller {
         //Field Specific Stuff
         $fieldMod = $form->getFieldModel($request->type);
         $field['options'] = $fieldMod->getDefaultOptions();
-        $fieldMod->addDatabaseColumn($form->id, $slug);
+        $fieldMod->addDatabaseColumn($form->id, $flid);
 
         //Add to form
-        $layout[$request->page_id]["fields"][$slug] = $field;
+        $layout['fields'][$flid] = $field;
+        $layout['pages'][$request->page_id]["flids"][] = $flid;
         $form->layout = $layout;
         $form->save();
 
@@ -213,7 +214,7 @@ class FieldController extends Controller {
         $form = FormController::getForm($fid);
 
         $field['name'] = $request->name;
-        $slug = str_replace(" ","_", $request->name).'_'.$form->project_id.'_'.$form->id.'_';
+        $newFlid = str_replace(" ","_", $request->name).'_'.$form->project_id.'_'.$form->id.'_';
         $field['description'] = $request->desc;$field['default'] = null;
         $field['required'] = isset($request->required) && $request->required ? 1 : 0;
         $field['searchable'] = isset($request->searchable) && $request->searchable ? 1 : 0;
@@ -225,9 +226,9 @@ class FieldController extends Controller {
         $field = $form->getFieldModel($field['type'])->updateOptions($field, $request);
 
         //Need to reindex the field if the name has changed. This will also update the column name.
-        if($slug!=$flid) {
-            $form->updateField($flid, $field, $slug);
-            $flid = $slug;
+        if($newFlid!=$flid) {
+            $form->updateField($flid, $field, $newFlid);
+            $flid = $newFlid;
         } else {
             $form->updateField($flid, $field);
         }
@@ -335,12 +336,10 @@ class FieldController extends Controller {
      */
     public static function getField($flid, $fid) {
         $form = FormController::getForm($fid);
-        $pages = $form->layout;
+        $layout = $form->layout;
 
-        foreach($pages as $page) {
-            if(array_key_exists($flid,$page['fields']))
-                return $page['fields'][$flid];
-        }
+        if(array_key_exists($flid,$layout['fields']))
+            return $layout['fields'][$flid];
 
         return null;
     }

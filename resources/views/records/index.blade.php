@@ -1,13 +1,13 @@
 @extends('app', ['page_title' => 'Form Records', 'page_class' => 'record-index'])
 
 @section('leftNavLinks')
-    @include('partials.menu.project', ['pid' => $form->pid])
-    @include('partials.menu.form', ['pid' => $form->pid, 'fid' => $form->fid])
+    @include('partials.menu.project', ['pid' => $form->project_id])
+    @include('partials.menu.form', ['pid' => $form->project_id, 'fid' => $form->id])
     @include('partials.menu.static', ['name' => 'Form Records'])
 @stop
 
 @section('aside-content')
-  @include('partials.sideMenu.form', ['pid' => $form->pid, 'fid' => $form->fid, 'openDrawer' => true])
+  @include('partials.sideMenu.form', ['pid' => $form->project_id, 'fid' => $form->id, 'openDrawer' => true])
 @stop
 
 @section('stylesheets')
@@ -41,7 +41,7 @@
     @include("partials.records.modals.exportMultipleRecordsModal", ['record' => null])
     <section class="view-records center">
         <section class="search-records">
-            <form method="GET" action="{{action('FormSearchController@keywordSearch',['pid' => $form->pid, 'fid' => $form->fid])}}" class="keyword-search-js">
+            <form method="GET" action="{{action('FormSearchController@keywordSearch',['pid' => $form->project_id, 'fid' => $form->id])}}" class="keyword-search-js">
                 <div class="form-group search-input mt-xl">
                     {!! Form::label('keywords','Search Via Keyword(s) or KID') !!}
                     {!! Form::text('keywords', null, ['class' => 'text-input keywords-get-js', 'placeholder' => 'Type space separated keywords']) !!}
@@ -52,11 +52,13 @@
                 </div>
 
                 <div class="form-group mt-xxxl search-button-container">
-                    @if($form->fields()->where('advsearch','=',1)->count() > 0)
-                        <a href="{{action('AdvancedSearchController@index', ['pid' => $form->pid, 'fid' => $form->fid])}}" class="btn half-sub-btn" data-unsp-sanitized="clean">Go to Advanced Search</a>
-                    @else
-                        <a href="#" class="btn half-sub-btn disabled" data-unsp-sanitized="clean">No Advanced Search Available</a>
-                    @endif
+                    {{--TODO::CASTLE--}}
+                    {{--@if($form->fields()->where('advsearch','=',1)->count() > 0)--}}
+                        {{--<a href="{{action('AdvancedSearchController@index', ['pid' => $form->project_id, 'fid' => $form->id])}}" class="btn half-sub-btn" data-unsp-sanitized="clean">Go to Advanced Search</a>--}}
+                    {{--@else--}}
+                        {{--<a href="#" class="btn half-sub-btn disabled" data-unsp-sanitized="clean">No Advanced Search Available</a>--}}
+                    {{--@endif--}}
+                    <a href="#" class="btn half-sub-btn disabled" data-unsp-sanitized="clean">No Advanced Search Available</a>
                     <a href="#" class="btn half-btn submit-search-js right" data-unsp-sanitized="clean">Search</a>
                 </div>
             </form>
@@ -125,7 +127,7 @@
     <script src="{{ url('assets/javascripts/vendor/leaflet/leaflet.js') }}"></script>
 
     <script type="text/javascript">
-        var deleteRecordURL = "{{action('RecordController@destroy', ['pid' => $form->pid, 'fid' => $form->fid, 'rid' => ''])}}";
+        var deleteRecordURL = "{{action('RecordController@destroy', ['pid' => $form->project_id, 'fid' => $form->id, 'rid' => ''])}}";
 
         Kora.Records.Index();
         Kora.Records.Toolbar();

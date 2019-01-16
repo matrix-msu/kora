@@ -50,6 +50,15 @@ class TextField extends BaseField {
     }
 
     /**
+     * Get the field input view for record creation.
+     *
+     * @return string - The view
+     */
+    public function getFieldDisplayView() {
+        return self::FIELD_DISPLAY_VIEW;
+    }
+
+    /**
      * Gets the default options string for a new field.
      *
      * @param  int $fid - Form ID
@@ -103,6 +112,21 @@ class TextField extends BaseField {
      * @param  Request $request
      */
     public function processRecordData($field, $value, $request) {
+        if($value=='')
+            $value = null;
         return $value;
+    }
+
+    /**
+     * Formats data for record display.
+     *
+     * @param  array $field - The field to represent record data
+     * @param  string $value - Data to display
+     */
+    public function processDisplayData($field, $value) {
+        if($field['options']['MultiLine'])
+            return nl2br($value);
+        else
+            return $value;
     }
 }

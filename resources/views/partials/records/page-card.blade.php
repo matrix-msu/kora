@@ -15,15 +15,16 @@
 
     <div class="content active">
         <div class="description">
-            @if($page["fields"]->count() > 0)
-                @foreach($page["fields"] as $field)
-                    @if($field->viewable)
-                        <div class="field-title mt-m">{{$field->name}}</div>
+            @if(sizeof($page["flids"]) > 0)
+                @foreach($page["flids"] as $flid)
+                    @php $field = $form->layout['fields'][$flid]; @endphp
+                    @if($field['viewable'])
+                        <div class="field-title mt-m">{{$field['name']}}</div>
 
                         <section class="field-data">
-                            <?php $typedField = $field->getTypedFieldFromRID($record->rid); ?>
-                            @if(!is_null($typedField))
-                                @include($typedField::FIELD_DISPLAY_VIEW, ['field' => $field, 'typedField' => $typedField])
+                            @php $typedField = $form->getFieldModel($field['type']); @endphp
+                            @if(!is_null($record->{$flid}))
+                                @include($typedField->getFieldDisplayView(), ['field' => $field, 'typedField' => $typedField, 'value' => $record->{$flid}])
                             @else
                                 <span class="record-no-data">No Data Inputted</span>
                             @endif

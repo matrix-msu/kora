@@ -26,7 +26,7 @@
                 multiple pages, use the pagination found at the bottom of each page to navigate to the next.</p>
             <div class="content-sections">
                 <div class="content-sections-scroll">
-                    @foreach($form->layout as $page)
+                    @foreach($form->layout['pages'] as $page)
                         <a href="#{{$page["title"]}}" class="section underline-middle underline-middle-hover toggle-by-name">{{$page["title"]}}</a>
                     @endforeach
                 </div>

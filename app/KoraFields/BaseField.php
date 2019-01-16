@@ -36,6 +36,13 @@ abstract class BaseField extends Model {
     abstract public function getFieldInputView();
 
     /**
+     * Get the field display view for displaying record.
+     *
+     * @return string - The view
+     */
+    abstract public function getFieldDisplayView();
+
+    /**
      * Gets the default options string for a new field.
      *
      * @param  int $fid - Form ID
@@ -71,4 +78,12 @@ abstract class BaseField extends Model {
      * @param  Request $request
      */
     abstract public function processRecordData($field, $value, $request);
+
+    /**
+     * Formats data for record display.
+     *
+     * @param  array $field - The field to represent record data
+     * @param  string $value - Data to display
+     */
+    abstract public function processDisplayData($field, $value);
 }

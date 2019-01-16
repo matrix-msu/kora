@@ -42,19 +42,20 @@ class PageController extends Controller {
     public static function makePageOnForm($fid,$name,$resize=false,$resizeIndex=0) {
         $pageArray = [];
         $pageArray['title'] = $name;
-        $pageArray['fields'] = [];
+        $pageArray['flids'] = [];
 
         $form = FormController::getForm($fid);
-        $currPages = $form->layout;
+        $layout = $form->layout;
 
-        if(is_null($currPages)) {
-            $form->layout = [$pageArray];
+        if(is_null($layout)) {
+            $form->layout = ['pages' => [$pageArray], 'fields' => []];
         } else {
             if($resize) {
-                array_push($currPages, $pageArray);
-                $form->layout = $currPages;
+                array_push($layout['pages'], $pageArray);
+                $form->layout = $layout;
             } else {
                 $finalArray = [];
+                $currPages = $layout['pages'];
                 $done = false;
                 for($i=0;$i<sizeof($currPages);$i++) {
                     if($i==$resizeIndex) {
@@ -69,7 +70,8 @@ class PageController extends Controller {
                 if(!$done)
                     array_push($finalArray, $pageArray);
 
-                $form->layout = $finalArray;
+                $layout['pages'] = $finalArray;
+                $form->layout = $layout;
             }
         }
 
@@ -90,8 +92,10 @@ class PageController extends Controller {
 
         $method = $request->method;
         $form = FormController::getForm($fid);
-        $pages = $form->layout;
+        $layout = $form->layout;
+        $pages = $layout['pages'];
         $index = $request->pageID;
+        $deleteFields = null;
 
         switch($method) {
             case self::_RENAME:
@@ -122,7 +126,7 @@ class PageController extends Controller {
                     if($i != $index)
                         array_push($newLayout,$page);
                     else {
-                        //DELETE THE FIELDS IN THE PAGE //TODO::CASTLE
+                        $deleteFields = $page['flids'];
                     }
                 }
                 $pages = $newLayout;
@@ -132,7 +136,7 @@ class PageController extends Controller {
                 if($name=='')
                     response()->json(["status"=>false,"message"=>"page_name_required"],500);
 
-                $pageArray = ['title' => $name, 'fields' => []];
+                $pageArray = ['title' => $name, 'flids' => []];
                 $newLayout = [];
                 $done = false;
                 for($i=0;$i<sizeof($pages);$i++) {
@@ -154,8 +158,16 @@ class PageController extends Controller {
                 break;
         }
 
-        $form->layout = $pages;
+        $layout['pages'] = $pages;
+        $form->layout = $layout;
         $form->save();
+
+        //See if there are fields to be deleted
+        if(!is_null($deleteFields)) {
+            foreach($deleteFields as $df) {
+                $form->deleteField($df);
+            }
+        }
 
         return response()->json(["status"=>true,"message"=>"page_layout_modified"],200);
     }
@@ -175,24 +187,9 @@ class PageController extends Controller {
         $form = FormController::getForm($fid);
         $newStructure = json_decode($request->layout,true);
         $formLayout = $form->layout;
-        $fieldArray = [];
 
-        //Gather all fields into a single array
-        foreach($formLayout as $page) {
-            foreach($page['fields'] as $flid => $field) {
-                $fieldArray[$flid] = $field;
-            }
-        }
-
-        //Build the new layout //TODO::CASTLE Maintain order
-        foreach($newStructure as $pageIndex => $fieldsArray) {
-            $newLayout = [];
-            if(!empty($fieldsArray)) {
-                foreach($fieldsArray as $fieldName) {
-                    $newLayout[$fieldName] = $fieldArray[$fieldName];
-                }
-            }
-            $formLayout[$pageIndex]['fields'] = $newLayout;
+        foreach($newStructure as $nPage => $flids) {
+            $formLayout['pages'][$nPage]['flids'] = $flids;
         }
 
         $form->layout = $formLayout;

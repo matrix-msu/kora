@@ -49,20 +49,9 @@
 
 
 @section('body')
-  @php
-    $page_has_fields = false;
-
-    foreach($pageLayout as $page) {
-      if(sizeof($page["fields"]) > 0) {
-        $page_has_fields = true;
-        break;
-      }
-    }
-  @endphp
-
   @include('partials.projects.notification')
 
-  @if ($page_has_fields)
+  @if ($hasFields)
   <section class="filters center">
     <div class="underline-middle search search-js">
       <i class="icon icon-search"></i>
@@ -119,12 +108,12 @@
     </div>
   </div>
 
-  <section class="pages pages-js center {{ $page_has_fields ? '' : 'mt-xxxl' }}">
+  <section class="pages pages-js center {{ $hasFields ? '' : 'mt-xxxl' }}">
     @php
-      $pages_count = sizeof($pageLayout);
+      $pages_count = sizeof($layout['pages']);
     @endphp
     
-    @foreach($pageLayout as $idx=>$page)
+    @foreach($layout['pages'] as $idx=>$page)
       <div class="page" page-id="{{$idx}}">
         <div class="page-header">
           <div class="move-actions">
@@ -159,9 +148,9 @@
         {{--TODO::CASTLE--}}
         <div class="field-sort-js" style="min-height: 10px;">
           @php $index = 0; @endphp
-        @foreach($page["fields"] as $flid=>$field)
+        @foreach($page["flids"] as $flid)
             <div class="field-container">
-              @include('forms.layout.field', ['flid' => $flid, 'field' => $field, 'pid' => $form->project_id, 'fid' => $form->id])
+              @include('forms.layout.field', ['flid' => $flid, 'field' => $layout['fields'][$flid], 'pid' => $form->project_id, 'fid' => $form->id])
             </div>
             @php $index++; @endphp
           @endforeach

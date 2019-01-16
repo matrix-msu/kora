@@ -26,7 +26,7 @@ class Form extends Model {
     ];
 
     protected $casts = [
-        'layout' => 'array'
+        'layout' => 'array',
     ];
 
     /**
@@ -121,30 +121,10 @@ class Form extends Model {
     public function hasFields() {
         $layout = $this->layout;
 
-        foreach($layout as $index => $page) {
-            if(!empty($page['fields']))
-                return true;
-        }
+        if(!empty($layout['fields']))
+            return true;
 
         return false;
-    }
-
-    /**
-     * Gets an array of field information, separate from the form structure.
-     *
-     * @return array - The fields array
-     */
-    public function getJustFieldsArray() {
-        $layout = $this->layout;
-        $fields = [];
-
-        foreach($layout as $page) {
-            foreach($page['fields'] as $flid => $field) {
-                $fields[$flid] = $field;
-            }
-        }
-
-        return $fields;
     }
 
     /**
@@ -152,30 +132,27 @@ class Form extends Model {
      */
     public function updateField($flid, $fieldArray, $newFlid=null) {
         $layout = $this->layout;
-        $saveIndex = null;
 
-        foreach($layout as $index => $page) {
-            if(array_key_exists($flid,$page['fields'])) {
-                $saveIndex = $index;
-                break;
-            }
-        }
+        //Update the field model
+        $layout['fields'][$flid] = $fieldArray;
 
-        if(is_null($newFlid))
-            $layout[$saveIndex]['fields'][$flid] = $fieldArray;
-        else {
-            $reindexedFields = [];
-            foreach($layout[$saveIndex]['fields'] as $id => $fieldData) {
-                if($flid==$id)
-                    $reindexedFields[$newFlid] = $fieldArray;
-                else
-                    $reindexedFields[$id] = $fieldData;
-            }
-            $layout[$saveIndex]['fields'] = $reindexedFields;
-
+        //Update column name in DB and page structure
+        if(!is_null($newFlid)) {
             $rTable = new \CreateRecordsTable();
             $rTable->renameColumn($this->id,$flid,$newFlid);
+
+            foreach($layout['pages'] as $index => $page) {
+                $remainingFLIDS = [];
+                foreach($page['flids'] as $f) {
+                    if($f == $flid)
+                        array_push($remainingFLIDS, $newFlid);
+                    else
+                        array_push($remainingFLIDS, $f);
+                }
+                $layout['pages'][$index]['flids'] = $remainingFLIDS;
+            }
         }
+
         $this->layout = $layout;
         $this->save();
     }
@@ -185,16 +162,21 @@ class Form extends Model {
      */
     public function deleteField($flid) {
         $layout = $this->layout;
-        $pageIndex = null;
 
-        foreach($layout as $index => $page) {
-            if(array_key_exists($flid,$page['fields'])) {
-                $pageIndex = $index;
-                break;
+        //Remove from fields
+        if(isset($layout['fields'][$flid]))
+            unset($layout['fields'][$flid]);
+
+        //Then from page structure
+        foreach($layout['pages'] as $index => $page) {
+            $remainingFLIDS = [];
+            foreach($page['flids'] as $f) {
+                if($f != $flid)
+                    array_push($remainingFLIDS, $f);
             }
+            $layout['pages'][$index]['flids'] = $remainingFLIDS;
         }
 
-        unset($layout[$pageIndex]['fields'][$flid]);
         $this->layout = $layout;
         $this->save();
 
@@ -215,6 +197,7 @@ class Form extends Model {
         }
 
         //Delete other record related stuff before dropping records table
+        //Revisions. Presets?
         //TODO::CASTLE
 
         //Drop the records table

@@ -115,12 +115,8 @@ class FormController extends Controller {
         $projName = $proj->name;
 
         //Build the layout from the DB
-        $hasFields = false;
-        $pageLayout = $form->layout;
-        foreach($pageLayout as $page) {
-            if(!empty($page['fields']))
-                $hasFields = true;
-        }
+        $layout = $form->layout;
+        $hasFields = $form->hasFields();
 
         $notification = array(
           'message' => '',
@@ -153,7 +149,7 @@ class FormController extends Controller {
             $notification['message'] = 'Form Successfully Imported!';
         }
 
-        return view('forms.show', compact('form','projName','pageLayout','hasFields','notification'));
+        return view('forms.show', compact('form','projName','layout','hasFields','notification'));
 	}
 
     /**

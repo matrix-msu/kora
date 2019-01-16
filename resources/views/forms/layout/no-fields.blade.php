@@ -1,4 +1,4 @@
-@php $count = count($page['fields']); @endphp
+@php $count = count($page['flids']); @endphp
 <div class="no-fields pt-m pb-xxl {{ $count == 0 ? null : 'hidden' }}">
   <div class="top pb-xxxl">
     <div class="line"></div>

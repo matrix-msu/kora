@@ -1,16 +1,16 @@
 @extends('app', ['page_title' => 'Record '.$record->kid, 'page_class' => 'record-show'])
 
 @section('leftNavLinks')
-    @include('partials.menu.project', ['pid' => $form->pid])
-    @include('partials.menu.form', ['pid' => $form->pid, 'fid' => $form->fid])
-    @include('partials.menu.record', ['pid' => $record->pid, 'fid' => $record->fid, 'rid' => $record->rid])
+    @include('partials.menu.project', ['pid' => $form->project_id])
+    @include('partials.menu.form', ['pid' => $form->project_id, 'fid' => $form->id])
+    @include('partials.menu.record', ['pid' => $record->project_id, 'fid' => $record->form_id, 'rid' => $record->id])
     <!--@include('partials.menu.static', ['name' => $record->kid])-->
 @stop
 
 
 @section('aside-content')
-  @include('partials.sideMenu.form', ['pid' => $form->pid, 'fid' => $form->fid])
-  @include('partials.sideMenu.record', ['pid' => $record->pid, 'fid' => $record->fid, 'rid' => $record->rid, 'openDrawer' => true])
+  @include('partials.sideMenu.form', ['pid' => $form->project_id, 'fid' => $form->id])
+  @include('partials.sideMenu.record', ['pid' => $record->project_id, 'fid' => $record->form_id, 'rid' => $record->id, 'openDrawer' => true])
 @stop
 
 @section('stylesheets')
@@ -38,21 +38,21 @@
             <p class="description">
                 @if(\Auth::user()->canModifyRecords($form) || \Auth::user()->isOwner($record))
                     <a class="underline-middle-hover" href="{{ action('RecordController@edit',
-                        ['pid' => $form->pid, 'fid' => $form->fid, 'rid' => $record->rid]) }}">
+                        ['pid' => $form->project_id, 'fid' => $form->id, 'rid' => $record->id]) }}">
                         <i class="icon icon-edit-little mr-xxs"></i>
                         <span>Edit Record</span>
                     </a>
                 @endif
                 @if(\Auth::user()->CanIngestRecords($form) || \Auth::user()->isOwner($record))
                     <a class="underline-middle-hover" href="{{action('RecordController@cloneRecord', [
-                        'pid' => $form->pid, 'fid' => $form->fid, 'rid' => $record->rid])}}">
+                        'pid' => $form->project_id, 'fid' => $form->id, 'rid' => $record->id])}}">
                         <i class="icon icon-duplicate-little mr-xxs"></i>
                         <span>Duplicate Record</span>
                     </a>
                 @endif
                 @if(\Auth::user()->admin || \Auth::user()->isFormAdmin($form) || \Auth::user()->isOwner($record))
                     <a class="underline-middle-hover" href="{{action('RevisionController@show',
-                        ['pid' => $form->pid, 'fid' => $form->fid, 'rid' => $record->rid])}}">
+                        ['pid' => $form->project_id, 'fid' => $form->id, 'rid' => $record->id])}}">
                         <i class="icon icon-clock-little mr-xxs"></i>
                         <span>View Revisions ({{$numRevisions}})</span>
                     </a>
@@ -74,7 +74,7 @@
     @include("partials.records.modals.deleteRecordModal")
 
     <section class="view-record center">
-        @foreach(\App\Http\Controllers\PageController::getFormLayout($record->fid) as $page)
+        @foreach($form->layout['pages'] as $page)
             @include('partials.records.page-card')
         @endforeach
 
@@ -94,16 +94,17 @@
         <section class="meta-data">
             {{$record->updated_at}}
         </section>
-        @if(sizeof($record->getAssociatedRecords())>0)
-            <div class="meta-title mt-m">Associated Records</div>
-            <section class="meta-data">
-                @foreach($record->getAssociatedRecords() as $aRecord)
-                    <div><a class="meta-link underline-middle-hover"
-                            href='{{url('projects/'.$aRecord->pid.'/forms/'.$aRecord->fid.'/records/'.$aRecord->rid)}}'>{{$aRecord->kid}}
-                        </a> | {{$aRecord->getReversePreview()}}</div>
-                @endforeach
-            </section>
-        @endif
+        {{--TODO::CASTLE--}}
+        {{--@if(sizeof($record->getAssociatedRecords())>0)--}}
+            {{--<div class="meta-title mt-m">Associated Records</div>--}}
+            {{--<section class="meta-data">--}}
+                {{--@foreach($record->getAssociatedRecords() as $aRecord)--}}
+                    {{--<div><a class="meta-link underline-middle-hover"--}}
+                            {{--href='{{url('projects/'.$aRecord->pid.'/forms/'.$aRecord->fid.'/records/'.$aRecord->rid)}}'>{{$aRecord->kid}}--}}
+                        {{--</a> | {{$aRecord->getReversePreview()}}</div>--}}
+                {{--@endforeach--}}
+            {{--</section>--}}
+        {{--@endif--}}
     </section>
 @stop
 

@@ -1,9 +1,7 @@
 @php
-//    if($editRecord && $hasData) //TODO::CASTLE
-//        $textValue = $typedField->text;
-//    else if($editRecord)
-//        $textValue = "";
-//    else
+    if($editRecord)
+        $textValue = $record->{$flid};
+    else
         $textValue = $field['default'];
 @endphp
 <div class="form-group mt-xxxl">

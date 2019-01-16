@@ -24,12 +24,18 @@
         </li>
 
         <li class="link">
-            <a href="{{action("RevisionController@show", ['pid'=>$pid, 'fid'=>$fid, 'rid'=>$rid])}}">View Revisions ({{\App\Http\Controllers\RevisionController::getRevisionCount($rid)}})</a>
+            {{--TODO::CASTLE--}}
+{{--            <a href="{{action("RevisionController@show", ['pid'=>$pid, 'fid'=>$fid, 'rid'=>$rid])}}">View Revisions ({{\App\Http\Controllers\RevisionController::getRevisionCount($rid)}})</a>--}}
+            <a href="{{action("RevisionController@show", ['pid'=>$pid, 'fid'=>$fid, 'rid'=>$rid])}}">View Revisions (0)</a>
         </li>
 
         <li class="link">
           @if(\Auth::user()->admin || \Auth::user()->isFormAdmin($form))
-            <?php $alreadyPreset = (\App\RecordPreset::where('rid',$rid)->count() > 0); ?>
+                {{--TODO::CASTLE--}}
+            <?php
+                $alreadyPreset = false;
+                //$alreadyPreset = (\App\RecordPreset::where('rid',$rid)->count() > 0);
+            ?>
             @if($alreadyPreset)
               <a class="already-preset-js" href="#">Designated as Preset</a>
             @else
@@ -45,6 +51,6 @@
 
 <script type="text/javascript">
     makeRecordPresetURL = '{{action('RecordPresetController@presetRecord')}}';
-    ridForPreset = {{$record->rid}};
+    ridForPreset = {{$record->id}};
     csrfToken = '{{csrf_token()}}';
 </script>
