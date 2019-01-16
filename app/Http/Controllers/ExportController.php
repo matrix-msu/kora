@@ -440,7 +440,7 @@ class ExportController extends Controller {
         }
 
         //Temporary fix for large combolist statements
-        DB::statement("SET SESSION group_concat_max_len = 12345;");
+        $groupCat = $con->query("SET SESSION group_concat_max_len = 12345");
 
         //Grab information about the form's fields
         $fields = [];
