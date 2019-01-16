@@ -1,5 +1,6 @@
 <?php namespace App\KoraFields;
 
+use App\Record;
 use Illuminate\Http\Request;
 
 class TextField extends BaseField {
@@ -135,5 +136,22 @@ class TextField extends BaseField {
      */
     public function getTestData() {
         return 'This is sample text for this text field.';
+    }
+
+    /**
+     * Performs a keyword search on this field and returns any results.
+     *
+     * @param  string $flid - Field ID
+     * @param  string $arg - The keywords
+     * @param  Record $recordMod - Model to search through
+     * @return array - The RIDs that match search
+     */
+    public function keywordSearchTyped($flid, $arg, $recordMod) {
+        return $recordMod->newQuery()
+            ->select("id")
+            ->where($flid,'LIKE',"%$arg%")
+            ->distinct()
+            ->pluck('id')
+            ->toArray();
     }
 }

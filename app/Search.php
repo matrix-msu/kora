@@ -1,8 +1,9 @@
 <?php namespace App;
 
+use App\Http\Controllers\FormController;
+
 class Search {
 
-    //TODO::CASTLE
     /*
     |--------------------------------------------------------------------------
     | Search
@@ -67,8 +68,11 @@ class Search {
         if($this->arg == "")
             return [];
 
+        $form = FormController::getForm($this->fid);
+        $recordMod = new Record(array(),$this->fid);
+
         if(is_null($fields))
-            $fields = Field::where("fid", "=", $this->fid)->get();
+            $fields = $form->layout['fields'];
         $rids = [];
 
         switch($this->method) {
@@ -79,10 +83,10 @@ class Search {
                 //foreach args
                 foreach($args as $arg) {
                     //search the fields
-                    foreach($fields as $field) {
+                    foreach($fields as $flid => $field) {
                         // These checks make sure the field is searchable
-                        if( (!$external && $field->isSearchable()) || ($external && $field->isExternalSearchable()) ) {
-                            $results = $field->getTypedField()->keywordSearchTyped($field->flid, $arg);
+                        if( (!$external && $field['searchable']) || ($external && $field['external_search']) ) {
+                            $results = $form->getFieldModel($field['type'])->keywordSearchTyped($flid, $arg, $recordMod);
                             $this->imitateMerge($rids, $results);
                         }
                     }
@@ -103,10 +107,10 @@ class Search {
                     $set = array();
 
                     //search the fields
-                    foreach($fields as $field) {
+                    foreach($fields as $flid => $field) {
                         // These checks make sure the field is searchable
-                        if( (!$external && $field->isSearchable()) || ($external && $field->isExternalSearchable()) ) {
-                            $results = $field->getTypedField()->keywordSearchTyped($field->flid, $arg);
+                        if( (!$external && $field['searchable']) || ($external && $field['external_search']) ) {
+                            $results = $form->getFieldModel($field['type'])->keywordSearchTyped($flid, $arg, $recordMod);
                             $this->imitateMerge($set, $results);
                         }
                     }
@@ -124,10 +128,10 @@ class Search {
                 break;
             case self::SEARCH_EXACT:
                 //search the fields
-                foreach($fields as $field) {
+                foreach($fields as $flid => $field) {
                     // These checks make sure the field is searchable
-                    if( (!$external && $field->isSearchable()) || ($external && $field->isExternalSearchable()) ) {
-                        $results = $field->getTypedField()->keywordSearchTyped($field->flid, $this->arg);
+                    if( (!$external && $field['searchable']) || ($external && $field['external_search']) ) {
+                        $results = $form->getFieldModel($field['type'])->keywordSearchTyped($flid, $this->arg, $recordMod);
                         $this->imitateMerge($rids, $results);
                     }
                 }
@@ -142,13 +146,13 @@ class Search {
         return $rids;
     }
 
-    private function imitateMerge(&$array1, &$array2) {
+    private function imitateMerge(&$array1, &$array2) { //TODO::CASTLE
         foreach($array2 as $i) {
             $array1[] = $i;
         }
     }
 
-    private function imitateIntersect($s1,$s2) {
+    private function imitateIntersect($s1,$s2) { //TODO::CASTLE
         sort($s1);
         sort($s2);
         $i=0;

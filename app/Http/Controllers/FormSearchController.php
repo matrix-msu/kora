@@ -39,6 +39,7 @@ class FormSearchController extends Controller {
 
         $argString = trim($request->keywords);
         $method = intval($request->method);
+        $recordMod = new Record(array(),$fid);
 
         //if no keyword is entered then we want to get all the records back
         if($argString!='') {
@@ -46,12 +47,12 @@ class FormSearchController extends Controller {
 
             $rids = $search->formKeywordSearch();
         } else {
-            $rids = Record::where('fid','=',$fid)->pluck('rid')->toArray();
+            $records = $recordMod->newQuery()->pluck('id')->toArray();
         }
 
         sort($rids);
 
-        $recBuilder = Record::whereIn("rid", $rids);
+        $recBuilder = $recordMod->newQuery()->whereIn("id", $rids);
         $total = $recBuilder->count();
 
         $pagination = app('request')->input('page-count') === null ? 10 : app('request')->input('page-count');
@@ -78,7 +79,12 @@ class FormSearchController extends Controller {
         if(!FormController::validProjForm($pid, $fid))
             return redirect('projects/'.$pid)->with('k3_global_error', 'form_invalid');
 
-        Record::whereIn("rid", "=", $rids)->delete();
+        $recordMod = new Record(array(),$fid);
+        $records = $recordMod->newQuery()->whereIn("id", $rids);
+
+        foreach($records as $record) {
+            $record->delete();
+        }
 
         Session::forget("form_rid_search_subset");
 

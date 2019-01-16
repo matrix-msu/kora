@@ -517,13 +517,12 @@ class RecordController extends Controller {
       if(!\Auth::user()->isFormAdmin($form)) {
         return redirect('projects')->with('k3_global_error', 'not_form_admin');
       } else {
-        foreach($rids as $rid) {
-            $kid = "$pid-$fid-$rid";
-            $record = self::getRecord($kid);
+          $recordMod = new Record(array(),$fid);
+          $records = $recordMod->newQuery()->whereIn("id", $rids);
 
-            if(!is_null($record))
-                $record->delete();
-        }
+          foreach($records as $record) {
+              $record->delete();
+          }
 
         return redirect('projects/' . $pid . '/forms/' . $fid . '/records')->with('k3_global_success', 'multiple_records_deleted');
       }

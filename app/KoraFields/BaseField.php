@@ -1,5 +1,6 @@
 <?php namespace App\KoraFields;
 
+use App\Record;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 
@@ -91,4 +92,14 @@ abstract class BaseField extends Model {
      * For a test record, add test data to field.
      */
     abstract public function getTestData();
+
+    /**
+     * Performs a keyword search on this field and returns any results.
+     *
+     * @param  int $flid - Field ID
+     * @param  string $arg - The keywords
+     * @param  Record $recordMod - Model to search through
+     * @return array - The RIDs that match search
+     */
+    abstract public function keywordSearchTyped($flid, $arg, $recordMod);
 }

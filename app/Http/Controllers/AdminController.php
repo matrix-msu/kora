@@ -3,7 +3,6 @@
 use App\Form;
 use App\FormGroup;
 use App\Http\Controllers\Auth\RegisterController;
-use App\Preference;
 use App\Project;
 use App\ProjectGroup;
 use App\User;
@@ -31,7 +30,7 @@ class AdminController extends Controller {
     /**
      * @var array - The data tables. Admin functions will use for both deletion, and backup/restore processes
      */
-    public $DATA_TABLES = [
+    public $DATA_TABLES = [ //TODO::CASTLE
         ['name' => 'associations', 'backup' => 'SaveAssociationsTable'],
         ['name' => 'associator_fields', 'backup' => 'SaveAssociatorFieldsTable'],
         ['name' => 'associator_support', 'backup' => 'SaveAssociatorSupportTable'],
@@ -96,8 +95,17 @@ class AdminController extends Controller {
      * @return View
      */
     public function users(Request $request) {
-        $usersAz = User::orderBy('first_name')->get();
-        $usersZa = User::orderBy('first_name', 'desc')->get();
+        $users = User::all();
+        $userNameSort = [];
+
+        foreach($users as $user) {
+            $userNameSort[$user->preferences['first_name']] = $user;
+        }
+
+        ksort($userNameSort);
+        $usersAz = $userNameSort;
+        ksort($userNameSort,SORT_DESC);
+        $usersZa = $userNameSort;
         $usersNto = User::latest()->get();
         $usersOtn = User::orderBy('created_at')->get();
 
