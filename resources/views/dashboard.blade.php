@@ -39,7 +39,7 @@
     @include('partials.dashboard.editBlockModal')
 	@include('partials.dashboard.editQuickOptionsModal')
 
-	@if (\App\Http\Controllers\Auth\UserController::returnUserPrefs('onboarding') == 1)
+	@if (\App\Http\Controllers\Auth\UserController::returnUserPrefs('onboarding'))
 		@include('partials.onboarding.onboardingModal')
 	@endif
 
@@ -344,7 +344,7 @@
         Kora.Dashboard.Index();
     </script>
 
-	@if (\App\Http\Controllers\Auth\UserController::returnUserPrefs('onboarding') == 1)
+	@if (\App\Http\Controllers\Auth\UserController::returnUserPrefs('onboarding'))
 		<script src="{{ url('/assets/javascripts/general/onboarding.js') }}"></script>
 	@endif
 @stop

@@ -420,7 +420,7 @@ class UserController extends Controller {
                     case 'use_dashboard':
                         $preference->use_dashboard = 1; 
                         break;
-                    case 'logo_target':1;
+                    case 'logo_target':
                         $preference->logo_target = 1;
                         break;
                     case 'proj_page_tab_selection':
@@ -443,6 +443,8 @@ class UserController extends Controller {
             // single_proj_page_tab_selection :: 2 or 3 :: custom//alphabetical
 
             // onboarding :: 1 or 0 :: IF 1, then show onboarding and set this to 0
+            //if ($pref == 'onboarding' && $preference == 1)
+
 
             return $preference;
         } else if(\Auth::guest()) {
@@ -452,6 +454,7 @@ class UserController extends Controller {
             $preference->logo_target = 1;
             $preference->proj_page_tab_selection = 3;
             $preference->single_proj_page_tab_selection = 3;
+            $preference->onboarding = 1;
 
             $preference = $preference->$pref;
 
