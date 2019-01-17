@@ -30,6 +30,13 @@ abstract class BaseField extends Model {
     abstract public function getAdvancedFieldOptionsView();
 
     /**
+     * Get the field input view for advanced field search.
+     *
+     * @return string - The view
+     */
+    abstract public function getAdvancedSearchInputView();
+
+    /**
      * Get the field input view for record creation.
      *
      * @return string - The view
@@ -82,6 +89,7 @@ abstract class BaseField extends Model {
     abstract public function validateField($flid, $field, $request, $forceReq = false);
 
     //TODO::NEWFIELD formerly createNewRecordField
+    //Must be in format of JSON export in Kora 3.0
     /**
      * Formats data for record entry.
      *
@@ -113,4 +121,29 @@ abstract class BaseField extends Model {
      * @return array - The RIDs that match search
      */
     abstract public function keywordSearchTyped($flid, $arg, $recordMod);
+
+    /**
+     * Build the advanced query for a text field.
+     *
+     * @param  $flid, field id
+     * @param  $query, contents of query.
+     * @param  Record $recordMod - Model to search through
+     * @return array - The RIDs that match search
+     */
+    abstract public function advancedSearchTyped($flid, $query, $recordMod);
+
+    /**
+     * Find every record that does not have data for this field.
+     *
+     * @param  int $flid - Field ID
+     * @param  Record $recordMod - Model to search through
+     * @return array - The RIDs that are empty
+     */
+    public function getEmptyFieldRecords($flid, $recordMod) {
+        return $recordMod->newQuery()
+            ->select("id")
+            ->whereNull($flid)
+            ->pluck('id')
+            ->toArray();
+    }
 }

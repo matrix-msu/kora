@@ -1,13 +1,13 @@
 @extends('app', ['page_title' => 'Advanced Search', 'page_class' => 'advanced-index'])
 
 @section('leftNavLinks')
-    @include('partials.menu.project', ['pid' => $form->pid])
-    @include('partials.menu.form', ['pid' => $form->pid, 'fid' => $form->fid])
+    @include('partials.menu.project', ['pid' => $form->project_id])
+    @include('partials.menu.form', ['pid' => $form->project_id, 'fid' => $form->id])
     @include('partials.menu.static', ['name' => 'Advanced Search'])
 @stop
 
 @section('aside-content')
-    @include('partials.sideMenu.form', ['pid' => $form->pid, 'fid' => $form->fid, 'openDrawer' => true])
+    @include('partials.sideMenu.form', ['pid' => $form->project_id, 'fid' => $form->id, 'openDrawer' => true])
 @stop
 
 @section('stylesheets')

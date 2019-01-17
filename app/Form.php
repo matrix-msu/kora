@@ -128,6 +128,22 @@ class Form extends Model {
     }
 
     /**
+     * Determines if a form has any fields that are advanced searchable.
+     *
+     * @return bool - has fields
+     */
+    public function hasAdvancedSearchFields() {
+        $layout = $this->layout;
+
+        foreach($layout['fields'] as $field) {
+            if($field['advanced_search'])
+                return true;
+        }
+
+        return false;
+    }
+
+    /**
      * Updates a field within a form. Potentially reindex field name.
      */
     public function updateField($flid, $fieldArray, $newFlid=null) {

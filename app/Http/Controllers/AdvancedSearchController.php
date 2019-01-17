@@ -50,28 +50,31 @@ class AdvancedSearchController extends Controller { //TODO::CASTLE
      * @return View
      */
     public function search($pid, $fid, Request $request) {
+        //dd($request->all());
         if(!FormController::validProjForm($pid, $fid))
             return redirect('projects/'.$pid)->with('k3_global_error', 'form_invalid');
 
         $results = [];
+        $form = FormController::getForm($fid);
 
         //Need these for negative searches
-        $notRids = Record::where('fid', '=', $fid)->pluck('rid')->toArray();
+        $recModel = new Record(array(),$fid);
+        $notRids = $recModel->newQuery()->pluck('id')->toArray();
 
-        $processed = $this->processRequest($request->all());
+        $processed = $this->processRequest($request->all(), $form->layout);
         foreach($processed as $flid => $query) {
-            $field = FieldController::getField($flid);
+            $field = $form->layout['fields'][$flid];
             if(array_diff(array_keys($query),array($flid.'_negative',$flid.'_empty')) == [])
                 $result = [];
             else
-                $result = $field->getTypedField()->advancedSearchTyped($flid, $query);
+                $result = $form->getFieldModel($field['type'])->advancedSearchTyped($flid, $query, $recModel);
 
             //This is a negative search so we want the opposite results of what the search would produce
             if(isset($request[$flid."_negative"]))
                 $result = array_diff($notRids,$result);
 
             if(isset($request[$flid."_empty"])) {
-                $empty = $field->getTypedField()->getEmptyFieldRecords($flid);
+                $empty = $form->getFieldModel($field['type'])->getEmptyFieldRecords($flid, $recModel);
                 $this->imitateMerge($result, $empty);
             }
 
@@ -92,8 +95,8 @@ class AdvancedSearchController extends Controller { //TODO::CASTLE
 
         sort($rids);
 
-        $recBuilder = Record::whereIn("rid", $rids);
-        $total = $recBuilder->count();
+        $recBuilder = $recModel->newQuery()->whereIn("id", $rids);
+        $total = $recBuilder->newQuery()->count();
 
         $pagination = 10;
         $order_type = "updated_at";
@@ -144,14 +147,16 @@ class AdvancedSearchController extends Controller { //TODO::CASTLE
         if(!FormController::validProjForm($pid, $fid))
             return redirect('projects/'.$pid)->with('k3_global_error', 'form_invalid');
 
+        $recModel = new Record(array(),$fid);
+
         $rids = Session::get('advanced_search_recents');
         if(is_null($rids))
             $rids = [];
 
         sort($rids);
 
-        $recBuilder = Record::whereIn("rid", $rids);
-        $total = $recBuilder->count();
+        $recBuilder = $recModel->newQuery()->whereIn("id", $rids);
+        $total = $recBuilder->newQuery()->count();
 
         $pagination = app('request')->input('page-count') === null ? 10 : app('request')->input('page-count');
         $order = app('request')->input('order') === null ? 'lmd' : app('request')->input('order');
@@ -207,17 +212,18 @@ class AdvancedSearchController extends Controller { //TODO::CASTLE
      * Takes the request variables for an advanced search an processed them for use.
      *
      * @param  array $request - Variables from the request
+     * @param  array $layout - Layout of form
      * @return array - Processed array
      */
-    private function processRequest(array $request) {
+    private function processRequest(array $request, $layout) {
         $processed = [];
 
         foreach($request as $key => $value) {
-            if(is_numeric($key)) {
+            if(array_key_exists($key,$layout['fields'])) {
                 $flid = $key;
-                $field = Field::where('flid',$flid)->first();
+                $field = $layout['fields'][$flid];
 
-                switch($field->type) {
+                switch($field['type']) {
                     case 'Date':
                     case 'Schedule':
                         if(isset($request[$flid.'_begin_month']))

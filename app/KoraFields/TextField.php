@@ -1,6 +1,7 @@
 <?php namespace App\KoraFields;
 
 use App\Record;
+use App\Search;
 use Illuminate\Http\Request;
 
 class TextField extends BaseField {
@@ -39,6 +40,15 @@ class TextField extends BaseField {
      */
     public function getAdvancedFieldOptionsView() {
         return self::FIELD_ADV_OPTIONS_VIEW;
+    }
+
+    /**
+     * Get the field input view for advanced field search.
+     *
+     * @return string - The view
+     */
+    public function getAdvancedSearchInputView() {
+        return self::FIELD_ADV_INPUT_VIEW;
     }
 
     /**
@@ -173,7 +183,25 @@ class TextField extends BaseField {
         return $recordMod->newQuery()
             ->select("id")
             ->where($flid,'LIKE',"%$arg%")
-            ->distinct()
+            ->pluck('id')
+            ->toArray();
+    }
+
+    /**
+     * Build the advanced query for a text field.
+     *
+     * @param  $flid, field id
+     * @param  $query, contents of query.
+     * @param  Record $recordMod - Model to search through
+     * @return array - The RIDs that match search
+     */
+    public function advancedSearchTyped($flid, $query, $recordMod) {
+        $arg = $query[$flid . "_input"];
+        $arg = Search::prepare($arg);
+
+        return $recordMod->newQuery()
+            ->select("id")
+            ->where($flid,'LIKE',"%$arg%")
             ->pluck('id')
             ->toArray();
     }

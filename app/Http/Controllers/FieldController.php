@@ -265,22 +265,22 @@ class FieldController extends Controller {
                 $field['required'] = $value;
                 break;
             case "searchable":
-                $field['required'] = $value;
+                $field['searchable'] = $value;
                 break;
             case "advsearch":
-                $field['required'] = $value;
+                $field['advanced_search'] = $value;
                 break;
             case "extsearch":
-                $field['required'] = $value;
+                $field['external_search'] = $value;
                 break;
             case "viewable":
-                $field['required'] = $value;
+                $field['viewable'] = $value;
                 break;
             case "viewresults":
-                $field['required'] = $value;
+                $field['viewable_in_results'] = $value;
                 break;
             case "extview":
-                $field['required']= $value;
+                $field['external_view']= $value;
                 break;
             default:
                 return response()->json(["status"=>false,"message"=>"invalid_field_flag"],500);
