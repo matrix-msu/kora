@@ -70,6 +70,17 @@ abstract class BaseField extends Model {
      */
     abstract public function updateOptions($field, Request $request);
 
+    /**
+     * Validates the record data for a field against the field's options.
+     *
+     * @param  int $flid - The field (internal name) to validate
+     * @param  array $field - The field array options
+     * @param  Request $request
+     * @param  bool $forceReq - Do we want to force a required value even if the field itself is not required?
+     * @return array - Array of errors
+     */
+    abstract public function validateField($flid, $field, $request, $forceReq = false);
+
     //TODO::NEWFIELD formerly createNewRecordField
     /**
      * Formats data for record entry.

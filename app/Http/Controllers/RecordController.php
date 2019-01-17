@@ -126,27 +126,29 @@ class RecordController extends Controller {
 	    $form = FormController::getForm($fid);
 	    $fieldsArray = $form->layout['fields'];
 
-	    //Validates records //TODO::CASTLE
-//        foreach($request->all() as $key => $value) {
-//            if(!is_numeric($key))
-//                continue;
-//            $field = FieldController::getField($key);
-//            $message = $field->getTypedField()->validateField($field, $request);
-//            if(!empty($message)) {
-//                $arrayed_keys = array();
-//
-//                foreach($request->all() as $akey => $avalue) {
-//                    if(is_array($avalue))
-//                        array_push($arrayed_keys,$akey);
-//                }
-//
-//                if($request->api)
-//                    return response()->json(["status"=>false,"message"=>"record_validation_error","record_validation_error"=>$message],500);
-//                else
-//                    return redirect()->back()->withInput($request->except($arrayed_keys))
-//                        ->with('k3_global_error', 'record_validation_error')->with('record_validation_error', $message);
-//            }
-//        }
+	    //Validates records
+        foreach($request->all() as $key => $value) {
+            //Skip request variables that are not fields
+            if(!array_key_exists($key,$fieldsArray))
+                continue;
+
+            $field = $fieldsArray[$key];
+            $message = $form->getFieldModel($field['type'])->validateField($key, $field, $request);
+            if(!empty($message)) {
+                $arrayed_keys = array();
+
+                foreach($request->all() as $akey => $avalue) {
+                    if(is_array($avalue))
+                        array_push($arrayed_keys,$akey);
+                }
+
+                if($request->api)
+                    return response()->json(["status"=>false,"message"=>"record_validation_error","record_validation_error"=>$message],500);
+                else
+                    return redirect()->back()->withInput($request->except($arrayed_keys))
+                        ->with('k3_global_error', 'record_validation_error')->with('record_validation_error', $message);
+            }
+        }
 
         //Handle Mass Creation
         $numRecs = 1;
@@ -340,15 +342,15 @@ class RecordController extends Controller {
      * @param  int $fid - Form ID
      * @return JsonResponse
      */
-    public function validateRecord($pid, $fid, Request $request) { //TODO::CASTLE
+    public function validateRecord($pid, $fid, Request $request) {
         $errors = [];
         $form = FormController::getForm($fid);
 
-//        foreach($form->fields()->get() as $field) {
-//            $message = $field->getTypedField()->validateField($field, $request);
-//            if(!empty($message))
-//                $errors += $message; //We add these arrays because it maintains the keys, where array_merge re-indexes
-//        }
+        foreach($form->layout['fields'] as $flid => $field) {
+            $message = $form->getFieldModel($field['type'])->validateField($flid, $field, $request);
+            if(!empty($message))
+                $errors += $message; //We add these arrays because it maintains the keys, where array_merge re-indexes
+        }
 
         return response()->json(["status"=>true,"errors"=>$errors],200);
     }
@@ -417,15 +419,17 @@ class RecordController extends Controller {
         $form = FormController::getForm($fid);
         $fieldsArray = $form->layout['fields'];
 
-        //Validates records //TODO::CASTLE
-//        foreach($request->all() as $key => $value) {
-//            if(!is_numeric($key))
-//                continue;
-//            $field = FieldController::getField($key);
-//            $message = $field->getTypedField()->validateField($field, $request);
-//            if(!empty($message))
-//                return redirect()->back()->withInput()->with('k3_global_error', 'record_validation_error')->with('record_validation_error', $message);
-//        }
+        //Validates records
+        foreach($request->all() as $key => $value) {
+            //Skip request variables that are not fields
+            if(!array_key_exists($key,$fieldsArray))
+                continue;
+
+            $field = $fieldsArray[$key];
+            $message = $form->getFieldModel($field['type'])->validateField($key, $field, $request);
+            if(!empty($message))
+                return redirect()->back()->withInput()->with('k3_global_error', 'record_validation_error')->with('record_validation_error', $message);
+        }
 
         //Handle record preset //TODO::CASTLE
 //        $makePreset = false;

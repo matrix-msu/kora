@@ -47,7 +47,7 @@ class FormSearchController extends Controller {
 
             $rids = $search->formKeywordSearch();
         } else {
-            $records = $recordMod->newQuery()->pluck('id')->toArray();
+            $rids = $recordMod->newQuery()->pluck('id')->toArray();
         }
 
         sort($rids);

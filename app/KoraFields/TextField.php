@@ -106,6 +106,29 @@ class TextField extends BaseField {
     }
 
     /**
+     * Validates the record data for a field against the field's options.
+     *
+     * @param  int $flid - The field internal name
+     * @param  array $field - The field data array to validate
+     * @param  Request $request
+     * @param  bool $forceReq - Do we want to force a required value even if the field itself is not required?
+     * @return array - Array of errors
+     */
+    public function validateField($flid, $field, $request, $forceReq = false) {
+        $req = $field['required'];
+        $value = $request->{$flid};
+        $regex = $field['options']['Regex'];
+
+        if(($req==1 | $forceReq) && ($value==null | $value==""))
+            return [$flid => $field['name'].' is required'];
+
+        if($value!="" && ($regex!=null | $regex!="") && !preg_match($regex,$value))
+            return [$flid => $field['name'].' must match the regex pattern: '.$regex];
+
+        return array();
+    }
+
+    /**
      * Formats data for record entry.
      *
      * @param  array $field - The field to represent record data
