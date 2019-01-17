@@ -33,12 +33,39 @@ Kora.Records.Validate = function() {
         $('.content-sections-scroll').find('a[href="'+ $this +'"]').trigger('click');
       });
     }
+	
+	function validateNumberInputs() {
+		var passed = true;
+		
+		$(".page-section-js .form-group .number-input-container-js").each(function() {
+			console.log(this);
+			var input = $(this).find(".text-input");
+			var input_val = parseInt(input.val());
+			
+			console.log(input.val());
+			console.log(input.attr('max'));
+			
+			if (input_val < parseInt(input.attr('min')) || input_val > parseInt(input.attr('max'))) {
+				$(this).siblings(".error-message").text("Number is outside of set range (" + input.attr('min') + "-" + input.attr('max') + ")");
+				input.addClass("error");
+				passed = false;
+			} else {
+				$(this).siblings(".error-message").text("");
+				input.removeClass("error");
+			}
+		});
+		
+		return passed;
+	}
 
     function initializeRecordValidation() {
         $('.record-validate-js').click(function(e) {
             var $this = $(this);
 
             e.preventDefault();
+			
+			// this prevents other types of inputs from validating though...
+			//if (!validateNumberInputs()) return;
 
             values = {};
             //We need to make sure all CKEDITOR data is actually in the form to validate it
@@ -53,6 +80,8 @@ Kora.Records.Validate = function() {
                         values[field.name] = [values[field.name], field.value];
                 else
                     values[field.name] = field.value;
+				
+				console.log(field);
             });
             values['_method'] = 'POST';
 
@@ -89,6 +118,7 @@ Kora.Records.Validate = function() {
                     if(err.errors.length==0) {
                         $('.record-form').submit();
                     } else {
+						console.log("Success error")
                         $.each(err.errors, function(fieldName, error) {
                             var $field = $('#'+fieldName);
                             var $page = $field.parents('section').attr('id');
@@ -103,7 +133,9 @@ Kora.Records.Validate = function() {
                               errorList.push($page); 
                             }
                         });
-                    initializeValidationModal();
+						
+						validateNumberInputs();
+						initializeValidationModal();
                     }
                 },
                 error: function(err) {
