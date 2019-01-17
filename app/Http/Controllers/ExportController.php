@@ -454,6 +454,7 @@ class ExportController extends Controller {
                     $fArray['name'] = $field->name;
                     $fArray['type'] = $field->type;
                     $fArray['nickname'] = $field->slug;
+                    $fArray['legacy_name'] = str_replace('_'.$field->pid.'_'.$field->fid.'_','',$field->slug);
                     $fArray['options'] = $field->options;
 
                     //We want both so we can get field regardless of having id or slug
@@ -469,6 +470,7 @@ class ExportController extends Controller {
                 $fArray['name'] = $field->name;
                 $fArray['type'] = $field->type;
                 $fArray['nickname'] = $field->slug;
+                $fArray['legacy_name'] = str_replace('_'.$field->pid.'_'.$field->fid.'_','',$field->slug);
                 $fArray['options'] = $field->options;
 
                 //We want both so we can get field regardless of having id or slug
@@ -484,8 +486,10 @@ class ExportController extends Controller {
 
             if(!is_null($slugOpts)) {
                 foreach ($slugOpts as $slug) {
-                    $id = $fields[$slug]['flid'];
-                    $slugQL .= "'$id',";
+                    if(isset($fields[$slug])) {
+                    	$id = $fields[$slug]['flid'];
+						$slugQL .= "'$id',";
+					}
                 }
                 $slugQL = ' and flid in (' . substr($slugQL, 0, -1) . ')';
             }
@@ -520,8 +524,11 @@ class ExportController extends Controller {
                     'username' => $row['username'],
                 ];
             } else if($format == self::KORA) {
+                $kidParts = explode('-',$row['kid']);
                 $records[$row['kid']] = [
                     'kid' => $row['kid'],
+                    'pid' => $kidParts[0],
+                    'schemeID' => $kidParts[1],
                     'legacy_kid' => $row['legacy_kid'],
                     'systimestamp' => $row['updated_at'],
                     'recordowner' => $row['username'],
@@ -1072,7 +1079,10 @@ class ExportController extends Controller {
                 //Add those blank values
                 $fieldKeys = [];
                 foreach($fieldMods as $field) {
-                    $fieldKeys[$field['name']] = '';
+	                if($useOpts && isset($options['under']) && $options['under'])
+                    	$fieldKeys[$field['legacy_name']] = '';
+                    else
+                    	$fieldKeys[$field['name']] = '';
                 }
                 foreach($records as $kid => $data) {
                     $this->imitateKeyMerge($records[$kid],$fieldKeys);
@@ -1084,7 +1094,11 @@ class ExportController extends Controller {
 
                 $datafields = $con->query($reverse);
                 while($row = $datafields->fetch_assoc()) {
-                    $records[$row['main']]["linkers"][] = $row['linker'];
+	                $kid = $ridsToKids[$row['main']];
+                    if(!array_key_exists($kid,$records))
+                        continue;
+                            
+                    $records[$kid]["linkers"][] = $row['linker'];
                 }
                 mysqli_free_result($datafields);
 
@@ -1098,7 +1112,10 @@ class ExportController extends Controller {
                         continue;
                     $kid = $ridsToKids[$row['rid']];
 
-                    $records[$kid][$fields[$row['flid']]['name']] = $row['text'];
+                    if($useOpts && isset($options['under']) && $options['under'])
+                    	$records[$kid][$fields[$row['flid']]['legacy_name']] = $row['text'];
+                    else
+                    	$records[$kid][$fields[$row['flid']]['name']] = $row['text'];
                 }
                 $datafields->free();
                 $con->next_result();
@@ -1110,7 +1127,10 @@ class ExportController extends Controller {
                         continue;
                     $kid = $ridsToKids[$row['rid']];
 
-                    $records[$kid][$fields[$row['flid']]['name']] = $row['number'];
+                    if($useOpts && isset($options['under']) && $options['under'])
+                    	$records[$kid][$fields[$row['flid']]['legacy_name']] = $row['number'];
+                    else
+                    	$records[$kid][$fields[$row['flid']]['name']] = $row['number'];
                 }
                 $datafields->free();
                 $con->next_result();
@@ -1122,7 +1142,10 @@ class ExportController extends Controller {
                         continue;
                     $kid = $ridsToKids[$row['rid']];
 
-                    $records[$kid][$fields[$row['flid']]['name']] = $row['rawtext'];
+                    if($useOpts && isset($options['under']) && $options['under'])
+                    	$records[$kid][$fields[$row['flid']]['legacy_name']] = $row['rawtext'];
+                    else
+                    	$records[$kid][$fields[$row['flid']]['name']] = $row['rawtext'];
                 }
                 $datafields->free();
                 $con->next_result();
@@ -1134,7 +1157,10 @@ class ExportController extends Controller {
                         continue;
                     $kid = $ridsToKids[$row['rid']];
 
-                    $records[$kid][$fields[$row['flid']]['name']] = $row['option'];
+                    if($useOpts && isset($options['under']) && $options['under'])
+                    	$records[$kid][$fields[$row['flid']]['legacy_name']] = $row['option'];
+                    else
+                    	$records[$kid][$fields[$row['flid']]['name']] = $row['option'];
                 }
                 $datafields->free();
                 $con->next_result();
@@ -1146,7 +1172,10 @@ class ExportController extends Controller {
                         continue;
                     $kid = $ridsToKids[$row['rid']];
 
-                    $records[$kid][$fields[$row['flid']]['name']] = explode('[!]',$row['options']);
+                    if($useOpts && isset($options['under']) && $options['under'])
+                    	$records[$kid][$fields[$row['flid']]['legacy_name']] = explode('[!]',$row['options']);
+                    else
+                    	$records[$kid][$fields[$row['flid']]['name']] = explode('[!]',$row['options']);
                 }
                 $datafields->free();
                 $con->next_result();
@@ -1158,7 +1187,10 @@ class ExportController extends Controller {
                         continue;
                     $kid = $ridsToKids[$row['rid']];
 
-                    $records[$kid][$fields[$row['flid']]['name']] = explode('[!]',$row['options']);
+                    if($useOpts && isset($options['under']) && $options['under'])
+                    	$records[$kid][$fields[$row['flid']]['legacy_name']] = explode('[!]',$row['options']);
+                    else
+                    	$records[$kid][$fields[$row['flid']]['name']] = explode('[!]',$row['options']);
                 }
                 $datafields->free();
                 $con->next_result();
@@ -1170,14 +1202,25 @@ class ExportController extends Controller {
                         continue;
                     $kid = $ridsToKids[$row['rid']];
 
-                    $records[$kid][$fields[$row['flid']]['name']] = [
-                        'prefix' => $row['circa'],
-                        'month' => $row['month'],
-                        'day' => $row['day'],
-                        'year' => $row['year'],
-                        'era' => $row['era'],
-                        'suffix' => ''
-                    ];
+                    if($useOpts && isset($options['under']) && $options['under']) {
+                    	$records[$kid][$fields[$row['flid']]['legacy_name']] = [
+	                        'prefix' => $row['circa'],
+	                        'month' => $row['month'],
+	                        'day' => $row['day'],
+	                        'year' => $row['year'],
+	                        'era' => $row['era'],
+	                        'suffix' => ''
+	                    ];
+	                } else {
+		                $records[$kid][$fields[$row['flid']]['name']] = [
+	                        'prefix' => $row['circa'],
+	                        'month' => $row['month'],
+	                        'day' => $row['day'],
+	                        'year' => $row['year'],
+	                        'era' => $row['era'],
+	                        'suffix' => ''
+	                    ];
+	                }
                 }
                 $datafields->free();
                 $con->next_result();
@@ -1196,7 +1239,10 @@ class ExportController extends Controller {
                         $value[] = $harddate;
                     }
 
-                    $records[$kid][$fields[$row['flid']]['name']] = $value;
+                    if($useOpts && isset($options['under']) && $options['under'])
+                    	$records[$kid][$fields[$row['flid']]['legacy_name']] = $value;
+                    else
+                    	$records[$kid][$fields[$row['flid']]['name']] = $value;
                 }
                 $datafields->free();
                 $con->next_result();
@@ -1208,7 +1254,7 @@ class ExportController extends Controller {
                         continue;
                     $kid = $ridsToKids[$row['rid']];
 
-                    $url = $row['rid'].'/fl'.$row['flid'] . '/';
+                    $url = 'r'.$row['rid'].'/fl'.$row['flid'] . '/';
                     $files = explode('[!]',$row['documents']);
                     $file = $files[0];
                     $info = [
@@ -1218,7 +1264,10 @@ class ExportController extends Controller {
                         'localName' => $url.explode('[Name]',$file)[1]
                     ];
 
-                    $records[$kid][$fields[$row['flid']]['name']] = $info;
+                    if($useOpts && isset($options['under']) && $options['under'])
+                    	$records[$kid][$fields[$row['flid']]['legacy_name']] = $info;
+                    else
+                    	$records[$kid][$fields[$row['flid']]['name']] = $info;
                 }
                 $datafields->free();
                 $con->next_result();
@@ -1230,7 +1279,7 @@ class ExportController extends Controller {
                         continue;
                     $kid = $ridsToKids[$row['rid']];
 
-                    $url = $row['rid'].'/fl'.$row['flid'] . '/';
+                    $url = 'r'.$row['rid'].'/fl'.$row['flid'] . '/';
                     $files = explode('[!]',$row['images']);
                     $file = $files[0];
                     $info = [
@@ -1240,7 +1289,10 @@ class ExportController extends Controller {
                         'localName' => $url.explode('[Name]',$file)[1]
                     ];
 
-                    $records[$kid][$fields[$row['flid']]['name']] = $info;
+                    if($useOpts && isset($options['under']) && $options['under'])
+                    	$records[$kid][$fields[$row['flid']]['legacy_name']] = $info;
+                    else
+                    	$records[$kid][$fields[$row['flid']]['name']] = $info;
                 }
                 $datafields->free();
                 $con->next_result();
@@ -1252,7 +1304,10 @@ class ExportController extends Controller {
                         continue;
                     $kid = $ridsToKids[$row['rid']];
 
-                    $records[$kid][$fields[$row['flid']]['name']] = explode(',',$row['value']);
+                    if($useOpts && isset($options['under']) && $options['under'])
+                    	$records[$kid][$fields[$row['flid']]['legacy_name']] = explode(',',$row['value']);
+                    else
+                    	$records[$kid][$fields[$row['flid']]['name']] = explode(',',$row['value']);
                 }
                 $datafields->free();
 
