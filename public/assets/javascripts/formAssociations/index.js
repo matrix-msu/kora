@@ -56,6 +56,10 @@ Kora.FormAssociations.Index = function() {
         $('#new-form option[value='+response.form.fid+']').remove();
         $('.create-description-js').removeClass('hidden');
         Kora.Modal.close();
+		
+		if ($(".association.card").length == 0) {
+			location.reload();
+		}
       }
     });
   }
