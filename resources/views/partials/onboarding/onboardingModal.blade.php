@@ -24,7 +24,7 @@
 
 		<div class="paths">
 
-			@if (\Auth::user()->admin)
+			@if (!\Auth::user()->admin)
 				@include('partials.onboarding.familiarWithKora-admin')
 				@include('partials.onboarding.newToKora-admin')
 			@else

@@ -339,12 +339,13 @@
 		var removeSectionUrl = '{{ action('DashboardController@deleteSection',['sectionID' => '']) }}';
 		var removeBlockUrl = '{{ action('DashboardController@deleteBlock',['blkID' => '', 'secID' => '']) }}';
         var validationUrl = '{{ action('DashboardController@validateBlockFields') }}';
-        var state = {{$state}};
+		var state = {{$state}};
 
         Kora.Dashboard.Index();
     </script>
 
 	@if (\App\Http\Controllers\Auth\UserController::returnUserPrefs('onboarding'))
+		<script> var toggleOnboardingUrl = '{{ action('Auth\UserController@toggleOnboarding') }}'; </script>
 		<script src="{{ url('/assets/javascripts/general/onboarding.js') }}"></script>
 	@endif
 @stop

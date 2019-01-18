@@ -1,4 +1,4 @@
-<div class="form-group">
+<div class="form-group mt-xxxl">
     <h2 class="sub-title">Use Dashboard?</h2>
     <p class="description">You can select to turn the dashboard off entirely.</p>
 
@@ -70,11 +70,11 @@
 
 {{--<div class="form-group my-xxxl">--}}
     {{--<h2 class="sub-title">Replay Kora Introduction?</h2>--}}
-    {{--<p class="description">On wider screens, you can set to have the slide in side menu to remain open,--}}
-        {{--even after clicking off the side menu, and when navigating to different pages.--}}
-        {{--You can also use the Lock symbol found at the bottom of the side menu to keep it open--}}
-        {{--or let is close automatically.</p>--}}
-    {{--<p><a href="#" class="text underline-middle-hover">Replay Kora Introduction</a></p>--}}
+    {{--<p class="description">On wider screens, you can set to have the slide in side menu to remain open,
+        even after clicking off the side menu, and when navigating to different pages.
+        You can also use the Lock symbol found at the bottom of the side menu to keep it open
+        or let is close automatically.</p>--}}
+    {{--<p><a href="{{ action('Auth\UserController@toggleOnboarding') }}" class="text underline-middle-hover">Replay Kora Introduction</a></p>--}}
 {{--</div>--}}
 
 <div class="form-group preferences-update-button">

@@ -360,6 +360,7 @@ class UserController extends Controller {
      * @return View
      */
     public function updatePreferences($uid, Request $request) {
+        dd($request);
         if(\Auth::user()->id != $uid)
             return redirect('user/'.\Auth::user()->id.'/preferences')->with('k3_global_error', 'cannot_edit_preferences');
 
@@ -395,6 +396,20 @@ class UserController extends Controller {
         return view('user.preferences', compact('user', 'preference', 'logoTargetOptions', 'projPageTabSelOptions', 'singleProjTabSelOptions', 'sideMenuOptions', 'notification'));
     }
 
+    // triggered from onboarding.js and from 'replay kora intro' button on user preferences page
+    public function toggleOnboarding () {
+        $preference = Preference::where('user_id', '=', \Auth::user()->id)->first();
+
+        if ($preference->onboarding == 1) {
+            $preference->onboarding = 0;
+            $preference->save();
+        } else {
+            $preference->onboarding = 1;
+            $preference->save();
+            return redirect('/');
+        }
+    }
+
     /**
      * Return a specific user preference
      *
@@ -403,8 +418,7 @@ class UserController extends Controller {
      */
     public static function returnUserPrefs($pref) {
         if(\Auth::user()) {
-            $user = \Auth::user();
-            $preference = Preference::where('user_id', '=', $user->id)->first();
+            $preference = Preference::where('user_id', '=', \Auth::user()->id)->first();
 
             if(is_null($preference)) {
                 $preference = new Preference();
@@ -413,42 +427,10 @@ class UserController extends Controller {
                 $preference->proj_page_tab_selection = 3;
                 $preference->single_proj_page_tab_selection = 3;
                 $preference->onboarding = 1;
-// if you try to get an existing preference, and it doesn't exist for an existing user,
-// create the pref with the default value here
-            } else if (is_null($preference->$pref)) {
-                switch ($pref) {
-                    case 'use_dashboard':
-                        $preference->use_dashboard = 1; 
-                        break;
-                    case 'logo_target':
-                        $preference->logo_target = 1;
-                        break;
-                    case 'proj_page_tab_selection':
-                        $preference->proj_page_tab_selection = 3;
-                        break;
-                    case 'single_proj_page_tab_selection':
-                        $preference->single_proj_page_tab_selection = 3;
-                        break;
-                    case 'onboarding':
-                        $preference->onboarding = 1;
-                        break;
-                }
             }
 
-            $preference = $preference->$pref;
-
-            // use_dashboard :: 0 or 1
-            // logo_target :: 1 or 2
-            // proj_page_tab_selection :: 1, 2, or 3 :: archived//custom//alphabetical
-            // single_proj_page_tab_selection :: 2 or 3 :: custom//alphabetical
-
-            // onboarding :: 1 or 0 :: IF 1, then show onboarding and set this to 0
-            //if ($pref == 'onboarding' && $preference == 1)
-
-
-            return $preference;
+            return $preference->$pref;
         } else if(\Auth::guest()) {
-            // if user is guest, create default set of preferences
             $preference = new Preference;
             $preference->use_dashboard = 1;
             $preference->logo_target = 1;
@@ -456,9 +438,7 @@ class UserController extends Controller {
             $preference->single_proj_page_tab_selection = 3;
             $preference->onboarding = 1;
 
-            $preference = $preference->$pref;
-
-            return $preference;
+            return $preference->$pref;
         }
     }
 

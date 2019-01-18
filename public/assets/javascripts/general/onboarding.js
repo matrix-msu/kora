@@ -1,10 +1,11 @@
 
+// var turnedOff
 function initializePagination () {
 	$('.onboarding-pagination-js .dots').children().remove();
 	$('.onboarding-pagination-js').removeClass('hidden');
 
 	let count = $('.paths div:not(.hidden)').children('section').length + 1
- 
+
 	for ( let i = 0; i < count; i++ ) {
 
 		if ( i === 0 )
@@ -108,6 +109,18 @@ $(window).resize(function (e) {
 $(document).ready(function () {
     Kora.Modal.initialize();
 	Kora.Modal.open($('.onboarding-modal-js'));
+
+	$.ajax({
+		url: toggleOnboardingUrl,
+		type: 'POST',
+		data: {
+		  "_token": CSRFToken,
+		  "_method": 'PATCH'
+		},
+		success: function (response) {
+			console.log ( response )
+		}
+	});
 
 	checkHeight ()
 

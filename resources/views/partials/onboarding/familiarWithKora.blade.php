@@ -54,6 +54,11 @@
                     'data-placeholder' => "Select the project you would like to request permissions to here"
                 ]) !!}
             </div>
+            <?php
+                $user = \Auth::user();
+                $var = \App\Http\Controllers\Auth\UserController::buildProjectsArray($user);
+                echo $var;
+            ?>
         </div>
     </section>
 </div>

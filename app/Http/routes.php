@@ -222,6 +222,7 @@ Route::group(['middleware' => 'web'], function () {
     Route::post('/auth/activator', 'Auth\UserController@activator');
     Route::post('/user/picture', 'Auth\UserController@changepicture');
     Route::post('/user/validate', 'Auth\RegisterController@validateUserFields');
+    Route::patch('/toggleOnboarding', 'Auth\UserController@toggleOnboarding');
 
 //metadata routes
     Route::get('/projects/{pid}/forms/{fid}/metadata/setup', 'MetadataController@index');

@@ -24,9 +24,9 @@
 @section('body')
   @include('partials.projects.notification')
 
-	@if (\App\Http\Controllers\Auth\UserController::returnUserPrefs('onboarding'))
-		@include('partials.onboarding.onboardingModal')
-	@endif
+  @if (\App\Http\Controllers\Auth\UserController::returnUserPrefs('onboarding'))
+    @include('partials.onboarding.onboardingModal')
+  @endif
 
   @if (count($projects) > 0 or count($inactive) > 0)
   <section class="filters center">
@@ -96,6 +96,7 @@
   </script>
 
 	@if (\App\Http\Controllers\Auth\UserController::returnUserPrefs('onboarding'))
+		<script> var toggleOnboardingUrl = '{{ action('Auth\UserController@toggleOnboarding') }}'; </script>
 		<script src="{{ url('/assets/javascripts/general/onboarding.js') }}"></script>
 	@endif
 @stop
