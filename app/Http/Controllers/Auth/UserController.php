@@ -702,9 +702,10 @@ class UserController extends Controller {
      * @param  User $user - User to get information for
      * @return array - Project permission set information
      */
-    public static function buildProjectsArray(User $user) {
+    public static function buildProjectsArray(User $user, $onboarding = '') {
         $all_projects = Project::all();
         $projects = array();
+        $projects_no_permissions = array();
         $i=0;
         foreach($all_projects as $project) {
             if($user->inAProjectGroup($project)) {
@@ -715,6 +716,8 @@ class UserController extends Controller {
 
                 if($user->isProjectAdmin($project)) {
                     $projects[$i]['permissions'] = 'Admin';
+                } else if ($onboarding && !$user->isProjectAdmin($project)) {
+                    array_push($projects_no_permissions, $project->name);
                 } else {
                     // Get Permissions
                     if($user->canCreateForms($project))
@@ -731,7 +734,11 @@ class UserController extends Controller {
             }
             $i++;
         }
-        return $projects;
+
+        if (!$onboarding)
+            return $projects;
+        else
+            return array($projects, $projects_no_permissions);
     }
 
     /**

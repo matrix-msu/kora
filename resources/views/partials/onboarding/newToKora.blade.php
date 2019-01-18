@@ -134,14 +134,15 @@
             <h3>Do you need project permissions?</h3>
             <p><span class="bold">If you're supposed to be apart of a certain project, you should request permissions to it.</span>  You can always request project permissions on the Projects page later on.</p>
 			<p><span class="bold">You currently have been given access to the following project(s):</span></p>
+            <?php $projects = \App\Http\Controllers\Auth\UserController::buildProjectsArray(\Auth::user(), 'onboarding'); ?>
 			<ul>
-				<li>Project Name</li>
-				<li>Other Project Name</li>
+                @foreach ($projects[0] as $index=>$project)
+                    <li>{{ $project['name'] }}</li>
+                @endforeach
 			</ul>
 			<div class="form-group mt-xxl">
-                <?php $projects = array('1' => 'project 1', '2' => 'project 2', '3' => 'project 3', '4' => 'project 4', '5' => 'project 5', '6' => 'project 6', '7' => 'project 7', '8' => 'project 8', '9' => 'project 9', '10' => 'project 10', '11' => 'project 11', '12' => 'project 12', '13' => 'project 13'); ?>
                 {!! Form::label('projects', 'Select the Project to Request Permissions') !!}
-                {!! Form::select('projects[]', $projects, null, [
+                {!! Form::select('projects[]', $projects[1], null, [
                     'class' => 'multi-select',
                     'multiple',
                     'data-placeholder' => "Select the project you would like to request permissions to here"

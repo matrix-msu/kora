@@ -1,5 +1,12 @@
 
-// var turnedOff
+function checkHeight () {
+	let onboardModal = $('.onboarding-modal-js.active .content');
+	if ( onboardModal.height() && onboardModal.height() > window.innerHeight )
+		onboardModal.addClass('smallBrowser');
+	else
+		onboardModal.removeClass('smallBrowser');
+}
+
 function initializePagination () {
 	$('.onboarding-pagination-js .dots').children().remove();
 	$('.onboarding-pagination-js').removeClass('hidden');
@@ -71,6 +78,8 @@ function paginate (that) {
 
 	if ( $('.onboarding-modal-js.active .content').height() > window.innerHeight )
 		$('.onboarding-modal-js').animate({scrollTop:0}, 200);
+
+	checkHeight ()
 }
 
 $('.onboarding-modal-js .prev-js').click(function (e) {
@@ -90,14 +99,6 @@ $('.onboarding-pagination-js .dots').on('click', '.dot', function (e) {
 
 	paginate ( $(this).index() )
 });
-
-function checkHeight () {
-	let onboardModal = $('.onboarding-modal-js.active .content');
-	if ( onboardModal.height() && onboardModal.height() > window.innerHeight )
-		onboardModal.addClass('smallBrowser');
-	else
-		onboardModal.removeClass('smallBrowser');
-}
 
 $(window).resize(function (e) {
 	e.preventDefault();
