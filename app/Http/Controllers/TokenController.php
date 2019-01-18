@@ -34,7 +34,7 @@ class TokenController extends Controller {
      */
     public function index() {
         $tokens = Token::all();
-        $projects = Project::pluck('name', 'pid')->all();
+        $projects = Project::pluck('name', 'id')->all();
         $all_projects = Project::all(); //Second variable created here to get around weird indexing needed for pivot table in $projects
 
         return view('tokens.index', compact('tokens', 'projects', 'all_projects'));

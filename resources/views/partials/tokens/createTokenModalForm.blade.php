@@ -63,7 +63,7 @@
         <label for="token_projects">Select Project(s)</label>
         <select multiple class="multi-select" id="token_projects" name="token_projects[]">
             @foreach ($all_projects as $project)
-                <option value="{{$project->pid}}">{{$project->name}}</option>
+                <option value="{{$project->id}}">{{$project->name}}</option>
             @endforeach
         </select>
     </div>

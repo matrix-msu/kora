@@ -1,11 +1,8 @@
 <?php namespace App\Http\Controllers;
 
-use App\Field;
 use App\Form;
 use App\Record;
 use Illuminate\Support\Facades\DB;
-use App\Metadata;
-use App\OptionPreset;
 use App\RecordPreset;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Redirect;
@@ -28,12 +25,11 @@ class ExportController extends Controller {
     const JSON = "JSON";
     const XML = "XML";
     const KORA = "KORA_OLD";
-    const META = "META";
 
     /**
      * @var array - Array of those formats
      */
-    const VALID_FORMATS = [ self::JSON, self::XML, self::KORA, self::META ];
+    const VALID_FORMATS = [ self::JSON, self::XML, self::KORA];
 
     /**
      * Constructs controller and makes sure user is authenticated.
@@ -51,7 +47,7 @@ class ExportController extends Controller {
      * @param  string $type - Type of export format
      * @return Redirect
      */
-    public function exportRecords($pid, $fid, $type) {
+    public function exportRecords($pid, $fid, $type) { //TODO::CASTLE
         if(!FormController::validProjForm($pid,$fid))
             return redirect('projects/'.$pid);
 
@@ -93,7 +89,7 @@ class ExportController extends Controller {
      * @param  Request $request
      * @return Redirect
      */
-    public function exportSelectedRecords($pid, $fid, $type, Request $request) {
+    public function exportSelectedRecords($pid, $fid, $type, Request $request) { //TODO::CASTLE
       if(!FormController::validProjForm($pid,$fid))
         return redirect('projects/'.$pid.'/forms/'.$fid.'/records');
 
@@ -127,7 +123,7 @@ class ExportController extends Controller {
      * @param  int $pid - Project ID
      * @param  int $fid - Form ID
      */
-    public function prepRecordFiles($pid, $fid) {
+    public function prepRecordFiles($pid, $fid) { //TODO::CASTLE
         if(!FormController::validProjForm($pid, $fid))
             return redirect('projects/'.$pid)->with('k3_global_error', 'form_invalid');
 
@@ -188,7 +184,7 @@ class ExportController extends Controller {
      * @param  int $fid - Form ID
      * @return string - The html to download the file
      */
-    public function exportRecordFiles($pid, $fid) {
+    public function exportRecordFiles($pid, $fid) { //TODO::CASTLE
         if(!FormController::validProjForm($pid, $fid))
             return redirect('projects/'.$pid)->with('k3_global_error', 'form_invalid');
 
@@ -261,7 +257,7 @@ class ExportController extends Controller {
      * @param  bool $download - Download as a file or as an array for the project export
      * @return mixed - Export file or data array
      */
-    public function exportForm($pid, $fid, $download=true) {
+    public function exportForm($pid, $fid, $download=true) { //TODO::CASTLE
         if(!FormController::validProjForm($pid, $fid))
             return redirect('projects/'.$pid)->with('k3_global_error', 'form_invalid');
 
@@ -351,7 +347,7 @@ class ExportController extends Controller {
      * @param  int $pid - Project ID
      * @return string - html for the file
      */
-    public function exportProject($pid) {
+    public function exportProject($pid) { //TODO::CASTLE
         if(!ProjectController::validProj($pid))
             return redirect('projects')->with('k3_global_error', 'project_invalid');
 
@@ -408,7 +404,7 @@ class ExportController extends Controller {
      * @param  array $options - Options for certain configurations of data
      * @return mixed - The export results. Array of records, or file download info
      */
-    public function exportFormRecordData($fid, $rids, $format = self::JSON, $dataOnly = false, $options = null) {
+    public function exportFormRecordData($fid, $rids, $format = self::JSON, $dataOnly = false, $options = null) { //TODO::CASTLE
         //If less than 500 records, no need to process everything. But beyond that, form based population seems to be faster
         $ridMode = false;
         if(sizeof($rids)<=500)
@@ -1793,7 +1789,7 @@ class ExportController extends Controller {
      * @param  int $fid - Form ID
      * @return array - The record data
      */
-    private function getSingleRecordForAssoc($rid, $con, $fid) {
+    private function getSingleRecordForAssoc($rid, $con, $fid) { //TODO::CASTLE
         $record = [];
 
         $prefix = config('database.connections.mysql.prefix');

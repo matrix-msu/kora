@@ -1,7 +1,7 @@
 <?php namespace App\Http\Controllers;
 
-use App\Field;
 use App\Form;
+use App\Project;
 use App\Record;
 use App\Search;
 use Illuminate\Http\Request;
@@ -55,24 +55,23 @@ class RestfulController extends Controller {
 
         $project = ProjectController::getProject($pid);
         $formMods = $project->forms()->get();
-        $forms = array();
         foreach($formMods as $form) {
             $fArray = array();
             $fArray['name'] = $form->name;
-            $fArray['nickname'] = $form->slug;
+            $fArray['nickname'] = $form->internal_name;
             $fArray['description'] = $form->description;
-            $forms[$form->fid] = $fArray;
+            $forms[$form->id] = $fArray;
         }
         return $forms;
     }
 
     /**
-     * Get a basic list of the forms in a project.
+     * Import form into project.
      *
      * @param  int $pid - Project ID
-     * @return mixed - The forms
+     * @return string - Success message
      */
-    public function createForm($pid, Request $request) {
+    public function createForm($pid, Request $request) { //TODO::CASTLE
         if(!ProjectController::validProj($pid))
             return response()->json(["status"=>false,"error"=>"Invalid Project: ".$pid],500);
 
@@ -107,25 +106,8 @@ class RestfulController extends Controller {
             return response()->json(["status"=>false,"error"=>"Invalid Project/Form Pair: ".$pid." ~ ".$fid],500);
 
         $form = FormController::getForm($fid);
-        $fieldMods = $form->fields()->get();
-        $fields = array();
-        foreach($fieldMods as $field) {
-            $fArray = array();
-            $fArray['name'] = $field->name;
-            $fArray['type'] = $field->type;
-            $fArray['nickname'] = $field->slug;
-            $fArray['description'] = $field->desc;
-            $fArray['options'] = Field::getTypedFieldStatic($field->type)->getOptionsArray($field);
-            $fArray['required'] = $field->required;
-            $fArray['searchable'] = $field->searchable;
-            $fArray['extsearch'] = $field->extsearch;
-            $fArray['viewable'] = $field->viewable;
-            $fArray['viewresults'] = $field->viewresults;
-            $fArray['extview'] = $field->extview;
 
-            $fields[$field->flid] = $fArray;
-        }
-        return $fields;
+        return $form->layout['fields'];
     }
 
     /**
@@ -139,9 +121,8 @@ class RestfulController extends Controller {
         if(!FormController::validProjForm($pid,$fid))
             return response()->json(["status"=>false,"error"=>"Invalid Project/Form Pair: ".$pid." ~ ".$fid],500);
 
-        $form = FormController::getForm($fid);
-        $count = $form->records()->count();
-        return $count;
+        $recTable = new Record(array(),$fid);
+        return $recTable->newQuery()->count();
     }
 
     /**
@@ -150,7 +131,7 @@ class RestfulController extends Controller {
      * @param  Request $request
      * @return mixed - The records
      */
-    public function search(Request $request) {
+    public function search(Request $request) { //TODO::CASTLE
         //get the forms
         $forms = json_decode($request->forms);
         if(is_null($forms) || !is_array($forms))
@@ -463,13 +444,13 @@ class RestfulController extends Controller {
         ];
     }
 
-    private function imitateMerge(&$array1, &$array2) {
+    private function imitateMerge(&$array1, &$array2) { //TODO::CASTLE
         foreach($array2 as $i) {
             $array1[] = $i;
         }
     }
 
-    private function imitateIntersect($s1,$s2) {
+    private function imitateIntersect($s1,$s2) { //TODO::CASTLE
         sort($s1);
         sort($s2);
         $i=0;
@@ -498,7 +479,7 @@ class RestfulController extends Controller {
      * @param  array $rids - Record IDs we don't want
      * @return array - The RIDs not in the given set
      */
-    private function negative_results($form, $rids) {
+    private function negative_results($form, $rids) { //TODO::CASTLE
 	    $returnRIDS = array();
 	    $ridString = implode(',',$rids);
 
@@ -540,7 +521,7 @@ class RestfulController extends Controller {
      * @param  array $sortFields - The fields to sort by
      * @return array - The new array with sorted RIDs
      */
-    private function sort_rids($rids, $sortFields) {
+    private function sort_rids($rids, $sortFields) { //TODO::CASTLE
         //get field
         $newOrderArray = array();
         $ridString = implode(',',$rids);
@@ -616,7 +597,7 @@ class RestfulController extends Controller {
      * @param  array $sortFields - The field arrays to sort by
      * @return array - The new array with sorted RIDs
      */
-    private function sortGlobalRids($rids, $sortFields) {
+    private function sortGlobalRids($rids, $sortFields) { //TODO::CASTLE
         //get field
         $newOrderArray = array();
         $ridString = implode(',',$rids);
@@ -706,7 +687,7 @@ class RestfulController extends Controller {
      * @param  array $ridSets - The rids to be compared at current level
      * @return array - A unique set of RIDs that fit the search query logic
      */
-    private function logic_recursive($logicArray, $ridSets) {
+    private function logic_recursive($logicArray, $ridSets) { //TODO::CASTLE
         $returnRIDS = array();
         $firstRIDS = array();
         $secondRIDS = array();
@@ -739,7 +720,7 @@ class RestfulController extends Controller {
      * @param  array $flids - Specifies the fields we need filters from
      * @return array - The array of filters
      */
-    private function getDataFilters($fid, $rids, $count, $flids) {
+    private function getDataFilters($fid, $rids, $count, $flids) { //TODO::CASTLE
         if(empty($rids))
             return ['total' => 0];
 
@@ -972,7 +953,7 @@ class RestfulController extends Controller {
      * @param  Request $request
      * @return mixed - The new RID, if successful
      */
-    public function create(Request $request) {
+    public function create(Request $request) { //TODO::CASTLE
         //get the form
         $f = $request->form;
         //next, we authenticate the form
@@ -1026,7 +1007,7 @@ class RestfulController extends Controller {
      *
      * @return string - The id
      */
-    private function fileToken() {
+    private function fileToken() { //TODO::CASTLE
         $valid = 'abcdefghijklmnopqrstuvwxyz';
         $valid .= 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
         $valid .= '0123456789';
@@ -1043,7 +1024,7 @@ class RestfulController extends Controller {
      * @param  Request $request
      * @return mixed - Status of record modification
      */
-    public function edit(Request $request) {
+    public function edit(Request $request) { //TODO::CASTLE
         //get the form
         $f = $request->form;
         //next, we authenticate the form
@@ -1115,7 +1096,7 @@ class RestfulController extends Controller {
      * @param  Request $request
      * @return mixed - Status of record deletion
      */
-    public function delete(Request $request){
+    public function delete(Request $request) { //TODO::CASTLE
         //get the form
         $f = $request->form;
         //next, we authenticate the form
@@ -1157,7 +1138,7 @@ class RestfulController extends Controller {
      * @param  int $fid - Form ID
      * @return string - Path to the results file
      */
-    private function populateRecords($rids,$filters,$format = self::JSON,$fid) {
+    private function populateRecords($rids,$filters,$format = self::JSON,$fid) { //TODO::CASTLE
         //Filter options that need to be passed to the export in a normal api search
         if($format == self::JSON) {
             $options = [
@@ -1215,7 +1196,7 @@ class RestfulController extends Controller {
      * @param  string $permission - Type of API action being taken
      * @return bool - Is valid and has permission
      */
-    private function validateToken($pid,$token,$permission) {
+    private function validateToken($pid,$token,$permission) { //TODO::CASTLE
         //Get all the projects tokens
         $project = ProjectController::getProject($pid);
         $tokens = $project->tokens()->get();
