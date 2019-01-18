@@ -41,10 +41,10 @@
             <h3>Do you need project permissions?</h3>
             <p><span class="bold">If you're supposed to be apart of a certain project, you should request permissions to it.</span>  You can always request project permissions on the Projects page later on.</p>
 			<p><span class="bold">You currently have been given access to the following project(s):</span></p>
-            <?php $projects = \App\Http\Controllers\Auth\UserController::buildProjectsArray(\Auth::user(), 'onboarding'); ?>
+            <?php $projects = \App\Http\Controllers\Auth\UserController::getOnboardingProjects(\Auth::user()); ?>
 			<ul>
                 @foreach ($projects[0] as $index=>$project)
-                    <li>{{ $project['name'] }}</li>
+                    <li>{{ $project }}</li>
                 @endforeach
 			</ul>
 			<div class="form-group mt-xxl">

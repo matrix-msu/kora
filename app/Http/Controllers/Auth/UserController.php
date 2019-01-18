@@ -360,7 +360,6 @@ class UserController extends Controller {
      * @return View
      */
     public function updatePreferences($uid, Request $request) {
-        dd($request);
         if(\Auth::user()->id != $uid)
             return redirect('user/'.\Auth::user()->id.'/preferences')->with('k3_global_error', 'cannot_edit_preferences');
 
@@ -705,16 +704,31 @@ class UserController extends Controller {
         DB::table('form_custom')->insert($rows);
     }
 
+    public static function getOnboardingProjects (User $user) {
+        $all_projects = Project::all()->sortBy("name", SORT_NATURAL|SORT_FLAG_CASE);
+        $projects = array();
+        $requestableProjects = array();
+        foreach ($all_projects as $project) {
+            if ($project->active) {
+                if (\Auth::user()->admin || \Auth::user()->inAProjectGroup($project)) {
+                    array_push($projects, $project->name);
+                } else {
+                    array_push($requestableProjects, $project->name);
+                }
+            }
+        }
+        return array($projects, $requestableProjects);
+    }
+
     /**
      * Build permission set array of all the users projects
      *
      * @param  User $user - User to get information for
      * @return array - Project permission set information
      */
-    public static function buildProjectsArray(User $user, $onboarding = '') {
+    public static function buildProjectsArray(User $user) {
         $all_projects = Project::all();
         $projects = array();
-        $projects_no_permissions = array();
         $i=0;
         foreach($all_projects as $project) {
             if($user->inAProjectGroup($project)) {
@@ -725,8 +739,6 @@ class UserController extends Controller {
 
                 if($user->isProjectAdmin($project)) {
                     $projects[$i]['permissions'] = 'Admin';
-                } else if ($onboarding && !$user->isProjectAdmin($project)) {
-                    array_push($projects_no_permissions, $project->name);
                 } else {
                     // Get Permissions
                     if($user->canCreateForms($project))
@@ -744,10 +756,7 @@ class UserController extends Controller {
             $i++;
         }
 
-        if (!$onboarding)
-            return $projects;
-        else
-            return array($projects, $projects_no_permissions);
+        return $projects;
     }
 
     /**

@@ -32,7 +32,7 @@
             <p><a href="{{ url('/') }}" class="text underline-middle-hover">Replay Kora Introduction</a></p>
         @endif
 
-        {{ \App\Http\Controllers\Auth\UserController::returnUserPrefs('onboarding') }}
+        {{-- \App\Http\Controllers\Auth\UserController::returnUserPrefs('onboarding') --}}
     </div>
 
     <div class="form-group mt-xxxl">
