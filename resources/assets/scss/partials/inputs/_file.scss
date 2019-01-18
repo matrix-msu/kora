@@ -27,7 +27,7 @@
     }
 
     .header {
-      margin: 14px 0;
+      margin: 14px 0 0;
     }
 
     .move-actions {
@@ -101,10 +101,12 @@
       color: palette('gray', text, .8);
       font-size: 13px;
       font-family: $ubuntu;
-      height: 13px;
+      height: 26px;
+      line-height: 1;
       margin: 20px 20px 0;
       outline: none;
       overflow: hidden;
+      padding: 0;
       resize: none;
       width: calc(100% - 44px);
 

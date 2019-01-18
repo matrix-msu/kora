@@ -3,7 +3,6 @@
 use App\Field;
 use App\Form;
 use App\Record;
-use App\TextField;
 use Illuminate\Support\Facades\DB;
 use App\Metadata;
 use App\OptionPreset;
@@ -70,8 +69,8 @@ class ExportController extends Controller {
 
         //most of these are included to not break JSON, revAssoc is the only one that matters to us for this so we can get
         // the reverse associations. The others are only relevant to the API
-        $options = ["revAssoc" => true, "meta" => false, "fields" => 'ALL', "data" => true, "realnames" => false, "assoc" => false];
-        $output = $this->exportWithRids($rids, $type, false, $options);
+        $options = ["revAssoc" => true, "meta" => false, "fields" => 'ALL', "realnames" => false, "assoc" => false];
+        $output = $this->exportFormRecordData($fid, $rids, $type, false, $options);
 
         if(file_exists($output)) { // File exists, so we download it.
             header("Content-Disposition: attachment; filename=\"" . basename($output) . "\"");
@@ -106,8 +105,8 @@ class ExportController extends Controller {
       $rids = $request->rid;
       $rids = array_map('intval', explode(',', $rids));
 
-      $options = ["revAssoc" => true, "meta" => false, "fields" => 'ALL', "data" => true, "realnames" => false, "assoc" => false];
-      $output = $this->exportWithRids($rids, $type, false, $options);
+      $options = ["revAssoc" => true, "meta" => false, "fields" => 'ALL', "realnames" => false, "assoc" => false];
+      $output = $this->exportFormRecordData($fid, $rids, $type, false, $options);
 
       if(file_exists($output)) { // File exists, so we download it.
           header("Content-Disposition: attachment; filename=\"" . basename($output) . "\"");
@@ -120,17 +119,6 @@ class ExportController extends Controller {
           flash()->overlay(trans("records_index.exporterror"), trans("controller_admin.whoops"));
           return redirect("projects/" . $pid . "/forms/" . $fid . "/records");
       }
-    }
-
-    /**
-     * Returns status of record export to notify completion.
-     *
-     * @param  int $fid - Form ID of form that's being export
-     * @return string - Json array of the status
-     */
-    public function checkRecordExport($fid) {
-        return response()->json(["status"=>true,"message"=>"record_export_progress",
-            "finished" => !! DB::table("download_trackers")->where("fid", "=", $fid)->count()],200);
     }
 
     /**
@@ -404,344 +392,674 @@ class ExportController extends Controller {
         exit;
     }
 
-    /**
-     * Builds out the record data for the given RIDs. TODO::Modularize?
-     *
-     * @param  array $rids - The RIDs to gather data for
-     * @param  string $format - File format to export
-     * @param  string $dataOnly - No file, just data!
-     * @param  array $options - Filters from the API that apply to the search (note: JSON only)
-     * @return string - The system path to the exported file
-     */
-    public function exportWithRids($rids, $format = self::JSON, $dataOnly = false, $options = null) {
-        $format = strtoupper($format);
+    private function imitateKeyMerge(&$array1, &$array2) {
+        foreach($array2 as $k => $i) {
+            $array1[$k] = $i;
+        }
+    }
 
+    /**
+     * Builds out the record data for the given RIDs. TODO::modular?
+     *
+     * @param  int $fid - Form ID (NOTE: Can be an array if records from multiple forms)
+     * @param  array $rids - Record IDs
+     * @param  string $format - Format of exported data
+     * @param  bool $dataOnly - Do we want just the data, or the created file info
+     * @param  array $options - Options for certain configurations of data
+     * @return mixed - The export results. Array of records, or file download info
+     */
+    public function exportFormRecordData($fid, $rids, $format = self::JSON, $dataOnly = false, $options = null) {
+        //If less than 500 records, no need to process everything. But beyond that, form based population seems to be faster
+        $ridMode = false;
+        if(sizeof($rids)<=500)
+            $ridMode = true;
+
+        $records = [];
+
+        //Check to see if we should bother with options
+        $useOpts = !is_null($options);
+
+        //Make sure requested format exists
+        $format = strtoupper($format);
         if(!self::isValidFormat($format))
             return null;
 
-        $chunks = array_chunk($rids, 500);
+        //Set up the DB
+        $con = mysqli_connect(
+            config('database.connections.mysql.host'),
+            config('database.connections.mysql.username'),
+            config('database.connections.mysql.password'),
+            config('database.connections.mysql.database')
+        );
+        $prefix = config('database.connections.mysql.prefix');
+
+        //We want to make sure we are doing things in utf8 for special characters
+        if(!mysqli_set_charset($con, "utf8")) {
+            printf("Error loading character set utf8: %s\n", mysqli_error($con));
+            exit();
+        }
+
+        //Temporary fix for large combolist statements
+        $groupCat = $con->query("SET SESSION group_concat_max_len = 12345");
+
+        //Grab information about the form's fields
+        $fields = [];
+        if(is_array($fid)) {
+            //Global sort from API results case
+            foreach($fid as $formID) {
+                $form = FormController::getForm($formID);
+                $fieldMods = $form->fields()->get();
+                foreach($fieldMods as $field) {
+                    $fArray['flid'] = $field->flid;
+                    $fArray['name'] = $field->name;
+                    $fArray['type'] = $field->type;
+                    $fArray['nickname'] = $field->slug;
+                    $fArray['legacy_name'] = str_replace('_'.$field->pid.'_'.$field->fid.'_','',$field->slug);
+                    $fArray['options'] = $field->options;
+
+                    //We want both so we can get field regardless of having id or slug
+                    $fields[$field->flid] = $fArray;
+                    $fields[$field->slug] = $fArray;
+                }
+            }
+        } else {
+            $form = FormController::getForm($fid);
+            $fieldMods = $form->fields()->get();
+            foreach($fieldMods as $field) {
+                $fArray['flid'] = $field->flid;
+                $fArray['name'] = $field->name;
+                $fArray['type'] = $field->type;
+                $fArray['nickname'] = $field->slug;
+                $fArray['legacy_name'] = str_replace('_'.$field->pid.'_'.$field->fid.'_','',$field->slug);
+                $fArray['options'] = $field->options;
+
+                //We want both so we can get field regardless of having id or slug
+                $fields[$field->flid] = $fArray;
+                $fields[$field->slug] = $fArray;
+            }
+        }
+
+        //First option to check is the fields we want back, so lets pull out the slugs from options
+        $slugQL = '';
+        if($useOpts && isset($options['fields']) && $options['fields'] != 'ALL' && $options['fields'] != 'KID') { //The KID is for KORA exports
+            $slugOpts = $options['fields'];
+
+            if(!is_null($slugOpts)) {
+                foreach ($slugOpts as $slug) {
+                    if(isset($fields[$slug])) {
+                    	$id = $fields[$slug]['flid'];
+						$slugQL .= "'$id',";
+					}
+                }
+                $slugQL = ' and flid in (' . substr($slugQL, 0, -1) . ')';
+            }
+        }
+
+        //Gather the kid/rid pairs for the form
+        if($ridMode) {
+            $ridString = implode(',',$rids);
+            $wherePiece = "`rid` IN ($ridString)";
+        } else if(is_array($fid)) {
+            //Global sort from API results case
+            $fidString = implode(',',$fid);
+            $wherePiece = "`fid` in ($fidString)";
+        } else
+            $wherePiece = "`fid`=$fid";
+
+        $ridsToKids = array_fill_keys($rids, null);
+
+        $select = "SELECT r.`rid`, r.`kid`, r.`legacy_kid`, r.`created_at`, r.`updated_at`, u.`username` FROM ".$prefix."records as r
+                      LEFT JOIN ".$prefix."users as u on r.owner=u.id where r.$wherePiece";
+        $kids = $con->query($select);
+        $ridMeta = ($useOpts && isset($options['meta']) && $options['meta']);
+        while($row = $kids->fetch_assoc()) {
+            if(!array_key_exists($row['rid'],$ridsToKids))
+                continue;
+            $ridsToKids[$row['rid']] = $row['kid'];
+
+            if($ridMeta && $format == self::JSON) {
+                $records[$row['kid']] = [
+                    'created_at' => $row['created_at'],
+                    'updated_at' => $row['updated_at'],
+                    'username' => $row['username'],
+                ];
+            } else if($format == self::KORA) {
+                $kidParts = explode('-',$row['kid']);
+                $records[$row['kid']] = [
+                    'kid' => $row['kid'],
+                    'pid' => $kidParts[0],
+                    'schemeID' => $kidParts[1],
+                    'legacy_kid' => $row['legacy_kid'],
+                    'systimestamp' => $row['updated_at'],
+                    'recordowner' => $row['username'],
+                ];
+            } else
+                $records[$row['kid']] = [];
+        }
+        $kids->free();
+
+        //Prep the table statements
+        if($ridMode) {
+            $ridString = implode(',',$rids);
+            $wherePiece = "`rid` IN ($ridString)";
+        } else if(is_array($fid)) {
+            //Global sort from API results case
+            $fidString = implode(',',$fid);
+            $wherePiece = "`fid` in ($fidString)";
+        } else
+            $wherePiece = "`fid`=$fid";
+
+        //NOTE: ORDER MATTERS WITH HOW TABLES ARE ACCESSED BELOW
+        if($format == self::KORA) {
+            //We only get a select set of field types that are kora 2 supported
+            $dataselects = array(
+                "SELECT `rid`, `flid`, `text` FROM " . $prefix . "text_fields where $wherePiece$slugQL",
+                "SELECT `rid`, `flid`, `number` FROM " . $prefix . "number_fields where $wherePiece$slugQL",
+                "SELECT `rid`, `flid`, `rawtext` FROM " . $prefix . "rich_text_fields where $wherePiece$slugQL",
+                "SELECT `rid`, `flid`, `option` FROM " . $prefix . "list_fields where $wherePiece$slugQL",
+                "SELECT `rid`, `flid`, `options` FROM " . $prefix . "multi_select_list_fields where $wherePiece$slugQL",
+                "SELECT `rid`, `flid`, `options` FROM " . $prefix . "generated_list_fields where $wherePiece$slugQL",
+                "SELECT `rid`, `flid`, `circa`, `month`, `day`, `year`, `era` FROM " . $prefix . "date_fields where $wherePiece$slugQL",
+                "SELECT `rid`, `flid`, GROUP_CONCAT(`begin` SEPARATOR '[!]') as `value`, 
+                  GROUP_CONCAT(`end` SEPARATOR '[!]') as `val2`, 
+                  GROUP_CONCAT(`allday` SEPARATOR '[!]') as `val3`,
+                  GROUP_CONCAT(`desc` SEPARATOR '[!]') as `val4` 
+                  FROM " . $prefix . "schedule_support where $wherePiece$slugQL group by `rid`, `flid`",
+                "SELECT `rid`, `flid`, `documents` FROM " . $prefix . "documents_fields where $wherePiece$slugQL",
+                "SELECT `rid`, `flid`, `images`, `captions` FROM " . $prefix . "gallery_fields where $wherePiece$slugQL",
+                "SELECT af.rid as `rid`, af.flid as `flid`, GROUP_CONCAT(aRec.kid SEPARATOR ',') as `value` 
+                  FROM " . $prefix . "associator_support as af left join " . $prefix . "records as aRec on af.record=aRec.rid 
+                  where af.$wherePiece$slugQL group by `rid`, `flid`"
+            );
+        } else {
+            $dataselects = array(
+                "SELECT `rid`, `flid`, `text` FROM " . $prefix . "text_fields where $wherePiece$slugQL",
+                "SELECT `rid`, `flid`, `number` FROM " . $prefix . "number_fields where $wherePiece$slugQL",
+                "SELECT `rid`, `flid`, `rawtext` FROM " . $prefix . "rich_text_fields where $wherePiece$slugQL",
+                "SELECT `rid`, `flid`, `option` FROM " . $prefix . "list_fields where $wherePiece$slugQL",
+                "SELECT `rid`, `flid`, `options` FROM " . $prefix . "multi_select_list_fields where $wherePiece$slugQL",
+                "SELECT `rid`, `flid`, `options` FROM " . $prefix . "generated_list_fields where $wherePiece$slugQL",
+                "SELECT `rid`, `flid`, GROUP_CONCAT(if(`field_num`=1, `data`, null) ORDER BY `list_index` ASC SEPARATOR '[!data!]' ) as `value`,
+                  GROUP_CONCAT(if(`field_num`=2, `data`, null) ORDER BY `list_index` ASC SEPARATOR '[!data!]' ) as `val2`,
+                  GROUP_CONCAT(if(`field_num`=1, `number`, null) ORDER BY `list_index` ASC SEPARATOR '[!data!]' ) as `val3`,
+                  GROUP_CONCAT(if(`field_num`=2, `number`, null) ORDER BY `list_index` ASC SEPARATOR '[!data!]' ) as `val4` 
+                  FROM " . $prefix . "combo_support where $wherePiece$slugQL group by `rid`, `flid`",
+                "SELECT `rid`, `flid`, `circa`, `month`, `day`, `year`, `era` FROM " . $prefix . "date_fields where $wherePiece$slugQL",
+                "SELECT `rid`, `flid`, GROUP_CONCAT(`begin` SEPARATOR '[!]') as `value`, 
+                  GROUP_CONCAT(`end` SEPARATOR '[!]') as `val2`, 
+                  GROUP_CONCAT(`allday` SEPARATOR '[!]') as `val3`,
+                  GROUP_CONCAT(`desc` SEPARATOR '[!]') as `val4` 
+                  FROM " . $prefix . "schedule_support where $wherePiece$slugQL group by `rid`, `flid`",
+                "SELECT `rid`, `flid`, `documents` FROM " . $prefix . "documents_fields where $wherePiece$slugQL",
+                "SELECT `rid`, `flid`, `images`, `captions` FROM " . $prefix . "gallery_fields where $wherePiece$slugQL",
+                "SELECT `rid`, `flid`, `audio` FROM " . $prefix . "playlist_fields where $wherePiece$slugQL",
+                "SELECT `rid`, `flid`, `video` FROM " . $prefix . "video_fields where $wherePiece$slugQL",
+                "SELECT `rid`, `flid`, `model` FROM " . $prefix . "model_fields where $wherePiece$slugQL",
+                "SELECT `rid`, `flid`, GROUP_CONCAT(`desc` SEPARATOR '[!]') as `value`, 
+                  GROUP_CONCAT(`address` SEPARATOR '[!]') as `val2`, 
+                  GROUP_CONCAT(CONCAT_WS('[!]', `lat`, `lon`) SEPARATOR '[!latlon!]') as `val3`, 
+                  GROUP_CONCAT(CONCAT_WS('[!]', `zone`, `easting`, `northing`) SEPARATOR '[!utm!]') as `val4` 
+                  FROM " . $prefix . "geolocator_support where $wherePiece$slugQL group by `rid`, `flid`",
+                "SELECT af.rid as `rid`, af.flid as `flid`, GROUP_CONCAT(aRec.kid SEPARATOR ',') as `value` 
+                  FROM " . $prefix . "associator_support as af left join " . $prefix . "records as aRec on af.record=aRec.rid 
+                  where af.$wherePiece$slugQL group by `rid`, `flid`"
+            );
+        }
+        $finalDataSelect = implode('; ',$dataselects);
 
         switch($format) {
             case self::JSON:
-                $records = array();
+                //Next we see if metadata is requested for reverse associations
+                if($useOpts && isset($options['meta']) && $options['meta']) {
+                    $reverse = "SELECT aSupp.record as main, recs.kid as linker FROM ".$prefix."associator_support as aSupp
+                      LEFT JOIN ".$prefix."records as recs on aSupp.rid=recs.rid WHERE aSupp.record in (".implode(', ',$rids).")";
 
-                //There exist in case of assoc, but may just be empty
-                $assocRIDColl = array();
-                $assocMaster = array();
+                    $datafields = $con->query($reverse);
+                    while($row = $datafields->fetch_assoc()) {
+                        $kid = $ridsToKids[$row['main']];
+                        if(!array_key_exists($kid,$records))
+                            continue;
 
-                //Check to see if we should bother with options
-                $useOpts = !is_null($options);
-
-                //First option to check is the fields we want back, so lets pull out the slugs from options
-                $slugOpts = null;
-                if($useOpts && $options['fields'] != 'ALL')
-                    $slugOpts = $options['fields'];
-
-                foreach($chunks as $chunk) {
-                    //Next we see if metadata is requested
-                    if($useOpts && $options['meta']) {
-                        $meta = self::getRecordMetadata($chunk);
-                        $records = array_merge($meta,$records);
+                        $records[$kid]["reverseAssociations"][] = $row['linker'];
                     }
-
-                    //specifically for file exports
-                    if($useOpts && isset($options['revAssoc']) && $options['revAssoc']) {
-                        $meta = self::getReverseAssociations($chunk);
-                        $records = array_merge($meta,$records);
-                    }
-
-                    $datafields = self::getDataRows($chunk,$slugOpts);
-                    foreach($datafields as $data){
-                        $kid = $data->pid.'-'.$data->fid.'-'.$data->rid;
-
-                        if(!isset($records[$kid]))
-                            $records[$kid] = [];
-
-                        //if we are hiding data
-                        if($useOpts && !$options['data'])
-                            continue; //move on to next row of data
-
-                        $fieldIndex = $data->slug;
-                        if($useOpts && $options['realnames'])
-                            $fieldIndex = $data->name;
-
-                        switch($data->type) {
-                            case Field::_TEXT:
-                                $records[$kid][$fieldIndex]['value'] = $data->value;
-                                $records[$kid][$fieldIndex]['type'] = $data->type;
-                                break;
-                            case Field::_RICH_TEXT:
-                                $records[$kid][$fieldIndex]['value'] = $data->value;
-                                $records[$kid][$fieldIndex]['type'] = $data->type;
-                                break;
-                            case Field::_NUMBER:
-                                $records[$kid][$fieldIndex]['value'] = (float)$data->value;
-                                $records[$kid][$fieldIndex]['type'] = $data->type;
-                                break;
-                            case Field::_LIST:
-                                $records[$kid][$fieldIndex]['value'] = $data->value;
-                                $records[$kid][$fieldIndex]['type'] = $data->type;
-                                break;
-                            case Field::_MULTI_SELECT_LIST:
-                                $records[$kid][$fieldIndex]['value'] = explode('[!]',$data->value);
-                                $records[$kid][$fieldIndex]['type'] = $data->type;
-                                break;
-                            case Field::_GENERATED_LIST:
-                                $records[$kid][$fieldIndex]['value'] = explode('[!]',$data->value);
-                                $records[$kid][$fieldIndex]['type'] = $data->type;
-                                break;
-                            case Field::_COMBO_LIST:
-                                $value = array();
-                                $dataone = explode('[!data!]',$data->value);
-                                $datatwo = explode('[!data!]',$data->val2);
-                                $numberone = explode('[!data!]',$data->val3);
-                                $numbertwo = explode('[!data!]',$data->val4);
-                                $typeone = explode('[Type]', explode('[!Field1!][Type]', $data->val5)[1])[0];
-                                $typetwo = explode('[Type]', explode('[!Field2!][Type]', $data->val5)[1])[0];
-                                if($typeone=='Number')
-                                    $cnt = sizeof($numberone);
-                                else
-                                    $cnt = sizeof($dataone);
-                                $nameone = explode('[Name]', explode('[Type][Name]', $data->val5)[1])[0];
-                                $nametwo = explode('[Name]', explode('[Type][Name]', $data->val5)[2])[0];
-
-                                for($c=0;$c<$cnt;$c++) {
-                                    $val = [];
-
-                                    switch($typeone) {
-                                        case Field::_MULTI_SELECT_LIST:
-                                        case Field::_GENERATED_LIST:
-                                            $valone = explode('[!]',$dataone[$c]);
-                                            break;
-                                        case Field::_NUMBER:
-                                            $valone = $numberone[$c];
-                                            break;
-                                        default:
-                                            $valone = $dataone[$c];
-                                            break;
-                                    }
-
-                                    switch($typetwo) {
-                                        case Field::_MULTI_SELECT_LIST:
-                                        case Field::_GENERATED_LIST:
-                                            $valtwo = explode('[!]',$datatwo[$c]);
-                                            break;
-                                        case Field::_NUMBER:
-                                            $valtwo = $numbertwo[$c];
-                                            break;
-                                        default:
-                                            $valtwo = $datatwo[$c];
-                                            break;
-                                    }
-
-                                    $val[$nameone] = $valone;
-                                    $val[$nametwo] = $valtwo;
-
-                                    array_push($value, $val);
-                                }
-                                $records[$kid][$fieldIndex]['value'] = $value;
-                                $records[$kid][$fieldIndex]['type'] = $data->type;
-                                break;
-                            case Field::_DATE:
-                                $records[$kid][$fieldIndex]['value'] = [
-                                    'circa' => $data->value,
-                                    'month' => $data->val2,
-                                    'day' => $data->val3,
-                                    'year' => $data->val4,
-                                    'era' => $data->val5
-                                ];
-                                $records[$kid][$fieldIndex]['type'] = $data->type;
-                                break;
-                            case Field::_SCHEDULE:
-                                $value = array();
-                                $begin = explode('[!]',$data->value);
-                                $cnt = sizeof($begin);
-                                $end = explode('[!]',$data->val2);
-                                $allday = explode('[!]',$data->val3);
-                                $desc = explode('[!]',$data->val4);
-                                for($i=0;$i<$cnt;$i++) {
-                                    if($allday[$i]==1) {
-                                        $formatBegin = date("m/d/Y", strtotime($begin[$i]));
-                                        $formatEnd = date("m/d/Y", strtotime($end[$i]));
-                                    } else {
-                                        $formatBegin = date("m/d/Y h:i A", strtotime($begin[$i]));
-                                        $formatEnd = date("m/d/Y h:i A", strtotime($end[$i]));
-                                    }
-                                    $info = [
-                                        'begin' => $formatBegin,
-                                        'end' => $formatEnd,
-                                        'allday' => $allday[$i],
-                                        'desc' => $desc[$i]
-                                    ];
-                                    array_push($value,$info);
-                                }
-                                $records[$kid][$fieldIndex]['value'] = $value;
-                                $records[$kid][$fieldIndex]['type'] = $data->type;
-                                break;
-                            case Field::_GEOLOCATOR:
-                                $value = array();
-                                $desc = explode('[!]',$data->value);
-                                $cnt = sizeof($desc);
-                                $address = explode('[!]',$data->val2);
-                                $latlon = explode('[!latlon!]',$data->val3);
-                                $utm = explode('[!utm!]',$data->val4);
-                                for($i=0;$i<$cnt;$i++) {
-                                    $ll = explode('[!]',$latlon[$i]);
-                                    $u = explode('[!]',$utm[$i]);
-                                    $info = [
-                                        'desc' => $desc[$i],
-                                        'lat' => $ll[0],
-                                        'lon' => $ll[1],
-                                        'zone' => $u[0],
-                                        'east' => $u[1],
-                                        'north' => $u[2],
-                                        'address' => $address[$i],
-                                    ];
-
-                                    array_push($value,$info);
-                                }
-                                $records[$kid][$fieldIndex]['value'] = $value;
-                                $records[$kid][$fieldIndex]['type'] = $data->type;
-                                break;
-                            case Field::_DOCUMENTS:
-                                $url = url('app/files/p'.$data->pid.'/f'.$data->fid.'/r'.$data->rid.'/fl'.$data->flid) . '/';
-                                $value = array();
-                                $files = explode('[!]',$data->value);
-                                foreach($files as $file) {
-                                    $info = [
-                                        'name' => explode('[Name]',$file)[1],
-                                        'size' => floatval(explode('[Size]',$file)[1])/1000 . " mb",
-                                        'type' => explode('[Type]',$file)[1],
-                                        'url' => $url.explode('[Name]',$file)[1]
-                                    ];
-                                    array_push($value,$info);
-                                }
-                                $records[$kid][$fieldIndex]['value'] = $value;
-                                $records[$kid][$fieldIndex]['type'] = $data->type;
-                                break;
-                            case Field::_GALLERY:
-                                $url = url('app/files/p'.$data->pid.'/f'.$data->fid.'/r'.$data->rid.'/fl'.$data->flid) . '/';
-                                $value = array();
-                                $files = explode('[!]',$data->value);
-                                $captions = (!is_null($data->val2) && $data->val2!='') ? explode('[!]',$data->val2) : null;
-                                for($gi=0;$gi<sizeof($files);$gi++) {
-                                    $info = [
-                                        'name' => explode('[Name]',$files[$gi])[1],
-                                        'size' => floatval(explode('[Size]',$files[$gi])[1])/1000 . " mb",
-                                        'type' => explode('[Type]',$files[$gi])[1],
-                                        'url' => $url.explode('[Name]',$files[$gi])[1]
-                                    ];
-                                    if(!is_null($captions))
-                                        $info['caption'] = $captions[$gi];
-                                    else
-                                        $info['caption']='';
-                                    array_push($value,$info);
-                                }
-                                $records[$kid][$fieldIndex]['value'] = $value;
-                                $records[$kid][$fieldIndex]['type'] = $data->type;
-                                break;
-                            case Field::_PLAYLIST:
-                                $url = url('app/files/p'.$data->pid.'/f'.$data->fid.'/r'.$data->rid.'/fl'.$data->flid) . '/';
-                                $value = array();
-                                $files = explode('[!]',$data->value);
-                                foreach($files as $file) {
-                                    $info = [
-                                        'name' => explode('[Name]',$file)[1],
-                                        'size' => floatval(explode('[Size]',$file)[1])/1000 . " mb",
-                                        'type' => explode('[Type]',$file)[1],
-                                        'url' => $url.explode('[Name]',$file)[1]
-                                    ];
-                                    array_push($value,$info);
-                                }
-                                $records[$kid][$fieldIndex]['value'] = $value;
-                                $records[$kid][$fieldIndex]['type'] = $data->type;
-                                break;
-                            case Field::_VIDEO:
-                                $url = url('app/files/p'.$data->pid.'/f'.$data->fid.'/r'.$data->rid.'/fl'.$data->flid) . '/';
-                                $value = array();
-                                $files = explode('[!]',$data->value);
-                                foreach($files as $file) {
-                                    $info = [
-                                        'name' => explode('[Name]',$file)[1],
-                                        'size' => floatval(explode('[Size]',$file)[1])/1000 . " mb",
-                                        'type' => explode('[Type]',$file)[1],
-                                        'url' => $url.explode('[Name]',$file)[1]
-                                    ];
-                                    array_push($value,$info);
-                                }
-                                $records[$kid][$fieldIndex]['value'] = $value;
-                                $records[$kid][$fieldIndex]['type'] = $data->type;
-                                break;
-                            case Field::_3D_MODEL:
-                                $url = url('app/files/p'.$data->pid.'/f'.$data->fid.'/r'.$data->rid.'/fl'.$data->flid) . '/';
-                                $value = array();
-                                $files = explode('[!]',$data->value);
-                                foreach($files as $file) {
-                                    $info = [
-                                        'name' => explode('[Name]',$file)[1],
-                                        'size' => floatval(explode('[Size]',$file)[1])/1000 . " mb",
-                                        'type' => explode('[Type]',$file)[1],
-                                        'url' => $url.explode('[Name]',$file)[1]
-                                    ];
-                                    array_push($value,$info);
-                                }
-                                $records[$kid][$fieldIndex]['value'] = $value;
-                                $records[$kid][$fieldIndex]['type'] = $data->type;
-                                break;
-                            case Field::_ASSOCIATOR:
-                                if($useOpts && $options['assoc']) {
-                                    //First we need to format these kids as rids
-                                    $akids = array();
-                                    $vals = explode(',',$data->value);
-                                    foreach($vals as $akid) {
-                                        if(Record::isKIDPattern($akid)) {
-                                            $arid = explode('-',$akid)[2];
-                                            array_push($assocRIDColl,$arid);
-                                            array_push($akids, $akid);
-                                        }
-                                    }
-
-                                    $ainfo = [
-                                        'kid' => $kid,
-                                        'slug' => $data->slug,
-                                        'name' => $fieldIndex,
-                                        'akids' => $akids
-                                    ];
-                                    array_push($assocMaster,$ainfo);
-                                } else {
-                                    $records[$kid][$fieldIndex]['value'] = explode(',',$data->value);
-                                }
-                                $records[$kid][$fieldIndex]['type'] = $data->type;
-                                break;
-                            default:
-                                break;
-                        }
-                    }
+                    $datafields->free();
                 }
 
-                //assoc stuff
-                if($useOpts && $options['assoc']) {
-                    //simplify the duplicates
-                    $arids = array_unique($assocRIDColl);
-                    $aOpts = ["revAssoc" => false, "meta" => false, "fields" => 'ALL', "data" => true, "realnames" => $options['realnames'], "assoc" => false];
-                    $assocData = json_decode($this->exportWithRids($arids, $format, true, $aOpts),true);
-                    foreach($assocMaster as $am) {
-                        $value = array();
-                        $kid = $am['kid'];
-                        if($options['realnames'])
-                            $slug = $am['name'];
-                        else
-                            $slug = $am['slug'];
-                        foreach($am['akids'] as $akid) {
-                            $value[$akid] = $assocData[$akid];
-                        }
-                        $records[$kid][$slug]['value'] = $value;
+                //specifically for file exports, NOT API. API use the function above
+                //It's a little different than META above in the sense we organize reverse associations by field ID
+                if($useOpts && isset($options['revAssoc']) && $options['revAssoc']) {
+                    $revAssoc = "SELECT aSupp.record as main, aSupp.flid as flid, recs.kid as linker FROM ".$prefix."associator_support as aSupp 
+                      LEFT JOIN ".$prefix."records as recs on aSupp.rid=recs.rid WHERE aSupp.record in (".implode(', ',$rids).")";
+
+                    $datafields = $con->query($revAssoc);
+                    while($row = $datafields->fetch_assoc()) {
+                        $kid = $ridsToKids[$row['main']];
+                        if(!array_key_exists($kid,$records))
+                            continue;
+
+                        $records[$kid]["reverseAssociations"][$row['flid']][] = $row['linker'];
                     }
+                    $datafields->free();
+                }
+
+                //Get the data
+                $gatherRecordData = true;
+                if($useOpts && isset($options['data']) && isset($options['data']))
+                    $gatherRecordData = $options['data'];
+
+                if($useOpts && $options['realnames'])
+                    $fIndex = 'name';
+                else
+                    $fIndex = 'nickname';
+
+                if($gatherRecordData) {
+                    $con->multi_query($finalDataSelect);
+
+                    //Text Field
+                    $datafields = $con->store_result();
+                    while($row = $datafields->fetch_assoc()) {
+                        if(!array_key_exists($row['rid'], $ridsToKids))
+                            continue;
+                        $kid = $ridsToKids[$row['rid']];
+
+                        $fieldIndex = $fields[$row['flid']][$fIndex];
+
+                        $records[$kid][$fieldIndex]['value'] = $row['text'];
+                    }
+                    $datafields->free();
+                    $con->next_result();
+
+                    //Number Field
+                    $datafields = $con->store_result();
+                    while ($row = $datafields->fetch_assoc()) {
+                        if(!array_key_exists($row['rid'], $ridsToKids))
+                            continue;
+                        $kid = $ridsToKids[$row['rid']];
+
+                        $fieldIndex = $fields[$row['flid']][$fIndex];
+
+                        $records[$kid][$fieldIndex]['value'] = $row['number'];
+                    }
+                    $datafields->free();
+                    $con->next_result();
+
+                    //Rich Text Field
+                    $datafields = $con->store_result();
+                    while ($row = $datafields->fetch_assoc()) {
+                        if(!array_key_exists($row['rid'], $ridsToKids))
+                            continue;
+                        $kid = $ridsToKids[$row['rid']];
+
+                        $fieldIndex = $fields[$row['flid']][$fIndex];
+
+                        $records[$kid][$fieldIndex]['value'] = $row['rawtext'];
+                    }
+                    $datafields->free();
+                    $con->next_result();
+
+                    //List Field
+                    $datafields = $con->store_result();
+                    while ($row = $datafields->fetch_assoc()) {
+                        if(!array_key_exists($row['rid'], $ridsToKids))
+                            continue;
+                        $kid = $ridsToKids[$row['rid']];
+
+                        $fieldIndex = $fields[$row['flid']][$fIndex];
+
+                        $records[$kid][$fieldIndex]['value'] = $row['option'];
+                    }
+                    $datafields->free();
+                    $con->next_result();
+
+                    //Multi-Select List Field
+                    $datafields = $con->store_result();
+                    while ($row = $datafields->fetch_assoc()) {
+                        if(!array_key_exists($row['rid'], $ridsToKids))
+                            continue;
+                        $kid = $ridsToKids[$row['rid']];
+
+                        $fieldIndex = $fields[$row['flid']][$fIndex];
+
+                        $records[$kid][$fieldIndex]['value'] = explode('[!]', $row['options']);
+                    }
+                    $datafields->free();
+                    $con->next_result();
+
+                    //Generated List Field
+                    $datafields = $con->store_result();
+                    while ($row = $datafields->fetch_assoc()) {
+                        if(!array_key_exists($row['rid'], $ridsToKids))
+                            continue;
+                        $kid = $ridsToKids[$row['rid']];
+
+                        $fieldIndex = $fields[$row['flid']][$fIndex];
+
+                        $records[$kid][$fieldIndex]['value'] = explode('[!]', $row['options']);
+                    }
+                    $datafields->free();
+                    $con->next_result();
+
+                    //Combo List Field
+                    $datafields = $con->store_result();
+                    while ($row = $datafields->fetch_assoc()) {
+                        if(!array_key_exists($row['rid'], $ridsToKids))
+                            continue;
+                        $kid = $ridsToKids[$row['rid']];
+
+                        $fieldIndex = $fields[$row['flid']][$fIndex];
+
+                        $value = array();
+                        $dataone = explode('[!data!]', $row['value']);
+                        $datatwo = explode('[!data!]', $row['val2']);
+                        $numberone = explode('[!data!]', $row['val3']);
+                        $numbertwo = explode('[!data!]', $row['val4']);
+                        $typeone = explode('[Type]', explode('[!Field1!][Type]', $fields[$row['flid']]['options'])[1])[0];
+                        $typetwo = explode('[Type]', explode('[!Field2!][Type]', $fields[$row['flid']]['options'])[1])[0];
+                        if ($typeone == 'Number')
+                            $cnt = sizeof($numberone);
+                        else
+                            $cnt = sizeof($dataone);
+                        $nameone = explode('[Name]', explode('[Type][Name]', $fields[$row['flid']]['options'])[1])[0];
+                        $nametwo = explode('[Name]', explode('[Type][Name]', $fields[$row['flid']]['options'])[2])[0];
+
+                        for ($c = 0; $c < $cnt; $c++) {
+                            $val = [];
+
+                            switch ($typeone) {
+                                case Field::_MULTI_SELECT_LIST:
+                                case Field::_GENERATED_LIST:
+                                    $valone = explode('[!]', $dataone[$c]);
+                                    break;
+                                case Field::_NUMBER:
+                                    $valone = $numberone[$c];
+                                    break;
+                                default:
+                                    $valone = $dataone[$c];
+                                    break;
+                            }
+
+                            switch ($typetwo) {
+                                case Field::_MULTI_SELECT_LIST:
+                                case Field::_GENERATED_LIST:
+                                    $valtwo = explode('[!]', $datatwo[$c]);
+                                    break;
+                                case Field::_NUMBER:
+                                    $valtwo = $numbertwo[$c];
+                                    break;
+                                default:
+                                    $valtwo = $datatwo[$c];
+                                    break;
+                            }
+
+                            $val[$nameone] = $valone;
+                            $val[$nametwo] = $valtwo;
+
+                            $value[] = $val;
+                        }
+
+                        $records[$kid][$fieldIndex]['value'] = $value;
+                    }
+                    $datafields->free();
+                    $con->next_result();
+
+                    //Date Field
+                    $datafields = $con->store_result();
+                    while ($row = $datafields->fetch_assoc()) {
+                        if(!array_key_exists($row['rid'], $ridsToKids))
+                            continue;
+                        $kid = $ridsToKids[$row['rid']];
+
+                        $fieldIndex = $fields[$row['flid']][$fIndex];
+
+                        $records[$kid][$fieldIndex]['value'] = [
+                            'circa' => $row['circa'],
+                            'month' => $row['month'],
+                            'day' => $row['day'],
+                            'year' => $row['year'],
+                            'era' => $row['era']
+                        ];
+                    }
+                    $datafields->free();
+                    $con->next_result();
+
+                    //Schedule Field
+                    $datafields = $con->store_result();
+                    while ($row = $datafields->fetch_assoc()) {
+                        if(!array_key_exists($row['rid'], $ridsToKids))
+                            continue;
+                        $kid = $ridsToKids[$row['rid']];
+
+                        $fieldIndex = $fields[$row['flid']][$fIndex];
+
+                        $value = array();
+                        $begin = explode('[!]', $row['value']);
+                        $cnt = sizeof($begin);
+                        $end = explode('[!]', $row['val2']);
+                        $allday = explode('[!]', $row['val3']);
+                        $desc = explode('[!]', $row['val4']);
+                        for ($i = 0; $i < $cnt; $i++) {
+                            if ($allday[$i] == 1) {
+                                $formatBegin = date("m/d/Y", strtotime($begin[$i]));
+                                $formatEnd = date("m/d/Y", strtotime($end[$i]));
+                            } else {
+                                $formatBegin = date("m/d/Y h:i A", strtotime($begin[$i]));
+                                $formatEnd = date("m/d/Y h:i A", strtotime($end[$i]));
+                            }
+                            $info = [
+                                'begin' => $formatBegin,
+                                'end' => $formatEnd,
+                                'allday' => $allday[$i],
+                                'desc' => $desc[$i]
+                            ];
+                            $value[] = $info;
+                        }
+
+                        $records[$kid][$fieldIndex]['value'] = $value;
+                    }
+                    $datafields->free();
+                    $con->next_result();
+
+                    //Documents Field
+                    $datafields = $con->store_result();
+                    while ($row = $datafields->fetch_assoc()) {
+                        if(!array_key_exists($row['rid'], $ridsToKids))
+                            continue;
+                        $kid = $ridsToKids[$row['rid']];
+
+                        $fieldIndex = $fields[$row['flid']][$fIndex];
+
+                        $url = url('app/files/p' . $form->pid . '/f' . $form->fid . '/r' . $row['rid'] . '/fl' . $row['flid']) . '/';
+                        $value = array();
+                        $files = explode('[!]', $row['documents']);
+                        foreach ($files as $file) {
+                            $info = [
+                                'name' => explode('[Name]', $file)[1],
+                                'size' => floatval(explode('[Size]', $file)[1]) / 1000 . " mb",
+                                'type' => explode('[Type]', $file)[1],
+                                'url' => $url . explode('[Name]', $file)[1]
+                            ];
+                            $value[] = $info;
+                        }
+                        $records[$kid][$fieldIndex]['value'] = $value;
+                    }
+                    $datafields->free();
+                    $con->next_result();
+
+                    //Gallery Field
+                    $datafields = $con->store_result();
+                    while ($row = $datafields->fetch_assoc()) {
+                        if(!array_key_exists($row['rid'], $ridsToKids))
+                            continue;
+                        $kid = $ridsToKids[$row['rid']];
+
+                        $fieldIndex = $fields[$row['flid']][$fIndex];
+
+                        $url = url('app/files/p' . $form->pid . '/f' . $form->fid . '/r' . $row['rid'] . '/fl' . $row['flid']) . '/';
+                        $value = array();
+                        $files = explode('[!]', $row['images']);
+                        $captions = (!is_null($row['captions']) && $row['captions'] != '') ? explode('[!]', $row['captions']) : null;
+                        for ($gi = 0; $gi < sizeof($files); $gi++) {
+                            $info = [
+                                'name' => explode('[Name]', $files[$gi])[1],
+                                'size' => floatval(explode('[Size]', $files[$gi])[1]) / 1000 . " mb",
+                                'type' => explode('[Type]', $files[$gi])[1],
+                                'url' => $url . explode('[Name]', $files[$gi])[1]
+                            ];
+                            if (!is_null($captions))
+                                $info['caption'] = $captions[$gi];
+                            else
+                                $info['caption'] = '';
+                            $value[] = $info;
+                        }
+                        $records[$kid][$fieldIndex]['value'] = $value;
+                    }
+                    $datafields->free();
+                    $con->next_result();
+
+                    //Playlist Field
+                    $datafields = $con->store_result();
+                    while ($row = $datafields->fetch_assoc()) {
+                        if(!array_key_exists($row['rid'], $ridsToKids))
+                            continue;
+                        $kid = $ridsToKids[$row['rid']];
+
+                        $fieldIndex = $fields[$row['flid']][$fIndex];
+
+                        $url = url('app/files/p' . $form->pid . '/f' . $form->fid . '/r' . $row['rid'] . '/fl' . $row['flid']) . '/';
+                        $value = array();
+                        $files = explode('[!]', $row['audio']);
+                        foreach ($files as $file) {
+                            $info = [
+                                'name' => explode('[Name]', $file)[1],
+                                'size' => floatval(explode('[Size]', $file)[1]) / 1000 . " mb",
+                                'type' => explode('[Type]', $file)[1],
+                                'url' => $url . explode('[Name]', $file)[1]
+                            ];
+                            $value[] = $info;
+                        }
+                        $records[$kid][$fieldIndex]['value'] = $value;
+                    }
+                    $datafields->free();
+                    $con->next_result();
+
+                    //Video Field
+                    $datafields = $con->store_result();
+                    while ($row = $datafields->fetch_assoc()) {
+                        if(!array_key_exists($row['rid'], $ridsToKids))
+                            continue;
+                        $kid = $ridsToKids[$row['rid']];
+
+                        $fieldIndex = $fields[$row['flid']][$fIndex];
+
+                        $url = url('app/files/p' . $form->pid . '/f' . $form->fid . '/r' . $row['rid'] . '/fl' . $row['flid']) . '/';
+                        $value = array();
+                        $files = explode('[!]', $row['video']);
+                        foreach ($files as $file) {
+                            $info = [
+                                'name' => explode('[Name]', $file)[1],
+                                'size' => floatval(explode('[Size]', $file)[1]) / 1000 . " mb",
+                                'type' => explode('[Type]', $file)[1],
+                                'url' => $url . explode('[Name]', $file)[1]
+                            ];
+                            $value[] = $info;
+                        }
+                        $records[$kid][$fieldIndex]['value'] = $value;
+                    }
+                    $datafields->free();
+                    $con->next_result();
+
+                    //Model Field
+                    $datafields = $con->store_result();
+                    while ($row = $datafields->fetch_assoc()) {
+                        if(!array_key_exists($row['rid'], $ridsToKids))
+                            continue;
+                        $kid = $ridsToKids[$row['rid']];
+
+                        $fieldIndex = $fields[$row['flid']][$fIndex];
+
+                        $url = url('app/files/p' . $form->pid . '/f' . $form->fid . '/r' . $row['rid'] . '/fl' . $row['flid']) . '/';
+                        $value = array();
+                        $files = explode('[!]', $row['model']);
+                        foreach ($files as $file) {
+                            $info = [
+                                'name' => explode('[Name]', $file)[1],
+                                'size' => floatval(explode('[Size]', $file)[1]) / 1000 . " mb",
+                                'type' => explode('[Type]', $file)[1],
+                                'url' => $url . explode('[Name]', $file)[1]
+                            ];
+                            $value[] = $info;
+                        }
+                        $records[$kid][$fieldIndex]['value'] = $value;
+                    }
+                    $datafields->free();
+                    $con->next_result();
+
+                    //Geolocator Field
+                    $datafields = $con->store_result();
+                    while ($row = $datafields->fetch_assoc()) {
+                        if(!array_key_exists($row['rid'], $ridsToKids))
+                            continue;
+                        $kid = $ridsToKids[$row['rid']];
+
+                        $fieldIndex = $fields[$row['flid']][$fIndex];
+
+                        $value = array();
+                        $desc = explode('[!]', $row['value']);
+                        $cnt = sizeof($desc);
+                        $address = explode('[!]', $row['val2']);
+                        $latlon = explode('[!latlon!]', $row['val3']);
+                        $utm = explode('[!utm!]', $row['val4']);
+                        for ($i = 0; $i < $cnt; $i++) {
+                            $ll = explode('[!]', $latlon[$i]);
+                            $u = explode('[!]', $utm[$i]);
+                            $info = [
+                                'desc' => $desc[$i],
+                                'lat' => $ll[0],
+                                'lon' => $ll[1],
+                                'zone' => $u[0],
+                                'east' => $u[1],
+                                'north' => $u[2],
+                                'address' => $address[$i],
+                            ];
+
+                            $value[] = $info;
+                        }
+
+                        $records[$kid][$fieldIndex]['value'] = $value;
+                    }
+                    $datafields->free();
+                    $con->next_result();
+
+                    //Associator Field
+                    $datafields = $con->store_result();
+                    while ($row = $datafields->fetch_assoc()) {
+                        if(!array_key_exists($row['rid'], $ridsToKids))
+                            continue;
+                        $kid = $ridsToKids[$row['rid']];
+
+                        $fieldIndex = $fields[$row['flid']][$fIndex];
+
+                        if($useOpts && isset($options['assoc']) && $options['assoc']) {
+                            //First we need to format these kids as rids
+                            $vals = explode(',', $row['value']);
+                            foreach ($vals as $akid) {
+                                if(Record::isKIDPattern($akid)) {
+                                    $arid = explode('-',$akid)[2];
+                                    $afid = explode('-',$akid)[1];
+                                    $records[$kid][$fieldIndex][$akid] = $this->getSingleRecordForAssoc($arid, $con, $afid, $fIndex);
+                                }
+                            }
+                        } else {
+                            $records[$kid][$fieldIndex]['value'] = explode(',', $row['value']);
+                        }
+                    }
+                    $datafields->free();
                 }
 
                 $records = json_encode($records);
 
                 if($dataOnly) {
+                    mysqli_close($con);
                     return $records;
                 } else {
                     $dt = new \DateTime();
@@ -750,378 +1068,751 @@ class ExportController extends Controller {
 
                     file_put_contents($path, $records);
 
+                    mysqli_close($con);
                     return $path;
                 }
                 break;
             case self::KORA:
-                $records = array();
-
-                //Check to see if we should bother with options
-                $useOpts = !is_null($options);
-
-                //First option to check is the fields we want back, so lets pull out the slugs from options
-                $slugOpts = null;
-                if($useOpts && $options['fields'] != 'ALL')
-                    $slugOpts = $options['fields'];
-
-                foreach($chunks as $chunk) {
-                    if($slugOpts=='KID') {
-                        $records = array_merge(self::getKidsFromRids($chunk),$records);
-                        continue;
-                    }
-
-                    $meta = self::getRecordMetadataForOldKora($chunk);
-                    $records = array_merge($meta,$records);
-
-                    $datafields = self::getDataRows($chunk,$slugOpts);
-                    foreach($datafields as $data) {
-                        $kid = $data->pid.'-'.$data->fid.'-'.$data->rid;
-                        $slug = str_replace('_'.$data->pid.'_'.$data->fid.'_', '', $data->slug);
-                        if(!$useOpts || !$options['under'])
-                            $slug = str_replace('_', ' ', $slug); //Now that the tag is gone, remove space fillers
-
-                        switch($data->type) {
-                            case Field::_TEXT:
-                                $records[$kid][$slug] = $data->value;
-                                break;
-                            case Field::_NUMBER:
-                                $records[$kid][$slug] = $data->value;
-                                break;
-                            case Field::_RICH_TEXT:
-                                $records[$kid][$slug] = $data->value;
-                                break;
-                            case Field::_LIST:
-                                $records[$kid][$slug] = $data->value;
-                                break;
-                            case Field::_MULTI_SELECT_LIST:
-                                $records[$kid][$slug] = explode('[!]',$data->value);
-                                break;
-                            case Field::_GENERATED_LIST:
-                                $records[$kid][$slug] = explode('[!]',$data->value);
-                                break;
-                            case Field::_DATE:
-                                $records[$kid][$slug] = [
-                                    'prefix' => $data->value,
-                                    'month' => $data->val2,
-                                    'day' => $data->val3,
-                                    'year' => $data->val4,
-                                    'era' => $data->val5,
-                                    'suffix' => ''
-                                ];
-                                break;
-                            case Field::_SCHEDULE:
-                                $value = array();
-                                $begin = explode('[!]',$data->value);
-                                foreach($begin as $date) {
-                                    $harddate = explode(' ',$date)[0];
-                                    array_push($value,$harddate);
-                                }
-
-                                $records[$kid][$slug] = $value;
-                                break;
-                            case Field::_DOCUMENTS:
-                                $url = 'r'.$data->rid.'/fl'.$data->flid . '/';
-                                $files = explode('[!]',$data->value);
-                                $file = $files[0];
-                                $info = [
-                                    'originalName' => explode('[Name]',$file)[1],
-                                    'size' => floatval(explode('[Size]',$file)[1])/1000 . " mb",
-                                    'type' => explode('[Type]',$file)[1],
-                                    'localName' => $url.explode('[Name]',$file)[1]
-                                ];
-
-                                $records[$kid][$slug] = $info;
-                                break;
-                            case Field::_GALLERY:
-                                $url = 'r'.$data->rid.'/fl'.$data->flid . '/';
-                                $files = explode('[!]',$data->value);
-                                $file = $files[0];
-                                $info = [
-                                    'originalName' => explode('[Name]',$file)[1],
-                                    'size' => floatval(explode('[Size]',$file)[1])/1000 . " mb",
-                                    'type' => explode('[Type]',$file)[1],
-                                    'localName' => $url.explode('[Name]',$file)[1]
-                                ];
-
-                                $records[$kid][$slug] = $info;
-                                break;
-                            case Field::_ASSOCIATOR:
-                                $records[$kid][$slug] = explode(',',$data->value);
-                                break;
-                            default:
-                                break;
-                        }
-                    }
-                }
-
-                $emptyValueSlugs = [];
+                if($useOpts && isset($options['fields']) && $options['fields'] == 'KID')
+                    return json_encode(array_keys($records));
 
                 //Add those blank values
-                foreach($records as $kid => $data) {
-                    $pid = explode('-',$kid)[0];
-                    $fid = explode('-',$kid)[1];
-
-                    //See if we already fetched these slugs
-                    if(!array_key_exists($fid,$emptyValueSlugs)) {
-                        $slugArray = FormController::getForm($fid)->fields()->pluck('slug')->toArray();
-                        for($i=0;$i<sizeof($slugArray);$i++) {
-                            $slug = $slugArray[$i];
-                            $slugArray[$i] = str_replace('_'.$pid.'_'.$fid.'_', '', $slug);
-                            if(!$useOpts || !$options['under'])
-                                $slugArray[$i] = str_replace('_', ' ', $slugArray[$i]); //Now that the tag is gone, remove space fillers
-                        }
-                    } else {
-                        $slugArray = $emptyValueSlugs[$fid];
-                    }
-
-                    foreach($slugArray as $slug) {
-                        if(!isset($data[$slug]))
-                            $records[$kid][$slug] = '';
-                    }
+                $fieldKeys = [];
+                foreach($fieldMods as $field) {
+	                if($useOpts && isset($options['under']) && $options['under'])
+                    	$fieldKeys[$field['legacy_name']] = '';
+                    else
+                    	$fieldKeys[$field['name']] = '';
                 }
+                foreach($records as $kid => $data) {
+                    $this->imitateKeyMerge($records[$kid],$fieldKeys);
+                }
+
+                //Meta data function but for old Kora format
+                $reverse = "SELECT aSupp.record as main, recs.kid as linker FROM ".$prefix."associator_support as aSupp 
+                      LEFT JOIN ".$prefix."records as recs on aSupp.rid=recs.rid WHERE aSupp.record in (".implode(', ',$rids).")";
+
+                $datafields = $con->query($reverse);
+                while($row = $datafields->fetch_assoc()) {
+	                $kid = $ridsToKids[$row['main']];
+                    if(!array_key_exists($kid,$records))
+                        continue;
+                            
+                    $records[$kid]["linkers"][] = $row['linker'];
+                }
+                mysqli_free_result($datafields);
+
+                //Back to regular data
+                $con->multi_query($finalDataSelect);
+
+                //Text Field
+                $datafields = $con->store_result();
+                while($row = $datafields->fetch_assoc()) {
+                    if(!array_key_exists($row['rid'], $ridsToKids))
+                        continue;
+                    $kid = $ridsToKids[$row['rid']];
+
+                    if($useOpts && isset($options['under']) && $options['under'])
+                    	$records[$kid][$fields[$row['flid']]['legacy_name']] = $row['text'];
+                    else
+                    	$records[$kid][$fields[$row['flid']]['name']] = $row['text'];
+                }
+                $datafields->free();
+                $con->next_result();
+
+                //Number Field
+                $datafields = $con->store_result();
+                while($row = $datafields->fetch_assoc()) {
+                    if(!array_key_exists($row['rid'], $ridsToKids))
+                        continue;
+                    $kid = $ridsToKids[$row['rid']];
+
+                    if($useOpts && isset($options['under']) && $options['under'])
+                    	$records[$kid][$fields[$row['flid']]['legacy_name']] = $row['number'];
+                    else
+                    	$records[$kid][$fields[$row['flid']]['name']] = $row['number'];
+                }
+                $datafields->free();
+                $con->next_result();
+
+                //Raw Text Field
+                $datafields = $con->store_result();
+                while($row = $datafields->fetch_assoc()) {
+                    if(!array_key_exists($row['rid'], $ridsToKids))
+                        continue;
+                    $kid = $ridsToKids[$row['rid']];
+
+                    if($useOpts && isset($options['under']) && $options['under'])
+                    	$records[$kid][$fields[$row['flid']]['legacy_name']] = $row['rawtext'];
+                    else
+                    	$records[$kid][$fields[$row['flid']]['name']] = $row['rawtext'];
+                }
+                $datafields->free();
+                $con->next_result();
+
+                //List Field
+                $datafields = $con->store_result();
+                while($row = $datafields->fetch_assoc()) {
+                    if(!array_key_exists($row['rid'], $ridsToKids))
+                        continue;
+                    $kid = $ridsToKids[$row['rid']];
+
+                    if($useOpts && isset($options['under']) && $options['under'])
+                    	$records[$kid][$fields[$row['flid']]['legacy_name']] = $row['option'];
+                    else
+                    	$records[$kid][$fields[$row['flid']]['name']] = $row['option'];
+                }
+                $datafields->free();
+                $con->next_result();
+
+                //Multi-Select List Field
+                $datafields = $con->store_result();
+                while($row = $datafields->fetch_assoc()) {
+                    if(!array_key_exists($row['rid'], $ridsToKids))
+                        continue;
+                    $kid = $ridsToKids[$row['rid']];
+
+                    if($useOpts && isset($options['under']) && $options['under'])
+                    	$records[$kid][$fields[$row['flid']]['legacy_name']] = explode('[!]',$row['options']);
+                    else
+                    	$records[$kid][$fields[$row['flid']]['name']] = explode('[!]',$row['options']);
+                }
+                $datafields->free();
+                $con->next_result();
+
+                //Generated List Field
+                $datafields = $con->store_result();
+                while($row = $datafields->fetch_assoc()) {
+                    if(!array_key_exists($row['rid'], $ridsToKids))
+                        continue;
+                    $kid = $ridsToKids[$row['rid']];
+
+                    if($useOpts && isset($options['under']) && $options['under'])
+                    	$records[$kid][$fields[$row['flid']]['legacy_name']] = explode('[!]',$row['options']);
+                    else
+                    	$records[$kid][$fields[$row['flid']]['name']] = explode('[!]',$row['options']);
+                }
+                $datafields->free();
+                $con->next_result();
+
+                //Date Field
+                $datafields = $con->store_result();
+                while($row = $datafields->fetch_assoc()) {
+                    if(!array_key_exists($row['rid'], $ridsToKids))
+                        continue;
+                    $kid = $ridsToKids[$row['rid']];
+
+                    if($useOpts && isset($options['under']) && $options['under']) {
+                    	$records[$kid][$fields[$row['flid']]['legacy_name']] = [
+	                        'prefix' => $row['circa'],
+	                        'month' => $row['month'],
+	                        'day' => $row['day'],
+	                        'year' => $row['year'],
+	                        'era' => $row['era'],
+	                        'suffix' => ''
+	                    ];
+	                } else {
+		                $records[$kid][$fields[$row['flid']]['name']] = [
+	                        'prefix' => $row['circa'],
+	                        'month' => $row['month'],
+	                        'day' => $row['day'],
+	                        'year' => $row['year'],
+	                        'era' => $row['era'],
+	                        'suffix' => ''
+	                    ];
+	                }
+                }
+                $datafields->free();
+                $con->next_result();
+
+                //Schedule Field
+                $datafields = $con->store_result();
+                while($row = $datafields->fetch_assoc()) {
+                    if(!array_key_exists($row['rid'], $ridsToKids))
+                        continue;
+                    $kid = $ridsToKids[$row['rid']];
+
+                    $value = array();
+                    $begin = explode('[!]',$row['value']);
+                    foreach($begin as $date) {
+                        $harddate = explode(' ',$date)[0];
+                        $value[] = $harddate;
+                    }
+
+                    if($useOpts && isset($options['under']) && $options['under'])
+                    	$records[$kid][$fields[$row['flid']]['legacy_name']] = $value;
+                    else
+                    	$records[$kid][$fields[$row['flid']]['name']] = $value;
+                }
+                $datafields->free();
+                $con->next_result();
+
+                //Documents Field
+                $datafields = $con->store_result();
+                while($row = $datafields->fetch_assoc()) {
+                    if(!array_key_exists($row['rid'], $ridsToKids))
+                        continue;
+                    $kid = $ridsToKids[$row['rid']];
+
+                    $url = 'r'.$row['rid'].'/fl'.$row['flid'] . '/';
+                    $files = explode('[!]',$row['documents']);
+                    $file = $files[0];
+                    $info = [
+                        'originalName' => explode('[Name]',$file)[1],
+                        'size' => floatval(explode('[Size]',$file)[1])/1000 . " mb",
+                        'type' => explode('[Type]',$file)[1],
+                        'localName' => $url.explode('[Name]',$file)[1]
+                    ];
+
+                    if($useOpts && isset($options['under']) && $options['under'])
+                    	$records[$kid][$fields[$row['flid']]['legacy_name']] = $info;
+                    else
+                    	$records[$kid][$fields[$row['flid']]['name']] = $info;
+                }
+                $datafields->free();
+                $con->next_result();
+
+                //Gallery Field
+                $datafields = $con->store_result();
+                while($row = $datafields->fetch_assoc()) {
+                    if(!array_key_exists($row['rid'], $ridsToKids))
+                        continue;
+                    $kid = $ridsToKids[$row['rid']];
+
+                    $url = 'r'.$row['rid'].'/fl'.$row['flid'] . '/';
+                    $files = explode('[!]',$row['images']);
+                    $file = $files[0];
+                    $info = [
+                        'originalName' => explode('[Name]',$file)[1],
+                        'size' => floatval(explode('[Size]',$file)[1])/1000 . " mb",
+                        'type' => explode('[Type]',$file)[1],
+                        'localName' => $url.explode('[Name]',$file)[1]
+                    ];
+
+                    if($useOpts && isset($options['under']) && $options['under'])
+                    	$records[$kid][$fields[$row['flid']]['legacy_name']] = $info;
+                    else
+                    	$records[$kid][$fields[$row['flid']]['name']] = $info;
+                }
+                $datafields->free();
+                $con->next_result();
+
+                //Associator Field
+                $datafields = $con->store_result();
+                while($row = $datafields->fetch_assoc()) {
+                    if(!array_key_exists($row['rid'], $ridsToKids))
+                        continue;
+                    $kid = $ridsToKids[$row['rid']];
+
+                    if($useOpts && isset($options['under']) && $options['under'])
+                    	$records[$kid][$fields[$row['flid']]['legacy_name']] = explode(',',$row['value']);
+                    else
+                    	$records[$kid][$fields[$row['flid']]['name']] = explode(',',$row['value']);
+                }
+                $datafields->free();
 
                 return json_encode($records);
                 break;
             case self::XML:
+                //Gonna treat things a little different
+                $recordData = $records;
                 $records = '<?xml version="1.0" encoding="utf-8"?><Records>';
-                $recordData = [];
 
-                //Check to see if we should bother with options
-                $useOpts = !is_null($options);
+                //Begin data
+                $con->multi_query($finalDataSelect);
 
-                foreach($chunks as $chunk) {
-                    $datafields = self::getDataRows($chunk);
+                //Text Field
+                $datafields = $con->store_result();
+                while($row = $datafields->fetch_assoc()) {
+                    $kid = $ridsToKids[$row['rid']];
+                    if(!array_key_exists($kid,$recordData))
+                        continue;
 
-                    foreach($datafields as $data) {
-                        $kid = $data->pid.'-'.$data->fid.'-'.$data->rid;
+                    $fieldxml = '<'.$fields[$row['flid']]['nickname'].' type="'.$fields[$row['flid']]['type'].'">';
 
-                        $fieldxml = '<'.$data->slug.' type="'.$data->type.'">';
-                        switch($data->type) {
-                            case Field::_TEXT:
-                                $fieldxml .= htmlspecialchars($data->value, ENT_XML1, 'UTF-8');
-                                break;
-                            case Field::_RICH_TEXT:
-                                $fieldxml .= htmlspecialchars($data->value, ENT_XML1, 'UTF-8');
-                                break;
-                            case Field::_NUMBER:
-                                $fieldxml .= htmlspecialchars((float)$data->value, ENT_XML1, 'UTF-8');
-                                break;
-                            case Field::_LIST:
-                                $fieldxml .= htmlspecialchars($data->value, ENT_XML1, 'UTF-8');
-                                break;
-                            case Field::_MULTI_SELECT_LIST:
-                                $opts = explode('[!]',$data->value);
-                                foreach($opts as $opt) {
-                                    $fieldxml .= '<value>'.htmlspecialchars($opt, ENT_XML1, 'UTF-8').'</value>';
-                                }
-                                break;
-                            case Field::_GENERATED_LIST:
-                                $opts = explode('[!]',$data->value);
-                                foreach($opts as $opt) {
-                                    $fieldxml .= '<value>'.htmlspecialchars($opt, ENT_XML1, 'UTF-8').'</value>';
-                                }
-                                break;
-                            case Field::_COMBO_LIST:
-                                $dataone = explode('[!data!]',$data->value);
-                                $datatwo = explode('[!data!]',$data->val2);
-                                $numberone = explode('[!data!]',$data->val3);
-                                $numbertwo = explode('[!data!]',$data->val4);
-                                $typeone = explode('[Type]', explode('[!Field1!][Type]', $data->val5)[1])[0];
-                                $typetwo = explode('[Type]', explode('[!Field2!][Type]', $data->val5)[1])[0];
-                                if($typeone=='Number')
-                                    $cnt = sizeof($numberone);
-                                else
-                                    $cnt = sizeof($dataone);
-                                $nameone = explode('[Name]', explode('[Type][Name]', $data->val5)[1])[0];
-                                $nametwo = explode('[Name]', explode('[Type][Name]', $data->val5)[2])[0];
+                    $fieldxml .= htmlspecialchars($row['text'], ENT_XML1, 'UTF-8');
 
-                                for($c=0;$c<$cnt;$c++) {
-                                    switch($typeone) {
-                                        case Field::_MULTI_SELECT_LIST:
-                                        case Field::_GENERATED_LIST:
-                                            $valone = '';
-                                            $vals = explode('[!]',$dataone[$c]);
-                                            foreach($vals as $v) {
-                                                $valone .= '<value>'.htmlspecialchars($v, ENT_XML1, 'UTF-8').'</value>';
-                                            }
-                                            break;
-                                        case Field::_NUMBER:
-                                            $valone = htmlspecialchars($numberone[$c], ENT_XML1, 'UTF-8');
-                                            break;
-                                        default:
-                                            $valone = htmlspecialchars($dataone[$c], ENT_XML1, 'UTF-8');
-                                            break;
-                                    }
+                    $fieldxml .= '</'.$fields[$row['flid']]['nickname'].'>';
+                    if($recordData[$kid] == [])
+                        $recordData[$kid] = $fieldxml;
+                    else
+                        $recordData[$kid] .= $fieldxml;
+                }
+                $datafields->free();
+                $con->next_result();
 
-                                    switch($typetwo) {
-                                        case Field::_MULTI_SELECT_LIST:
-                                        case Field::_GENERATED_LIST:
-                                            $valtwo = '';
-                                            $vals = explode('[!]',$datatwo[$c]);
-                                            foreach($vals as $v) {
-                                                $valtwo .= '<value>'.htmlspecialchars($v, ENT_XML1, 'UTF-8').'</value>';
-                                            }
-                                            break;
-                                        case Field::_NUMBER:
-                                            $valtwo = htmlspecialchars($numbertwo[$c], ENT_XML1, 'UTF-8');
-                                            break;
-                                        default:
-                                            $valtwo = htmlspecialchars($datatwo[$c], ENT_XML1, 'UTF-8');
-                                            break;
-                                    }
+                //Number Field
+                $datafields = $con->store_result();
+                while($row = $datafields->fetch_assoc()) {
+                    $kid = $ridsToKids[$row['rid']];
+                    if(!array_key_exists($kid,$recordData))
+                        continue;
 
-                                    $fieldxml .= '<Value><'.$nameone.'>'.$valone.'</'.$nameone.'><'.$nametwo.'>'.$valtwo.'</'.$nametwo.'></Value>';
-                                }
-                                break;
-                            case Field::_DATE:
-                                $fieldxml .= '<Circa>'.$data->value.'</Circa>';
-                                $fieldxml .= '<Month>'.$data->val2.'</Month>';
-                                $fieldxml .= '<Day>'.$data->val3.'</Day>';
-                                $fieldxml .= '<Year>'.$data->val4.'</Year>';
-                                $fieldxml .= '<Era>'.$data->val5.'</Era>';
-                                break;
-                            case Field::_SCHEDULE:
-                                $begin = explode('[!]',$data->value);
-                                $cnt = sizeof($begin);
-                                $end = explode('[!]',$data->val2);
-                                $allday = explode('[!]',$data->val3);
-                                $desc = explode('[!]',$data->val4);
-                                for($i=0;$i<$cnt;$i++) {
-                                    if($allday[$i]==1) {
-                                        $formatBegin = date("m/d/Y", strtotime($begin[$i]));
-                                        $formatEnd = date("m/d/Y", strtotime($end[$i]));
-                                    } else {
-                                        $formatBegin = date("m/d/Y h:i A", strtotime($begin[$i]));
-                                        $formatEnd = date("m/d/Y h:i A", strtotime($end[$i]));
-                                    }
-                                    $fieldxml .= '<Event>';
-                                    $fieldxml .= '<Title>' . htmlspecialchars($desc[$i], ENT_XML1, 'UTF-8') . '</Title>';
-                                    $fieldxml .= '<Begin>' . htmlspecialchars($formatBegin, ENT_XML1, 'UTF-8') . '</Begin>';
-                                    $fieldxml .= '<End>' . htmlspecialchars($formatEnd, ENT_XML1, 'UTF-8') . '</End>';
-                                    $fieldxml .= '<All_Day>' . htmlspecialchars($allday[$i], ENT_XML1, 'UTF-8') . '</All_Day>';
-                                    $fieldxml .= '</Event>';
-                                }
-                                break;
-                            case Field::_GEOLOCATOR:
-                                $value = array();
-                                $desc = explode('[!]',$data->value);
-                                $cnt = sizeof($desc);
-                                $address = explode('[!]',$data->val2);
-                                $latlon = explode('[!latlon!]',$data->val3);
-                                $utm = explode('[!utm!]',$data->val4);
-                                for($i=0;$i<$cnt;$i++) {
-                                    $ll = explode('[!]',$latlon[$i]);
-                                    $u = explode('[!]',$utm[$i]);
-                                    $fieldxml .= '<Location>';
-                                    $fieldxml .= '<Desc>' .$desc[$i]. '</Desc>';
-                                    $fieldxml .= '<Lat>' .$ll[0]. '</Lat>';
-                                    $fieldxml .= '<Lon>' .$ll[1]. '</Lon>';
-                                    $fieldxml .= '<Zone>' .$u[0]. '</Zone>';
-                                    $fieldxml .= '<East>' .$u[1]. '</East>';
-                                    $fieldxml .= '<North>' .$u[2]. '</North>';
-                                    $fieldxml .= '<Address>' .$address[$i]. '</Address>';
-                                    $fieldxml .= '</Location>';
-                                }
-                                break;
-                            case Field::_DOCUMENTS:
-                                $url = url('app/files/p'.$data->pid.'/f'.$data->fid.'/r'.$data->rid.'/fl'.$data->flid) . '/';
-                                $files = explode('[!]',$data->value);
-                                foreach($files as $file) {
-                                    $fieldxml .= '<File>';
-                                    $fieldxml .= '<Name>' . htmlspecialchars(explode('[Name]',$file)[1], ENT_XML1, 'UTF-8') . '</Name>';
-                                    $fieldxml .= '<Size>' . floatval(explode('[Size]',$file)[1])/1000 . ' mb</Size>';
-                                    $fieldxml .= '<Type>' . explode('[Type]',$file)[1] . '</Type>';
-                                    $fieldxml .= '<Url>' . htmlspecialchars($url.explode('[Name]',$file)[1], ENT_XML1, 'UTF-8') . '</Url>';
-                                    $fieldxml .= '</File>';
-                                }
-                                break;
-                            case Field::_GALLERY:
-                                $url = url('app/files/p'.$data->pid.'/f'.$data->fid.'/r'.$data->rid.'/fl'.$data->flid) . '/';
-                                $files = explode('[!]',$data->value);
-                                $captions = (!is_null($data->val2) && $data->val2!='') ? explode('[!]',$data->val2) : null;
-                                for($gi=0;$gi<sizeof($files);$gi++) {
-                                    $fieldxml .= '<File>';
-                                    $fieldxml .= '<Name>' . htmlspecialchars(explode('[Name]',$files[$gi])[1], ENT_XML1, 'UTF-8') . '</Name>';
-                                    if(!is_null($captions))
-                                        $fieldxml .= '<Caption>' . htmlspecialchars($captions[$gi], ENT_XML1, 'UTF-8') . '</Caption>';
-                                    else
-                                        $fieldxml .= '<Caption></Caption>';
-                                    $fieldxml .= '<Size>' . floatval(explode('[Size]',$files[$gi])[1])/1000 . ' mb</Size>';
-                                    $fieldxml .= '<Type>' . explode('[Type]',$files[$gi])[1] . '</Type>';
-                                    $fieldxml .= '<Url>' . htmlspecialchars($url.explode('[Name]',$files[$gi])[1], ENT_XML1, 'UTF-8') . '</Url>';
-                                    $fieldxml .= '</File>';
-                                }
-                                break;
-                            case Field::_PLAYLIST:
-                                $url = url('app/files/p'.$data->pid.'/f'.$data->fid.'/r'.$data->rid.'/fl'.$data->flid) . '/';
-                                $files = explode('[!]',$data->value);
-                                foreach($files as $file) {
-                                    $fieldxml .= '<File>';
-                                    $fieldxml .= '<Name>' . htmlspecialchars(explode('[Name]',$file)[1], ENT_XML1, 'UTF-8') . '</Name>';
-                                    $fieldxml .= '<Size>' . floatval(explode('[Size]',$file)[1])/1000 . ' mb</Size>';
-                                    $fieldxml .= '<Type>' . explode('[Type]',$file)[1] . '</Type>';
-                                    $fieldxml .= '<Url>' . htmlspecialchars($url.explode('[Name]',$file)[1], ENT_XML1, 'UTF-8') . '</Url>';
-                                    $fieldxml .= '</File>';
-                                }
-                                break;
-                            case Field::_VIDEO:
-                                $url = url('app/files/p'.$data->pid.'/f'.$data->fid.'/r'.$data->rid.'/fl'.$data->flid) . '/';
-                                $files = explode('[!]',$data->value);
-                                foreach($files as $file) {
-                                    $fieldxml .= '<File>';
-                                    $fieldxml .= '<Name>' . htmlspecialchars(explode('[Name]',$file)[1], ENT_XML1, 'UTF-8') . '</Name>';
-                                    $fieldxml .= '<Size>' . floatval(explode('[Size]',$file)[1])/1000 . ' mb</Size>';
-                                    $fieldxml .= '<Type>' . explode('[Type]',$file)[1] . '</Type>';
-                                    $fieldxml .= '<Url>' . htmlspecialchars($url.explode('[Name]',$file)[1], ENT_XML1, 'UTF-8') . '</Url>';
-                                    $fieldxml .= '</File>';
-                                }
-                                break;
-                            case Field::_3D_MODEL:
-                                $url = url('app/files/p'.$data->pid.'/f'.$data->fid.'/r'.$data->rid.'/fl'.$data->flid) . '/';
-                                $files = explode('[!]',$data->value);
-                                foreach($files as $file) {
-                                    $fieldxml .= '<File>';
-                                    $fieldxml .= '<Name>' . htmlspecialchars(explode('[Name]',$file)[1], ENT_XML1, 'UTF-8') . '</Name>';
-                                    $fieldxml .= '<Size>' . floatval(explode('[Size]',$file)[1])/1000 . ' mb</Size>';
-                                    $fieldxml .= '<Type>' . explode('[Type]',$file)[1] . '</Type>';
-                                    $fieldxml .= '<Url>' . htmlspecialchars($url.explode('[Name]',$file)[1], ENT_XML1, 'UTF-8') . '</Url>';
-                                    $fieldxml .= '</File>';
-                                }
-                                break;
-                            case Field::_ASSOCIATOR:
-                                $aRecs = explode(',',$data->value);
-                                $fieldxml .= '<Record>'.implode('</Record><Record>',$aRecs).'</Record>';
-                                break;
-                            default:
-                                break;
-                        }
+                    $fieldxml = '<'.$fields[$row['flid']]['nickname'].' type="'.$fields[$row['flid']]['type'].'">';
 
-                        $fieldxml .= '</'.$data->slug.'>';
+                    $fieldxml .= htmlspecialchars((float)$row['number'], ENT_XML1, 'UTF-8');
 
-                        if(isset($recordData[$kid]))
-                            $recordData[$kid] .= $fieldxml;
-                        else
-                            $recordData[$kid] = $fieldxml;
+                    $fieldxml .= '</'.$fields[$row['flid']]['nickname'].'>';
+                    if($recordData[$kid] == [])
+                        $recordData[$kid] = $fieldxml;
+                    else
+                        $recordData[$kid] .= $fieldxml;
+                }
+                $datafields->free();
+                $con->next_result();
+
+                //Rich Text Field
+                $datafields = $con->store_result();
+                while($row = $datafields->fetch_assoc()) {
+                    $kid = $ridsToKids[$row['rid']];
+                    if(!array_key_exists($kid,$recordData))
+                        continue;
+
+                    $fieldxml = '<'.$fields[$row['flid']]['nickname'].' type="'.$fields[$row['flid']]['type'].'">';
+
+                    $fieldxml .= htmlspecialchars($row['rawtext'], ENT_XML1, 'UTF-8');
+
+                    $fieldxml .= '</'.$fields[$row['flid']]['nickname'].'>';
+                    if($recordData[$kid] == [])
+                        $recordData[$kid] = $fieldxml;
+                    else
+                        $recordData[$kid] .= $fieldxml;
+                }
+                $datafields->free();
+                $con->next_result();
+
+                //List Field
+                $datafields = $con->store_result();
+                while($row = $datafields->fetch_assoc()) {
+                    $kid = $ridsToKids[$row['rid']];
+                    if(!array_key_exists($kid,$recordData))
+                        continue;
+
+                    $fieldxml = '<'.$fields[$row['flid']]['nickname'].' type="'.$fields[$row['flid']]['type'].'">';
+
+                    $fieldxml .= htmlspecialchars($row['option'], ENT_XML1, 'UTF-8');
+
+                    $fieldxml .= '</'.$fields[$row['flid']]['nickname'].'>';
+                    if($recordData[$kid] == [])
+                        $recordData[$kid] = $fieldxml;
+                    else
+                        $recordData[$kid] .= $fieldxml;
+                }
+                $datafields->free();
+                $con->next_result();
+
+                //Multi-Select List Field
+                $datafields = $con->store_result();
+                while($row = $datafields->fetch_assoc()) {
+                    $kid = $ridsToKids[$row['rid']];
+                    if(!array_key_exists($kid,$recordData))
+                        continue;
+
+                    $fieldxml = '<'.$fields[$row['flid']]['nickname'].' type="'.$fields[$row['flid']]['type'].'">';
+
+                    $opts = explode('[!]',$row['options']);
+                    foreach($opts as $opt) {
+                        $fieldxml .= '<value>'.htmlspecialchars($opt, ENT_XML1, 'UTF-8').'</value>';
                     }
 
-                    //Next we see if metadata is requested
-                    if($useOpts && $options['revAssoc']) {
-                        $meta = self::getReverseAssociations($chunk);
-                        foreach($meta as $mkid => $mt) {
-                            if(isset($mt['reverseAssociations'])) {
-                                $raXML = '<reverseAssociations>';
-                                foreach ($mt['reverseAssociations'] as $flid => $rAssocs) {
-                                    foreach($rAssocs as $rA) {
-                                        $raXML .= "<Record flid='$flid'>$rA</Record>";
-                                    }
-                                }
-                                $raXML .= '</reverseAssociations>';
+                    $fieldxml .= '</'.$fields[$row['flid']]['nickname'].'>';
+                    if($recordData[$kid] == [])
+                        $recordData[$kid] = $fieldxml;
+                    else
+                        $recordData[$kid] .= $fieldxml;
+                }
+                $datafields->free();
+                $con->next_result();
 
-                                if (isset($recordData[$kid]))
-                                    $recordData[$mkid] .= $raXML;
-                                else
-                                    $recordData[$mkid] = $raXML;
+                //Generated List Field
+                $datafields = $con->store_result();
+                while($row = $datafields->fetch_assoc()) {
+                    $kid = $ridsToKids[$row['rid']];
+                    if(!array_key_exists($kid,$recordData))
+                        continue;
+
+                    $fieldxml = '<'.$fields[$row['flid']]['nickname'].' type="'.$fields[$row['flid']]['type'].'">';
+
+                    $opts = explode('[!]',$row['options']);
+                    foreach($opts as $opt) {
+                        $fieldxml .= '<value>'.htmlspecialchars($opt, ENT_XML1, 'UTF-8').'</value>';
+                    }
+
+                    $fieldxml .= '</'.$fields[$row['flid']]['nickname'].'>';
+                    if($recordData[$kid] == [])
+                        $recordData[$kid] = $fieldxml;
+                    else
+                        $recordData[$kid] .= $fieldxml;
+                }
+                $datafields->free();
+                $con->next_result();
+
+                //Combo List Field
+                $datafields = $con->store_result();
+                while($row = $datafields->fetch_assoc()) {
+                    $kid = $ridsToKids[$row['rid']];
+                    if(!array_key_exists($kid,$recordData))
+                        continue;
+
+                    $fieldxml = '<'.$fields[$row['flid']]['nickname'].' type="'.$fields[$row['flid']]['type'].'">';
+
+                    $dataone = explode('[!data!]',$row['value']);
+                    $datatwo = explode('[!data!]',$row['val2']);
+                    $numberone = explode('[!data!]',$row['val3']);
+                    $numbertwo = explode('[!data!]',$row['val4']);
+                    $typeone = explode('[Type]', explode('[!Field1!][Type]', $fields[$row['flid']]['options'])[1])[0];
+                    $typetwo = explode('[Type]', explode('[!Field2!][Type]', $fields[$row['flid']]['options'])[1])[0];
+                    if($typeone=='Number')
+                        $cnt = sizeof($numberone);
+                    else
+                        $cnt = sizeof($dataone);
+                    $nameone = explode('[Name]', explode('[Type][Name]', $fields[$row['flid']]['options'])[1])[0];
+                    $nametwo = explode('[Name]', explode('[Type][Name]', $fields[$row['flid']]['options'])[2])[0];
+                    for($c=0;$c<$cnt;$c++) {
+                        switch($typeone) {
+                            case Field::_MULTI_SELECT_LIST:
+                            case Field::_GENERATED_LIST:
+                                $valone = '';
+                                $vals = explode('[!]',$dataone[$c]);
+                                foreach($vals as $v) {
+                                    $valone .= '<value>'.htmlspecialchars($v, ENT_XML1, 'UTF-8').'</value>';
+                                }
+                                break;
+                            case Field::_NUMBER:
+                                $valone = htmlspecialchars($numberone[$c], ENT_XML1, 'UTF-8');
+                                break;
+                            default:
+                                $valone = htmlspecialchars($dataone[$c], ENT_XML1, 'UTF-8');
+                                break;
+                        }
+                        switch($typetwo) {
+                            case Field::_MULTI_SELECT_LIST:
+                            case Field::_GENERATED_LIST:
+                                $valtwo = '';
+                                $vals = explode('[!]',$datatwo[$c]);
+                                foreach($vals as $v) {
+                                    $valtwo .= '<value>'.htmlspecialchars($v, ENT_XML1, 'UTF-8').'</value>';
+                                }
+                                break;
+                            case Field::_NUMBER:
+                                $valtwo = htmlspecialchars($numbertwo[$c], ENT_XML1, 'UTF-8');
+                                break;
+                            default:
+                                $valtwo = htmlspecialchars($datatwo[$c], ENT_XML1, 'UTF-8');
+                                break;
+                        }
+                        $fieldxml .= '<Value><'.$nameone.'>'.$valone.'</'.$nameone.'><'.$nametwo.'>'.$valtwo.'</'.$nametwo.'></Value>';
+                    }
+
+
+                    $fieldxml .= '</'.$fields[$row['flid']]['nickname'].'>';
+                    if($recordData[$kid] == [])
+                        $recordData[$kid] = $fieldxml;
+                    else
+                        $recordData[$kid] .= $fieldxml;
+                }
+                $datafields->free();
+                $con->next_result();
+
+                //Date Field
+                $datafields = $con->store_result();
+                while($row = $datafields->fetch_assoc()) {
+                    $kid = $ridsToKids[$row['rid']];
+                    if(!array_key_exists($kid,$recordData))
+                        continue;
+
+                    $fieldxml = '<'.$fields[$row['flid']]['nickname'].' type="'.$fields[$row['flid']]['type'].'">';
+
+                    $fieldxml .= '<Circa>'.$row['circa'].'</Circa>';
+                    $fieldxml .= '<Month>'.$row['month'].'</Month>';
+                    $fieldxml .= '<Day>'.$row['day'].'</Day>';
+                    $fieldxml .= '<Year>'.$row['year'].'</Year>';
+                    $fieldxml .= '<Era>'.$row['era'].'</Era>';
+
+                    $fieldxml .= '</'.$fields[$row['flid']]['nickname'].'>';
+                    if($recordData[$kid] == [])
+                        $recordData[$kid] = $fieldxml;
+                    else
+                        $recordData[$kid] .= $fieldxml;
+                }
+                $datafields->free();
+                $con->next_result();
+
+                //Schedule Field
+                $datafields = $con->store_result();
+                while($row = $datafields->fetch_assoc()) {
+                    $kid = $ridsToKids[$row['rid']];
+                    if(!array_key_exists($kid,$recordData))
+                        continue;
+
+                    $fieldxml = '<'.$fields[$row['flid']]['nickname'].' type="'.$fields[$row['flid']]['type'].'">';
+
+                    $begin = explode('[!]',$row['value']);
+                    $cnt = sizeof($begin);
+                    $end = explode('[!]',$row['val2']);
+                    $allday = explode('[!]',$row['val3']);
+                    $desc = explode('[!]',$row['val4']);
+                    for($i=0;$i<$cnt;$i++) {
+                        if($allday[$i]==1) {
+                            $formatBegin = date("m/d/Y", strtotime($begin[$i]));
+                            $formatEnd = date("m/d/Y", strtotime($end[$i]));
+                        } else {
+                            $formatBegin = date("m/d/Y h:i A", strtotime($begin[$i]));
+                            $formatEnd = date("m/d/Y h:i A", strtotime($end[$i]));
+                        }
+                        $fieldxml .= '<Event>';
+                        $fieldxml .= '<Title>' . htmlspecialchars($desc[$i], ENT_XML1, 'UTF-8') . '</Title>';
+                        $fieldxml .= '<Begin>' . htmlspecialchars($formatBegin, ENT_XML1, 'UTF-8') . '</Begin>';
+                        $fieldxml .= '<End>' . htmlspecialchars($formatEnd, ENT_XML1, 'UTF-8') . '</End>';
+                        $fieldxml .= '<All_Day>' . htmlspecialchars($allday[$i], ENT_XML1, 'UTF-8') . '</All_Day>';
+                        $fieldxml .= '</Event>';
+                    }
+
+                    $fieldxml .= '</'.$fields[$row['flid']]['nickname'].'>';
+                    if($recordData[$kid] == [])
+                        $recordData[$kid] = $fieldxml;
+                    else
+                        $recordData[$kid] .= $fieldxml;
+                }
+                $datafields->free();
+                $con->next_result();
+
+                //Documents Field
+                $datafields = $con->store_result();
+                while($row = $datafields->fetch_assoc()) {
+                    $kid = $ridsToKids[$row['rid']];
+                    if(!array_key_exists($kid,$recordData))
+                        continue;
+
+                    $fieldxml = '<'.$fields[$row['flid']]['nickname'].' type="'.$fields[$row['flid']]['type'].'">';
+
+                    $url = url('app/files/p'.$form->pid.'/f'.$form->fid.'/r'.$row['rid'].'/fl'.$row['flid']) . '/';
+                    $files = explode('[!]',$row['documents']);
+                    foreach($files as $file) {
+                        $fieldxml .= '<File>';
+                        $fieldxml .= '<Name>' . htmlspecialchars(explode('[Name]',$file)[1], ENT_XML1, 'UTF-8') . '</Name>';
+                        $fieldxml .= '<Size>' . floatval(explode('[Size]',$file)[1])/1000 . ' mb</Size>';
+                        $fieldxml .= '<Type>' . explode('[Type]',$file)[1] . '</Type>';
+                        $fieldxml .= '<Url>' . htmlspecialchars($url.explode('[Name]',$file)[1], ENT_XML1, 'UTF-8') . '</Url>';
+                        $fieldxml .= '</File>';
+                    }
+
+                    $fieldxml .= '</'.$fields[$row['flid']]['nickname'].'>';
+                    if($recordData[$kid] == [])
+                        $recordData[$kid] = $fieldxml;
+                    else
+                        $recordData[$kid] .= $fieldxml;
+                }
+                $datafields->free();
+                $con->next_result();
+
+                //Gallery Field
+                $datafields = $con->store_result();
+                while($row = $datafields->fetch_assoc()) {
+                    $kid = $ridsToKids[$row['rid']];
+                    if(!array_key_exists($kid,$recordData))
+                        continue;
+
+                    $fieldxml = '<'.$fields[$row['flid']]['nickname'].' type="'.$fields[$row['flid']]['type'].'">';
+
+                    $url = url('app/files/p'.$form->pid.'/f'.$form->fid.'/r'.$row['rid'].'/fl'.$row['flid']) . '/';
+                    $files = explode('[!]',$row['images']);
+                    $captions = (!is_null($row['captions']) && $row['captions']!='') ? explode('[!]',$row['captions']) : null;
+                    for($gi=0;$gi<sizeof($files);$gi++) {
+                        $fieldxml .= '<File>';
+                        $fieldxml .= '<Name>' . htmlspecialchars(explode('[Name]',$files[$gi])[1], ENT_XML1, 'UTF-8') . '</Name>';
+                        if(!is_null($captions))
+                            $fieldxml .= '<Caption>' . htmlspecialchars($captions[$gi], ENT_XML1, 'UTF-8') . '</Caption>';
+                        else
+                            $fieldxml .= '<Caption></Caption>';
+                        $fieldxml .= '<Size>' . floatval(explode('[Size]',$files[$gi])[1])/1000 . ' mb</Size>';
+                        $fieldxml .= '<Type>' . explode('[Type]',$files[$gi])[1] . '</Type>';
+                        $fieldxml .= '<Url>' . htmlspecialchars($url.explode('[Name]',$files[$gi])[1], ENT_XML1, 'UTF-8') . '</Url>';
+                        $fieldxml .= '</File>';
+                    }
+
+                    $fieldxml .= '</'.$fields[$row['flid']]['nickname'].'>';
+                    if($recordData[$kid] == [])
+                        $recordData[$kid] = $fieldxml;
+                    else
+                        $recordData[$kid] .= $fieldxml;
+                }
+                $datafields->free();
+                $con->next_result();
+
+                //Playlist Field
+                $datafields = $con->store_result();
+                while($row = $datafields->fetch_assoc()) {
+                    $kid = $ridsToKids[$row['rid']];
+                    if(!array_key_exists($kid,$recordData))
+                        continue;
+
+                    $fieldxml = '<'.$fields[$row['flid']]['nickname'].' type="'.$fields[$row['flid']]['type'].'">';
+
+                    $url = url('app/files/p'.$form->pid.'/f'.$form->fid.'/r'.$row['rid'].'/fl'.$row['flid']) . '/';
+                    $files = explode('[!]',$row['audio']);
+                    foreach($files as $file) {
+                        $fieldxml .= '<File>';
+                        $fieldxml .= '<Name>' . htmlspecialchars(explode('[Name]',$file)[1], ENT_XML1, 'UTF-8') . '</Name>';
+                        $fieldxml .= '<Size>' . floatval(explode('[Size]',$file)[1])/1000 . ' mb</Size>';
+                        $fieldxml .= '<Type>' . explode('[Type]',$file)[1] . '</Type>';
+                        $fieldxml .= '<Url>' . htmlspecialchars($url.explode('[Name]',$file)[1], ENT_XML1, 'UTF-8') . '</Url>';
+                        $fieldxml .= '</File>';
+                    }
+
+                    $fieldxml .= '</'.$fields[$row['flid']]['nickname'].'>';
+                    if($recordData[$kid] == [])
+                        $recordData[$kid] = $fieldxml;
+                    else
+                        $recordData[$kid] .= $fieldxml;
+                }
+                $datafields->free();
+                $con->next_result();
+
+                //Video Field
+                $datafields = $con->store_result();
+                while($row = $datafields->fetch_assoc()) {
+                    $kid = $ridsToKids[$row['rid']];
+                    if(!array_key_exists($kid,$recordData))
+                        continue;
+
+                    $fieldxml = '<'.$fields[$row['flid']]['nickname'].' type="'.$fields[$row['flid']]['type'].'">';
+
+                    $url = url('app/files/p'.$form->pid.'/f'.$form->fid.'/r'.$row['rid'].'/fl'.$row['flid']) . '/';
+                    $files = explode('[!]',$row['video']);
+                    foreach($files as $file) {
+                        $fieldxml .= '<File>';
+                        $fieldxml .= '<Name>' . htmlspecialchars(explode('[Name]',$file)[1], ENT_XML1, 'UTF-8') . '</Name>';
+                        $fieldxml .= '<Size>' . floatval(explode('[Size]',$file)[1])/1000 . ' mb</Size>';
+                        $fieldxml .= '<Type>' . explode('[Type]',$file)[1] . '</Type>';
+                        $fieldxml .= '<Url>' . htmlspecialchars($url.explode('[Name]',$file)[1], ENT_XML1, 'UTF-8') . '</Url>';
+                        $fieldxml .= '</File>';
+                    }
+
+                    $fieldxml .= '</'.$fields[$row['flid']]['nickname'].'>';
+                    if($recordData[$kid] == [])
+                        $recordData[$kid] = $fieldxml;
+                    else
+                        $recordData[$kid] .= $fieldxml;
+                }
+                $datafields->free();
+                $con->next_result();
+
+                //Model Field
+                $datafields = $con->store_result();
+                while($row = $datafields->fetch_assoc()) {
+                    $kid = $ridsToKids[$row['rid']];
+                    if(!array_key_exists($kid,$recordData))
+                        continue;
+
+                    $fieldxml = '<'.$fields[$row['flid']]['nickname'].' type="'.$fields[$row['flid']]['type'].'">';
+
+                    $url = url('app/files/p'.$form->pid.'/f'.$form->fid.'/r'.$row['rid'].'/fl'.$row['flid']) . '/';
+                    $files = explode('[!]',$row['model']);
+                    foreach($files as $file) {
+                        $fieldxml .= '<File>';
+                        $fieldxml .= '<Name>' . htmlspecialchars(explode('[Name]',$file)[1], ENT_XML1, 'UTF-8') . '</Name>';
+                        $fieldxml .= '<Size>' . floatval(explode('[Size]',$file)[1])/1000 . ' mb</Size>';
+                        $fieldxml .= '<Type>' . explode('[Type]',$file)[1] . '</Type>';
+                        $fieldxml .= '<Url>' . htmlspecialchars($url.explode('[Name]',$file)[1], ENT_XML1, 'UTF-8') . '</Url>';
+                        $fieldxml .= '</File>';
+                    }
+
+                    $fieldxml .= '</'.$fields[$row['flid']]['nickname'].'>';
+                    if($recordData[$kid] == [])
+                        $recordData[$kid] = $fieldxml;
+                    else
+                        $recordData[$kid] .= $fieldxml;
+                }
+                $datafields->free();
+                $con->next_result();
+
+                //Geolocator Field
+                $datafields = $con->store_result();
+                while($row = $datafields->fetch_assoc()) {
+                    $kid = $ridsToKids[$row['rid']];
+                    if(!array_key_exists($kid,$recordData))
+                        continue;
+
+                    $fieldxml = '<'.$fields[$row['flid']]['nickname'].' type="'.$fields[$row['flid']]['type'].'">';
+
+                    $desc = explode('[!]',$row['value']);
+                    $cnt = sizeof($desc);
+                    $address = explode('[!]',$row['val2']);
+                    $latlon = explode('[!latlon!]',$row['val3']);
+                    $utm = explode('[!utm!]',$row['val4']);
+                    for($i=0;$i<$cnt;$i++) {
+                        $ll = explode('[!]',$latlon[$i]);
+                        $u = explode('[!]',$utm[$i]);
+                        $fieldxml .= '<Location>';
+                        $fieldxml .= '<Desc>' .$desc[$i]. '</Desc>';
+                        $fieldxml .= '<Lat>' .$ll[0]. '</Lat>';
+                        $fieldxml .= '<Lon>' .$ll[1]. '</Lon>';
+                        $fieldxml .= '<Zone>' .$u[0]. '</Zone>';
+                        $fieldxml .= '<East>' .$u[1]. '</East>';
+                        $fieldxml .= '<North>' .$u[2]. '</North>';
+                        $fieldxml .= '<Address>' .$address[$i]. '</Address>';
+                        $fieldxml .= '</Location>';
+                    }
+
+                    $fieldxml .= '</'.$fields[$row['flid']]['nickname'].'>';
+                    if($recordData[$kid] == [])
+                        $recordData[$kid] = $fieldxml;
+                    else
+                        $recordData[$kid] .= $fieldxml;
+                }
+                $datafields->free();
+                $con->next_result();
+
+                //Associator Field
+                $datafields = $con->store_result();
+                while($row = $datafields->fetch_assoc()) {
+                    $kid = $ridsToKids[$row['rid']];
+                    if(!array_key_exists($kid,$recordData))
+                        continue;
+
+                    $fieldxml = '<'.$fields[$row['flid']]['nickname'].' type="'.$fields[$row['flid']]['type'].'">';
+
+                    $aRecs = explode(',',$row['value']);
+                    $fieldxml .= '<Record>'.implode('</Record><Record>',$aRecs).'</Record>';
+
+                    $fieldxml .= '</'.$fields[$row['flid']]['nickname'].'>';
+                    if($recordData[$kid] == [])
+                        $recordData[$kid] = $fieldxml;
+                    else
+                        $recordData[$kid] .= $fieldxml;
+                }
+                $datafields->free();
+
+                //Next we see if metadata is requested
+                if($useOpts && isset($options['revAssoc']) && $options['revAssoc']) {
+                    $revAssoc = "SELECT aSupp.record as main, aSupp.flid as flid, recs.kid as linker FROM ".$prefix."associator_support as aSupp 
+                      LEFT JOIN ".$prefix."records as recs on aSupp.rid=recs.rid WHERE aSupp.record in (".implode(', ',$rids).")";
+
+                    $meta = [];
+                    $datafields = $con->query($revAssoc);
+                    while($row = $datafields->fetch_assoc()) {
+                        $kid = $ridsToKids[$row['main']];
+                        if(!array_key_exists($kid,$recordData))
+                            continue;
+
+                        $meta[$kid]["reverseAssociations"][$row['flid']][] = $row['linker'];
+                    }
+                    mysqli_free_result($datafields);
+
+                    foreach($meta as $mkid => $mt) {
+                        if(isset($mt['reverseAssociations'])) {
+                            $raXML = '<reverseAssociations>';
+                            foreach ($mt['reverseAssociations'] as $flid => $rAssocs) {
+                                foreach($rAssocs as $rA) {
+                                    $raXML .= "<Record flid='$flid'>$rA</Record>";
+                                }
                             }
+                            $raXML .= '</reverseAssociations>';
+                            if(isset($recordData[$kid]))
+                                $recordData[$mkid] .= $raXML;
+                            else
+                                $recordData[$mkid] = $raXML;
                         }
                     }
                 }
@@ -1131,361 +1822,381 @@ class ExportController extends Controller {
                 foreach($recordData as $kid => $data) {
                     $records .= "<Record kid='$kid'>$data</Record>";
                 }
-
                 $records .= '</Records>';
-
                 if($dataOnly) {
                     return $records;
                 } else {
                     $dt = new \DateTime();
                     $format = $dt->format('Y_m_d_H_i_s');
                     $path = storage_path("app/exports/record_export_$format.xml");
-
                     file_put_contents($path, $records);
-
                     return $path;
                 }
-            case self::META:
-                //Check to see if any records in form
-                if(sizeof($rids)==0)
-                    return "no_records";
-
-                //We need one rid from the set to determine the project and form used in this metadata
-                $tempRid = $rids[0];
-                $tempKid = Record::where('rid','=',$tempRid)->first()->kid;
-                $kidParts = explode('-',$tempKid);
-
-                $resourceTitle = Form::where('fid','=',$kidParts[1])->first()->lod_resource;
-                $metaUrl = url("projects/".$kidParts[0]."/forms/".$kidParts[1]."/metadata/public#");
-
-                $records = '<?xml version="1.0"?><rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" ';
-                $records .= 'xmlns:geo="http://www.w3.org/2003/01/geo/wgs84_pos#" ';
-                $records .= "xmlns:$resourceTitle=\"$metaUrl\">";
-                $recordData = [];
-
-                foreach($chunks as $chunk) {
-                    $datafields = self::getDataRows($chunk);
-
-                    foreach($datafields as $data) {
-                        $kid = $data->pid.'-'.$data->fid.'-'.$data->rid;
-                        $metaObj = Metadata::where('flid','=',$data->flid)->first();
-                        if(is_null($metaObj))
-                            continue;
-
-                        $metaFieldName = $metaObj->name;
-
-                        if($data->type==Field::_ASSOCIATOR)
-                            $fieldxml = "<".$resourceTitle.":".$metaFieldName.">";
-                        else
-                            $fieldxml = "<".$resourceTitle.":".$metaFieldName." rdf:parseType=\"Collection\">";
-
-                        switch($data->type) {
-                            case Field::_TEXT:
-                                $fieldxml .= htmlspecialchars($data->value, ENT_XML1, 'UTF-8');
-                                break;
-                            case Field::_NUMBER:
-                                $fieldxml .= htmlspecialchars((float)$data->value, ENT_XML1, 'UTF-8');
-                                break;
-                            case Field::_LIST:
-                                $fieldxml .= htmlspecialchars($data->value, ENT_XML1, 'UTF-8');
-                                break;
-                            case Field::_MULTI_SELECT_LIST:
-                                $fieldxml .= '<rdf:Seq>';
-                                $opts = explode('[!]',$data->value);
-                                foreach($opts as $opt) {
-                                    $fieldxml .= '<rdf:li>'.htmlspecialchars($opt, ENT_XML1, 'UTF-8').'</rdf:li>';
-                                }
-                                $fieldxml .= '</rdf:Seq>';
-                                break;
-                            case Field::_GENERATED_LIST:
-                                $fieldxml .= '<rdf:Seq>';
-                                $opts = explode('[!]',$data->value);
-                                foreach($opts as $opt) {
-                                    $fieldxml .= '<rdf:li>'.htmlspecialchars($opt, ENT_XML1, 'UTF-8').'</rdf:li>';
-                                }
-                                $fieldxml .= '</rdf:Seq>';
-                                break;
-                            case Field::_DATE:
-                                $info = "";
-                                if($data->value==1)
-                                    $info .= 'circa ';
-                                if($data->val2!="")
-                                    $info .= date("F", mktime(0, 0, 0, $data->val2, 10)).' ';
-                                if($data->val3!="")
-                                    $info .= $data->val3.' ';
-                                if($data->val4!="")
-                                    $info .= $data->val4.' ';
-                                if($data->val5!="")
-                                    $info .= $data->val5.' ';
-
-                                $fieldxml .= htmlspecialchars(trim($info), ENT_XML1, 'UTF-8');
-                                break;
-                            case Field::_GEOLOCATOR:
-                                $fieldxml .= '<rdf:Seq>';
-
-                                $latlon = explode('[!latlon!]',$data->val3);
-                                $desc = explode('[!]',$data->value);
-                                $cnt = sizeof($desc);
-
-                                for($i=0;$i<$cnt;$i++) {
-                                    $ll = explode('[!]',$latlon[$i]);
-                                    $lat = "<geo:lat>".$ll[0]."</geo:lat>";
-                                    $long = "<geo:long>".$ll[1]."</geo:long>";
-                                    $fieldxml .= "<geo:Point>".$lat.$long."</geo:Point>";
-                                }
-                                $fieldxml .= '</rdf:Seq>';
-                                break;
-                            case Field::_ASSOCIATOR:
-                                $aRecs = explode(',',$data->value);
-
-                                foreach($aRecs as $aRec) {
-                                    $aKidParts = explode('-',$aRec);
-
-                                    $aPrimary = Metadata::where('fid','=',$aKidParts[1])->where('primary','=',1)->first()->flid;
-                                    $aResourceIndexValue = TextField::where('flid','=',$aPrimary)->where('rid','=',$aKidParts[2])->first()->text;
-
-                                    $fieldxml .= "<rdf:Description rdf:about=\""
-                                        .url("projects/".$aKidParts[0]."/forms/".$aKidParts[1]."/metadata/public/$aResourceIndexValue")."\" />";
-                                }
-                                break;
-                            default:
-                                break;
-                        }
-
-                        $fieldxml .= "</".$resourceTitle.":".$metaFieldName.">";
-
-                        if(isset($recordData[$kid]))
-                            $recordData[$kid] .= $fieldxml;
-                        else
-                            $recordData[$kid] = $fieldxml;
-                    }
-                }
-
-                //Now we have an array of kids to their field data
-                //We need to loop back and add them to the xml
-                foreach($recordData as $kid => $data) {
-                    $records .= "<rdf:Description ";
-
-                    $parts = explode('-',$kid);
-                    $primary = Metadata::where('fid','=',$parts[1])->where('primary','=',1)->first()->flid;
-                    $resourceIndexValue = TextField::where('flid','=',$primary)->where('rid','=',$parts[2])->first()->text;
-
-                    $records .= "rdf:about=\"".url("projects/".$parts[0]."/forms/".$parts[1]."/metadata/public/".$resourceIndexValue)."\">";
-                    $records .= "$data</rdf:Description>";
-                }
-
-                $records .= '</rdf:RDF>';
-
-                if($dataOnly) {
-                    return $records;
-                } else {
-                    $dt = new \DateTime();
-                    $format = $dt->format('Y_m_d_H_i_s');
-                    $path = storage_path("app/exports/record_export_$format.rdf");
-
-                    file_put_contents($path, $records);
-
-                    return $path;
-                }
+                break;
             default:
-                return '';
+                mysqli_close($con);
+                return null;
                 break;
         }
     }
 
     /**
-     * Get the data rows back for a set of records.
+     * Gets record info for an associated record. TODO::Maybe down the road improve this
      *
-     * @param  int $rids - Record IDs
-     * @return array - Data for the records
+     * @param  int $rid - Record ID
+     * @param  \mysqli $con - Connection to DB
+     * @param  int $fid - Form ID
+     * @param  string $fIndex - What name index we should grab
+     * @return array - The record data
      */
-    public static function getDataRows($rids, $slugOpts=null) {
+    private function getSingleRecordForAssoc($rid, $con, $fid, $fIndex) {
+        $record = [];
+
         $prefix = config('database.connections.mysql.prefix');
-        $ridArray = implode(', ',$rids);
-        $slugQL = '';
-        if(!is_null($slugOpts)) {
-            foreach($slugOpts as $slug) {
-                $slugQL .= "'$slug',";
+
+        //Grab information about the form's fields
+        $form = FormController::getForm($fid);
+        $fieldMods = $form->fields()->get();
+        $fields = array();
+        foreach($fieldMods as $field) {
+            $fArray = array();
+            $fArray['flid'] = $field->flid;
+            $fArray['name'] = $field->name;
+            $fArray['type'] = $field->type;
+            $fArray['nickname'] = $field->slug;
+            $fArray['options'] = $field->options;
+
+            //We want both so we can get field regardless of having id or slug
+            $fields[$field->flid] = $fArray;
+            $fields[$field->slug] = $fArray;
+        }
+
+        //Prep the table statements
+        $textselect = "SELECT `flid`, `text` FROM ".$prefix."text_fields where `rid`=$rid";
+        $numberselect = "SELECT `flid`, `number` FROM ".$prefix."number_fields where `rid`=$rid";
+        $richtextselect = "SELECT `flid`, `rawtext` FROM ".$prefix."rich_text_fields where `rid`=$rid";
+        $listselect = "SELECT `flid`, `option` FROM ".$prefix."list_fields where `rid`=$rid";
+        $multiselectlistselect = "SELECT `flid`, `options` FROM ".$prefix."multi_select_list_fields where `rid`=$rid";
+        $generatedlistselect = "SELECT `flid`, `options` FROM ".$prefix."generated_list_fields where `rid`=$rid";
+        $combolistselect = "SELECT `flid`, GROUP_CONCAT(if(`field_num`=1, `data`, null) ORDER BY `list_index` ASC SEPARATOR '[!data!]' ) as `value`,
+                  GROUP_CONCAT(if(`field_num`=2, `data`, null) ORDER BY `list_index` ASC SEPARATOR '[!data!]' ) as `val2`,
+                  GROUP_CONCAT(if(`field_num`=1, `number`, null) ORDER BY `list_index` ASC SEPARATOR '[!data!]' ) as `val3`,
+                  GROUP_CONCAT(if(`field_num`=2, `number`, null) ORDER BY `list_index` ASC SEPARATOR '[!data!]' ) as `val4` 
+                  FROM ".$prefix."combo_support where `rid`=$rid group by `flid`";
+        $dateselect = "SELECT `flid`, `circa`, `month`, `day`, `year`, `era` FROM ".$prefix."date_fields where `rid`=$rid";
+        $scheduleselect = "SELECT `flid`, GROUP_CONCAT(`begin` SEPARATOR '[!]') as `value`, 
+                  GROUP_CONCAT(`end` SEPARATOR '[!]') as `val2`, 
+                  GROUP_CONCAT(`allday` SEPARATOR '[!]') as `val3`,
+                  GROUP_CONCAT(`desc` SEPARATOR '[!]') as `val4` 
+                  FROM ".$prefix."schedule_support where `rid`=$rid group by `flid`";
+        $documentsselect = "SELECT `flid`, `documents` FROM ".$prefix."documents_fields where `rid`=$rid";
+        $galleryselect = "SELECT `flid`, `images`, `captions` FROM ".$prefix."gallery_fields where `rid`=$rid";
+        $playlistselect = "SELECT `flid`, `audio` FROM ".$prefix."playlist_fields where `rid`=$rid";
+        $videoselect = "SELECT `flid`, `video` FROM ".$prefix."video_fields where `rid`=$rid";
+        $modelselect = "SELECT `flid`, `model` FROM ".$prefix."model_fields where `rid`=$rid";
+        $geolocatorselect = "SELECT `flid`, GROUP_CONCAT(`desc` SEPARATOR '[!]') as `value`, 
+                  GROUP_CONCAT(`address` SEPARATOR '[!]') as `val2`, 
+                  GROUP_CONCAT(CONCAT_WS('[!]', `lat`, `lon`) SEPARATOR '[!latlon!]') as `val3`, 
+                  GROUP_CONCAT(CONCAT_WS('[!]', `zone`, `easting`, `northing`) SEPARATOR '[!utm!]') as `val4` 
+                  FROM ".$prefix."geolocator_support where `rid`=$rid group by `flid`";
+        $associatorselect = "SELECT af.flid as `flid`, GROUP_CONCAT(aRec.kid SEPARATOR ',') as `value` 
+                  FROM ".$prefix."associator_support as af left join ".$prefix."records as aRec on af.record=aRec.rid 
+                  where af.`rid`=$rid group by `flid`";
+
+        $datafields = $con->query($textselect);
+        while ($row = $datafields->fetch_assoc()) {
+            $fieldIndex = $fields[$row['flid']][$fIndex];
+
+            $record[$fieldIndex] = $row['text'];
+        }
+        mysqli_free_result($datafields);
+
+        $datafields = $con->query($numberselect);
+        while ($row = $datafields->fetch_assoc()) {
+            $fieldIndex = $fields[$row['flid']][$fIndex];
+
+            $record[$fieldIndex] = $row['number'];
+        }
+        mysqli_free_result($datafields);
+
+        $datafields = $con->query($richtextselect);
+        while ($row = $datafields->fetch_assoc()) {
+            $fieldIndex = $fields[$row['flid']][$fIndex];
+
+            $record[$fieldIndex] = $row['rawtext'];
+        }
+        mysqli_free_result($datafields);
+
+        $datafields = $con->query($listselect);
+        while ($row = $datafields->fetch_assoc()) {
+            $fieldIndex = $fields[$row['flid']][$fIndex];
+
+            $record[$fieldIndex] = $row['option'];
+        }
+        mysqli_free_result($datafields);
+
+        $datafields = $con->query($multiselectlistselect);
+        while ($row = $datafields->fetch_assoc()) {
+            $fieldIndex = $fields[$row['flid']][$fIndex];
+
+            $record[$fieldIndex] = explode('[!]', $row['options']);
+        }
+        mysqli_free_result($datafields);
+
+        $datafields = $con->query($generatedlistselect);
+        while ($row = $datafields->fetch_assoc()) {
+            $fieldIndex = $fields[$row['flid']][$fIndex];
+
+            $record[$fieldIndex] = explode('[!]', $row['options']);
+        }
+        mysqli_free_result($datafields);
+
+        $datafields = $con->query($combolistselect);
+        while ($row = $datafields->fetch_assoc()) {
+            $fieldIndex = $fields[$row['flid']][$fIndex];
+
+            $value = array();
+            $dataone = explode('[!data!]', $row['value']);
+            $datatwo = explode('[!data!]', $row['val2']);
+            $numberone = explode('[!data!]', $row['val3']);
+            $numbertwo = explode('[!data!]', $row['val4']);
+            $typeone = explode('[Type]', explode('[!Field1!][Type]', $fields[$row['flid']]['options'])[1])[0];
+            $typetwo = explode('[Type]', explode('[!Field2!][Type]', $fields[$row['flid']]['options'])[1])[0];
+            if ($typeone == 'Number')
+                $cnt = sizeof($numberone);
+            else
+                $cnt = sizeof($dataone);
+            $nameone = explode('[Name]', explode('[Type][Name]', $fields[$row['flid']]['options'])[1])[0];
+            $nametwo = explode('[Name]', explode('[Type][Name]', $fields[$row['flid']]['options'])[2])[0];
+
+            for ($c = 0; $c < $cnt; $c++) {
+                $val = [];
+
+                switch ($typeone) {
+                    case Field::_MULTI_SELECT_LIST:
+                    case Field::_GENERATED_LIST:
+                        $valone = explode('[!]', $dataone[$c]);
+                        break;
+                    case Field::_NUMBER:
+                        $valone = $numberone[$c];
+                        break;
+                    default:
+                        $valone = $dataone[$c];
+                        break;
+                }
+
+                switch ($typetwo) {
+                    case Field::_MULTI_SELECT_LIST:
+                    case Field::_GENERATED_LIST:
+                        $valtwo = explode('[!]', $datatwo[$c]);
+                        break;
+                    case Field::_NUMBER:
+                        $valtwo = $numbertwo[$c];
+                        break;
+                    default:
+                        $valtwo = $datatwo[$c];
+                        break;
+                }
+
+                $val[$nameone] = $valone;
+                $val[$nametwo] = $valtwo;
+
+                $value[] = $val;
             }
-            $slugQL = ' and fl.slug in ('.substr($slugQL, 0, -1).')';
+
+            $record[$fieldIndex] = $value;
         }
+        mysqli_free_result($datafields);
 
-        DB::statement("SET SESSION group_concat_max_len = 12345;");
+        $datafields = $con->query($dateselect);
+        while ($row = $datafields->fetch_assoc()) {
+            $fieldIndex = $fields[$row['flid']][$fIndex];
 
-        return DB::select("SELECT tf.rid as `rid`, tf.text as `value`, NULL as `val2`, NULL as `val3`, NULL as `val4`, NULL as `val5`, fl.slug, fl.type, fl.pid, fl.fid, fl.flid, fl.name 
-FROM ".$prefix."text_fields as tf left join ".$prefix."fields as fl on tf.flid=fl.flid where tf.rid in ($ridArray)$slugQL 
-union all
-
-SELECT nf.rid as `rid`, nf.number as `value`, NULL as `val2`, NULL as `val3`, NULL as `val4`, NULL as `val5`, fl.slug, fl.type, fl.pid, fl.fid, fl.flid, fl.name 
-FROM ".$prefix."number_fields as nf left join ".$prefix."fields as fl on nf.flid=fl.flid where nf.rid in ($ridArray)$slugQL 
-union all
-
-SELECT rtf.rid as `rid`, rtf.rawtext as `value`, NULL as `val2`, NULL as `val3`, NULL as `val4`, NULL as `val5`, fl.slug, fl.type, fl.pid, fl.fid, fl.flid, fl.name 
-FROM ".$prefix."rich_text_fields as rtf left join ".$prefix."fields as fl on rtf.flid=fl.flid where rtf.rid in ($ridArray)$slugQL 
-union all
-
-SELECT lf.rid as `rid`, lf.option as `value`, NULL as `val2`, NULL as `val3`, NULL as `val4`, NULL as `val5`, fl.slug, fl.type, fl.pid, fl.fid, fl.flid, fl.name 
-FROM ".$prefix."list_fields as lf left join ".$prefix."fields as fl on lf.flid=fl.flid where lf.rid in ($ridArray)$slugQL 
-union all
-
-SELECT mslf.rid as `rid`, mslf.options as `value`, NULL as `val2`, NULL as `val3`, NULL as `val4`, NULL as `val5`, fl.slug, fl.type, fl.pid, fl.fid, fl.flid, fl.name 
-FROM ".$prefix."multi_select_list_fields as mslf left join ".$prefix."fields as fl on mslf.flid=fl.flid where mslf.rid in ($ridArray)$slugQL 
-union all
-
-SELECT glf.rid as `rid`, glf.options as `value`, NULL as `val2`, NULL as `val3`, NULL as `val4`, NULL as `val5`, fl.slug, fl.type, fl.pid, fl.fid, fl.flid, fl.name 
-FROM ".$prefix."generated_list_fields as glf left join ".$prefix."fields as fl on glf.flid=fl.flid where glf.rid in ($ridArray)$slugQL 
-union all
-
-SELECT clf.rid as `rid`, GROUP_CONCAT(if(clf.field_num=1, clf.data, null) ORDER BY clf.list_index ASC SEPARATOR '[!data!]' ) as `value`, 
-GROUP_CONCAT(if(clf.field_num=2, clf.data, null) ORDER BY clf.list_index ASC SEPARATOR '[!data!]' ) as `val2`, 
-GROUP_CONCAT(if(clf.field_num=1, clf.number, null) ORDER BY clf.list_index ASC SEPARATOR '[!data!]' ) as `val3`, 
-GROUP_CONCAT(if(clf.field_num=2, clf.number, null) ORDER BY clf.list_index ASC SEPARATOR '[!data!]' ) as `val4`, fl.options as `val5`, fl.slug, fl.type, fl.pid, fl.fid, fl.flid, fl.name 
-FROM ".$prefix."combo_support as clf left join ".$prefix."fields as fl on clf.flid=fl.flid where clf.rid in ($ridArray)$slugQL group by `rid`, `flid` 
-union all
-
-SELECT df.rid as `rid`, df.circa as `value`, df.month as `val2`,df.day as `val3`,df.year as `val4`,df.era as `val5`,fl.slug, fl.type, fl.pid, fl.fid, fl.flid, fl.name 
-FROM ".$prefix."date_fields as df left join ".$prefix."fields as fl on df.flid=fl.flid where df.rid in ($ridArray)$slugQL 
-union all
-
-SELECT sf.rid as `rid`, GROUP_CONCAT(sf.begin SEPARATOR '[!]') as `value`, GROUP_CONCAT(sf.end SEPARATOR '[!]') as `val2`, GROUP_CONCAT(sf.allday SEPARATOR '[!]') as `val3`, 
-GROUP_CONCAT(sf.desc SEPARATOR '[!]') as `val4`, NULL as `val5`, fl.slug, fl.type, fl.pid, fl.fid, fl.flid, fl.name 
-FROM ".$prefix."schedule_support as sf left join ".$prefix."fields as fl on sf.flid=fl.flid where sf.rid in ($ridArray)$slugQL group by `rid`, `flid` 
-union all
-
-SELECT docf.rid as `rid`, docf.documents as `value`, NULL as `val2`, NULL as `val3`, NULL as `val4`, NULL as `val5`, fl.slug, fl.type, fl.pid, fl.fid, fl.flid, fl.name 
-FROM ".$prefix."documents_fields as docf left join ".$prefix."fields as fl on docf.flid=fl.flid where docf.rid in ($ridArray)$slugQL 
-union all
-
-SELECT galf.rid as `rid`, galf.images as `value`, galf.captions as `val2`, NULL as `val3`, NULL as `val4`, NULL as `val5`, fl.slug, fl.type, fl.pid, fl.fid, fl.flid, fl.name 
-FROM ".$prefix."gallery_fields as galf left join ".$prefix."fields as fl on galf.flid=fl.flid where galf.rid in ($ridArray)$slugQL 
-union all
-
-SELECT pf.rid as `rid`, pf.audio as `value`, NULL as `val2`, NULL as `val3`, NULL as `val4`, NULL as `val5`, fl.slug, fl.type, fl.pid, fl.fid, fl.flid, fl.name 
-FROM ".$prefix."playlist_fields as pf left join ".$prefix."fields as fl on pf.flid=fl.flid where pf.rid in ($ridArray)$slugQL 
-union all
-
-SELECT vf.rid as `rid`, vf.video as `value`, NULL as `val2`, NULL as `val3`, NULL as `val4`, NULL as `val5`, fl.slug, fl.type, fl.pid, fl.fid, fl.flid, fl.name 
-FROM ".$prefix."video_fields as vf left join ".$prefix."fields as fl on vf.flid=fl.flid where vf.rid in ($ridArray)$slugQL 
-union all
-
-SELECT mf.rid as `rid`, mf.model as `value`, NULL as `val2`, NULL as `val3`, NULL as `val4`, NULL as `val5`, fl.slug, fl.type, fl.pid, fl.fid, fl.flid, fl.name 
-FROM ".$prefix."model_fields as mf left join ".$prefix."fields as fl on mf.flid=fl.flid where mf.rid in ($ridArray)$slugQL 
-union all
-
-SELECT gf.rid as `rid`, GROUP_CONCAT(gf.desc SEPARATOR '[!]') as `value`, GROUP_CONCAT(gf.address SEPARATOR '[!]') as `val2`, GROUP_CONCAT(CONCAT_WS('[!]', gf.lat, gf.lon) SEPARATOR '[!latlon!]') as `val3`, GROUP_CONCAT(CONCAT_WS('[!]', gf.zone, gf.easting, gf.northing) SEPARATOR '[!utm!]') as `val4`, NULL as `val5`, fl.slug, fl.type, fl.pid, fl.fid, fl.flid, fl.name 
-FROM ".$prefix."geolocator_support as gf left join ".$prefix."fields as fl on gf.flid=fl.flid where gf.rid in ($ridArray)$slugQL group by `rid`, `flid` 
-union all
-
-SELECT af.rid as `rid`, GROUP_CONCAT(aRec.kid SEPARATOR ',') as `value`, NULL as `val2`, NULL as `val3`, NULL as `val4`, NULL as `val5`, fl.slug, fl.type, fl.pid, fl.fid, fl.flid, fl.name 
-FROM ".$prefix."associator_support as af left join ".$prefix."fields as fl on af.flid=fl.flid left join ".$prefix."records as aRec on af.record=aRec.rid where af.rid in ($ridArray)$slugQL group by `rid`, `flid` ORDER BY field(`rid`, $ridArray) ;");
-    }
-
-    /**
-     * Get the metadeta back for a set of records.
-     *
-     * @param  int $rid - Record IDs
-     * @return array - Metadata for the records
-     */
-    public static function getRecordMetadata($rids) {
-        $prefix = config('database.connections.mysql.prefix');
-        $meta = [];
-        $kidPairs = [];
-        $rid = implode(', ',$rids);
-
-        $part1 = DB::select("SELECT r.rid, r.kid, r.created_at, r.updated_at, u.username FROM ".$prefix."records as r LEFT JOIN ".$prefix."users as u on r.owner=u.id WHERE r.rid in ($rid) ORDER BY field(r.rid, $rid)");
-        foreach($part1 as $row) {
-            $meta[$row->kid]["created"] = $row->created_at;
-            $meta[$row->kid]["updated"] = $row->updated_at;
-            $meta[$row->kid]["owner"] = $row->username;
-            $kidPairs[$row->rid] = $row->kid;
+            $record[$fieldIndex] = [
+                'circa' => $row['circa'],
+                'month' => $row['month'],
+                'day' => $row['day'],
+                'year' => $row['year'],
+                'era' => $row['era']
+            ];
         }
+        mysqli_free_result($datafields);
 
-        $part2 = DB::select("SELECT aSupp.record as main, recs.kid as linker FROM ".$prefix."associator_support as aSupp LEFT JOIN ".$prefix."records as recs on aSupp.rid=recs.rid WHERE aSupp.record in ($rid)");
+        $datafields = $con->query($scheduleselect);
+        while ($row = $datafields->fetch_assoc()) {
+            $fieldIndex = $fields[$row['flid']][$fIndex];
 
-        foreach($part2 as $row) {
-            $meta[$kidPairs[$row->main]]["reverseAssociations"][] = $row->linker;
+            $value = array();
+            $begin = explode('[!]', $row['value']);
+            $cnt = sizeof($begin);
+            $end = explode('[!]', $row['val2']);
+            $allday = explode('[!]', $row['val3']);
+            $desc = explode('[!]', $row['val4']);
+            for ($i = 0; $i < $cnt; $i++) {
+                if ($allday[$i] == 1) {
+                    $formatBegin = date("m/d/Y", strtotime($begin[$i]));
+                    $formatEnd = date("m/d/Y", strtotime($end[$i]));
+                } else {
+                    $formatBegin = date("m/d/Y h:i A", strtotime($begin[$i]));
+                    $formatEnd = date("m/d/Y h:i A", strtotime($end[$i]));
+                }
+                $info = [
+                    'begin' => $formatBegin,
+                    'end' => $formatEnd,
+                    'allday' => $allday[$i],
+                    'desc' => $desc[$i]
+                ];
+                $value[] = $info;
+            }
+
+            $record[$fieldIndex] = $value;
         }
+        mysqli_free_result($datafields);
 
-        return $meta;
-    }
+        $datafields = $con->query($documentsselect);
+        while ($row = $datafields->fetch_assoc()) {
+            $fieldIndex = $fields[$row['flid']][$fIndex];
 
-    /**
-     * Get the reverse associations back for a set of records.
-     *
-     * @param  int $rid - Record IDs
-     * @return array - Reverse associations for the records
-     */
-    public static function getReverseAssociations($rids) {
-        $prefix = config('database.connections.mysql.prefix');
-        $meta = [];
-        $rid = implode(', ',$rids);
-
-        $part1 = DB::select("SELECT r.rid, r.kid FROM ".$prefix."records as r LEFT JOIN ".$prefix."users as u on r.owner=u.id WHERE r.rid in ($rid) ORDER BY field(r.rid, $rid)");
-        foreach($part1 as $row) {
-            $kidPairs[$row->rid] = $row->kid;
+            $url = url('app/files/p' . $form->pid . '/f' . $form->fid . '/r' . $row['rid'] . '/fl' . $row['flid']) . '/';
+            $value = array();
+            $files = explode('[!]', $row['documents']);
+            foreach ($files as $file) {
+                $info = [
+                    'name' => explode('[Name]', $file)[1],
+                    'size' => floatval(explode('[Size]', $file)[1]) / 1000 . " mb",
+                    'type' => explode('[Type]', $file)[1],
+                    'url' => $url . explode('[Name]', $file)[1]
+                ];
+                $value[] = $info;
+            }
+            $record[$fieldIndex] = $value;
         }
+        mysqli_free_result($datafields);
 
-        $results = DB::select("SELECT aSupp.record as main, aSupp.flid as flid, recs.kid as linker FROM ".$prefix."associator_support as aSupp LEFT JOIN ".$prefix."records as recs on aSupp.rid=recs.rid WHERE aSupp.record in ($rid)");
+        $datafields = $con->query($galleryselect);
+        while ($row = $datafields->fetch_assoc()) {
+            $fieldIndex = $fields[$row['flid']][$fIndex];
 
-        foreach($results as $row) {
-            $meta[$kidPairs[$row->main]]["reverseAssociations"][$row->flid][] = $row->linker;
+            $url = url('app/files/p' . $form->pid . '/f' . $form->fid . '/r' . $row['rid'] . '/fl' . $row['flid']) . '/';
+            $value = array();
+            $files = explode('[!]', $row['images']);
+            $captions = (!is_null($row['captions']) && $row['captions'] != '') ? explode('[!]', $row['captions']) : null;
+            for ($gi = 0; $gi < sizeof($files); $gi++) {
+                $info = [
+                    'name' => explode('[Name]', $files[$gi])[1],
+                    'size' => floatval(explode('[Size]', $files[$gi])[1]) / 1000 . " mb",
+                    'type' => explode('[Type]', $files[$gi])[1],
+                    'url' => $url . explode('[Name]', $files[$gi])[1]
+                ];
+                if (!is_null($captions))
+                    $info['caption'] = $captions[$gi];
+                else
+                    $info['caption'] = '';
+                $value[] = $info;
+            }
+            $record[$fieldIndex] = $value;
         }
+        mysqli_free_result($datafields);
 
-        return $meta;
-    }
+        $datafields = $con->query($playlistselect);
+        while ($row = $datafields->fetch_assoc()) {
+            $fieldIndex = $fields[$row['flid']][$fIndex];
 
-    /**
-     * Get the metadeta back for a set of records from a legacy koraSearch.
-     *
-     * @param  int $rid - Record IDs
-     * @return array - Metadata for the records
-     */
-    public static function getRecordMetadataForOldKora($rids) {
-        $prefix = config('database.connections.mysql.prefix');
-        $meta = array();
-        $kidPairs = [];
-        $rid = implode(', ',$rids);
-
-        $part1 = DB::select("SELECT r.rid, r.kid, r.legacy_kid, r.pid, r.fid, r.updated_at, u.username FROM ".$prefix."records as r LEFT JOIN ".$prefix."users as u on r.owner=u.id WHERE r.rid in ($rid) ORDER BY field(r.rid, $rid)");
-        foreach($part1 as $row) {
-            $meta[$row->kid]["kid"] = $row->kid;
-            $meta[$row->kid]["legacy_kid"] = $row->legacy_kid;
-            $meta[$row->kid]["pid"] = $row->pid;
-            $meta[$row->kid]["schemeID"] = $row->fid;
-            $meta[$row->kid]["systimestamp"] = $row->updated_at;
-            $meta[$row->kid]["recordowner"] = $row->username;
-            $kidPairs[$row->rid] = $row->kid;
+            $url = url('app/files/p' . $form->pid . '/f' . $form->fid . '/r' . $row['rid'] . '/fl' . $row['flid']) . '/';
+            $value = array();
+            $files = explode('[!]', $row['audio']);
+            foreach ($files as $file) {
+                $info = [
+                    'name' => explode('[Name]', $file)[1],
+                    'size' => floatval(explode('[Size]', $file)[1]) / 1000 . " mb",
+                    'type' => explode('[Type]', $file)[1],
+                    'url' => $url . explode('[Name]', $file)[1]
+                ];
+                $value[] = $info;
+            }
+            $record[$fieldIndex] = $value;
         }
+        mysqli_free_result($datafields);
 
-        $part2 = DB::select("SELECT aSupp.record as main, recs.kid as linker FROM ".$prefix."associator_support as aSupp LEFT JOIN ".$prefix."records as recs on aSupp.rid=recs.rid WHERE aSupp.record in ($rid)");
+        $datafields = $con->query($videoselect);
+        while ($row = $datafields->fetch_assoc()) {
+            $fieldIndex = $fields[$row['flid']][$fIndex];
 
-        foreach($part2 as $row) {
-            $meta[$kidPairs[$row->main]]["linkers"][] = $row->linker;
+            $url = url('app/files/p' . $form->pid . '/f' . $form->fid . '/r' . $row['rid'] . '/fl' . $row['flid']) . '/';
+            $value = array();
+            $files = explode('[!]', $row['video']);
+            foreach ($files as $file) {
+                $info = [
+                    'name' => explode('[Name]', $file)[1],
+                    'size' => floatval(explode('[Size]', $file)[1]) / 1000 . " mb",
+                    'type' => explode('[Type]', $file)[1],
+                    'url' => $url . explode('[Name]', $file)[1]
+                ];
+                $value[] = $info;
+            }
+            $record[$fieldIndex] = $value;
         }
+        mysqli_free_result($datafields);
 
-        return $meta;
-    }
+        $datafields = $con->query($modelselect);
+        while ($row = $datafields->fetch_assoc()) {
+            $fieldIndex = $fields[$row['flid']][$fIndex];
 
-
-
-    /**
-     * Get the kids back for a set of records for a KID koraSearch.
-     *
-     * @param  int $rid - Record IDs
-     * @return array - KIDs for the records
-     */
-    public static function getKidsFromRids($rids) {
-        $prefix = config('database.connections.mysql.prefix');
-        $rid = implode(', ',$rids);
-        $kids = array();
-
-        $rows = DB::select("SELECT kid FROM ".$prefix."records WHERE rid in ($rid)");
-
-        foreach($rows as $row) {
-            array_push($kids, $row->kid);
+            $url = url('app/files/p' . $form->pid . '/f' . $form->fid . '/r' . $row['rid'] . '/fl' . $row['flid']) . '/';
+            $value = array();
+            $files = explode('[!]', $row['model']);
+            foreach ($files as $file) {
+                $info = [
+                    'name' => explode('[Name]', $file)[1],
+                    'size' => floatval(explode('[Size]', $file)[1]) / 1000 . " mb",
+                    'type' => explode('[Type]', $file)[1],
+                    'url' => $url . explode('[Name]', $file)[1]
+                ];
+                $value[] = $info;
+            }
+            $record[$fieldIndex] = $value;
         }
+        mysqli_free_result($datafields);
 
-        return $kids;
+        $datafields = $con->query($geolocatorselect);
+        while ($row = $datafields->fetch_assoc()) {
+            $fieldIndex = $fields[$row['flid']][$fIndex];
+
+            $value = array();
+            $desc = explode('[!]', $row['value']);
+            $cnt = sizeof($desc);
+            $address = explode('[!]', $row['val2']);
+            $latlon = explode('[!latlon!]', $row['val3']);
+            $utm = explode('[!utm!]', $row['val4']);
+            for ($i = 0; $i < $cnt; $i++) {
+                $ll = explode('[!]', $latlon[$i]);
+                $u = explode('[!]', $utm[$i]);
+                $info = [
+                    'desc' => $desc[$i],
+                    'lat' => $ll[0],
+                    'lon' => $ll[1],
+                    'zone' => $u[0],
+                    'east' => $u[1],
+                    'north' => $u[2],
+                    'address' => $address[$i],
+                ];
+
+                $value[] = $info;
+            }
+
+            $record[$fieldIndex] = $value;
+        }
+        mysqli_free_result($datafields);
+
+        $datafields = $con->query($associatorselect);
+        while ($row = $datafields->fetch_assoc()) {
+            $fieldIndex = $fields[$row['flid']][$fIndex];
+
+            $record[$fieldIndex] = explode(',', $row['value']);
+        }
+        mysqli_free_result($datafields);
+
+        return $record;
     }
 
     /**

@@ -5,7 +5,9 @@
 @endsection
 
 @section('project-text')
+<div class="project-text">
     {{$theirProj->name}} | {{$theirForm->name}}
+</div>
 @endsection
 
 @section('button-link')

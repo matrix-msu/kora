@@ -270,6 +270,14 @@ i {
   }
 }
 
+.icon-empty-projects {
+  &::before {
+    content: $icon-projects-empty;
+	color: #364c57;
+	zoom: 1.40;
+  }
+}
+
 .icon-plus {
   &::before {
     content: $icon-plus;

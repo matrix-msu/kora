@@ -122,7 +122,6 @@ Route::group(['middleware' => 'web'], function () {
     Route::get('/projects/{pid}/forms/{fid}/exportFiles', 'ExportController@exportRecordFiles');
     Route::get('/projects/{pid}/forms/{fid}/exportForm', 'ExportController@exportForm');
     Route::get('/projects/{pid}/exportProj', 'ExportController@exportProject');
-    Route::get('/checkRecordExport/{fid}', 'ExportController@checkRecordExport');
 
 //field routes
     Route::get('/projects/{pid}/forms/{fid}/fields', 'FormController@show'); //alias for form/{id}
@@ -224,6 +223,7 @@ Route::group(['middleware' => 'web'], function () {
     Route::post('/user/picture', 'Auth\UserController@changepicture');
     Route::post('/user/validate', 'Auth\RegisterController@validateUserFields');
     Route::patch('/toggleOnboarding', 'Auth\UserController@toggleOnboarding');
+    Route::patch('/user/validateEditProfile', 'Auth\UserController@validateEditProfile');
 
 //metadata routes
     Route::get('/projects/{pid}/forms/{fid}/metadata/setup', 'MetadataController@index');

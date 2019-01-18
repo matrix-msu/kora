@@ -78,7 +78,7 @@ class UserController extends Controller {
 
           if($session == 'user_updated') {
             if(in_array('password', $changes)) {
-              $notification['message'] = 'Password Successfully Reset!';
+              $notification['message'] = 'Password Successfully Changed!';
               $notification['static'] = true;
             } else {
               $notification['message'] = 'Profile Successfully Updated!';
@@ -334,7 +334,7 @@ class UserController extends Controller {
             $preference = new Preference;
             $preference->user_id = $user->id;
             $preference->use_dashboard = 1;
-            $preference->logo_target = 1;
+            $preference->logo_target = 2; // 1 is dashboard, 2 is projects page
             $preference->proj_page_tab_selection = 3;
             $preference->single_proj_page_tab_selection = 3;
             $preference->onboarding = 1;
@@ -423,7 +423,7 @@ class UserController extends Controller {
             if(is_null($preference)) {
                 $preference = new Preference();
                 $preference->use_dashboard = 1;
-                $preference->logo_target = 1;
+                $preference->logo_target = 2; // 1 is dashboard, 2 is projects page
                 $preference->proj_page_tab_selection = 3;
                 $preference->single_proj_page_tab_selection = 3;
                 $preference->onboarding = 1;
@@ -433,7 +433,7 @@ class UserController extends Controller {
         } else if(\Auth::guest()) {
             $preference = new Preference;
             $preference->use_dashboard = 1;
-            $preference->logo_target = 1;
+            $preference->logo_target = 2; // 1 is dashboard, 2 is projects page
             $preference->proj_page_tab_selection = 3;
             $preference->single_proj_page_tab_selection = 3;
             $preference->onboarding = 1;
@@ -451,6 +451,15 @@ class UserController extends Controller {
     public function validateUserFields(UserRequest $request) {
         return response()->json(["status"=>true, "message"=>"User Valid", 200]);
     }
+	
+	public function validateEditProfile(Request $request) {
+		$validatedData = $request->validate([
+			'password' => 'confirmed|min:6'
+		]);
+		
+		
+		return response()->json(["status"=>true, "message"=>"User Valid", 200]);
+	}
 
     /**
      * Changes the user profile picture and returns the pic URI.

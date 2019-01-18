@@ -19,9 +19,8 @@
 </div>
 
 <div class="form-group mt-xxxl">
-    <h2 class="sub-title">Kora Logo Target</h2>
-    <p class="description">When selecting the Kora logo in the top left corner of the dashboard,
-        where would you like to be taken?</p>
+    <h2 class="sub-title">Kora Home Target</h2>
+    <p class="description">Upon login, or selecting the Kora logo in the top left corner, where would you like to be taken?</p>
     @foreach ($logoTargetOptions as $key => $name)
         <div class="check-box-half">
             <input type="checkbox" {{ ($preference->logo_target == $key ? 'checked' : '') }} value="{{ $key }}" name="logoTarget" class="check-box-input check-box-input-js" />

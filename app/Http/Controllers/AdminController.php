@@ -114,7 +114,7 @@ class AdminController extends Controller {
         if($prevUrl !== url()->current()) {
           $session = $request->session()->get('k3_global_success');
 
-          if($session == 'user_updated' && $profChanges == 'password')
+          if($session == 'user_updated' && isset($profChanges) && $profChanges == 'password')
             $notification['message'] = 'Password Successfully Updated!';
           else if($session == 'user_updated')
             $notification['message'] = 'User Successfully Updated!';
@@ -400,7 +400,7 @@ class AdminController extends Controller {
                         $preference->user_id = $user->id;
                         $preference->created_at = Carbon::now();
                         $preference->use_dashboard = 1;
-                        $preference->logo_target = 1;
+                        $preference->logo_target = 2; // 1 is dashboard, 2 is projects page
                         $preference->proj_page_tab_selection = 3;
                         $preference->single_proj_page_tab_selection = 3;
                         $preference->onboarding = 1;

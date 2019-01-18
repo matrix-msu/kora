@@ -24,6 +24,7 @@
   '/assets/javascripts/records/modal.js',
   '/assets/javascripts/records/batch.js',
   '/assets/javascripts/records/create.js',
+  '/assets/javascripts/records/advanced.js',
   '/assets/javascripts/records/index.js',
   '/assets/javascripts/records/show.js',
   '/assets/javascripts/records/import.js',

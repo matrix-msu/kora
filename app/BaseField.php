@@ -166,6 +166,13 @@ abstract class BaseField extends Model {
     abstract public function getAdvancedFieldOptionsView();
 
     /**
+     * Get the field options view for advanced field creation.
+     *
+     * @return string - Column name
+     */
+    abstract public function getSortColumn();
+
+    /**
      * Gets the default options string for a new field.
      *
      * @param  Request $request

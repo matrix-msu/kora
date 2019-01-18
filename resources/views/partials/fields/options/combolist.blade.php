@@ -19,18 +19,18 @@
     {!! Form::hidden('typetwo',$twoType) !!}
 
     <div class="form-group half pr-m">
-        {!! Form::label('cfname1','Combo List Field Name 1') !!}
+        {!! Form::label('cfname1','First Field ('.$oneType.') Name') !!}
         {!! Form::text('cfname1',$oneName, ['class' => 'text-input']) !!}
     </div>
 
     <div class="form-group half pl-m">
-        {!! Form::label('cfname2','Combo List Field Name 2') !!}
+        {!! Form::label('cfname2','Second Field ('.$twoType.') Name') !!}
         {!! Form::text('cfname2',$twoName, ['class' => 'text-input']) !!}
     </div>
 
     <section class="combo-list-options-one">
         <div class="label-spacer">
-            <label>Field Options for "{{ $oneName }}"</label>
+            <label>Field Options for {{ $oneType }} Field "{{ $oneName }}"</label>
             <div class="spacer"></div>
         </div>
         @if($oneType=='Text')
@@ -52,7 +52,7 @@
 
     <section class="combo-list-options-two">
         <div class="label-spacer">
-            <label>Field Options for "{{ $twoName }}"</label>
+            <label>Field Options for {{ $twoType }} Field "{{ $twoName }}"</label>
             <div class="spacer"></div>
         </div>
         @if($twoType=='Text')

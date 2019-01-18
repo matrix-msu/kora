@@ -71,14 +71,15 @@
             text-shadow: 0 2px 4px 0 rgba(0,0,0,0.1);
         }
 
-        .email > .content > .project-text {
+        .email > .content .project-text {
             font-size: 24px;
             line-height: 28px;
+            margin-bottom: 22px;
             margin-top: 22px;
             text-shadow: 0 2px 4px 0 rgba(0,0,0,0.1);
         }
 
-        .email > .content > .sub-text {
+        .email > .content .sub-text {
             color: #283c46;
             font-size: 14px;
             font-style: italic;
@@ -192,9 +193,9 @@
     <div class="content max-width-regular">
         <div class="main-text">@yield('main-text')</div>
 
-        <div class="project-text bold-highlight">@yield('project-text')</div>
+        <div class="bold-highlight">@yield('project-text')</div>
 
-        <div class="sub-text">@yield('sub-text')</div>
+        <div>@yield('sub-text')</div>
 
         <div class="action-btn">
             <a href="@yield('button-link')">

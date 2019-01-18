@@ -38,9 +38,8 @@ class Handler extends ExceptionHandler {
 	 */
 	public function render($request, Exception $exception)
 	{		
-		if ($exception instanceof \ErrorException) {
-			$install_admin = User::where('id','=',1)->first();
-			return response()->view('errors.500', ['install_admin_email' => $install_admin->email], 500);
+		if (config('app.env') === 'production' && $exception instanceof \ErrorException) {
+			return response()->view('errors.500', [], 500);
 		}
 		
 		return parent::render($request, $exception);

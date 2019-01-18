@@ -24,7 +24,7 @@
                 </div>
 
                 <div class="form-group">
-                    {!! Form::submit('Delete Record',['class' => 'btn warning']) !!}
+                    {!! Form::submit('Delete Record',['class' => 'btn warning single-record-delete-js']) !!}
                 </div>
             {!! Form::close() !!}
         </div>

@@ -147,6 +147,8 @@ Kora.Admin.Users = function() {
 
     // Display corresponding content
     content.addClass('active');
+	
+	$(window).resize(); // fixes name disappearing bug
   }
 
   /**
@@ -306,7 +308,7 @@ Kora.Admin.Users = function() {
 				$form.submit();
 			},
 			error: function (err) {
-				console.log(err);
+				console.warn(err)
 			}
 		});
 	});

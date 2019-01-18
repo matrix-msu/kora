@@ -33,6 +33,11 @@ class ScheduleField extends BaseField {
     const FIELD_DISPLAY_VIEW = "partials.records.display.schedule";
 
     /**
+     * @var string - Data column used for sort
+     */
+    const SORT_COLUMN = null;
+
+    /**
      * @var array - Attributes that can be mass assigned to model
      */
     protected $fillable = [
@@ -57,6 +62,15 @@ class ScheduleField extends BaseField {
      */
     public function getAdvancedFieldOptionsView() {
         return self::FIELD_ADV_OPTIONS_VIEW;
+    }
+
+    /**
+     * Get the field options view for advanced field creation.
+     *
+     * @return string - Column name
+     */
+    public function getSortColumn() {
+        return self::SORT_COLUMN;
     }
 
     /**
@@ -502,13 +516,14 @@ class ScheduleField extends BaseField {
      * @return array - The RIDs that match search
      */
     public function advancedSearchTyped($flid, $query) {
-        $begin_month = ($query[$flid."_begin_month"] == "") ? 1 : intval($query[$flid."_begin_month"]);
-        $begin_day = ($query[$flid."_begin_day"] == "") ? 1 : intval($query[$flid."_begin_day"]);
-        $begin_year = ($query[$flid."_begin_year"] == "") ? 1 : intval($query[$flid."_begin_year"]);
+        $begin_month = (isset($query[$flid."_begin_month"]) && $query[$flid."_begin_month"] != "") ? intval($query[$flid."_begin_month"]) : 1;
+        $begin_day = (isset($query[$flid."_begin_day"]) && $query[$flid."_begin_day"] != "") ? intval($query[$flid."_begin_day"]) : 1;
+        $begin_year = (isset($query[$flid."_begin_year"]) && $query[$flid."_begin_year"] != "") ? intval($query[$flid."_begin_year"]) : 1;
 
-        $end_month = ($query[$flid."_end_month"] == "") ? 1 : intval($query[$flid."_end_month"]);
-        $end_day = ($query[$flid."_end_day"] == "") ? 1 : intval($query[$flid."_end_day"]);
-        $end_year = ($query[$flid."_end_year"] == "") ? 1 : intval($query[$flid."_end_year"]);
+        $end_month = (isset($query[$flid."_end_month"]) && $query[$flid."_end_month"] != "") ? intval($query[$flid."_end_month"]) : 1;
+        $end_day = (isset($query[$flid."_end_day"]) && $query[$flid."_end_day"] != "") ? intval($query[$flid."_end_day"]) : 1;
+        $end_year = (isset($query[$flid."_end_year"]) && $query[$flid."_end_year"] != "") ? intval($query[$flid."_end_year"]) : 1;
+
 
         //
         // Advanced Search for schedule doesn't allow for time search, but we do store the time in some schedules entries.

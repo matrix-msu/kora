@@ -27,6 +27,11 @@ class ModelField extends FileTypeField  {
     const FIELD_DISPLAY_VIEW = "partials.records.display.3dmodel";
 
     /**
+     * @var string - Data column used for sort
+     */
+    const SORT_COLUMN = null;
+
+    /**
      * @var array - Attributes that can be mass assigned to model
      */
     protected $fillable = [
@@ -54,13 +59,22 @@ class ModelField extends FileTypeField  {
     }
 
     /**
+     * Get the field options view for advanced field creation.
+     *
+     * @return string - Column name
+     */
+    public function getSortColumn() {
+        return self::SORT_COLUMN;
+    }
+
+    /**
      * Gets the default options string for a new field.
      *
      * @param  Request $request
      * @return string - The default options
      */
     public function getDefaultOptions(Request $request) {
-        return '[!FieldSize!]0[!FieldSize!][!MaxFiles!]0[!MaxFiles!][!FileTypes!]obj[!]stl[!]application/octet-stream[!]
+        return '[!FieldSize!][!FieldSize!][!MaxFiles!][!MaxFiles!][!FileTypes!]obj[!]stl[!]application/octet-stream[!]
         image/jpeg[!]image/png[!FileTypes!][!ModelColor!]#ddd[!ModelColor!][!BackColorOne!]#2E4F5E[!BackColorOne!]
         [!BackColorTwo!]#152730[!BackColorTwo!]';
     }
@@ -97,12 +111,12 @@ class ModelField extends FileTypeField  {
             $filetype .= '[!]'.$request->filetype[$i];
         }
 
-        if($request->filesize=='')
-            $request->filesize = 0;
 
         $field->updateRequired($request->required);
         $field->updateSearchable($request);
-        $field->updateOptions('FieldSize', $request->filesize);
+		if (isset($request->filesize)) {
+			$field->updateOptions('FieldSize', $request->filesize);
+		}
         $field->updateOptions('FileTypes', $filetype);
         $field->updateOptions('ModelColor', $request->color);
         $field->updateOptions('BackColorOne', $request->backone);
