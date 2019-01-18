@@ -1,12 +1,11 @@
 <?php namespace App\Http\Controllers;
 
-use App\Field;
 use App\Record;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
 use Illuminate\View\View;
 
-class AdvancedSearchController extends Controller { //TODO::CASTLE
+class AdvancedSearchController extends Controller {
 
     /*
     |--------------------------------------------------------------------------
@@ -182,11 +181,15 @@ class AdvancedSearchController extends Controller { //TODO::CASTLE
             return redirect('projects/'.$pid)->with('k3_global_error', 'form_invalid');
 
         $results = [];
+        $form = FormController::getForm($fid);
 
-        $processed = $this->processRequest($request->all());
+        //Need these for negative searches
+        $recModel = new Record(array(),$fid);
+
+        $processed = $this->processRequest($request->all(), $form->layout);
         foreach($processed as $flid => $query) {
-            $field = FieldController::getField($flid);
-            $result = $field->getTypedField()->advancedSearchTyped($flid, $query);
+            $field = $form->layout['fields'][$flid];
+            $result = $form->getFieldModel($field['type'])->advancedSearchTyped($flid, $query, $recModel);
 
             //NOTE: API handles negative searches
 
