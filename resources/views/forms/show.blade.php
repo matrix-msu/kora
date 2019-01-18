@@ -34,8 +34,7 @@
         <div class="form-quick-options">
           <div class="button-container">
 			<?php
-                  $count = 0 //TODO::CASTLE
-              //$count = count($form->records)
+              $count = $form->getRecordCount();
             ?>
             <a href="{{ url('/projects/'.$form->project_id).'/forms/'.$form->id.'/records'}}" class="btn half-sub-btn">Form Records & Search ({{ $count }})</a>
             <a href="@if ($hasFields) {{ action('RecordController@create',['pid' => $form->project_id, 'fid' => $form->id]) }} @endif" class="btn half-sub-btn

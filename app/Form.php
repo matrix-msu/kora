@@ -234,6 +234,78 @@ class Form extends Model {
     }
 
     /**
+     * Gets the data out of the DB.
+     *
+     * @param  $filters
+     *
+     * @return array
+     */
+    public function getRecordsForExport($filters) {
+        $results = [];
+
+        $con = mysqli_connect(
+            config('database.connections.mysql.host'),
+            config('database.connections.mysql.username'),
+            config('database.connections.mysql.password'),
+            config('database.connections.mysql.database')
+        );
+        $prefix = config('database.connections.mysql.prefix');
+
+        //We want to make sure we are doing things in utf8 for special characters
+        if(!mysqli_set_charset($con, "utf8")) {
+            printf("Error loading character set utf8: %s\n", mysqli_error($con));
+            exit();
+        }
+
+        //Get metadata
+        if($filters['meta'])
+            $fields = ['kid','legacy_kid','project_id','form_id','owner','created_at','updated_at'];
+        else
+            $fields = ['kid'];
+
+        //Adds the data fields
+        if(!is_array($filters['fields']) && $filters['fields'] == 'ALL')
+            $flids = array_keys($this->layout['fields']);
+        else
+            $flids = $filters['fields'];
+
+        //Get the real names of fields
+        if($filters['realnames']) {
+            $realNames = [];
+            foreach($flids as $flid) {
+                $name = $flid.' as `'.$this->layout['fields'][$flid]['name'].'`';
+                array_push($realNames,$name);
+            }
+            $flids = $realNames;
+        }
+
+        //Determine whether to return data
+        if($filters['data'])
+            $fields = array_merge($flids,$fields);
+        $fieldString = implode(',',$fields);
+
+        //Add the sorts
+        $orderBy = '';
+        if(!is_null($filters['sort'])) {
+            $orderBy = ' ORDER BY ';
+            for($i=0;$i<sizeof($filters['sort']);$i = $i+2) {
+                $orderBy .= $filters['sort'][$i].' '.$filters['sort'][$i+1].',';
+            }
+            $orderBy = substr($orderBy, 0, -1); //Trim the last comma
+        }
+
+        $selectRecords = "SELECT $fieldString FROM ".$prefix."records_".$this->id.$orderBy;
+
+        $records = $con->query($selectRecords);
+        while($row = $records->fetch_assoc()) {
+            $results[$row['kid']] = $row;
+        }
+        $records->free();
+
+        return $results;
+    }
+
+    /**
      * Get number of records in form.
      *
      * @return int

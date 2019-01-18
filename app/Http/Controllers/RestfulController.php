@@ -77,7 +77,7 @@ class RestfulController extends Controller {
 
         $proj = ProjectController::getProject($pid);
 
-        $validated = $this->validateToken($proj->pid,$request->token,"create");
+        $validated = $this->validateToken($proj->id,$request->token,"create");
         //Authentication failed
         if(!$validated)
             return response()->json(["status"=>false,"error"=>"Invalid create token provided"],500);
@@ -89,7 +89,7 @@ class RestfulController extends Controller {
         $formData = json_decode($request->k3Form);
 
         $ic = new ImportController();
-        $ic->importFormNoFile($proj->pid,$formData);
+        $ic->importFormNoFile($proj->id,$formData);
 
         return "Form Created!";
     }
@@ -131,11 +131,11 @@ class RestfulController extends Controller {
      * @param  Request $request
      * @return mixed - The records
      */
-    public function search(Request $request) { //TODO::CASTLE
+    public function search(Request $request) {
         //get the forms
         $forms = json_decode($request->forms);
         if(is_null($forms) || !is_array($forms))
-            return response()->json(["status"=>false,"error"=>"Unable to process forms array"],500);
+            return response()->json(["status"=>false,"error"=>"Unable to process forms array. Check the JSON structure of your request."],500);
 
         //get the format
         if(isset($request->format))
@@ -158,16 +158,12 @@ class RestfulController extends Controller {
         //next, we authenticate each form
         foreach($forms as $f) {
             //next, we authenticate the form
-            if(Form::where('fid','=',$f->form)->count()==1)
-                $piece = 'fid';
-            else if(Form::where('slug','=',$f->form)->count()==1)
-                $piece = 'slug';
-            else
+            $form = FormController::getForm($f->form);
+            if(is_null($form))
                 return response()->json(["status"=>false,"error"=>"Invalid Form: ".$f->form],500);
 
-            $validated = $this->validateToken(Form::where($piece,'=',$f->form)->value('pid'),$f->token,"search");
             //Authentication failed
-            if(!$validated)
+            if(!$this->validateToken($form->project_id,$f->token,"search"))
                 return response()->json(["status"=>false,"error"=>"Invalid search token provided for form: ".$f->form],500);
         }
 
@@ -182,8 +178,9 @@ class RestfulController extends Controller {
         foreach($forms as $f) {
             //initialize form
             $form = FormController::getForm($f->form);
+            $recMod = new Record(array(),$form->id);
             if($globalSort)
-                array_push($fidsGlobal, $form->fid);
+                array_push($fidsGlobal, $form->id);
 
             //things we will be returning
             //NOTE: Items marked ***, will be overwritten when using globalSort
@@ -191,11 +188,11 @@ class RestfulController extends Controller {
             $filters['data'] = isset($f->data) ? $f->data : true; //do we want data, or just info about the records theme selves***
             $filters['meta'] = isset($f->meta) ? $f->meta : false; //get meta data about record***
             $filters['size'] = isset($f->size) ? $f->size : false; //do we want the number of records in the search result returned instead of data
-            $filters['assoc'] = isset($f->assoc) ? $f->assoc : false; //do we want information back about associated records***
-            $filters['revAssoc'] = isset($f->revAssoc) ? $f->revAssoc : true; //do we want information back about reverse associations for XML OUTPUT
-            $filters['filters'] = isset($f->filters) ? $f->filters : false; //do we want information back about result filters [i.e. Field 'First Name', has value 'Tom', '12' times]
-            $filters['filterCount'] = isset($f->filterCount) ? $f->filterCount : 5; //What is the minimum threshold for a filter to return?
-            $filters['filterFlids'] = isset($f->filterFlids) ? $f->filterFlids : 'ALL'; //What fields should filters return for? Should be array
+            $filters['assoc'] = isset($f->assoc) ? $f->assoc : false; //do we want information back about associated records*** //TODO::CASTLE
+            $filters['revAssoc'] = isset($f->revAssoc) ? $f->revAssoc : true; //do we want information back about reverse associations for XML OUTPUT //TODO::CASTLE
+            $filters['filters'] = isset($f->filters) ? $f->filters : false; //do we want information back about result filters [i.e. Field 'First Name', has value 'Tom', '12' times] //TODO::CASTLE
+            $filters['filterCount'] = isset($f->filterCount) ? $f->filterCount : 5; //What is the minimum threshold for a filter to return? //TODO::CASTLE
+            $filters['filterFlids'] = isset($f->filterFlids) ? $f->filterFlids : 'ALL'; //What fields should filters return for? Should be array //TODO::CASTLE
                 //Note: Filters only captures values from certain fields (mainly single value ones), see ExportController->exportWithRids() to see which ones use it
             $filters['fields'] = isset($f->fields) ? $f->fields : 'ALL'; //which fields do we want data for***
             $filters['sort'] = isset($f->sort) ? $f->sort : null; //how should the data be sorted
@@ -204,44 +201,40 @@ class RestfulController extends Controller {
             //WARNING::IF FIELD NAMES SHARE A TITLE WITHIN THE SAME FIELD, THIS WOULD IN THEORY BREAK
             $filters['realnames'] = isset($f->realnames) ? $f->realnames : false; //do we want records indexed by titles rather than slugs***
             //THIS SOLELY SERVES LEGACY. YOU PROBABLY WILL NEVER USE THIS. DON'T THINK ABOUT IT
-            $filters['under'] = isset($f->under) ? $f->under : false; //Replace field spaces with underscores***
+            $filters['under'] = isset($f->under) ? $f->under : false; //Replace field spaces with underscores*** //TODO::CASTLE
 
             //parse the query
             if(!isset($f->query)) {
                 //return all records
-                //It's apparently quicker to use our negative results function to all forms RIDs so, here we go
-                $returnRIDS = $this->negative_results($form,array());
+                $records = $form->getRecordsForExport($filters);
 
-                if(!is_null($filters['sort'])) {
-                    $returnRIDS = $this->sort_rids($returnRIDS,$filters['sort']);
-                    if(!$returnRIDS)
-                        return response()->json(["status"=>false,"error"=>"Invalid field type, or invalid field, provided for sort in form: ". $form->name],500);
-                }
-                //see if we are returning the size
                 if($filters['size']) {
-                    $countGlobal += sizeof($returnRIDS);
-                    $countArray[$form->fid] = sizeof($returnRIDS);
+                    $cnt = sizeof($records);
+                    $countGlobal += $cnt;
+                    $countArray[$form->id] = $cnt;
                 }
 
-                if($filters['filters'])
-                    $filtersGlobal[$form->slug] = $this->getDataFilters($form->fid, $returnRIDS, $filters['filterCount'], $filters['filterFlids']);
+                $resultsGlobal[] = $records;
 
-                if($globalSort)
-                    $this->imitateMerge($globalRecords,$returnRIDS);
-                else {
-                    if($apiFormat==self::XML)
-                        $resultsGlobal[] = $this->populateRecords($returnRIDS, $filters, $apiFormat, $form->fid);
-                    else {
-                        $resultsGlobal[] = json_decode($this->populateRecords($returnRIDS, $filters, $apiFormat, $form->fid));
-                    }
-                }
-            } else {
+//                if($filters['filters']) //TODO::CASTLE
+//                    $filtersGlobal[$form->slug] = $this->getDataFilters($form->fid, $returnRIDS, $filters['filterCount'], $filters['filterFlids']);
+
+//                if($globalSort) //TODO::CASTLE
+//                    $this->imitateMerge($globalRecords,$returnRIDS);
+//                else { //TODO::CASTLE
+//                    if($apiFormat==self::XML)
+//                        $resultsGlobal[] = $this->populateRecords($returnRIDS, $filters, $apiFormat, $form->id);
+//                    else {
+//                        $resultsGlobal[] = json_decode($this->populateRecords($returnRIDS, $filters, $apiFormat, $form->id));
+//                    }
+//                }
+            } else { //TODO::CASTLE
                 $queries = $f->query;
                 $resultSets = array();
                 foreach($queries as $query) {
                     //determine our search type
                     switch($query->search) {
-                        case 'keyword':
+                        case 'keyword': //TODO::CASTLE
                             //do a keyword search
                             if(!isset($query->keys))
                                 return response()->json(["status"=>false,"error"=>"No keywords supplied in a keyword search for form: ". $form->name],500);
@@ -296,7 +289,7 @@ class RestfulController extends Controller {
                                 $rids = $this->negative_results($form,$rids);
                             $resultSets[] = $rids;
                             break;
-                        case 'advanced':
+                        case 'advanced': //TODO::CASTLE
                             //do an advanced search
                             if(!isset($query->fields))
                                 return response()->json(["status"=>false,"error"=>"No fields supplied in an advanced search for form: ". $form->name],500);
@@ -326,7 +319,7 @@ class RestfulController extends Controller {
                                 $rids = $this->negative_results($form,$rids);
                             $resultSets[] = $rids;
                             break;
-                        case 'kid':
+                        case 'kid': //TODO::CASTLE
                             //do a kid search
                             if(!isset($query->kids))
                                 return response()->json(["status"=>false,"error"=>"No KIDs supplied in a KID search for form: ". $form->name],500);
@@ -349,7 +342,7 @@ class RestfulController extends Controller {
                                 $rids = $this->negative_results($form,$rids);
                             $resultSets[] = $rids;
                             break;
-                        case 'legacy_kid':
+                        case 'legacy_kid': //TODO::CASTLE
                             //do a kid search
                             if(!isset($query->kids))
                                 return response()->json(["status"=>false,"error"=>"You must provide KIDs in a Legacy KID search for form: " . $form->name],500);
@@ -373,7 +366,7 @@ class RestfulController extends Controller {
                             break;
                     }
                 }
-                //perform all the and/or logic for search types
+                //perform all the and/or logic for search types //TODO::CASTLE
                 $returnRIDS = array();
                 if(!isset($f->logic)) {
                     //OR IT ALL TOGETHER
@@ -386,22 +379,22 @@ class RestfulController extends Controller {
                     $logic = $f->logic;
                     $returnRIDS = $this->logic_recursive($logic,$resultSets);
                 }
-                //sort
+                //sort //TODO::CASTLE
                 if(!is_null($filters['sort']) && !empty($returnRIDS)) {
                     $returnRIDS = $this->sort_rids($returnRIDS,$filters['sort']);
                     if(!$returnRIDS)
                         return response()->json(["status"=>false,"error"=>"Invalid field type or invalid field provided for sort in form: ". $form->name],500);
                 }
-                //see if we are returning the size
+                //see if we are returning the size //TODO::CASTLE
                 if($filters['size']) {
                     $countGlobal += sizeof($returnRIDS);
                     $countArray[$form->fid] = sizeof($returnRIDS);
                 }
 
-                if($filters['filters'])
+                if($filters['filters']) //TODO::CASTLE
                     $filtersGlobal[$form->slug] = $this->getDataFilters($form->fid, $returnRIDS, $filters['filterCount'], $filters['filterFlids']);
 
-                if($globalSort)
+                if($globalSort) //TODO::CASTLE
                     $this->imitateMerge($globalRecords,$returnRIDS);
                 else {
                     if($apiFormat==self::XML)
@@ -412,27 +405,27 @@ class RestfulController extends Controller {
             }
         }
 
-        if($globalSort) {
-            $filters = array();
-
-            if(isset($request->globalFilters))
-                $f = json_decode($request->globalFilters);
-            else
-                $f = array();
-
-            $filters['data'] = isset($f->data) ? $f->data : true; //do we want data, or just info about the records theme selves***
-            $filters['meta'] = isset($f->meta) ? $f->meta : false; //get meta data about record***
-            $filters['assoc'] = isset($f->assoc) ? $f->assoc : false; //do we want information back about associated records***
-            $filters['fields'] = isset($f->fields) ? $f->fields : 'ALL'; //which fields do we want data for***
-            $filters['index'] = isset($f->index) ? $f->index : null; //where the array of results should start***
-            $filters['count'] = isset($f->count) ? $f->count : null; //how many records we should grab from that index***
-            //WARNING::IF FIELD NAMES SHARE A TITLE WITHIN THE SAME FIELD, THIS WOULD IN THEORY BREAK
-            $filters['realnames'] = isset($f->realnames) ? $f->realnames : false; //do we want records indexed by titles rather than slugs***
-            //THIS SOLELY SERVES LEGACY. YOU PROBABLY WILL NEVER USE THIS. DON'T THINK ABOUT IT
-            $filters['under'] = isset($f->under) ? $f->under : false; //Replace field spaces with underscores***
-
-            $globalSorted = $this->sortGlobalRids($globalRecords, $globalSortArray);
-            $resultsGlobal = json_decode($this->populateRecords($globalSorted, $filters, $apiFormat, $fidsGlobal));
+        if($globalSort) { //TODO::CASTLE
+//            $filters = array();
+//
+//            if(isset($request->globalFilters))
+//                $f = json_decode($request->globalFilters);
+//            else
+//                $f = array();
+//
+//            $filters['data'] = isset($f->data) ? $f->data : true; //do we want data, or just info about the records theme selves***
+//            $filters['meta'] = isset($f->meta) ? $f->meta : false; //get meta data about record***
+//            $filters['assoc'] = isset($f->assoc) ? $f->assoc : false; //do we want information back about associated records***
+//            $filters['fields'] = isset($f->fields) ? $f->fields : 'ALL'; //which fields do we want data for***
+//            $filters['index'] = isset($f->index) ? $f->index : null; //where the array of results should start***
+//            $filters['count'] = isset($f->count) ? $f->count : null; //how many records we should grab from that index***
+//            //WARNING::IF FIELD NAMES SHARE A TITLE WITHIN THE SAME FIELD, THIS WOULD IN THEORY BREAK
+//            $filters['realnames'] = isset($f->realnames) ? $f->realnames : false; //do we want records indexed by titles rather than slugs***
+//            //THIS SOLELY SERVES LEGACY. YOU PROBABLY WILL NEVER USE THIS. DON'T THINK ABOUT IT
+//            $filters['under'] = isset($f->under) ? $f->under : false; //Replace field spaces with underscores***
+//
+//            $globalSorted = $this->sortGlobalRids($globalRecords, $globalSortArray);
+//            $resultsGlobal = json_decode($this->populateRecords($globalSorted, $filters, $apiFormat, $fidsGlobal));
         }
 
         $countArray["global"] = $countGlobal;
@@ -1138,36 +1131,36 @@ class RestfulController extends Controller {
      * @param  int $fid - Form ID
      * @return string - Path to the results file
      */
-    private function populateRecords($rids,$filters,$format = self::JSON,$fid) { //TODO::CASTLE
-        //Filter options that need to be passed to the export in a normal api search
+    private function populateRecords($rids,$filters,$format = self::JSON,$fid) {
+        //Filter options that need to be passed to the export in a normal api search //TODO::CASTLE
         if($format == self::JSON) {
             $options = [
-                'fields' => $filters['fields'],
-                'meta' => $filters['meta'],
-                'data' => $filters['data'],
-                'assoc' => $filters['assoc'],
-                'realnames' => $filters['realnames']
+//                'fields' => $filters['fields'],
+//                'meta' => $filters['meta'],
+//                'data' => $filters['data'],
+//                'assoc' => $filters['assoc'],
+//                'realnames' => $filters['realnames']
             ];
         } else if($format == self::KORA) {
             //Old Kora 2 searches only need field filters
             $options = [
-                'fields' => $filters['fields']
+                //'fields' => $filters['fields']
             ];
         } else if($format == self::XML) {
             $options = [
-                "revAssoc" => $filters['revAssoc']
+                //"revAssoc" => $filters['revAssoc']
             ];
         } else {
             return "{}";
         }
 
-        //Slice up array of RIDs to get the correct subset
+        //Slice up array of RIDs to get the correct subset //TODO::CASTLE
         //There are done down here to ensure sorting has already taken place
-        if(!is_null($filters['index']))
-            $rids = array_slice($rids,$filters['index']);
-
-        if(!is_null($filters['count']))
-            $rids = array_slice($rids,0,$filters['count']);
+//        if(!is_null($filters['index']))
+//            $rids = array_slice($rids,$filters['index']);
+//
+//        if(!is_null($filters['count']))
+//            $rids = array_slice($rids,0,$filters['count']);
 
         if(empty($rids))
             return "{}";
@@ -1196,7 +1189,7 @@ class RestfulController extends Controller {
      * @param  string $permission - Type of API action being taken
      * @return bool - Is valid and has permission
      */
-    private function validateToken($pid,$token,$permission) { //TODO::CASTLE
+    private function validateToken($pid,$token,$permission) {
         //Get all the projects tokens
         $project = ProjectController::getProject($pid);
         $tokens = $project->tokens()->get();
