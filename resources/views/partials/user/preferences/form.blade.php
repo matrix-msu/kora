@@ -79,3 +79,22 @@
 <div class="form-group preferences-update-button">
     {!! Form::submit('Update Preferences',['class' => 'btn edit-btn update-preferences-submit pre-fixed-js']) !!}
 </div>
+
+{!! Form::close() !!}
+
+<div class="form-group mt-xxxl">
+    <div class="spacer"></div>
+</div>
+
+<div class="form-group my-xxxl">
+    <h2 class="sub-title">Replay Kora Introduction?</h2>
+    @if (!\App\Http\Controllers\Auth\UserController::returnUserPrefs('onboarding'))
+        {!! Form::open(['method' => 'PATCH', 'url' => action('Auth\UserController@toggleOnboarding'), 'enctype' => 'multipart/form-data', 'class' => 'bottom-form-js']) !!}
+        <p><button type="submit" class="text underline-middle-hover">Replay Kora Introduction</button></p>
+        {!! Form::close() !!}
+    @else
+        <p><a href="{{ url('/') }}" class="text underline-middle-hover">Replay Kora Introduction</a></p>
+    @endif
+
+    {{-- \App\Http\Controllers\Auth\UserController::returnUserPrefs('onboarding') --}}
+</div>
