@@ -177,14 +177,34 @@ class TextField extends BaseField {
      * @param  string $flid - Field ID
      * @param  string $arg - The keywords
      * @param  Record $recordMod - Model to search through
+     * @param  boolean $negative - Get opposite results of the search
      * @return array - The RIDs that match search
      */
-    public function keywordSearchTyped($flid, $arg, $recordMod) {
+    public function keywordSearchTyped($flid, $arg, $recordMod, $negative = false) {
+        if($negative)
+            $param = 'NOT LIKE';
+        else
+            $param = 'LIKE';
+
         return $recordMod->newQuery()
             ->select("id")
-            ->where($flid,'LIKE',"%$arg%")
+            ->where($flid, $param,"%$arg%")
             ->pluck('id')
             ->toArray();
+    }
+
+    /**
+     * Updates the request for an API search to mimic the advanced search structure.
+     *
+     * @param  array $data - Data from the search
+     * @param  int $flid - Field ID
+     * @param  Request $request
+     * @return Request - The update request
+     */
+    public function setRestfulAdvSearch($data, $flid, $request) {
+        $request->request->add([$flid.'_input' => $data->input]);
+
+        return $request;
     }
 
     /**
@@ -193,15 +213,21 @@ class TextField extends BaseField {
      * @param  $flid, field id
      * @param  $query, contents of query.
      * @param  Record $recordMod - Model to search through
+     * @param  boolean $negative - Get opposite results of the search
      * @return array - The RIDs that match search
      */
-    public function advancedSearchTyped($flid, $query, $recordMod) {
+    public function advancedSearchTyped($flid, $query, $recordMod, $negative = false) {
         $arg = $query[$flid . "_input"];
         $arg = Search::prepare($arg);
 
+        if($negative)
+            $param = '!=';
+        else
+            $param = '=';
+
         return $recordMod->newQuery()
             ->select("id")
-            ->where($flid,'LIKE',"%$arg%")
+            ->where($flid, $param,"$arg")
             ->pluck('id')
             ->toArray();
     }

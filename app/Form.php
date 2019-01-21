@@ -236,11 +236,12 @@ class Form extends Model {
     /**
      * Gets the data out of the DB.
      *
-     * @param  $filters
+     * @param  $filters - The filters to modify the returned results
+     * @param  $rids - The subset of rids we would like back
      *
-     * @return array
+     * @return array - The records
      */
-    public function getRecordsForExport($filters) {
+    public function getRecordsForExport($filters, $rids = null) {
         $results = [];
 
         $con = mysqli_connect(
@@ -284,6 +285,15 @@ class Form extends Model {
             $fields = array_merge($flids,$fields);
         $fieldString = implode(',',$fields);
 
+        //Subset of rids?
+        $subset = '';
+        if(!is_null($rids)) {
+            if(empty($rids))
+                return [];
+            $ridString = implode(',',$rids);
+            $subset = " WHERE `id` IN ($ridString)";
+        }
+
         //Add the sorts
         $orderBy = '';
         if(!is_null($filters['sort'])) {
@@ -294,13 +304,15 @@ class Form extends Model {
             $orderBy = substr($orderBy, 0, -1); //Trim the last comma
         }
 
-        $selectRecords = "SELECT $fieldString FROM ".$prefix."records_".$this->id.$orderBy;
+        $selectRecords = "SELECT $fieldString FROM ".$prefix."records_".$this->id.$subset.$orderBy;
 
         $records = $con->query($selectRecords);
         while($row = $records->fetch_assoc()) {
             $results[$row['kid']] = $row;
         }
         $records->free();
+
+        $con->close();
 
         return $results;
     }

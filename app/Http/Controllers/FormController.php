@@ -303,7 +303,7 @@ class FormController extends Controller {
     public static function getForm($fid) {
         $form = Form::where('id','=',$fid)->first();
         if(is_null($form))
-            $form = Form::where('slug','=',$fid)->first();
+            $form = Form::where('internal_name','=',$fid)->first();
 
         return $form;
     }

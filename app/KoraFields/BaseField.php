@@ -118,9 +118,20 @@ abstract class BaseField extends Model {
      * @param  int $flid - Field ID
      * @param  string $arg - The keywords
      * @param  Record $recordMod - Model to search through
+     * @param  boolean $negative - Get opposite results of the search
      * @return array - The RIDs that match search
      */
-    abstract public function keywordSearchTyped($flid, $arg, $recordMod);
+    abstract public function keywordSearchTyped($flid, $arg, $recordMod, $negative = false);
+
+    /**
+     * Updates the request for an API search to mimic the advanced search structure.
+     *
+     * @param  array $data - Data from the search
+     * @param  int $flid - Field ID
+     * @param  Request $request
+     * @return Request - The update request
+     */
+    abstract public function setRestfulAdvSearch($data, $flid, $request);
 
     /**
      * Build the advanced query for a text field.
@@ -128,9 +139,10 @@ abstract class BaseField extends Model {
      * @param  $flid, field id
      * @param  $query, contents of query.
      * @param  Record $recordMod - Model to search through
+     * @param  boolean $negative - Get opposite results of the search
      * @return array - The RIDs that match search
      */
-    abstract public function advancedSearchTyped($flid, $query, $recordMod);
+    abstract public function advancedSearchTyped($flid, $query, $recordMod, $negative = false);
 
     /**
      * Find every record that does not have data for this field.

@@ -62,9 +62,10 @@ class Search {
      *
      * @param  array $fields - Field models we are searching through
      * @param  boolean $external - Is this search coming from an external source
+     * @param  boolean $negative - Get opposite results of the search
      * @return array - Array of rids satisfying search parameters
      */
-    public function formKeywordSearch($fields = null, $external = false) {
+    public function formKeywordSearch($fields = null, $external = false, $negative = false) {
         if($this->arg == "")
             return [];
 
@@ -86,7 +87,7 @@ class Search {
                     foreach($fields as $flid => $field) {
                         // These checks make sure the field is searchable
                         if( (!$external && $field['searchable']) || ($external && $field['external_search']) ) {
-                            $results = $form->getFieldModel($field['type'])->keywordSearchTyped($flid, $arg, $recordMod);
+                            $results = $form->getFieldModel($field['type'])->keywordSearchTyped($flid, $arg, $recordMod, $negative);
                             $this->imitateMerge($rids, $results);
                         }
                     }
@@ -110,7 +111,7 @@ class Search {
                     foreach($fields as $flid => $field) {
                         // These checks make sure the field is searchable
                         if( (!$external && $field['searchable']) || ($external && $field['external_search']) ) {
-                            $results = $form->getFieldModel($field['type'])->keywordSearchTyped($flid, $arg, $recordMod);
+                            $results = $form->getFieldModel($field['type'])->keywordSearchTyped($flid, $arg, $recordMod, $negative);
                             $this->imitateMerge($set, $results);
                         }
                     }
@@ -131,7 +132,7 @@ class Search {
                 foreach($fields as $flid => $field) {
                     // These checks make sure the field is searchable
                     if( (!$external && $field['searchable']) || ($external && $field['external_search']) ) {
-                        $results = $form->getFieldModel($field['type'])->keywordSearchTyped($flid, $this->arg, $recordMod);
+                        $results = $form->getFieldModel($field['type'])->keywordSearchTyped($flid, $this->arg, $recordMod, $negativex);
                         $this->imitateMerge($rids, $results);
                     }
                 }

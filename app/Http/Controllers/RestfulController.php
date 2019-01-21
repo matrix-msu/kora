@@ -66,35 +66,6 @@ class RestfulController extends Controller {
     }
 
     /**
-     * Import form into project.
-     *
-     * @param  int $pid - Project ID
-     * @return string - Success message
-     */
-    public function createForm($pid, Request $request) { //TODO::CASTLE
-        if(!ProjectController::validProj($pid))
-            return response()->json(["status"=>false,"error"=>"Invalid Project: ".$pid],500);
-
-        $proj = ProjectController::getProject($pid);
-
-        $validated = $this->validateToken($proj->id,$request->token,"create");
-        //Authentication failed
-        if(!$validated)
-            return response()->json(["status"=>false,"error"=>"Invalid create token provided"],500);
-
-        //Gather form data to insert
-        if(!isset($request->k3Form))
-            return response()->json(["status"=>false,"error"=>"No form data supplied to insert into: ".$proj->name],500);
-
-        $formData = json_decode($request->k3Form);
-
-        $ic = new ImportController();
-        $ic->importFormNoFile($proj->id,$formData);
-
-        return "Form Created!";
-    }
-
-    /**
      * Get a basic list of the fields in a form.
      *
      * @param  int $pid - Project ID
@@ -228,13 +199,13 @@ class RestfulController extends Controller {
 //                        $resultsGlobal[] = json_decode($this->populateRecords($returnRIDS, $filters, $apiFormat, $form->id));
 //                    }
 //                }
-            } else { //TODO::CASTLE
+            } else {
                 $queries = $f->query;
                 $resultSets = array();
                 foreach($queries as $query) {
                     //determine our search type
                     switch($query->search) {
-                        case 'keyword': //TODO::CASTLE
+                        case 'keyword':
                             //do a keyword search
                             if(!isset($query->keys))
                                 return response()->json(["status"=>false,"error"=>"No keywords supplied in a keyword search for form: ". $form->name],500);
@@ -244,23 +215,20 @@ class RestfulController extends Controller {
                             if(isset($query->fields)) {
                                 //takes care of converting slugs to flids
                                 foreach($query->fields as $qfield) {
-                                    $fieldMod = FieldController::getField($qfield);
-                                    if(is_null($fieldMod)) {
-                                        array_push($minorErrors, "The following field in keyword search does not exist: " . $qfield);
+                                    if(!isset($form->layout['fields'][$qfield])) {
+                                        array_push($minorErrors, "The following field in keyword search is not apart of the requested form: " . $qfield);
                                         continue;
                                     }
-                                    if($fieldMod->fid != $form->fid) {
-                                        array_push($minorErrors, "The following field in keyword search is not apart of the requested form: " . $fieldMod->name);
+                                    $fieldMod = $form->layout['fields'][$qfield];
+
+                                    if(!$fieldMod['external_search']) {
+                                        array_push($minorErrors, "The following field in keyword search is not externally searchable: " . $fieldMod['name']);
                                         continue;
                                     }
-                                    if(!$fieldMod->isExternalSearchable()) {
-                                        array_push($minorErrors, "The following field in keyword search is not externally searchable: " . $fieldMod->name);
-                                        continue;
-                                    }
-                                    $searchFields[] = $fieldMod;
+                                    $searchFields[$qfield] = $fieldMod;
                                 }
                             } else {
-                                $searchFields = $form->fields()->get();
+                                $searchFields = $form->layout['fields'];
                             }
 							if(empty($searchFields))
 								return response()->json(["status"=>false,"error"=>"Invalid fields provided for keyword search for form: ". $form->name],500);
@@ -281,84 +249,68 @@ class RestfulController extends Controller {
                                     break;
                             }
                             /// HERES WHERE THE NEW SEARCH WILL HAPPEN
-                            $search = new Search($form->pid,$form->fid,$keys,$method);
-                            $rids = $search->formKeywordSearch($searchFields, true);
-
                             $negative = isset($query->not) ? $query->not : false;
-                            if($negative)
-                                $rids = $this->negative_results($form,$rids);
+                            $search = new Search($form->project_id,$form->id,$keys,$method);
+                            $rids = $search->formKeywordSearch($searchFields, true, $negative);
+
                             $resultSets[] = $rids;
                             break;
-                        case 'advanced': //TODO::CASTLE
+                        case 'advanced':
                             //do an advanced search
                             if(!isset($query->fields))
                                 return response()->json(["status"=>false,"error"=>"No fields supplied in an advanced search for form: ". $form->name],500);
                             $fields = $query->fields;
                             foreach($fields as $flid => $data) {
-                                $fieldModel = FieldController::getField($flid);
-                                //Check if it's in this form
-                                if($fieldModel->fid != $form->fid) {
-                                    array_push($minorErrors, "The following field in advanced search is not apart of the requested form: " . $fieldModel->name);
+                                if(!isset($form->layout['fields'][$flid])) {
+                                    array_push($minorErrors, "The following field in keyword search is not apart of the requested form: " . $flid);
                                     continue;
                                 }
-                                //Check permission to search externally
-                                if(!$fieldModel->isExternalSearchable()) {
-                                    array_push($minorErrors, "The following field in advanced search is not externally searchable: " . $fieldModel->name);
-                                    continue;
-                                }
-                                $request->request->add([$fieldModel->flid.'_dropdown' => 'on']);
-                                $request->request->add([$fieldModel->flid.'_valid' => 1]);
-                                $request->request->add([$fieldModel->flid => 1]);
-                                $request = $fieldModel->getTypedField()->setRestfulAdvSearch($data,$fieldModel->flid,$request);
-                            }
-                            $advSearch = new AdvancedSearchController();
-                            $rids = $advSearch->apisearch($form->pid, $form->fid, $request);
+                                $fieldModel = $form->layout['fields'][$flid];
 
+                                //Check permission to search externally
+                                if(!$fieldModel['external_search']) {
+                                    array_push($minorErrors, "The following field in advanced search is not externally searchable: " . $fieldModel['name']);
+                                    continue;
+                                }
+                                $request->request->add([$flid.'_dropdown' => 'on']);
+                                $request->request->add([$flid.'_valid' => 1]);
+                                $request->request->add([$flid => 1]);
+                                $request = $form->getFieldModel($fieldModel['type'])->setRestfulAdvSearch($data,$flid,$request);
+                            }
                             $negative = isset($query->not) ? $query->not : false;
-                            if($negative)
-                                $rids = $this->negative_results($form,$rids);
+                            $advSearch = new AdvancedSearchController();
+                            $rids = $advSearch->apisearch($form->project_id, $form->id, $request, $negative);
                             $resultSets[] = $rids;
                             break;
-                        case 'kid': //TODO::CASTLE
+                        case 'kid':
                             //do a kid search
                             if(!isset($query->kids))
                                 return response()->json(["status"=>false,"error"=>"No KIDs supplied in a KID search for form: ". $form->name],500);
                             $kids = $query->kids;
-                            $rids = array();
-                            for($i = 0; $i < sizeof($kids); $i++) {
+                            for($i=0; $i < sizeof($kids); $i++) {
                                 if(!Record::isKIDPattern($kids[$i])) {
                                     array_push($minorErrors,"Illegal KID ($kids[$i]) in a KID search for form: ". $form->name);
                                     continue;
                                 }
-                                $rid = explode("-", $kids[$i])[2];
-                                $record = Record::where('rid',$rid)->get()->first();
-                                if(is_null($record) || $record->fid != $form->fid)
-                                    array_push($minorErrors,"The following KID is not apart of the requested form: " . $kids[$i]);
-                                else
-                                    $rids[$i] = $record->rid;
                             }
                             $negative = isset($query->not) ? $query->not : false;
                             if($negative)
-                                $rids = $this->negative_results($form,$rids);
+                                $rids = $recMod->newQuery()->whereNotIn('kid',$kids)->pluck('id');
+                            else
+                                $rids = $recMod->newQuery()->whereIn('kid',$kids)->pluck('id');
                             $resultSets[] = $rids;
                             break;
-                        case 'legacy_kid': //TODO::CASTLE
+                        case 'legacy_kid':
                             //do a kid search
                             if(!isset($query->kids))
-                                return response()->json(["status"=>false,"error"=>"You must provide KIDs in a Legacy KID search for form: " . $form->name],500);
+                                return response()->json(["status"=>false,"error"=>"No KIDs supplied in a KID search for form: ". $form->name],500);
                             $kids = $query->kids;
-                            $rids = array();
-                            for($i = 0; $i < sizeof($kids); $i++) {
-                                $legacy_kid = $kids[$i];
-                                $record = Record::where('legacy_kid','=',$legacy_kid)->get()->first();
-                                if(is_null($record) || $record->fid != $form->fid)
-                                    array_push($minorErrors,"The following legacy KID is not apart of the requested form: " . $kids[$i]);
-                                else
-                                    $rids[] = $record->rid;
-                            }
+
                             $negative = isset($query->not) ? $query->not : false;
                             if($negative)
-                                $rids = $this->negative_results($form,$rids);
+                                $rids = $recMod->newQuery()->whereNotIn('legacy_kid',$kids)->pluck('id');
+                            else
+                                $rids = $recMod->newQuery()->whereIn('legacy_kid',$kids)->pluck('id');
                             $resultSets[] = $rids;
                             break;
                         default:
@@ -366,7 +318,8 @@ class RestfulController extends Controller {
                             break;
                     }
                 }
-                //perform all the and/or logic for search types //TODO::CASTLE
+
+                //perform all the and/or logic for search types
                 $returnRIDS = array();
                 if(!isset($f->logic)) {
                     //OR IT ALL TOGETHER
@@ -379,29 +332,28 @@ class RestfulController extends Controller {
                     $logic = $f->logic;
                     $returnRIDS = $this->logic_recursive($logic,$resultSets);
                 }
-                //sort //TODO::CASTLE
-                if(!is_null($filters['sort']) && !empty($returnRIDS)) {
-                    $returnRIDS = $this->sort_rids($returnRIDS,$filters['sort']);
-                    if(!$returnRIDS)
-                        return response()->json(["status"=>false,"error"=>"Invalid field type or invalid field provided for sort in form: ". $form->name],500);
-                }
-                //see if we are returning the size //TODO::CASTLE
+
+                $records = $form->getRecordsForExport($filters,$returnRIDS);
+
                 if($filters['size']) {
-                    $countGlobal += sizeof($returnRIDS);
-                    $countArray[$form->fid] = sizeof($returnRIDS);
+                    $cnt = sizeof($records);
+                    $countGlobal += $cnt;
+                    $countArray[$form->id] = $cnt;
                 }
 
-                if($filters['filters']) //TODO::CASTLE
-                    $filtersGlobal[$form->slug] = $this->getDataFilters($form->fid, $returnRIDS, $filters['filterCount'], $filters['filterFlids']);
+                $resultsGlobal[] = $records;
 
-                if($globalSort) //TODO::CASTLE
-                    $this->imitateMerge($globalRecords,$returnRIDS);
-                else {
-                    if($apiFormat==self::XML)
-                        $resultsGlobal[] = $this->populateRecords($returnRIDS, $filters, $apiFormat, $form->fid);
-                    else
-                        $resultsGlobal[] = json_decode($this->populateRecords($returnRIDS, $filters, $apiFormat, $form->fid));
-                }
+//                if($filters['filters']) //TODO::CASTLE
+//                    $filtersGlobal[$form->slug] = $this->getDataFilters($form->fid, $returnRIDS, $filters['filterCount'], $filters['filterFlids']);
+
+//                if($globalSort) //TODO::CASTLE
+//                    $this->imitateMerge($globalRecords,$returnRIDS);
+//                else {
+//                    if($apiFormat==self::XML)
+//                        $resultsGlobal[] = $this->populateRecords($returnRIDS, $filters, $apiFormat, $form->fid);
+//                    else
+//                        $resultsGlobal[] = json_decode($this->populateRecords($returnRIDS, $filters, $apiFormat, $form->fid));
+//                }
             }
         }
 
@@ -437,150 +389,35 @@ class RestfulController extends Controller {
         ];
     }
 
-    private function imitateMerge(&$array1, &$array2) { //TODO::CASTLE
-        foreach($array2 as $i) {
-            $array1[] = $i;
-        }
-    }
-
-    private function imitateIntersect($s1,$s2) { //TODO::CASTLE
-        sort($s1);
-        sort($s2);
-        $i=0;
-        $j=0;
-        $N = count($s1);
-        $M = count($s2);
-        $intersection = array();
-
-        while($i<$N && $j<$M) {
-            if($s1[$i]<$s2[$j]) $i++;
-            else if($s1[$i]>$s2[$j]) $j++;
-            else {
-                $intersection[] = $s1[$i];
-                $i++;
-                $j++;
-            }
-        }
-
-        return $intersection;
-    }
-
     /**
-     * Based on set of RIDs from a search result, return all RIDs that do not fit that search.
+     * Recursively goes through the search logic tree and does the and/or comparisons of each query.
      *
-     * @param  Form $form - Form being searched
-     * @param  array $rids - Record IDs we don't want
-     * @return array - The RIDs not in the given set
+     * @param  array $logicArray - Query logic for the search
+     * @param  array $ridSets - The rids to be compared at current level
+     * @return array - A unique set of RIDs that fit the search query logic
      */
-    private function negative_results($form, $rids) { //TODO::CASTLE
-	    $returnRIDS = array();
-	    $ridString = implode(',',$rids);
-
-	    //Doing this for pretty much the same reason as keyword search above
-	    $con = mysqli_connect(
-	        config('database.connections.mysql.host'),
-            config('database.connections.mysql.username'),
-            config('database.connections.mysql.password'),
-            config('database.connections.mysql.database')
-        );
-
-	    //We want to make sure we are doing things in utf8 for special characters
-		if(!mysqli_set_charset($con, "utf8")) {
-		    printf("Error loading character set utf8: %s\n", mysqli_error($con));
-		    exit();
-		}
-
-		if($ridString!="")
-			$select = "SELECT `rid` from ".config('database.connections.mysql.prefix')."records WHERE `fid`=".$form->fid." AND `rid` NOT IN ($ridString)";
-		else
-			$select = "SELECT `rid` from ".config('database.connections.mysql.prefix')."records WHERE `fid`=".$form->fid;
-
-		$negUnclean = $con->query($select);
-
-		while($row = $negUnclean->fetch_assoc()) {
-			$returnRIDS[] = $row['rid'];
-		}
-        mysqli_free_result($negUnclean);
-
-        mysqli_close($con);
-
-        return $returnRIDS;
-    }
-
-    /**
-     * Sorts RIDs by fields.
-     *
-     * @param  array $rids - The RIDs to sort
-     * @param  array $sortFields - The fields to sort by
-     * @return array - The new array with sorted RIDs
-     */
-    private function sort_rids($rids, $sortFields) { //TODO::CASTLE
-        //get field
-        $newOrderArray = array();
-        $ridString = implode(',',$rids);
-
-        //Doing this for pretty much the same reason as keyword search above
-        $con = mysqli_connect(
-            config('database.connections.mysql.host'),
-            config('database.connections.mysql.username'),
-            config('database.connections.mysql.password'),
-            config('database.connections.mysql.database')
-        );
-        $prefix = config('database.connections.mysql.prefix');
-
-        //We want to make sure we are doing things in utf8 for special characters
-        if(!mysqli_set_charset($con, "utf8")) {
-            printf("Error loading character set utf8: %s\n", mysqli_error($con));
-            exit();
+    private function logic_recursive($logicArray, $ridSets) {
+        $returnRIDS = array();
+        $firstRIDS = array();
+        $secondRIDS = array();
+        //get first array of rids, or recurse till it becomes array
+        if(is_array($logicArray[0]))
+            $firstRIDS = $this->logic_recursive($logicArray[0],$ridSets);
+        else
+            $firstRIDS = $ridSets[$logicArray[0]];
+        //get second array of rids, or recurse till it becomes array
+        if(is_array($logicArray[2]))
+            $secondRIDS = $this->logic_recursive($logicArray[2],$ridSets);
+        else
+            $secondRIDS = $ridSets[$logicArray[2]];
+        $operator = $logicArray[1];
+        if(strtoupper($operator)=="AND") {
+            $returnRIDS = $this->imitateIntersect($firstRIDS,$secondRIDS);
+        } else if(strtoupper($operator)=="OR") {
+            $this->imitateMerge($firstRIDS,$secondRIDS);
+            $returnRIDS = $firstRIDS;
         }
-
-        //report errors, not 100% sure how we'll get it up a level
-
-        $selectJoins = "";
-        $selectOrdArr = array();
-
-        for($s=0;$s<sizeof($sortFields);$s=$s+2) {
-            $fieldSlug = $sortFields[$s];
-            $direction = $sortFields[$s+1];
-
-            if($fieldSlug=='kora_meta_owner') {
-                $selectJoins .= "LEFT JOIN ".$prefix."_users as us ON us.id=rec.owner ";
-                array_push($selectOrdArr, "`username` $direction");
-            } else if($fieldSlug=='kora_meta_created') {
-                array_push($selectOrdArr, "`created_at` $direction");
-            } else if($fieldSlug=='kora_meta_updated') {
-                array_push($selectOrdArr, "`updated_at` $direction");
-            } else if($fieldSlug=='kora_meta_kid') {
-                array_push($selectOrdArr, "`rid` $direction");
-            } else {
-                $field = FieldController::getField($fieldSlug);
-                if(is_null($field) || !$field->isSortable())
-                    return false;
-                $typedField = $field->getTypedField();
-
-                $flid = $field->flid;
-                $type = $typedField->getSortColumn();
-                $table = $prefix.$typedField->getTable();
-
-                if(!is_null($type)) {
-                    $selectJoins .= "LEFT JOIN ".$table." as field".$flid." ON field".$flid.".rid=rec.rid and field".$flid.".`flid`=".$flid." ";
-                    array_push($selectOrdArr, "field".$flid.".`$type` IS NULL, field".$flid.".`$type` $direction");
-                }
-            }
-        }
-        $selectOrders = implode(', ',$selectOrdArr);
-
-        $select = "SELECT rec.`rid` from kora3_records as rec $selectJoins";
-        $select .= "WHERE rec.`rid` IN ($ridString) ORDER BY $selectOrders";
-
-        $sort = $con->query($select);
-
-        while($row = $sort->fetch_assoc()) {
-            $newOrderArray[] = $row['rid'];
-        }
-        mysqli_free_result($sort);
-
-        return $newOrderArray;
+        return array_flip(array_flip($returnRIDS));
     }
 
     /**
@@ -671,37 +508,6 @@ class RestfulController extends Controller {
         mysqli_free_result($sort);
 
         return $newOrderArray;
-    }
-
-    /**
-     * Recursively goes through the search logic tree and does the and/or comparisons of each query.
-     *
-     * @param  array $logicArray - Query logic for the search
-     * @param  array $ridSets - The rids to be compared at current level
-     * @return array - A unique set of RIDs that fit the search query logic
-     */
-    private function logic_recursive($logicArray, $ridSets) { //TODO::CASTLE
-        $returnRIDS = array();
-        $firstRIDS = array();
-        $secondRIDS = array();
-        //get first array of rids, or recurse till it becomes array
-        if(is_array($logicArray[0]))
-            $firstRIDS = $this->logic_recursive($logicArray[0],$ridSets);
-        else
-            $firstRIDS = $ridSets[$logicArray[0]];
-        //get second array of rids, or recurse till it becomes array
-        if(is_array($logicArray[2]))
-            $secondRIDS = $this->logic_recursive($logicArray[2],$ridSets);
-        else
-            $secondRIDS = $ridSets[$logicArray[2]];
-        $operator = $logicArray[1];
-        if(strtoupper($operator)=="AND") {
-            $returnRIDS = $this->imitateIntersect($firstRIDS,$secondRIDS);
-        } else if(strtoupper($operator)=="OR") {
-            $this->imitateMerge($firstRIDS,$secondRIDS);
-            $returnRIDS = $firstRIDS;
-        }
-        return array_flip(array_flip($returnRIDS));
     }
 
     /**
@@ -941,6 +747,35 @@ class RestfulController extends Controller {
     }
 
     /**
+     * Import form into project.
+     *
+     * @param  int $pid - Project ID
+     * @return string - Success message
+     */
+    public function createForm($pid, Request $request) { //TODO::CASTLE
+        if(!ProjectController::validProj($pid))
+            return response()->json(["status"=>false,"error"=>"Invalid Project: ".$pid],500);
+
+        $proj = ProjectController::getProject($pid);
+
+        $validated = $this->validateToken($proj->id,$request->token,"create");
+        //Authentication failed
+        if(!$validated)
+            return response()->json(["status"=>false,"error"=>"Invalid create token provided"],500);
+
+        //Gather form data to insert
+        if(!isset($request->k3Form))
+            return response()->json(["status"=>false,"error"=>"No form data supplied to insert into: ".$proj->name],500);
+
+        $formData = json_decode($request->k3Form);
+
+        $ic = new ImportController();
+        $ic->importFormNoFile($proj->id,$formData);
+
+        return "Form Created!";
+    }
+
+    /**
      * Creates a new record.
      *
      * @param  Request $request
@@ -1123,55 +958,6 @@ class RestfulController extends Controller {
     }
 
     /**
-     * Prepares list of rids and filters array for generating the record data.
-     *
-     * @param  array $rids - List of Record IDs
-     * @param  array $filters - Filters from the search
-     * @param  string $format - The return format for the results
-     * @param  int $fid - Form ID
-     * @return string - Path to the results file
-     */
-    private function populateRecords($rids,$filters,$format = self::JSON,$fid) {
-        //Filter options that need to be passed to the export in a normal api search //TODO::CASTLE
-        if($format == self::JSON) {
-            $options = [
-//                'fields' => $filters['fields'],
-//                'meta' => $filters['meta'],
-//                'data' => $filters['data'],
-//                'assoc' => $filters['assoc'],
-//                'realnames' => $filters['realnames']
-            ];
-        } else if($format == self::KORA) {
-            //Old Kora 2 searches only need field filters
-            $options = [
-                //'fields' => $filters['fields']
-            ];
-        } else if($format == self::XML) {
-            $options = [
-                //"revAssoc" => $filters['revAssoc']
-            ];
-        } else {
-            return "{}";
-        }
-
-        //Slice up array of RIDs to get the correct subset //TODO::CASTLE
-        //There are done down here to ensure sorting has already taken place
-//        if(!is_null($filters['index']))
-//            $rids = array_slice($rids,$filters['index']);
-//
-//        if(!is_null($filters['count']))
-//            $rids = array_slice($rids,0,$filters['count']);
-
-        if(empty($rids))
-            return "{}";
-
-        $expControl = new ExportController();
-        $output = $expControl->exportFormRecordData($fid,$rids,$format,true,$options);
-
-        return $output;
-    }
-
-    /**
      * Checks if provided format is a valid format for exporting.
      *
      * @param  string $format - The format
@@ -1199,5 +985,33 @@ class RestfulController extends Controller {
                 return true;
         }
         return false;
+    }
+
+    private function imitateMerge(&$array1, &$array2) {
+        foreach($array2 as $i) {
+            $array1[] = $i;
+        }
+    }
+
+    private function imitateIntersect($s1,$s2) {
+        sort($s1);
+        sort($s2);
+        $i=0;
+        $j=0;
+        $N = count($s1);
+        $M = count($s2);
+        $intersection = array();
+
+        while($i<$N && $j<$M) {
+            if($s1[$i]<$s2[$j]) $i++;
+            else if($s1[$i]>$s2[$j]) $j++;
+            else {
+                $intersection[] = $s1[$i];
+                $i++;
+                $j++;
+            }
+        }
+
+        return $intersection;
     }
 }

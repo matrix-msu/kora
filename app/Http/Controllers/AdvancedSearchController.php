@@ -174,9 +174,10 @@ class AdvancedSearchController extends Controller {
      * @param  int $pid - Project ID
      * @param  int $fid - Form ID
      * @param  Request $request
+     * @param  boolean $negative - Get opposite results of the search
      * @return array - Record ID search results
      */
-    public function apisearch($pid, $fid, Request $request) {
+    public function apisearch($pid, $fid, Request $request, $negative) {
         if(!FormController::validProjForm($pid, $fid))
             return redirect('projects/'.$pid)->with('k3_global_error', 'form_invalid');
 
@@ -189,9 +190,7 @@ class AdvancedSearchController extends Controller {
         $processed = $this->processRequest($request->all(), $form->layout);
         foreach($processed as $flid => $query) {
             $field = $form->layout['fields'][$flid];
-            $result = $form->getFieldModel($field['type'])->advancedSearchTyped($flid, $query, $recModel);
-
-            //NOTE: API handles negative searches
+            $result = $form->getFieldModel($field['type'])->advancedSearchTyped($flid, $query, $recModel, $negative);
 
             $results[] = $result;
         }
