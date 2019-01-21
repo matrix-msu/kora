@@ -1,7 +1,5 @@
 <?php namespace App\Http\Controllers;
 
-use App\Form;
-use App\Project;
 use App\Record;
 use App\Search;
 use Illuminate\Http\Request;
@@ -153,26 +151,29 @@ class RestfulController extends Controller {
             if($globalSort)
                 array_push($fidsGlobal, $form->id);
 
-            //things we will be returning
+            //Configurations for what we will be returning
             //NOTE: Items marked ***, will be overwritten when using globalSort
             $filters = array();
-            $filters['data'] = isset($f->data) ? $f->data : true; //do we want data, or just info about the records theme selves***
-            $filters['meta'] = isset($f->meta) ? $f->meta : false; //get meta data about record***
+            $filters['data'] = isset($f->data) ? $f->data : true; //do we want data, or just info about the records theme selves
+            $filters['meta'] = isset($f->meta) ? $f->meta : false; //get meta data about record
             $filters['size'] = isset($f->size) ? $f->size : false; //do we want the number of records in the search result returned instead of data
-            $filters['assoc'] = isset($f->assoc) ? $f->assoc : false; //do we want information back about associated records*** //TODO::CASTLE
-            $filters['revAssoc'] = isset($f->revAssoc) ? $f->revAssoc : true; //do we want information back about reverse associations for XML OUTPUT //TODO::CASTLE
-            $filters['filters'] = isset($f->filters) ? $f->filters : false; //do we want information back about result filters [i.e. Field 'First Name', has value 'Tom', '12' times] //TODO::CASTLE
-            $filters['filterCount'] = isset($f->filterCount) ? $f->filterCount : 5; //What is the minimum threshold for a filter to return? //TODO::CASTLE
-            $filters['filterFlids'] = isset($f->filterFlids) ? $f->filterFlids : 'ALL'; //What fields should filters return for? Should be array //TODO::CASTLE
-                //Note: Filters only captures values from certain fields (mainly single value ones), see ExportController->exportWithRids() to see which ones use it
-            $filters['fields'] = isset($f->fields) ? $f->fields : 'ALL'; //which fields do we want data for***
+            $filters['fields'] = isset($f->fields) ? $f->fields : 'ALL'; //which fields do we want data for
             $filters['sort'] = isset($f->sort) ? $f->sort : null; //how should the data be sorted
-            $filters['index'] = isset($f->index) ? $f->index : null; //where the array of results should start***
-            $filters['count'] = isset($f->count) ? $f->count : null; //how many records we should grab from that index***
+            $filters['count'] = isset($f->count) ? $f->count : null; //how many records we should grab from that index
+            $filters['index'] = isset($f->index) ? $f->index : null; //where the array of results should start [MUST USE 'count' FOR THIS TO WORK]
+            $filters['assoc'] = isset($f->assoc) ? $f->assoc : false; //do we want information back about associated records //TODO::CASTLE
+            $filters['revAssoc'] = isset($f->revAssoc) ? $f->revAssoc : true; //do we want information back about reverse associations for XML OUTPUT //TODO::CASTLE
+
+            //Note: Filters only captures values from certain fields (mainly single value ones), see Form::$validFilterFields to see which ones use it
+            $filters['filters'] = isset($f->filters) ? $f->filters : false; //do we want information back about result filters [i.e. Field 'First Name', has value 'Tom', '12' times]
+            $filters['filterCount'] = isset($f->filterCount) ? $f->filterCount : 1; //What is the minimum threshold for a filter to return?
+            $filters['filterFlids'] = isset($f->filterFlids) ? $f->filterFlids : 'ALL'; //What fields should filters return for? Should be array
+
+            //Bonus filters
             //WARNING::IF FIELD NAMES SHARE A TITLE WITHIN THE SAME FIELD, THIS WOULD IN THEORY BREAK
-            $filters['realnames'] = isset($f->realnames) ? $f->realnames : false; //do we want records indexed by titles rather than slugs***
+            $filters['realnames'] = isset($f->realnames) ? $f->realnames : false; //do we want records indexed by titles rather than slugs
             //THIS SOLELY SERVES LEGACY. YOU PROBABLY WILL NEVER USE THIS. DON'T THINK ABOUT IT
-            $filters['under'] = isset($f->under) ? $f->under : false; //Replace field spaces with underscores*** //TODO::CASTLE
+            $filters['under'] = isset($f->under) ? $f->under : false; //Replace field spaces with underscores //TODO::CASTLE
 
             //parse the query
             if(!isset($f->query)) {
@@ -187,8 +188,8 @@ class RestfulController extends Controller {
 
                 $resultsGlobal[] = $records;
 
-//                if($filters['filters']) //TODO::CASTLE
-//                    $filtersGlobal[$form->slug] = $this->getDataFilters($form->fid, $returnRIDS, $filters['filterCount'], $filters['filterFlids']);
+                if($filters['filters'])
+                    $filtersGlobal[$form->internal_name] = $form->getDataFilters($filters['filterCount'], $filters['filterFlids']);
 
 //                if($globalSort) //TODO::CASTLE
 //                    $this->imitateMerge($globalRecords,$returnRIDS);
@@ -343,8 +344,8 @@ class RestfulController extends Controller {
 
                 $resultsGlobal[] = $records;
 
-//                if($filters['filters']) //TODO::CASTLE
-//                    $filtersGlobal[$form->slug] = $this->getDataFilters($form->fid, $returnRIDS, $filters['filterCount'], $filters['filterFlids']);
+                if($filters['filters'])
+                    $filtersGlobal[$form->internal_name] = $form->getDataFilters($filters['filterCount'], $filters['filterFlids'], $returnRIDS);
 
 //                if($globalSort) //TODO::CASTLE
 //                    $this->imitateMerge($globalRecords,$returnRIDS);
@@ -510,241 +511,7 @@ class RestfulController extends Controller {
         return $newOrderArray;
     }
 
-    /**
-     * Scan tables to build out filters list
-     *
-     * @param  int $fid - Form ID
-     * @param  array $rids - Record IDs to search for
-     * @param  int $count - Minimum occurances required for a filter to return (Maybe reimplement later?)
-     * @param  array $flids - Specifies the fields we need filters from
-     * @return array - The array of filters
-     */
-    private function getDataFilters($fid, $rids, $count, $flids) { //TODO::CASTLE
-        if(empty($rids))
-            return ['total' => 0];
 
-        $filters = [];
-        $ridIndex = [];
-        foreach($rids as $r) {
-            $ridIndex[$r] = '';
-        }
-        $flidSQL = '';
-        $convert = [];
-
-        if($flids != 'ALL') {
-            //In case slugs are provided, we need flids
-            $convertedFlids = array();
-            foreach($flids as $fl) {
-                $thisField = FieldController::getField($fl);
-                array_push($convertedFlids, $thisField->flid); //error bad fields, not 100% sure how we'll get it up a level
-                $convert[$thisField->flid] = $thisField->slug;
-            }
-
-            $flidString = implode(',',$convertedFlids);
-            $flidSQL = " and `flid` in ($flidString)";
-        } else {
-            $flids = Form::find($fid)->fields()->pluck('flid')->toArray();
-            $flidString = implode(',',$flids);
-            $flidSQL = " and `flid` in ($flidString)";
-
-            foreach($flids as $id){
-                $convert[$id] = FieldController::getField($id)->slug;
-            }
-        }
-
-        //Doing this for pretty much the same reason as keyword search above
-        $con = mysqli_connect(
-            config('database.connections.mysql.host'),
-            config('database.connections.mysql.username'),
-            config('database.connections.mysql.password'),
-            config('database.connections.mysql.database')
-        );
-        $prefix = config('database.connections.mysql.prefix');
-
-        //We want to make sure we are doing things in utf8 for special characters
-        if(!mysqli_set_charset($con, "utf8")) {
-            printf("Error loading character set utf8: %s\n", mysqli_error($con));
-            exit();
-        }
-
-        if(sizeof($rids)<=500) {
-            $ridString = implode(',',$rids);
-            $wherePiece = "`rid` IN ($ridString)";
-        } else
-            $wherePiece = "`fid`=$fid";
-
-        $textOccurrences = "select `text`, `flid`, `rid` from ".$prefix."text_fields where $wherePiece $flidSQL";
-        $listOccurrences = "select `option`, `flid`, `rid` from ".$prefix."list_fields where $wherePiece $flidSQL";
-        $msListOccurrences = "select `options`, `flid`, `rid` from ".$prefix."multi_select_list_fields where $wherePiece $flidSQL";
-        $genListOccurrences = "select `options`, `flid`, `rid` from ".$prefix."generated_list_fields where $wherePiece $flidSQL";
-        $numberOccurrences = "select `number`, `flid`, `rid` from ".$prefix."number_fields where $wherePiece $flidSQL";
-        $dateOccurrences = "select `month`, `day`, `year`, `flid`, `rid` from ".$prefix."date_fields where $wherePiece $flidSQL";
-        $assocOccurrences = "select s.`flid`, r.`kid`, r.`rid` from ".$prefix."associator_support as s left join kora3_records as r on s.`record`=r.`rid` where s.$wherePiece and s.`flid` in ($flidString)";
-        $rAssocOccurrences = "select s.`flid`, r.`kid`, r.`rid` from ".$prefix."associator_support as s left join kora3_records as r on s.`rid`=r.`rid` where s.$wherePiece and s.`flid` in ($flidString)";
-
-        //Because of the complex data in MS List, we break stuff up and then format
-        $msListUnclean = $con->query($msListOccurrences);
-        while($occur = $msListUnclean->fetch_assoc()) {
-            $flid = $occur['flid'];
-            $rid = $occur['rid'];
-            $msOpt = $occur['options'];
-
-            if(!array_key_exists($rid,$ridIndex))
-                continue;
-
-            $opts = explode('[!]', $msOpt);
-
-            foreach($opts as $opt) {
-                if(!isset($filters[$convert[$flid]][$opt]))
-                    $filters[$convert[$flid]][$opt] = 1;
-                else
-                    $filters[$convert[$flid]][$opt] += 1;
-            }
-        }
-        mysqli_free_result($msListUnclean);
-
-        //repeat for gen list
-        $genListUnclean = $con->query($genListOccurrences);
-        while($occur = $genListUnclean->fetch_assoc()) {
-            $flid = $occur['flid'];
-            $rid = $occur['rid'];
-            $gsOpt = $occur['options'];
-
-            if(!array_key_exists($rid,$ridIndex))
-                continue;
-
-            $opts = explode('[!]', $gsOpt);
-
-            foreach($opts as $opt) {
-                if(!isset($filters[$convert[$flid]][$opt]))
-                    $filters[$convert[$flid]][$opt] = 1;
-                else
-                    $filters[$convert[$flid]][$opt] += 1;
-            }
-        }
-        mysqli_free_result($genListUnclean);
-
-        $dateUnclean = $con->query($dateOccurrences);
-        while($occur = $dateUnclean->fetch_assoc()) {
-            $flid = $occur['flid'];
-            $rid = $occur['rid'];
-
-            if(!array_key_exists($rid,$ridIndex))
-                continue;
-
-            if($occur['month']==0 && $occur['day']==0)
-                $value = $occur['year'];
-            else if($occur['day']==0 && $occur['year']==0)
-                $value = \DateTime::createFromFormat('m', $occur['month'])->format('F');
-            else if($occur['day']==0)
-                $value = \DateTime::createFromFormat('m', $occur['month'])->format('F').', '.$occur['year'];
-            else if($occur['year']==0)
-                $value = \DateTime::createFromFormat('m', $occur['month'])->format('F').' '.$occur['day'];
-            else
-                $value = $occur['month'].'-'.$occur['day'].'-'.$occur['year'];
-
-            if(!isset($filters[$convert[$flid]][$value]))
-                $filters[$convert[$flid]][$value] = 1;
-            else
-                $filters[$convert[$flid]][$value] += 1;
-        }
-        mysqli_free_result($dateUnclean);
-
-        $textUnclean = $con->query($textOccurrences);
-        while($occur = $textUnclean->fetch_assoc()) {
-            $flid = $occur['flid'];
-            $rid = $occur['rid'];
-            $value = $occur['text'];
-
-            if(!array_key_exists($rid,$ridIndex))
-                continue;
-
-            if(!isset($filters[$convert[$flid]][$value]))
-                $filters[$convert[$flid]][$value] = 1;
-            else
-                $filters[$convert[$flid]][$value] += 1;
-        }
-        mysqli_free_result($textUnclean);
-
-        $listUnclean = $con->query($listOccurrences);
-        while($occur = $listUnclean->fetch_assoc()) {
-            $flid = $occur['flid'];
-            $rid = $occur['rid'];
-            $value = $occur['option'];
-
-            if(!array_key_exists($rid,$ridIndex))
-                continue;
-
-            if(!isset($filters[$convert[$flid]][$value]))
-                $filters[$convert[$flid]][$value] = 1;
-            else
-                $filters[$convert[$flid]][$value] += 1;
-        }
-        mysqli_free_result($listUnclean);
-
-        $numberUnclean = $con->query($numberOccurrences);
-        while($occur = $numberUnclean->fetch_assoc()) {
-            $flid = $occur['flid'];
-            $rid = $occur['rid'];
-            $value = (float)$occur['number'];
-
-            if(!array_key_exists($rid,$ridIndex))
-                continue;
-
-            if(!isset($filters[$convert[$flid]][$value]))
-                $filters[$convert[$flid]][$value] = 1;
-            else
-                $filters[$convert[$flid]][$value] += 1;
-        }
-        mysqli_free_result($numberUnclean);
-
-        $assocUnclean = $con->query($assocOccurrences);
-        while($occur = $assocUnclean->fetch_assoc()) {
-            $flid = $occur['flid'];
-            $rid = $occur['rid'];
-            $value = $occur['kid'];
-
-            if(!array_key_exists($rid,$ridIndex))
-                continue;
-
-            if(!isset($filters[$convert[$flid]][$value]))
-                $filters[$convert[$flid]][$value] = 1;
-            else
-                $filters[$convert[$flid]][$value] += 1;
-        }
-        mysqli_free_result($assocUnclean);
-
-        $rAssocUnclean = $con->query($rAssocOccurrences);
-        while($occur = $rAssocUnclean->fetch_assoc()) {
-            $flid = $occur['flid'];
-            $rid = $occur['rid'];
-            $value = $occur['kid'];
-
-            if(!array_key_exists($rid,$ridIndex))
-                continue;
-
-            if(!isset($filters[$convert[$flid]][$value]))
-                $filters[$convert[$flid]][$value] = 1;
-            else
-                $filters[$convert[$flid]][$value] += 1;
-        }
-        mysqli_free_result($rAssocUnclean);
-
-        if($count != 1) {
-            $newFilters = [];
-            foreach($filters as $flid => $valCnt) {
-                foreach($valCnt as $val => $cnt) {
-                    if($cnt >= $count)
-                        $newFilters[$flid][$val] = $cnt;
-                }
-            }
-            $filters = $newFilters;
-        }
-
-        mysqli_close($con);
-
-        return $filters;
-    }
 
     /**
      * Import form into project.

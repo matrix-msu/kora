@@ -30,18 +30,6 @@ class Form extends Model {
     ];
 
     /**
-     * @var array - This is an array of field type values for creation
-     */
-    static public $validFieldTypes = [ //TODO::NEWFIELD
-        'Text Fields' => array('Text' => 'Text'),
-        //'Text Fields' => array('Text' => 'Text', 'Rich Text' => 'Rich Text', 'Integer' => 'Integer', 'Floating Point' => 'Floating Point'),
-        //'List Fields' => array('List' => 'List', 'Multi-Select List' => 'Multi-Select List', 'Generated List' => 'Generated List', 'Combo List' => 'Combo List'),
-        //'Date Fields' => array('Date' => 'Date', 'Schedule' => 'Schedule'),
-        //'File Fields' => array('Documents' => 'Documents','Gallery' => 'Gallery (jpg, gif, png)','Playlist' => 'Playlist (mp3, wav)', 'Video' => 'Video (mp4)','3D-Model' => '3D-Model (obj, stl)'),
-        //'Specialty Fields' => array('Geolocator' => 'Geolocator (latlon, utm, textual)','Associator' => 'Associator')
-    ];
-
-    /**
      * @var string - These are the possible field types at the moment  //TODO::NEWFIELD
      */
     const _TEXT = "Text";
@@ -60,6 +48,25 @@ class Form extends Model {
 //    const _VIDEO = "Video";
 //    const _COMBO_LIST = "Combo List";
 //    const _ASSOCIATOR = "Associator";
+
+    /**
+     * @var array - This is an array of field type values for creation
+     */
+    static public $validFieldTypes = [ //TODO::NEWFIELD
+        'Text Fields' => array(self::_TEXT => self::_TEXT),
+        //'Text Fields' => array('Text' => 'Text', 'Rich Text' => 'Rich Text', 'Integer' => 'Integer', 'Floating Point' => 'Floating Point'),
+        //'List Fields' => array('List' => 'List', 'Multi-Select List' => 'Multi-Select List', 'Generated List' => 'Generated List', 'Combo List' => 'Combo List'),
+        //'Date Fields' => array('Date' => 'Date', 'Schedule' => 'Schedule'),
+        //'File Fields' => array('Documents' => 'Documents','Gallery' => 'Gallery (jpg, gif, png)','Playlist' => 'Playlist (mp3, wav)', 'Video' => 'Video (mp4)','3D-Model' => '3D-Model (obj, stl)'),
+        //'Specialty Fields' => array('Geolocator' => 'Geolocator (latlon, utm, textual)','Associator' => 'Associator')
+    ];
+
+    /**
+     * @var array - This is an array of field types that can be filtered
+     */
+    static public $validFilterFields = [ //TODO::NEWFIELD See getDataFilters for which fields we support
+        self::_TEXT
+    ];
 
     /**
      * @var array - Maps field constant names to model name
@@ -304,7 +311,15 @@ class Form extends Model {
             $orderBy = substr($orderBy, 0, -1); //Trim the last comma
         }
 
-        $selectRecords = "SELECT $fieldString FROM ".$prefix."records_".$this->id.$subset.$orderBy;
+        //Limit the results
+        $limitBy = '';
+        if(!is_null($filters['count'])) {
+            $limitBy = ' LIMIT '.$filters['count'];
+            if(!is_null($filters['index']))
+                $limitBy .= ' OFFSET '.$filters['index'];
+        }
+
+        $selectRecords = "SELECT $fieldString FROM ".$prefix."records_".$this->id.$subset.$orderBy.$limitBy;
 
         $records = $con->query($selectRecords);
         while($row = $records->fetch_assoc()) {
@@ -329,5 +344,77 @@ class Form extends Model {
     public function getTestRecordCount() {
         $recordMod = new Record(array(),$this->id);
         return $recordMod->newQuery()->where('is_test','=',1)->count();
+    }
+
+    /**
+     * Scan tables to build out filters list
+     *
+     * @param  int $count - Minimum occurances required for a filter to return (Maybe reimplement later?)
+     * @param  array $flids - Specifies the fields we need filters from
+     * @param  array $rids - Record IDs to search for
+     * @return array - The array of filters
+     */
+    public function getDataFilters($count, $flids, $rids=null) {
+        //Doing this for pretty much the same reason as keyword search above
+        $con = mysqli_connect(
+            config('database.connections.mysql.host'),
+            config('database.connections.mysql.username'),
+            config('database.connections.mysql.password'),
+            config('database.connections.mysql.database')
+        );
+        $prefix = config('database.connections.mysql.prefix');
+
+        //We want to make sure we are doing things in utf8 for special characters
+        if(!mysqli_set_charset($con, "utf8")) {
+            printf("Error loading character set utf8: %s\n", mysqli_error($con));
+            exit();
+        }
+
+        $layout = $this->layout['fields'];
+        $table = $prefix.'records_'.$this->id;
+        $filters = [];
+
+        //Subset of rids?
+        $subset = '';
+        if(!is_null($rids)) {
+            if(empty($rids))
+                return [];
+            $ridString = implode(',',$rids);
+            $subset = " WHERE `id` IN ($ridString)";
+        }
+
+        if($flids == 'ALL')
+            $flids = array_keys($layout);
+
+        //Validate the fields
+        $valids = [];
+        foreach($flids as $f) {
+            $type = $layout[$f]['type'];
+            if(in_array($type,self::$validFilterFields))
+                $valids[] = $f;
+        }
+
+        //TODO::CASTLE to implement
+        //$listOccurrences = "select `option`, `flid`, `rid` from ".$prefix."list_fields where $wherePiece $flidSQL";
+        //$msListOccurrences = "select `options`, `flid`, `rid` from ".$prefix."multi_select_list_fields where $wherePiece $flidSQL";
+        //$genListOccurrences = "select `options`, `flid`, `rid` from ".$prefix."generated_list_fields where $wherePiece $flidSQL";
+        //$numberOccurrences = "select `number`, `flid`, `rid` from ".$prefix."number_fields where $wherePiece $flidSQL";
+        //$dateOccurrences = "select `month`, `day`, `year`, `flid`, `rid` from ".$prefix."date_fields where $wherePiece $flidSQL";
+        //$assocOccurrences = "select s.`flid`, r.`kid`, r.`rid` from ".$prefix."associator_support as s left join kora3_records as r on s.`record`=r.`rid` where s.$wherePiece and s.`flid` in ($flidString)";
+        //$rAssocOccurrences = "select s.`flid`, r.`kid`, r.`rid` from ".$prefix."associator_support as s left join kora3_records as r on s.`rid`=r.`rid` where s.$wherePiece and s.`flid` in ($flidString)";
+
+        foreach($valids as $f) {
+            $filterQuery = "SELECT `$f`, COUNT(*) as count FROM $table$subset GROUP BY `$f`";
+            $results = $con->query($filterQuery);
+            while($row = $results->fetch_assoc()) {
+                if(!is_null($row[$f]) && $row['count']>=$count)
+                    $filters[$f][$row[$f]] = $row['count'];
+            }
+            $results->free();
+        }
+
+        mysqli_close($con);
+
+        return $filters;
     }
 }
