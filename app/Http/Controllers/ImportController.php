@@ -1,27 +1,11 @@
 <?php namespace App\Http\Controllers;
 
-use App\ComboListField;
-use App\DateField;
-use App\DocumentsField;
-use App\Field;
-use App\FileTypeField;
 use App\Form;
 use App\FormGroup;
-use App\GalleryField;
-use App\GeneratedListField;
-use App\GeolocatorField;
-use App\ListField;
-use App\Metadata;
-use App\MultiSelectListField;
-use App\OptionPreset;
-use App\Page;
 use App\Project;
 use App\ProjectGroup;
 use App\Record;
 use App\RecordPreset;
-use App\RichTextField;
-use App\ScheduleField;
-use App\TextField;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redirect;
 
@@ -59,7 +43,7 @@ class ImportController extends Controller {
      * @param  string $type - Format type
      * @return string - html for the file download
      */
-    public function exportSample($pid, $fid, $type){
+    public function exportSample($pid, $fid, $type) {
         if(!FormController::validProjForm($pid, $fid))
             return redirect('projects/'.$pid)->with('k3_global_error', 'form_invalid');
 
@@ -68,14 +52,12 @@ class ImportController extends Controller {
         if(!(\Auth::user()->isFormAdmin($form)))
             return redirect('projects/'.$pid)->with('k3_global_error', 'not_form_admin');
 
-        $fields = Field::where('fid', '=', $fid)->get();
-
         switch($type) {
-            case 'XML':
+            case self::XML:
                 $xml = '<?xml version="1.0" encoding="utf-8"?><Records><Record>';
 
-                foreach($fields as $field) {
-                    $xml .= $field->getTypedField()->getExportSample($field->slug, "XML");
+                foreach($form->layout['fields'] as $flid => $field) {
+                    $xml .= $form->getFieldModel($field['type'])->getExportSample($flid, self::XML);
                 }
 
                 $xml .= '<reverseAssociations><Record flid="1337">1-3-37</Record><Record flid="1337">1-3-37</Record></reverseAssociations>';
@@ -87,11 +69,11 @@ class ImportController extends Controller {
                 echo $xml;
                 exit;
                 break;
-            case 'JSON':
+            case self::JSON:
                 $tmpArray = array();
 
-                foreach($fields as $field) {
-                    $fieldArray = $field->getTypedField()->getExportSample($field->slug, "JSON");
+                foreach($form->layout['fields'] as $flid => $field) {
+                    $fieldArray = $form->getFieldModel($field['type'])->getExportSample($flid, self::JSON);
                     $tmpArray = array_merge($fieldArray, $tmpArray);
                 }
 

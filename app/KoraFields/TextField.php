@@ -199,6 +199,30 @@ class TextField extends BaseField {
     }
 
     /**
+     * Provides an example of the field's structure in an export to help with importing records.
+     *
+     * @param  string $slug - Field nickname
+     * @param  string $expType - Type of export
+     * @return mixed - The example
+     */
+    public function getExportSample($slug,$type) {
+        switch($type) {
+            case "XML":
+                $xml = '<' . $slug . '>';
+                $xml .= utf8_encode('This is sample text for this text field.');
+                $xml .= '</' . $slug . '>';
+
+                return $xml;
+                break;
+            case "JSON":
+                $fieldArray[$slug]['value'] = 'This is sample text for this text field.';
+
+                return $fieldArray;
+                break;
+        }
+    }
+
+    /**
      * Performs a keyword search on this field and returns any results.
      *
      * @param  string $flid - Field ID

@@ -1,13 +1,13 @@
 @extends('app', ['page_title' => "Import Records", 'page_class' => 'record-import-setup'])
 
 @section('leftNavLinks')
-    @include('partials.menu.project', ['pid' => $form->pid])
-    @include('partials.menu.form', ['fid' => $form->fid])
+    @include('partials.menu.project', ['pid' => $form->project_id])
+    @include('partials.menu.form', ['fid' => $form->id])
     @include('partials.menu.static', ['name' => 'Import Records'])
 @stop
 
 @section('aside-content')
-  @include('partials.sideMenu.form', ['pid' => $form->pid, 'fid' => $form->fid, 'openDrawer' => true])
+  @include('partials.sideMenu.form', ['pid' => $form->project_id, 'fid' => $form->id, 'openDrawer' => true])
 @stop
 
 @section('header')
@@ -19,9 +19,9 @@
                 <span class="header-text-js">Import Records</span>
             </h1>
             <p class="description desc-text-js">You can import records via XML or JSON File. You may
-                <a href="{{ action('ImportController@exportSample',['pid' => $form->pid, 'fid' => $form->fid, 'type' => 'XML']) }}">download our sample XML file here</a>,
+                <a href="{{ action('ImportController@exportSample',['pid' => $form->project_id, 'fid' => $form->id, 'type' => 'XML']) }}">download our sample XML file here</a>,
                 and
-                <a href="{{ action('ImportController@exportSample',['pid' => $form->pid, 'fid' => $form->fid, 'type' => 'JSON']) }}">our sample JSON file here</a>
+                <a href="{{ action('ImportController@exportSample',['pid' => $form->project_id, 'fid' => $form->id, 'type' => 'JSON']) }}">our sample JSON file here</a>
                 to get an idea on how to organize your record data. </p>
             <div class="content-sections sections-remove-js">
               <div class="content-sections-scroll">
@@ -122,12 +122,12 @@
     @include('partials.records.javascripts')
 
     <script type="text/javascript">
-        var fidForFormData = '{{$form->fid}}';
-        var matchUpFieldsUrl = '{{ action('ImportController@matchupFields',['pid'=>$form->pid,'fid'=>$form->fid])}}';
-        var importRecordUrl = '{{ action('ImportController@importRecord',['pid'=>$form->pid,'fid'=>$form->fid]) }}';
-        var viewRecordsUrl = '{{ action('RecordController@index',['pid' => $form->pid, 'fid' => $form->fid]) }}';
-        var downloadFailedUrl = '{{ action('ImportController@downloadFailedRecords',['pid'=>$form->pid,'fid'=>$form->fid]) }}';
-        var downloadReasonsUrl = '{{ action('ImportController@downloadFailedReasons',['pid'=>$form->pid,'fid'=>$form->fid]) }}';
+        var fidForFormData = '{{$form->id}}';
+        var matchUpFieldsUrl = '{{ action('ImportController@matchupFields',['pid'=>$form->project_id,'fid'=>$form->id])}}';
+        var importRecordUrl = '{{ action('ImportController@importRecord',['pid'=>$form->project_id,'fid'=>$form->id]) }}';
+        var viewRecordsUrl = '{{ action('RecordController@index',['pid' => $form->project_id, 'fid' => $form->id]) }}';
+        var downloadFailedUrl = '{{ action('ImportController@downloadFailedRecords',['pid'=>$form->project_id,'fid'=>$form->id]) }}';
+        var downloadReasonsUrl = '{{ action('ImportController@downloadFailedReasons',['pid'=>$form->project_id,'fid'=>$form->id]) }}';
         var CSRFToken = '{{ csrf_token() }}';
 
         Kora.Records.Import();

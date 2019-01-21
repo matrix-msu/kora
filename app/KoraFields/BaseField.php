@@ -136,6 +136,15 @@ abstract class BaseField extends Model {
     abstract public function getTestData();
 
     /**
+     * Provides an example of the field's structure in an export to help with importing records.
+     *
+     * @param  string $slug - Field nickname
+     * @param  string $expType - Type of export
+     * @return mixed - The example
+     */
+    abstract public function getExportSample($slug,$type);
+
+    /**
      * Performs a keyword search on this field and returns any results.
      *
      * @param  int $flid - Field ID
