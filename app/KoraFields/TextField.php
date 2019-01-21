@@ -171,13 +171,24 @@ class TextField extends BaseField {
     /**
      * Formats data for XML record display.
      *
-     * @param  array $field - The field to represent record data
+     * @param  string $field - Field ID
      * @param  string $value - Data to format
      *
      * @return mixed - Processed data
      */
     public function processXMLData($field, $value) {
         return "<$field>".htmlspecialchars($value, ENT_XML1, 'UTF-8')."</$field>";
+    }
+
+    /**
+     * Formats data for XML record display.
+     *
+     * @param  string $value - Data to format
+     *
+     * @return mixed - Processed data
+     */
+    public function processLegacyData($value) {
+        return $value;
     }
 
     /**

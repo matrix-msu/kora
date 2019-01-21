@@ -180,6 +180,8 @@ class RestfulController extends Controller {
                 //return all records
                 if($apiFormat==self::XML)
                     $records = $form->getRecordsForExportXML($filters);
+                else if($apiFormat==self::KORA)
+                    $records = $form->getRecordsForExportLegacy($filters);
                 else
                     $records = $form->getRecordsForExport($filters);
 
@@ -335,6 +337,8 @@ class RestfulController extends Controller {
 
                 if($apiFormat==self::XML)
                     $records = $form->getRecordsForExportXML($filters,$returnRIDS);
+                else if($apiFormat==self::KORA)
+                    $records = $form->getRecordsForExportLegacy($filters,$returnRIDS);
                 else
                     $records = $form->getRecordsForExport($filters,$returnRIDS);
 

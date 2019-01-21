@@ -333,6 +333,112 @@ class Form extends Model {
     }
 
     /**
+     * Gets the data out of the DB in Kora 2 format.
+     *
+     * @param  $filters - The filters to modify the returned results
+     * @param  $rids - The subset of rids we would like back
+     *
+     * @return array - The Kora 2 formatted records
+     */
+    public function getRecordsForExportLegacy($filters, $rids = null) {
+        $results = [];
+
+        $con = mysqli_connect(
+            config('database.connections.mysql.host'),
+            config('database.connections.mysql.username'),
+            config('database.connections.mysql.password'),
+            config('database.connections.mysql.database')
+        );
+        $prefix = config('database.connections.mysql.prefix');
+
+        //We want to make sure we are doing things in utf8 for special characters
+        if(!mysqli_set_charset($con, "utf8")) {
+            printf("Error loading character set utf8: %s\n", mysqli_error($con));
+            exit();
+        }
+
+        $fields = ['kid','legacy_kid','updated_at','owner'];
+        $fieldToModel = [];
+        $fieldToRealName = [];
+
+        //Adds the data fields
+        if(!is_array($filters['fields']) && $filters['fields'] == 'ALL')
+            $flids = array_keys($this->layout['fields']);
+        else
+            $flids = $filters['fields'];
+
+        $fields = array_merge($flids,$fields);
+        $fieldString = implode(',',$fields);
+
+        //Store the models
+        foreach($fields as $f) {
+            if(!in_array($f,['kid','legacy_kid','updated_at','owner'])) {
+                $fieldToModel[$f] = $this->getFieldModel($this->layout['fields'][$f]['type']);
+                if($filters['under'])
+                    $fieldToRealName[$f] = str_replace(' ','_',$this->layout['fields'][$f]['name']);
+                else
+                    $fieldToRealName[$f] = $this->layout['fields'][$f]['name'];
+            }
+        }
+
+        //Subset of rids?
+        $subset = '';
+        if(!is_null($rids)) {
+            if(empty($rids))
+                return [];
+            $ridString = implode(',',$rids);
+            $subset = " WHERE `id` IN ($ridString)";
+        }
+
+        //Add the sorts
+        $orderBy = '';
+        if(!is_null($filters['sort'])) {
+            $orderBy = ' ORDER BY ';
+            for($i=0;$i<sizeof($filters['sort']);$i = $i+2) {
+                $orderBy .= $filters['sort'][$i].' '.$filters['sort'][$i+1].',';
+            }
+            $orderBy = substr($orderBy, 0, -1); //Trim the last comma
+        }
+
+        //Limit the results
+        $limitBy = '';
+        if(!is_null($filters['count'])) {
+            $limitBy = ' LIMIT '.$filters['count'];
+            if(!is_null($filters['index']))
+                $limitBy .= ' OFFSET '.$filters['index'];
+        }
+
+        $selectRecords = "SELECT $fieldString FROM ".$prefix."records_".$this->id.$subset.$orderBy.$limitBy;
+
+        $records = $con->query($selectRecords);
+        while($row = $records->fetch_assoc()) {
+            $kid = $row['kid'];
+            $results[$kid] = [
+                'kid' => $kid,
+                'pid' => $this->project_id,
+                'schemeID' => $this->id,
+                'legacy_kid' => $row['legacy_kid'],
+                'systimestamp' => $row['updated_at'],
+                'recordowner' => $row['owner'],
+            ];
+
+            foreach($row as $index => $value) {
+                if(!in_array($index,['kid','legacy_kid','updated_at','owner'])) {
+                    if(is_null($value))
+                       $value = '';
+
+                    $results[$kid][$fieldToRealName[$index]] = $fieldToModel[$index]->processLegacyData($value);
+                }
+            }
+        }
+        $records->free();
+
+        $con->close();
+
+        return $results;
+    }
+
+    /**
      * Gets the data out of the DB in XML format.
      *
      * @param  $filters - The filters to modify the returned results
@@ -358,7 +464,7 @@ class Form extends Model {
         }
 
         $fields = ['kid'];
-        $fieldToModelConverter = [];
+        $fieldToModel = [];
 
         //$filters['revAssoc']; //TODO::CASTLE Need assoc first
 
@@ -374,7 +480,7 @@ class Form extends Model {
         //Store the models
         foreach($fields as $f) {
             if($f!='kid')
-                $fieldToModelConverter[$f] = $this->getFieldModel($this->layout['fields'][$f]['type']);
+                $fieldToModel[$f] = $this->getFieldModel($this->layout['fields'][$f]['type']);
         }
 
         //Subset of rids?
@@ -413,7 +519,7 @@ class Form extends Model {
 
             foreach($row as $index => $value) {
                 if($index != 'kid' && !is_null($value))
-                    $results .= $fieldToModelConverter[$index]->processXMLData($index, $value);
+                    $results .= $fieldToModel[$index]->processXMLData($index, $value);
             }
 
             $results .= '</Record>';

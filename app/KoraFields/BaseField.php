@@ -96,6 +96,8 @@ abstract class BaseField extends Model {
      * @param  array $field - The field to represent record data
      * @param  string $value - Data to add
      * @param  Request $request
+     *
+     * @return mixed - Processed data
      */
     abstract public function processRecordData($field, $value, $request);
 
@@ -104,8 +106,29 @@ abstract class BaseField extends Model {
      *
      * @param  array $field - The field to represent record data
      * @param  string $value - Data to display
+     *
+     * @return mixed - Processed data
      */
     abstract public function processDisplayData($field, $value);
+
+    /**
+     * Formats data for XML record display.
+     *
+     * @param  string $field - Field ID
+     * @param  string $value - Data to format
+     *
+     * @return mixed - Processed data
+     */
+    abstract public function processXMLData($field, $value);
+
+    /**
+     * Formats data for XML record display.
+     *
+     * @param  string $value - Data to format
+     *
+     * @return mixed - Processed data
+     */
+    abstract public function processLegacyData($value);
 
     /**
      * For a test record, add test data to field.
