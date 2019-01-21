@@ -333,6 +333,101 @@ class Form extends Model {
     }
 
     /**
+     * Gets the data out of the DB in XML format.
+     *
+     * @param  $filters - The filters to modify the returned results
+     * @param  $rids - The subset of rids we would like back
+     *
+     * @return string - The XML of records
+     */
+    public function getRecordsForExportXML($filters, $rids = null) {
+        $results = '<?xml version="1.0" encoding="utf-8"?><Records>';
+
+        $con = mysqli_connect(
+            config('database.connections.mysql.host'),
+            config('database.connections.mysql.username'),
+            config('database.connections.mysql.password'),
+            config('database.connections.mysql.database')
+        );
+        $prefix = config('database.connections.mysql.prefix');
+
+        //We want to make sure we are doing things in utf8 for special characters
+        if(!mysqli_set_charset($con, "utf8")) {
+            printf("Error loading character set utf8: %s\n", mysqli_error($con));
+            exit();
+        }
+
+        $fields = ['kid'];
+        $fieldToModelConverter = [];
+
+        //$filters['revAssoc']; //TODO::CASTLE Need assoc first
+
+        //Adds the data fields
+        if(!is_array($filters['fields']) && $filters['fields'] == 'ALL')
+            $flids = array_keys($this->layout['fields']);
+        else
+            $flids = $filters['fields'];
+
+        $fields = array_merge($flids,$fields);
+        $fieldString = implode(',',$fields);
+
+        //Store the models
+        foreach($fields as $f) {
+            if($f!='kid')
+                $fieldToModelConverter[$f] = $this->getFieldModel($this->layout['fields'][$f]['type']);
+        }
+
+        //Subset of rids?
+        $subset = '';
+        if(!is_null($rids)) {
+            if(empty($rids))
+                return [];
+            $ridString = implode(',',$rids);
+            $subset = " WHERE `id` IN ($ridString)";
+        }
+
+        //Add the sorts
+        $orderBy = '';
+        if(!is_null($filters['sort'])) {
+            $orderBy = ' ORDER BY ';
+            for($i=0;$i<sizeof($filters['sort']);$i = $i+2) {
+                $orderBy .= $filters['sort'][$i].' '.$filters['sort'][$i+1].',';
+            }
+            $orderBy = substr($orderBy, 0, -1); //Trim the last comma
+        }
+
+        //Limit the results
+        $limitBy = '';
+        if(!is_null($filters['count'])) {
+            $limitBy = ' LIMIT '.$filters['count'];
+            if(!is_null($filters['index']))
+                $limitBy .= ' OFFSET '.$filters['index'];
+        }
+
+        $selectRecords = "SELECT $fieldString FROM ".$prefix."records_".$this->id.$subset.$orderBy.$limitBy;
+
+        $records = $con->query($selectRecords);
+        while($row = $records->fetch_assoc()) {
+            $kid = $row['kid'];
+            $results .= "<Record kid='$kid'>";
+
+            foreach($row as $index => $value) {
+                if($index != 'kid' && !is_null($value))
+                    $results .= $fieldToModelConverter[$index]->processXMLData($index, $value);
+            }
+
+            $results .= '</Record>';
+        }
+        $records->free();
+
+        $con->close();
+
+        $results .= '</Records>';
+
+        return $results;
+    }
+
+    /**
      * Get number of records in form.
      *
      * @return int

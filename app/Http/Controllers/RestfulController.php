@@ -178,10 +178,16 @@ class RestfulController extends Controller {
             //parse the query
             if(!isset($f->query)) {
                 //return all records
-                $records = $form->getRecordsForExport($filters);
+                if($apiFormat==self::XML)
+                    $records = $form->getRecordsForExportXML($filters);
+                else
+                    $records = $form->getRecordsForExport($filters);
 
                 if($filters['size']) {
-                    $cnt = sizeof($records);
+                    if($apiFormat==self::XML) //Since the return XML is a string. We'll just get the record count manually.
+                        $cnt = $form->getRecordCount();
+                    else
+                        $cnt = sizeof($records);
                     $countGlobal += $cnt;
                     $countArray[$form->id] = $cnt;
                 }
@@ -193,13 +199,6 @@ class RestfulController extends Controller {
 
 //                if($globalSort) //TODO::CASTLE
 //                    $this->imitateMerge($globalRecords,$returnRIDS);
-//                else { //TODO::CASTLE
-//                    if($apiFormat==self::XML)
-//                        $resultsGlobal[] = $this->populateRecords($returnRIDS, $filters, $apiFormat, $form->id);
-//                    else {
-//                        $resultsGlobal[] = json_decode($this->populateRecords($returnRIDS, $filters, $apiFormat, $form->id));
-//                    }
-//                }
             } else {
                 $queries = $f->query;
                 $resultSets = array();
@@ -334,10 +333,13 @@ class RestfulController extends Controller {
                     $returnRIDS = $this->logic_recursive($logic,$resultSets);
                 }
 
-                $records = $form->getRecordsForExport($filters,$returnRIDS);
+                if($apiFormat==self::XML)
+                    $records = $form->getRecordsForExportXML($filters,$returnRIDS);
+                else
+                    $records = $form->getRecordsForExport($filters,$returnRIDS);
 
                 if($filters['size']) {
-                    $cnt = sizeof($records);
+                    $cnt = sizeof($returnRIDS);
                     $countGlobal += $cnt;
                     $countArray[$form->id] = $cnt;
                 }
@@ -349,12 +351,6 @@ class RestfulController extends Controller {
 
 //                if($globalSort) //TODO::CASTLE
 //                    $this->imitateMerge($globalRecords,$returnRIDS);
-//                else {
-//                    if($apiFormat==self::XML)
-//                        $resultsGlobal[] = $this->populateRecords($returnRIDS, $filters, $apiFormat, $form->fid);
-//                    else
-//                        $resultsGlobal[] = json_decode($this->populateRecords($returnRIDS, $filters, $apiFormat, $form->fid));
-//                }
             }
         }
 

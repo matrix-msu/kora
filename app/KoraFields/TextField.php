@@ -144,6 +144,8 @@ class TextField extends BaseField {
      * @param  array $field - The field to represent record data
      * @param  string $value - Data to add
      * @param  Request $request
+     *
+     * @return mixed - Processed data
      */
     public function processRecordData($field, $value, $request) {
         if($value=='')
@@ -156,12 +158,26 @@ class TextField extends BaseField {
      *
      * @param  array $field - The field to represent record data
      * @param  string $value - Data to display
+     *
+     * @return mixed - Processed data
      */
     public function processDisplayData($field, $value) {
         if($field['options']['MultiLine'])
             return nl2br($value);
         else
             return $value;
+    }
+
+    /**
+     * Formats data for XML record display.
+     *
+     * @param  array $field - The field to represent record data
+     * @param  string $value - Data to format
+     *
+     * @return mixed - Processed data
+     */
+    public function processXMLData($field, $value) {
+        return "<$field>".htmlspecialchars($value, ENT_XML1, 'UTF-8')."</$field>";
     }
 
     /**
