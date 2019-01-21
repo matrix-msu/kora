@@ -1,8 +1,6 @@
 <?php namespace App\Http\Controllers;
 
 use App\Form;
-use Illuminate\Support\Facades\DB;
-use App\RecordPreset;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Http\Request;
@@ -23,12 +21,11 @@ class ExportController extends Controller {
      */
     const JSON = "JSON";
     const XML = "XML";
-    const KORA = "KORA_OLD";
 
     /**
      * @var array - Array of those formats
      */
-    const VALID_FORMATS = [ self::JSON, self::XML, self::KORA];
+    const VALID_FORMATS = [ self::JSON, self::XML];
 
     /**
      * Constructs controller and makes sure user is authenticated.
@@ -46,7 +43,7 @@ class ExportController extends Controller {
      * @param  string $type - Type of export format
      * @return Redirect
      */
-    public function exportRecords($pid, $fid, $type) { //TODO::CASTLE
+    public function exportRecords($pid, $fid, $type) {
         if(!FormController::validProjForm($pid,$fid))
             return redirect('projects/'.$pid);
 
@@ -55,24 +52,29 @@ class ExportController extends Controller {
         if(!\Auth::user()->isFormAdmin($form))
             return redirect('projects/'.$pid.'/forms/'.$fid);
 
-        $rids = DB::table("records")->where("fid", "=", $fid)->select("rid")->get()->toArray();
+        //Get the data
+        $filters = ["revAssoc" => true, "meta" => false, "fields" => 'ALL', "realnames" => false, "assoc" => false,
+            "data" => true, "sort" => null, "count" => null, "index" => null];
+        if($type==self::JSON) {
+            $data = json_encode($form->getRecordsForExport($filters));
+            $ext = 'json';
+        } else if($type==self::XML) {
+            $data = $form->getRecordsForExportXML($filters);
+            $ext = 'xml';
+        }
 
-        // The DB call returns an array of StdObj so we get the rids out of the objects.
-        $rids = array_map( function($obj) {
-            return $obj->rid;
-        }, $rids);
+        $dt = new \DateTime();
+        $format = $dt->format('Y_m_d_H_i_s');
+        $path = storage_path("app/exports/record_export_$format.$ext");
 
-        //most of these are included to not break JSON, revAssoc is the only one that matters to us for this so we can get
-        // the reverse associations. The others are only relevant to the API
-        $options = ["revAssoc" => true, "meta" => false, "fields" => 'ALL', "realnames" => false, "assoc" => false];
-        $output = $this->exportFormRecordData($fid, $rids, $type, false, $options);
+        file_put_contents($path, $data);
 
-        if(file_exists($output)) { // File exists, so we download it.
-            header("Content-Disposition: attachment; filename=\"" . basename($output) . "\"");
+        if(file_exists($path)) { // File exists, so we download it.
+            header("Content-Disposition: attachment; filename=\"" . basename($path) . "\"");
             header("Content-Type: application/octet-stream");
-            header("Content-Length: " . filesize($output));
+            header("Content-Length: " . filesize($path));
 
-            readfile($output);
+            readfile($path);
             exit;
         } else { // File does not exist, so some kind of error occurred, and we redirect.
             return redirect("projects/" . $pid . "/forms/" . $fid . "/records");
@@ -88,32 +90,44 @@ class ExportController extends Controller {
      * @param  Request $request
      * @return Redirect
      */
-    public function exportSelectedRecords($pid, $fid, $type, Request $request) { //TODO::CASTLE
-      if(!FormController::validProjForm($pid,$fid))
-        return redirect('projects/'.$pid.'/forms/'.$fid.'/records');
+    public function exportSelectedRecords($pid, $fid, $type, Request $request) {
+        if(!FormController::validProjForm($pid,$fid))
+            return redirect('projects/'.$pid);
 
-      $form = FormController::getForm($fid);
+        $form = FormController::getForm($fid);
 
-      if(!\Auth::user()->isFormAdmin($form))
-        return redirect('projects/'.$pid.'/forms/'.$fid.'/records');
+        if(!\Auth::user()->isFormAdmin($form))
+            return redirect('projects/'.$pid.'/forms/'.$fid);
 
-      $rids = $request->rid;
-      $rids = array_map('intval', explode(',', $rids));
+        //Get the data
+        $rids = $request->rid;
+        $rids = array_map('intval', explode(',', $rids));
+        $filters = ["revAssoc" => true, "meta" => false, "fields" => 'ALL', "realnames" => false, "assoc" => false,
+            "data" => true, "sort" => null, "count" => null, "index" => null];
+        if($type==self::JSON) {
+            $data = json_encode($form->getRecordsForExport($filters,$rids));
+            $ext = 'json';
+        } else if($type==self::XML) {
+            $data = $form->getRecordsForExportXML($filters,$rids);
+            $ext = 'xml';
+        }
 
-      $options = ["revAssoc" => true, "meta" => false, "fields" => 'ALL', "realnames" => false, "assoc" => false];
-      $output = $this->exportFormRecordData($fid, $rids, $type, false, $options);
+        $dt = new \DateTime();
+        $format = $dt->format('Y_m_d_H_i_s');
+        $path = storage_path("app/exports/record_export_$format.$ext");
 
-      if(file_exists($output)) { // File exists, so we download it.
-          header("Content-Disposition: attachment; filename=\"" . basename($output) . "\"");
-          header("Content-Type: application/octet-stream");
-          header("Content-Length: " . filesize($output));
+        file_put_contents($path, $data);
 
-          readfile($output);
-          exit;
-      } else { // File does not exist, so some kind of error occurred, and we redirect.
-          flash()->overlay(trans("records_index.exporterror"), trans("controller_admin.whoops"));
-          return redirect("projects/" . $pid . "/forms/" . $fid . "/records");
-      }
+        if(file_exists($path)) { // File exists, so we download it.
+            header("Content-Disposition: attachment; filename=\"" . basename($path) . "\"");
+            header("Content-Type: application/octet-stream");
+            header("Content-Length: " . filesize($path));
+
+            readfile($path);
+            exit;
+        } else { // File does not exist, so some kind of error occurred, and we redirect.
+            return redirect("projects/" . $pid . "/forms/" . $fid . "/records");
+        }
     }
 
     /**
@@ -256,7 +270,7 @@ class ExportController extends Controller {
      * @param  bool $download - Download as a file or as an array for the project export
      * @return mixed - Export file or data array
      */
-    public function exportForm($pid, $fid, $download=true) { //TODO::CASTLE
+    public function exportForm($pid, $fid, $download=true) {
         if(!FormController::validProjForm($pid, $fid))
             return redirect('projects/'.$pid)->with('k3_global_error', 'form_invalid');
 
@@ -269,65 +283,21 @@ class ExportController extends Controller {
         $formArray = array();
 
         $formArray['name'] = $form->name;
-        $formArray['slug'] = $form->slug;
-        $formArray['desc'] = $form->description;
+        $formArray['internal_name'] = $form->internal_name;
+        $formArray['description'] = $form->description;
         $formArray['preset'] = $form->preset;
-        $formArray['metadata'] = $form->public_metadata;
+        $formArray['layout'] = $form->layout;
 
-        //Page
-        $pages = $form->pages()->get();
-        $formArray['pages'] = array();
-        foreach($pages as $page) {
-            $p = array();
-            $p['id'] = $page->id;
-            $p['title'] = $page->title;
-            $p['sequence'] = $page->sequence;
-
-            array_push($formArray['pages'],$p);
-        }
-
-        //record presets
-        $recPresets = RecordPreset::where('fid','=',$fid)->get();
-        $formArray['recPresets'] = array();
-        foreach($recPresets as $pre) {
-            $rec = array();
-            $rec['name'] = $pre->name;
-            $rec['preset'] = $pre->preset;
-
-            array_push($formArray['recPresets'],$rec);
-        }
-
-        $fields = Field::where('fid','=',$form->fid)->get();
-        $formArray['fields'] = array();
-
-        foreach($fields as $field) {
-            $fieldArray = array();
-
-            $fieldArray['flid'] = $field->flid;
-            $fieldArray['page_id'] = $field->page_id;
-            $fieldArray['sequence'] = $field->sequence;
-            $fieldArray['type'] = $field->type;
-            $fieldArray['name'] = $field->name;
-            $fieldArray['slug'] = $field->slug;
-            $fieldArray['desc'] = $field->desc;
-            $fieldArray['required'] = $field->required;
-            $fieldArray['searchable'] = $field->searchable;
-            $fieldArray['advsearch'] = $field->advsearch;
-            $fieldArray['extsearch'] = $field->extsearch;
-            $fieldArray['viewable'] = $field->viewable;
-            $fieldArray['viewresults'] = $field->viewresults;
-            $fieldArray['extview'] = $field->extview;
-            $fieldArray['default'] = $field->default;
-            $fieldArray['options'] = $field->options;
-
-            $meta = Metadata::where('flid','=',$field->flid)->get()->first();
-            if(!is_null($meta))
-                $fieldArray['metadata'] = $meta->name;
-            else
-                $fieldArray['metadata'] = '';
-
-            array_push($formArray['fields'],$fieldArray);
-        }
+        //record presets //TODO::CASTLE
+//        $recPresets = RecordPreset::where('fid','=',$fid)->get();
+//        $formArray['recPresets'] = array();
+//        foreach($recPresets as $pre) {
+//            $rec = array();
+//            $rec['name'] = $pre->name;
+//            $rec['preset'] = $pre->preset;
+//
+//            array_push($formArray['recPresets'],$rec);
+//        }
 
         if($download) {
             header('Content-Disposition: attachment; filename="' . $form->name . '_Layout_' . Carbon::now() . '.k3Form"');
@@ -346,7 +316,7 @@ class ExportController extends Controller {
      * @param  int $pid - Project ID
      * @return string - html for the file
      */
-    public function exportProject($pid) { //TODO::CASTLE
+    public function exportProject($pid) {
         if(!ProjectController::validProj($pid))
             return redirect('projects')->with('k3_global_error', 'project_invalid');
 
@@ -358,26 +328,26 @@ class ExportController extends Controller {
         $projArray = array();
 
         $projArray['name'] = $proj->name;
-        $projArray['slug'] = $proj->slug;
+        $projArray['internal_name'] = $proj->internal_name;
         $projArray['description'] = $proj->description;
 
-        //preset stuff
-        $optPresets = OptionPreset::where('pid','=',$pid)->get();
-        $projArray['optPresets'] = array();
-        foreach($optPresets as $pre) {
-            $opt = array();
-            $opt['type'] = $pre->type;
-            $opt['name'] = $pre->name;
-            $opt['preset'] = $pre->preset;
-            $opt['shared'] = $pre->shared;
+        //preset stuff //TODO::CASTLE
+//        $optPresets = OptionPreset::where('pid','=',$pid)->get();
+//        $projArray['optPresets'] = array();
+//        foreach($optPresets as $pre) {
+//            $opt = array();
+//            $opt['type'] = $pre->type;
+//            $opt['name'] = $pre->name;
+//            $opt['preset'] = $pre->preset;
+//            $opt['shared'] = $pre->shared;
+//
+//            array_push($projArray['optPresets'],$opt);
+//        }
 
-            array_push($projArray['optPresets'],$opt);
-        }
-
-        $forms = Form::where('pid','=',$pid)->get();
+        $forms = Form::where('project_id','=',$pid)->get();
         $projArray['forms'] = array();
         foreach($forms as $form) {
-            array_push($projArray['forms'],$this->exportForm($pid,$form->fid,false));
+            array_push($projArray['forms'],$this->exportForm($pid,$form->id,false));
         }
 
         header('Content-Disposition: attachment; filename="' . $proj->name . '_Layout_' . Carbon::now() . '.k3Proj"');
@@ -385,15 +355,5 @@ class ExportController extends Controller {
 
         echo json_encode($projArray);
         exit;
-    }
-
-    /**
-     * Verifies the given format is an eligible format for exporting.
-     *
-     * @param  string $format - Format to compare
-     * @return bool - Result of format being eligible
-     */
-    public static function isValidFormat($format) {
-        return in_array(($format), self::VALID_FORMATS);
     }
 }
