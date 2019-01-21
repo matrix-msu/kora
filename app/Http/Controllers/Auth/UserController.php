@@ -713,7 +713,7 @@ class UserController extends Controller {
                 if (\Auth::user()->admin || \Auth::user()->inAProjectGroup($project)) {
                     array_push($projects, $project->name);
                 } else {
-                    array_push($requestableProjects, $project->name);
+                    $requestableProjects[$project->pid] = $project->name;
                 }
             }
         }

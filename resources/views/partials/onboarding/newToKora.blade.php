@@ -141,12 +141,15 @@
                 @endforeach
 			</ul>
 			<div class="form-group mt-xxl">
-                {!! Form::label('projects', 'Select the Project to Request Permissions') !!}
-                {!! Form::select('projects[]', $projects[1], null, [
+            {!! Form::open(['action' => 'ProjectController@request', 'class' => 'onboarding-request-project-form-js']) !!}
+                {!! Form::label('pids', 'Select the Project to Request Permissions') !!}
+                {!! Form::select('pids[]', $projects[1], null, [
                     'class' => 'multi-select',
                     'multiple',
-                    'data-placeholder' => "Select the project you would like to request permissions to here"
+                    'data-placeholder' => "Select the project you would like to request permissions to here",
+                    'id' => 'request_project'
                 ]) !!}
+            {!! Form::close() !!}
             </div>
         </div>
     </section>

@@ -100,6 +100,39 @@ $('.onboarding-pagination-js .dots').on('click', '.dot', function (e) {
 	paginate ( $(this).index() )
 });
 
+$('.onboarding-pagination-js .finish-js').click(function (e) {
+	if ($('.paths > div:not(.hidden) #request_project').val() != null) {
+		$.ajax({
+			url: requestProjectPermissionsURL,
+			type: 'POST',
+			data: {
+			  "_token": CSRFToken,
+			  "pids": $('.paths > div:not(.hidden) #request_project').val()
+			},
+			success: function(result) {
+			  $('.note').children('p').text('Project permissions have been requested!');
+			  $('.note').children('p').addClass('with-description');
+			  $('.note').children('span').text('You will be notified via email once permissions have been granted.');
+			  $('.note').children('span').addClass('note-description');
+			  $('.notification').addClass('static-js');
+			  $('.notification').removeClass('dismiss');
+			},
+			error: function(result) {
+				$('.note').children('p').text('Project permissions request failed!');
+				$('.note').children('p').addClass('with-description');
+				$('.note').children('span').text('Please contact your Kora3 administrator.');
+				$('.note').children('span').addClass('note-description');
+				$('.notification').addClass('static-js');
+				$('.notification').addClass('warning');
+				$('.notification').removeClass('dismiss');
+			}
+		});
+		Kora.Modal.close();
+	} else {
+		Kora.Modal.close();
+	}
+});
+
 $(window).resize(function (e) {
 	e.preventDefault();
 

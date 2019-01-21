@@ -93,7 +93,7 @@
         <p><button type="submit" class="text underline-middle-hover">Replay Kora Introduction</button></p>
         {!! Form::close() !!}
     @else
-        <p><a href="{{ url('/') }}" class="text underline-middle-hover">Replay Kora Introduction</a></p>
+        <p class="bottom-form-js"><a href="{{ url('/') }}" class="text underline-middle-hover">Replay Kora Introduction</a></p>
     @endif
 
     {{-- \App\Http\Controllers\Auth\UserController::returnUserPrefs('onboarding') --}}

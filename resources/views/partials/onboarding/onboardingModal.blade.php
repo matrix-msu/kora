@@ -22,7 +22,7 @@
             </div>
         </section>
 
-		<div class="paths">
+		<div class="paths {{ \Auth::user()->admin ? null : 'non-admin-js' }}">
 
 			@if (\Auth::user()->admin)
 				@include('partials.onboarding.familiarWithKora-admin')
@@ -39,7 +39,7 @@
 				<span>Continue</span>
 				<a><i class="icon icon-arrow-right"></i></a>
 			</div>
-			<div class="next finish finish-js modal-toggle-js mobile">
+			<div class="next finish finish-js mobile">
 				<span>Finish</span>
 			</div>
 		</div>
@@ -53,7 +53,7 @@
 				<span>Continue</span>
 				<a><i class="icon icon-arrow-right"></i></a>
 			</div>
-			<div class="next finish finish-js modal-toggle-js">
+			<div class="next finish finish-js ">
 				<span>Finish</span>
 			</div>
 		</div>
