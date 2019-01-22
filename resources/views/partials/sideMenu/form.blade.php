@@ -1,101 +1,91 @@
-<?php $form = \App\Http\Controllers\FormController::getForm($form->id) ?>
-@include('partials.sideMenu.project', ['pid' => $form->project_id, 'openDrawer' => false])
+@php
+    $menuform = \App\Http\Controllers\FormController::getForm($fid);
+@endphp
+
+@include('partials.sideMenu.project', ['pid' => $menuform->project_id, 'openDrawer' => false])
 <div class="drawer-element drawer-element-js">
   <a href="#" class="drawer-toggle drawer-toggle-js" data-drawer="{{ $openDrawer or '0' }}">
     <i class="icon icon-form"></i>
-    <span>{{ $form->name }}</span>
+    <span>{{ $menuform->name }}</span>
     <i class="icon icon-chevron"></i>
   </a>
 
   <ul class="drawer-content drawer-content-js">
       <li class="content-link content-link-js" data-page="form-show">
-        <a href="{{ url('/projects/'.$form->project_id).'/forms/'.$form->id}}">
+        <a href="{{ url('/projects/'.$menuform->project_id).'/forms/'.$menuform->id}}">
           <span>Form Home</span>
         </a>
       </li>
 
       <li class="content-link content-link-js" data-page="record-index">
-        <a  href="{{ url('/projects/'.$form->project_id).'/forms/'.$form->id.'/records'}}">Form Records & Search</a>
+        <a  href="{{ url('/projects/'.$menuform->project_id).'/forms/'.$menuform->id.'/records'}}">Form Records & Search</a>
       </li>
 
       <li class="content-link content-link-js" data-page="advanced-index">
-          <a  href="{{ url('/projects/'.$form->project_id).'/forms/'.$form->id.'/advancedSearch'}}">Form Records Advanced Search</a>
+          <a  href="{{ url('/projects/'.$menuform->project_id).'/forms/'.$menuform->id.'/advancedSearch'}}">Form Records Advanced Search</a>
       </li>
 
-      {{--TODO::CASTLE--}}
-      {{--@if(\Auth::user()->canCreateFields($form))--}}
-          <?php
-            //$lastPage = \App\Page::where('fid','=',$form->id)->orderBy('sequence','desc')->first();
-          ?>
-          {{--<li class="content-link content-link-js" data-page="field-create">--}}
-              {{--<a href="{{action('FieldController@create', ['pid'=>$form->project_id, 'fid' => $form->id, 'rootPage' =>$lastPage->id])}}">Create New Field</a>--}}
-          {{--</li>--}}
-      {{--@endif--}}
+      @if(\Auth::user()->canCreateFields($menuform))
+          @php
+              $lastPage = sizeof($menuform->layout["pages"])-1;
+          @endphp
+          <li class="content-link content-link-js" data-page="field-create">
+              <a href="{{action('FieldController@create', ['pid'=>$pid, 'fid' => $fid, 'rootPage' =>$lastPage])}}">Create New Field</a>
+          </li>
+      @endif
 
-      <?php
-      //$fieldsInForm = \App\Field::where('fid', '=', $form->id)->get()->all();
-      //$cnt = sizeof($fieldsInForm);
-      ?>
+      @php
+          $cnt = sizeof($menuform->layout["fields"]);
+      @endphp
 
-      {{--@if(\Auth::user()->canIngestRecords(\App\Http\Controllers\FormController::getForm($form->id)))--}}
-        {{--<li class="content-link content-link-js--}}
-        {{--@if($cnt == 0)--}}
-            {{--pre-spacer--}}
-        {{--@endif--}}
-        {{--" data-page="record-create">--}}
-          {{--<a href="{{ action('RecordController@create',['pid' => $form->project_id, 'fid' => $form->id]) }}">Create New Record</a>--}}
-        {{--</li>--}}
-      {{--@endif--}}
+      @if(\Auth::user()->canIngestRecords(\App\Http\Controllers\FormController::getForm($menuform->id)))
+          <li class="content-link content-link-js
+          @if($cnt == 0)
+              pre-spacer
+          @endif
+                  " data-page="record-create">
+              <a href="{{ action('RecordController@create',['pid' => $menuform->project_id, 'fid' => $menuform->id]) }}">Create New Record</a>
+          </li>
+      @endif
 
-      {{--@if($cnt > 0)--}}
-          {{--<li class="content-link pre-spacer content-link-js" id="form-submenu">--}}
-              {{--<a href='#' class="drawer-sub-menu-toggle drawer-sub-menu-toggle-js" data-toggle="dropdown">--}}
-                  {{--<span>Jump to Field</span>--}}
-                  {{--<i class="icon icon-plus"></i>--}}
-              {{--</a>--}}
-			  {{----}}
-			  {{--<?php--}}
-			  {{--// Sort forms by name--}}
-			  {{--$name_flid_fields = [];--}}
-			  {{--$fids = [];--}}
-			  {{----}}
-			  {{--foreach ($fieldsInForm as $field)--}}
-			  {{--{--}}
-				{{--$name_flid_fields[$field->flid] = $field->name;--}}
-				{{--$fids[$field->flid] = $field->fid;--}}
-			  {{--}--}}
-			  {{----}}
-			  {{--asort($name_flid_fields, SORT_NATURAL | SORT_FLAG_CASE);--}}
-			  {{--?>--}}
+      @if($cnt > 0)
+          <li class="content-link pre-spacer content-link-js" id="form-submenu">
+              <a href='#' class="drawer-sub-menu-toggle drawer-sub-menu-toggle-js" data-toggle="dropdown">
+                  <span>Jump to Field</span>
+                  <i class="icon icon-plus"></i>
+              </a>
 
-              {{--<ul class="drawer-deep-menu drawer-deep-menu-js">--}}
-                  {{--@foreach($name_flid_fields as $field_flid => $field_name)--}}
-                      {{--<li class="drawer-deep-menu-link">--}}
-                          {{--<a class="padding-fix" href="{{ url('/projects/'.$form->project_id).'/forms/'.$fids[$field_flid] .'/fields/'.$field_flid.'/options'}}">{{ $field_name }}</a>--}}
-                      {{--</li>--}}
-                  {{--@endforeach--}}
-              {{--</ul>--}}
-          {{--</li>--}}
-      {{--@endif--}}
+              <ul class="drawer-deep-menu drawer-deep-menu-js">
+                  @foreach($menuform->layout["pages"] as $page)
+                      @foreach($page['flids'] as $flid)
+                          @php $fname = $menuform->layout["fields"][$flid]['name'] @endphp
+                          <li class="drawer-deep-menu-link">
+                              <a class="padding-fix" href="{{ url('/projects/'.$pid).'/forms/'.$fid.'/fields/'.$flid.'/options'}}">{{ $fname }}</a>
+                          </li>
+                      @endforeach
+                  @endforeach
+              </ul>
+          </li>
+      @endif
 
-      @if(\Auth::user()->canIngestRecords(\App\Http\Controllers\FormController::getForm($form->id)))
+      @if(\Auth::user()->canIngestRecords(\App\Http\Controllers\FormController::getForm($menuform->id)))
         <li class="spacer"></li>
         <li class="content-link content-link-js" data-page="record-import-setup">
-          <a href="{{ action('RecordController@importRecordsView',['pid' => $form->project_id, 'fid' => $form->id]) }}">Import Records</a>
+          <a href="{{ action('RecordController@importRecordsView',['pid' => $menuform->project_id, 'fid' => $menuform->id]) }}">Import Records</a>
         </li>
       @endif
 
       <li class="content-link content-link-js" data-page="batch-assign">
-        <a href="{{ action('RecordController@showMassAssignmentView',['pid' => $form->project_id, 'fid' => $form->id]) }}">Batch Assign Field Values</a>
+        <a href="{{ action('RecordController@showMassAssignmentView',['pid' => $menuform->project_id, 'fid' => $menuform->id]) }}">Batch Assign Field Values</a>
       </li>
 
-      @if (\Auth::user()->admin || \Auth::user()->isFormAdmin(\App\Http\Controllers\FormController::getForm($form->id)))
+      @if (\Auth::user()->admin || \Auth::user()->isFormAdmin(\App\Http\Controllers\FormController::getForm($menuform->id)))
         <li class="content-link content-link-js" data-page="record-revisions">
-          <a href="{{action('RevisionController@index', ['pid'=>$form->project_id, 'fid'=>$form->id])}}">Manage Record Revisions</a>
+          <a href="{{action('RevisionController@index', ['pid'=>$menuform->project_id, 'fid'=>$menuform->id])}}">Manage Record Revisions</a>
         </li>
 
         <li class="content-link content-link-js" data-page="record-preset">
-          <a href="{{action('RecordPresetController@index', ['pid'=>$form->project_id, 'fid'=>$form->id])}}">Manage Record Presets</a>
+          <a href="{{action('RecordPresetController@index', ['pid'=>$menuform->project_id, 'fid'=>$menuform->id])}}">Manage Record Presets</a>
         </li>
 
         <li class="export-record-open content-link content-link-js">
@@ -103,24 +93,24 @@
         </li>
 
         <li class="content-link content-link-js" data-page="form-edit">
-          <a href="{{ action('FormController@edit', ['pid'=>$form->project_id, 'fid'=>$form->id]) }}">Edit Form Information</a>
+          <a href="{{ action('FormController@edit', ['pid'=>$menuform->project_id, 'fid'=>$menuform->id]) }}">Edit Form Information</a>
         </li>
 
         <li class="content-link content-link-js" data-page="form-permissions">
-          <a href="{{ action('FormGroupController@index', ['pid'=>$form->project_id, 'fid'=>$form->id]) }}">Form Permissions</a>
+          <a href="{{ action('FormGroupController@index', ['pid'=>$menuform->project_id, 'fid'=>$menuform->id]) }}">Form Permissions</a>
         </li>
 
         <li class="content-link content-link-js" data-page="form-association-permissions">
-          <a href="{{action('AssociationController@index', ['fid'=>$form->id, 'pid'=>$form->project_id])}}">Association Permissions</a>
+          <a href="{{action('AssociationController@index', ['fid'=>$menuform->id, 'pid'=>$menuform->project_id])}}">Association Permissions</a>
         </li>
 
         <li class="content-link content-link-js">
-          <a href="{{ action('ExportController@exportForm',['fid'=>$form->id, 'pid' => $form->project_id]) }}">Export Form</a>
+          <a href="{{ action('ExportController@exportForm',['fid'=>$menuform->id, 'pid' => $menuform->project_id]) }}">Export Form</a>
         </li>
       @endif
 
       {{--<li class="content-link content-link-js" data-page="metadata">--}}
-        {{--<a href="{{ action('MetadataController@index', ['fid'=>$form->id, 'pid'=>$form->project_id]) }}">Link Open Data</a>--}}
+        {{--<a href="{{ action('MetadataController@index', ['fid'=>$menuform->id, 'pid'=>$menuform->project_id]) }}">Link Open Data</a>--}}
       {{--</li>--}}
   </ul>
 </div>

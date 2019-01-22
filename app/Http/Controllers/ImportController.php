@@ -363,7 +363,7 @@ class ImportController extends Controller {
      * @param  int $fid - Form ID
      * @param  Request $request
      */
-    public function downloadFailedReasons($pid, $fid, Request $request) { //TODO::CASTLE
+    public function downloadFailedReasons($pid, $fid, Request $request) {
         $failedRecords = json_decode($request->failures);
         $form = FormController::getForm($fid);
 

@@ -27,7 +27,7 @@
           <a  href="{{ url('/projects/'.$pid).'/forms/'.$fid.'/advancedSearch'}}">Form Records<br>Advanced Search</a>
       </li>
 
-      @if(\Auth::user()->canCreateFields($form))
+      @if(\Auth::user()->canCreateFields($menuform))
           @php
               $lastPage = sizeof($menuform->layout["pages"])-1;
           @endphp

@@ -39,7 +39,7 @@
 
 			foreach ($allowed_forms as $form)
 			{
-			  $name_fid_forms[$form->fid] = $form->name;
+			  $name_fid_forms[$form->id] = $form->name;
 			}
 
 			asort($name_fid_forms, SORT_NATURAL | SORT_FLAG_CASE);
