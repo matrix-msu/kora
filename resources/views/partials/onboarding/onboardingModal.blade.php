@@ -3,9 +3,9 @@
         <section id="onboarding-home">
             <div class="header onboarding">
                 <span class="title">
-                    <span class="skip">
+                    <span class="skip modal-toggle-js">
                         <span>SKIP INTRO</span>
-                        <a href="#" class="modal-toggle modal-toggle-js">
+                        <a href="#" class="modal-toggle">
                             <i class="icon icon-cancel"></i>
                         </a>
                     </span>
