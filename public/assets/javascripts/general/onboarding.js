@@ -141,7 +141,7 @@ $(window).resize(function (e) {
 });
 
 $(document).ready(function () {
-    Kora.Modal.initialize();
+	Kora.Modal.initialize();
 	Kora.Modal.open($('.onboarding-modal-js'));
 
 	$.ajax({
