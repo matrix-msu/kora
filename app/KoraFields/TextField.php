@@ -1,5 +1,6 @@
 <?php namespace App\KoraFields;
 
+use App\Form;
 use App\Record;
 use App\Search;
 use Illuminate\Http\Request;
@@ -222,6 +223,23 @@ class TextField extends BaseField {
      */
     public function processLegacyData($value) {
         return $value;
+    }
+
+    /**
+     * Takes data from a mass assignment operation and applies it to an individual field.
+     *
+     * @param  Form $form - Form model
+     * @param  string $flid - Field ID
+     * @param  String $formFieldValue - The value to be assigned
+     * @param  Request $request
+     * @param  bool $overwrite - Overwrite if data exists
+     */
+    public function massAssignRecordField($form, $flid, $formFieldValue, $request, $overwrite=0) {
+        $recModel = new Record(array(),$form->id);
+        if($overwrite)
+            $recModel->newQuery()->update([$flid => $formFieldValue]);
+        else
+            $recModel->newQuery()->whereNull($flid)->update([$flid => $formFieldValue]);
     }
 
     /**

@@ -733,7 +733,7 @@ class RecordController extends Controller {
      * @param  int $fid - Form ID
      * @return View
      */
-    public function showMassAssignmentView($pid,$fid) { //TODO::CASTLE
+    public function showMassAssignmentView($pid,$fid) {
         if(!FormController::validProjForm($pid, $fid))
             return redirect('projects/'.$pid)->with('k3_global_error', 'form_invalid');
 
@@ -741,14 +741,14 @@ class RecordController extends Controller {
             return redirect('projects/'.$pid.'/forms/'.$fid)->with('k3_global_error', 'cant_edit_records');
 
         $form = FormController::getForm($fid);
-        $all_fields = $form->fields()->get();
-        $fields = new Collection();
-        foreach($all_fields as $field) {
-            //We don't want File Fields to be mass assignable because of the processing expense with large data sets
-            if($field->getTypedField() instanceof FileTypeField)
-                continue;
-            else
-                $fields->push($field);
+        $all_fields = $form->layout['fields'];
+        $fields = array();
+        foreach($all_fields as $flid => $field) {
+            //We don't want File Fields to be mass assignable because of the processing expense with large data sets //TODO::CASTLE
+//            if($field->getTypedField() instanceof FileTypeField)
+//                continue;
+//            else
+                $fields[$flid] = $field;
         }
         return view('records.batchAssignment',compact('form','fields','pid','fid'));
     }
@@ -768,14 +768,14 @@ class RecordController extends Controller {
             return redirect('projects/'.$pid.'/forms/'.$fid)->with('k3_global_error', 'cant_edit_record');
 
         $form = FormController::getForm($fid);
-        $all_fields = $form->fields()->get();
-        $fields = new Collection();
-        foreach($all_fields as $field) {
-            //We don't want File Fields to be mass assignable because of the processing expense with large data sets
-            if($field->getTypedField() instanceof FileTypeField)
-                continue;
-            else
-                $fields->push($field);
+        $all_fields = $form->layout['fields'];
+        $fields = array();
+        foreach($all_fields as $flid => $field) {
+            //We don't want File Fields to be mass assignable because of the processing expense with large data sets //TODO::CASTLE
+//            if($field->getTypedField() instanceof FileTypeField)
+//                continue;
+//            else
+            $fields[$flid] = $field;
         }
         return view('records.batchAssignSelected',compact('form','fields','pid','fid'));
     }
@@ -788,27 +788,28 @@ class RecordController extends Controller {
      * @param  Request $request
      * @return Redirect
      */
-    public function massAssignRecords($pid, $fid, Request $request) { //TODO::CASTLE
+    public function massAssignRecords($pid, $fid, Request $request) {
         if(!self::checkPermissions($fid, 'modify'))
             return redirect('projects/'.$pid.'/forms/'.$fid)->with('k3_global_error', 'cant_edit_records');
 
-        $flid = $request->input("field_selection");
-        if(!is_numeric($flid))
+        $form = FormController::getForm($fid);
+        $flid = $request->field_selection;
+        if(!array_key_exists($flid, $form->layout['fields']))
             return redirect()->back()->with('k3_global_error', 'field_invalid');
 
         if($request->has("overwrite"))
-            $overwrite = $request->input("overwrite"); //Overwrite field in all records, even if it has data
+            $overwrite = $request->overwrite; //Overwrite field in all records, even if it has data
         else
             $overwrite = 0;
 
-        $field = FieldController::getField($flid);
-        $typedField = $field->getTypedField();
-        $formFieldValue = $request->input($flid);
+        $field = $form->layout['fields'][$flid];
+        $typedField = $form->getFieldModel($field['type']);
+        $formFieldValue = $request->{$flid};
 
         //A field may not be required for a record but we want to force validation here so we use forceReq
-        $message = $typedField->validateField($field, $request, true);
+        $message = $typedField->validateField($flid, $field, $request, true);
         if(empty($message)) {
-            $typedField->massAssignRecordField($field, $formFieldValue, $request, $overwrite);
+            $typedField->massAssignRecordField($form, $flid, $formFieldValue, $request, $overwrite);
 
             return redirect()->action('RecordController@index', compact('pid', 'fid'))->with('k3_global_success', 'mass_records_updated');
         } else {
@@ -824,16 +825,17 @@ class RecordController extends Controller {
      * @param  Request $request
      * @return JsonResponse
      */
-    public function validateMassRecord($pid, $fid, Request $request) { //TODO::CASTLE
+    public function validateMassRecord($pid, $fid, Request $request) {
         if(!FormController::validProjForm($pid, $fid))
             return response()->json(['k3_global_error' => 'form_invalid']);
 
         $errors = [];
 
+        $form = FormController::getForm($fid);
         $flid = $request->input("field_selection");
-        $field = FieldController::getField($flid);
+        $field = $form->layout['fields'][$flid];
 
-        $message = $field->getTypedField()->validateField($field, $request);
+        $message = $form->getFieldModel($field['type'])->validateField($flid, $field, $request);
         if(!empty($message))
             $errors += $message; //We add these arrays because it maintains the keys, where array_merge re-indexes
 

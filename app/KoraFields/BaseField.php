@@ -1,5 +1,6 @@
 <?php namespace App\KoraFields;
 
+use App\Form;
 use App\Record;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
@@ -154,6 +155,17 @@ abstract class BaseField extends Model {
      * @return mixed - Processed data
      */
     abstract public function processLegacyData($value);
+
+    /**
+     * Takes data from a mass assignment operation and applies it to an individual field.
+     *
+     * @param  Form $form - Form model
+     * @param  string $flid - Field ID
+     * @param  String $formFieldValue - The value to be assigned
+     * @param  Request $request
+     * @param  bool $overwrite - Overwrite if data exists
+     */
+    abstract public function massAssignRecordField($form, $flid, $formFieldValue, $request, $overwrite=0);
 
     /**
      * For a test record, add test data to field.
