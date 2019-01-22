@@ -1,17 +1,17 @@
 <div class="preset card all {{ $index == 0 ? 'active' : '' }}" id="{{$preset->id}}">
     <div class="header {{ $index == 0 ? 'active' : '' }}">
         <div class="left pl-m">
-            @if(\App\Http\Controllers\RecordController::exists($preset->rid))
+            @if(\App\Http\Controllers\RecordController::exists($preset->record_kid))
                 <a class="title" href="{{ action("RecordController@show",
-                    ["pid" => $form->pid, "fid" => $form->fid, "rid" => $preset->rid]) }}">
-                    <span class="name underline-middle-hover">{{$form->pid}}-{{$form->fid}}-{{$preset->rid}}</span>
+                    ["pid" => $form->pid, "fid" => $form->fid, "rid" => $preset->record_kid]) }}">
+                    <span class="name underline-middle-hover">{{$preset->record_kid}}</span>
                     <span class="sub-title">
                         {{$preset->name}}
                     </span>
                 </a>
             @else
                 <a class="title">
-                    <span class="name record-gone">{{$form->pid}}-{{$form->fid}}-{{$preset->rid}}</span>
+                    <span class="name record-gone">{{$preset->record_kid}}</span>
                     <span class="sub-title change-name-{{$preset->id}}-js">
                         {{$preset->name}}
                     </span>
@@ -28,83 +28,22 @@
 
     <div class="content {{ $index == 0 ? 'active' : '' }}">
         <div class="description">
-            <?php
-                $format = json_decode($preset->preset,true);
-
+            @php
+                $format = $preset->preset;
                 $presetData = $format['data'];
-            ?>
-            @foreach($presetData as $pd)
-                <?php
-                    $field = \App\Http\Controllers\FieldController::getField($pd['flid']);
-                    $key = array_keys($pd)[2];
-                    $data = $pd[$key];
+            @endphp
+            @foreach($presetData as $flid => $data)
+                @php
+                    $field = $form->layout['fields'][$flid];
+                    $fieldMod = $form->getFieldModel($field['type']);
 
-                    if(is_null($data)) {
+                    if(is_null($data))
                         $data = 'No Field Data';
-                    } else {
-                        //TODO::modular?
-                        switch($field->type) {
-                            case 'Date':
-                                $stringDate = '';
-                                if($data['circa']) {$stringDate .= 'circa ';}
-                                $stringDate .= implode('/', array($data['month'],$data['day'],$data['year']));
-                                $stringDate .= ' '.$data['era'];
-                                $data = $stringDate;
-                                break;
-                            case 'Documents':
-                            case 'Model':
-                            case 'Playlist':
-                            case 'Video':
-                                $stringFile = '';
-                                foreach($data as $file) {
-                                    $stringFile .= '<div>'.explode('[Name]',$file)[1].'</div>';
-                                }
-                                $data = $stringFile;
-                                break;
-                            case 'Gallery':
-                                $names = $data;
-                                $captions = $pd['captions'];
-                                $stringFile = '';
-                                for($gi=0;$gi<count($names);$gi++) {
-                                    $capString = '';
-                                    if($captions[$gi] != '')
-                                        $capString = ' - '.$captions[$gi];
-                                    $stringFile .= '<div>'.explode('[Name]',$names[$gi])[1].$capString.'</div>';
-                                }
-                                $data = $stringFile;
-                                break;
-                                break;
-                            case 'Multi-Select List':
-                            case 'Generated List':
-                            case 'Schedule':
-                            case 'Associator':
-                                $stringList = '';
-                                foreach($data as $listItem) {
-                                    $stringList .= '<div>'.$listItem.'</div>';
-                                }
-                                $data = $stringList;
-                            break;
-                            case 'Geolocator':
-                                $stringLoc = '';
-                                foreach($data as $loc) {
-                                    $stringLoc .= '<div>'.explode('[Desc]',$loc)[1].': '.explode('[LatLon]',$loc)[1].'</div>';
-                                }
-                                $data = $stringLoc;
-                                break;
-                            case 'Combo List':
-                                $stringCombo = '';
-                                foreach($data as $comboItem) {
-                                    $stringCombo .= '<div>'.explode('[!f1!]',$comboItem)[1].' ~~~ '.explode('[!f2!]',$comboItem)[1].'</div>';
-                                }
-                                $data = $stringCombo;
-                                break;
-                            default:
-                                break;
-                        }
-                    }
-                ?>
+                    else
+                        $data = $fieldMod->processRevisionData($data);
+                @endphp
                 <div class="preset-value-div">
-                    <div class="preset-value-title">{{$field->name}}</div>
+                    <div class="preset-value-title">{{$field['name']}}</div>
                     <div>{!! $data !!}</div>
                 </div>
             @endforeach
@@ -120,9 +59,9 @@
                 <span>Change Preset Name</span>
             </a>
 
-            @if(\App\Http\Controllers\RecordController::exists($preset->rid))
+            @if(\App\Http\Controllers\RecordController::exists($preset->record_kid))
                 <a class="quick-action underline-middle-hover" href="{{ action("RecordController@show",
-                    ["pid" => $form->pid, "fid" => $form->fid, "rid" => $preset->rid]) }}">
+                    ["pid" => $form->pid, "fid" => $form->fid, "rid" => $preset->record_kid]) }}">
                     <span>View Original Record</span>
                     <i class="icon icon-arrow-right"></i>
                 </a>

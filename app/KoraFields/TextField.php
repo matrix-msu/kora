@@ -157,7 +157,7 @@ class TextField extends BaseField {
     /**
      * Formats data for revision entry.
      *
-     * @param  array $data - The data to store
+     * @param  mixed $data - The data to store
      * @param  Request $request
      *
      * @return mixed - Processed data

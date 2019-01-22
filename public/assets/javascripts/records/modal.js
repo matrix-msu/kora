@@ -28,16 +28,9 @@ Kora.Records.Modal = function() {
                   data: {
                       "_token": csrfToken,
                       "name": preset_name,
-                      "rid": ridForPreset
+                      "kid": ridForPreset
                   },
                   success: function () {
-                      var presetLink = $('.designate-preset-js');
-
-                      presetLink.text('Designated as Preset');
-                      presetLink.removeClass('designate-preset-js');
-                      presetLink.unbind('click');
-                      presetLink.addClass('already-preset-js');
-
                       location.reload();
                   }
               });

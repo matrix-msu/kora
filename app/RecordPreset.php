@@ -18,4 +18,8 @@ class RecordPreset extends Model {
      */
     protected $fillable = ['preset', 'form_id', 'record_kid'];
 
+    protected $casts = [
+        'preset' => 'array',
+    ];
+
 }

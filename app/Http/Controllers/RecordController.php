@@ -283,8 +283,7 @@ class RecordController extends Controller {
         $record = self::getRecord($kid);
         $owner = User::where('id', '=', $record->owner)->first();
         $numRevisions = Revision::where('record_kid',$kid)->count();
-        //$alreadyPreset = (RecordPreset::where('rid',$rid)->count() > 0);  //TODO::CASTLE
-        $alreadyPreset = false;
+        $alreadyPreset = (RecordPreset::where('record_kid',$kid)->count() > 0);
 
         $notification = array(
           'message' => '',

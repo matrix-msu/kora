@@ -118,7 +118,7 @@
 
     <script type="text/javascript">
         makeRecordPresetURL = '{{action('RecordPresetController@presetRecord')}}';
-        ridForPreset = {{$record->id}};
+        ridForPreset = '{{$record->kid}}';
         csrfToken = '{{csrf_token()}}';
 
         Kora.Records.Show();

@@ -1,7 +1,5 @@
 <?php namespace App\Http\Controllers;
 
-use App\FileTypeField;
-use App\Form;
 use App\Record;
 use App\RecordPreset;
 use Illuminate\Http\JsonResponse;
@@ -10,7 +8,7 @@ use Illuminate\View\View;
 use RecursiveIteratorIterator;
 use Symfony\Component\Finder\Iterator\RecursiveDirectoryIterator;
 
-class RecordPresetController extends Controller { //TODO::CASTLE
+class RecordPresetController extends Controller {
 
     /*
     |--------------------------------------------------------------------------
@@ -45,7 +43,7 @@ class RecordPresetController extends Controller { //TODO::CASTLE
         if(!(\Auth::user()->isFormAdmin($form)))
             return redirect('projects/'.$pid)->with('k3_global_error', 'not_form_admin');
 
-        $presets = RecordPreset::where('fid', '=', $fid)->get();
+        $presets = RecordPreset::where('form_id', '=', $fid)->get();
 
         return view('recordPresets/index', compact('form', 'presets'));
     }
@@ -58,24 +56,17 @@ class RecordPresetController extends Controller { //TODO::CASTLE
      */
     public function presetRecord(Request $request) {
         $name = $request->name;
-        $rid = $request->rid;
+        $kid = $request->kid;
 
-        if(!is_null(RecordPreset::where('rid', '=', $rid)->first())) {
+        if(!is_null(RecordPreset::where('record_kid', '=', $kid)->first())) {
             return response()->json(["status"=>false,"message"=>"record_already_preset"],500);
         } else {
-            $record = RecordController::getRecord($rid);
-            $fid = $record->fid;
-
+            $record = RecordController::getRecord($kid);
             $preset = new RecordPreset();
-            $preset->rid = $rid;
-            $preset->fid = $fid;
-            $preset->name = $name;
+            $preset->form_id = $record->form_id;
+            $preset->record_kid = $record->kid;
 
-            $preset->save();
-
-            $this->presetID = $preset->id;
-
-            $preset->preset = json_encode($this->getRecordArray($rid,$preset->id));
+            $preset->preset = $this->getRecordArray($record, $name);
             $preset->save();
 
             return response()->json(["status"=>true,"message"=>"record_preset_saved"],200);
@@ -83,11 +74,44 @@ class RecordPresetController extends Controller { //TODO::CASTLE
     }
 
     /**
+     * Takes a record and turns it into an array that is saved in the record preset.
+     *
+     * @param  Record $record - Record model
+     * @param  string $name - Name of preset
+     * @return array - The data array
+     */
+    public function getRecordArray($record, $name) {
+        $form = FormController::getForm($record->form_id);
+
+        $field_collect = $form->layout["fields"];
+        $field_array = array();
+
+        $fileFields = false; // Does the record have any file fields? //TODO::CASTLE
+
+        foreach($field_collect as $flid => $field) {
+            //We hit a file type field //TODO::CASTLE
+//            if($typedField instanceof FileTypeField)
+//                $fileFields = true;
+
+            $field_array[$flid] = $record->{$flid};
+        }
+
+        // A file field was in use, so we need to move the record files to a preset directory. //TODO::CASTLE
+//        if($fileFields and !is_null($preID))
+//            $this->moveFilesToPreset($record->rid, $preID);
+
+        $response['data'] = $field_array;
+        $response['name'] = $name;
+
+        return $response;
+    }
+
+    /**
      * Updates a record's preset if one was made.
      *
      * @param  int $rid - Record ID
      */
-    public static function updateIfExists($rid) {
+    public static function updateIfExists($rid) { //TODO::CASTLE
         $pre = RecordPreset::where("rid", '=', $rid)->first();
 
         if(!is_null($pre)) {
@@ -101,7 +125,7 @@ class RecordPresetController extends Controller { //TODO::CASTLE
      *
      * @param  Request $request
      */
-    public function changePresetName(Request $request) {
+    public function changePresetName(Request $request) { //TODO::CASTLE
         $name = $request->name;
         $id = $request->id;
 
@@ -117,7 +141,7 @@ class RecordPresetController extends Controller { //TODO::CASTLE
      * @param  Request $request
      * @return JsonResponse
      */
-    public function deletePreset(Request $request) {
+    public function deletePreset(Request $request) { //TODO::CASTLE
         $id = $request->id;
         $preset = RecordPreset::where('id', '=', $id)->first();
         $preset->delete();
@@ -144,70 +168,12 @@ class RecordPresetController extends Controller { //TODO::CASTLE
     }
 
     /**
-     * Gets the data from a record preset.
-     *
-     * @param  Request $request
-     * @return array - The record data
-     */
-    public function getData(Request $request) {
-        $id = $request->id;
-        $recordPreset = RecordPreset::where('id', '=', $id)->first();
-        return json_decode($recordPreset->preset, true);
-    }
-
-    /**
-     * Takes a record and turns it into an array that is saved in the record preset.
-     *
-     * @param  int $rid - Record ID
-     * @param  int $preID - Preset ID
-     * @return array - The data array
-     */
-    public function getRecordArray($rid, $preID=null) {
-        $record = Record::where('rid', '=', $rid)->first();
-        $form = Form::where('fid', '=', $record->fid)->first();
-
-        $field_collect = $form->fields()->get();
-        $field_array = array();
-        $flid_array = array();
-
-        $fileFields = false; // Does the record have any file fields?
-
-        foreach($field_collect as $field) {
-            $data = array();
-            $data['flid'] = $field->flid;
-            $data['type'] = $field->type;
-
-            $typedField = $field->getTypedFieldFromRID($record->rid);
-            if(!is_null($typedField)) {
-                $data = $typedField->getRecordPresetArray($data);
-            } else {
-                $typedField = $field->getTypedField();
-                $data = $typedField->getRecordPresetArray($data, false);
-            }
-            $flid_array[] = $field->flid;
-            //We hit a file type field
-            if($typedField instanceof FileTypeField)
-                $fileFields = true;
-
-            $field_array[$field->flid] = $data;
-        }
-
-        // A file field was in use, so we need to move the record files to a preset directory.
-        if($fileFields and !is_null($preID))
-            $this->moveFilesToPreset($record->rid, $preID);
-
-        $response['data'] = $field_array;
-        $response['flids'] = $flid_array;
-        return $response;
-    }
-
-    /**
      * Moves a records files into the folder for the preset.
      *
      * @param  int $rid - Record ID
      * @param  int $preID - Preset ID
      */
-    public function moveFilesToPreset($rid, $preID) {
+    public function moveFilesToPreset($rid, $preID) { //TODO::CASTLE
         $presets_path = storage_path('app/presetFiles');
 
         //
@@ -237,7 +203,7 @@ class RecordPresetController extends Controller { //TODO::CASTLE
      *
      * @param  Request $request
      */
-    public function moveFilesToTemp(Request $request) {
+    public function moveFilesToTemp(Request $request) { //TODO::CASTLE
         $presetID = $request->presetID;
         $flid = $request->flid;
         $userID = $request->userID;
@@ -275,7 +241,7 @@ class RecordPresetController extends Controller { //TODO::CASTLE
      * @param  string $src - Directory to copy
      * @param  string $dst - Directory to copy to
      */
-    public static function recurse_copy($src, $dst) {
+    public static function recurse_copy($src, $dst) { //TODO::CASTLE
         if(file_exists($src)) {
             $dir = opendir($src);
 

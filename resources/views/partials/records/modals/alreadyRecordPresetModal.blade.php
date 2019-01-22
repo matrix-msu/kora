@@ -9,7 +9,7 @@
         <div class="body">
             <div class="form-group designated">
                 This current version of this record is already designated as a preset. You may visit the
-                <a class="record-preset-link" href="{{action('RecordPresetController@index', ['pid' => $form->pid, 'fid' => $form->fid])}}">
+                <a class="record-preset-link" href="{{action('RecordPresetController@index', ['pid' => $form->project_id, 'fid' => $form->id])}}">
                     Record Preset Management
                 </a>
                 page if you would like to remove this record as a preset.
