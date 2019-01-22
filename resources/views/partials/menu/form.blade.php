@@ -1,7 +1,11 @@
+@php
+    $menuform = \App\Http\Controllers\FormController::getForm($fid);
+@endphp
+
 <li class="navigation-item">
   <a href="#" class="menu-toggle navigation-toggle-js">
     <i class="icon icon-minus mr-sm"></i>
-    <span>{{ \App\Http\Controllers\FormController::getForm($fid)->name }}</span>
+    <span>{{ $menuform->name }}</span>
     <i class="icon icon-chevron"></i>
   </a>
 
@@ -23,83 +27,48 @@
           <a  href="{{ url('/projects/'.$pid).'/forms/'.$fid.'/advancedSearch'}}">Form Records<br>Advanced Search</a>
       </li>
 
-      {{--TODO::CASTLE--}}
       @if(\Auth::user()->canCreateFields($form))
-          <?php
-            //$lastPage = \App\Page::where('fid','=',$fid)->orderBy('sequence','desc')->first();
-          ?>
+          @php
+              $lastPage = sizeof($menuform->layout["pages"])-1;
+          @endphp
           <li class="link">
-              {{--<a href="{{action('FieldController@create', ['pid'=>$pid, 'fid' => $fid, 'rootPage' =>$lastPage->id])}}">Create New Field</a>--}}
+              <a href="{{action('FieldController@create', ['pid'=>$pid, 'fid' => $fid, 'rootPage' =>$lastPage])}}">Create New Field</a>
           </li>
       @endif
 
-      {{--<?php--}}
-      {{--$fieldsInForm = \App\Field::where('fid', '=', $fid)->get()->all();--}}
-      {{--$cnt = sizeof($fieldsInForm);--}}
-      {{--?>--}}
+      @php
+          $cnt = sizeof($menuform->layout["fields"]);
+      @endphp
 
-      {{--@if(\Auth::user()->canIngestRecords(\App\Http\Controllers\FormController::getForm($fid)))--}}
-        {{--<li class="link--}}
-        {{--@if($cnt == 0)--}}
-            {{--pre-spacer--}}
-        {{--@endif--}}
-        {{--">--}}
-          {{--<a href="{{ action('RecordController@create',['pid' => $pid, 'fid' => $fid]) }}">Create New Record</a>--}}
-        {{--</li>--}}
-      {{--@endif--}}
+      @if(\Auth::user()->canIngestRecords(\App\Http\Controllers\FormController::getForm($fid)))
+        <li class="link
+        @if($cnt == 0)
+            pre-spacer
+        @endif
+        ">
+          <a href="{{ action('RecordController@create',['pid' => $pid, 'fid' => $fid]) }}">Create New Record</a>
+        </li>
+      @endif
 
-      {{--@if($cnt > 0)--}}
-          {{--<li class="link pre-spacer" id="form-submenu">--}}
-              {{--<a href='#' class="navigation-sub-menu-toggle navigation-sub-menu-toggle-js" data-toggle="dropdown">--}}
-                  {{--<span>Jump to Field</span>--}}
-                  {{--<i class="icon sub-menu-icon icon-plus"></i>--}}
-              {{--</a>--}}
-			  {{----}}
-			  {{--<?php--}}
-			  {{--$fields_by_page_id = [];--}}
-			  {{--$pageid_to_sequence = [];--}}
-			  {{----}}
-			  {{--// map page ids to page sequences--}}
-			  {{--$pages = \App\Page::where('fid', '=', $fid)->get();--}}
-			  {{--foreach ($pages as $page) {--}}
-				{{--$pageid_to_sequence[$page->id] = $page->sequence;--}}
-			  {{--}--}}
-			  {{----}}
-			  {{----}}
-			  {{--// divide it up by page sequences and field sequences within that--}}
-			  {{--// both of these sequences are sequential (0->count) so we dont need any sorting--}}
-			  {{--$page_count = 0;--}}
-			  {{--foreach ($fieldsInForm as $field) {--}}
-			    {{--if (!array_key_exists($pageid_to_sequence[$field->page_id], $fields_by_page_id)) {--}}
-					{{--$fields_by_page_id[$pageid_to_sequence[$field->page_id]] = [];--}}
-					{{--$page_count = $page_count + 1;--}}
-				{{--}--}}
-				{{----}}
-				{{--$fields_by_page_id[$pageid_to_sequence[$field->page_id]][$field->sequence] = $field;;--}}
-			   {{--}--}}
-				{{----}}
-			  {{--?>--}}
+      @if($cnt > 0)
+          <li class="link pre-spacer" id="form-submenu">
+              <a href='#' class="navigation-sub-menu-toggle navigation-sub-menu-toggle-js" data-toggle="dropdown">
+                  <span>Jump to Field</span>
+                  <i class="icon sub-menu-icon icon-plus"></i>
+              </a>
 
-              {{--<ul class="navigation-deep-menu navigation-deep-menu-js">--}}
-                {{--@for ($page_sequence = 0; $page_sequence < $page_count; $page_sequence++)--}}
-					{{--@php--}}
-					{{--if (isset($fields_by_page_id[$page_sequence])) {--}}
-						{{--$fields_in_page = count($fields_by_page_id[$page_sequence]);--}}
-					{{--} else {--}}
-						{{--$page_count++;--}}
-						{{--continue; // skip pages with 0 fields, push loop back to account for this--}}
-					{{--}--}}
-					{{--@endphp--}}
-					{{--@for ($field_sequence = 0; $field_sequence < $fields_in_page; $field_sequence++)--}}
-						{{--@php $field = $fields_by_page_id[$page_sequence][$field_sequence]; @endphp--}}
-						{{--<li class="deep-menu-item">--}}
-							{{--<a class="padding-fix" href="{{ url('/projects/'.$pid).'/forms/'.$fid.'/fields/'.$field->flid.'/options'}}">{{ $field->name }}</a>--}}
-						{{--</li>--}}
-					{{--@endfor--}}
-			    {{--@endfor--}}
-              {{--</ul>--}}
-          {{--</li>--}}
-      {{--@endif--}}
+              <ul class="navigation-deep-menu navigation-deep-menu-js">
+                  @foreach($menuform->layout["pages"] as $page)
+                      @foreach($page['flids'] as $flid)
+                          @php $fname = $menuform->layout["fields"][$flid]['name'] @endphp
+                          <li class="deep-menu-item">
+                              <a class="padding-fix" href="{{ url('/projects/'.$pid).'/forms/'.$fid.'/fields/'.$flid.'/options'}}">{{ $fname }}</a>
+                          </li>
+                      @endforeach
+                  @endforeach
+              </ul>
+          </li>
+      @endif
 
       @if(\Auth::user()->canIngestRecords(\App\Http\Controllers\FormController::getForm($fid)))
         <li class="spacer"></li>

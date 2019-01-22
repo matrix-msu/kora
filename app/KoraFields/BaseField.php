@@ -102,6 +102,31 @@ abstract class BaseField extends Model {
     abstract public function processRecordData($field, $value, $request);
 
     /**
+     * Formats data for record entry.
+     *
+     * @param  string $flid - Field ID
+     * @param  array $field - The field to represent record data
+     * @param  array $value - Data to add
+     * @param  Request $request
+     *
+     * @return mixed - Processed data
+     */
+    abstract public function processImportData($flid, $field, $value, $request);
+
+    /**
+     * Formats data for record entry.
+     *
+     * @param  string $flid - Field ID
+     * @param  array $field - The field to represent record data
+     * @param  \SimpleXMLElement $value - Data to add
+     * @param  Request $request
+     * @param  bool $simple - Is this a simple xml field value
+     *
+     * @return mixed - Processed data
+     */
+    abstract public function processImportDataXML($flid, $field, $value, $request, $simple = false);
+
+    /**
      * Formats data for record display.
      *
      * @param  array $field - The field to represent record data

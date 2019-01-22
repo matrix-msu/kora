@@ -154,6 +154,39 @@ class TextField extends BaseField {
     }
 
     /**
+     * Formats data for record entry.
+     *
+     * @param  string $flid - Field ID
+     * @param  array $field - The field to represent record data
+     * @param  array $value - Data to add
+     * @param  Request $request
+     *
+     * @return Request - Processed data
+     */
+    public function processImportData($flid, $field, $value, $request) {
+        $request[$flid] = $value['value'];
+
+        return $request;
+    }
+
+    /**
+     * Formats data for record entry.
+     *
+     * @param  string $flid - Field ID
+     * @param  array $field - The field to represent record data
+     * @param  \SimpleXMLElement $value - Data to add
+     * @param  Request $request
+     * @param  bool $simple - Is this a simple xml field value
+     *
+     * @return Request - Processed data
+     */
+    public function processImportDataXML($flid, $field, $value, $request, $simple = false) {
+        $request[$flid] = (string)$value;
+
+        return $request;
+    }
+
+    /**
      * Formats data for record display.
      *
      * @param  array $field - The field to represent record data

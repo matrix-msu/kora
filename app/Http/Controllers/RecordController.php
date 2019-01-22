@@ -127,13 +127,8 @@ class RecordController extends Controller {
 	    $fieldsArray = $form->layout['fields'];
 
 	    //Validates records
-        foreach($request->all() as $key => $value) {
-            //Skip request variables that are not fields
-            if(!array_key_exists($key,$fieldsArray))
-                continue;
-
-            $field = $fieldsArray[$key];
-            $message = $form->getFieldModel($field['type'])->validateField($key, $field, $request);
+        foreach($fieldsArray as $flid => $field) {
+            $message = $form->getFieldModel($field['type'])->validateField($flid, $field, $request);
             if(!empty($message)) {
                 $arrayed_keys = array();
 
@@ -420,13 +415,8 @@ class RecordController extends Controller {
         $fieldsArray = $form->layout['fields'];
 
         //Validates records
-        foreach($request->all() as $key => $value) {
-            //Skip request variables that are not fields
-            if(!array_key_exists($key,$fieldsArray))
-                continue;
-
-            $field = $fieldsArray[$key];
-            $message = $form->getFieldModel($field['type'])->validateField($key, $field, $request);
+        foreach($fieldsArray as $flid => $field) {
+            $message = $form->getFieldModel($field['type'])->validateField($flid, $field, $request);
             if(!empty($message))
                 return redirect()->back()->withInput()->with('k3_global_error', 'record_validation_error')->with('record_validation_error', $message);
         }
