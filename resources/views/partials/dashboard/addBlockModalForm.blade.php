@@ -34,7 +34,7 @@
         <select class="single-select" id="block_form" name="block_form" data-placeholder="Select a Form">
             <option></option>
             @foreach($userForms as $form)
-                <option value="{{$form->fid}}">{{$form->name}}</option>
+                <option value="{{$form->fid}}">{{ \App\Http\Controllers\ProjectController::getProject($form->pid)->name }} - {{$form->name}}</option>
             @endforeach
         </select>
     </div>
