@@ -33,8 +33,8 @@
         <span class="error-message"></span>
         <select class="single-select" id="block_form" name="block_form" data-placeholder="Select a Form">
             <option></option>
-            @foreach($userForms as $form)
-                <option value="{{$form->fid}}">{{ \App\Http\Controllers\ProjectController::getProject($form->pid)->name }} - {{$form->name}}</option>
+            @foreach($userForms as $index=>$form)
+                <option value="{{ $index }}">{{ $form }}</option>
             @endforeach
         </select>
     </div>
