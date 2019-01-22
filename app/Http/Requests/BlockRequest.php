@@ -1,6 +1,6 @@
 <?php namespace App\Http\Requests;
 
-class BlockRequest extends Request {
+class BlockRequest extends Request { //TODO::CASTLE
 
     /*
     |--------------------------------------------------------------------------

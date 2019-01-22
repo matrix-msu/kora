@@ -16,7 +16,7 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\View\View;
 
-class AdminController extends Controller {
+class AdminController extends Controller { //TODO::CASTLE
 
     /*
     |--------------------------------------------------------------------------
@@ -30,7 +30,7 @@ class AdminController extends Controller {
     /**
      * @var array - The data tables. Admin functions will use for both deletion, and backup/restore processes
      */
-    public $DATA_TABLES = [ //TODO::CASTLE
+    public $DATA_TABLES = [
         ['name' => 'associations', 'backup' => 'SaveAssociationsTable'],
         ['name' => 'associator_fields', 'backup' => 'SaveAssociatorFieldsTable'],
         ['name' => 'associator_support', 'backup' => 'SaveAssociatorSupportTable'],

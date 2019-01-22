@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\View\View;
 
-class TokenController extends Controller {
+class TokenController extends Controller { //TODO::CASTLE
 
     /*
     |--------------------------------------------------------------------------

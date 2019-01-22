@@ -1,20 +1,20 @@
 @extends('app', ['page_title' => "Record Revisions", 'page_class' => 'record-revisions'])
 
 @section('leftNavLinks')
-    @include('partials.menu.project', ['pid' => $form->pid])
-    @include('partials.menu.form', ['pid' => $form->pid, 'fid' => $form->fid])
+    @include('partials.menu.project', ['pid' => $form->project_id])
+    @include('partials.menu.form', ['pid' => $form->project_id, 'fid' => $form->id])
     @if(isset($rid) && !is_null($record))
-        @include('partials.menu.record', ['pid' => $form->pid, 'fid' => $form->fid, 'rid' => $rid])
+        @include('partials.menu.record', ['pid' => $form->project_id, 'fid' => $form->id, 'rid' => $rid])
     @endif
     @include('partials.menu.static', ['name' => 'Record Revisions'])
 @stop
 
 @section('aside-content')
   @if (isset($rid))
-      @include('partials.sideMenu.form', ['pid' => $form->pid, 'fid' => $form->fid])
-      @include('partials.sideMenu.record', ['pid' => $form->pid, 'fid' => $form->fid, 'rid' => $rid, 'openDrawer' => true])
+      @include('partials.sideMenu.form', ['pid' => $form->project_id, 'fid' => $form->id])
+      @include('partials.sideMenu.record', ['pid' => $form->project_id, 'fid' => $form->id, 'rid' => $rid, 'openDrawer' => true])
   @else
-    @include('partials.sideMenu.form', ['pid' => $form->pid, 'fid' => $form->fid, 'openDrawer' => true])
+    @include('partials.sideMenu.form', ['pid' => $form->project_id, 'fid' => $form->id, 'openDrawer' => true])
   @endif
 @stop
 
@@ -24,7 +24,7 @@
         <div class="inner-wrap center">
             <h1 class="title">
                 <i class="icon icon-clock"></i>
-                <span>Record Revisions{{isset($rid) ? ': ' . $form->pid . '-' . $form->fid . '-' . $rid : ''}}</span>
+                <span>Record Revisions{{isset($rid) ? ': ' . $form->project_id . '-' . $form->id . '-' . $rid : ''}}</span>
             </h1>
             <p class="description">
                 Use this page to view and manage record revisions within this form.

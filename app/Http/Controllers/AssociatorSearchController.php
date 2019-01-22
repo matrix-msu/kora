@@ -6,7 +6,7 @@ use App\Record;
 use App\Search;
 use Illuminate\Http\Request;
 
-class AssociatorSearchController extends Controller {
+class AssociatorSearchController extends Controller { //TODO::CASTLE
 
     /*
     |--------------------------------------------------------------------------

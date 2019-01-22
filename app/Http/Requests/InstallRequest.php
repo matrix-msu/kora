@@ -1,6 +1,6 @@
 <?php namespace App\Http\Requests;
 
-class InstallRequest extends Request {
+class InstallRequest extends Request { //TODO::CASTLE
 
     /*
     |--------------------------------------------------------------------------

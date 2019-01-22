@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\View\View;
 
-class ProjectGroupController extends Controller {
+class ProjectGroupController extends Controller { //TODO::CASTLE
 
     /*
     |--------------------------------------------------------------------------

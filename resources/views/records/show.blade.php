@@ -4,7 +4,6 @@
     @include('partials.menu.project', ['pid' => $form->project_id])
     @include('partials.menu.form', ['pid' => $form->project_id, 'fid' => $form->id])
     @include('partials.menu.record', ['pid' => $record->project_id, 'fid' => $record->form_id, 'rid' => $record->id])
-    <!--@include('partials.menu.static', ['name' => $record->kid])-->
 @stop
 
 
@@ -119,7 +118,7 @@
 
     <script type="text/javascript">
         makeRecordPresetURL = '{{action('RecordPresetController@presetRecord')}}';
-        ridForPreset = {{$record->rid}};
+        ridForPreset = {{$record->id}};
         csrfToken = '{{csrf_token()}}';
 
         Kora.Records.Show();

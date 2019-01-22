@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\View\View;
 
-class FallbackController extends Controller {
+class FallbackController extends Controller { //TODO::CASTLE
     /**
      * Constructs controller and makes sure user is authenticated.
      */

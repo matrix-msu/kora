@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\View\View;
 
-class AssociationController extends Controller {
+class AssociationController extends Controller { //TODO::CASTLE
 
     /*
     |--------------------------------------------------------------------------

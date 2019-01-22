@@ -3,12 +3,9 @@
 use App\RecordPreset;
 use App\Revision;
 use App\User;
-use App\Form;
 use App\Record;
-use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\View\View;
@@ -218,12 +215,12 @@ class RecordController extends Controller {
 //            }
 
             //
-            // Only create a revision if the record was not mass created. //TODO::CASTLE
+            // Only create a revision if the record was not mass created.
             // This prevents clutter from an operation that the user
             // will likely not want to undo using revisions.
             //
-//            if($numRecs == 1)
-//                RevisionController::storeRevision($record->rid, Revision::CREATE);
+            if($numRecs == 1)
+                RevisionController::storeRevision($record, Revision::CREATE);
 
             //If we are making a preset, let's make sure it's done, and done once  //TODO::CASTLE
 //            if($makePreset) {
@@ -247,6 +244,26 @@ class RecordController extends Controller {
 	}
 
     /**
+     * Validates a record for creation.
+     *
+     * @param  int $pid - Project ID
+     * @param  int $fid - Form ID
+     * @return JsonResponse
+     */
+    public function validateRecord($pid, $fid, Request $request) {
+        $errors = [];
+        $form = FormController::getForm($fid);
+
+        foreach($form->layout['fields'] as $flid => $field) {
+            $message = $form->getFieldModel($field['type'])->validateField($flid, $field, $request);
+            if(!empty($message))
+                $errors += $message; //We add these arrays because it maintains the keys, where array_merge re-indexes
+        }
+
+        return response()->json(["status"=>true,"errors"=>$errors],200);
+    }
+
+    /**
      * Gets the individual record view.
      *
      * @param  int $pid - Project ID
@@ -265,8 +282,7 @@ class RecordController extends Controller {
         $kid = "$pid-$fid-$rid";
         $record = self::getRecord($kid);
         $owner = User::where('id', '=', $record->owner)->first();
-        //$numRevisions = Revision::where('rid',$rid)->count();  //TODO::CASTLE
-        $numRevisions = 0;
+        $numRevisions = Revision::where('record_kid',$kid)->count();
         //$alreadyPreset = (RecordPreset::where('rid',$rid)->count() > 0);  //TODO::CASTLE
         $alreadyPreset = false;
 
@@ -312,95 +328,6 @@ class RecordController extends Controller {
 	}
 
     /**
-     * Gets record to be cloned and throws its data into the new record view.
-     *
-     * @param  int $pid - Project ID
-     * @param  int $fid - Form ID
-     * @param  int $rid - Record ID
-     * @return View
-     */
-    public function cloneRecord($pid, $fid, $rid) {
-        if(!self::validProjFormRecord($pid, $fid, $rid))
-            return redirect('projects')->with('k3_global_error', 'record_invalid');
-
-        $form = FormController::getForm($fid);
-        $kid = "$pid-$fid-$rid";
-        $record = self::getRecord($kid);
-
-        return view('records.clone', compact('record', 'form'));
-    }
-
-    /**
-     * Validates a record for creation.
-     *
-     * @param  int $pid - Project ID
-     * @param  int $fid - Form ID
-     * @return JsonResponse
-     */
-    public function validateRecord($pid, $fid, Request $request) {
-        $errors = [];
-        $form = FormController::getForm($fid);
-
-        foreach($form->layout['fields'] as $flid => $field) {
-            $message = $form->getFieldModel($field['type'])->validateField($flid, $field, $request);
-            if(!empty($message))
-                $errors += $message; //We add these arrays because it maintains the keys, where array_merge re-indexes
-        }
-
-        return response()->json(["status"=>true,"errors"=>$errors],200);
-    }
-
-    /**
-     * Removes record files from the system for records that no longer exist. This will prevent the possiblity of
-     *  rolling back these records.
-     *
-     * @param  int $pid - Project ID
-     * @param  int $fid - Form ID
-     * @return array - The records that were removed
-     *
-     */
-    public function cleanUp($pid, $fid) { //TODO::CASTLE
-        $form = FormController::getForm($fid);
-
-        if(!(\Auth::user()->isFormAdmin($form)))
-            return response()->json(["status"=>false,"message"=>"not_form_admin"],500);
-
-        $existingRIDS = Record::where('fid','=',$fid)->pluck('rid')->toArray();
-
-        $basePath = storage_path('app/files/p'.$pid.'/f'.$fid);
-
-        //for each 'r###' directory in $basePath
-        foreach(new \DirectoryIterator($basePath) as $rDir) {
-            if($rDir->isDot()) continue;
-
-            $rid = substr($rDir->getFilename(),1);
-
-            //if record does not exist in $existingRIDS
-            if(!in_array($rid,$existingRIDS)) {
-                //recursively delete record files
-                $path = $basePath . "/r" . $rid;
-                if(is_dir($path)) {
-                    $it = new RecursiveDirectoryIterator($path, RecursiveDirectoryIterator::SKIP_DOTS);
-                    $files = new RecursiveIteratorIterator($it,
-                        RecursiveIteratorIterator::CHILD_FIRST);
-                    foreach($files as $file) {
-                        if($file->isDir())
-                            rmdir($file->getRealPath());
-                        else
-                            unlink($file->getRealPath());
-                    }
-                    rmdir($path);
-                }
-
-                //prevent rollback revisions for that record if any exist
-                Revision::where('rid','=',$rid)->update(['rollback' => 0]);
-            }
-        }
-
-        return redirect()->action('FormController@show', ['pid' => $pid, 'fid' => $fid])->with('k3_global_success', 'old_records_deleted');
-    }
-
-    /**
      * Update a record with new data.
      *
      * @param  int $pid - Project ID
@@ -432,6 +359,7 @@ class RecordController extends Controller {
 //        }
         $kid = "$pid-$fid-$rid";
         $record = self::getRecord($kid);
+        $oldRecordCopy = $record->replicate();
 
         foreach($request->all() as $key => $value) {
             //Skip request variables that are not fields
@@ -445,9 +373,8 @@ class RecordController extends Controller {
 
         $record->save();
 
-        //$revision = RevisionController::storeRevision($record->rid, Revision::EDIT); //TODO::CASTLE
-        //$revision->data = RevisionController::buildDataArray($record);
-        //$revision->save();
+        //Store the edit
+        RevisionController::storeRevision($record,Revision::EDIT,$oldRecordCopy);
 
         //Make new preset //TODO::CASTLE
 //        if($makePreset) {
@@ -469,6 +396,25 @@ class RecordController extends Controller {
 	}
 
     /**
+     * Gets record to be cloned and throws its data into the new record view.
+     *
+     * @param  int $pid - Project ID
+     * @param  int $fid - Form ID
+     * @param  int $rid - Record ID
+     * @return View
+     */
+    public function cloneRecord($pid, $fid, $rid) {
+        if(!self::validProjFormRecord($pid, $fid, $rid))
+            return redirect('projects')->with('k3_global_error', 'record_invalid');
+
+        $form = FormController::getForm($fid);
+        $kid = "$pid-$fid-$rid";
+        $record = self::getRecord($kid);
+
+        return view('records.clone', compact('record', 'form'));
+    }
+
+    /**
      * Delete a record from Kora3.
      *
      * @param  int $pid - Project ID
@@ -487,8 +433,8 @@ class RecordController extends Controller {
         if(!\Auth::user()->isOwner($record) && !self::checkPermissions($fid, 'destroy'))
             return redirect('projects/'.$pid.'/forms/'.$fid)->with('k3_global_error', 'cant_delete_record');
 
-        //if(!$mass)
-            //RevisionController::storeRevision($record->rid, Revision::DELETE); //TODO::CASTLE
+        if(!$mass)
+            RevisionController::storeRevision($record, Revision::DELETE);
 
         $record->delete();
 
@@ -546,13 +492,63 @@ class RecordController extends Controller {
     }
 
     /**
+     * Removes record files from the system for records that no longer exist. This will prevent the possiblity of
+     *  rolling back these records.
+     *
+     * @param  int $pid - Project ID
+     * @param  int $fid - Form ID
+     * @return array - The records that were removed
+     *
+     */
+    public function cleanUp($pid, $fid) { //TODO::CASTLE
+        $form = FormController::getForm($fid);
+
+        if(!(\Auth::user()->isFormAdmin($form)))
+            return response()->json(["status"=>false,"message"=>"not_form_admin"],500);
+
+        $existingRIDS = Record::where('fid','=',$fid)->pluck('rid')->toArray();
+
+        $basePath = storage_path('app/files/p'.$pid.'/f'.$fid);
+
+        //for each 'r###' directory in $basePath
+        foreach(new \DirectoryIterator($basePath) as $rDir) {
+            if($rDir->isDot()) continue;
+
+            $rid = substr($rDir->getFilename(),1);
+
+            //if record does not exist in $existingRIDS
+            if(!in_array($rid,$existingRIDS)) {
+                //recursively delete record files
+                $path = $basePath . "/r" . $rid;
+                if(is_dir($path)) {
+                    $it = new RecursiveDirectoryIterator($path, RecursiveDirectoryIterator::SKIP_DOTS);
+                    $files = new RecursiveIteratorIterator($it,
+                        RecursiveIteratorIterator::CHILD_FIRST);
+                    foreach($files as $file) {
+                        if($file->isDir())
+                            rmdir($file->getRealPath());
+                        else
+                            unlink($file->getRealPath());
+                    }
+                    rmdir($path);
+                }
+
+                //prevent rollback revisions for that record if any exist
+                Revision::where('rid','=',$rid)->update(['rollback' => 0]);
+            }
+        }
+
+        return redirect()->action('FormController@show', ['pid' => $pid, 'fid' => $fid])->with('k3_global_success', 'old_records_deleted');
+    }
+
+    /**
      * Gets the view for the record import process.
      *
      * @param  int $pid - Project ID
      * @param  int $fid - Form ID
      * @return View
      */
-    public function importRecordsView($pid,$fid) { //TODO::CASTLE
+    public function importRecordsView($pid,$fid) {
         if(!FormController::validProjForm($pid, $fid))
             return redirect('projects/'.$pid)->with('k3_global_error', 'form_invalid');
 

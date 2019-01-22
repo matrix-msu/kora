@@ -17,7 +17,9 @@ class CreateRevisionsTable extends Migration {
 			$table->increments('id');
             $table->integer('form_id')->unsigned();
             $table->string('record_kid',20);
+            $table->string('owner',20);
             $table->jsonb('revision');
+            $table->boolean('rollback');
 			$table->timestamps();
 
             $table->foreign('form_id')->references('id')->on('forms')->onDelete('cascade');

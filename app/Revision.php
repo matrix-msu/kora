@@ -17,7 +17,11 @@ class Revision extends Model {
     /**
      * @var array - Attributes that can be mass assigned to model
      */
-    protected $fillable = ['form_id','record_kid','revision'];
+    protected $fillable = ['form_id','record_kid','revision','owner'];
+
+    protected $casts = [
+        'revision' => 'array',
+    ];
 
     /**
      * @var string - The individual types of a revision

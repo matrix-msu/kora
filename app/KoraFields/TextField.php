@@ -155,6 +155,18 @@ class TextField extends BaseField {
     }
 
     /**
+     * Formats data for revision entry.
+     *
+     * @param  array $data - The data to store
+     * @param  Request $request
+     *
+     * @return mixed - Processed data
+     */
+    public function processRevisionData($data) {
+        return $data;
+    }
+
+    /**
      * Formats data for record entry.
      *
      * @param  string $flid - Field ID

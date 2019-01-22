@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 
-class ProjectSearchController extends Controller {
+class ProjectSearchController extends Controller { //TODO::CASTLE
 
     /*
     |--------------------------------------------------------------------------

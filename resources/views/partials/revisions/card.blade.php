@@ -1,16 +1,17 @@
-<?php
-    $exists = \App\Http\Controllers\RecordController::exists($revision->rid);
+@php
+    $exists = \App\Http\Controllers\RecordController::exists($revision->record_kid);
+    $record_id = explode('-',$revision->record_kid)[2];
     $datetime = explode(' ', $revision->updated_at);
-    $showLink = action("RevisionController@show", ["pid" => $form->pid, "fid" => $form->fid, "rid" => $revision->rid]);
-    $type = ucfirst($revision->type === "edit" ? 'edited' : ($revision->type === 'rollback' ? 'rollback' : $revision->type.'d'));
+    $showLink = action("RevisionController@show", ["pid" => $form->project_id, "fid" => $form->id, "rid" => $record_id]);
+    $type = ucfirst($revision->revision['type'] === "edit" ? 'edited' : ($revision->revision['type'] === 'rollback' ? 'rollback' : $revision->revision['type'].'d'));
     $data = \App\Http\Controllers\RevisionController::formatRevision($revision->id);
-?>
+@endphp
 <div class="revision card all {{ $index == 0 ? 'active' : '' }}" id="{{$revision->id}}">
     <div class="header {{ $index == 0 ? 'active' : '' }}">
         <div class="left pl-m">
             @if (!isset($rid))
-                <a class="title{{ $exists ? '' : ' disabled' }}" href="{{ $exists ? action("RecordController@show", ['pid'=>$form->pid, 'fid'=>$form->fid, 'rid'=>$revision->rid]) : '' }}">
-                    <span class="name underline-middle-hover">{{$form->pid}}-{{$form->fid}}-{{$revision->rid}}</span>
+                <a class="title{{ $exists ? '' : ' disabled' }}" href="{{ $exists ? action("RecordController@show", ['pid'=>$form->project_id, 'fid'=>$form->id, 'rid'=>$record_id]) : '' }}">
+                    <span class="name underline-middle-hover">{{$revision->record_kid}}</span>
                 </a>
             @else
                 <span class="title gray">
@@ -26,7 +27,7 @@
                 @endif
                 <span class="sub-title time-js">{{$datetime[1]}}</span>
                 <span class="sub-title date-js">{{$datetime[0]}}</span>
-                <span class="sub-title">{{$revision->username}}</span>
+                <span class="sub-title">{{$revision->owner}}</span>
             </span>
             <a href="#" class="card-toggle revision-toggle-js">
                 <i class="icon icon-chevron {{ $index == 0 ? 'active' : '' }}"></i>
@@ -49,8 +50,8 @@
                 <div class="edit-section">
                     @foreach ($data["current"] as $id => $field)
                         <div class="field">
-                            <div class="field-title">{{$field["name"]}}</div>
-                            <div class="field-data">{!! $field["data"] !!}</div>
+                            <div class="field-title">{{$form->layout['fields'][$id]['name']}}</div>
+                            <div class="field-data">{!! $field !!}</div>
                         </div>
                     @endforeach
                 </div>
@@ -58,16 +59,16 @@
                 <div class="edit-section">
                     @foreach ($data["old"] as $id => $field)
                         <div class="field">
-                            <div class="field-title">{{$field["name"]}}</div>
-                            <div class="field-data">{!! $field["data"] !!}</div>
+                            <div class="field-title">{{$form->layout['fields'][$id]['name']}}</div>
+                            <div class="field-data">{!! $field !!}</div>
                         </div>
                     @endforeach
                 </div>
             @else
                 @foreach ($data as $id => $field)
                     <div class="field">
-                        <div class="field-title">{{$field["name"]}}</div>
-                        <div class="field-data">{!! $field["data"] !!}</div>
+                        <div class="field-title">{{$form->layout['fields'][$id]['name']}}</div>
+                        <div class="field-data">{!! $field !!}</div>
                     </div>
                 @endforeach
             @endif
