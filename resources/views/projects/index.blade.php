@@ -42,13 +42,13 @@
   </section>
   @endif
 
+  @if(Auth::user()->admin)
   <section class="new-object-button center padding-top-medium">
     <form action="{{ action('ProjectController@create') }}">
-      @if(Auth::user()->admin)
         <input type="submit" value="Create a New Project">
-      @endif
     </form>
   </section>
+  @endif
 
   <section class="project-selection center project-js project-selection-js">
     @if (!$empty_state)
