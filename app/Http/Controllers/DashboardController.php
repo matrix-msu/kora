@@ -115,6 +115,8 @@ class DashboardController extends Controller {
                         $hidOpts = $options['hidden'];
 
                         $form = FormController::getForm($fid);
+                        if (gettype($form) !== 'object')
+                            $this->deleteBlock($blk->id, $blk->sec_id);
                         $b['projName'] = ProjectController::getProject($form->pid)->name;
 
                         $b['fid'] = $fid;
@@ -196,7 +198,7 @@ class DashboardController extends Controller {
         foreach($formsInitial as $form) {
             $userForms[$form['fid']] = \App\Http\Controllers\ProjectController::getProject($form->pid)->name.' - '.$form['name'];
         }
-        sort($userForms);
+        asort($userForms);
 
 		// Sort proj and forms alphabetically by name
 		usort($userProjects, function($a, $b){ return strcmp(strtolower($a["name"]), strtolower($b["name"])); });
