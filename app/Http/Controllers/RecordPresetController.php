@@ -107,16 +107,35 @@ class RecordPresetController extends Controller {
     }
 
     /**
+     * Gets the data from a record preset for record creation.
+     *
+     * @param  Request $request
+     * @return array - The record data
+     */
+    public function getData(Request $request) {
+        $id = $request->id;
+        $recordPreset = RecordPreset::where('id', $id)->first();
+        $presetData = $recordPreset->preset;
+
+        $form = FormController::getForm($recordPreset->form_id);
+        $layout = $form->layout['fields'];
+        $presetData['fields'] = $layout;
+
+        return $presetData;
+    }
+
+    /**
      * Updates a record's preset if one was made.
      *
-     * @param  int $rid - Record ID
+     * @param  Record $record - Record Model
      */
-    public static function updateIfExists($rid) { //TODO::CASTLE
-        $pre = RecordPreset::where("rid", '=', $rid)->first();
+    public static function updateIfExists($record) {
+        $pre = RecordPreset::where("record_kid", '=', $record->kid)->first();
 
         if(!is_null($pre)) {
             $rpc = new self();
-            $pre->preset = $rpc->getRecordArray($rid, $pre->id);
+            $pre->preset = $rpc->getRecordArray($record, $pre->preset['name']);
+            $pre->save();
         }
     }
 
@@ -125,13 +144,15 @@ class RecordPresetController extends Controller {
      *
      * @param  Request $request
      */
-    public function changePresetName(Request $request) { //TODO::CASTLE
+    public function changePresetName(Request $request) {
         $name = $request->name;
         $id = $request->id;
 
-        $preset = RecordPreset::where('id', '=', $id)->first();
+        $preset = RecordPreset::where('id', $id)->first();
 
-        $preset->name = $name;
+        $array = $preset->preset;
+        $array['name'] = $name;
+        $preset->preset = $array;
         $preset->save();
     }
 
@@ -143,26 +164,26 @@ class RecordPresetController extends Controller {
      */
     public function deletePreset(Request $request) { //TODO::CASTLE
         $id = $request->id;
-        $preset = RecordPreset::where('id', '=', $id)->first();
+        $preset = RecordPreset::where('id', $id)->first();
         $preset->delete();
 
         //
-        // Delete the preset's file directory.
+        // Delete the preset's file directory. //TODO::CASTLE
         //
-        $path = storage_path('app/presetFiles/preset'. $id);
-
-        if(is_dir($path)) {
-            $it = new RecursiveDirectoryIterator($path, RecursiveDirectoryIterator::SKIP_DOTS);
-            $files = new RecursiveIteratorIterator($it,
-                RecursiveIteratorIterator::CHILD_FIRST);
-            foreach($files as $file) {
-                if ($file->isDir())
-                    rmdir($file->getRealPath());
-                else
-                    unlink($file->getRealPath());
-            }
-            rmdir($path);
-        }
+//        $path = storage_path('app/presetFiles/preset'. $id);
+//
+//        if(is_dir($path)) {
+//            $it = new RecursiveDirectoryIterator($path, RecursiveDirectoryIterator::SKIP_DOTS);
+//            $files = new RecursiveIteratorIterator($it,
+//                RecursiveIteratorIterator::CHILD_FIRST);
+//            foreach($files as $file) {
+//                if ($file->isDir())
+//                    rmdir($file->getRealPath());
+//                else
+//                    unlink($file->getRealPath());
+//            }
+//            rmdir($path);
+//        }
 
         return response()->json(["status"=>true,"message"=>"record_preset_deleted"],200);
     }

@@ -104,7 +104,7 @@ class RecordController extends Controller {
         $presets = array();
 
         foreach(RecordPreset::where('form_id', '=', $fid)->get() as $preset) {
-            //$presets[] = ['id' => $preset->id, 'name' => $preset->name]; //TODO::CASTLE
+            $presets[] = ['id' => $preset->id, 'name' => $preset->preset['name']];
         }
 
         return view('records.create', compact('form', 'presets'));
@@ -151,15 +151,15 @@ class RecordController extends Controller {
                 $numRecs = 1000;
         }
 
-        //Handle record preset //TODO::CASTLE
-//        $makePreset = false;
-//        $presetName = '';
-//        if(isset($request->record_preset_name)) {
-//            $presetName = $request->record_preset_name;
-//            if(strlen($presetName) < 3)
-//                return redirect()->back()->withInput($request)->with('k3_global_error', 'record_validation_error')->with('record_validation_error', 'present_name_short');
-//            $makePreset = true;
-//        }
+        //Handle record preset
+        $makePreset = false;
+        $presetName = '';
+        if(isset($request->record_preset_name)) {
+            $presetName = $request->record_preset_name;
+            if(strlen($presetName) < 3)
+                return redirect()->back()->withInput($request)->with('k3_global_error', 'record_validation_error')->with('record_validation_error', 'present_name_short');
+            $makePreset = true;
+        }
 
         for($i = 0; $i < $numRecs ; $i++) {
             $record = new Record(array(),$fid);
@@ -222,17 +222,17 @@ class RecordController extends Controller {
             if($numRecs == 1)
                 RevisionController::storeRevision($record, Revision::CREATE);
 
-            //If we are making a preset, let's make sure it's done, and done once  //TODO::CASTLE
-//            if($makePreset) {
-//                $makePreset = false; //prevents a preset being made for every duplicate record
-//
-//                $rpc = new RecordPresetController();
-//                $presetRequest = new Request();
-//                $presetRequest->name = $presetName;
-//                $presetRequest->rid = $record->rid;
-//
-//                $rpc->presetRecord($presetRequest);
-//            }
+            //If we are making a preset, let's make sure it's done, and done once
+            if($makePreset) {
+                $makePreset = false; //prevents a preset being made for every duplicate record
+
+                $rpc = new RecordPresetController();
+                $presetRequest = new Request();
+                $presetRequest->name = $presetName;
+                $presetRequest->kid = $record->kid;
+
+                $rpc->presetRecord($presetRequest);
+            }
         }
 
         if($request->api)
@@ -347,15 +347,16 @@ class RecordController extends Controller {
                 return redirect()->back()->withInput()->with('k3_global_error', 'record_validation_error')->with('record_validation_error', $message);
         }
 
-        //Handle record preset //TODO::CASTLE
-//        $makePreset = false;
-//        $presetName = '';
-//        if(isset($request->record_preset_name)) {
-//            $presetName = $request->record_preset_name;
-//            if(strlen($presetName) < 3)
-//                return redirect()->back()->withInput($request)->with('k3_global_error', 'record_validation_error')->with('record_validation_error', 'present_name_short');
-//            $makePreset = true;
-//        }
+        //Handle record preset
+        $makePreset = false;
+        $presetName = '';
+        if(isset($request->record_preset_name)) {
+            $presetName = $request->record_preset_name;
+            if(strlen($presetName) < 3)
+                return redirect()->back()->withInput($request)->with('k3_global_error', 'record_validation_error')->with('record_validation_error', 'present_name_short');
+            $makePreset = true;
+        }
+
         $kid = "$pid-$fid-$rid";
         $record = self::getRecord($kid);
         $oldRecordCopy = $record->replicate();
@@ -375,18 +376,18 @@ class RecordController extends Controller {
         //Store the edit
         RevisionController::storeRevision($record,Revision::EDIT,$oldRecordCopy);
 
-        //Make new preset //TODO::CASTLE
-//        if($makePreset) {
-//            $rpc = new RecordPresetController();
-//            $presetRequest = new Request();
-//            $presetRequest->name = $presetName;
-//            $presetRequest->rid = $record->rid;
-//
-//            $rpc->presetRecord($presetRequest);
-//        } else {
-//            //Otherwise, let's update the preset if it exists
-//            RecordPresetController::updateIfExists($record->rid);
-//        }
+        //Make new preset
+        if($makePreset) {
+            $rpc = new RecordPresetController();
+            $presetRequest = new Request();
+            $presetRequest->name = $presetName;
+            $presetRequest->kid = $record->kid;
+
+            $rpc->presetRecord($presetRequest);
+        } else {
+            //Otherwise, let's update the preset if it exists
+            RecordPresetController::updateIfExists($record);
+        }
 
         if(!$request->api)
             return redirect('projects/' . $pid . '/forms/' . $fid . '/records/' . $rid)->with('k3_global_success', 'record_updated');

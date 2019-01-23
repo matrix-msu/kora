@@ -3,17 +3,17 @@
         <div class="left pl-m">
             @if(\App\Http\Controllers\RecordController::exists($preset->record_kid))
                 <a class="title" href="{{ action("RecordController@show",
-                    ["pid" => $form->pid, "fid" => $form->fid, "rid" => $preset->record_kid]) }}">
+                    ["pid" => $form->project_id, "fid" => $form->id, "rid" => explode('-',$preset->record_kid)[2]]) }}">
                     <span class="name underline-middle-hover">{{$preset->record_kid}}</span>
-                    <span class="sub-title">
-                        {{$preset->name}}
+                    <span class="sub-title change-name-{{$preset->id}}-js">
+                        {{$preset->preset['name']}}
                     </span>
                 </a>
             @else
                 <a class="title">
                     <span class="name record-gone">{{$preset->record_kid}}</span>
                     <span class="sub-title change-name-{{$preset->id}}-js">
-                        {{$preset->name}}
+                        {{$preset->preset['name']}}
                     </span>
                 </a>
             @endif
@@ -61,7 +61,7 @@
 
             @if(\App\Http\Controllers\RecordController::exists($preset->record_kid))
                 <a class="quick-action underline-middle-hover" href="{{ action("RecordController@show",
-                    ["pid" => $form->pid, "fid" => $form->fid, "rid" => $preset->record_kid]) }}">
+                    ["pid" => $form->project_id, "fid" => $form->id, "rid" => explode('-',$preset->record_kid)[2]]) }}">
                     <span>View Original Record</span>
                     <i class="icon icon-arrow-right"></i>
                 </a>
