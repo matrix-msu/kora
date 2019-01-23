@@ -408,17 +408,6 @@ Kora.Dashboard.Index = function() {
         $('.delete-section-js').click(function (e) {
             e.preventDefault();
 
-            function removeSection (dSection, nSectionID) {
-                let blocks = dSection.children('.container').children();
-
-                $.each(blocks, function () {
-                    $('#' + nSectionID).children('.container').append($(this));
-                });
-
-                dSection.remove();
-                reorderBlocks()
-            }
-
             let deletedSection = $(this).parent().parent().parent();
             let secID = $(this).attr('data-id');
             let url = removeSectionUrl + '/' + secID;
@@ -431,7 +420,7 @@ Kora.Dashboard.Index = function() {
                     '_method': 'DELETE'
                 },
                 success: function (response) {
-                    removeSection(deletedSection, response.section)
+                    window.location.reload();
                 },
                 error: function (err) {
                     console.log(err);
