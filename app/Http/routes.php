@@ -211,6 +211,7 @@ Route::group(['middleware' => 'web'], function () {
     Route::get('/user/{uid}/preferences', 'Auth\UserController@preferences'); // get all user prefs
     Route::get('/user/{uid}/{section?}', 'Auth\UserController@index');
     Route::get('/returnUserPrefs/{pref}', 'Auth\UserController@returnUserPrefs'); // get individual user pref
+    Route::get('/getOnboardingProjects/{user}', 'Auth\UserController@getOnboardingProjects');
     Route::delete('/user/{uid}/delete', 'Auth\UserController@delete');
     Route::patch('/user/validate/{uid}', 'Auth\UserController@validateUserFields');
     Route::patch('/user/changepw', 'Auth\UserController@changepw');
@@ -221,6 +222,7 @@ Route::group(['middleware' => 'web'], function () {
     Route::post('/auth/activator', 'Auth\UserController@activator');
     Route::post('/user/picture', 'Auth\UserController@changepicture');
     Route::post('/user/validate', 'Auth\RegisterController@validateUserFields');
+    Route::patch('/toggleOnboarding', 'Auth\UserController@toggleOnboarding');
     Route::patch('/user/validateEditProfile', 'Auth\UserController@validateEditProfile');
 
 //metadata routes

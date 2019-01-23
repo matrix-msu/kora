@@ -25,6 +25,10 @@
   @include('partials.projects.notification')
   @php $empty_state = (count($projects) == 0); @endphp
 
+  @if (\App\Http\Controllers\Auth\UserController::returnUserPrefs('onboarding'))
+    @include('partials.onboarding.onboardingModal')
+  @endif
+
   @if (!$empty_state)
   <section class="filters center">
       <div class="underline-middle search search-js">
@@ -85,8 +89,13 @@
   <script type="text/javascript">
     var CSRFToken = '{{ csrf_token() }}';
     var saveCustomOrderUrl = '{{ action('Auth\UserController@saveProjectCustomOrder') }}';
-	var archiveURL = '{{ action('ProjectController@setArchiveProject', ['pid' => ""] ) }}';
-	var updateURL = '{{ action('UpdateController@index') }}';
+    var archiveURL = '{{ action('ProjectController@setArchiveProject', ['pid' => ""] ) }}';
+    var updateURL = '{{ action('UpdateController@index') }}';
     Kora.Projects.Index();
   </script>
+
+	@if (\App\Http\Controllers\Auth\UserController::returnUserPrefs('onboarding'))
+		<script> var toggleOnboardingUrl = '{{ action('Auth\UserController@toggleOnboarding') }}'; </script>
+		<script src="{{ url('/assets/javascripts/general/onboarding.js') }}"></script>
+	@endif
 @stop
