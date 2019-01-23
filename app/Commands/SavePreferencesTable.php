@@ -53,6 +53,7 @@ class SavePreferencesTable extends Command implements ShouldQueue {
                 $individual_pref_data->put("logo_target", $pref->logo_target);
                 $individual_pref_data->put("proj_page_tab_selection", $pref->proj_page_tab_selection);
                 $individual_pref_data->put("single_proj_page_tab_selection", $pref->single_proj_page_tab_selection);
+                $individual_pref_data->put("onboarding", $pref->onboarding);
                 $individual_pref_data->put("created_at", $pref->created_at->toDateTimeString());
                 $individual_pref_data->put("updated_at", $pref->updated_at->toDateTimeString());
 

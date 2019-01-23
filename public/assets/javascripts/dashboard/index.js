@@ -5,7 +5,7 @@ Kora.Dashboard.Index = function() {
 
     function initializeSelects() {
         //Most field option pages need these
-        $('.single-select').chosen({
+        $('.edit-block-modal-js .single-select, .create-block-modal-js .single-select').chosen({
             width: '100%',
             disable_search_threshold: 7
         });

@@ -196,9 +196,10 @@ class ExodusController extends Controller {
                     $preference->user_id = $user->id;
                     $preference->created_at = Carbon::now();
                     $preference->use_dashboard = 1;
-                    $preference->logo_target = 1;
+                    $preference->logo_target = 2; // 1 is dashboard, 2 is projects page
                     $preference->proj_page_tab_selection = 3;
                     $preference->single_proj_page_tab_selection = 3;
+                    $preference->onboarding = 1;
                     $preference->save();
 
                     //add user to conversion array with new id

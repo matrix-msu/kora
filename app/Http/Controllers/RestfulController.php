@@ -1170,7 +1170,8 @@ class RestfulController extends Controller {
         } else if($format == self::KORA) {
             //Old Kora 2 searches only need field filters
             $options = [
-                'fields' => $filters['fields']
+                'fields' => $filters['fields'],
+                'under' => $filters['under']
             ];
         } else if($format == self::XML) {
             $options = [

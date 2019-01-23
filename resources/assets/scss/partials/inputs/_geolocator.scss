@@ -1,15 +1,15 @@
 &.geolocator-form-group {
   .form-input-container {
-    padding: 30px 0 40px;
+    padding: 25px 30px 30px;
 
     .directions {
-      margin: 0 45px 20px;
+      margin: 0 0 20px;
     }
   }
 
   .geolocator-card {
     cursor: pointer;
-    margin: 0 45px 15px;
+    margin: 0 0 15px;
 
     .card-toggle-wrap {
       overflow: visible;
@@ -85,7 +85,7 @@
   .new-object-button {
     box-sizing: border-box;
     max-width: none;
-    padding: 0 45px;
+    padding: 0;
   }
 
   @media screen and (max-width: $max-mobile-l-width) {

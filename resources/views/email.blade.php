@@ -74,6 +74,7 @@
         .email > .content .project-text {
             font-size: 24px;
             line-height: 28px;
+            margin-bottom: 22px;
             margin-top: 22px;
             text-shadow: 0 2px 4px 0 rgba(0,0,0,0.1);
         }
