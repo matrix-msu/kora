@@ -37,7 +37,11 @@
     @include('partials.dashboard.addBlockModal')
     @include('partials.dashboard.deleteBlockModal')
     @include('partials.dashboard.editBlockModal')
-    @include('partials.dashboard.editQuickOptionsModal')
+	@include('partials.dashboard.editQuickOptionsModal')
+
+	@if (\App\Http\Controllers\Auth\UserController::returnUserPrefs('onboarding'))
+		@include('partials.onboarding.onboardingModal')
+	@endif
 
     <div class="floating-buttons">
         <div class="form-group">
@@ -325,7 +329,7 @@
 @stop
 
 @section('javascripts')
-    @include('partials.dashboard.javascripts')
+	@include('partials.dashboard.javascripts')
 
     <script>
 		var addSectionUrl = '{{ action('DashboardController@addSection',['sectionTitle' => '']) }}';
@@ -335,8 +339,13 @@
 		var removeSectionUrl = '{{ action('DashboardController@deleteSection',['sectionID' => '']) }}';
 		var removeBlockUrl = '{{ action('DashboardController@deleteBlock',['blkID' => '', 'secID' => '']) }}';
         var validationUrl = '{{ action('DashboardController@validateBlockFields') }}';
-        var state = {{$state}};
+		var state = {{$state}};
 
         Kora.Dashboard.Index();
     </script>
+
+	@if (\App\Http\Controllers\Auth\UserController::returnUserPrefs('onboarding'))
+		<script> var toggleOnboardingUrl = '{{ action('Auth\UserController@toggleOnboarding') }}'; </script>
+		<script src="{{ url('/assets/javascripts/general/onboarding.js') }}"></script>
+	@endif
 @stop

@@ -17,7 +17,8 @@ Kora.User.Preferences = function() {
 
     function initializeFixedElementScroll() {
         var $fixedElem = $(".pre-fixed-js");
-        var $form = $fixedElem.parent().parent();
+        //var $form = $fixedElem.parent().parent();
+        var $form = $('.bottom-form-js');
 
         $(window).scroll(function() {
             if ($fixedElem.hasClass('fixed-bottom')) {

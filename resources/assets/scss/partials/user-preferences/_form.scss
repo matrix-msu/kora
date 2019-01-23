@@ -1,6 +1,16 @@
 .edit-preferences {
-  a.text {
+  .text {
+    background: transparent;
+    border: none;
     color: palette('green', accent);
+    cursor: pointer;
+    display: inline;
+    font-family: $ubuntu;
+    padding: 0 0 5px;
+
+    &:focus {
+      outline: none;
+    }
   }
 
   .check-box-half {
