@@ -35,8 +35,8 @@
         <span class="error-message"></span>
         <select class="single-select edit-block-form-js" id="block_form" name="block_form">
             <option></option>
-            @foreach($userForms as $form)
-                <option value="{{$form->fid}}">{{$form->name}}</option>
+            @foreach($userForms as $index=>$form)
+                <option value="{{ $index }}">{{ $form }}</option>
             @endforeach
         </select>
     </div>

@@ -185,17 +185,23 @@ class DashboardController extends Controller {
         }
 
         $userProjects = Auth::user()->allowedProjects();
-        $userForms = array();
+        $formsInitial = array();
         $userRecords = array();
         foreach($userProjects as $p) {
-            $userForms = array_merge($userForms, Auth::user()->allowedForms($p->pid));
+            $formsInitial = array_merge($formsInitial, Auth::user()->allowedForms($p->pid));
             $projRecs = Record::where('pid','=',$p->pid)->pluck('kid')->toArray();
             $userRecords = array_merge($userRecords, $projRecs);
         }
 
+        $userForms = array();
+        foreach($formsInitial as $form) {
+            $userForms[$form['fid']] = \App\Http\Controllers\ProjectController::getProject($form->pid)->name.' - '.$form['name'];
+        }
+        sort($userForms);
+
 		// Sort proj and forms alphabetically by name
 		usort($userProjects, function($a, $b){ return strcmp(strtolower($a["name"]), strtolower($b["name"])); });
-		usort($userForms, function ($a, $b) { return strcmp(strtolower($a['name']), strtolower($b['name'])); });
+		//usort($userForms, function ($a, $b) { return strcmp(strtolower($a['name']), strtolower($b['name'])); });
 		// Sort records numerically
 		asort($userRecords);
 
