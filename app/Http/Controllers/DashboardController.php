@@ -528,7 +528,7 @@ class DashboardController extends Controller {
 
         // delete section
         DB::table("dashboard_sections")->where('uid','=',Auth::user()->id)->where("id", "=", $sectionID)->delete();
-        $this->reorderSections();
+        $this->makeNonSectionFirst();
 
         return response()->json(["status"=>true, "message"=>"Section destroyed", 'section'=>$newID, 200]);
     }
@@ -575,9 +575,10 @@ class DashboardController extends Controller {
         // If there is, we need to remove it. There should only ever be one
         // If there is no non-section, we need to add it.
         $no_sections = DB::table('dashboard_sections')->where('uid','=',Auth::user()->id)->where('title','=','No Section');
-        if ($no_sections->count() > 1)
+        if ($no_sections->count() > 1) {
+            // this works for any number of excess `no-section` sections because deleteSection() calls makeNonSectionFirst(), which will then run the check again
             $this->deleteSection($no_sections->latest()->first()->id);
-        else if ($no_sections->count() == 0)
+        } else if ($no_sections->count() == 0)
             $this->addSection('No Section');
 
         $firstSection = DB::table("dashboard_sections")->where('uid','=',Auth::user()->id)->orderBy('order','asc')->first()->order - 1;
