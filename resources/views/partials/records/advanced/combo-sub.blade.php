@@ -1,7 +1,6 @@
 @switch($cftype)
     @case('Text')
     <div class="form-group {{ $cfnum != 'one' ? 'mt-sm' : null }}">
-        @php echo $cfnum; @endphp
         {!! Form::label($field->flid."_".$cfnum."_input",$cftitle) !!}
         {!! Form::text($field->flid."_".$cfnum."_input", null, ['class' => 'text-input', 'placeholder' => 'Enter search text']) !!}
     </div>
