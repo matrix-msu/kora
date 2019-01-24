@@ -1,19 +1,20 @@
 @switch($cftype)
     @case('Text')
-    <div class="form-group mt-sm">
+    <div class="form-group {{ $cfnum != 'one' ? 'mt-sm' : null }}">
+        @php echo $cfnum; @endphp
         {!! Form::label($field->flid."_".$cfnum."_input",$cftitle) !!}
         {!! Form::text($field->flid."_".$cfnum."_input", null, ['class' => 'text-input', 'placeholder' => 'Enter search text']) !!}
     </div>
     @break
     @case('Number')
-    <div class="form-group mt-sm">
+    <div class="form-group {{ $cfnum != 'one' ? 'mt-sm' : null }}">
         {!! Form::label($field->flid."_".$cfnum."_left",$cftitle) !!}
         <input class="text-input" type="number" name="{{$field->flid}}_{{$cfnum}}_left" placeholder="Enter left bound (leave blank for -infinity)">
     </div>
-    <div class="form-group mt-sm">
+    <div class="form-group {{ $cfnum != 'one' ? 'mt-sm' : null }}">
         <input class="text-input" type="number" name="{{$field->flid}}_{{$cfnum}}_right" placeholder="Enter right bound (leave blank for infinity)">
     </div>
-    <div class="form-group mt-sm">
+    <div class="form-group {{ $cfnum != 'one' ? 'mt-sm' : null }}">
         <div class="check-box-half">
             <input type="checkbox" value="1" id="active" class="check-box-input" name="{{$field->flid}}_{{$cfnum}}_invert" />
             <span class="check"></span>
@@ -22,7 +23,7 @@
     </div>
     @break
     @case('Date')
-    <div class="form-group mt-sm">
+    <div class="form-group {{ $cfnum != 'one' ? 'mt-sm' : null }}">
         {!! Form::label($field->flid."_".$cfnum."_month",$cftitle) !!}
         {!! Form::select($field->flid."_".$cfnum."_month",['' => '',
             '1' => '01 - '.date("F", mktime(0, 0, 0, 1, 10)), '2' => '02 - '.date("F", mktime(0, 0, 0, 2, 10)),
@@ -35,7 +36,7 @@
         !!}
     </div>
 
-    <div class="form-group mt-sm">
+    <div class="form-group {{ $cfnum != 'one' ? 'mt-sm' : null }}">
         <select name="{{$field->flid}}_{{$cfnum}}_day" class="single-select" data-placeholder="Select a Start Day">
             <option value=""></option>
             <?php
@@ -48,7 +49,7 @@
         </select>
     </div>
 
-    <div class="form-group mt-sm">
+    <div class="form-group {{ $cfnum != 'one' ? 'mt-sm' : null }}">
         <select name="{{$field->flid}}_{{$cfnum}}_year" class="single-select" data-placeholder="Select a Start Year">
             <option value=""></option>
             <?php
@@ -63,25 +64,25 @@
     </div>
     @break
     @case('List')
-    <div class="form-group mt-sm">
+    <div class="form-group {{ $cfnum != 'one' ? 'mt-sm' : null }}">
         {!! Form::label($field->flid."_".$cfnum."_input",$cftitle) !!}
         {!! Form::select( $field->flid . "_".$cfnum."_input", \App\ComboListField::getComboList($field,true,$cfnum), '', ["class" => "single-select"]) !!}
     </div>
     @break
     @case('Multi-Select List')
-    <div class="form-group mt-sm">
+    <div class="form-group {{ $cfnum != 'one' ? 'mt-sm' : null }}">
         {!! Form::label($field->flid."_".$cfnum."_input[]",$cftitle) !!}
         {!! Form::select( $field->flid . "_".$cfnum."_input[]", \App\ComboListField::getComboList($field,true,$cfnum), '', ["class" => "multi-select", "Multiple"]) !!}
     </div>
     @break
     @case('Generated List')
-    <div class="form-group mt-sm">
+    <div class="form-group {{ $cfnum != 'one' ? 'mt-sm' : null }}">
         {!! Form::label($field->flid."_".$cfnum."_input[]",$cftitle) !!}
         {!! Form::select( $field->flid . "_".$cfnum."_input[]", \App\ComboListField::getComboList($field,true,$cfnum), '', ["class" => "multi-select modify-select", "Multiple"]) !!}
     </div>
     @break
     @case('Associator')
-    <div class="form-group mt-sm">
+    <div class="form-group {{ $cfnum != 'one' ? 'mt-sm' : null }}">
         {!! Form::label($field->flid."_".$cfnum."_input[]",$cftitle) !!}
         <?php
         $asc = new \App\Http\Controllers\AssociatorSearchController();
