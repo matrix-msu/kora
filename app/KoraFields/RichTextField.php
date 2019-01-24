@@ -1,36 +1,35 @@
-<?php namespace App\KoraFields;
+<?php namespace App;
 
-use App\Form;
-use App\Record;
-use App\Search;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Redirect;
 
-class TextField extends BaseField {
+class RichTextField extends BaseField {
 
     /*
     |--------------------------------------------------------------------------
-    | Text Field
+    | Rich Text Field
     |--------------------------------------------------------------------------
     |
-    | This model represents the text field in Kora3
+    | This model represents the rich text field in Kora3
     |
     */
 
     /**
      * @var string - Views for the typed field options //TODO::NEWFIELD
      */
-    const FIELD_OPTIONS_VIEW = "partials.fields.options.text";
-    const FIELD_ADV_OPTIONS_VIEW = "partials.fields.advanced.text";
-    const FIELD_ADV_INPUT_VIEW = "partials.records.advanced.text";
-    const FIELD_INPUT_VIEW = "partials.records.input.text";
-    const FIELD_DISPLAY_VIEW = "partials.records.display.text";
+    const FIELD_OPTIONS_VIEW = "partials.fields.options.richtext";
+    const FIELD_ADV_OPTIONS_VIEW = "partials.fields.advanced.richtext";
+    const FIELD_ADV_INPUT_VIEW = "partials.records.advanced.richtext";
+    const FIELD_INPUT_VIEW = "partials.records.input.richtext";
+    const FIELD_DISPLAY_VIEW = "partials.records.display.richtext";
 
     /**
      * Get the field options view.
      *
      * @return string - The view
      */
-    public function getFieldOptionsView() {
+    public function getFieldOptionsView(){
         return self::FIELD_OPTIONS_VIEW;
     }
 
@@ -39,7 +38,7 @@ class TextField extends BaseField {
      *
      * @return string - The view
      */
-    public function getAdvancedFieldOptionsView() {
+    public function getAdvancedFieldOptionsView(){
         return self::FIELD_ADV_OPTIONS_VIEW;
     }
 
@@ -80,6 +79,7 @@ class TextField extends BaseField {
      */
     public function addDatabaseColumn($fid, $slug, $options = null) {
         $table = new \CreateRecordsTable();
+        // TODO: not sure if this is the correct function here.
         $table->addTextColumn($fid, $slug);
     }
 
@@ -258,7 +258,7 @@ class TextField extends BaseField {
      * For a test record, add test data to field.
      */
     public function getTestData() {
-        return 'This is sample text for this text field.';
+        return 'This is sample text for this rich text field.';
     }
 
     /**
@@ -272,13 +272,13 @@ class TextField extends BaseField {
         switch($type) {
             case "XML":
                 $xml = '<' . $slug . '>';
-                $xml .= utf8_encode('This is sample text for this text field.');
+                $xml .= utf8_encode('This is sample text for this rich text field.');
                 $xml .= '</' . $slug . '>';
 
                 return $xml;
                 break;
             case "JSON":
-                $fieldArray[$slug]['value'] = 'This is sample text for this text field.';
+                $fieldArray[$slug]['value'] = 'This is sample text for this rich text field.';
 
                 return $fieldArray;
                 break;
@@ -322,7 +322,7 @@ class TextField extends BaseField {
     }
 
     /**
-     * Build the advanced query for a text field.
+     * Build the advanced query for a rich text field.
      *
      * @param  $flid, field id
      * @param  $query, contents of query.
@@ -344,5 +344,20 @@ class TextField extends BaseField {
             ->where($flid, $param,"$arg")
             ->pluck('id')
             ->toArray();
+    }
+
+    ///////////////////////////////////////////////END ABSTRACT FUNCTIONS///////////////////////////////////////////////
+
+    /**
+     * Overrides the save to create a version of the rawtext that can be searched over.
+     *
+     * @param  array $options - Options to save
+     * @return bool - Return val of save
+     */
+    // TODO: might not needs this, who knows @andrew.joye
+    public function save(array $options = array()) {
+        $this->searchable_rawtext = strip_tags($this->rawtext);
+
+        return parent::save($options);
     }
 }
