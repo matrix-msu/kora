@@ -33,6 +33,7 @@
 
 @section('body')
     <section class="view-records center">
+        @if($form->fields()->where('advsearch','=',1)->count() > 0)
         <section class="search-records">
             <section class="advanced-search-drawer">
                 @include('partials.records.adv-form')
@@ -48,6 +49,9 @@
                 Search results will appear here after a search has been inputted.
             </div>
         </section>
+        @else
+            @include('partials.records.adv-search-empty')
+        @endif
     </section>
 @stop
 
