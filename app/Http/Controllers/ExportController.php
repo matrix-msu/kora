@@ -1889,11 +1889,11 @@ class ExportController extends Controller {
                   GROUP_CONCAT(`allday` SEPARATOR '[!]') as `val3`,
                   GROUP_CONCAT(`desc` SEPARATOR '[!]') as `val4` 
                   FROM ".$prefix."schedule_support where `rid`=$rid group by `flid`";
-        $documentsselect = "SELECT `flid`, `documents` FROM ".$prefix."documents_fields where `rid`=$rid";
-        $galleryselect = "SELECT `flid`, `images`, `captions` FROM ".$prefix."gallery_fields where `rid`=$rid";
-        $playlistselect = "SELECT `flid`, `audio` FROM ".$prefix."playlist_fields where `rid`=$rid";
-        $videoselect = "SELECT `flid`, `video` FROM ".$prefix."video_fields where `rid`=$rid";
-        $modelselect = "SELECT `flid`, `model` FROM ".$prefix."model_fields where `rid`=$rid";
+        $documentsselect = "SELECT `rid`, `flid`, `documents` FROM ".$prefix."documents_fields where `rid`=$rid";
+        $galleryselect = "SELECT `rid`, `flid`, `images`, `captions` FROM ".$prefix."gallery_fields where `rid`=$rid";
+        $playlistselect = "SELECT `rid`, `flid`, `audio` FROM ".$prefix."playlist_fields where `rid`=$rid";
+        $videoselect = "SELECT `rid`, `flid`, `video` FROM ".$prefix."video_fields where `rid`=$rid";
+        $modelselect = "SELECT `rid`, `flid`, `model` FROM ".$prefix."model_fields where `rid`=$rid";
         $geolocatorselect = "SELECT `flid`, GROUP_CONCAT(`desc` SEPARATOR '[!]') as `value`, 
                   GROUP_CONCAT(`address` SEPARATOR '[!]') as `val2`, 
                   GROUP_CONCAT(CONCAT_WS('[!]', `lat`, `lon`) SEPARATOR '[!latlon!]') as `val3`, 
