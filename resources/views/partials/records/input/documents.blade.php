@@ -1,29 +1,16 @@
-<?php
+@php
     $value = array();
 
-    //We need to clean up any lingering files in tmp for this form
-    $folder = 'f'.$field->flid.'u'.\Auth::user()->id;
-    $dirTmp = storage_path('app/tmpFiles/'.$folder);
-    if(file_exists($dirTmp)) {
-        foreach (new \DirectoryIterator($dirTmp) as $file) {
-            if ($file->isFile()) {
-                unlink($dirTmp.'/'.$file->getFilename());
-            }
-        }
-    } else {
-        mkdir($dirTmp,0775,true); //Make it!
-    }
-
     //If this is an edit, we need to move things around
-    if($editRecord && $hasData) {
-        $names = explode('[!]',$typedField->documents);
-        foreach($names as $key => $file) {
-            $name = explode('[Name]',$file)[1];
+    if($editRecord && !is_null($record->{$flid})) {
+        foreach(json_decode($record->{$flid},true) as $key => $file) {
+            $name = $file['name'];
             $names[$key] = $name;
             array_push($value,$name);
         }
         //move things over from storage to tmp
-        $dir = storage_path('app/files/p'.$record->pid.'/f'.$record->fid.'/r'.$record->rid.'/fl'.$field->flid);
+        $dir = storage_path('app/files/'.$record->project_id.'/'.$record->form_id.'/'.$record->id);
+        $dirTmp = storage_path('app/tmpFiles/recordU'.\Auth::user()->id);
         if(file_exists($dir)) {
             foreach(new \DirectoryIterator($dir) as $file) {
                 if($file->isFile() && in_array($file->getFilename(),$names))
@@ -31,19 +18,17 @@
             }
         }
     }
-?>
+@endphp
 
 <div class="form-group file-input-form-group document-input-form-group mt-xxxl">
-    <label>@if($field->required==1)<span class="oval-icon"></span> @endif{{$field->name}}</label>
+    <label>@if($field['required'])<span class="oval-icon"></span> @endif{{$field['name']}}</label>
     <span class="error-message"></span>
 
-    {!! Form::hidden($field->flid,'f'.$field->flid.'u'.\Auth::user()->id, ['id'=>$field->flid]) !!}
-
-    <label for="file{{$field->flid}}" class="file-label file-label-js">
-        <div class="file-cards-container file-cards-container-js filenames-{{$field->flid}}-js preset-clear-file-js">
+    <label for="{{$flid}}" class="file-label file-label-js">
+        <div class="file-cards-container file-cards-container-js filenames-{{$flid}}-js preset-clear-file-js">
             @foreach($value as $index => $file)
                 <div class="card file-card file-card-js">
-                    <input type="hidden" name="file{{$field->flid}}[]" value ="{{$file}}">
+                    <input type="hidden" name="{{$flid}}[]" value="{{$file}}">
                     <div class="header">
                         <div class="left">
                             <div class="move-actions">
@@ -58,7 +43,7 @@
                         </div>
 
                         <div class="card-toggle-wrap">
-                            <a href="#" class="file-delete upload-filedelete-js ml-sm tooltip" tooltip="Remove Document" data-url="{{ url('deleteTmpFile/'.$folder.'/'.urlencode($file)) }}">
+                            <a href="#" class="file-delete upload-filedelete-js ml-sm tooltip" tooltip="Remove Document" data-url="{{ url("deleteTmpFile/$form->id/$flid/".urlencode($file)) }}">
                                 <i class="icon icon-trash danger"></i>
                             </a>
                         </div>
@@ -68,7 +53,7 @@
         </div>
 
         <div class="progress-bar-div">
-            <div class="file-upload-progress progress-bar-{{$field->flid}}-js"></div>
+            <div class="file-upload-progress progress-bar-{{$flid}}-js"></div>
         </div>
 
         <div class="directions directions-not-empty-js">
@@ -82,6 +67,6 @@
         </div>
     </label>
 
-    <input type="file" flid="{{$field->flid}}" id="file{{$field->flid}}" name="file{{$field->flid}}[]" class="kora-file-upload-js hidden"
-               data-url="{{ url('saveTmpFile/'.$field->flid) }}" multiple>
+    <input type="file" flid="{{$flid}}" id="{{$flid}}" name="file{{$flid}}[]" class="kora-file-upload-js hidden"
+               data-url="{{ url("saveTmpFile/$form->id/$flid") }}" multiple>
 </div>

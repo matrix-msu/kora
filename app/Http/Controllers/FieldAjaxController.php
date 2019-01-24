@@ -1,11 +1,10 @@
 <?php namespace App\Http\Controllers;
 
-use App\ComboListField;
-use App\Field;
-use App\FileTypeField;
-use App\GeolocatorField;
+use App\KoraFields\FileTypeField;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 
 class FieldAjaxController extends Controller {
@@ -71,52 +70,54 @@ class FieldAjaxController extends Controller {
     /**
      * Saves a temporary version of an uploaded file.
      *
+     * @param  int $fid - Form ID
      * @param  int $flid - File field that record file will be loaded to
      * @param  Request $request
      */
-    public function saveTmpFile($flid) { //TODO::CASTLE
-        FileTypeField::saveTmpFile($flid);
+    public function saveTmpFile($fid, $flid) {
+        FileTypeField::saveTmpFile($fid, $flid);
     }
 
     /**
      * Removes a temporary file for a particular field.
      *
+     * @param  int $fid - Form ID
      * @param  int $flid - File field to clear temp files for
      * @param  string $name - Name of the file to delete
      * @param  Request $request
      */
-    public function delTmpFile($flid, $filename) { //TODO::CASTLE
-        FileTypeField::delTmpFile($flid, $filename);
+    public function delTmpFile($fid, $flid, $filename) {
+        FileTypeField::delTmpFile($fid, $flid, $filename);
     }
 
     /**
      * Downloads a file from a particular record field.
      *
-     * @param  int $rid - Record ID
+     * @param  int $kid - Record Kora ID
      * @param  int $flid - Field ID
      * @param  string $filename - Name of the file
      * @return string - html for the file download
      */
-    public function getFileDownload($rid, $flid, $filename) { //TODO::CASTLE
-        return FileTypeField::getFileDownload($rid, $flid, $filename);
+    public function getFileDownload($kid, $filename) {
+        return FileTypeField::getFileDownload($kid, $filename);
     }
 
-    public function getZipDownload($rid, $flid, $filename) { //TODO::CASTLE
-        return FileTypeField::getZipDownload($rid, $flid, $filename);
+    public function getZipDownload($kid, $flid, $filename) { //TODO::CASTLE
+        return FileTypeField::getZipDownload($kid, $flid, $filename);
     }
 
     /**
      * Gets the image associated with the Gallery Field of a particular record.
      *
-     * @param  int $rid - Record ID
+     * @param  int $kid - Record Kora ID
      * @param  int $flid - Field ID
      * @param  string $filename - Name of image file
      * @param  string $type - Get either the full image or a thumbnail of the image
      * @return string - html for the file download
      */
-    public function getImgDisplay($rid, $flid, $filename, $type){ //TODO::CASTLE
+    public function getImgDisplay($kid, $flid, $filename, $type){ //TODO::CASTLE
         $field = FieldController::getField($flid);
-        $galleryField = $field->getTypedFieldFromRID($rid);
+        $galleryField = $field->getTypedFieldFromRID($kid);
         return $galleryField->getImgDisplay($field->pid, $filename, $type);
     }
 
@@ -144,12 +145,11 @@ class FieldAjaxController extends Controller {
      * @param  int $pid - Project ID
      * @param  int $fid - Form ID
      * @param  int $rid - Record ID
-     * @param  int $flid - Field ID
      * @param  string $filename - Image filename
      * @return Redirect
      */
-    public function singleResource($pid, $fid, $rid, $flid, $filename) { //TODO::CASTLE
-        $relative_src = 'files/p'.$pid.'/f'.$fid.'/r'.$rid.'/fl'.$flid.'/'.$filename;
+    public function singleResource($pid, $fid, $rid, $filename) {
+        $relative_src = "files/$pid/$fid/$rid/$filename";
         $src = url('app/'.$relative_src);
 
         if(!file_exists(storage_path('app/'.$relative_src))) {
@@ -157,7 +157,7 @@ class FieldAjaxController extends Controller {
             dd($filename . ' not found');
         }
 
-        $mime = Storage::mimeType('files/p'.$pid.'/f'.$fid.'/r'.$rid.'/fl'.$flid.'/'.$filename);
+        $mime = Storage::mimeType($relative_src);
 
         if(strpos($mime, 'image') !== false || strpos($mime, 'jpeg') !== false || strpos($mime, 'png') !== false) {
             // Image
@@ -171,7 +171,7 @@ class FieldAjaxController extends Controller {
         }
 
         // Attempting to open generic document
-        $ext = File::extension($src);
+        $ext = \File::extension($src);
 
         if($ext=='pdf'){
             $content_types='application/pdf';
@@ -183,7 +183,7 @@ class FieldAjaxController extends Controller {
             $content_types='application/vnd.ms-excel';
         } else if($ext=='xlsx') {
             $content_types='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
-        } else if($ext=='txt') {
+        } else {
             $content_types='application/octet-stream';
         }
 

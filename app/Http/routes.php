@@ -139,12 +139,12 @@ Route::group(['middleware' => 'web'], function () {
     Route::post('/projects/{pid}/forms/{fid}/fields/{flid}/options/geoConvert', 'FieldAjaxController@geoConvert');
     Route::post('/projects/{pid}/forms/{fid}/fields/{flid}/options/assoc', 'AssociatorSearchController@assocSearch');
     Route::post('/projects/{pid}/forms/{fid}', 'FieldController@store');
-    Route::post('/saveTmpFile/{flid}', 'FieldAjaxController@saveTmpFile');
-    Route::patch('/saveTmpFile/{flid}', 'FieldAjaxController@saveTmpFile');
-    Route::delete('/deleteTmpFile/{flid}/{filename}', 'FieldAjaxController@delTmpFile');
-    Route::get('/download/{rid}/{flid}/{filename}', 'FieldAjaxController@getFileDownload');
-    Route::get('/download/{rid}/{flid}/{filename}/zip', 'FieldAjaxController@getZipDownload');
-    Route::get('/download/{rid}/{flid}/{filename}/{type}', 'FieldAjaxController@getImgDisplay');
+    Route::post('/saveTmpFile/{fid}/{flid}', 'FieldAjaxController@saveTmpFile');
+    Route::patch('/saveTmpFile/{fid}/{flid}', 'FieldAjaxController@saveTmpFile');
+    Route::delete('/deleteTmpFile/{fid}/{flid}/{filename}', 'FieldAjaxController@delTmpFile');
+    Route::get('/download/{kid}/{filename}', 'FieldAjaxController@getFileDownload');
+    Route::get('/download/{kid}/{flid}/{filename}/zip', 'FieldAjaxController@getZipDownload');
+    Route::get('/download/{kid}/{flid}/{filename}/{type}', 'FieldAjaxController@getImgDisplay');
     Route::get("/validateAddress", "FieldAjaxController@validateAddress");
 
 //record preset routes
@@ -192,9 +192,9 @@ Route::group(['middleware' => 'web'], function () {
     Route::delete('projects/{pid}/forms/{fid}/deleteAllRecords', 'RecordController@deleteAllRecords');
     Route::post('/projects/{pid}/forms/{fid}/cleanUp', 'RecordController@cleanUp');
     Route::get('/projects/{pid}/forms/{fid}/clone/{rid}', 'RecordController@cloneRecord');
-    Route::get('/projects/{pid}/forms/{fid}/records/{rid}/fields/{flid}/geolocator', 'FieldAjaxController@singleGeolocator');
-    Route::get('/projects/{pid}/forms/{fid}/records/{rid}/fields/{flid}/richtext', 'FieldAjaxController@singleRichtext');
-    Route::get('/projects/{pid}/forms/{fid}/records/{rid}/fields/{flid}/{filename}', 'FieldAjaxController@singleResource');
+    Route::get('/projects/{pid}/forms/{fid}/records/{rid}/resource/geolocator', 'FieldAjaxController@singleGeolocator');
+    Route::get('/projects/{pid}/forms/{fid}/records/{rid}/resource/richtext', 'FieldAjaxController@singleRichtext');
+    Route::get('/projects/{pid}/forms/{fid}/records/{rid}/resource/{filename}', 'FieldAjaxController@singleResource');
 
 //revision routes
     Route::get('/projects/{pid}/forms/{fid}/records/revisions/recent', 'RevisionController@index');

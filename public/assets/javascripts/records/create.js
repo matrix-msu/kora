@@ -663,8 +663,7 @@ Kora.Records.Create = function() {
                     capName = 'file_captions'+lastClickedFlid;
                     fileDiv = ".filenames-"+lastClickedFlid+"-js";
 
-                    var $field = $uploadInput.siblings('#'+lastClickedFlid);
-                    var $formGroup = $field.parent('.form-group');
+                    var $formGroup = $uploadInput.parent('.form-group');
 
                     // Tooltip text
                     var tooltip = "Remove Document";
@@ -678,8 +677,8 @@ Kora.Records.Create = function() {
                         tooltip = "Remove 3D Model";
                     }
 
-                    $field.removeClass('error');
-                    $field.siblings('.error-message').text('');
+                    $uploadInput.removeClass('error');
+                    $uploadInput.siblings('.error-message').text('');
                     $.each(data.result[inputName], function (index, file) {
                         if(file.error == "" || !file.hasOwnProperty('error')) {
                             // Add caption only if input is a gallery
@@ -689,7 +688,7 @@ Kora.Records.Create = function() {
                             }
                             // File card html
                             var fileCardHtml = '<div class="card file-card file-card-js">' +
-                                '<input type="hidden" name="' + inputName + '[]" value ="' + file.name + '">' +
+                                '<input type="hidden" name="' + lastClickedFlid + '[]" value ="' + file.name + '">' +
                                 '<div class="header">' +
                                 '<div class="left">' +
                                 '<div class="move-actions">' +
@@ -710,6 +709,7 @@ Kora.Records.Create = function() {
                                 captionHtml +
                                 '</div>' +
                                 '</div>';
+                            console.log(fileCardHtml);
 
                             // Add file card to list of cards
                             $formGroup.find(fileDiv).append(fileCardHtml);

@@ -26,7 +26,7 @@
       </h1>
       <p class="identifier">
         <span>Unique Form ID:</span>
-        <span>{{ $form->slug }}</span>
+        <span>{{ $form->internal_name }}</span>
       </p>
       <p class="description">{{ $form->description }}</p>
 

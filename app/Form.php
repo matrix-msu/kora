@@ -41,7 +41,7 @@ class Form extends Model {
 //    const _DATE = "Date";
 //    const _SCHEDULE = "Schedule";
 //    const _GEOLOCATOR = "Geolocator";
-//    const _DOCUMENTS = "Documents";
+    const _DOCUMENTS = "Documents";
 //    const _GALLERY = "Gallery";
 //    const _3D_MODEL = "3D-Model";
 //    const _PLAYLIST = "Playlist";
@@ -54,6 +54,7 @@ class Form extends Model {
      */
     static public $validFieldTypes = [ //TODO::NEWFIELD
         'Text Fields' => array(self::_TEXT => self::_TEXT),
+        'File Fields' => array(self::_DOCUMENTS => self::_DOCUMENTS),
         //'Text Fields' => array('Text' => 'Text', 'Rich Text' => 'Rich Text', 'Integer' => 'Integer', 'Floating Point' => 'Floating Point'),
         //'List Fields' => array('List' => 'List', 'Multi-Select List' => 'Multi-Select List', 'Generated List' => 'Generated List', 'Combo List' => 'Combo List'),
         //'Date Fields' => array('Date' => 'Date', 'Schedule' => 'Schedule'),
@@ -72,7 +73,8 @@ class Form extends Model {
      * @var array - Maps field constant names to model name
      */
     public static $fieldModelMap = [ //TODO::NEWFIELD
-        self::_TEXT => "TextField"
+        self::_TEXT => "TextField",
+        self::_DOCUMENTS => "DocumentsField",
     ];
 
     /**

@@ -5,7 +5,7 @@
         {!! Form::label('filesize','Max File Size (kb)') !!}
         <div class="number-input-container number-input-container-js">
             <input type="number" name="filesize" class="text-input" step="1"
-                value="{{ \App\Http\Controllers\FieldController::getFieldOption($field, "FieldSize") }}" min="0"
+                value="{{ $field['options']['FieldSize'] }}" min="0"
                 placeholder="Enter max file size (kb) here">
         </div>
     </div>
@@ -14,21 +14,21 @@
         {!! Form::label('maxfiles','Max File Amount') !!}
         <div class="number-input-container number-input-container-js">
             <input type="number" name="maxfiles" class="text-input" step="1"
-                value="{{ \App\Http\Controllers\FieldController::getFieldOption($field, "MaxFiles") }}" min="0"
+                value="{{ $field['options']['MaxFiles'] }}" min="0"
 	              placeholder="Enter max file amount here">
         </div>
     </div>
 
     <div class="form-group mt-xl">
         <label for="filetype">Allowed File Types (<a target="_blank" class="field-meme-link underline-middle-hover" href="https://en.wikipedia.org/wiki/MIME">MIME</a>)</label>
-        <?php
+        @php
             $values = array();
-            foreach(explode('[!]',\App\Http\Controllers\FieldController::getFieldOption($field, "FileTypes")) as $opt){
+            foreach($field['options']['FileTypes'] as $opt){
                 $values[$opt] = $opt;
             }
-        ?>
-        {!! Form::select('filetype'.'[]',\App\FileTypeField::getMimeTypesClean(),
-            explode('[!]',\App\Http\Controllers\FieldController::getFieldOption($field, "FileTypes")),
+        @endphp
+        {!! Form::select('filetype'.'[]',\App\KoraFields\FileTypeField::getMimeTypesClean(),
+            $field['options']['FileTypes'],
             ['class' => 'multi-select', 'Multiple', 'data-placeholder' => 'Search and Select the file types allowed here']) !!}
 
 		<p class="sub-text mt-sm">

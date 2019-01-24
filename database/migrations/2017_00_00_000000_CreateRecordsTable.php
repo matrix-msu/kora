@@ -34,7 +34,7 @@ class CreateRecordsTable extends Migration {
             $table->integer('project_id')->unsigned();
             $table->integer('form_id')->unsigned();
             $table->integer('owner')->unsigned();
-            $table->bool('is_test')->unsigned();
+            $table->boolean('is_test')->unsigned();
             $table->timestamps();
         });
     }
@@ -47,6 +47,12 @@ class CreateRecordsTable extends Migration {
     public function addTextColumn($fid, $slug) {
         Schema::table("records_$fid", function(Blueprint $table) use ($slug) {
             $table->text($slug)->nullable();
+        });
+    }
+
+    public function addJSONColumn($fid, $slug) {
+        Schema::table("records_$fid", function(Blueprint $table) use ($slug) {
+            $table->jsonb($slug)->nullable();
         });
     }
 

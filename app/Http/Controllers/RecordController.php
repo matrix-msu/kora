@@ -107,6 +107,18 @@ class RecordController extends Controller {
             $presets[] = ['id' => $preset->id, 'name' => $preset->preset['name']];
         }
 
+        //Make sure tmp file field folder exists
+        $folder = 'recordU'.\Auth::user()->id;
+        $dirTmp = storage_path('app/tmpFiles/'.$folder);
+        if(file_exists($dirTmp)) {
+            foreach(new \DirectoryIterator($dirTmp) as $file) {
+                if($file->isFile())
+                    unlink($dirTmp.'/'.$file->getFilename());
+            }
+        } else {
+            mkdir($dirTmp,0775,true); //Make it!
+        }
+
         return view('records.create', compact('form', 'presets'));
 	}
 
@@ -178,6 +190,7 @@ class RecordController extends Controller {
                     continue;
 
                 $field = $fieldsArray[$key];
+                $request->rid = $record->id;
                 $processedData = $form->getFieldModel($field['type'])->processRecordData($field, $value, $request);
                 $record->{$key} = $processedData;
             }
@@ -323,6 +336,18 @@ class RecordController extends Controller {
 
         $form = FormController::getForm($fid);
 
+        //Make sure tmp file field folder exists
+        $folder = 'recordU'.\Auth::user()->id;
+        $dirTmp = storage_path('app/tmpFiles/'.$folder);
+        if(file_exists($dirTmp)) {
+            foreach(new \DirectoryIterator($dirTmp) as $file) {
+                if($file->isFile())
+                    unlink($dirTmp.'/'.$file->getFilename());
+            }
+        } else {
+            mkdir($dirTmp,0775,true); //Make it!
+        }
+
         return view('records.edit', compact('record', 'form'));
 	}
 
@@ -360,6 +385,17 @@ class RecordController extends Controller {
         $kid = "$pid-$fid-$rid";
         $record = self::getRecord($kid);
         $oldRecordCopy = $record->replicate();
+
+        //Before we move files back over from edit, clear the record folder
+        $dir = storage_path('app/files/'.$record->project_id.'/'.$record->form_id.'/'.$record->id);
+        if(file_exists($dir)) {
+            foreach(new \DirectoryIterator($dir) as $file) {
+                if($file->isFile())
+                    unlink($dir.'/'.$file->getFilename());
+            }
+        } else {
+            mkdir($dir,0775,true); //Make it!
+        }
 
         foreach($request->all() as $key => $value) {
             //Skip request variables that are not fields

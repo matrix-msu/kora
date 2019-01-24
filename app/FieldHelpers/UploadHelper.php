@@ -46,11 +46,11 @@ class UploadHandler
         $this->response = array();
         $this->options = array(
             'script_url' => url('index.php'),
-            'upload_dir' => storage_path('app/tmpFiles/'.$options['flid'].'/'),
-            'upload_url' => url('app/tmpFiles/'.$options['flid']).'/',
+            'upload_dir' => storage_path('app/tmpFiles/'.$options['folder'].'/'),
+            'upload_url' => url('app/tmpFiles/'.$options['folder']).'/',
             'user_dirs' => false,
             'mkdir_mode' => 0775,
-            'param_name' => 'file'.explode('f',explode('u',$options['flid'])[0])[1],
+            'param_name' => 'file'.$options['flid'],
             // Set the following option to 'POST', if your server does not support
             // DELETE requests. This is a parameter sent to the client:
             'delete_type' => 'DELETE',
@@ -264,7 +264,7 @@ class UploadHandler
     }
 
     protected function set_additional_file_properties($file) {
-        $file->deleteUrl = url('deleteTmpFile/'.$this->options['flid'].'/'.urlencode($file->name));
+        $file->deleteUrl = url('deleteTmpFile/'.$this->options['fid'].'/'.$this->options['flid'].'/'.urlencode($file->name));
         $file->deleteType = $this->options['delete_type'];
         if ($file->deleteType !== 'DELETE') {
             $file->deleteUrl .= '&_method=DELETE';
