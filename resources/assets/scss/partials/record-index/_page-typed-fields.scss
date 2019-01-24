@@ -176,7 +176,6 @@
   width: calc(100% - 44px);
 
   .slide-img {
-    display: block;
     margin: auto;
     max-height: 100%;
     max-width: 100%;
@@ -187,6 +186,7 @@
     cursor: pointer;
     display: flex;
     left: 2000px;
+    max-height: 75vh;
     position: absolute;
     right: 0;
     text-align: center;
@@ -195,20 +195,6 @@
 
     &:first-child {
       left: 0;
-    }
-
-    &.currentSlide {
-      display: block;
-      position: static;
-
-      &.small {
-        display: flex;
-        position: absolute;
-
-        .slide-img {
-          height: 100%;
-        }
-      }
     }
   }
 }
@@ -284,6 +270,24 @@
 
       &.full-height {
         height: 100%;
+      }
+
+      .slide-img {
+        display: block;
+      }
+
+      .currentSlide {
+        display: block;
+        position: static;
+  
+        &.small {
+          display: flex;
+          position: absolute;
+  
+          .slide-img {
+            height: 100%;
+          }
+        }
       }
     }
   }
