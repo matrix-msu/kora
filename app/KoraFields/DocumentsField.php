@@ -205,7 +205,13 @@ class DocumentsField extends FileTypeField {
      * @return mixed - Processed data
      */
     public function processRevisionData($data) {
-        // TODO: Implement processRevisionData() method.
+        $data = json_decode($data,true);
+        $return = '';
+        foreach($data as $file) {
+            $return .= "<div>".$file['name']."</div>";
+        }
+
+        return $return;
     }
 
     /**
@@ -258,7 +264,14 @@ class DocumentsField extends FileTypeField {
      * @return mixed - Processed data
      */
     public function processXMLData($field, $value) {
-        // TODO: Implement processXMLData() method.
+        $files = json_decode($value,true);
+        $xml = "<$field>";
+        foreach($files as $file) {
+            $xml .= '<File>'.$file['name'].'</File>';
+        }
+        $xml .= "</$field>";
+
+        return $xml;
     }
 
     /**
@@ -300,7 +313,44 @@ class DocumentsField extends FileTypeField {
      * @return mixed - The example
      */
     public function getExportSample($slug, $type) {
-        // TODO: Implement getExportSample() method.
+        switch($type) {
+            case "XML":
+                $xml = '<' . $slug . '>';
+                $xml .= '<File>';
+                $xml .= utf8_encode('FILENAME 1');
+                $xml .= '</File>';
+                $xml .= '<File>';
+                $xml .= utf8_encode('FILENAME 2');
+                $xml .= '</File>';
+                $xml .= '<File>';
+                $xml .= utf8_encode('so on...');
+                $xml .= '</File>';
+                $xml .= '</' . $slug . '>';
+
+                $xml .= '<' . $slug . ' simple="simple">';
+                $xml .= utf8_encode('FILENAME');
+                $xml .= '</' . $slug . '>';
+
+                return $xml;
+                break;
+            case "JSON":
+                $fieldArray = [];
+
+                $fileArray = [];
+                $fileArray['name'] = 'FILENAME 1';
+                $fieldArray[$slug]['value'][] = $fileArray;
+
+                $fileArray = [];
+                $fileArray['name'] = 'FILENAME2';
+                $fieldArray[$slug]['value'][] = $fileArray;
+
+                $fileArray = [];
+                $fileArray['name'] = 'so on...';
+                $fieldArray[$slug]['value'][] = $fileArray;
+
+                return $fieldArray;
+                break;
+        }
     }
 
     /**
@@ -325,7 +375,7 @@ class DocumentsField extends FileTypeField {
      * @return Request - The update request
      */
     public function setRestfulAdvSearch($data, $flid, $request) {
-        // TODO: Implement setRestfulAdvSearch() method.
+        return null;
     }
 
     /**
@@ -338,7 +388,7 @@ class DocumentsField extends FileTypeField {
      * @return array - The RIDs that match search
      */
     public function advancedSearchTyped($flid, $query, $recordMod, $negative = false) {
-        // TODO: Implement advancedSearchTyped() method.
+        return null;
     }
 
     ///////////////////////////////////////////////END ABSTRACT FUNCTIONS///////////////////////////////////////////////

@@ -78,6 +78,13 @@ class Form extends Model {
     ];
 
     /**
+     * @var array - Fields that need to be decoded coming out of the DB.
+     */
+    static public $jsonFields = [ //TODO::NEWFIELD
+        self::_DOCUMENTS
+    ];
+
+    /**
      * Returns the project associated with a form.
      *
      * @return BelongsTo
@@ -252,6 +259,7 @@ class Form extends Model {
      */
     public function getRecordsForExport($filters, $rids = null) {
         $results = [];
+        $jsonFields = [];
 
         $con = mysqli_connect(
             config('database.connections.mysql.host'),
@@ -280,13 +288,22 @@ class Form extends Model {
             $flids = $filters['fields'];
 
         //Get the real names of fields
+        //Also check for json types
         if($filters['realnames']) {
             $realNames = [];
             foreach($flids as $flid) {
                 $name = $flid.' as `'.$this->layout['fields'][$flid]['name'].'`';
+                //We do this in realnames because the flid gets us the type to check if its JSON, but it will be compared against the DB result which will have real names instead of flid
+                if(in_array($this->layout['fields'][$flid]['type'], self::$jsonFields))
+                    $jsonFields[$name] = 1;
                 array_push($realNames,$name);
             }
             $flids = $realNames;
+        } else {
+            foreach($flids as $flid) {
+                if(in_array($this->layout['fields'][$flid]['type'], self::$jsonFields))
+                    $jsonFields[$flid] = 1;
+            }
         }
 
         //Determine whether to return data
@@ -325,7 +342,14 @@ class Form extends Model {
 
         $records = $con->query($selectRecords);
         while($row = $records->fetch_assoc()) {
-            $results[$row['kid']] = $row;
+            $result = [];
+            foreach($row as $column => $data) {
+                if(array_key_exists($column,$jsonFields)) //array key search is faster than in array so that's why we use it here
+                    $result[$column] = json_decode($data,true);
+                else
+                    $result[$column] = $data;
+            }
+            $results[$row['kid']] = $result;
         }
         $records->free();
 

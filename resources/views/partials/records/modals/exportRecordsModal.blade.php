@@ -12,8 +12,8 @@
             </div>
             <div class="form-group mt-m">
                 <a href="#" class="btn secondary export-begin-files-js" token="{{ csrf_token() }}"
-                   startURL="{{ action('ExportController@prepRecordFiles',['pid' => $form->pid, 'fid' => $form->fid]) }}"
-                   endURL="{{ action('ExportController@exportRecordFiles',['pid' => $form->pid, 'fid' => $form->fid]) }}"
+                   startURL="{{ action('ExportController@prepRecordFiles',['pid' => $form->project_id, 'fid' => $form->id]) }}"
+                   endURL="{{ action('ExportController@exportRecordFiles',['pid' => $form->project_id, 'fid' => $form->id]) }}"
                 >Export Record Files</a>
             </div>
             <div class="form-group mt-m">

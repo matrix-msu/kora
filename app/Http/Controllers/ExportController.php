@@ -136,7 +136,7 @@ class ExportController extends Controller {
      * @param  int $pid - Project ID
      * @param  int $fid - Form ID
      */
-    public function prepRecordFiles($pid, $fid) { //TODO::CASTLE
+    public function prepRecordFiles($pid, $fid) {
         if(!FormController::validProjForm($pid, $fid))
             return redirect('projects/'.$pid)->with('k3_global_error', 'form_invalid');
 
@@ -145,8 +145,8 @@ class ExportController extends Controller {
         if(!(\Auth::user()->isFormAdmin($form)))
             return redirect('projects/'.$pid)->with('k3_global_error', 'not_form_admin');
 
-        $path = storage_path('app/files/p'.$pid.'/f'.$fid);
-        $zipPath = storage_path('app/tmpFiles/'.$form->name.'_preppedZIP_user'.\Auth::user()->id.'.zip');
+        $path = storage_path('app/files/'.$pid.'/'.$fid);
+        $zipPath = storage_path('app/tmpFiles/'.$form->internal_name.'preppedZIP_user'.\Auth::user()->id.'.zip');
 
         $fileSizeCount = 0.0;
 
@@ -197,7 +197,7 @@ class ExportController extends Controller {
      * @param  int $fid - Form ID
      * @return string - The html to download the file
      */
-    public function exportRecordFiles($pid, $fid) { //TODO::CASTLE
+    public function exportRecordFiles($pid, $fid) {
         if(!FormController::validProjForm($pid, $fid))
             return redirect('projects/'.$pid)->with('k3_global_error', 'form_invalid');
 
@@ -206,7 +206,7 @@ class ExportController extends Controller {
         if(!(\Auth::user()->isFormAdmin($form)))
             return redirect('projects/'.$pid)->with('k3_global_error', 'not_form_admin');
 
-        $path = storage_path('app/files/p'.$pid.'/f'.$fid);
+        $path = storage_path('app/files/'.$pid.'/'.$fid);
         $zipPath = storage_path('app/tmpFiles/');
 
         ini_set('max_execution_time',0);
@@ -214,11 +214,11 @@ class ExportController extends Controller {
 
         $fileSizeCount = 0.0;
 
-        if(file_exists($zipPath.$form->name.'_preppedZIP_user'.\Auth::user()->id.'.zip')) {
-            $subPath = $form->name.'_preppedZIP_user'.\Auth::user()->id.'.zip';
+        if(file_exists($zipPath.$form->internal_name.'preppedZIP_user'.\Auth::user()->id.'.zip')) {
+            $subPath = $form->internal_name.'preppedZIP_user'.\Auth::user()->id.'.zip';
         } else {
             $time = Carbon::now();
-            $subPath = $form->name . '_fileData_' . $time . '.zip';
+            $subPath = $form->internal_name . 'fileData_' . $time . '.zip';
 
             // Initialize archive object
             $zip = new \ZipArchive();
