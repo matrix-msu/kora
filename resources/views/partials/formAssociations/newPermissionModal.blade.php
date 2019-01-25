@@ -1,5 +1,5 @@
 <div class="modal modal-js modal-mask new-permission-modal new-permission-modal-js">
-  <div class="content">
+  <div class="content oflow">
     <div class="header">
       <span class="title">Create a New Form Association</span>
       <a href="#" class="modal-toggle modal-toggle-js">
