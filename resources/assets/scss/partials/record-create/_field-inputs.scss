@@ -4,9 +4,11 @@
   font-size: 14px;
 }
 .combo-list-display {
-  border: 1px solid palette('gray', slate, 0.1);
+  background: palette('gray', page, 1);
+  border: 1px solid palette('box-shadow', base, 0.05);
   border-radius: 5px;
-  box-shadow: 0 3px 5px 0 palette('gray', slate, 0.05);
+  box-shadow: 0 5px 15px 0 palette('box-shadow', base, 0.03);
+  box-sizing: border-box;
   margin-top: 10px;
   overflow: auto;
   padding: 25px 30px 30px;
