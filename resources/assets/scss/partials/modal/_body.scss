@@ -30,6 +30,105 @@
     }
   }
 
+  &.onboarding {
+    .bold {
+      font-family: $ubuntu-bold;
+    }
+
+    h3 {
+      font-family: $ubuntu-medium;
+      font-size: 24px;
+      font-weight: unset;
+      line-height: 1.3;
+      margin: 30px 0 25px;
+
+	    @media screen and (max-width: 420px) {
+		    margin: 15px 0 20px;
+      }
+    }
+
+    p {
+      font-family: $ubuntu;
+      font-size: 14px;
+      line-height: 1.7;
+
+      .icon-hamburger {
+        margin: 0 3px;
+        vertical-align: middle;
+      }
+    }
+
+    ul:not(.chosen-choices):not(.chosen-results) {
+      padding: 0 0 0 20px;
+
+      & + p {
+        margin: 25px 0 0 0;
+      }
+    }
+
+    li:not(.active-result):not(.search-field):not(.search-choice) {
+      font-family: $ubuntu;
+      font-size: 14px;
+      margin: 15px 0;
+
+      @media screen and (max-width: 420px) {
+        margin: 5px 0;
+      }
+    }
+
+    .form-group {
+      margin-bottom: 10px;
+    }
+
+    a.green {
+      color: palette('green', accent);
+      font-family: $ubuntu-medium;
+      text-decoration: none;
+      padding-bottom: 3px;
+      position: relative;
+
+      &.underline::before,
+      &.underline::after {
+        background-color: palette('green', accent);
+        bottom: 0;
+        content: '';
+        height: 2px;
+        margin: 5px 0 0;
+        opacity: 0.8;
+        position: absolute;
+        width: 50%;
+      }
+
+      &.underline::before {
+        left: calc(50%);
+      }
+
+      &.underline::after {
+        right: calc(50%);
+      }
+    }
+
+    .chosen-results {
+      max-height: 240px;
+      overflow-y: auto;
+    }
+
+    @media screen and (max-width: 420px) {
+      .form-group {
+        margin-top: 20px;
+
+        .btn {
+          display: block;
+          width: 100%;
+
+          &:last-of-type {
+            margin: 15px 0;
+          }
+        }
+      }
+    }
+  }
+
   .preset-name > label {
     display: block;
   }

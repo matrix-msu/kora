@@ -51,6 +51,11 @@
     top: -30px;
     white-space: nowrap;
 
+    .dots & {
+      left: -30px;
+      /*transform: translateX(50%);*/
+    }
+
     .title & {
       left: -45px;
     }

@@ -290,7 +290,7 @@ class NumberField extends BaseField {
         if(!is_array($revision->oldData))
             $revision->oldData = json_decode($revision->oldData, true);
 
-        if(is_null($revision->oldData[Field::_NUMBER][$field->flid]['data']['number']))
+        if(!isset($revision->oldData[Field::_NUMBER][$field->flid]['data']['number']))
             return null;
 
         // If the field doesn't exist or was explicitly deleted, we create a new one.

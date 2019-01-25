@@ -3,7 +3,7 @@
         $options = array();
         $values = $typedField->records()->get();
         foreach($values as $value){
-            $aRec = \App\Http\Controllers\RecordController::getRecord($value->record);
+            $aRec = \App\Http\Controllers\RecordController::getRecord($value->rid);
             $options[$aRec->kid] = $aRec->kid;
         }
 

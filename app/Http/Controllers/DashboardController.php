@@ -62,7 +62,6 @@ class DashboardController extends Controller {
         $results = DB::table('dashboard_sections')->where('uid','=',Auth::user()->id)->orderBy('order')->get();
 
         if(count($results) == 0) { // if we have no sections, then we have no blocks
-            $this->addSection('No Section');
 
             if(sizeof(Auth::User()->allowedProjects()) > 0)
                 $results = $this->makeDefaultBlock('Project'); // create section + block
@@ -116,6 +115,8 @@ class DashboardController extends Controller {
                         $hidOpts = $options['hidden'];
 
                         $form = FormController::getForm($fid);
+                        if (gettype($form) !== 'object')
+                            $this->deleteBlock($blk->id, $blk->sec_id);
                         $b['projName'] = ProjectController::getProject($form->pid)->name;
 
                         $b['fid'] = $fid;
@@ -185,17 +186,23 @@ class DashboardController extends Controller {
         }
 
         $userProjects = Auth::user()->allowedProjects();
-        $userForms = array();
+        $formsInitial = array();
         $userRecords = array();
         foreach($userProjects as $p) {
-            $userForms = array_merge($userForms, Auth::user()->allowedForms($p->pid));
+            $formsInitial = array_merge($formsInitial, Auth::user()->allowedForms($p->pid));
             $projRecs = Record::where('pid','=',$p->pid)->pluck('kid')->toArray();
             $userRecords = array_merge($userRecords, $projRecs);
         }
 
+        $userForms = array();
+        foreach($formsInitial as $form) {
+            $userForms[$form['fid']] = \App\Http\Controllers\ProjectController::getProject($form->pid)->name.' - '.$form['name'];
+        }
+        asort($userForms);
+
 		// Sort proj and forms alphabetically by name
 		usort($userProjects, function($a, $b){ return strcmp(strtolower($a["name"]), strtolower($b["name"])); });
-		usort($userForms, function ($a, $b) { return strcmp(strtolower($a['name']), strtolower($b['name'])); });
+		//usort($userForms, function ($a, $b) { return strcmp(strtolower($a['name']), strtolower($b['name'])); });
 		// Sort records numerically
 		asort($userRecords);
 
@@ -231,9 +238,8 @@ class DashboardController extends Controller {
                     'options' => $options_string
                 ]);
 
-                //$this->addSection('No Section');
+                $this->addSection('No Section');
                 return DB::table('dashboard_sections')->where('uid','=',Auth::user()->id)->orderBy('order')->get();
-                //return redirect('dashboard')->with('k3_global_success', 'block_modified');
                 break;
             case "Fun":
                 $sec_id = DB::table('dashboard_sections')->insertGetId(
@@ -315,6 +321,28 @@ class DashboardController extends Controller {
         return redirect('dashboard')->with('k3_global_success', 'block_added');
     }
 
+    public function addSection($sectionTitle) {
+        $order = 0;
+        $lastSec = DB::table('dashboard_sections')->where('uid','=',Auth::user()->id)->orderBy('order','desc')->first();
+        if(!is_null($lastSec))
+            $order = $lastSec->order + 1;
+
+        DB::table('dashboard_sections')->insert([
+            'uid' => Auth::user()->id,
+            'order' => $order,
+            'title' => $sectionTitle,
+            'created_at' => Carbon::now()->toDateTimeString()
+        ]);
+
+        $sec_id = DB::table('dashboard_sections')
+            ->where('uid','=',Auth::user()->id)
+            ->where('title','=',$sectionTitle)
+            ->first()->id;
+
+        $this->makeNonSectionFirst();
+        return response()->json(["status"=>true, "message"=>"Section created", "sec_title"=>$sectionTitle, "sec_id"=>$sec_id, 200]);
+    }
+
     /**
      * Edits an existing section title and/or ordering.
      *
@@ -360,13 +388,13 @@ class DashboardController extends Controller {
                 $pid = $request->block_project;
                 $optString = '{"pid": ' . $pid .
                     ', "displayed": ["edit", "search", "form-new", "form-import", "permissions", "presets"]' .
-                    ', "hidden": []}';
+                    ', "hidden": ["import", "import2k", "export"]}';
                 break;
             case 'Form':
                 $fid = $request->block_form;
                 $optString = '{"fid": ' . $fid .
                     ', "displayed": ["edit", "search", "record-new", "field-new", "permissions", "revisions"]' .
-                    ', "hidden": []}';
+                    ', "hidden": ["import", "batch", "export-records", "assoc-permissions", "export-form"]}';
                 break;
             case 'Record':
                 $kid = $request->block_record;
@@ -461,28 +489,6 @@ class DashboardController extends Controller {
         return response()->json(["status"=>true, "message"=>"Block Valid", 200]);
     }
 
-    public function addSection($sectionTitle) {
-        $order = 0;
-        $lastSec = DB::table('dashboard_sections')->where('uid','=',Auth::user()->id)->orderBy('order','desc')->first();
-        if(!is_null($lastSec))
-            $order = $lastSec->order + 1;
-
-        DB::table('dashboard_sections')->insert([
-            'uid' => Auth::user()->id,
-            'order' => $order,
-            'title' => $sectionTitle,
-            'created_at' => Carbon::now()->toDateTimeString()
-        ]);
-
-        $sec_id = DB::table('dashboard_sections')
-            ->where('uid','=',Auth::user()->id)
-            ->where('title','=',$sectionTitle)
-            ->first()->id;
-
-        $this->makeNonSectionFirst();
-        return response()->json(["status"=>true, "message"=>"Section created", "sec_title"=>$sectionTitle, "sec_id"=>$sec_id, 200]);
-    }
-
     /**
      * Deletes a dashboard section, moves section's blocks to the section above (unless the top section is deleted, in which case the blocks move down a section)
      *
@@ -522,7 +528,7 @@ class DashboardController extends Controller {
 
         // delete section
         DB::table("dashboard_sections")->where('uid','=',Auth::user()->id)->where("id", "=", $sectionID)->delete();
-        $this->reorderSections();
+        $this->makeNonSectionFirst();
 
         return response()->json(["status"=>true, "message"=>"Section destroyed", 'section'=>$newID, 200]);
     }
@@ -552,6 +558,9 @@ class DashboardController extends Controller {
         return response()->json(["status"=>true, "message"=>"Block destroyed", 200]);
     }
 
+    // Blocks in a section have orders = 1, 2, 3, 4, 5...
+    // If user deletes block where bID = 3, the order is now 1, 2, 4, 5...
+    // This function adjusts that ordering so it remains 1, 2, 3, 4... even when a block is removed.
     private function reorderBlocks($secID) {
         $blocks = DB::table("dashboard_blocks")->where("sec_id", "=", $secID)->orderBy('order','asc')->get();
         $int = 0;
@@ -562,6 +571,16 @@ class DashboardController extends Controller {
     }
 
     private function makeNonSectionFirst () {
+        // Check if there is more than 1 non-section section.
+        // If there is, we need to remove it. There should only ever be one
+        // If there is no non-section, we need to add it.
+        $no_sections = DB::table('dashboard_sections')->where('uid','=',Auth::user()->id)->where('title','=','No Section');
+        if ($no_sections->count() > 1) {
+            // this works for any number of excess `no-section` sections because deleteSection() calls makeNonSectionFirst(), which will then run the check again
+            $this->deleteSection($no_sections->latest()->first()->id);
+        } else if ($no_sections->count() == 0)
+            $this->addSection('No Section');
+
         $firstSection = DB::table("dashboard_sections")->where('uid','=',Auth::user()->id)->orderBy('order','asc')->first()->order - 1;
 
         DB::table('dashboard_sections')
@@ -572,6 +591,10 @@ class DashboardController extends Controller {
         $this->reorderSections();
     }
 
+    // The user has the ability to move sections around.
+    // This function just keeps the non-section on top, as the user cannot move this section.
+    // The purpose of this non-section section is to have somewhere for blocks to go in case
+    // other sections don't exist, but the blocks themselves weren't deleted.
     private function reorderSections() {
         $sections = DB::table("dashboard_sections")->where('uid','=',Auth::user()->id)->orderBy('order','asc')->get();
         $int = 0;
