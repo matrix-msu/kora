@@ -1,8 +1,9 @@
-<?php namespace App;
+<?php namespace App\KoraFields;
 
+use App\Form;
+use App\Record;
+use App\Search;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Redirect;
 
 class RichTextField extends BaseField {
 
@@ -79,18 +80,17 @@ class RichTextField extends BaseField {
      */
     public function addDatabaseColumn($fid, $slug, $options = null) {
         $table = new \CreateRecordsTable();
-        // TODO: not sure if this is the correct function here.
-        $table->addTextColumn($fid, $slug);
+        $table->addMediumTextColumn($fid, $slug);
     }
 
     /**
      * Gets the default options string for a new field.
      *
      * @param  Request $request
-     * @return array - The default options
+     * @return string - The default options
      */
     public function getDefaultOptions() {
-        return ['Regex' => '', 'MultiLine' => 0];
+        return '';
     }
 
     /**
@@ -101,17 +101,7 @@ class RichTextField extends BaseField {
      * @return array - The updated field array
      */
     public function updateOptions($field, Request $request) {
-        if($request->regex!='') {
-            $regArray = str_split($request->regex);
-            if($regArray[0]!=end($regArray))
-                $request->regex = '/'.$request->regex.'/';
-        } else {
-            $request->regex = null;
-        }
-
         $field['default'] = $request->default;
-        $field['options']['Regex'] = $request->regex;
-        $field['options']['MultiLine'] = isset($request->multi) && $request->multi ? 1 : 0;
 
         return $field;
     }
@@ -126,15 +116,11 @@ class RichTextField extends BaseField {
      * @return array - Array of errors
      */
     public function validateField($flid, $field, $request, $forceReq = false) {
-        $req = $field['required'];
-        $value = $request->{$flid};
-        $regex = $field['options']['Regex'];
+        $req = $field->required;
+        $value = $request->{$field->flid};
 
         if(($req==1 | $forceReq) && ($value==null | $value==""))
-            return [$flid => $field['name'].' is required'];
-
-        if($value!="" && ($regex!=null | $regex!="") && !preg_match($regex,$value))
-            return [$flid => $field['name'].' must match the regex pattern: '.$regex];
+            return ['cke_'.$field->flid => $field->name.' is required'];
 
         return array();
     }
@@ -155,7 +141,7 @@ class RichTextField extends BaseField {
     }
 
     /**
-     * Formats data for revision entry.
+     * Formats data for revision display.
      *
      * @param  mixed $data - The data to store
      * @param  Request $request
@@ -205,13 +191,10 @@ class RichTextField extends BaseField {
      * @param  array $field - The field to represent record data
      * @param  string $value - Data to display
      *
-     * @return mixed - Processed data
+     * @return string - Processed data
      */
     public function processDisplayData($field, $value) {
-        if($field['options']['MultiLine'])
-            return nl2br($value);
-        else
-            return $value;
+        return $value;
     }
 
     /**
@@ -258,7 +241,7 @@ class RichTextField extends BaseField {
      * For a test record, add test data to field.
      */
     public function getTestData() {
-        return 'This is sample text for this rich text field.';
+        return '<i>This</i> <u>sample text</u> is <b>Rich!</b>';
     }
 
     /**
@@ -272,13 +255,13 @@ class RichTextField extends BaseField {
         switch($type) {
             case "XML":
                 $xml = '<' . $slug . '>';
-                $xml .= utf8_encode('This is sample text for this rich text field.');
+                $xml .= utf8_encode('<i>This</i> <u>sample text</u> is <b>Rich!</b>');
                 $xml .= '</' . $slug . '>';
 
                 return $xml;
                 break;
             case "JSON":
-                $fieldArray[$slug]['value'] = 'This is sample text for this rich text field.';
+                $fieldArray[$slug]['value'] = '<i>This</i> <u>sample text</u> is <b>Rich!</b>';
 
                 return $fieldArray;
                 break;
