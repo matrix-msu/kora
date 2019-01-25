@@ -1,4 +1,4 @@
-<section class="lat-lon-switch-js">
+<section class="lat-lon-switch-js mt-xl">
     <div class="form-group half pr-m">
         {!! Form::label($field->flid.'_lat', 'Latitude') !!}
         <div class="number-input-container number-input-container-js">
