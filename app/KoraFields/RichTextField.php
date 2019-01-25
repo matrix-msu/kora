@@ -116,11 +116,11 @@ class RichTextField extends BaseField {
      * @return array - Array of errors
      */
     public function validateField($flid, $field, $request, $forceReq = false) {
-        $req = $field->required;
-        $value = $request->{$field->flid};
+        $req = $field['required'];
+        $value = $request->{$flid};
 
         if(($req==1 | $forceReq) && ($value==null | $value==""))
-            return ['cke_'.$field->flid => $field->name.' is required'];
+            return ['cke_'.$flid => $field['name'].' is required'];
 
         return array();
     }
@@ -163,7 +163,7 @@ class RichTextField extends BaseField {
      * @return Request - Processed data
      */
     public function processImportData($flid, $field, $value, $request) {
-        $request[$flid] = $value['value'];
+        $request[$flid] = $value;
 
         return $request;
     }
@@ -327,20 +327,5 @@ class RichTextField extends BaseField {
             ->where($flid, $param,"$arg")
             ->pluck('id')
             ->toArray();
-    }
-
-    ///////////////////////////////////////////////END ABSTRACT FUNCTIONS///////////////////////////////////////////////
-
-    /**
-     * Overrides the save to create a version of the rawtext that can be searched over.
-     *
-     * @param  array $options - Options to save
-     * @return bool - Return val of save
-     */
-    // TODO: might not needs this, who knows @andrew.joye
-    public function save(array $options = array()) {
-        $this->searchable_rawtext = strip_tags($this->rawtext);
-
-        return parent::save($options);
     }
 }
