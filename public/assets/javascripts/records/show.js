@@ -216,6 +216,8 @@ Kora.Records.Show = function() {
                         $slide.addClass('currentSlide');
                         if ( $slide.height() < 400 )
                             $slide.addClass('small');
+                        else if ( $slide.height() < $slide.children().height() ) // if img height > height of container
+                            $slide.css('height', $slide.height());
                     }
                 });
             }
