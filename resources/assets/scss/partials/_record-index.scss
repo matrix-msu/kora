@@ -16,7 +16,7 @@
       .line {
         background: palette('gray', base);
         height: 2px;
-        margin-top: 45px;
+        margin-top: 35px;
         opacity: 0.05;
         position: absolute;
         top: 0;
@@ -35,17 +35,15 @@
     .bottom {
       text-align: center;
 
-      .part-opacity {
-        opacity: 0.8;
-      }
-
       p {
         font-family: $ubuntu;
         font-size: 18px;
         margin-top: 0;
+        opacity: 0.8;
 
         &:last-child {
           font-size: 14px;
+          line-height: 1.7;
         }
       }
     }

@@ -103,6 +103,11 @@ i {
   text-transform: none;
 }
 
+.icon-formRecords-Empty {
+  &:before {
+    content: $icon-formRecords-Empty; 
+  }
+}
 .icon-preset-Little {
   &:before {
     content: $icon-preset-Little; 
