@@ -394,14 +394,36 @@ class DocumentsField extends FileTypeField {
      * @param  bool $overwrite - Overwrite if data exists
      */
     public function massAssignRecordField($form, $flid, $formFieldValue, $request, $overwrite = 0) {
-        // TODO: Implement massAssignRecordField() method.
+        null;
     }
 
     /**
      * For a test record, add test data to field.
+     *
+     * @param  string $url - Url for File Type Fields
+     * @return mixed - The data
      */
-    public function getTestData() {
-        // TODO: Implement getTestData() method.
+    public function getTestData($url = null) {
+        $newPath = storage_path('app/files/'.$url);
+        mkdir($newPath, 0775, true);
+
+        $types = self::getMimeTypes();
+        if(!array_key_exists('txt', $types))
+            $type = 'application/octet-stream';
+        else
+            $type = $types['txt'];
+
+        $file = [
+            'name' => 'documents.txt',
+            'url' => $url,
+            'size' => 24,
+            'type' => $type
+        ];
+
+        copy(public_path('assets/testFiles/documents.txt'),
+            $newPath . '/documents.txt');
+
+        return json_encode([$file]);
     }
 
     /**

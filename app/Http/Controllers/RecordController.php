@@ -1,5 +1,6 @@
 <?php namespace App\Http\Controllers;
 
+use App\KoraFields\FileTypeField;
 use App\RecordPreset;
 use App\Revision;
 use App\User;
@@ -777,9 +778,9 @@ class RecordController extends Controller {
         $fields = array();
         foreach($all_fields as $flid => $field) {
             //We don't want File Fields to be mass assignable because of the processing expense with large data sets //TODO::CASTLE
-//            if($field->getTypedField() instanceof FileTypeField)
-//                continue;
-//            else
+            if($form->getFieldModel($field['type']) instanceof FileTypeField)
+                continue;
+            else
                 $fields[$flid] = $field;
         }
         return view('records.batchAssignment',compact('form','fields','pid','fid'));
@@ -792,7 +793,7 @@ class RecordController extends Controller {
      * @param  int $fid - Form ID
      * @return View
      */
-    public function showSelectedAssignmentView($pid,$fid) { //TODO::CASTLE
+    public function showSelectedAssignmentView($pid,$fid) {
         if(!FormController::validProjForm($pid, $fid))
             return redirect('projects/'.$pid)->with('k3_global_error', 'form_invalid');
 
@@ -804,10 +805,10 @@ class RecordController extends Controller {
         $fields = array();
         foreach($all_fields as $flid => $field) {
             //We don't want File Fields to be mass assignable because of the processing expense with large data sets //TODO::CASTLE
-//            if($field->getTypedField() instanceof FileTypeField)
-//                continue;
-//            else
-            $fields[$flid] = $field;
+            if($form->getFieldModel($field['type']) instanceof FileTypeField)
+                continue;
+            else
+                $fields[$flid] = $field;
         }
         return view('records.batchAssignSelected',compact('form','fields','pid','fid'));
     }
@@ -938,7 +939,12 @@ class RecordController extends Controller {
             $record->kid = $pid . '-' . $fid . '-' . $record->id;
 
             foreach($form->layout['fields'] as $flid => $field) {
-                $record->{$flid} = $form->getFieldModel($field['type'])->getTestData();
+                $model = $form->getFieldModel($field['type']);
+                if($model instanceof FileTypeField) {
+                    $url = $pid . '/' . $fid . '/' . $record->id;
+                    $record->{$flid} = $model->getTestData($url);
+                } else
+                    $record->{$flid} = $model->getTestData();
             }
 
             $record->save();

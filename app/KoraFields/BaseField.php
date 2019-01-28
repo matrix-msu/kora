@@ -179,8 +179,11 @@ abstract class BaseField extends Model {
 
     /**
      * For a test record, add test data to field.
+     *
+     * @param  string $url - Url for File Type Fields
+     * @return mixed - The data
      */
-    abstract public function getTestData();
+    abstract public function getTestData($url = null);
 
     /**
      * Provides an example of the field's structure in an export to help with importing records.
