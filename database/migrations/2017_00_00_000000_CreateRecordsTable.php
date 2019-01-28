@@ -62,9 +62,9 @@ class CreateRecordsTable extends Migration {
         });
     }
 
-    public function addEnumColumn($fid, $slug) {
+    public function addEnumColumn($fid, $slug, $list = ['Please Modify List Values']) {
         Schema::table("records_$fid", function(Blueprint $table) use ($slug) {
-            $table->enum($slug)->nullable();
+            $table->enum($slug, $list)->nullable();
         });
     }
 
@@ -78,5 +78,10 @@ class CreateRecordsTable extends Migration {
         Schema::table("records_$fid", function (Blueprint $table) use ($slug) {
             $table->dropColumn($slug);
         });
+    }
+
+    public function updateEnum($fid, $slug, $list) {
+        // TODO::Not sure if this is correct.
+        DB::alter('alter table ? change column ? enum(?)', ['records_' . $fid, $slug, $list])
     }
 }

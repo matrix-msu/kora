@@ -86,11 +86,10 @@ class ListField extends BaseField {
     /**
      * Gets the default options string for a new field.
      *
-     * @param  Request $request
      * @return string - The default options
      */
-    public function getDefaultOptions(Request $request) {
-        return ['Options' => ''];
+    public function getDefaultOptions() {
+        return ['Options' => []];
     }
 
     /**
@@ -108,6 +107,15 @@ class ListField extends BaseField {
         } else {
             $request->options = null;
         }
+
+        // TODO::Make sure this is coming
+        // through the request.
+        $table = new \CreateRecordsTable();
+        $table->updateEnum(
+            $request->fid,
+            $request->slug,
+            $request->options
+        );
 
         $field['default'] = $request->default;
         $field['options']['Options'] = $request->options;

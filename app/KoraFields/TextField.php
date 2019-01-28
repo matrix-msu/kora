@@ -86,7 +86,6 @@ class TextField extends BaseField {
     /**
      * Gets the default options string for a new field.
      *
-     * @param  Request $request
      * @return array - The default options
      */
     public function getDefaultOptions() {
