@@ -33,7 +33,7 @@ class Form extends Model {
      * @var string - These are the possible field types at the moment  //TODO::NEWFIELD
      */
     const _TEXT = "Text";
-//    const _RICH_TEXT = "Rich Text";
+    const _RICH_TEXT = "Rich Text";
 //    const _NUMBER = "Number";
 //    const _LIST = "List";
 //    const _MULTI_SELECT_LIST = "Multi-Select List";
@@ -53,7 +53,7 @@ class Form extends Model {
      * @var array - This is an array of field type values for creation
      */
     static public $validFieldTypes = [ //TODO::NEWFIELD
-        'Text Fields' => array(self::_TEXT => self::_TEXT),
+        'Text Fields' => array(self::_TEXT => self::_TEXT, self::_RICH_TEXT => self::_RICH_TEXT),
         'File Fields' => array(self::_DOCUMENTS => self::_DOCUMENTS, self::_GALLERY => self::_GALLERY.' (jpg, gif, png)'),
         //'Text Fields' => array('Text' => 'Text', 'Rich Text' => 'Rich Text', 'Integer' => 'Integer', 'Floating Point' => 'Floating Point'),
         //'List Fields' => array('List' => 'List', 'Multi-Select List' => 'Multi-Select List', 'Generated List' => 'Generated List', 'Combo List' => 'Combo List'),
@@ -65,8 +65,9 @@ class Form extends Model {
     /**
      * @var array - This is an array of field types that can be filtered
      */
-    static public $validFilterFields = [ //TODO::NEWFIELD See self::getDataFilters for which fields we support
-        self::_TEXT
+    static public $validFilterFields = [ //TODO::NEWFIELD See getDataFilters for which fields we support
+        self::_TEXT,
+        self::_RICH_TEXT
     ];
 
     /**
@@ -74,6 +75,7 @@ class Form extends Model {
      */
     public static $fieldModelMap = [ //TODO::NEWFIELD
         self::_TEXT => "TextField",
+        self::_RICH_TEXT => "RichTextField",
         self::_DOCUMENTS => "DocumentsField",
         self::_GALLERY => "GalleryField",
     ];

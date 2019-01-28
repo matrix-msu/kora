@@ -103,7 +103,7 @@ abstract class BaseField extends Model {
     abstract public function processRecordData($field, $value, $request);
 
     /**
-     * Formats data for revision entry.
+     * Formats data for revision display.
      *
      * @param  mixed $data - The data to store
      * @param  Request $request

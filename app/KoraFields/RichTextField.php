@@ -5,32 +5,32 @@ use App\Record;
 use App\Search;
 use Illuminate\Http\Request;
 
-class TextField extends BaseField {
+class RichTextField extends BaseField {
 
     /*
     |--------------------------------------------------------------------------
-    | Text Field
+    | Rich Text Field
     |--------------------------------------------------------------------------
     |
-    | This model represents the text field in Kora3
+    | This model represents the rich text field in Kora3
     |
     */
 
     /**
      * @var string - Views for the typed field options //TODO::NEWFIELD
      */
-    const FIELD_OPTIONS_VIEW = "partials.fields.options.text";
-    const FIELD_ADV_OPTIONS_VIEW = "partials.fields.advanced.text";
-    const FIELD_ADV_INPUT_VIEW = "partials.records.advanced.text";
-    const FIELD_INPUT_VIEW = "partials.records.input.text";
-    const FIELD_DISPLAY_VIEW = "partials.records.display.text";
+    const FIELD_OPTIONS_VIEW = "partials.fields.options.richtext";
+    const FIELD_ADV_OPTIONS_VIEW = "partials.fields.advanced.richtext";
+    const FIELD_ADV_INPUT_VIEW = "partials.records.advanced.richtext";
+    const FIELD_INPUT_VIEW = "partials.records.input.richtext";
+    const FIELD_DISPLAY_VIEW = "partials.records.display.richtext";
 
     /**
      * Get the field options view.
      *
      * @return string - The view
      */
-    public function getFieldOptionsView() {
+    public function getFieldOptionsView(){
         return self::FIELD_OPTIONS_VIEW;
     }
 
@@ -39,7 +39,7 @@ class TextField extends BaseField {
      *
      * @return string - The view
      */
-    public function getAdvancedFieldOptionsView() {
+    public function getAdvancedFieldOptionsView(){
         return self::FIELD_ADV_OPTIONS_VIEW;
     }
 
@@ -80,17 +80,17 @@ class TextField extends BaseField {
      */
     public function addDatabaseColumn($fid, $slug, $options = null) {
         $table = new \CreateRecordsTable();
-        $table->addTextColumn($fid, $slug);
+        $table->addMediumTextColumn($fid, $slug);
     }
 
     /**
      * Gets the default options string for a new field.
      *
      * @param  Request $request
-     * @return array - The default options
+     * @return string - The default options
      */
     public function getDefaultOptions() {
-        return ['Regex' => '', 'MultiLine' => 0];
+        return '';
     }
 
     /**
@@ -101,17 +101,7 @@ class TextField extends BaseField {
      * @return array - The updated field array
      */
     public function updateOptions($field, Request $request) {
-        if($request->regex!='') {
-            $regArray = str_split($request->regex);
-            if($regArray[0]!=end($regArray))
-                $request->regex = '/'.$request->regex.'/';
-        } else {
-            $request->regex = null;
-        }
-
         $field['default'] = $request->default;
-        $field['options']['Regex'] = $request->regex;
-        $field['options']['MultiLine'] = isset($request->multi) && $request->multi ? 1 : 0;
 
         return $field;
     }
@@ -128,13 +118,9 @@ class TextField extends BaseField {
     public function validateField($flid, $field, $request, $forceReq = false) {
         $req = $field['required'];
         $value = $request->{$flid};
-        $regex = $field['options']['Regex'];
 
         if(($req==1 | $forceReq) && ($value==null | $value==""))
-            return [$flid => $field['name'].' is required'];
-
-        if($value!="" && ($regex!=null | $regex!="") && !preg_match($regex,$value))
-            return [$flid => $field['name'].' must match the regex pattern: '.$regex];
+            return ['cke_'.$flid => $field['name'].' is required'];
 
         return array();
     }
@@ -205,13 +191,10 @@ class TextField extends BaseField {
      * @param  array $field - The field to represent record data
      * @param  string $value - Data to display
      *
-     * @return mixed - Processed data
+     * @return string - Processed data
      */
     public function processDisplayData($field, $value) {
-        if($field['options']['MultiLine'])
-            return nl2br($value);
-        else
-            return $value;
+        return $value;
     }
 
     /**
@@ -254,14 +237,13 @@ class TextField extends BaseField {
             $recModel->newQuery()->whereNull($flid)->update([$flid => $formFieldValue]);
     }
 
-    /**
-     * For a test record, add test data to field.
+    /* For a test record, add test data to field.
      *
      * @param  string $url - Url for File Type Fields
      * @return mixed - The data
      */
-    public function getTestData($url = null) {
-        return 'This is sample text for this text field.';
+    public function getTestData($url = null)
+        return '<i>This</i> <u>sample text</u> is <b>Rich!</b>';
     }
 
     /**
@@ -275,13 +257,13 @@ class TextField extends BaseField {
         switch($type) {
             case "XML":
                 $xml = '<' . $slug . '>';
-                $xml .= utf8_encode('This is sample text for this text field.');
+                $xml .= utf8_encode('<i>This</i> <u>sample text</u> is <b>Rich!</b>');
                 $xml .= '</' . $slug . '>';
 
                 return $xml;
                 break;
             case "JSON":
-                $fieldArray[$slug] = 'This is sample text for this text field.';
+                $fieldArray[$slug]['value'] = '<i>This</i> <u>sample text</u> is <b>Rich!</b>';
 
                 return $fieldArray;
                 break;
@@ -325,7 +307,7 @@ class TextField extends BaseField {
     }
 
     /**
-     * Build the advanced query for a text field.
+     * Build the advanced query for a rich text field.
      *
      * @param  $flid, field id
      * @param  $query, contents of query.
