@@ -247,9 +247,7 @@ class ImportController extends Controller {
 
             $originKid = $record->attributes()->kid;
             if(!is_null($originKid))
-                $originRid = explode('-', $originKid)[2];
-            else
-                $originRid = null;
+                $recRequest->query->add(['originRid' => explode('-', $originKid)[2]]);
 
             foreach($record->children() as $key => $field) {
                 //Just in case there are extra/unused tags in the XML
@@ -285,17 +283,15 @@ class ImportController extends Controller {
         } else if($request->type==self::JSON) {
             $originKid = $request->kid;
             if(Record::isKIDPattern($originKid))
-                $originRid = explode('-', $originKid)[2];
-            else
-                $originRid = null;
+                $recRequest->query->add(['originRid' => explode('-', $originKid)[2]]);
 
             foreach($record as $flid => $field) {
                 //Just in case there are extra/unused fields in the JSON
                 if(!array_key_exists($flid,$matchup))
                     continue;
 
-                //If value is not set, we assume no value so move on
-                if(!isset($field['value']))
+                //If value is not set, move on
+                if(is_null($field))
                     continue;
 
                 //Deal with reverse associations and move on
@@ -311,6 +307,7 @@ class ImportController extends Controller {
             }
         }
 
+        $recRequest->query->add(['pid' => $pid, 'fid' => $fid]);
         $recCon = new RecordController();
         return $recCon->store($pid,$fid,$recRequest);
     }

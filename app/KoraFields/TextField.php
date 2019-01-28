@@ -177,7 +177,7 @@ class TextField extends BaseField {
      * @return Request - Processed data
      */
     public function processImportData($flid, $field, $value, $request) {
-        $request[$flid] = $value['value'];
+        $request[$flid] = $value;
 
         return $request;
     }
@@ -278,7 +278,7 @@ class TextField extends BaseField {
                 return $xml;
                 break;
             case "JSON":
-                $fieldArray[$slug]['value'] = 'This is sample text for this text field.';
+                $fieldArray[$slug] = 'This is sample text for this text field.';
 
                 return $fieldArray;
                 break;

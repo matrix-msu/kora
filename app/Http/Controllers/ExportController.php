@@ -1,6 +1,7 @@
 <?php namespace App\Http\Controllers;
 
 use App\Form;
+use App\RecordPreset;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Http\Request;
@@ -288,16 +289,15 @@ class ExportController extends Controller {
         $formArray['preset'] = $form->preset;
         $formArray['layout'] = $form->layout;
 
-        //record presets //TODO::CASTLE
-//        $recPresets = RecordPreset::where('fid','=',$fid)->get();
-//        $formArray['recPresets'] = array();
-//        foreach($recPresets as $pre) {
-//            $rec = array();
-//            $rec['name'] = $pre->name;
-//            $rec['preset'] = $pre->preset;
-//
-//            array_push($formArray['recPresets'],$rec);
-//        }
+        //record presets
+        $recPresets = RecordPreset::where('form_id','=',$fid)->get();
+        $formArray['recPresets'] = array();
+        foreach($recPresets as $pre) {
+            $rec = array();
+            $rec['preset'] = $pre->preset;
+
+            array_push($formArray['recPresets'],$rec);
+        }
 
         if($download) {
             header('Content-Disposition: attachment; filename="' . $form->name . '_Layout_' . Carbon::now() . '.k3Form"');
