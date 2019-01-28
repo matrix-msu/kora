@@ -62,6 +62,12 @@ class CreateRecordsTable extends Migration {
         });
     }
 
+    public function addEnumColumn($fid, $slug) {
+        Schema::table("records_$fid", function(Blueprint $table) use ($slug) {
+            $table->enum($slug)->nullable();
+        });
+    }
+
     public function renameColumn($fid, $slug, $newSlug) {
         Schema::table("records_$fid", function (Blueprint $table) use ($slug, $newSlug) {
             $table->renameColumn($slug,$newSlug);

@@ -73,25 +73,24 @@ class ListField extends BaseField {
     /**
      * Gets the default options string for a new field.
      *
+     * @param  int $fid - Form ID
+     * @param  string $slug - Name of database column based on field internal name
+     * @param  array $options - Extra information we may need to set up about the field
+     * @return array - The default options
+     */
+    public function addDatabaseColumn($fid, $slug, $options = null) {
+        $table = new \CreateRecordsTable();
+        $table->addEnumColumn($fid, $slug);
+    }
+
+    /**
+     * Gets the default options string for a new field.
+     *
      * @param  Request $request
      * @return string - The default options
      */
     public function getDefaultOptions(Request $request) {
-        return '[!Options!][!Options!]';
-    }
-
-    /**
-     * Gets an array of all the fields options.
-     *
-     * @param  Field $field
-     * @return array - The options array
-     */
-    public function getOptionsArray(Field $field) {
-        $options = array();
-
-        $options['Options'] = explode('[!]',FieldController::getFieldOption($field, 'Options'));
-
-        return $options;
+        return ['Options' => ''];
     }
 
     /**
@@ -102,203 +101,161 @@ class ListField extends BaseField {
      * @return Redirect
      */
     public function updateOptions($field, Request $request) {
-        $reqOpts = $request->options;
-        $options = $reqOpts[0];
-        if(!is_null($options)) {
-            for($i = 1; $i < sizeof($reqOpts); $i++) {
-                $options .= '[!]' . $reqOpts[$i];
-            }
+        if($request->options!='') {
+            $reqOpts = str_split($request->options);
+            if($reqOpts[0]!=end($reqOpts))
+                $request->options = '[!]' . $request->options;
+        } else {
+            $request->options = null;
         }
 
-        $field->updateRequired($request->required);
-        $field->updateSearchable($request);
-        $field->updateDefault($request->default);
-        $field->updateOptions('Options', $options);
+        $field['default'] = $request->default;
+        $field['options']['Options'] = $request->options;
 
-        return redirect('projects/' . $field->pid . '/forms/' . $field->fid . '/fields/' . $field->flid . '/options')
-            ->with('k3_global_success', 'field_options_updated');
-    }
-
-    /**
-     * Creates a typed field to store record data.
-     *
-     * @param  Field $field - The field to represent record data
-     * @param  Record $record - Record being created
-     * @param  string $value - Data to add
-     * @param  Request $request
-     */
-    public function createNewRecordField($field, $record, $value, $request) {
-        $this->flid = $field->flid;
-        $this->rid = $record->rid;
-        $this->fid = $field->fid;
-        $this->option = $value;
-        $this->save();
-    }
-
-    /**
-     * Edits a typed field that has record data.
-     *
-     * @param  string $value - Data to add
-     * @param  Request $request
-     */
-    public function editRecordField($value, $request) {
-        if(!is_null($this) && !is_null($value)) {
-            $this->option = $value;
-            $this->save();
-        } else if(!is_null($this) && is_null($value)) {
-            $this->delete();
-        }
-    }
-
-    /**
-     * Takes data from a mass assignment operation and applies it to an individual field.
-     *
-     * @param  Field $field - The field to represent record data
-     * @param  String $formFieldValue - The value to be assigned
-     * @param  Request $request
-     * @param  bool $overwrite - Overwrite if data exists
-     */
-    public function massAssignRecordField($field, $formFieldValue, $request, $overwrite=0) {
-        //Get array of all RIDs in form
-        $rids = Record::where('fid','=',$field->fid)->pluck('rid')->toArray();
-        //Get list of RIDs that have the value for that field
-        $ridsValue = ListField::where('flid','=',$field->flid)->where('option','!=','')->where('option','!=',NULL)->pluck('rid')->toArray();
-        //Subtract to get RIDs with no value
-        $ridsNoVal = array_diff($rids, $ridsValue);
-
-        foreach(array_chunk($ridsNoVal,1000) as $chunk) {
-            //Create data array and store values for no value RIDs
-            $dataArray = [];
-            foreach($chunk as $rid) {
-                $dataArray[] = [
-                    'rid' => $rid,
-                    'fid' => $field->fid,
-                    'flid' => $field->flid,
-                    'option' => $formFieldValue
-                ];
-            }
-            ListField::insert($dataArray);
-        }
-
-        if($overwrite) {
-            foreach(array_chunk($ridsValue, 1000) as $chunk) {
-                ListField::where('flid', '=', $field->flid)->whereIn('rid', $chunk)->update(['option' => $formFieldValue]);
-            }
-        }
-    }
-
-    /**
-     * Takes data from a mass assignment operation and applies it to an individual field for a record subset.
-     *
-     * @param  Field $field - The field to represent record data
-     * @param  String $formFieldValue - The value to be assigned
-     * @param  Request $request
-     * @param  array $rids - Overwrite if data exists
-     */
-    public function massAssignSubsetRecordField($field, $formFieldValue, $request, $rids) {
-        //Delete the old data
-        ListField::where('flid','=',$field->flid)->whereIn('rid', $rids)->delete();
-
-        foreach(array_chunk($rids,1000) as $chunk) {
-            //Create data array and store values for no value RIDs
-            $dataArray = [];
-            foreach($chunk as $rid) {
-                $dataArray[] = [
-                    'rid' => $rid,
-                    'fid' => $field->fid,
-                    'flid' => $field->flid,
-                    'option' => $formFieldValue
-                ];
-            }
-            ListField::insert($dataArray);
-        }
-    }
-
-    /**
-     * For a test record, add test data to field.
-     *
-     * @param  Field $field - The field to represent record data
-     * @param  Record $record - Test record being created
-     */
-    public function createTestRecordField($field, $record) {
-        $this->flid = $field->flid;
-        $this->rid = $record->rid;
-        $this->fid = $field->fid;
-        $this->option = 'This is the list option that was selected';
-        $this->save();
+        return $field;
     }
 
     /**
      * Validates the record data for a field against the field's options.
      *
-     * @param  Field $field - The field to validate
+     * @param  int $flid - The field internal name
+     * @param  array $field - The field data array to validate
      * @param  Request $request
      * @param  bool $forceReq - Do we want to force a required value even if the field itself is not required?
      * @return array - Array of errors
      */
-    public function validateField($field, $request, $forceReq = false) {
-        $req = $field->required;
-        $value = $request->{$field->flid};
-        $list = ListField::getList($field);
+    public function validateField($flid, $field, $request, $forceReq = false) {
+        $req = $field['required'];
+        $value = $request->{$flid};
+        $options = $field['options']['Options'];
 
         if(($req==1 | $forceReq) && ($value==null | $value==""))
-            return ['list'.$field->flid.'_chosen' => $field->name.' is required'];
+            return [$flid => $field['name'].' is required'];
 
-        if($value!='' && !in_array($value,$list))
-            return ['list'.$field->flid.'_chosen' => $field->name.' has an invalid value not in the list'];
+        if($value!="" && !in_array($value,$options))
+            return [$flid => $field['name'].' has an invalid value not in the list.'];
 
         return array();
     }
 
     /**
-     * Performs a rollback function on an individual field's record data.
+     * Formats data for record entry.
      *
-     * @param  Field $field - The field being rolled back
-     * @param  Revision $revision - The revision being rolled back
-     * @param  bool $exists - Field for record exists
+     * @param  array $field - The field to represent record data
+     * @param  string $value - Data to add
+     * @param  Request $request
+     *
+     * @return mixed - Processed data
      */
-    public function rollbackField($field, Revision $revision, $exists=true) {
-        if(!is_array($revision->oldData))
-            $revision->oldData = json_decode($revision->oldData, true);
-
-        if(is_null($revision->oldData[Field::_LIST][$field->flid]['data']))
-            return null;
-
-        // If the field doesn't exist or was explicitly deleted, we create a new one.
-        if($revision->type == Revision::DELETE || !$exists) {
-            $this->flid = $field->flid;
-            $this->rid = $revision->rid;
-            $this->fid = $revision->fid;
-        }
-
-        $this->option = $revision->oldData[Field::_LIST][$field->flid]['data'];
-        $this->save();
+    public function processRecordData($field, $value, $request) {
+        if($value=='')
+            $value = null;
+        return $value;
     }
 
     /**
-     * Get the arrayed version of the field data to store in a record preset.
+     * Formats data for revision entry.
      *
-     * @param  array $data - The data array representing the record preset
-     * @param  bool $exists - Typed field exists and has data
-     * @return array - The updated $data
+     * @param  mixed $data - The data to store
+     * @param  Request $request
+     *
+     * @return mixed - Processed data
      */
-    public function getRecordPresetArray($data, $exists=true) {
-        if($exists)
-            $data['option'] = $this->option;
-        else
-            $data['option'] = null;
-
+    public function processRevisionData($data) {
         return $data;
     }
 
     /**
-     * Get the required information for a revision data array.
+     * Formats data for record entry.
      *
-     * @param  Field $field - Optional field to get storage options for certain typed fields
-     * @return mixed - The revision data
+     * @param  string $flid - Field ID
+     * @param  array $field - The field to represent record data
+     * @param  array $value - Data to add
+     * @param  Request $request
+     *
+     * @return Request - Processed data
      */
-    public function getRevisionData($field = null) {
-        return $this->option;
+    public function processImportData($flid, $field, $value, $request) {
+        $request[$flid] = $value;
+
+        return $request;
+    }
+
+    /**
+     * Formats data for record entry.
+     *
+     * @param  string $flid - Field ID
+     * @param  array $field - The field to represent record data
+     * @param  \SimpleXMLElement $value - Data to add
+     * @param  Request $request
+     * @param  bool $simple - Is this a simple xml field value
+     *
+     * @return Request - Processed data
+     */
+    public function processImportDataXML($flid, $field, $value, $request, $simple = false) {
+        $request[$flid] = (string)$value;
+
+        return $request;
+    }
+
+    /**
+     * Formats data for record display.
+     *
+     * @param  array $field - The field to represent record data
+     * @param  string $value - Data to display
+     *
+     * @return mixed - Processed data
+     */
+    public function processDisplayData($field, $value) {
+        return $value;
+    }
+
+    /**
+     * Formats data for XML record display.
+     *
+     * @param  string $field - Field ID
+     * @param  string $value - Data to format
+     *
+     * @return mixed - Processed data
+     */
+    public function processXMLData($field, $value) {
+        return "<$field>".htmlspecialchars($value, ENT_XML1, 'UTF-8')."</$field>";
+    }
+
+    /**
+     * Formats data for XML record display.
+     *
+     * @param  string $value - Data to format
+     *
+     * @return mixed - Processed data
+     */
+    public function processLegacyData($value) {
+        return $value;
+    }
+
+    /**
+     * Takes data from a mass assignment operation and applies it to an individual field.
+     *
+     * @param  Form $form - Form model
+     * @param  string $flid - Field ID
+     * @param  String $formFieldValue - The value to be assigned
+     * @param  Request $request
+     * @param  bool $overwrite - Overwrite if data exists
+     */
+    public function massAssignRecordField($form, $flid, $formFieldValue, $request, $overwrite=0) {
+        $recModel = new Record(array(),$form->id);
+        if($overwrite)
+            $recModel->newQuery()->update([$flid => $formFieldValue]);
+        else
+            $recModel->newQuery()->whereNull($flid)->update([$flid => $formFieldValue]);
+    }
+
+    /**
+     * For a test record, add test data to field.
+     */
+    public function getTestData() {
+        // TODO: we'll see
+        return 'This is sample option for this list field.';
     }
 
     /**
@@ -311,20 +268,40 @@ class ListField extends BaseField {
     public function getExportSample($slug,$type) {
         switch($type) {
             case "XML":
-                $xml = '<' . Field::xmlTagClear($slug) . ' type="List">';
+                $xml = '<' . $slug . '>';
                 $xml .= utf8_encode('This is the list option that was selected');
-                $xml .= '</' . Field::xmlTagClear($slug) . '>';
+                $xml .= '</' . $slug . '>';
 
                 return $xml;
                 break;
             case "JSON":
-                $fieldArray = [$slug => ['type' => 'List']];
-                $fieldArray[$slug]['value'] = 'This is the list option that was selected';
+                $fieldArray[$slug] = 'This is the list option that was selected';
 
                 return $fieldArray;
                 break;
         }
+    }
 
+    /**
+     * Performs a keyword search on this field and returns any results.
+     *
+     * @param  string $flid - Field ID
+     * @param  string $arg - The keywords
+     * @param  Record $recordMod - Model to search through
+     * @param  boolean $negative - Get opposite results of the search
+     * @return array - The RIDs that match search
+     */
+    public function keywordSearchTyped($flid, $arg, $recordMod, $negative = false) {
+        if($negative)
+            $param = 'NOT LIKE';
+        else
+            $param = 'LIKE';
+
+        return $recordMod->newQuery()
+            ->select("id")
+            ->where($flid, $param,"%$arg%")
+            ->pluck('id')
+            ->toArray();
     }
 
     /**
@@ -342,82 +319,27 @@ class ListField extends BaseField {
     }
 
     /**
-     * Updates the request for an API to mimic record creation .
+     * Build the advanced query for a text field.
      *
-     * @param  array $jsonField - JSON representation of field data
-     * @param  int $flid - Field ID
-     * @param  Request $recRequest
-     * @param  int $uToken - Custom generated user token for file fields and tmp folders
-     * @return Request - The update request
-     */
-    public function setRestfulRecordData($jsonField, $flid, $recRequest, $uToken=null) {
-        $recRequest[$flid] = $jsonField->value;
-
-        return $recRequest;
-    }
-
-    /**
-     * Performs a keyword search on this field and returns any results.
-     *
-     * @param  int $flid - Field ID
-     * @param  string $arg - The keywords
+     * @param  $flid, field id
+     * @param  $query, contents of query.
+     * @param  Record $recordMod - Model to search through
+     * @param  boolean $negative - Get opposite results of the search
      * @return array - The RIDs that match search
      */
-    public function keywordSearchTyped($flid, $arg) {
-        return DB::table("list_fields")
-            ->select("rid")
-            ->where("flid", "=", $flid)
-            ->where('option','LIKE',"%$arg%")
-            ->distinct()
-            ->pluck('rid')
-            ->toArray();
-    }
-
-    /**
-     * Performs an advanced search on this field and returns any results.
-     *
-     * @param  int $flid - Field ID
-     * @param  array $query - The advance search user query
-     * @return array - The RIDs that match search
-     */
-    public function advancedSearchTyped($flid, $query) {
+    public function advancedSearchTyped($flid, $query, $recordMod, $negative = false) {
         $arg = $query[$flid . "_input"];
         $arg = Search::prepare($arg);
 
-        return DB::table("list_fields")
-            ->select("rid")
-            ->where("flid", "=", $flid)
-            ->where('option','=',"$arg")
-            ->distinct()
-            ->pluck('rid')
+        if($negative)
+            $param = '!=';
+        else
+            $param = '=';
+
+        return $recordMod->newQuery()
+            ->select("id")
+            ->where($flid, $param,"$arg")
+            ->pluck('id')
             ->toArray();
-    }
-
-    ///////////////////////////////////////////////END ABSTRACT FUNCTIONS///////////////////////////////////////////////
-
-    /**
-     * Gets the list options for a list field.
-     *
-     * @param  Field $field - Field to pull options from
-     * @param  bool $blankOpt - Has blank option as first array element
-     * @return array - The list options
-     */
-    public static function getList($field, $blankOpt=false) {
-        $dbOpt = FieldController::getFieldOption($field, 'Options');
-        return self::getListOptionsFromString($dbOpt,$blankOpt);
-    }
-
-    /**
-     * Returns the mysql string required to sort a set of RIDs.
-     *
-     * @param $ridArray - String of record IDs
-     * @param $flid - Field ID
-     * @param $dir - Direction of sorting
-     * @return string - The MySQL string
-     */
-    public function getRidValuesForGlobalSort($ridArray,$flids,$dir) {
-        $prefix = config('database.connections.mysql.prefix');
-        $flidArray = implode(',',$flids);
-        return "SELECT `rid`, `option` AS `value` FROM ".$prefix."list_fields WHERE `flid` IN ($flidArray) AND `rid` IN ($ridArray) ORDER BY `option` $dir";
     }
 }
