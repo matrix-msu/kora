@@ -41,27 +41,6 @@ abstract class FileTypeField extends BaseField {
     ];
 
     /**
-     * Parses the string representing all the files that a field has and returns an array of the file names.
-     *
-     * @return array - The names of the files associated with the field
-     */
-    public function getFileNames() { //TODO::CASTLE
-        $type = Field::where("flid", '=', $this->flid)->first()->type;
-
-        $infoString = $this->{self::$FILE_DATA_TYPES[$type]};
-
-        if(is_null($infoString))
-            return []; // Something went wrong!
-
-        $fileNames = [];
-        foreach(explode('[!]', $infoString) as $file) {
-            $fileNames[] = explode('[Name]', $file)[1];
-        }
-
-        return $fileNames;
-    }
-
-    /**
      * Saves a temporary version of an uploaded file.
      *
      * @param  int $flid - File field that record file will be loaded to

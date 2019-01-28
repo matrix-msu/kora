@@ -9,7 +9,7 @@
         <div class="body">
             {!! Form::open([
               'method' => 'POST',
-              'action' => ['RecordController@cleanUp', 'pid' => $form->pid, 'fid' => $form->fid]
+              'action' => ['RecordController@cleanUp', 'pid' => $form->project_id, 'fid' => $form->id]
             ]) !!}
             <span class="description">
                 This will delete all files from records that no longer exist

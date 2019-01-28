@@ -529,7 +529,7 @@ class RecordController extends Controller {
     }
 
     /**
-     * Removes record files from the system for records that no longer exist. This will prevent the possiblity of
+     * Removes record files from the system for records that no longer exist. This will prevent the possibility of
      *  rolling back these records.
      *
      * @param  int $pid - Project ID
@@ -537,26 +537,27 @@ class RecordController extends Controller {
      * @return array - The records that were removed
      *
      */
-    public function cleanUp($pid, $fid) { //TODO::CASTLE
+    public function cleanUp($pid, $fid) {
         $form = FormController::getForm($fid);
 
         if(!(\Auth::user()->isFormAdmin($form)))
             return response()->json(["status"=>false,"message"=>"not_form_admin"],500);
 
-        $existingRIDS = Record::where('fid','=',$fid)->pluck('rid')->toArray();
+        $recMod = new Record(array(),$fid);
+        $existingRIDS = $recMod->newQuery()->where('form_id','=',$fid)->pluck('id')->toArray();
 
-        $basePath = storage_path('app/files/p'.$pid.'/f'.$fid);
+        $basePath = storage_path('app/files/'.$pid.'/'.$fid);
 
         //for each 'r###' directory in $basePath
         foreach(new \DirectoryIterator($basePath) as $rDir) {
             if($rDir->isDot()) continue;
 
-            $rid = substr($rDir->getFilename(),1);
+            $rid = $rDir->getFilename();
 
             //if record does not exist in $existingRIDS
             if(!in_array($rid,$existingRIDS)) {
                 //recursively delete record files
-                $path = $basePath . "/r" . $rid;
+                $path = $basePath . $rid;
                 if(is_dir($path)) {
                     $it = new RecursiveDirectoryIterator($path, RecursiveDirectoryIterator::SKIP_DOTS);
                     $files = new RecursiveIteratorIterator($it,
@@ -571,7 +572,7 @@ class RecordController extends Controller {
                 }
 
                 //prevent rollback revisions for that record if any exist
-                Revision::where('rid','=',$rid)->update(['rollback' => 0]);
+                Revision::where('record_kid','=',$pid.'-'.$fid.'-'.$rid)->update(['rollback' => 0]);
             }
         }
 
@@ -677,15 +678,14 @@ class RecordController extends Controller {
     /**
      * Get collective file size of the record files in a form.
      *
+     * @param  int $pid - Project ID
      * @param  int $fid - Form ID
      * @return string - File size
      */
-    public function getFormFilesize($fid) { //TODO::CASTLE
-        $form = FormController::getForm($fid);
-        $pid = $form->pid;
+    public static function getFormFilesize($pid, $fid) {
         $filesize = 0;
 
-        $basedir = storage_path('app/files/p'.$pid.'/f'.$fid);
+        $basedir = storage_path('app/files/'.$pid.'/'.$fid);
         $filesize += self::dirCrawl($basedir);
 
         $filesize = self::fileSizeConvert($filesize);
@@ -699,7 +699,7 @@ class RecordController extends Controller {
      * @param  string $dir - Directory to scan
      * @return int - Size in bytes
      */
-    private function dirCrawl($dir) { //TODO::CASTLE
+    private static function dirCrawl($dir) {
         $filesize = 0;
 
         if(file_exists($dir)) {
@@ -723,7 +723,7 @@ class RecordController extends Controller {
      * @param  int $bytes - Size in bytes
      * @return string - The readable size value
      */
-    private function fileSizeConvert($bytes) {
+    private static function fileSizeConvert($bytes) {
         $result = "0 B";
         $bytes = floatval($bytes);
         $arBytes = array(
@@ -907,12 +907,6 @@ class RecordController extends Controller {
         $typedField->massAssignSubsetRecordField($field, $formFieldValue, $request, $rids);
 
         return redirect()->action('RecordController@index',compact('pid','fid'));
-    }
-
-    public function downloadFiles(Request $request) { //TODO::CASTLE
-        $files = $request->files;
-        Zipper::make('downloads/k3download.zip')->add($files);
-        return response()->download(public_path('downloads/k3download.zip'))->deleteFileAfterSend(true);
     }
 
     /**

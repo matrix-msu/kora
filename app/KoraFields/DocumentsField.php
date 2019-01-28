@@ -483,8 +483,18 @@ class DocumentsField extends FileTypeField {
      * @param  boolean $negative - Get opposite results of the search
      * @return array - The RIDs that match search
      */
-    public function keywordSearchTyped($flid, $arg, $recordMod, $negative = false) {
-        // TODO: Implement keywordSearchTyped() method.
+    public function keywordSearchTyped($flid, $arg, $recordMod, $negative = false) { //TODO::CASTLE
+        if($negative)
+            $param = 'NOT LIKE';
+        else
+            $param = 'LIKE';
+
+        $value = $recordMod->newQuery()
+            ->select("id")
+            ->whereJsonContains($flid, $arg)
+            ->pluck('id')
+            ->toArray();
+        dd($value);
     }
 
     /**

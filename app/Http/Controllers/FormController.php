@@ -169,8 +169,7 @@ class FormController extends Controller {
         $form = self::getForm($fid);
         $proj = ProjectController::getProject($pid);
         $projName = $proj->name;
-        $rc = new RecordController();
-        $filesize = $rc->getFormFilesize($fid);
+        $filesize = RecordController::getFormFilesize($pid, $fid);
 
         return view('forms.edit', compact('form','projName', 'filesize'));
 	}

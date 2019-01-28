@@ -94,8 +94,8 @@ class FieldController extends Controller {
         $form->layout = $layout;
         $form->save();
 
-        //A field has been changed, so current record rollbacks become invalid.  //TODO::CASTLE
-        //RevisionController::wipeRollbacks($form->fid);
+        //A field has been changed, so current record rollbacks become invalid.
+        RevisionController::wipeRollbacks($form->id);
 
         return redirect('projects/'.$request->pid.'/forms/'.$request->fid)->with('k3_global_error', 'field_advanced_error');
 	}
@@ -233,8 +233,8 @@ class FieldController extends Controller {
             $form->updateField($flid, $field);
         }
 
-        //A field has been changed, so current record rollbacks become invalid. //TODO::CASTLE
-        //RevisionController::wipeRollbacks($fid);
+        //A field has been changed, so current record rollbacks become invalid.
+        RevisionController::wipeRollbacks($fid);
 
         return redirect('projects/'.$pid.'/forms/'.$fid)->with('k3_global_success', 'field_updated');
     }
@@ -308,8 +308,8 @@ class FieldController extends Controller {
         $form = FormController::getForm($fid);
         $form->deleteField($flid);
 
-        //A field has been changed, so current record rollbacks become invalid. //TODO::CASTLE
-        //RevisionController::wipeRollbacks($fid);
+        //A field has been changed, so current record rollbacks become invalid.
+        RevisionController::wipeRollbacks($fid);
 
         if(isset($request->redirect_route))
             return redirect('projects/'.$pid.'/forms/'.$fid)->with('k3_global_success', 'field_deleted');
