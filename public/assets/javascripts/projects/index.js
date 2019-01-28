@@ -241,7 +241,7 @@ Kora.Projects.Index = function() {
             $modal.find('.profile-js').html('<img src="' + $this.data('profile') + '" alt="Profile Pic">');
           })
           .fail(function() {
-            $modal.find('.profile-js').html('<i class="icon icon-user">').css("top", "-23px");;
+            $modal.find('.profile-js').html('<i class="icon icon-profile-dark-1">').css("top", "-23px");
           });
       $modal.find('.name-attr-js').html($this.data('name'));
       $modal.find('.username-attr-js').html($this.data('username'));
