@@ -237,10 +237,12 @@ class RichTextField extends BaseField {
             $recModel->newQuery()->whereNull($flid)->update([$flid => $formFieldValue]);
     }
 
-    /**
-     * For a test record, add test data to field.
+    /* For a test record, add test data to field.
+     *
+     * @param  string $url - Url for File Type Fields
+     * @return mixed - The data
      */
-    public function getTestData() {
+    public function getTestData($url = null)
         return '<i>This</i> <u>sample text</u> is <b>Rich!</b>';
     }
 
