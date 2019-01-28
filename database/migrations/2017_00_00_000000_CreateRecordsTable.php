@@ -56,6 +56,12 @@ class CreateRecordsTable extends Migration {
         });
     }
 
+    public function addMediumTextColumn($fid, $slug) {
+        Schema::table("records_$fid", function(Blueprint $table) use ($slug) {
+            $table->mediumText($slug)->nullable();
+        });
+    }
+
     public function renameColumn($fid, $slug, $newSlug) {
         Schema::table("records_$fid", function (Blueprint $table) use ($slug, $newSlug) {
             $table->renameColumn($slug,$newSlug);
