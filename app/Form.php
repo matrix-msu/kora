@@ -42,7 +42,7 @@ class Form extends Model {
 //    const _SCHEDULE = "Schedule";
 //    const _GEOLOCATOR = "Geolocator";
     const _DOCUMENTS = "Documents";
-//    const _GALLERY = "Gallery";
+    const _GALLERY = "Gallery";
 //    const _3D_MODEL = "3D-Model";
 //    const _PLAYLIST = "Playlist";
 //    const _VIDEO = "Video";
@@ -54,7 +54,7 @@ class Form extends Model {
      */
     static public $validFieldTypes = [ //TODO::NEWFIELD
         'Text Fields' => array(self::_TEXT => self::_TEXT),
-        'File Fields' => array(self::_DOCUMENTS => self::_DOCUMENTS),
+        'File Fields' => array(self::_DOCUMENTS => self::_DOCUMENTS, self::_GALLERY => self::_GALLERY.' (jpg, gif, png)'),
         //'Text Fields' => array('Text' => 'Text', 'Rich Text' => 'Rich Text', 'Integer' => 'Integer', 'Floating Point' => 'Floating Point'),
         //'List Fields' => array('List' => 'List', 'Multi-Select List' => 'Multi-Select List', 'Generated List' => 'Generated List', 'Combo List' => 'Combo List'),
         //'Date Fields' => array('Date' => 'Date', 'Schedule' => 'Schedule'),
@@ -65,7 +65,7 @@ class Form extends Model {
     /**
      * @var array - This is an array of field types that can be filtered
      */
-    static public $validFilterFields = [ //TODO::NEWFIELD See getDataFilters for which fields we support
+    static public $validFilterFields = [ //TODO::NEWFIELD See self::getDataFilters for which fields we support
         self::_TEXT
     ];
 
@@ -75,13 +75,15 @@ class Form extends Model {
     public static $fieldModelMap = [ //TODO::NEWFIELD
         self::_TEXT => "TextField",
         self::_DOCUMENTS => "DocumentsField",
+        self::_GALLERY => "GalleryField",
     ];
 
     /**
      * @var array - Fields that need to be decoded coming out of the DB.
      */
     static public $jsonFields = [ //TODO::NEWFIELD
-        self::_DOCUMENTS
+        self::_DOCUMENTS,
+        self::_GALLERY
     ];
 
     /**

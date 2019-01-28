@@ -143,6 +143,7 @@ class RevisionController extends Controller {
                 $revArray['oldData'] = null;
                 break;
             case Revision::EDIT:
+                //TODO::CASTLE
                 $revArray['data'] = self::buildDataArray($record);
                 $revArray['oldData'] = self::buildDataArray($oldRecord);
                 break;

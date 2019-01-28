@@ -777,7 +777,7 @@ class RecordController extends Controller {
         $all_fields = $form->layout['fields'];
         $fields = array();
         foreach($all_fields as $flid => $field) {
-            //We don't want File Fields to be mass assignable because of the processing expense with large data sets //TODO::CASTLE
+            //We don't want File Fields to be mass assignable because of the processing expense with large data sets
             if($form->getFieldModel($field['type']) instanceof FileTypeField)
                 continue;
             else
@@ -804,7 +804,7 @@ class RecordController extends Controller {
         $all_fields = $form->layout['fields'];
         $fields = array();
         foreach($all_fields as $flid => $field) {
-            //We don't want File Fields to be mass assignable because of the processing expense with large data sets //TODO::CASTLE
+            //We don't want File Fields to be mass assignable because of the processing expense with large data sets
             if($form->getFieldModel($field['type']) instanceof FileTypeField)
                 continue;
             else

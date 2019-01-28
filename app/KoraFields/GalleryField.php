@@ -5,19 +5,19 @@ use App\Record;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
-class DocumentsField extends FileTypeField {
+class GalleryField extends FileTypeField {
 
     /*
     |--------------------------------------------------------------------------
-    | Documents Field
+    | Gallery Field
     |--------------------------------------------------------------------------
     |
-    | This model represents the documents field in Kora3
+    | This model represents the gallery field in Kora3
     |
     */
 
     /**
-     * @var string - Views for the typed field options
+     * @var string - Views for the typed field options //TODO::CASTLE
      */
     const FIELD_OPTIONS_VIEW = "partials.fields.options.documents";
     const FIELD_ADV_OPTIONS_VIEW = "partials.fields.advanced.documents";
@@ -90,7 +90,8 @@ class DocumentsField extends FileTypeField {
      * @return array - The default options
      */
     public function getDefaultOptions() {
-        return ['FieldSize' => '', 'MaxFiles' => '', 'FileTypes' => ''];
+        return ['FieldSize' => '', 'MaxFiles' => '', 'FileTypes' => ['image/jpeg','image/gif','image/png','image/bmp'],
+            'ThumbSmall' => '150x150', 'ThumbLarge' => '300x300'];
     }
 
     /**
@@ -106,10 +107,20 @@ class DocumentsField extends FileTypeField {
         if($request->maxfiles==0)
             $request->maxfiles = null;
 
+        $sx = ($request->small_x != '') ? $request->small_x : 150;
+        $sy = ($request->small_y != '') ? $request->small_y : 150;
+        $small = $sx.'x'.$sy;
+
+        $lx = ($request->large_x != '') ? $request->large_x : 150;
+        $ly = ($request->large_y != '') ? $request->large_y : 150;
+        $large = $lx.'x'.$ly;
+
         $field['default'] = $request->default;
         $field['options']['FieldSize'] = $request->filesize;
         $field['options']['MaxFiles'] = $request->maxfiles;
         $field['options']['FileTypes'] = isset($request->filetype) ? $request->filetype : [];
+        $field['options']['ThumbSmall'] = $small;
+        $field['options']['ThumbLarge'] = $large;
 
         return $field;
     }
@@ -150,6 +161,7 @@ class DocumentsField extends FileTypeField {
     public function processRecordData($field, $value, $request) {
         $uid = Auth::user()->id;
         $tmpPath = 'app/tmpFiles/recordU' . $uid;
+        //$capString = isset($request->input('file_captions'.$field->flid)); //TODO::CASTLE
         if(glob(storage_path($tmpPath.'/*.*')) != false) {
             $files = [];
             $infoArray = array();
@@ -168,12 +180,21 @@ class DocumentsField extends FileTypeField {
                             $type = $types[$file->getExtension()];
                         $info = ['name' => $file->getFilename(), 'size' => $file->getSize(), 'type' => $type, 'url' => $dataURL.urlencode($file->getFilename())];
                         $infoArray[$file->getFilename()] = $info;
-                        if(isset($request->mass_creation_num))
+                        if(isset($request->mass_creation_num)) {
                             copy(storage_path($tmpPath . '/' . $file->getFilename()),
                                 $newPath . '/' . $file->getFilename());
-                        else
+                            copy(storage_path($tmpPath . '/medium/' . $file->getFilename()),
+                                $newPath . '/medium/' . $file->getFilename());
+                            copy(storage_path($tmpPath . '/thumbnail/' . $file->getFilename()),
+                                $newPath . '/thumbnail/' . $file->getFilename());
+                        } else {
                             rename(storage_path($tmpPath . '/' . $file->getFilename()),
                                 $newPath . '/' . $file->getFilename());
+                            rename(storage_path($tmpPath . '/medium/' . $file->getFilename()),
+                                $newPath . '/medium/' . $file->getFilename());
+                            rename(storage_path($tmpPath . '/thumbnail/' . $file->getFilename()),
+                                $newPath . '/thumbnail/' . $file->getFilename());
+                        }
                     }
                 }
                 foreach($value as $fName) {
@@ -232,8 +253,18 @@ class DocumentsField extends FileTypeField {
                 if($file->isFile())
                     unlink($newDir . '/' . $file->getFilename());
             }
+            foreach(new \DirectoryIterator($newDir . '/medium') as $file) {
+                if($file->isFile())
+                    unlink($newDir . '/medium' . $file->getFilename());
+            }
+            foreach(new \DirectoryIterator($newDir . '/thumbnail') as $file) {
+                if($file->isFile())
+                    unlink($newDir . '/thumbnail' . $file->getFilename());
+            }
         } else {
             mkdir($newDir, 0775, true);
+            mkdir($newDir.'/medium', 0775, true);
+            mkdir($newDir.'/thumbnail', 0775, true);
         }
 
         foreach($value as $file) {
@@ -243,6 +274,24 @@ class DocumentsField extends FileTypeField {
             $name = $file['name'];
             //move file from imp temp to tmp files
             copy($currDir . '/' . $name, $newDir . '/' . $name);
+
+            if(file_exists($currDir . '/thumbnail'))
+                copy($currDir . '/thumbnail/' . $name, $newDir . '/thumbnail/' . $name);
+            else {
+                $smallParts = explode('x', $field['options']['ThumbSmall']);
+                $tImage = new \Imagick($newDir . '/' . $name);
+                $tImage->thumbnailImage($smallParts[0], $smallParts[1], true);
+                $tImage->writeImage($newDir . '/thumbnail/' . $name);
+            }
+            if(file_exists($currDir . '/medium'))
+                copy($currDir . '/medium/' . $name, $newDir . '/medium/' . $name);
+            else {
+                $smallParts = explode('x', $field['options']['ThumbSmall']);
+                $tImage = new \Imagick($newDir . '/' . $name);
+                $tImage->thumbnailImage($smallParts[0], $smallParts[1], true);
+                $tImage->writeImage($newDir . '/thumbnail/' . $name);
+            }
+
             //add input for this file
             array_push($files, $name);
         }
@@ -279,8 +328,18 @@ class DocumentsField extends FileTypeField {
                 if($file->isFile())
                     unlink($newDir . '/' . $file->getFilename());
             }
+            foreach(new \DirectoryIterator($newDir . '/medium') as $file) {
+                if($file->isFile())
+                    unlink($newDir . '/medium' . $file->getFilename());
+            }
+            foreach(new \DirectoryIterator($newDir . '/thumbnail') as $file) {
+                if($file->isFile())
+                    unlink($newDir . '/thumbnail' . $file->getFilename());
+            }
         } else {
             mkdir($newDir, 0775, true);
+            mkdir($newDir.'/medium', 0775, true);
+            mkdir($newDir.'/thumnail', 0775, true);
         }
 
         if($simple) {
@@ -295,6 +354,22 @@ class DocumentsField extends FileTypeField {
                         "record_validation_error" => [$request->kid => "$flid: trouble finding file $name"]], 500);
             }
             copy($currDir . '/' . $name, $newDir . '/' . $name);
+            if(file_exists($currDir . '/thumbnail'))
+                copy($currDir . '/thumbnail/' . $name, $newDir . '/thumbnail/' . $name);
+            else {
+                $smallParts = explode('x', $field['options']['ThumbSmall']);
+                $tImage = new \Imagick($newDir . '/' . $name);
+                $tImage->thumbnailImage($smallParts[0], $smallParts[1], true);
+                $tImage->writeImage($newDir . '/thumbnail/' . $name);
+            }
+            if(file_exists($currDir . '/medium'))
+                copy($currDir . '/medium/' . $name, $newDir . '/medium/' . $name);
+            else {
+                $smallParts = explode('x', $field['options']['ThumbSmall']);
+                $tImage = new \Imagick($newDir . '/' . $name);
+                $tImage->thumbnailImage($smallParts[0], $smallParts[1], true);
+                $tImage->writeImage($newDir . '/thumbnail/' . $name);
+            }
             //add input for this file
             array_push($files, $name);
         } else {
@@ -313,6 +388,22 @@ class DocumentsField extends FileTypeField {
                             "record_validation_error" => [$request->kid => "$flid: trouble finding file $name"]], 500);
                 }
                 copy($currDir . '/' . $name, $newDir . '/' . $name);
+                if(file_exists($currDir . '/thumbnail'))
+                    copy($currDir . '/thumbnail/' . $name, $newDir . '/thumbnail/' . $name);
+                else {
+                    $smallParts = explode('x', $field['options']['ThumbSmall']);
+                    $tImage = new \Imagick($newDir . '/' . $name);
+                    $tImage->thumbnailImage($smallParts[0], $smallParts[1], true);
+                    $tImage->writeImage($newDir . '/thumbnail/' . $name);
+                }
+                if(file_exists($currDir . '/medium'))
+                    copy($currDir . '/medium/' . $name, $newDir . '/medium/' . $name);
+                else {
+                    $smallParts = explode('x', $field['options']['ThumbSmall']);
+                    $tImage = new \Imagick($newDir . '/' . $name);
+                    $tImage->thumbnailImage($smallParts[0], $smallParts[1], true);
+                    $tImage->writeImage($newDir . '/thumbnail/' . $name);
+                }
                 //add input for this file
                 array_push($files, $name);
             }
@@ -392,25 +483,33 @@ class DocumentsField extends FileTypeField {
      * @param  string $url - Url for File Type Fields
      * @return mixed - The data
      */
-    public function getTestData($url = null) {
+    public function getTestData($url = null) { //TODO::CASTLE
         $newPath = storage_path('app/files/'.$url);
+
         mkdir($newPath, 0775, true);
+        mkdir($newPath . '/thumbnail', 0775, true);
+        mkdir($newPath . '/medium', 0775, true);
 
         $types = self::getMimeTypes();
-        if(!array_key_exists('txt', $types))
+        if(!array_key_exists('jpeg', $types))
             $type = 'application/octet-stream';
         else
-            $type = $types['txt'];
+            $type = $types['jpeg'];
 
         $file = [
-            'name' => 'documents.txt',
+            'name' => 'image.jpeg',
+            'caption' => 'Mountain peaking through the clouds.',
             'url' => $url,
-            'size' => 24,
+            'size' => 154491,
             'type' => $type
         ];
 
-        copy(public_path('assets/testFiles/documents.txt'),
-            $newPath . '/documents.txt');
+        copy(public_path('assets/testFiles/image.jpeg'),
+            $newPath . '/image.jpeg');
+        copy(public_path('assets/testFiles/medium/image.jpeg'),
+            $newPath . '/medium/image.jpeg');
+        copy(public_path('assets/testFiles/thumbnail/image.jpeg'),
+            $newPath . '/thumbnail/image.jpeg');
 
         return json_encode([$file]);
     }
@@ -425,15 +524,16 @@ class DocumentsField extends FileTypeField {
     public function getExportSample($slug, $type) {
         switch($type) {
             case "XML":
-                $xml = '<' . $slug . '>';
+                $xml = '<'.$slug.'>';
                 $xml .= '<File>';
-                $xml .= utf8_encode('FILENAME 1');
+                $xml .= '<Name>' . utf8_encode('FILENAME 1') . '</Name>';
                 $xml .= '</File>';
                 $xml .= '<File>';
-                $xml .= utf8_encode('FILENAME 2');
+                $xml .= '<Name>' . utf8_encode('FILENAME 2') . '</Name>';
+                $xml .= '<Caption>' . utf8_encode('Example of one that has a caption!') . '</Caption>';
                 $xml .= '</File>';
                 $xml .= '<File>';
-                $xml .= utf8_encode('so on...');
+                $xml .= '<Name>' . utf8_encode('so on...') . '</Name>';
                 $xml .= '</File>';
                 $xml .= '</' . $slug . '>';
 
@@ -452,11 +552,12 @@ class DocumentsField extends FileTypeField {
 
                 $fileArray = [];
                 $fileArray['name'] = 'FILENAME2';
-                $fieldArray[$slug]['value'][] = $fileArray;
+                $fileArray['caption'] = 'Example of one that has a caption!';
+                $fieldArray[$slug][] = $fileArray;
 
                 $fileArray = [];
                 $fileArray['name'] = 'so on...';
-                $fieldArray[$slug]['value'][] = $fileArray;
+                $fieldArray[$slug][] = $fileArray;
 
                 return $fieldArray;
                 break;
@@ -513,13 +614,28 @@ class DocumentsField extends FileTypeField {
 
     ///////////////////////////////////////////////END ABSTRACT FUNCTIONS///////////////////////////////////////////////
 
-    public function formatBytes($bytes) {
-        $units = ['b', 'kb', 'mb', 'gb', 'tb'];
+    /**
+     * Gets the image associated with the Gallery Field of a particular record.
+     *
+     * @param  Record $record - Record model
+     * @param  array $filename - Name of image file
+     * @param  string $type - Get either the full image or a thumbnail of the image
+     * @return string - html for the file download
+     */
+    public function getImgDisplay($record, $filename, $type) {
+        if($type == 'thumbnail' | $type == 'medium')
+            $file_path = storage_path('app/files/'.$record->project_id.'/'.$record->form_id.'/'.$record->id.'/'.$type.'/'. $filename);
+        else
+            $file_path = storage_path('app/files/'.$record->project_id.'/'.$record->form_id.'/'.$record->id.'/'. $filename);
 
-        for($i = 0; $bytes > 1024; $i++) {
-            $bytes /= 1024;
+        if(file_exists($file_path)) {
+            // Send Download
+            return response()->download($file_path, $filename, [
+                'Content-Length: '. filesize($file_path)
+            ]);
+        } else {
+            // Error
+            return response()->json(["status"=>false,"message"=>"file_doesnt_exist"],500);
         }
-
-        return round($bytes, 1) . ' ' . $units[$i];
     }
 }

@@ -94,7 +94,6 @@ class FieldAjaxController extends Controller {
      * Downloads a file from a particular record field.
      *
      * @param  int $kid - Record Kora ID
-     * @param  int $flid - Field ID
      * @param  string $filename - Name of the file
      * @return string - html for the file download
      */
@@ -102,8 +101,8 @@ class FieldAjaxController extends Controller {
         return FileTypeField::getFileDownload($kid, $filename);
     }
 
-    public function getZipDownload($kid, $flid, $filename) { //TODO::CASTLE
-        return FileTypeField::getZipDownload($kid, $flid, $filename);
+    public function getZipDownload($kid, $filename) {
+        return FileTypeField::getZipDownload($kid, $filename);
     }
 
     /**
@@ -115,10 +114,14 @@ class FieldAjaxController extends Controller {
      * @param  string $type - Get either the full image or a thumbnail of the image
      * @return string - html for the file download
      */
-    public function getImgDisplay($kid, $flid, $filename, $type){ //TODO::CASTLE
-        $field = FieldController::getField($flid);
-        $galleryField = $field->getTypedFieldFromRID($kid);
-        return $galleryField->getImgDisplay($field->pid, $filename, $type);
+    public function getImgDisplay($kid, $flid, $filename, $type){
+        $record = RecordController::getRecord($kid);
+        $field = FieldController::getField($flid,$record->form_id);
+
+        $form = FormController::getForm($record->form_id);
+        $galleryField = $form->getFieldModel($field['type']);
+
+        return $galleryField->getImgDisplay($record, $filename, $type);
     }
 
     /**

@@ -24,20 +24,20 @@ abstract class FileTypeField extends BaseField {
      */
     public static $FILE_DATA_TYPES = [ //TODO::CASTLE
         Form::_DOCUMENTS => "documents",
-//        Field::_GALLERY => "images",
-//        Field::_PLAYLIST => "audio",
-//        Field::_VIDEO => "video",
-//        Field::_3D_MODEL => "model",
+        Form::_GALLERY => "images",
+//        Form::_PLAYLIST => "audio",
+//        Form::_VIDEO => "video",
+//        Form::_3D_MODEL => "model",
     ];
 
     /**
      * @var array - Maps file field constant names to valid file memes
      */
     public static $FILE_MIME_TYPES = [ //TODO::CASTLE
-//        Field::_GALLERY => ['image/jpeg','image/gif','image/png','image/bmp'],
-//        Field::_PLAYLIST => ['audio/mp3','audio/wav','audio/ogg'],
-//        Field::_VIDEO => ['video/mp4','video/ogg'],
-//        Field::_3D_MODEL => ['obj','stl','application/octet-stream','image/jpeg','image/png'],
+        Form::_GALLERY => ['image/jpeg','image/gif','image/png','image/bmp'],
+//        Form::_PLAYLIST => ['audio/mp3','audio/wav','audio/ogg'],
+//        Form::_VIDEO => ['video/mp4','video/ogg'],
+//        Form::_3D_MODEL => ['obj','stl','application/octet-stream','image/jpeg','image/png'],
     ];
 
     /**
@@ -72,10 +72,10 @@ abstract class FileTypeField extends BaseField {
             }
         }
 
-//        if($field->type==Field::_GALLERY) { //TODO::CASTLE
-//            $smThumbs = explode('x', FieldController::getFieldOption($field, 'ThumbSmall'));
-//            $lgThumbs = explode('x', FieldController::getFieldOption($field, 'ThumbLarge'));
-//        }
+        if($field['type'] == Form::_GALLERY) {
+            $smThumbs = explode('x', $field['ThumbSmall']);
+            $lgThumbs = explode('x', $field['ThumbLarge']);
+        }
 
         $validTypes = true;
         if($field['type'] == Form::_DOCUMENTS)
@@ -99,12 +99,12 @@ abstract class FileTypeField extends BaseField {
         $options['fid'] = $fid;
         $options['flid'] = $flid;
         $options['folder'] = 'recordU'.$uid;
-//        if($field->type==Field::_GALLERY) { //TODO::CASTLE
-//            $options['image_versions']['thumbnail']['max_width'] = $smThumbs[0];
-//            $options['image_versions']['thumbnail']['max_height'] = $smThumbs[1];
-//            $options['image_versions']['medium']['max_width'] = $lgThumbs[0];
-//            $options['image_versions']['medium']['max_height'] = $lgThumbs[1];
-//        }
+        if($field['type'] == Form::_GALLERY) {
+            $options['image_versions']['thumbnail']['max_width'] = $smThumbs[0];
+            $options['image_versions']['thumbnail']['max_height'] = $smThumbs[1];
+            $options['image_versions']['medium']['max_width'] = $lgThumbs[0];
+            $options['image_versions']['medium']['max_height'] = $lgThumbs[1];
+        }
 
         if(!$validTypes) {
             echo 'InvalidType';
@@ -160,21 +160,19 @@ abstract class FileTypeField extends BaseField {
     /**
      * Downloads a zip file from a particular record field.
      *
-     * @param  int $rid - Record ID
-     * @param  int $flid - Field ID
+     * @param  int $kid - Record Kora ID
      * @param  string $filename - Name of the file
      * @return string - html for the file download
      */
-    public static function getZipDownload($rid, $flid, $filename) { //TODO::CASTLE
-        $record = RecordController::getRecord($rid);
-        $field = FieldController::getField($flid);
+    public static function getZipDownload($kid, $filename) {
+        $record = RecordController::getRecord($kid);
 
         // Check if directory app/storage/file folder exists
-        $dir_path = storage_path('app/files/p'.$record->pid.'/f'.$record->fid.'/r'.$record->rid.'/fl'.$field->flid);
+        $dir_path = storage_path('app/files/'.$record->project_id.'/'.$record->form_id.'/'.$record->id);
         if(file_exists($dir_path)) {
             $zip_name = $filename . '_export' . date("Y_m_d_His") . '.zip';
             $zip_dir = storage_path('app/' . ($filename != '' ? $filename : 'zip_exports'));
-            $zip = new ZipArchive;
+            $zip = new ZipArchive();
 
             if ($zip->open($zip_dir . '/' . $zip_name, ZipArchive::CREATE) === TRUE) {
                 foreach (new \DirectoryIterator($dir_path) as $file) {
