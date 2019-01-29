@@ -173,7 +173,7 @@ class RestfulController extends Controller {
             //WARNING::IF FIELD NAMES SHARE A TITLE WITHIN THE SAME FIELD, THIS WOULD IN THEORY BREAK
             $filters['realnames'] = isset($f->realnames) ? $f->realnames : false; //do we want records indexed by titles rather than slugs
             //THIS SOLELY SERVES LEGACY. YOU PROBABLY WILL NEVER USE THIS. DON'T THINK ABOUT IT
-            $filters['under'] = isset($f->under) ? $f->under : false; //Replace field spaces with underscores //TODO::CASTLE
+            $filters['under'] = isset($f->under) ? $f->under : false; //Replace field spaces with underscores
 
             //parse the query
             if(!isset($f->query)) {
