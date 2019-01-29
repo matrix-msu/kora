@@ -17,13 +17,13 @@ class GalleryField extends FileTypeField {
     */
 
     /**
-     * @var string - Views for the typed field options //TODO::CASTLE
+     * @var string - Views for the typed field options
      */
-    const FIELD_OPTIONS_VIEW = "partials.fields.options.documents";
-    const FIELD_ADV_OPTIONS_VIEW = "partials.fields.advanced.documents";
+    const FIELD_OPTIONS_VIEW = "partials.fields.options.gallery";
+    const FIELD_ADV_OPTIONS_VIEW = "partials.fields.advanced.gallery";
     const FIELD_ADV_INPUT_VIEW = null;
-    const FIELD_INPUT_VIEW = "partials.records.input.documents";
-    const FIELD_DISPLAY_VIEW = "partials.records.display.documents";
+    const FIELD_INPUT_VIEW = "partials.records.input.gallery";
+    const FIELD_DISPLAY_VIEW = "partials.records.display.gallery";
 
     /**
      * Get the field options view.
@@ -159,9 +159,10 @@ class GalleryField extends FileTypeField {
      * @return mixed - Processed data
      */
     public function processRecordData($field, $value, $request) {
+        $flid = $field['flid'];
         $uid = Auth::user()->id;
         $tmpPath = 'app/tmpFiles/recordU' . $uid;
-        //$capString = isset($request->input('file_captions'.$field->flid)); //TODO::CASTLE
+        $captions = !is_null($request->input('file_captions'.$flid)) ? $request->input('file_captions'.$flid) : null;
         if(glob(storage_path($tmpPath.'/*.*')) != false) {
             $files = [];
             $infoArray = array();
@@ -170,6 +171,8 @@ class GalleryField extends FileTypeField {
 
             if(!file_exists($newPath))
                 mkdir($newPath, 0775, true);
+                mkdir($newPath.'/medium', 0775, true);
+                mkdir($newPath.'/thumbnail', 0775, true);
             if(file_exists(storage_path($tmpPath))) {
                 $types = self::getMimeTypes();
                 foreach(new \DirectoryIterator(storage_path($tmpPath)) as $file) {
@@ -178,7 +181,8 @@ class GalleryField extends FileTypeField {
                             $type = 'application/octet-stream';
                         else
                             $type = $types[$file->getExtension()];
-                        $info = ['name' => $file->getFilename(), 'size' => $file->getSize(), 'type' => $type, 'url' => $dataURL.urlencode($file->getFilename())];
+                        $info = ['name' => $file->getFilename(), 'size' => $file->getSize(), 'type' => $type,
+                                    'url' => $dataURL.urlencode($file->getFilename()), 'caption' => ''];
                         $infoArray[$file->getFilename()] = $info;
                         if(isset($request->mass_creation_num)) {
                             copy(storage_path($tmpPath . '/' . $file->getFilename()),
@@ -197,8 +201,11 @@ class GalleryField extends FileTypeField {
                         }
                     }
                 }
-                foreach($value as $fName) {
-                    $files[] = $infoArray[$fName];
+                foreach($value as $index => $fName) {
+                    $info = $infoArray[$fName];
+                    if(!is_null($captions) && isset($captions[$index]))
+                        $info['caption'] = $captions[$index];
+                    $files[] = $info;
                 }
             }
 
@@ -483,7 +490,7 @@ class GalleryField extends FileTypeField {
      * @param  string $url - Url for File Type Fields
      * @return mixed - The data
      */
-    public function getTestData($url = null) { //TODO::CASTLE
+    public function getTestData($url = null) {
         $newPath = storage_path('app/files/'.$url);
 
         mkdir($newPath, 0775, true);

@@ -33,7 +33,7 @@ function str_hyphenated($string) {
  * @return bool - is installed
  */
 function getDefaultTypes($type) {
-    return \App\FileTypeField::$FILE_MIME_TYPES[$type];
+    return \App\KoraFields\FileTypeField::$FILE_MIME_TYPES[$type];
 }
 
 /**

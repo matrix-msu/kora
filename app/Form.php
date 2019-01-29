@@ -66,8 +66,7 @@ class Form extends Model {
      * @var array - This is an array of field types that can be filtered
      */
     static public $validFilterFields = [ //TODO::NEWFIELD See getDataFilters for which fields we support
-        self::_TEXT,
-        self::_RICH_TEXT
+        self::_TEXT
     ];
 
     /**

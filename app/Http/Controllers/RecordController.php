@@ -118,6 +118,8 @@ class RecordController extends Controller {
             }
         } else {
             mkdir($dirTmp,0775,true); //Make it!
+            mkdir($dirTmp.'/medium',0775,true); //Make it!
+            mkdir($dirTmp.'/thumbnail',0775,true); //Make it!
         }
 
         return view('records.create', compact('form', 'presets'));
@@ -192,6 +194,7 @@ class RecordController extends Controller {
 
                 $field = $fieldsArray[$key];
                 $request->rid = $record->id;
+                $field['flid'] = $key;
                 $processedData = $form->getFieldModel($field['type'])->processRecordData($field, $value, $request);
                 $record->{$key} = $processedData;
             }
@@ -347,6 +350,8 @@ class RecordController extends Controller {
             }
         } else {
             mkdir($dirTmp,0775,true); //Make it!
+            mkdir($dirTmp.'/medium',0775,true); //Make it!
+            mkdir($dirTmp.'/thumbnail',0775,true); //Make it!
         }
 
         return view('records.edit', compact('record', 'form'));
@@ -404,6 +409,7 @@ class RecordController extends Controller {
                 continue;
 
             $field = $fieldsArray[$key];
+            $field['flid'] = $key;
             $processedData = $form->getFieldModel($field['type'])->processRecordData($field, $value, $request);
             $record->{$key} = $processedData;
         }

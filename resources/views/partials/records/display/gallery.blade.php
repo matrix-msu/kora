@@ -1,27 +1,22 @@
-<?php
-    $images = explode('[!]',$typedField->images);
-    $captions = explode('[!]',$typedField->captions);
-    $single = (count($images) <= 1);
-    $singleFilename = ($single ? explode('[Name]',$typedField->images)[1] : '');
-?>
+@php
+    $images = $typedField->processDisplayData($field, $value);
+    $single = (sizeof($images) <= 1);
+@endphp
 
 <div class="record-data-card">
     <div class="gallery-field-display gallery-field-display-js {{ ($single ? 'single' : '') }}">
-        @foreach($images as $ndx => $img)
-            @if($img != '')
-                <?php
-                $name = explode('[Name]',$img)[1];
-                $link = action('FieldAjaxController@getImgDisplay',['flid' => $field->flid, 'rid' => $record->rid, 'filename' => $name, 'type' => 'medium']);
-                $caption = (array_key_exists($ndx, $captions) ? $captions[$ndx] : '');
-                ?>
-                <div class="slide slide-js">
-                    <img class="slide-img slide-img-js" data-pid="{{$record->pid}}" data-fid="{{$record->fid}}" data-rid="{{$record->rid}}" data-flid="{{ $field->flid }}" src="{{$link}}" alt="{{$name}}">
-                </div>
-            @endif
+        @foreach($images as $img)
+            @php
+                $link = action('FieldAjaxController@getImgDisplay',['flid' => $flid, 'kid' => $record->kid, 'filename' => $img['name'], 'type' => 'medium']);
+                $resLink = action('FieldAjaxController@singleResource',['pid' => $record->project_id, 'fid' => $record->form_id, 'rid' => $record->id, 'filename' => $img['name']]);
+            @endphp
+            <div class="slide slide-js">
+                <img class="slide-img slide-img-js" src="{{$link}}" alt="{{$img['name']}}" resLink="{{$resLink}}">
+            </div>
         @endforeach
     </div>
 
-    @if (!$single)
+    @if(!$single)
         <div class="gallery-controls">
             <div class="field-btn field-btn-circle prev-button prev-button-js">
                 <i class="icon icon-chevron"></i>
@@ -36,8 +31,8 @@
     @endif
 
     <div class="caption-container caption-container-js">
-        @foreach ($captions as $index => $caption)
-            <div class="caption caption-js {{ ($index == 0 ? 'active' : '') }}">{{ $caption }}</div>
+        @foreach($images as $index => $img)
+            <div class="caption caption-js {{ ($index == 0 ? 'active' : '') }}">{{ $img['caption'] }}</div>
         @endforeach
     </div>
     <a class="caption-more caption-more-js underline-middle-hover" showing="less" href="#">Show Full Caption</a>
@@ -48,7 +43,7 @@
                 <i class="icon icon-external-link"></i>
             </div>
 
-            <a href="{{ ($single ? action('FieldAjaxController@getFileDownload', ['flid' => $field->flid, 'rid' => $record->rid, 'filename' => $singleFilename]) : action('FieldAjaxController@getZipDownload', ['flid' => $field->flid, 'rid' => $record->rid, 'filename' => 'gallery'])) }}"
+            <a href="{{ ($single ? action('FieldAjaxController@getFileDownload', ['flid' => $flid, 'kid' => $record->kid, 'filename' => $images[0]['name']]) : action('FieldAjaxController@getZipDownload', ['flid' => $flid, 'kid' => $record->kid, 'filename' => 'gallery'])) }}"
                class="field-btn">
                 <i class="icon icon-download"></i>
             </a>
@@ -69,21 +64,20 @@
                 <i class="icon icon-cancel"></i>
             </a>
 
-            <div class="gallery-field-display gallery-field-display-js {{($single && $captions[0] == "") ? 'full-height' : ''}}">
+            <div class="gallery-field-display gallery-field-display-js {{($single && $images[0]['caption'] == "") ? 'full-height' : ''}}">
                 @foreach($images as $img)
                     @if($img != '')
-                        <?php
-                        $name = explode('[Name]',$img)[1];
-                        $link = action('FieldAjaxController@getImgDisplay',['flid' => $field->flid, 'rid' => $record->rid, 'filename' => $name, 'type' => 'medium']);
-                        ?>
+                        @php
+                            $link = action('FieldAjaxController@getImgDisplay',['flid' => $flid, 'kid' => $record->kid, 'filename' => $img['name'], 'type' => 'medium']);
+                        @endphp
                         <div class="slide slide-js">
-                            <img class="slide-img slide-img-js" src="{{$link}}" alt="{{$name}}">
+                            <img class="slide-img slide-img-js" src="{{$link}}" alt="{{$img['name']}}">
                         </div>
                     @endif
                 @endforeach
             </div>
 
-            @if (!$single)
+            @if(!$single)
                 <div class="gallery-controls">
                     <div class="field-btn field-btn-circle prev-button prev-button-js">
                         <i class="icon icon-chevron"></i>
@@ -99,10 +93,9 @@
                 </div>
             @endif
 
-            {{--{{dd($single)}}--}}
             <div class="caption-container caption-container-js">
-                @foreach ($captions as $index => $caption)
-                    <div class="caption caption-js modal-caption-js {{ ($index == 0 ? 'active' : '') }}">{{ $caption }}</div>
+                @foreach($images as $index => $img)
+                    <div class="caption caption-js modal-caption-js {{ ($index == 0 ? 'active' : '') }}">{{ $img['caption'] }}</div>
                 @endforeach
             </div>
             <a class="caption-more caption-more-js underline-middle-hover" showing="less" href="#">Show Full Caption</a>

@@ -142,12 +142,8 @@ Kora.Fields.TypedFieldDisplays.Initialize = function() {
             $this.parent().find('.gallery-sidebar-js .external-button-js').click(function(e) {
                 e.preventDefault();
                 var $currentSlide = $($slides[currentSlide]).find('.slide-img-js');
-                var pid = $currentSlide.data('pid');
-                var fid = $currentSlide.data('fid');
-                var rid = $currentSlide.data('rid');
-                var flid = $currentSlide.data('flid');
-                var imgSrc = $currentSlide.attr('alt');
-                window.open(baseURL+'projects/'+pid+'/forms/'+fid+'/records/'+rid+'/fields/'+flid+'/'+imgSrc, '_blank');
+                var resLink = $currentSlide.attr('resLink');
+                window.open(resLink, '_blank');
             });
 
             // Set horizontal positioning for single slide

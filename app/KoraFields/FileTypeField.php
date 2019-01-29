@@ -51,14 +51,14 @@ abstract class FileTypeField extends BaseField {
         $uid = \Auth::user()->id;
         $dir = storage_path('recordU'.$uid);
 
-        $maxFileNum = $field['options']['MaxFiles'];
+        $maxFileNum = ($field['options']['MaxFiles']!='') ? $field['options']['MaxFiles'] : 0;
         $fileNumRequest = sizeof($_FILES['file'.$flid]['name']);
         if(glob($dir.'/*.*') != false)
             $fileNumDisk = count(glob($dir.'/*.*'));
         else
             $fileNumDisk = 0;
 
-        $maxFieldSize = $field['options']['FieldSize']*1024; //conversion of kb to bytes
+        $maxFieldSize = ($field['options']['FieldSize']!='') ? $field['options']['FieldSize']*1024 : 0; //conversion of kb to bytes
         $fileSizeRequest = 0;
         foreach($_FILES['file'.$flid]['size'] as $size) {
             $fileSizeRequest += $size;
@@ -73,8 +73,8 @@ abstract class FileTypeField extends BaseField {
         }
 
         if($field['type'] == Form::_GALLERY) {
-            $smThumbs = explode('x', $field['ThumbSmall']);
-            $lgThumbs = explode('x', $field['ThumbLarge']);
+            $smThumbs = explode('x', $field['options']['ThumbSmall']);
+            $lgThumbs = explode('x', $field['options']['ThumbLarge']);
         }
 
         $validTypes = true;
@@ -171,12 +171,12 @@ abstract class FileTypeField extends BaseField {
         $dir_path = storage_path('app/files/'.$record->project_id.'/'.$record->form_id.'/'.$record->id);
         if(file_exists($dir_path)) {
             $zip_name = $filename . '_export' . date("Y_m_d_His") . '.zip';
-            $zip_dir = storage_path('app/' . ($filename != '' ? $filename : 'zip_exports'));
+            $zip_dir = storage_path('app/exports');
             $zip = new ZipArchive();
 
-            if ($zip->open($zip_dir . '/' . $zip_name, ZipArchive::CREATE) === TRUE) {
-                foreach (new \DirectoryIterator($dir_path) as $file) {
-                    if ($file->isFile()) {
+            if($zip->open($zip_dir . '/' . $zip_name, ZipArchive::CREATE) === TRUE) {
+                foreach(new \DirectoryIterator($dir_path) as $file) {
+                    if($file->isFile()) {
                         $content = file_get_contents($file->getRealPath());
                         $zip->addFromString($file->getFilename(), $content);
                     }
@@ -190,11 +190,10 @@ abstract class FileTypeField extends BaseField {
             );
             $filetopath = $zip_dir . '/' . $zip_name;
             // Create Download Response
-            if(file_exists($filetopath)){
+            if(file_exists($filetopath))
                 return response()->download($filetopath, $zip_name, $headers);
-            } else {
+            else
                 return response()->json(["status"=>false,"message"=>"zip_doesnt_exist"],500);
-            }
         } else {
             return response()->json(["status"=>false,"message"=>"directory_doesnt_exist"],500);
         }
