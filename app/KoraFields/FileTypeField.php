@@ -20,24 +20,13 @@ abstract class FileTypeField extends BaseField {
     */
 
     /**
-     * @var array - Maps file field constant names to file variable names
-     */
-    public static $FILE_DATA_TYPES = [ //TODO::CASTLE
-        Form::_DOCUMENTS => "documents",
-        Form::_GALLERY => "images",
-//        Form::_PLAYLIST => "audio",
-//        Form::_VIDEO => "video",
-//        Form::_3D_MODEL => "model",
-    ];
-
-    /**
      * @var array - Maps file field constant names to valid file memes
      */
-    public static $FILE_MIME_TYPES = [ //TODO::CASTLE
-        Form::_GALLERY => ['image/jpeg','image/gif','image/png','image/bmp'],
-//        Form::_PLAYLIST => ['audio/mp3','audio/wav','audio/ogg'],
-//        Form::_VIDEO => ['video/mp4','video/ogg'],
-//        Form::_3D_MODEL => ['obj','stl','application/octet-stream','image/jpeg','image/png'],
+    public static $FILE_MIME_TYPES = [
+        Form::_GALLERY => ['image/jpeg','image/gif','image/png'],
+        Form::_PLAYLIST => ['audio/mp3','audio/wav'],
+        Form::_VIDEO => ['video/mp4'],
+        Form::_3D_MODEL => ['obj','stl','application/octet-stream','image/jpeg','image/png'],
     ];
 
     /**
@@ -86,11 +75,11 @@ abstract class FileTypeField extends BaseField {
 
         if(!empty($fileTypes)) {
             foreach ($fileTypesRequest as $type) {
-                //This statement guards against Safari's lack of file type recognition //TODO::CASTLE
-//                if ($field->type == Field::_PLAYLIST && $type == "audio/mpeg")
-//                    $type = "audio/mp3";
+                //This statement guards against Safari's lack of file type recognition
+                if($field['type'] == Form::_PLAYLIST && $type == "audio/mpeg")
+                    $type = "audio/mp3";
 
-                if (!in_array($type, $fileTypes))
+                if(!in_array($type, $fileTypes))
                     $validTypes = false;
             }
         }

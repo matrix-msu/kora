@@ -43,9 +43,9 @@ class Form extends Model {
 //    const _GEOLOCATOR = "Geolocator";
     const _DOCUMENTS = "Documents";
     const _GALLERY = "Gallery";
-//    const _3D_MODEL = "3D-Model";
-//    const _PLAYLIST = "Playlist";
-//    const _VIDEO = "Video";
+    const _PLAYLIST = "Playlist";
+    const _VIDEO = "Video";
+    const _3D_MODEL = "3D-Model";
 //    const _COMBO_LIST = "Combo List";
 //    const _ASSOCIATOR = "Associator";
 
@@ -53,20 +53,34 @@ class Form extends Model {
      * @var array - This is an array of field type values for creation
      */
     static public $validFieldTypes = [ //TODO::NEWFIELD
-        'Text Fields' => array(self::_TEXT => self::_TEXT, self::_RICH_TEXT => self::_RICH_TEXT),
-        'File Fields' => array(self::_DOCUMENTS => self::_DOCUMENTS, self::_GALLERY => self::_GALLERY.' (jpg, gif, png)'),
+        'Text Fields' => array(
+            self::_TEXT => self::_TEXT,
+            self::_RICH_TEXT => self::_RICH_TEXT
+        ),
+        'File Fields' => array(
+            self::_DOCUMENTS => self::_DOCUMENTS,
+            self::_GALLERY => self::_GALLERY.' (jpg, gif, png)',
+            self::_PLAYLIST => self::_PLAYLIST.' (mp3, wav)',
+            self::_VIDEO => self::_VIDEO.' (mp4)',
+            self::_3D_MODEL => self::_3D_MODEL.' (obj, stl)'
+        ),
         //'Text Fields' => array('Text' => 'Text', 'Rich Text' => 'Rich Text', 'Integer' => 'Integer', 'Floating Point' => 'Floating Point'),
         //'List Fields' => array('List' => 'List', 'Multi-Select List' => 'Multi-Select List', 'Generated List' => 'Generated List', 'Combo List' => 'Combo List'),
         //'Date Fields' => array('Date' => 'Date', 'Schedule' => 'Schedule'),
-        //'File Fields' => array('Documents' => 'Documents','Gallery' => 'Gallery (jpg, gif, png)','Playlist' => 'Playlist (mp3, wav)', 'Video' => 'Video (mp4)','3D-Model' => '3D-Model (obj, stl)'),
         //'Specialty Fields' => array('Geolocator' => 'Geolocator (latlon, utm, textual)','Associator' => 'Associator')
     ];
 
     /**
      * @var array - This is an array of field types that can be filtered
      */
-    static public $validFilterFields = [ //TODO::NEWFIELD See getDataFilters for which fields we support
-        self::_TEXT
+    static public $validFilterFields = [ //TODO::NEWFIELD
+        self::_TEXT,
+        //self::_NUMBER,
+        //self::_LIST,
+        //self::_MULTI_SELECT_LIST,
+        //self::_GENERATED_LIST,
+        //self::_DATE,
+        //self::_ASSOCIATOR, //AND REVERSE ASSOCIATIONS
     ];
 
     /**
@@ -77,6 +91,9 @@ class Form extends Model {
         self::_RICH_TEXT => "RichTextField",
         self::_DOCUMENTS => "DocumentsField",
         self::_GALLERY => "GalleryField",
+        self::_PLAYLIST => "PlaylistField",
+        self::_VIDEO => "VideoField",
+        self::_3D_MODEL => "ModelField",
     ];
 
     /**
@@ -84,7 +101,10 @@ class Form extends Model {
      */
     static public $jsonFields = [ //TODO::NEWFIELD
         self::_DOCUMENTS,
-        self::_GALLERY
+        self::_GALLERY,
+        self::_PLAYLIST,
+        self::_VIDEO,
+        self::_3D_MODEL,
     ];
 
     /**
@@ -624,7 +644,7 @@ class Form extends Model {
                 $valids[] = $f;
         }
 
-        //TODO::CASTLE to implement
+        //TODO::CASTLE to implement, maybe?
         //$listOccurrences = "select `option`, `flid`, `rid` from ".$prefix."list_fields where $wherePiece $flidSQL";
         //$msListOccurrences = "select `options`, `flid`, `rid` from ".$prefix."multi_select_list_fields where $wherePiece $flidSQL";
         //$genListOccurrences = "select `options`, `flid`, `rid` from ".$prefix."generated_list_fields where $wherePiece $flidSQL";
