@@ -270,9 +270,7 @@ class FormController extends Controller {
         if(!self::checkPermissions($pid, 'create'))
             return redirect('projects/'.$pid.'/forms')->with('k3_global_error', 'cant_create_form');
 
-        $proj = ProjectController::getProject($pid);
-
-        return view('forms.import',compact('proj','pid'));
+        return view('forms.import',compact('pid'));
     }
 
     /**

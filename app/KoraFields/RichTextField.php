@@ -242,7 +242,7 @@ class RichTextField extends BaseField {
      * @param  string $url - Url for File Type Fields
      * @return mixed - The data
      */
-    public function getTestData($url = null)
+    public function getTestData($url = null) {
         return '<i>This</i> <u>sample text</u> is <b>Rich!</b>';
     }
 

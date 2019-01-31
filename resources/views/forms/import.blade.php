@@ -1,12 +1,12 @@
 @extends('app', ['page_title' => "Import Form Setup", 'page_class' => 'form-import-setup'])
 
 @section('leftNavLinks')
-    @include('partials.menu.project', ['pid' => $proj->pid])
+    @include('partials.menu.project', ['pid' => $pid])
     @include('partials.menu.static', ['name' => 'Import Form Setup'])
 @stop
 
 @section('aside-content')
-  @include('partials.sideMenu.project', ['pid' => $proj->pid, 'openDrawer' => true])
+  @include('partials.sideMenu.project', ['pid' => $pid, 'openDrawer' => true])
 @stop
 
 @section('header')
@@ -32,7 +32,7 @@
 @stop
 
 @section('body')
-    {!! Form::open(['url' => action('ImportController@importForm', ['pid' => $proj->pid]),'enctype' => 'multipart/form-data', 'class' => 'form-file-input']) !!}
+    {!! Form::open(['url' => action('ImportController@importForm', ['pid' => $pid]),'enctype' => 'multipart/form-data', 'class' => 'form-file-input']) !!}
 
     <section class="formfile-section">
         <div class="form-group">
@@ -61,20 +61,13 @@
         </div>
 
         <div class="form-group mt-xl">
-            {!! Form::label('slug', 'Unique Form Identifier') !!}
-            {!! Form::text('slug', null, ['class' => 'text-input', 'placeholder' => "Enter the form's unique ID here (no spaces, alpha-numeric values only)"]) !!}
-            <p class="sub-text mt-xs">Leave blank to use identifier from file</p>
-        </div>
-
-        <div class="form-group mt-xl">
             {!! Form::label('description', 'Description') !!}
-            {!! Form::textarea('description', null, ['class' => 'text-area', 'placeholder' => "Enter the form's description here (max. 255 characters)"]) !!}
+            {!! Form::textarea('description', null, ['class' => 'text-area', 'placeholder' => "Enter the form's description here (max. 500 characters)"]) !!}
             <p class="sub-text mt-xs">Leave blank to use description from file</p>
         </div>
 
         <div class="form-group mt-xxxl mb-max">
             {!! Form::submit('Import Form & Information', ['class' => 'btn']) !!}
-            <!-- <button class="submit btn">Import Form & Information</button> -->
         </div>
     </section>
 

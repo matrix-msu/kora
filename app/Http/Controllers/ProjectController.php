@@ -409,7 +409,7 @@ class ProjectController extends Controller {
     }
 
     /**
-     * Gets the view for importing a k3Proj file. //TODO::CASTLE
+     * Gets the view for importing a k3Proj file.
      *
      * @return View
      */

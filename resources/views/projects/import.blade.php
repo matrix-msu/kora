@@ -61,14 +61,8 @@
         </div>
 
         <div class="form-group mt-xl">
-            {!! Form::label('slug', 'Unique Project Identifier') !!}
-            {!! Form::text('slug', null, ['class' => 'text-input', 'placeholder' => "Enter the project's unique ID here (no spaces, alpha-numeric values only)"]) !!}
-            <p class="sub-text mt-xs">Leave blank to use identifier from file</p>
-        </div>
-
-        <div class="form-group mt-xl">
             {!! Form::label('description', 'Description') !!}
-            {!! Form::textarea('description', null, ['class' => 'text-area', 'placeholder' => "Enter the projects description here (max. 255 characters)"]) !!}
+            {!! Form::textarea('description', null, ['class' => 'text-area', 'placeholder' => "Enter the projects description here (max. 500 characters)"]) !!}
             <p class="sub-text mt-xs">Leave blank to use description from file</p>
         </div>
 

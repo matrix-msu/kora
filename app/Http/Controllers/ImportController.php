@@ -393,7 +393,7 @@ class ImportController extends Controller {
      * @param  Request $request
      * @return Redirect
      */
-	public function importForm($pid, Request $request) { //TODO::CASTLE
+	public function importForm($pid, Request $request) {
         $project = ProjectController::getProject($pid);
 
         if(!\Auth::user()->isProjectAdmin($project))
@@ -401,135 +401,75 @@ class ImportController extends Controller {
 
         $file = $request->file('form');
         $fName = $request->name;
-        $fSlug = $request->slug;
         $fDesc = $request->description;
 
-        $fileArray = json_decode(file_get_contents($file));
+        $fileArray = json_decode(file_get_contents($file),true);
 
         $form = new Form();
 
         if($fName == "")
-            $form->name = $fileArray->name;
+            $form->name = $fileArray['name'];
         else
             $form->name = $fName;
 
-        if($fSlug == "")
-            $finalSlug = $fileArray->slug.'_'.$project->pid.'_';
-        else
-            $finalSlug = $fSlug;
-
-        $form->pid = $project->pid;
-        if(Form::where('slug', '=', $finalSlug)->exists()) {
-            $unique = false;
-            $i=1;
-            while(!$unique) {
-                if(Form::where('slug', '=', $finalSlug.$i)->exists()) {
-                    $i++;
-                } else {
-                    $form->slug = $finalSlug.$i;
-                    $unique = true;
-                }
-            }
-        } else {
-            $form->slug = $finalSlug;
-        }
+        $form->project_id = $pid;
 
         if($fDesc == "")
-            $form->description = $fileArray->desc;
+            $form->description = $fileArray['description'];
         else
             $form->description = $fDesc;
 
-        $form->preset = $fileArray->preset;
-        $form->public_metadata = $fileArray->metadata;
+        $form->preset = $fileArray['preset'];
 
         $form->save();
 
         //make admin group
-        $admin = FormGroup::makeAdminGroup($form, $request);
+        $adminGroup = FormGroup::makeAdminGroup($form, $request);
         FormGroup::makeDefaultGroup($form);
-        $form->adminGID = $admin->id;
-        $form->save();
+        $form->adminGroup_id = $adminGroup->id;
 
-        //pages
-        $pages = $fileArray->pages;
-        $pConvert = array();
+        //Save internal name
+        $form->internal_name = str_replace(" ","_", $form->name).'_'.$form->project_id.'_'.$form->id.'_';
 
-        foreach($pages as $page) {
-            $p = new Page();
+        //Make the form's records table
+        $rTable = new \CreateRecordsTable();
+        $rTable->createFormRecordsTable($form->id);
 
-            $p->fid = $form->fid;
-            $p->title = $page->title;
-            $p->sequence = $page->sequence;
-
-            $p->save();
-
-            $pConvert[$page->id] = $p->id;
+        //field layout stuff
+        $flidMapping = array();
+        $newFieldsArray = array();
+        foreach($fileArray['layout']['fields'] as $flid => $field) {
+            //Define new field internal name, add to mapping?
+            $newFlid = str_replace(" ","_", $field['name']).'_'.$form->project_id.'_'.$form->id.'_';
+            $flidMapping[$flid] = $newFlid;
+            $newFieldsArray[$newFlid] = $field;
+            //Create column for field in records table
+            $fieldMod = $form->getFieldModel($field['type']);
+            $fieldMod->addDatabaseColumn($form->id, $newFlid);
         }
 
+        //Copy page layout, adding new field
+        $newPagesArray = array();
+        foreach($fileArray['layout']['pages'] as $page) {
+            $newPage = ['flids' => [], 'title' => $page['title']];
+            foreach($page['flids'] as $flid) {
+                $newPage['flids'][] = $flidMapping[$flid];
+            }
+            $newPagesArray[] = $newPage;
+        }
+
+        $form->layout = ['fields' => $newFieldsArray, 'pages' => $newPagesArray];
+        $form->save();
+
         //record presets
-        $recPresets = $fileArray->recPresets;
+        $recPresets = $fileArray['recPresets'];
 
         foreach($recPresets as $pre) {
             $rec = new RecordPreset();
-
-            $rec->fid = $form->fid;
-            $rec->name = $pre->name;
-            $rec->preset = $pre->preset;
-
+            $rec->form_id = $form->id;
+            $rec->preset = $pre['preset'];
             $rec->save();
         }
-
-        $fields = $fileArray->fields;
-
-        foreach($fields as $fieldArray) {
-            $field = new Field();
-
-            $field->pid = $project->pid;
-            $field->fid = $form->fid;
-            $field->page_id = $pConvert[$fieldArray->page_id];
-            $field->sequence = $fieldArray->sequence;
-            $field->type = $fieldArray->type;
-            $field->name = $fieldArray->name;
-            $fieldSlug = $fieldArray->slug.'_'.$project->pid.'_'.$form->fid.'_';
-            if(Field::where('slug', '=', $fieldSlug)->exists()) {
-                $unique = false;
-                $i=1;
-                while(!$unique) {
-                    if(Field::where('slug', '=', $fieldSlug.$i)->exists()) {
-                        $i++;
-                    } else {
-                        $field->slug = $fieldSlug.$i;
-                        $unique = true;
-                    }
-                }
-            } else {
-                $field->slug = $fieldSlug;
-            }
-            $field->desc = $fieldArray->desc;
-            $field->required = $fieldArray->required;
-            $field->searchable = $fieldArray->searchable;
-            $field->advsearch = $fieldArray->advsearch;
-            $field->extsearch = $fieldArray->extsearch;
-            $field->viewable = $fieldArray->viewable;
-            $field->viewresults = $fieldArray->viewresults;
-            $field->extview = $fieldArray->extview;
-            $field->default = $fieldArray->default;
-            $field->options = $fieldArray->options;
-
-            $field->save();
-
-            //metadata
-            if($fieldArray->metadata!="") {
-                $meta = new Metadata();
-                $meta->flid = $field->flid;
-                $meta->pid = $project->pid;
-                $meta->fid = $form->fid;
-                $meta->name = $fieldArray->metadata;
-                $meta->save();
-            }
-        }
-
-        flash()->overlay("Your form has been successfully created!","Good job!");
 
         return redirect('projects/'.$pid)->with('k3_global_success', 'form_imported');
     }
@@ -1057,117 +997,62 @@ class ImportController extends Controller {
      * @param  int $pid - Project ID
      * @param  array $fileArray - Form structure info
      */
-    public function importFormNoFile($pid, $fileArray) { //TODO::CASTLE
-        $project = ProjectController::getProject($pid);
-
+    public function importFormNoFile($pid, $fileArray) {
         $form = new Form();
 
-        $form->pid = $project->pid;
-        $form->name = $fileArray->name;
-        $finalSlug = $fileArray->slug.'_'.$project->pid.'_';
-        if(Form::where('slug', '=', $finalSlug)->exists()) {
-            $unique = false;
-            $i=1;
-            while(!$unique) {
-                if(Form::where('slug', '=',$finalSlug.$i)->exists()) {
-                    $i++;
-                } else {
-                    $form->slug = $finalSlug.$i;
-                    $unique = true;
-                }
-            }
-        } else {
-            $form->slug = $finalSlug;
-        }
-        $form->description = $fileArray->desc;
-        $form->preset = $fileArray->preset;
-        $form->public_metadata = $fileArray->metadata;
+        $form->name = $fileArray['name'];
+        $form->project_id = $pid;
+        $form->description = $fileArray['description'];
+        $form->preset = $fileArray['preset'];
 
         $form->save();
 
         //make admin group
-        $admin = FormGroup::makeAdminGroup($form);
+        $adminGroup = FormGroup::makeAdminGroup($form);
         FormGroup::makeDefaultGroup($form);
-        $form->adminGID = $admin->id;
-        $form->save();
+        $form->adminGroup_id = $adminGroup->id;
 
-        //pages
-        $pages = $fileArray->pages;
-        $pConvert = array();
+        //Save internal name
+        $form->internal_name = str_replace(" ","_", $form->name).'_'.$form->project_id.'_'.$form->id.'_';
 
-        foreach($pages as $page) {
-            $p = new Page();
+        //Make the form's records table
+        $rTable = new \CreateRecordsTable();
+        $rTable->createFormRecordsTable($form->id);
 
-            $p->fid = $form->fid;
-            $p->title = $page->title;
-            $p->sequence = $page->sequence;
-
-            $p->save();
-
-            $pConvert[$page->id] = $p->id;
+        //field layout stuff
+        $flidMapping = array();
+        $newFieldsArray = array();
+        foreach($fileArray['layout']['fields'] as $flid => $field) {
+            //Define new field internal name, add to mapping?
+            $newFlid = str_replace(" ","_", $field['name']).'_'.$form->project_id.'_'.$form->id.'_';
+            $flidMapping[$flid] = $newFlid;
+            $newFieldsArray[$newFlid] = $field;
+            //Create column for field in records table
+            $fieldMod = $form->getFieldModel($field['type']);
+            $fieldMod->addDatabaseColumn($form->id, $newFlid);
         }
 
+        //Copy page layout, adding new field
+        $newPagesArray = array();
+        foreach($fileArray['layout']['pages'] as $page) {
+            $newPage = ['flids' => [], 'title' => $page['title']];
+            foreach($page['flids'] as $flid) {
+                $newPage['flids'][] = $flidMapping[$flid];
+            }
+            $newPagesArray[] = $newPage;
+        }
+
+        $form->layout = ['fields' => $newFieldsArray, 'pages' => $newPagesArray];
+        $form->save();
+
         //record presets
-        $recPresets = $fileArray->recPresets;
+        $recPresets = $fileArray['recPresets'];
 
         foreach($recPresets as $pre) {
             $rec = new RecordPreset();
-
-            $rec->fid = $form->fid;
-            $rec->name = $pre->name;
-            $rec->preset = $pre->preset;
-
+            $rec->form_id = $form->id;
+            $rec->preset = $pre['preset'];
             $rec->save();
-        }
-
-        $fields = $fileArray->fields;
-
-        foreach($fields as $fieldArray) {
-            $field = new Field();
-
-            $field->pid = $project->pid;
-            $field->fid = $form->fid;
-            $field->page_id = $pConvert[$fieldArray->page_id];
-            $field->sequence = $fieldArray->sequence;
-            $field->type = $fieldArray->type;
-            $field->name = $fieldArray->name;
-            $fieldSlug = $fieldArray->slug.'_'.$project->pid.'_'.$form->fid.'_';
-            if(Field::where('slug', '=', $fieldSlug)->exists()) {
-                $unique = false;
-                $i=1;
-                while(!$unique) {
-                    if(Field::where('slug', '=', $fieldSlug.$i)->exists()) {
-                        $i++;
-                    } else {
-                        $field->slug = $fieldSlug.$i;
-                        $unique = true;
-                    }
-                }
-            } else {
-                $field->slug = $fieldSlug;
-            }
-            $field->desc = $fieldArray->desc;
-            $field->required = $fieldArray->required;
-            $field->searchable = $fieldArray->searchable;
-            $field->advsearch = $fieldArray->advsearch;
-            $field->extsearch = $fieldArray->extsearch;
-            $field->viewable = $fieldArray->viewable;
-            $field->viewresults = $fieldArray->viewresults;
-            $field->extview = $fieldArray->extview;
-            $field->default = $fieldArray->default;
-            $field->options = $fieldArray->options;
-
-            $field->save();
-
-            //metadata
-            if($fieldArray->metadata!="") {
-                $meta = new Metadata();
-                $meta->flid = $field->flid;
-                $meta->pid = $project->pid;
-                $meta->fid = $form->fid;
-                $meta->name = $fieldArray->metadata;
-                $meta->save();
-            }
         }
     }
 
@@ -1179,77 +1064,57 @@ class ImportController extends Controller {
      * @param  Request $request
      * @return Redirect
      */
-    public function importProject(Request $request) { //TODO::CASTLE
+    public function importProject(Request $request) {
         if(!\Auth::user()->admin)
             return redirect('projects/')->with('k3_global_error', 'not_admin');
 
         $file = $request->file('project');
         $pName = $request->name;
-        $pSlug = $request->slug;
         $pDesc = $request->description;
 
-        $fileArray = json_decode(file_get_contents($file));
+        $fileArray = json_decode(file_get_contents($file),true);
 
-        $proj = new Project();
+        $project = new Project();
 
         if($pName == "")
-            $proj->name = $fileArray->name;
+            $project->name = $fileArray['name'];
         else
-            $proj->name = $pName;
-
-        if($pSlug == "")
-            $finalSlug = $fileArray->slug;
-        else
-            $finalSlug = $pSlug;
-
-        if(Project::where('slug', '=', $finalSlug)->exists()) {
-            $unique = false;
-            $i=1;
-            while(!$unique) {
-                if(Project::where('slug', '=', $finalSlug.$i)->exists()) {
-                    $i++;
-                } else {
-                    $proj->slug = $finalSlug.$i;
-                    $unique = true;
-                }
-            }
-        } else {
-            $proj->slug = $finalSlug;
-        }
+            $project->name = $pName;
 
         if($pDesc == "")
-            $proj->description = $fileArray->description;
+            $project->description = $fileArray['description'];
         else
-            $proj->description = $pDesc;
+            $project->description = $pDesc;
 
-        $proj->active = 1;
+        $project->active = 1;
 
-        $proj->save();
+        $project->save();
 
         //make admin group
-        $admin = ProjectGroup::makeAdminGroup($proj, $request);
-        ProjectGroup::makeDefaultGroup($proj);
-        $proj->adminGID = $admin->id;
-        $proj->save();
+        $adminGroup = ProjectGroup::makeAdminGroup($project, $request);
+        ProjectGroup::makeDefaultGroup($project);
+        $project->adminGroup_id = $adminGroup->id;
+        
+        $project->internal_name = str_replace(" ","_", $project->name).'_'.$project->id.'_';
 
-        $optPresets = $fileArray->optPresets;
+        $project->save();
 
-        foreach($optPresets as $opt) {
-            $pre = new OptionPreset();
+//        $optPresets = $fileArray->optPresets; //TODO::CASTLE
+//        foreach($optPresets as $opt) {
+//            $pre = new OptionPreset();
+//
+//            $pre->pid = $project->pid;
+//            $pre->type = $opt->type;
+//            $pre->name = $opt->name;
+//            $pre->preset = $opt->preset;
+//            $pre->shared = $opt->shared;
+//
+//            $pre->save();
+//        }
 
-            $pre->pid = $proj->pid;
-            $pre->type = $opt->type;
-            $pre->name = $opt->name;
-            $pre->preset = $opt->preset;
-            $pre->shared = $opt->shared;
-
-            $pre->save();
-        }
-
-        $forms = $fileArray->forms;
-
+        $forms = $fileArray['forms'];
         foreach($forms as $form) {
-            $this->importFormNoFile($proj->pid,$form);
+            $this->importFormNoFile($project->id,$form);
         }
 
         return redirect('projects')->with('k3_global_success', 'project_imported');
