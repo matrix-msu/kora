@@ -1,32 +1,32 @@
-@foreach(explode('[!]',$typedField->video) as $key => $vid)
-    @if($vid != '')
-        <div class="record-data-card">
-          <div class="field-display video-field-display video-field-display-js">
-            <video height="300" width="auto" controls>
-              <?php $filename = explode('[Name]',$vid)[1]; ?>
-              <source data-filename="{{explode('[Name]',$vid)[1]}}" src="{{url('app/files/p'.$form->pid.'/f'.$form->fid.'/r'.$record->rid.'/fl'.$field->flid.'/'.explode('[Name]',$vid)[1])}}" type="{{explode('[Type]',$vid)[1]}}">
+@foreach($typedField->processDisplayData($field, $value) as $vid)
+    @php
+        $filename = $vid['name'];
+    @endphp
+    <div class="record-data-card">
+      <div class="field-display video-field-display video-field-display-js">
+        <video height="300" width="auto" controls>
+          <source data-filename="{{$filename}}" src="{{url('app/files/'.$vid['url'].'/'.$filename)}}" type="{{$vid['type']}}">
 
-              Your browser does not support the video tag.
-            </video>
+          Your browser does not support the video tag.
+        </video>
+      </div>
+
+      <div class="field-sidebar video-sidebar video-sidebar-js">
+          <div class="top">
+              <a href="{{url('projects/'.$form->project_id.'/forms/'.$form->id.'/records/'.$record->id.'/resource/'.$filename)}}" class="field-btn" target="_blank">
+                  <i class="icon icon-external-link"></i>
+              </a>
+
+              <a href="{{ action('FieldAjaxController@getFileDownload', ['kid' => $record->kid, 'filename' => $filename]) }}" class="field-btn">
+                  <i class="icon icon-download"></i>
+              </a>
           </div>
 
-          <div class="field-sidebar video-sidebar video-sidebar-js">
-              <div class="top">
-                  <a href="{{url('projects/'.$form->pid.'/forms/'.$form->fid.'/records/'.$record->rid.'/fields/'.$field->flid.'/'.$filename)}}" class="field-btn" target="_blank">
-                      <i class="icon icon-external-link"></i>
-                  </a>
-
-                  <a href="{{ action('FieldAjaxController@getFileDownload', ['flid' => $field->flid, 'rid' => $record->rid, 'filename' => $filename]) }}" class="field-btn">
-                      <i class="icon icon-download"></i>
-                  </a>
-              </div>
-
-              <div class="bottom">
-                  <div class="field-btn full-screen-button-js">
-                      <i class="icon icon-maximize"></i>
-                  </div>
+          <div class="bottom">
+              <div class="field-btn full-screen-button-js">
+                  <i class="icon icon-maximize"></i>
               </div>
           </div>
-        </div>
-    @endif
+      </div>
+    </div>
 @endforeach
