@@ -85,8 +85,8 @@ class FieldController extends Controller {
 
         //Field Specific Stuff
         $fieldMod = $form->getFieldModel($request->type);
-        $field['options'] = $fieldMod->getDefaultOptions();
         $fieldMod->addDatabaseColumn($form->id, $flid);
+        $field['options'] = $fieldMod->getDefaultOptions();
 
         //Add to form
         $layout['fields'][$flid] = $field;

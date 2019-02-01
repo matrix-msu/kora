@@ -3,6 +3,7 @@
 use App\Form;
 use App\Record;
 use App\Search;
+use App\Http\Controllers\FormController;
 use Illuminate\Http\Request;
 
 class ListField extends BaseField {
@@ -89,7 +90,7 @@ class ListField extends BaseField {
      * @return string - The default options
      */
     public function getDefaultOptions() {
-        return ['Options' => []];
+        return ['Options' => ['Please Modify List Values']];
     }
 
     /**
@@ -100,25 +101,28 @@ class ListField extends BaseField {
      * @return Redirect
      */
     public function updateOptions($field, Request $request) {
-        if($request->options!='') {
-            $reqOpts = str_split($request->options);
-            if($reqOpts[0]!=end($reqOpts))
-                $request->options = '[!]' . $request->options;
-        } else {
-            $request->options = null;
+        $reqOpts = $request->options;
+        $options = $reqOpts[0];
+        if(!is_null($options)) {
+            for($i = 1; $i < sizeof($reqOpts); $i++) {
+                $options .= '[!]' . $reqOpts[$i];
+            }
         }
 
         // TODO::Make sure this is coming
         // through the request.
+        $form = FormController::getForm($request->fid);
         $table = new \CreateRecordsTable();
+        $slug = str_replace(" ","_", $request->name).'_'.$form->project_id.'_'.$form->id.'_';
+
         $table->updateEnum(
             $request->fid,
-            $request->slug,
-            $request->options
+            $slug,
+            $options
         );
 
         $field['default'] = $request->default;
-        $field['options']['Options'] = $request->options;
+        $field['options']['Options'] = $options;
 
         return $field;
     }
@@ -262,7 +266,6 @@ class ListField extends BaseField {
      * For a test record, add test data to field.
      */
     public function getTestData() {
-        // TODO: we'll see
         return 'This is sample option for this list field.';
     }
 
@@ -349,5 +352,19 @@ class ListField extends BaseField {
             ->where($flid, $param,"$arg")
             ->pluck('id')
             ->toArray();
+    }
+
+    ///////////////////////////////////////////////END ABSTRACT FUNCTIONS///////////////////////////////////////////////
+
+    /**
+     * Gets the list options for a list field.
+     *
+     * @param  Field $field - Field to pull options from
+     * @param  bool $blankOpt - Has blank option as first array element
+     * @return array - The list options
+     */
+    public static function getList($field, $blankOpt=false) {
+        $dbOpt = FieldController::getFieldOption($field, 'Options');
+        return self::getListOptionsFromString($dbOpt,$blankOpt);
     }
 }

@@ -2,6 +2,7 @@
 
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\DB;
 
 class CreateRecordsTable extends Migration {
 
@@ -63,7 +64,7 @@ class CreateRecordsTable extends Migration {
     }
 
     public function addEnumColumn($fid, $slug, $list = ['Please Modify List Values']) {
-        Schema::table("records_$fid", function(Blueprint $table) use ($slug) {
+        Schema::table("records_$fid", function(Blueprint $table) use ($slug, $list) {
             $table->enum($slug, $list)->nullable();
         });
     }
@@ -81,7 +82,8 @@ class CreateRecordsTable extends Migration {
     }
 
     public function updateEnum($fid, $slug, $list) {
-        // TODO::Not sure if this is correct.
-        DB::alter('alter table ? change column ? enum(?)', ['records_' . $fid, $slug, $list])
+        DB::table(
+            'alter table ? change column ? enum(?)', ['records_' . $fid, $slug, $list]
+        );
     }
 }

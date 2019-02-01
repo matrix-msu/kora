@@ -65,7 +65,7 @@ class Form extends Model {
             self::_3D_MODEL => self::_3D_MODEL.' (obj, stl)'
         ),
         //'Text Fields' => array('Text' => 'Text', 'Rich Text' => 'Rich Text', 'Integer' => 'Integer', 'Floating Point' => 'Floating Point'),
-        'List Fields' => array('List' => 'List')
+        'List Fields' => array(self::_LIST => self::_LIST)
         // 'List Fields' => array('List' => 'List', 'Multi-Select List' => 'Multi-Select List', 'Generated List' => 'Generated List', 'Combo List' => 'Combo List'),
         //'Date Fields' => array('Date' => 'Date', 'Schedule' => 'Schedule'),
         //'Specialty Fields' => array('Geolocator' => 'Geolocator (latlon, utm, textual)','Associator' => 'Associator')
