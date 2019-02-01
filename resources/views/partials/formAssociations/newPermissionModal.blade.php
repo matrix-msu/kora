@@ -14,11 +14,29 @@
           <select class="single-select" id="new-form" name="assocfid"
             data-placeholder="Select a form here">
             <option></option>
-            @foreach ($associatable_forms as $association)
-              @if (!in_array($association, $associatedForms))
-                <option value="{{$association->fid}}">{{$association->project()->get()->first()->name}} - {{$association->name}}</option>
-              @endif
-            @endforeach
+			<?php
+			$fids = array();
+			$sorted_associatable_forms = array();
+			foreach ($associatable_forms as $association) {
+				if (!in_array($association, $associatedForms)) {
+					$display_str = $association->project()->get()->first()->name . ' - ' . $association->name;
+					
+					while (in_array($display_str, $sorted_associatable_forms)) {
+						$display_str = $display_str . ' ';
+					}
+					
+					array_push($sorted_associatable_forms, $display_str);
+					$fids[$display_str] = $association->fid;
+				}
+			}
+			sort($sorted_associatable_forms, SORT_FLAG_CASE | SORT_NATURAL);
+			?>
+			
+			@foreach ($sorted_associatable_forms as $association_display_text) {
+				<option value="{{$fids[$association_display_text]}}">{{$association_display_text}}</option>
+			@endforeach
+			
+            
           </select>
         </div>
 
