@@ -678,7 +678,7 @@ class ExportController extends Controller {
 
                         $fieldIndex = $fields[$row['flid']][$fIndex];
 
-                        $records[$kid][$fieldIndex]['value'] = $row['number'];
+                        $records[$kid][$fieldIndex]['value'] = (float)$row['number'];
                     }
                     $datafields->free();
                     $con->next_result();
@@ -1128,9 +1128,9 @@ class ExportController extends Controller {
                     $kid = $ridsToKids[$row['rid']];
 
                     if($useOpts && isset($options['under']) && $options['under'])
-                    	$records[$kid][$fields[$row['flid']]['legacy_name']] = $row['number'];
+                    	$records[$kid][$fields[$row['flid']]['legacy_name']] = (float)$row['number'];
                     else
-                    	$records[$kid][$fields[$row['flid']]['name']] = $row['number'];
+                    	$records[$kid][$fields[$row['flid']]['name']] = (float)$row['number'];
                 }
                 $datafields->free();
                 $con->next_result();
