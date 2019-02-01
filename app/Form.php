@@ -198,6 +198,10 @@ class Form extends Model {
             $rTable = new \CreateRecordsTable();
             $rTable->renameColumn($this->id,$flid,$newFlid);
 
+            // Updating new field name
+            $layout['fields'][$newFlid] = $layout['fields'][$flid];
+            unset($layout['fields'][$flid]);
+
             foreach($layout['pages'] as $index => $page) {
                 $remainingFLIDS = [];
                 foreach($page['flids'] as $f) {

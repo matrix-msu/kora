@@ -100,7 +100,7 @@ class PlaylistField extends FileTypeField {
      * @param  Request $request
      * @return array - The updated field array
      */
-    public function updateOptions($field, Request $request) {
+    public function updateOptions($field, Request $request, $slug = null) {
         if($request->filesize==0)
             $request->filesize = null;
         if($request->maxfiles==0)
