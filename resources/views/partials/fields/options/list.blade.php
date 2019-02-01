@@ -14,7 +14,7 @@
 
             <!-- Cards of list options -->
             <div class="list-option-card-container list-option-card-container-js">
-                @foreach($field['options'] as $option)
+                @foreach($field['options']['Options'] as $option)
                     <div class="card list-option-card list-option-card-js" data-list-value="{{ $option }}">
                         <input type="hidden" class="list-option-js" name="options[]" value="{{ $option }}">
 

@@ -100,29 +100,25 @@ class ListField extends BaseField {
      * @param  Request $request
      * @return Redirect
      */
-    public function updateOptions($field, Request $request) {
-        $reqOpts = $request->options;
-        $options = $reqOpts[0];
-        if(!is_null($options)) {
-            for($i = 1; $i < sizeof($reqOpts); $i++) {
-                $options .= '[!]' . $reqOpts[$i];
-            }
+    public function updateOptions($field, Request $request, $slug = null) {
+        if(is_null($request->options)) {
+            $request->options = array();
         }
 
-        // TODO::Make sure this is coming
-        // through the request.
-        $form = FormController::getForm($request->fid);
-        $table = new \CreateRecordsTable();
-        $slug = str_replace(" ","_", $request->name).'_'.$form->project_id.'_'.$form->id.'_';
+        if(is_null($slug)) {
+            $form = FormController::getForm($request->fid);
+            $slug = str_replace(" ","_", $request->name).'_'.$form->project_id.'_'.$form->id.'_';
+        }
 
+        $table = new \CreateRecordsTable();
         $table->updateEnum(
             $request->fid,
             $slug,
-            $options
+            $request->options
         );
 
         $field['default'] = $request->default;
-        $field['options']['Options'] = $options;
+        $field['options']['Options'] = $request->options;
 
         return $field;
     }
@@ -265,7 +261,7 @@ class ListField extends BaseField {
     /**
      * For a test record, add test data to field.
      */
-    public function getTestData() {
+    public function getTestData($url = null) {
         return 'This is sample option for this list field.';
     }
 
@@ -352,19 +348,5 @@ class ListField extends BaseField {
             ->where($flid, $param,"$arg")
             ->pluck('id')
             ->toArray();
-    }
-
-    ///////////////////////////////////////////////END ABSTRACT FUNCTIONS///////////////////////////////////////////////
-
-    /**
-     * Gets the list options for a list field.
-     *
-     * @param  Field $field - Field to pull options from
-     * @param  bool $blankOpt - Has blank option as first array element
-     * @return array - The list options
-     */
-    public static function getList($field, $blankOpt=false) {
-        $dbOpt = FieldController::getFieldOption($field, 'Options');
-        return self::getListOptionsFromString($dbOpt,$blankOpt);
     }
 }
