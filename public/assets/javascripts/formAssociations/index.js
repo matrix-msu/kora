@@ -173,7 +173,7 @@ Kora.FormAssociations.Index = function() {
     });
   }
 
-  function initializeNewPermissionModal() {
+  function initializeNewPermissionModal() {  
     $('.new-permission-js').click(function(e) {
       e.preventDefault();
 
@@ -189,6 +189,10 @@ Kora.FormAssociations.Index = function() {
           if (assocFormID !== "") {
             $('.new-assoc-error-js').text('');
             self.createPermissions(assocFormID);
+			setTimeout(function(){
+				$('.trash-container.delete-permission-association-js').attr('tooltip', 'Remove Form Association');
+				$('.trash-container.delete-permission-association-js').addClass('tooltip');
+			}, 1000);
           } else {
             $('.new-assoc-error-js').text('Please select a form');
           }
