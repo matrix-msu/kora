@@ -1,1 +1,1 @@
-{{ $typedField->option }}
+{{ $typedField->processDisplayData($field, $value) }}

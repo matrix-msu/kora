@@ -100,7 +100,7 @@ class RichTextField extends BaseField {
      * @param  Request $request
      * @return array - The updated field array
      */
-    public function updateOptions($field, Request $request) {
+    public function updateOptions($field, Request $request, $slug = null) {
         $field['default'] = $request->default;
 
         return $field;

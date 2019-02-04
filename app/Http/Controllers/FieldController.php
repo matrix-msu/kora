@@ -85,8 +85,8 @@ class FieldController extends Controller {
 
         //Field Specific Stuff
         $fieldMod = $form->getFieldModel($request->type);
-        $field['options'] = $fieldMod->getDefaultOptions();
         $fieldMod->addDatabaseColumn($form->id, $flid);
+        $field['options'] = $fieldMod->getDefaultOptions();
 
         //Add to form
         $layout['fields'][$flid] = $field;
@@ -223,7 +223,7 @@ class FieldController extends Controller {
         $field['viewable'] = isset($request->viewable) && $request->viewable ? 1 : 0;
         $field['viewable_in_results'] = isset($request->viewresults) && $request->viewresults ? 1 : 0;
         $field['external_view'] = isset($request->extview) && $request->extview ? 1 : 0;
-        $field = $form->getFieldModel($field['type'])->updateOptions($field, $request);
+        $field = $form->getFieldModel($field['type'])->updateOptions($field, $request, $flid);
 
         //Need to reindex the field if the name has changed. This will also update the column name.
         if($newFlid!=$flid) {
