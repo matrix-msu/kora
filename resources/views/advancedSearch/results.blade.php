@@ -44,6 +44,9 @@
             </div>
         </section>
 
+        <div class="display-keywords mt-xxl"><ul class="keywords"></ul></div>
+
+        @if(sizeof($records) > 0)
         <section class="display-records">
             <div class="form-group records-title mt-xxxl">
                 Showing {{sizeof($records)}} of {{$total}} Records
@@ -76,7 +79,14 @@
             @endforeach
 
             @include('partials.records.pagination')
+
+            <div class="form-group search-button-container mt-xxxl">
+                <a class="btn half-sub-btn to-top">Try Another Search</a>
+            </div>
         </section>
+        @else
+            @include('partials.records.no-records')
+        @endif
     </section>
 @stop
 
