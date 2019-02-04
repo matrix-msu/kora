@@ -1,4 +1,4 @@
-<form method="POST" action="{{action("AdvancedSearchController@search", ["pid" => $form->pid, "fid" => $form->fid])}}">
+<form method="POST" class="adv-search-js" action="{{action("AdvancedSearchController@search", ["pid" => $form->pid, "fid" => $form->fid])}}">
     <input type="hidden" name="_token" value="{{ csrf_token() }}">
     @foreach($form->fields()->get() as $field)
         <?php $typedField = $field->getTypedField(); ?>
@@ -24,6 +24,6 @@
         @endif
     @endforeach
     <div class="form-group mt-xxxl">
-        {!! Form::submit('Submit Advanced Search', ['class' => 'btn']) !!}
+        {!! Form::submit('Submit Advanced Search', ['class' => 'btn adv-search-js']) !!}
     </div>
 </form>
