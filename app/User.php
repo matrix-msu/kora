@@ -604,7 +604,7 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
             array_push($customArray,$pid);
 
             DB::table('project_custom')->where("id", "=", $check->id)->update(
-                ['organization' => json_encode($customArray),
+                ['organization' => json_encode(array_unique($customArray)),
                     "updated_at" => Carbon::now()]
             );
         }
@@ -635,7 +635,7 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
             array_push($customArray,$fid);
 
             DB::table('form_custom')->where("id", "=", $check->id)->update(
-                ['organization' => json_encode($customArray),
+                ['organization' => json_encode(array_unique($customArray)),
                     "updated_at" => Carbon::now()]
             );
         }
@@ -653,6 +653,8 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
         foreach($projects as $project) {
             array_push($sequence,$project->id);
         }
+
+        $sequence = array_unique($sequence);
 
         //Create or edit custom project list for user
         if(is_null($check)) {
@@ -688,14 +690,14 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
             //Create or edit custom form list for user
             if(is_null($check)) {
                 DB::table('form_custom')->insert(
-                    ['user_id' => $this->id, 'project_id' => $cpid,'organization' => json_encode($cfids),
-                        "created_at" => Carbon::now(),
-                        "updated_at" => Carbon::now()]
+                    ['user_id' => $this->id, 'project_id' => $cpid,'organization' => json_encode(array_unique($cfids)),
+                        "created_at" => $time,
+                        "updated_at" => $time]
                 );
             } else {
                 DB::table('form_custom')->where("id", "=", $check->id)->update(
-                        ['organization' => json_encode($cfids),
-                            "updated_at" => Carbon::now()]
+                        ['organization' => json_encode(array_unique($cfids)),
+                            "updated_at" => $time]
                     );
             }
         }
@@ -715,7 +717,7 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
             $remainingProjects = array();
             for($i=0;$i<sizeof($customArray);$i++) {
                 if($customArray[$i] != $pid)
-                    array_push($customArray[$i],$remainingProjects);
+                    array_push($remainingProjects,$customArray[$i]);
             }
 
             DB::table('project_custom')->where("id", "=", $check->id)->update(
@@ -743,7 +745,7 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
             $remainingForms = array();
             for($i=0;$i<sizeof($customArray);$i++) {
                 if($customArray[$i] != $fid)
-                    array_push($customArray[$i],$remainingForms);
+                    array_push($remainingForms,$customArray[$i]);
             }
 
             DB::table('form_custom')->where("id", "=", $check->id)->update(
@@ -767,7 +769,7 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
             $remainingProjects = array();
             for($i=0;$i<sizeof($customArray);$i++) {
                 if(!in_array($customArray[$i],$pids))
-                    array_push($customArray[$i],$remainingProjects);
+                    array_push($remainingProjects,$customArray[$i]);
             }
 
             DB::table('project_custom')->where("id", "=", $check->id)->update(
@@ -792,7 +794,7 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
                 $remainingForms = array();
                 for($i = 0; $i < sizeof($customArray); $i++) {
                     if(!in_array($customArray[$i],$fids))
-                        array_push($customArray[$i], $remainingForms);
+                        array_push($remainingForms,$customArray[$i]);
                 }
 
                 DB::table('form_custom')->where("id", "=", $chk->id)->update(

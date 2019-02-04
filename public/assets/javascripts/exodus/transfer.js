@@ -37,7 +37,6 @@ Kora.Exodus.Transfer = function() {
                         //Add link to return to projects page
                         progressText.html('Exodus transfer complete! Click <a class="success-link" href="'+projectsUrl+
                             '">here to go to the projects page</a> and see your new projects.');
-                        unlockUsers();
                     }
                 });
             },
@@ -75,7 +74,7 @@ Kora.Exodus.Transfer = function() {
                         var totalOverall = 0;
                         for (var id in data.partial) {
                             totalProgress += data.partial[id]['progress'];
-                            totalOverall += data.partial[id]['overall'];
+                            totalOverall += data.partial[id]['total_records'];
                         }
                         var progressValue = ((totalProgress / totalOverall) * 100);
                         if(progressValue < 7)
@@ -103,32 +102,6 @@ Kora.Exodus.Transfer = function() {
         }
     }
 
-    function initializeUnlockUsers() {
-        $(".progress-text-js").on('click', '.unlock-users-js', function (e) {
-            e.preventDefault();
-
-            unlockUsers();
-        });
-    }
-
-    function unlockUsers() {
-        var unlockURL = unlockUsersUrl;
-        $.ajax({
-            url: unlockURL,
-            method: 'POST',
-            data: {
-                "_token": CSRFToken
-            },
-            success: function (data) {
-                progressText.text('Users are now able to access Kora 3');
-            },
-            error: function (data) {
-                progressText.text('Unable to restore access to all users. You may have to manually unlock them via the database');
-            }
-        })
-    }
-
     initializeMigrateProjects();
     initializeCheckProgress();
-    initializeUnlockUsers();
 }

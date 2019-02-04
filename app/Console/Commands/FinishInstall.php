@@ -4,7 +4,7 @@ use App\Http\Controllers\InstallController;
 use App\Http\Requests\InstallRequest;
 use Illuminate\Console\Command;
 
-class FinishInstall extends Command
+class FinishInstall extends Command //TODO::CASTLE
 {
     /*
     |--------------------------------------------------------------------------

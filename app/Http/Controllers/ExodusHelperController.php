@@ -1,10 +1,6 @@
 <?php namespace App\Http\Controllers;
 
-use App\Field;
-use App\FileTypeField;
 use App\Form;
-use App\Metadata;
-use App\Page;
 use App\Record;
 use App\RecordPreset;
 use App\User;
@@ -13,7 +9,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
-class ExodusHelperController extends Controller { //TODO::CASTLE
+class ExodusHelperController extends Controller {
 
     /*
     |--------------------------------------------------------------------------
@@ -57,17 +53,16 @@ class ExodusHelperController extends Controller { //TODO::CASTLE
      */
     public function makeBackupTableArray($recordCnt, $form, $exodus_id) {
         //need to make sure these tables are not running more than one
-        $duplicate = DB::table('exodus_partial_progress')->where('name', $form->slug)->where('exodus_id', $exodus_id)->count();
+        $duplicate = DB::table('exodus_partial')->where('name', $form->internal_name)->where('exodus_id', $exodus_id)->count();
 
-        if($duplicate>0)
+        if($duplicate > 0)
             return false;
 
         return [
             "name" => $form->slug,
             "progress" => 0,
-            "overall" => $recordCnt,
+            "total_records" => $recordCnt,
             "exodus_id" => $exodus_id,
-            "start" => Carbon::now(),
             "created_at" => Carbon::now(),
             "updated_at" => Carbon::now()
         ];
@@ -84,8 +79,8 @@ class ExodusHelperController extends Controller { //TODO::CASTLE
      * @param $filePath - Local system path for kora 2 files
      * @param $exodus_id - Progress table id
      */
-    public function migrateControlsAndRecords($ogSid, $fid, $formArray, $pairArray, $dbInfo, $filePath, $exodus_id) {
-        //connect to db and set up variables
+    public function migrateControlsAndRecords($ogSid, $fid, $formArray, $pairArray, $dbInfo, $filePath, $exodus_id) { //TODO::CASTLE
+        //connect to db and set up variables //TODO::CASTLE
         $con = mysqli_connect($dbInfo['host'],$dbInfo['user'],$dbInfo['pass'],$dbInfo['name']);
         $form = FormController::getForm($fid);
         $newForm = $form;
@@ -104,7 +99,7 @@ class ExodusHelperController extends Controller { //TODO::CASTLE
             $table_array
         );
 
-        //build nodes based off of collections
+        //build nodes based off of collections //TODO::CASTLE
         $colls = $con->query('select * from collection where schemeid='.$ogSid.' order by sequence');
         $pIndex = 0;
         while($c = $colls->fetch_assoc()) {
@@ -121,7 +116,7 @@ class ExodusHelperController extends Controller { //TODO::CASTLE
             $collToPage[$c['collid'].'_seq'] = 0;
         }
 
-        //build all the fields for the form
+        //build all the fields for the form //TODO::CASTLE
         $controls = $con->query('select * from p'.$oldPid.'Control where schemeid='.$ogSid.' order by sequence');
         while($c = $controls->fetch_assoc()) {
             if($c['name'] != 'systimestamp' && $c['name'] != 'recordowner') {
@@ -382,7 +377,7 @@ class ExodusHelperController extends Controller { //TODO::CASTLE
         }
 
         //Now that we know the control options for all the associators, and which field ID they correlate to,
-        // we will save the associators options
+        // we will save the associators options //TODO::CASTLE
         foreach($assocControlCheck as $cid => $sids) {
             $flid = $oldControlInfo[$cid];
 
@@ -406,7 +401,7 @@ class ExodusHelperController extends Controller { //TODO::CASTLE
             $af->save();
         }
 
-        //Dublin Core stuff//////////////////////////////////////////
+        //Dublin Core stuff////////////////////////////////////////// //TODO::CASTLE
         $dublins = $con->query('select dublinCoreFields from scheme where schemeid='.$ogSid);
         $dubs = $dublins->fetch_assoc(); //only one possible row
         if(!is_null($dubs['dublinCoreFields'])) {
@@ -442,7 +437,7 @@ class ExodusHelperController extends Controller { //TODO::CASTLE
         //time to build the records
         Log::info('Iterating through data');
 
-        //Record stuff//////////////////////////////////////////
+        //Record stuff////////////////////////////////////////// //TODO::CASTLE
         error_reporting(E_ALL);
         ini_set('display_errors', '1');
         ini_set('memory_limit','2G'); //We might be pulling a lot of rows so this is a safety precaution
@@ -454,7 +449,7 @@ class ExodusHelperController extends Controller { //TODO::CASTLE
         $chunks = array_chunk($recrows, 500);
         unset($recrows);
 
-        foreach($chunks as $chunk) {
+        foreach($chunks as $chunk) { //TODO::CASTLE
             foreach($chunk as $r) {
                 //Build type arrays
                 $textfields = array();
@@ -802,12 +797,12 @@ class ExodusHelperController extends Controller { //TODO::CASTLE
 
         unset($chunks);
 
-        //We want to save the Typed Field that will have the data eventually, matched to its values in Kora 2 KID form
+        //We want to save the Typed Field that will have the data eventually, matched to its values in Kora 2 KID form //TODO::CASTLE
         $dataToWrite = json_encode($assocFile);
         $filename = storage_path(ExodusController::EXODUS_DATA_PATH.'assoc_'.$ogSid.'_'.$filePartNum.'.json');
         file_put_contents($filename,$dataToWrite);
 
-        //We want to save the conversion array of Kora 2 KIDs to Kora 3 RIDs for this scheme
+        //We want to save the conversion array of Kora 2 KIDs to Kora 3 RIDs for this scheme //TODO::CASTLE
         $ridChunks = array_chunk($oldKidToNewRid, 500, true);
         $partIndex = 0;
         foreach($ridChunks as $ridc) {
@@ -819,7 +814,7 @@ class ExodusHelperController extends Controller { //TODO::CASTLE
 
         unset($ridChunks);
 
-        //Last but not least, record presets!!!!!!!!!
+        //Last but not least, record presets!!!!!!!!! //TODO::CASTLE
         $recordPresets = $records = $con->query('select * from recordPreset where schemeid='.$ogSid);
         while($rp = $recordPresets->fetch_assoc()) {
             $preset = new RecordPreset();
@@ -835,7 +830,7 @@ class ExodusHelperController extends Controller { //TODO::CASTLE
 
         //End Record stuff//////////////////////////////////////
 
-        //Breath now
+        //Breath now //TODO::CASTLE
         Log::info('Done creating records for '.$form->slug.'.');
         DB::table('exodus_overall_progress')->where('id', $exodus_id)->increment('progress',1,['updated_at'=>Carbon::now()]);
 
@@ -849,7 +844,7 @@ class ExodusHelperController extends Controller { //TODO::CASTLE
      * @param  int $id - Preset ID
      * @return array - The record data
      */
-    public function getRecordArray($rid, $id) {
+    public function getRecordArray($rid, $id) { //TODO::CASTLE
         $record = Record::where('rid', '=', $rid)->first();
         $form = Form::where('fid', '=', $record->fid)->first();
 
@@ -896,7 +891,7 @@ class ExodusHelperController extends Controller { //TODO::CASTLE
      * @param  int $pid - Project ID
      * @param  int $id - Preset ID
      */
-    public function moveFilesToPreset($rid, $id) {
+    public function moveFilesToPreset($rid, $id) { //TODO::CASTLE
         $presets_path = storage_path('app/presetFiles');
 
         //

@@ -3,7 +3,7 @@
 use App\Field;
 use Illuminate\Console\Command;
 
-class ThumbScript extends Command {
+class ThumbScript extends Command { //TODO::CASTLE
 
     /*
     |--------------------------------------------------------------------------
