@@ -262,7 +262,7 @@ class ListField extends BaseField {
      * For a test record, add test data to field.
      */
     public function getTestData($url = null) {
-        return 'This is sample option for this list field.';
+        return 'This is the list option that was selected.';
     }
 
     /**
