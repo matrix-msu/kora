@@ -8,3 +8,5 @@ phpunit.xml
 .DS_Store
 .sass-cache
 .csscomb.json
+*.sublime-workspace
+*.sublime-project

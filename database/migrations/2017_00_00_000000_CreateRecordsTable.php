@@ -2,6 +2,7 @@
 
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\DB;
 
 class CreateRecordsTable extends Migration {
 
@@ -62,7 +63,21 @@ class CreateRecordsTable extends Migration {
         });
     }
 
+    public function addEnumColumn($fid, $slug, $list = ['Please Modify List Values']) {
+        Schema::table("records_$fid", function(Blueprint $table) use ($slug, $list) {
+            $table->enum($slug, $list)->nullable();
+        });
+    }
+
     public function renameColumn($fid, $slug, $newSlug) {
+        // Workaround for enums, exists for sets as well.
+        DB::getDoctrineSchemaManager()->getDatabasePlatform()->registerDoctrineTypeMapping('enum', 'string');
+        Schema::table("records_$fid", function (Blueprint $table) use ($slug, $newSlug) {
+            $table->renameColumn($slug,$newSlug);
+        });
+    }
+
+    public function renameEnumColumn($fid, $slug, $newSlug) {
         Schema::table("records_$fid", function (Blueprint $table) use ($slug, $newSlug) {
             $table->renameColumn($slug,$newSlug);
         });
@@ -72,5 +87,11 @@ class CreateRecordsTable extends Migration {
         Schema::table("records_$fid", function (Blueprint $table) use ($slug) {
             $table->dropColumn($slug);
         });
+    }
+
+    public function updateEnum($fid, $slug, $list) {
+        DB::statement(
+            'alter table ' . DB::getTablePrefix() . 'records_' . $fid . ' modify column ' . $slug . ' enum("' . implode('","', $list) . '")'
+        );
     }
 }

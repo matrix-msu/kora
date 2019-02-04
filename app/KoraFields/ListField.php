@@ -3,27 +3,28 @@
 use App\Form;
 use App\Record;
 use App\Search;
+use App\Http\Controllers\FormController;
 use Illuminate\Http\Request;
 
-class TextField extends BaseField {
+class ListField extends BaseField {
 
     /*
     |--------------------------------------------------------------------------
-    | Text Field
+    | List Field
     |--------------------------------------------------------------------------
     |
-    | This model represents the text field in Kora3
+    | This model represents the list field in Kora3
     |
     */
 
     /**
-     * @var string - Views for the typed field options //TODO::NEWFIELD
+     * @var string - Views for the typed field options
      */
-    const FIELD_OPTIONS_VIEW = "partials.fields.options.text";
-    const FIELD_ADV_OPTIONS_VIEW = "partials.fields.advanced.text";
-    const FIELD_ADV_INPUT_VIEW = "partials.records.advanced.text";
-    const FIELD_INPUT_VIEW = "partials.records.input.text";
-    const FIELD_DISPLAY_VIEW = "partials.records.display.text";
+    const FIELD_OPTIONS_VIEW = "partials.fields.options.list";
+    const FIELD_ADV_OPTIONS_VIEW = "partials.fields.advanced.list";
+    const FIELD_ADV_INPUT_VIEW = "partials.records.advanced.list";
+    const FIELD_INPUT_VIEW = "partials.records.input.list";
+    const FIELD_DISPLAY_VIEW = "partials.records.display.list";
 
     /**
      * Get the field options view.
@@ -80,37 +81,44 @@ class TextField extends BaseField {
      */
     public function addDatabaseColumn($fid, $slug, $options = null) {
         $table = new \CreateRecordsTable();
-        $table->addTextColumn($fid, $slug);
+        $table->addEnumColumn($fid, $slug);
     }
 
     /**
      * Gets the default options string for a new field.
      *
-     * @return array - The default options
+     * @return string - The default options
      */
     public function getDefaultOptions() {
-        return ['Regex' => '', 'MultiLine' => 0];
+        return ['Options' => ['Please Modify List Values']];
     }
 
     /**
      * Update the options for a field
      *
-     * @param  array $field - Field to update options
+     * @param  Field $field - Field to update options
      * @param  Request $request
-     * @return array - The updated field array
+     * @return Redirect
      */
     public function updateOptions($field, Request $request, $slug = null) {
-        if($request->regex!='') {
-            $regArray = str_split($request->regex);
-            if($regArray[0]!=end($regArray))
-                $request->regex = '/'.$request->regex.'/';
-        } else {
-            $request->regex = null;
+        if(is_null($request->options)) {
+            $request->options = array();
         }
 
+        if(is_null($slug)) {
+            $form = FormController::getForm($request->fid);
+            $slug = str_replace(" ","_", $request->name).'_'.$form->project_id.'_'.$form->id.'_';
+        }
+
+        $table = new \CreateRecordsTable();
+        $table->updateEnum(
+            $request->fid,
+            $slug,
+            $request->options
+        );
+
         $field['default'] = $request->default;
-        $field['options']['Regex'] = $request->regex;
-        $field['options']['MultiLine'] = isset($request->multi) && $request->multi ? 1 : 0;
+        $field['options']['Options'] = $request->options;
 
         return $field;
     }
@@ -127,13 +135,13 @@ class TextField extends BaseField {
     public function validateField($flid, $field, $request, $forceReq = false) {
         $req = $field['required'];
         $value = $request->{$flid};
-        $regex = $field['options']['Regex'];
+        $options = $field['options']['Options'];
 
         if(($req==1 | $forceReq) && ($value==null | $value==""))
             return [$flid => $field['name'].' is required'];
 
-        if($value!="" && ($regex!=null | $regex!="") && !preg_match($regex,$value))
-            return [$flid => $field['name'].' must match the regex pattern: '.$regex];
+        if($value!="" && !in_array($value,$options))
+            return [$flid => $field['name'].' has an invalid value not in the list.'];
 
         return array();
     }
@@ -154,7 +162,7 @@ class TextField extends BaseField {
     }
 
     /**
-     * Formats data for revision display.
+     * Formats data for revision entry.
      *
      * @param  mixed $data - The data to store
      * @param  Request $request
@@ -207,10 +215,7 @@ class TextField extends BaseField {
      * @return mixed - Processed data
      */
     public function processDisplayData($field, $value) {
-        if($field['options']['MultiLine'])
-            return nl2br($value);
-        else
-            return $value;
+        return $value;
     }
 
     /**
@@ -255,12 +260,9 @@ class TextField extends BaseField {
 
     /**
      * For a test record, add test data to field.
-     *
-     * @param  string $url - Url for File Type Fields
-     * @return mixed - The data
      */
     public function getTestData($url = null) {
-        return 'This is sample text for this text field.';
+        return 'This is the list option that was selected.';
     }
 
     /**
@@ -274,13 +276,13 @@ class TextField extends BaseField {
         switch($type) {
             case "XML":
                 $xml = '<' . $slug . '>';
-                $xml .= utf8_encode('This is sample text for this text field.');
+                $xml .= utf8_encode('This is the list option that was selected');
                 $xml .= '</' . $slug . '>';
 
                 return $xml;
                 break;
             case "JSON":
-                $fieldArray[$slug] = 'This is sample text for this text field.';
+                $fieldArray[$slug] = 'This is the list option that was selected';
 
                 return $fieldArray;
                 break;
@@ -318,7 +320,7 @@ class TextField extends BaseField {
      * @return Request - The update request
      */
     public function setRestfulAdvSearch($data, $flid, $request) {
-        $request->request->add([$flid.'_input' => $data->input]);
+        $request->request->add([$flid.'_input' => $data->option]);
 
         return $request;
     }
