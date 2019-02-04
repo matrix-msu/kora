@@ -59,6 +59,21 @@ Kora.Records.Validate = function() {
 	}
 
     function initializeRecordValidation() {
+		$('.page-section-js .form-group .number-input-container-js').find('.text-input').blur(function(){
+			var input = $(this);
+			var container = input.parent();
+			var input_val = parseInt(input.val());
+			
+			if (input_val < parseInt(input.attr('min')) || input_val > parseInt(input.attr('max'))) {
+				container.siblings(".error-message").text("Number is outside of set range (" + input.attr('min') + "-" + input.attr('max') + ")");
+				input.addClass("error");
+				passed = false;
+			} else {
+				container.siblings(".error-message").text("");
+				input.removeClass("error");
+			}
+		});
+		
         $('.record-validate-js').click(function(e) {
             var $this = $(this);
 
