@@ -236,6 +236,7 @@ Kora.Projects.Index = function() {
       $this = $(this);
       // Check if profile picture exists
       $modal.find('.profile-js').html("").css("top", "-63px");
+
       $.get($this.data('profile'))
           .done(function() {
             $modal.find('.profile-js').html('<img src="' + $this.data('profile') + '" alt="Profile Pic">');
