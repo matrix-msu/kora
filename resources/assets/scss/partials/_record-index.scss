@@ -105,6 +105,7 @@
         // scss-lint:disable SelectorDepth
         .half-sub-btn,
         .half-btn {
+          float: unset;
           margin-top: 40px;
           max-width: $max-mobile-l-width;
           width: 100%;

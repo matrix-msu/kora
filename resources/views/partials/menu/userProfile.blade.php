@@ -1,8 +1,12 @@
 <li class="navigation-profile">
   <a href="#" class="profile-toggle navigation-toggle-js">
-    <?php  $imgpath = 'app/profiles/' . \Auth::user()->id . '/' . \Auth::user()->profile ?>
-    @if(File::exists( public_path('app/' . $imgpath) ))
-      <img class="profile-picture" src="{{url($imgpath)}}">
+    <?php 
+	$public_imgpath = 'app/profiles/' . \Auth::user()->id . '/' . \Auth::user()->profile;
+	$full_imgpath = \Auth::user()->getProfilePicUrl();
+	?>
+	 
+    @if(File::exists( public_path($public_imgpath) ))
+      <img class="profile-picture" src="{{url($full_imgpath)}}">
     @else
       <i class="icon icon-user-little"></i>
     @endif
