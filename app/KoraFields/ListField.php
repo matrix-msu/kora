@@ -81,7 +81,10 @@ class ListField extends BaseField {
      */
     public function addDatabaseColumn($fid, $slug, $options = null) {
         $table = new \CreateRecordsTable();
-        $table->addEnumColumn($fid, $slug);
+        if(is_null($options))
+            $table->addEnumColumn($fid, $slug);
+        else
+            $table->addEnumColumn($fid, $slug, $options['Options']);
     }
 
     /**

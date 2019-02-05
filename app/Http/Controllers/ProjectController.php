@@ -39,34 +39,44 @@ class ProjectController extends Controller {
         $projectCollections = Project::all()->sortBy("name", SORT_NATURAL|SORT_FLAG_CASE);
         $user = \Auth::user();
 
+        //Different arrays for display
         $projects = array();
         $inactive = array();
         $custom = array();
         $pSearch = array();
-        $hasProjects = false;
         $requestableProjects = array();
+
+        $hasProjects = false;
+
         $customseq = $user->getCustomProjectSequence();
+
         foreach($projectCollections as $project) {
             if($user->admin || $user->inAProjectGroup($project)) {
                 if($project->active) {
                     array_push($projects, $project);
-                    array_push($pSearch, $project);
 
-                    if(is_null($customseq) || !in_array($project->id,$customseq)) {
-                        //Project missing from custom so add it and repull the sequence
+                    //First we see if we even have a custom project order, if not, build array
+                    if(is_null($customseq))
+                        $customseq = array();
+
+                    //Whether we do or just built it, check to see if project is there
+                    if(!in_array($project->id,$customseq)) {
+                        //Project missing from custom so add it
                         $user->addCustomProject($project->id);
+                        //Then manually build the sequence instead of checking the DB again
                         array_push($customseq,$project->id);
                     }
 
                     $custom[array_search($project->id,$customseq)] = $project;
                 } else {
                     array_push($inactive, $project);
-                    array_push($pSearch, $project);
                 }
+
+                array_push($pSearch, $project);
 
                 $hasProjects = true;
             } else if($project->active) {
-                $requestableProjects[$project->pid] = $project->name. " (" . $project->slug.")";
+                $requestableProjects[$project->id] = $project->name. " (" . $project->internal_name.")";
             }
         }
 		
@@ -257,12 +267,18 @@ class ProjectController extends Controller {
         $forms = array();
         $custom = array();
         $customseq = $user->getCustomFormSequence($id);
-        foreach($formCollections as $form){
+        foreach($formCollections as $form) {
             array_push($forms,$form);
 
-            if(is_null($customseq) || !in_array($form->id,$customseq)) {
-                //Project missing from custom so add it and repull the sequence
+            //First we see if we even have a custom form order, if not, build array
+            if(is_null($customseq))
+                $customseq = array();
+
+            //Whether we do or just built it, check to see if form is there
+            if(!in_array($form->id,$customseq)) {
+                //Form missing from custom so add it
                 $user->addCustomForm($form->id);
+                //Then manually build the sequence instead of checking the DB again
                 array_push($customseq,$form->id);
             }
 

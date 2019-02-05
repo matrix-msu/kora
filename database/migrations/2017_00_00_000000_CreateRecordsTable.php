@@ -64,9 +64,9 @@ class CreateRecordsTable extends Migration {
     }
 
     public function addEnumColumn($fid, $slug, $list = ['Please Modify List Values']) {
-        Schema::table("records_$fid", function(Blueprint $table) use ($slug, $list) {
-            $table->enum($slug, $list)->nullable();
-        });
+        DB::statement(
+            'alter table ' . DB::getTablePrefix() . 'records_' . $fid . ' add ' . $slug . ' enum("' . implode('","', $list) . '")'
+        );
     }
 
     public function renameColumn($fid, $slug, $newSlug) {

@@ -7,6 +7,7 @@ use App\Project;
 use App\ProjectGroup;
 use App\Token;
 use App\User;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
@@ -138,6 +139,7 @@ class ExodusController extends Controller {
         $filePath = $request->filePath;
 
         $userArray = array();
+        $userNameArray = array();
         $projectArray = array();
         $formArray = array();
         $pairArray = array();
@@ -199,10 +201,12 @@ class ExodusController extends Controller {
 
                     //add user to conversion array with new id
                     $userArray[$u['uid']] = $user->id;
+                    $userNameArray[$u['username']] = $user->id;
                 } else {
                     //add user to conversion using existing id so it's still relevant
                     $user = User::where('email', '=', $email)->first();
                     $userArray[$u['uid']] = $user->id;
+                    $userNameArray[$u['username']] = $user->id;
                 }
             } else {
                 //salt is zero so we have a token and not a user
@@ -470,8 +474,8 @@ class ExodusController extends Controller {
         Log::info("Begin Exodus");
         $exodus_id = DB::table('exodus_overall')->insertGetId(['progress'=>0,'total_forms'=>sizeof($formArray),'created_at'=>Carbon::now(),'updated_at'=>Carbon::now()]);
         foreach($formArray as $sid=>$fid) {
-//            $job = new ExodusHelperController(); //TODO::CASTLE
-//            $job->migrateControlsAndRecords($sid, $fid, $formArray, $pairArray, $dbInfo, $filePath, $exodus_id);
+            $job = new ExodusHelperController();
+            $job->migrateControlsAndRecords($sid, $fid, $formArray, $pairArray, $dbInfo, $filePath, $exodus_id, $userNameArray);
         }
     }
 

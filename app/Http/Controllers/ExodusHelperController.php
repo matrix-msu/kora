@@ -1,8 +1,8 @@
 <?php namespace App\Http\Controllers;
 
 use App\Form;
+use App\KoraFields\FileTypeField;
 use App\Record;
-use App\RecordPreset;
 use App\User;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
@@ -59,7 +59,7 @@ class ExodusHelperController extends Controller {
             return false;
 
         return [
-            "name" => $form->slug,
+            "name" => $form->internal_name,
             "progress" => 0,
             "total_records" => $recordCnt,
             "exodus_id" => $exodus_id,
@@ -78,9 +78,10 @@ class ExodusHelperController extends Controller {
      * @param $dbInfo - Info to connect to db
      * @param $filePath - Local system path for kora 2 files
      * @param $exodus_id - Progress table id
+     * @param $userNameArray - Array of old user names to new ids
      */
-    public function migrateControlsAndRecords($ogSid, $fid, $formArray, $pairArray, $dbInfo, $filePath, $exodus_id) { //TODO::CASTLE
-        //connect to db and set up variables //TODO::CASTLE
+    public function migrateControlsAndRecords($ogSid, $fid, $formArray, $pairArray, $dbInfo, $filePath, $exodus_id, $userNameArray) {
+        //connect to db and set up variables
         $con = mysqli_connect($dbInfo['host'],$dbInfo['user'],$dbInfo['pass'],$dbInfo['name']);
         $form = FormController::getForm($fid);
         $newForm = $form;
@@ -93,38 +94,36 @@ class ExodusHelperController extends Controller {
 
         $table_array = $this->makeBackupTableArray($numRecords, $form, $exodus_id);
         if($table_array == false) { return;}
-        Log::info('Started creating records for '.$form->slug.' (sid: '.$ogSid.').');
+        Log::info('Started creating records for '.$form->internal_name.' (sid: '.$ogSid.').');
 
-        $row_id = DB::table('exodus_partial_progress')->insertGetId(
+        $row_id = DB::table('exodus_partial')->insertGetId(
             $table_array
         );
 
-        //build nodes based off of collections //TODO::CASTLE
+        //build nodes based off of collections
         $colls = $con->query('select * from collection where schemeid='.$ogSid.' order by sequence');
-        $pIndex = 0;
+        $layout = ['pages' => array(), 'fields' => array()];
+        $currPageIndex = 0;
         while($c = $colls->fetch_assoc()) {
-            $page = new Page();
-            $page->fid = $newForm->fid;
-            $page->title = $c['name'];
-            $page->sequence = $pIndex;
-            ++$pIndex;
+            $page = array();
+            $page['title'] = $c['name'];
+            $page['flids'] = array();
+            $layout['pages'][] = $page;
 
-            $page->save();
-
-            $collToPage[$c['collid']] = $page->id;
-            //Each page needs to keep track of its own sequence for fields
-            $collToPage[$c['collid'].'_seq'] = 0;
+            //Store which index the page is at
+            $collToPage[$c['collid']] = $currPageIndex;
         }
 
-        //build all the fields for the form //TODO::CASTLE
+        //build all the fields for the form
         $controls = $con->query('select * from p'.$oldPid.'Control where schemeid='.$ogSid.' order by sequence');
         while($c = $controls->fetch_assoc()) {
             if($c['name'] != 'systimestamp' && $c['name'] != 'recordowner') {
                 $type = $c['type'];
                 $collid = $c['collid'];
-                $desc = $c['description'];
+                $desc = utf8_encode($c['description']);
                 $req = $c['required'];
                 $search = $c['searchable'];
+                $advSearch = $c['advSearchable'];
                 $showresults = $c['showInResults'];
                 $options = $c['options'];
                 ///CHECKS TO CLEAN UP XML ISSUES FROM OLD KORA
@@ -136,12 +135,14 @@ class ExodusHelperController extends Controller {
                 $newDef = '';
                 $newType = '';
 
+                $skip = false; //TODO::CASTLE remove when all types done;
+
                 switch($type) {
                     case 'TextControl':
                         if(!$blankOpts)
                             $def = $optXML->defaultValue->__toString();
                         else
-                            $def = '';
+                            $def = null;
 
                         if(!$blankOpts)
                             $textType = $optXML->textEditor->__toString();
@@ -166,98 +167,101 @@ class ExodusHelperController extends Controller {
                             if($rows > 1)
                                 $multiline = 1;
 
-                            $newOpts = '[!Regex!]' . $regex . '[!Regex!][!MultiLine!]' . $multiline . '[!MultiLine!]';
+                            $newOpts = ['Regex' => $regex, 'MultiLine' => $multiline];
                             $newDef = $def;
                             $newType = 'Text';
                         }
                         break;
-                    case 'MultiTextControl':
-                        $def = array();
-                        if(!$blankOpts && !is_null($optXML->defaultValue->value)) {
-                            foreach($optXML->defaultValue->value as $xmlopt) {
-                                array_push($def, (string)$xmlopt);
-                            }
-                        }
-
-                        $defOpts = implode('[!]', $def);
-
-                        if(!$blankOpts)
-                            $regex = $optXML->regex->__toString();
-                        else
-                            $regex = '';
-
-                        $newOpts = '[!Regex!]' . $regex . '[!Regex!][!Options!]' . $defOpts . '[!Options!]';
-                        $newDef = $defOpts;
-                        $newType = 'Generated List';
+                    case 'MultiTextControl': //TODO::CASTLE
+//                        $def = array();
+//                        if(!$blankOpts && !is_null($optXML->defaultValue->value)) {
+//                            foreach($optXML->defaultValue->value as $xmlopt) {
+//                                array_push($def, (string)$xmlopt);
+//                            }
+//                        }
+//
+//                        $defOpts = implode('[!]', $def);
+//
+//                        if(!$blankOpts)
+//                            $regex = $optXML->regex->__toString();
+//                        else
+//                            $regex = '';
+//
+//                        $newOpts = '[!Regex!]' . $regex . '[!Regex!][!Options!]' . $defOpts . '[!Options!]';
+//                        $newDef = $defOpts;
+//                        $newType = 'Generated List';
+                        $skip = true;
                         break;
-                    case 'DateControl':
-                        if(!$blankOpts) {
-                            $startY = (int)$optXML->startYear;
-                            $endY = (int)$optXML->endYear;
-                            $era = $optXML->era->__toString();
-                            $format = $optXML->displayFormat->__toString();
-                            $defYear = (int)$optXML->defaultValue->year;
-                            $defMon = (int)$optXML->defaultValue->month;
-                            $defDay = (int)$optXML->defaultValue->day;
-                            $prefix = $optXML->prefixes->__toString();
-                        } else {
-                            $startY = 1900;
-                            $endY = 2020;
-                            $era = 'No';
-                            $format = 'MMDDYYYY';
-                            $defYear = '';
-                            $defMon = '';
-                            $defDay = '';
-                            $prefix = 'No';
-                        }
-
-                        $circa = 'No';
-                        $for = 'MMDDYYYY';
-                        if($prefix=='circa') {$circa='Yes';}
-                        if($format=='MDY') {$for='MMDDYYYY';}
-                        else if($format=='DMY') {$for='DDMMYYYY';}
-                        else if($format=='YMD') {$for='YYYYMMDD';}
-
-                        $newOpts = '[!Circa!]'.$circa.'[!Circa!][!Start!]'.$startY.'[!Start!][!End!]'.$endY.'[!End!][!Format!]'.$for.'[!Format!][!Era!]'.$era.'[!Era!]';
-                        $newDef = '[M]'.$defMon.'[M][D]'.$defDay.'[D][Y]'.$defYear.'[Y]';
-                        $newType = 'Date';
+                    case 'DateControl': //TODO::CASTLE
+//                        if(!$blankOpts) {
+//                            $startY = (int)$optXML->startYear;
+//                            $endY = (int)$optXML->endYear;
+//                            $era = $optXML->era->__toString();
+//                            $format = $optXML->displayFormat->__toString();
+//                            $defYear = (int)$optXML->defaultValue->year;
+//                            $defMon = (int)$optXML->defaultValue->month;
+//                            $defDay = (int)$optXML->defaultValue->day;
+//                            $prefix = $optXML->prefixes->__toString();
+//                        } else {
+//                            $startY = 1900;
+//                            $endY = 2020;
+//                            $era = 'No';
+//                            $format = 'MMDDYYYY';
+//                            $defYear = '';
+//                            $defMon = '';
+//                            $defDay = '';
+//                            $prefix = 'No';
+//                        }
+//
+//                        $circa = 'No';
+//                        $for = 'MMDDYYYY';
+//                        if($prefix=='circa') {$circa='Yes';}
+//                        if($format=='MDY') {$for='MMDDYYYY';}
+//                        else if($format=='DMY') {$for='DDMMYYYY';}
+//                        else if($format=='YMD') {$for='YYYYMMDD';}
+//
+//                        $newOpts = '[!Circa!]'.$circa.'[!Circa!][!Start!]'.$startY.'[!Start!][!End!]'.$endY.'[!End!][!Format!]'.$for.'[!Format!][!Era!]'.$era.'[!Era!]';
+//                        $newDef = '[M]'.$defMon.'[M][D]'.$defDay.'[D][Y]'.$defYear.'[Y]';
+//                        $newType = 'Date';
+                        $skip = true;
                         break;
-                    case 'MultiDateControl':
-                        $def = array();
-                        if(!$blankOpts) {
-                            $startY = (int)$optXML->startYear;
-                            $endY = (int)$optXML->endYear;
-                            foreach($optXML->defaultValue as $xmlopt) {
-                                array_push($def, (string)$xmlopt);
-                            }
-                        } else {
-                            $startY = 1990;
-                            $endY = 2020;
-                        }
-
-                        if(isset($def['date']))
-                            $def = $def['date'];
-                        else
-                            $def=array();
-
-                        $defOpts = '';
-                        if(isset($def[0])) {
-                            $defOpts = 'Event 1: ' . $def[0]->month . '/' . $def[0]->day . '/' . $def[0]->year . ' - ' . $def[0]->month . '/' . $def[0]->day . '/' . $def[0]->year;
-                            $size = sizeof($def);
-                            for($i = 1; $i < $size; ++$i) {
-                                $defOpts .= '[!]' . 'Event ' . ($i + 1) . ': ' . $def[$i]->month . '/' . $def[$i]->day . '/' . $def[$i]->year . ' - ' . $def[$i]->month . '/' . $def[$i]->day . '/' . $def[$i]->year;
-                            }
-                        }
-
-                        $newOpts = '[!Start!]'.$startY.'[!Start!][!End!]'.$endY.'[!End!][!Calendar!]No[!Calendar!]';
-                        $newDef = $defOpts;
-                        $newType = 'Schedule';
+                    case 'MultiDateControl': //TODO::CASTLE
+//                        $def = array();
+//                        if(!$blankOpts) {
+//                            $startY = (int)$optXML->startYear;
+//                            $endY = (int)$optXML->endYear;
+//                            foreach($optXML->defaultValue as $xmlopt) {
+//                                array_push($def, (string)$xmlopt);
+//                            }
+//                        } else {
+//                            $startY = 1990;
+//                            $endY = 2020;
+//                        }
+//
+//                        if(isset($def['date']))
+//                            $def = $def['date'];
+//                        else
+//                            $def=array();
+//
+//                        $defOpts = '';
+//                        if(isset($def[0])) {
+//                            $defOpts = 'Event 1: ' . $def[0]->month . '/' . $def[0]->day . '/' . $def[0]->year . ' - ' . $def[0]->month . '/' . $def[0]->day . '/' . $def[0]->year;
+//                            $size = sizeof($def);
+//                            for($i = 1; $i < $size; ++$i) {
+//                                $defOpts .= '[!]' . 'Event ' . ($i + 1) . ': ' . $def[$i]->month . '/' . $def[$i]->day . '/' . $def[$i]->year . ' - ' . $def[$i]->month . '/' . $def[$i]->day . '/' . $def[$i]->year;
+//                            }
+//                        }
+//
+//                        $newOpts = '[!Start!]'.$startY.'[!Start!][!End!]'.$endY.'[!End!][!Calendar!]No[!Calendar!]';
+//                        $newDef = $defOpts;
+//                        $newType = 'Schedule';
+                        $skip = true;
                         break;
                     case 'FileControl':
                         if(!$blankOpts)
                             $maxSize = (int)$optXML->maxSize;
                         else
-                            $maxSize=0;
+                            $maxSize = '';
 
                         $allowed = array();
                         if(!$blankOpts) {
@@ -265,9 +269,8 @@ class ExodusHelperController extends Controller {
                                 array_push($allowed, (string)$xmlopt);
                             }
                         }
-                        $allOpts = implode('[!]', $allowed);
 
-                        $newOpts = '[!FieldSize!]'.$maxSize.'[!FieldSize!][!MaxFiles!]0[!MaxFiles!][!FileTypes!]'.$allOpts.'[!FileTypes!]';
+                        $newOpts = ['FieldSize' => $maxSize, 'MaxFiles' => '', 'FileTypes' => $allowed];
                         $newType = 'Documents';
                         break;
                     case 'ImageControl':
@@ -282,18 +285,16 @@ class ExodusHelperController extends Controller {
                                 array_push($allowed, (string)$xmlopt);
                             }
                         }
-                        $cleaned = array();
-                        //Remove unsupported types
-                        foreach($allowed as $allow) {
-                            if($allow != 'image/pjpeg' && $allow != 'image/x-png')
-                                array_push($cleaned, $allow);
-                        }
-                        $allOpts = implode('[!]', $cleaned);
+                        if(empty($allowed))
+                            $cleaned = ['image/jpeg','image/gif','image/png'];
+                        else
+                            $cleaned = array_intersect($allowed,['image/jpeg','image/gif','image/png']);
 
                         $thumbW = (int)$optXML->thumbWidth;
                         $thumbH = (int)$optXML->thumbHeight;
 
-                        $newOpts = '[!FieldSize!]'.$maxSize.'[!FieldSize!][!ThumbSmall!]'.$thumbW.'x'.$thumbH.'[!ThumbSmall!][!ThumbLarge!]'.($thumbW*2).'x'.($thumbH*2).'[!ThumbLarge!][!MaxFiles!]0[!MaxFiles!][!FileTypes!]'.$allOpts.'[!FileTypes!]';
+                        $newOpts = ['FieldSize' => $maxSize, 'MaxFiles' => '', 'FileTypes' => $cleaned,
+                            'ThumbSmall' => $thumbW.'x'.$thumbH, 'ThumbLarge' => ($thumbW*2).'x'.($thumbH*2)];
                         $newType = 'Gallery';
                         break;
                     case 'ListControl':
@@ -303,536 +304,457 @@ class ExodusHelperController extends Controller {
                                 array_push($opts, (string)$xmlopt);
                             }
                         }
-                        $allOpts = implode('[!]', $opts);
 
                         if(!$blankOpts)
                             $def = $optXML->defaultValue->__toString();
                         else
-                            $def = '';
+                            $def = null;
 
-                        $newOpts = '[!Options!]'.$allOpts.'[!Options!]';
+                        $newOpts = ['Options' => $opts];
                         $newDef = $def;
                         $newType = 'List';
                         break;
-                    case 'MultiListControl':
-                        $opts = array();
-                        if(!$blankOpts) {
-                            foreach($optXML->option as $xmlopt) {
-                                array_push($opts, (string)$xmlopt);
-                            }
-                        }
-                        $allOpts = implode('[!]', $opts);
-
-                        $def = array();
-                        if(!$blankOpts && !is_null($optXML->defaultValue->option)) {
-                            foreach($optXML->defaultValue->option as $xmlopt) {
-                                array_push($def, (string)$xmlopt);
-                            }
-                        }
-                        $defOpts = implode('[!]', $def);
-
-                        $newOpts = '[!Options!]'.$allOpts.'[!Options!]';
-                        $newDef = $defOpts;
-                        $newType = 'Multi-Select List';
+                    case 'MultiListControl': //TODO::CASTLE
+//                        $opts = array();
+//                        if(!$blankOpts) {
+//                            foreach($optXML->option as $xmlopt) {
+//                                array_push($opts, (string)$xmlopt);
+//                            }
+//                        }
+//                        $allOpts = implode('[!]', $opts);
+//
+//                        $def = array();
+//                        if(!$blankOpts && !is_null($optXML->defaultValue->option)) {
+//                            foreach($optXML->defaultValue->option as $xmlopt) {
+//                                array_push($def, (string)$xmlopt);
+//                            }
+//                        }
+//                        $defOpts = implode('[!]', $def);
+//
+//                        $newOpts = '[!Options!]'.$allOpts.'[!Options!]';
+//                        $newDef = $defOpts;
+//                        $newType = 'Multi-Select List';
+                        $skip = true;
                         break;
-                    case 'AssociatorControl':
-                        $opts = array();
-                        if(!$blankOpts) {
-                            foreach($optXML->scheme as $xmlopt) {
-                                array_push($opts, (string)$xmlopt);
-                            }
-                        }
-
-                        $assocControlCheck[$c['cid']] = $opts;
-
-                        $newOpts = '[!SearchForms!][!SearchForms!]';
-                        $newType = 'Associator';
+                    case 'AssociatorControl': //TODO::CASTLE
+//                        $opts = array();
+//                        if(!$blankOpts) {
+//                            foreach($optXML->scheme as $xmlopt) {
+//                                array_push($opts, (string)$xmlopt);
+//                            }
+//                        }
+//
+//                        $assocControlCheck[$c['cid']] = $opts;
+//
+//                        $newOpts = '[!SearchForms!][!SearchForms!]';
+//                        $newType = 'Associator';
+                        $skip = true;
                         break;
                 }
 
-                //save it
-                $field = new Field();
-                $field->pid = $newForm->pid;
-                $field->fid = $newForm->fid;
-                $field->page_id = $collToPage[$collid];
-                $field->sequence = $collToPage[$collid.'_seq'];
-                $collToPage[$collid.'_seq'] += 1;
-                $field->type = $newType;
-                $field->name = $c['name'];
-                $slug = str_replace(' ','_',$c['name']).'_'.$newForm->pid.'_'.$newForm->fid.'_';
-                $field->slug = $slug;
-                $field->desc = $desc;
-                $field->required = $req;
-                $field->searchable = $search;
-                $field->extsearch = $search;
-                $field->viewable = 1;
-                $field->viewresults = $showresults;
-                $field->extview = $showresults;
-                $field->default = $newDef;
-                $field->options = $newOpts;
-                $field->save();
+                if($skip) //TODO::CASTLE
+                    continue;
 
-                $oldControlInfo[$c['cid']] = $field->flid;
+                //Create field array
+                $field = array();
+                $field['type'] = $newType;
+                $field['name'] = preg_replace("/[^A-Za-z0-9 ]/", '', $c['name']);
+                $newFlid = str_replace(" ","_", $field['name']).'_'.$newForm->project_id.'_'.$newForm->id.'_';
+
+                //Add it to the appropriate page
+                $page_id = $collToPage[$collid];
+                $layout['pages'][$page_id]['flids'][] = $newFlid;
+
+                //Add the details
+                $field['description'] = $desc;
+                $field['default'] = $newDef;
+                $field['options'] = $newOpts;
+
+                $field['required'] = (int)$req;
+                $field["viewable"] = 1;
+                $field["searchable"] = (int)$search;
+                $field["external_view"] = 1;
+                $field["advanced_search"] = (int)$advSearch;
+                $field["external_search"] = (int)$search;
+                $field["viewable_in_results"] = (int)$showresults;
+
+                //Save field
+                $layout['fields'][$newFlid] = $field;
+                $fieldMod = $newForm->getFieldModel($field['type']);
+                $fieldMod->addDatabaseColumn($newForm->id, $newFlid, $newOpts);
+
+                //Used to format later things that reference old control ID
+                $oldControlInfo[$c['cid']] = $newFlid;
             }
         }
+
+        //Now that fields are added to layout, save it
+        $newForm->layout = $layout;
+        $newForm->save();
 
         //Now that we know the control options for all the associators, and which field ID they correlate to,
         // we will save the associators options //TODO::CASTLE
-        foreach($assocControlCheck as $cid => $sids) {
-            $flid = $oldControlInfo[$cid];
-
-            $optString = '[!SearchForms!]';
-            $subOpt = array();
-
-            $af = FieldController::getField($flid);
-
-            foreach($sids as $sid) {
-                if(isset($formArray[$sid])) {
-                    $optFID = $formArray[$sid];
-                    $optVal = '[fid]' . $optFID . '[fid][search]1[search][flids][flids]';
-                    array_push($subOpt, $optVal);
-                }
-            }
-
-            $optString .= implode('[!]',$subOpt);
-            $optString .= '[!SearchForms!]';
-
-            $af->options = $optString;
-            $af->save();
-        }
-
-        //Dublin Core stuff////////////////////////////////////////// //TODO::CASTLE
-        $dublins = $con->query('select dublinCoreFields from scheme where schemeid='.$ogSid);
-        $dubs = $dublins->fetch_assoc(); //only one possible row
-        if(!is_null($dubs['dublinCoreFields'])) {
-            //load the xml
-            $xml = simplexml_load_string($dubs['dublinCoreFields']);
-
-            //for each element
-            foreach($xml->children() as $node) {
-                //get element name
-                $name = $node->getName();
-                //get cid
-                $cid = (int)$node->id->__toString();
-                //convert to new flid
-                if(!isset($oldControlInfo[$cid])) {
-	                Log::info('Dublin mapping missing or out of date for: '.$name);
-	                continue;   
-                }
-                	
-                $dcflid = $oldControlInfo[$cid];
-
-                //create metadata tag
-                $field = FieldController::getField($dcflid);
-                $meta = new Metadata();
-                $meta->name = $name;
-                $meta->flid = $dcflid;
-                $meta->fid = $field->fid;
-                $meta->pid = $field->pid;
-
-                $meta->save();
-            }
-        }
+//        foreach($assocControlCheck as $cid => $sids) {
+//            $flid = $oldControlInfo[$cid];
+//
+//            $optString = '[!SearchForms!]';
+//            $subOpt = array();
+//
+//            $af = FieldController::getField($flid);
+//
+//            foreach($sids as $sid) {
+//                if(isset($formArray[$sid])) {
+//                    $optFID = $formArray[$sid];
+//                    $optVal = '[fid]' . $optFID . '[fid][search]1[search][flids][flids]';
+//                    array_push($subOpt, $optVal);
+//                }
+//            }
+//
+//            $optString .= implode('[!]',$subOpt);
+//            $optString .= '[!SearchForms!]';
+//
+//            $af->options = $optString;
+//            $af->save();
+//        }
 
         //time to build the records
         Log::info('Iterating through data');
 
-        //Record stuff////////////////////////////////////////// //TODO::CASTLE
+        //Record stuff//////////////////////////////////////////
         error_reporting(E_ALL);
         ini_set('display_errors', '1');
         ini_set('memory_limit','2G'); //We might be pulling a lot of rows so this is a safety precaution
         $records = $con->query('select D.*, C.name from p'.$oldPid.'Data D left join p'.$oldPid.'Control C on D.cid=C.cid where D.schemeid='.$ogSid);
-        $recrows = $records->fetch_all(MYSQLI_ASSOC);
-        $oldKidToNewRid = array();
+        $oldKidToNewKid = array();
+        $recordDataToSave = array();
         $filePartNum = 1;
+        $currRecordIndex = 1;
 
-        $chunks = array_chunk($recrows, 500);
-        unset($recrows);
+        while($r = $records->fetch_assoc()) {
+            //Start by making the record if it doesn't exist yet
+            if(!array_key_exists($r['id'],$oldKidToNewKid)) {
+                //Manually assign the ID so we can build the KID without saving the record
+                $recordDataToSave[$r['id']]['id'] = $currRecordIndex;
+                $kid = $newForm->project_id . '-' . $newForm->id . '-' . $currRecordIndex;
+                $now = Carbon::now();
 
-        foreach($chunks as $chunk) { //TODO::CASTLE
-            foreach($chunk as $r) {
-                //Build type arrays
-                $textfields = array();
-                $richtextfields = array();
-                $generatelistfields = array();
-                $datefields = array();
-                $documentsfields = array();
-                $galleryfields = array();
-                $listfields = array();
-                $multiselectlistfields = array();
+                $recordDataToSave[$r['id']]['project_id'] = $newForm->project_id;
+                $recordDataToSave[$r['id']]['form_id'] = $newForm->id;
+                $recordDataToSave[$r['id']]['kid'] = $kid;
+                $recordDataToSave[$r['id']]['legacy_kid'] = $r['id'];
+                $recordDataToSave[$r['id']]['created_at'] = $now;
+                $recordDataToSave[$r['id']]['updated_at'] = $now;
 
-                if(!array_key_exists($r['id'],$oldKidToNewRid)) {
-                    $recModel = new Record();
-                    $recModel->pid = $newForm->pid;
-                    $recModel->fid = $newForm->fid;
-                    $recModel->save();
-                    $recModel->kid = $recModel->pid . '-' . $recModel->fid . '-' . $recModel->rid;
-                    $recModel->legacy_kid = $r['id'];
-                    $recModel->save();
+                //Store conversion
+                $oldKidToNewKid[$r['id']] = $kid;
 
-                    //increment table
-                    DB::table('exodus_partial_progress')->where('id', $row_id)->increment('progress', 1, ['updated_at' => Carbon::now()]);
+                $currRecordIndex++;
+            }
 
-                    $oldKidToNewRid[$r['id']] = $recModel->rid;
-                } else {
-                    $recModel = RecordController::getRecord($oldKidToNewRid[$r['id']]);
-                }
-                if($r['cid']==0) {
-                    continue; //This is the reverse association list, so we can bounce
-                } else if($r['name']=='systimestamp') {
-                    continue; //we don't want to save the timestamp
-                } else if($r['name']=='recordowner') {
-                    //get the original record owner for some consistency, defaults to current user
-                    $email = '';
-                    $equery = $con->query('select email from user where username=\''.$r['value'].'\'');
-                    if(!$equery) {
-                        //if we get here, it's most likely an old project/scheme where the record owner is not in control 2
-                        $recModel->owner = 1;
-                        $recModel->save();
-                        continue;
-                    }
-                    while($e = $equery->fetch_assoc()) {
-                        $email = $e['email'];
-                    }
-                    $newUser = User::where('email','=',$email)->first();
-                    if(!is_null($newUser)) {
-                        $recModel->owner = $newUser->id;
-                    } else {
-                        $recModel->owner = 1;
-                    }
-                    $recModel->save();
-                } else {
-                    //make sure the control was converted
-                    if(!isset($oldControlInfo[$r['cid']])) {continue;}
-                    $flid = $oldControlInfo[$r['cid']];
-                    $field = FieldController::getField($flid);
-                    $value = utf8_encode($r['value']);
+            if($r['cid']==0) {
+                //This is the reverse association list, so we can bounce
+                continue;
+            } else if($r['name']=='systimestamp') {
+                //we don't want to save the timestamp
+                continue;
+            } else if($r['name']=='recordowner') {
+                if(array_key_exists($r['value'],$userNameArray))
+                    $recordDataToSave[$r['id']]['owner'] = $userNameArray[$r['username']];
+                else
+                    $recordDataToSave[$r['id']]['owner'] = 1;
+            } else {
+                //make sure the control was converted
+                if(!isset($oldControlInfo[$r['cid']])) {continue;}
 
-                    switch($field->type) {
-                        case 'Text':
-                            $text = [
-                                'rid' => $recModel->rid,
-                                'fid' => $recModel->fid,
-                                'flid' => $field->flid,
-                                'text' => $value
-                            ];
-                            array_push($textfields,$text);
+                //Field info
+                $flid = $oldControlInfo[$r['cid']];
+                $field = $form->layout['fields'][$flid];
+                $value = utf8_encode($r['value']);
 
-                            break;
-                        case 'Rich Text':
-                            $rich = [
-                                'rid' => $recModel->rid,
-                                'fid' => $recModel->fid,
-                                'flid' => $field->flid,
-                                'rawtext' => $value,
-                                'searchable_rawtext' => strip_tags($value)
-                            ];
-                            array_push($richtextfields,$rich);
+                switch($field['type']) {
+                    case 'Text':
+                        $recordDataToSave[$r['id']][$flid] = $value;
+                        break;
+                    case 'Rich Text':
+                        $recordDataToSave[$r['id']][$flid] = $value;
+                        break;
+                    case 'Generated List': //TODO::CASTLE
+//                            $mtc = array();
+//                            foreach(simplexml_load_string($value)->text as $xmlopt) {
+//                                array_push($mtc, (string)$xmlopt);
+//                            }
+//                            $optStr = implode('[!]',$mtc);
+//
+//                            $gen = [
+//                                'rid' => $recModel->rid,
+//                                'fid' => $recModel->fid,
+//                                'flid' => $field->flid,
+//                                'options' => $optStr
+//                            ];
+//                            array_push($generatelistfields,$gen);
 
-                            break;
-                        case 'Generated List':
-                            $mtc = array();
-                            foreach(simplexml_load_string($value)->text as $xmlopt) {
-                                array_push($mtc, (string)$xmlopt);
-                            }
-                            $optStr = implode('[!]',$mtc);
+                        break;
+                    case 'Date': //TODO::CASTLE
+//                            $dateXML = simplexml_load_string($value);
+//                            $circa=0;
+//                            if((string)$dateXML->prefix == 'circa')
+//                                $circa=1;
+//                            $era = 'CE';
+//                            if(FieldController::getFieldOption($field,'Era')=='Yes')
+//                                $era = (string)$dateXML->era;
+//
+//                            $monthData = (int)$dateXML->month;
+//                            $dayData = (int)$dateXML->day;
+//                            $yearData = (int)$dateXML->year;
+//
+//                            $dateObj = new \DateTime("$monthData/$dayData/$yearData");
+//                            $date_object = date_format($dateObj, 'Y-m-d');
+//
+//                            $date = [
+//                                'rid' => $recModel->rid,
+//                                'fid' => $recModel->fid,
+//                                'flid' => $field->flid,
+//                                'circa' => $circa,
+//                                'month' => $monthData,
+//                                'day' => $dayData,
+//                                'year' => $yearData,
+//                                'era' => $era,
+//                                'date_object' => $date_object
+//                            ];
+//                            array_push($datefields,$date);
 
-                            $gen = [
-                                'rid' => $recModel->rid,
-                                'fid' => $recModel->fid,
-                                'flid' => $field->flid,
-                                'options' => $optStr
-                            ];
-                            array_push($generatelistfields,$gen);
+                        break;
+                    case 'Schedule': //TODO::CASTLE
+//                            $mlc = simplexml_load_string($value)->date;
+//                            $formattedDates = array();
+//                            $i=1;
+//
+//                            foreach($mlc as $date) {
+//                                $m = (int)$date->month;
+//                                $d = (int)$date->day;
+//                                $y = (int)$date->year;
+//                                $dateStr = 'Event '.$i.': '.$m.'/'.$d.'/'.$y.' - '.$m.'/'.$d.'/'.$y;
+//                                array_push($formattedDates,$dateStr);
+//                                ++$i;
+//                            }
+//
+//                            DB::table('schedule_fields')->insert([
+//                                [
+//                                    'rid' => $recModel->rid,
+//                                    'fid' => $recModel->fid,
+//                                    'flid' => $field->flid
+//                                ]
+//                            ]);
+//
+//                            $sched = $field->getTypedFieldFromRID($recModel->rid);
+//                            $sched->addEvents($formattedDates);
 
-                            break;
-                        case 'Date':
-                            $dateXML = simplexml_load_string($value);
-                            $circa=0;
-                            if((string)$dateXML->prefix == 'circa')
-                                $circa=1;
-                            $era = 'CE';
-                            if(FieldController::getFieldOption($field,'Era')=='Yes')
-                                $era = (string)$dateXML->era;
+                        break;
+                    case 'Documents':
+                        $fileXML = simplexml_load_string($value);
+                        $realname = (string)$fileXML->originalName;
+                        $localname = (string)$fileXML->localName;
 
-                            $monthData = (int)$dateXML->month;
-                            $dayData = (int)$dateXML->day;
-                            $yearData = (int)$dateXML->year;
-
-                            $dateObj = new \DateTime("$monthData/$dayData/$yearData");
-                            $date_object = date_format($dateObj, 'Y-m-d');
-
-                            $date = [
-                                'rid' => $recModel->rid,
-                                'fid' => $recModel->fid,
-                                'flid' => $field->flid,
-                                'circa' => $circa,
-                                'month' => $monthData,
-                                'day' => $dayData,
-                                'year' => $yearData,
-                                'era' => $era,
-                                'date_object' => $date_object
-                            ];
-                            array_push($datefields,$date);
-
-                            break;
-                        case 'Schedule':
-                            $mlc = simplexml_load_string($value)->date;
-                            $formattedDates = array();
-                            $i=1;
-
-                            foreach($mlc as $date) {
-                                $m = (int)$date->month;
-                                $d = (int)$date->day;
-                                $y = (int)$date->year;
-                                $dateStr = 'Event '.$i.': '.$m.'/'.$d.'/'.$y.' - '.$m.'/'.$d.'/'.$y;
-                                array_push($formattedDates,$dateStr);
-                                ++$i;
-                            }
-
-                            DB::table('schedule_fields')->insert([
-                                [
-                                    'rid' => $recModel->rid,
-                                    'fid' => $recModel->fid,
-                                    'flid' => $field->flid
-                                ]
-                            ]);
-
-                            $sched = $field->getTypedFieldFromRID($recModel->rid);
-                            $sched->addEvents($formattedDates);
-
-                            break;
-                        case 'Documents':
-                            $fileXML = simplexml_load_string($value);
-                            $realname = (string)$fileXML->originalName;
-                            $localname = (string)$fileXML->localName;
-
-                            if($localname!='') {
-                                //Make folder
-                                $newPath = storage_path('app/files/p' . $newForm->pid . '/f' . $newForm->fid . '/r' . $recModel->rid . '/fl' . $field->flid.'/');
+                        if($localname!='') {
+                            //Make folder
+                            $dataPath = $newForm->project_id . '/' . $newForm->id . '/' . $recordDataToSave[$r['id']]['id'].'/';
+                            $newPath = storage_path('app/files/' . $dataPath);
+                            if(!file_exists($newPath))
                                 mkdir($newPath, 0775, true);
 
-                                $oldDir = $filePath.'/'.$oldPid.'/'.$ogSid.'/';
+                            $oldDir = $filePath.'/'.$oldPid.'/'.$ogSid.'/';
 
-                                if(!file_exists($oldDir.$localname)) {
-                                    //OLD FILE DOESNT EXIST SO BALE
-                                    continue;
-                                }
-
-                                //Move files
-                                copy($oldDir.$localname,$newPath.$realname);
-
-                                //Get file info
-                                $mimes = FileTypeField::getMimeTypes();
-                                $ext = pathinfo($newPath.$realname,PATHINFO_EXTENSION);
-                                if(!array_key_exists($ext, $mimes))
-                                    $type = 'application/octet-stream';
-                                else
-                                    $type = $mimes[$ext];
-
-                                $name = '[Name]'.$realname.'[Name]';
-                                $size = '[Size]'.filesize($newPath.$realname).'[Size]';
-                                $typeS = '[Type]'.$type.'[Type]';
-                                //Build file string
-                                $info = $name.$size.$typeS;
-
-                                $docs = [
-                                    'rid' => $recModel->rid,
-                                    'fid' => $recModel->fid,
-                                    'flid' => $field->flid,
-                                    'documents' => $info
-                                ];
-                                array_push($documentsfields,$docs);
+                            if(!file_exists($oldDir.$localname)) {
+                                //OLD FILE DOESNT EXIST SO BALE
+                                continue;
                             }
-                            break;
-                        case 'Gallery':
-                            $fileXML = simplexml_load_string($value);
-                            $realname = (string)$fileXML->originalName;
-                            $localname = (string)$fileXML->localName;
 
-                            if($localname!='') {
-                                //Make folder
-                                $newPath = storage_path('app/files/p' . $newForm->pid . '/f' . $newForm->fid . '/r' . $recModel->rid . '/fl' . $field->flid.'/');
-                                $newPathM = $newPath.'medium/';
-                                $newPathT = $newPath.'thumbnail/';
+                            //Move files
+                            copy($oldDir.$localname,$newPath.$realname);
+
+                            //Get file info
+                            $mimes = FileTypeField::getMimeTypes();
+                            $ext = pathinfo($newPath.$realname,PATHINFO_EXTENSION);
+                            if(!array_key_exists($ext, $mimes))
+                                $type = 'application/octet-stream';
+                            else
+                                $type = $mimes[$ext];
+
+                            $info = ['name' => $realname, 'size' => filesize($newPath.$realname), 'type' => $type, 'url' => $dataPath.urlencode($realname)];
+                            $recordDataToSave[$r['id']][$flid] = json_encode($info);
+                        }
+                        break;
+                    case 'Gallery':
+                        $fileXML = simplexml_load_string($value);
+                        $realname = (string)$fileXML->originalName;
+                        $localname = (string)$fileXML->localName;
+
+                        if($localname!='') {
+                            //Make folder
+                            $dataPath = $newForm->project_id . '/' . $newForm->id . '/' . $recordDataToSave[$r['id']]['id'].'/';
+                            $newPath = storage_path('app/files/' . $dataPath);
+                            $newPathM = $newPath.'medium/';
+                            $newPathT = $newPath.'thumbnail/';
+                            if(!file_exists($newPath))
                                 mkdir($newPath, 0775, true);
+                            if(!file_exists($newPathM))
                                 mkdir($newPathM, 0775, true);
+                            if(!file_exists($newPathT))
                                 mkdir($newPathT, 0775, true);
 
-                                $oldDir = $filePath.'/'.$oldPid.'/'.$ogSid.'/';
+                            $oldDir = $filePath.'/'.$oldPid.'/'.$ogSid.'/';
 
-                                if(!file_exists($oldDir.$localname)) {
-                                    //OLD FILE DOESNT EXIST SO BALE
-                                    continue;
-                                }
-
-                                //Move files
-                                copy($oldDir.$localname,$newPath.$realname);
-
-                                //Create thumbs
-                                $smallParts = explode('x',FieldController::getFieldOption($field,'ThumbSmall'));
-                                $largeParts = explode('x',FieldController::getFieldOption($field,'ThumbLarge'));
-                                $thumb = true;
-                                $medium = true;
-                                try {
-                                    $tImage = new \Imagick($newPath . $realname);
-                                } catch(\ImagickException $e) {
-                                    $thumb = false;
-                                    Log::info('Issue creating thumbnail for record '.$recModel->rid.'.');
-                                }
-                                try {
-                                    $mImage = new \Imagick($newPath . $realname);
-                                } catch(\ImagickException $e) {
-                                    $medium = false;
-                                    Log::info('Issue creating medium thumbnail for record '.$recModel->rid.'.');
-                                }
-
-                                //Size check
-                                if($smallParts[0]==0 | $smallParts[1]==0) {
-                                    $smallParts[0] = 150;
-                                    $smallParts[1] = 150;
-                                }
-                                if($largeParts[0]==0 | $largeParts[1]==0) {
-                                    $largeParts[0] = 300;
-                                    $largeParts[1] = 300;
-                                }
-
-                                if($thumb) {
-                                    $tImage->thumbnailImage($smallParts[0],$smallParts[1],true);
-                                    $tImage->writeImage($newPathT.$realname);
-                                }
-                                if($medium) {
-                                    $mImage->thumbnailImage($largeParts[0],$largeParts[1],true);
-                                    $mImage->writeImage($newPathM.$realname);
-                                }
-
-                                //Get file info
-                                $mimes = FileTypeField::getMimeTypes();
-                                $ext = pathinfo($newPath.$realname,PATHINFO_EXTENSION);
-                                if(!array_key_exists($ext, $mimes))
-                                    $type = 'application/octet-stream';
-                                else
-                                    $type = $mimes[$ext];
-
-                                $name = '[Name]'.$realname.'[Name]';
-                                $size = '[Size]'.filesize($newPath.$realname).'[Size]';
-                                $typeS = '[Type]'.$type.'[Type]';
-                                //Build file string
-                                $info = $name.$size.$typeS;
-
-                                $gal = [
-                                    'rid' => $recModel->rid,
-                                    'fid' => $recModel->fid,
-                                    'flid' => $field->flid,
-                                    'images' => $info
-                                ];
-                                array_push($galleryfields,$gal);
-                            }
-                            break;
-                        case 'List':
-                            $list = [
-                                'rid' => $recModel->rid,
-                                'fid' => $recModel->fid,
-                                'flid' => $field->flid,
-                                'option' => $value
-                            ];
-                            array_push($listfields,$list);
-
-                            break;
-                        case 'Multi-Select List':
-                            $mlc = array();
-                            foreach(simplexml_load_string($value)->value as $xmlopt) {
-                                array_push($mlc, (string)$xmlopt);
-                            }
-                            $optStr = implode('[!]',$mlc);
-
-                            $msl = [
-                                'rid' => $recModel->rid,
-                                'fid' => $recModel->fid,
-                                'flid' => $field->flid,
-                                'options' => $optStr
-                            ];
-                            array_push($multiselectlistfields,$msl);
-
-                            break;
-                        case 'Associator':
-                            $kids = array();
-                            foreach(simplexml_load_string($value)->kid as $xmlopt) {
-                                array_push($kids, (string)$xmlopt);
+                            if(!file_exists($oldDir.$localname)) {
+                                //OLD FILE DOESNT EXIST SO BALE
+                                continue;
                             }
 
-                            $aid = DB::table('associator_fields')->insertGetId([
-                                'rid' => $recModel->rid,
-                                'fid' => $recModel->fid,
-                                'flid' => $field->flid
-                            ]);
+                            //Move files
+                            copy($oldDir.$localname,$newPath.$realname);
 
-                            //We want to save the Typed Field that will have the data eventually, matched to its values in Kora 2 KID form
-                            $assocFile[$aid] = $kids;
-
-                            //This prevents the array from getting too big. We will just create the files in parts
-                            if(sizeof($assocFile)>self::EXODUS_CONVERSION_SIZE) {
-                                $dataToWrite = json_encode($assocFile);
-                                $filename = storage_path(ExodusController::EXODUS_DATA_PATH.'assoc_'.$ogSid.'_'.$filePartNum.'.json');
-                                file_put_contents($filename,$dataToWrite);
-
-                                //Reset the variables
-                                $filePartNum++;
-                                $assocFile = array();
+                            //Create thumbs
+                            $smallParts = explode('x',$field['options']['ThumbSmall']);
+                            $largeParts = explode('x',$field['options']['ThumbLarge']);
+                            $thumb = true;
+                            $medium = true;
+                            try {
+                                $tImage = new \Imagick($newPath . $realname);
+                            } catch(\ImagickException $e) {
+                                $thumb = false;
+                                Log::info('Issue creating thumbnail for record '.$recordDataToSave[$r['id']]['kid'].'.');
                             }
-                    }
+                            try {
+                                $mImage = new \Imagick($newPath . $realname);
+                            } catch(\ImagickException $e) {
+                                $medium = false;
+                                Log::info('Issue creating medium thumbnail for record '.$recordDataToSave[$r['kid']]['id'].'.');
+                            }
+
+                            //Size check
+                            if($smallParts[0]==0 | $smallParts[1]==0) {
+                                $smallParts[0] = 150;
+                                $smallParts[1] = 150;
+                            }
+                            if($largeParts[0]==0 | $largeParts[1]==0) {
+                                $largeParts[0] = 300;
+                                $largeParts[1] = 300;
+                            }
+
+                            if($thumb) {
+                                $tImage->thumbnailImage($smallParts[0],$smallParts[1],true);
+                                $tImage->writeImage($newPathT.$realname);
+                            }
+                            if($medium) {
+                                $mImage->thumbnailImage($largeParts[0],$largeParts[1],true);
+                                $mImage->writeImage($newPathM.$realname);
+                            }
+
+                            //Get file info
+                            $mimes = FileTypeField::getMimeTypes();
+                            $ext = pathinfo($newPath.$realname,PATHINFO_EXTENSION);
+                            if(!array_key_exists($ext, $mimes))
+                                $type = 'application/octet-stream';
+                            else
+                                $type = $mimes[$ext];
+
+                            $info = ['name' => $realname, 'size' => filesize($newPath.$realname), 'type' => $type, 'url' => $dataPath.urlencode($realname)];
+                            $recordDataToSave[$r['id']][$flid] = json_encode($info);
+                        }
+                        break;
+                    case 'List':
+                        $recordDataToSave[$r['id']][$flid] = $value;
+                        break;
+                    case 'Multi-Select List': //TODO::CASTLE
+//                            $mlc = array();
+//                            foreach(simplexml_load_string($value)->value as $xmlopt) {
+//                                array_push($mlc, (string)$xmlopt);
+//                            }
+//                            $optStr = implode('[!]',$mlc);
+//
+//                            $msl = [
+//                                'rid' => $recModel->rid,
+//                                'fid' => $recModel->fid,
+//                                'flid' => $field->flid,
+//                                'options' => $optStr
+//                            ];
+//                            array_push($multiselectlistfields,$msl);
+
+                        break;
+                    case 'Associator': //TODO::CASTLE
+//                            $kids = array();
+//                            foreach(simplexml_load_string($value)->kid as $xmlopt) {
+//                                array_push($kids, (string)$xmlopt);
+//                            }
+//
+//                            $aid = DB::table('associator_fields')->insertGetId([
+//                                'rid' => $recModel->rid,
+//                                'fid' => $recModel->fid,
+//                                'flid' => $field->flid
+//                            ]);
+//
+//                            //We want to save the Typed Field that will have the data eventually, matched to its values in Kora 2 KID form
+//                            $assocFile[$aid] = $kids;
+//
+//                            //This prevents the array from getting too big. We will just create the files in parts
+//                            if(sizeof($assocFile)>self::EXODUS_CONVERSION_SIZE) {
+//                                $dataToWrite = json_encode($assocFile);
+//                                $filename = storage_path(ExodusController::EXODUS_DATA_PATH.'assoc_'.$ogSid.'_'.$filePartNum.'.json');
+//                                file_put_contents($filename,$dataToWrite);
+//
+//                                //Reset the variables
+//                                $filePartNum++;
+//                                $assocFile = array();
+//                            }
+
+                        break;
                 }
-
-                //save type arrays
-                DB::table('text_fields')->insert($textfields);
-                DB::table('rich_text_fields')->insert($richtextfields);
-                DB::table('generated_list_fields')->insert($generatelistfields);
-                DB::table('date_fields')->insert($datefields);
-                DB::table('documents_fields')->insert($documentsfields);
-                DB::table('gallery_fields')->insert($galleryfields);
-                DB::table('list_fields')->insert($listfields);
-                DB::table('multi_select_list_fields')->insert($multiselectlistfields);
             }
         }
 
-        unset($chunks);
+        //save type arrays
+        $recQuery = new Record(array(),$newForm->id);
+        foreach($recordDataToSave as $legacyKID => $data) {
+            $recQuery->newQuery()->insert($data);
+            //increment table
+            DB::table('exodus_partial')->where('id', $row_id)->increment('progress', 1, ['updated_at' => Carbon::now()]);
+        }
 
         //We want to save the Typed Field that will have the data eventually, matched to its values in Kora 2 KID form //TODO::CASTLE
-        $dataToWrite = json_encode($assocFile);
-        $filename = storage_path(ExodusController::EXODUS_DATA_PATH.'assoc_'.$ogSid.'_'.$filePartNum.'.json');
-        file_put_contents($filename,$dataToWrite);
+//        $dataToWrite = json_encode($assocFile);
+//        $filename = storage_path(ExodusController::EXODUS_DATA_PATH.'assoc_'.$ogSid.'_'.$filePartNum.'.json');
+//        file_put_contents($filename,$dataToWrite);
 
         //We want to save the conversion array of Kora 2 KIDs to Kora 3 RIDs for this scheme //TODO::CASTLE
-        $ridChunks = array_chunk($oldKidToNewRid, 500, true);
-        $partIndex = 0;
-        foreach($ridChunks as $ridc) {
-            $dataToWrite = json_encode($ridc);
-            $filename = storage_path(ExodusController::EXODUS_CONVERSION_PATH.'kid_to_rid_'.$ogSid.'_'.$partIndex.'.json');
-            file_put_contents($filename,$dataToWrite);
-            $partIndex++;
-        }
-
-        unset($ridChunks);
+//        $ridChunks = array_chunk($oldKidToNewRid, 500, true);
+//        $partIndex = 0;
+//        foreach($ridChunks as $ridc) {
+//            $dataToWrite = json_encode($ridc);
+//            $filename = storage_path(ExodusController::EXODUS_CONVERSION_PATH.'kid_to_rid_'.$ogSid.'_'.$partIndex.'.json');
+//            file_put_contents($filename,$dataToWrite);
+//            $partIndex++;
+//        }
+//
+//        unset($ridChunks);
 
         //Last but not least, record presets!!!!!!!!! //TODO::CASTLE
-        $recordPresets = $records = $con->query('select * from recordPreset where schemeid='.$ogSid);
-        while($rp = $recordPresets->fetch_assoc()) {
-            $preset = new RecordPreset();
-            $preset->rid = $oldKidToNewRid[$rp['kid']];
-            $preset->fid = $newForm->fid;
-            $preset->name = $rp['name'];
-
-            $preset->save();
-
-            $preset->preset = json_encode($this->getRecordArray($preset->rid, $preset->id));
-            $preset->save();
-        }
+//        $recordPresets = $records = $con->query('select * from recordPreset where schemeid='.$ogSid);
+//        while($rp = $recordPresets->fetch_assoc()) {
+//            $preset = new RecordPreset();
+//            $preset->rid = $oldKidToNewRid[$rp['kid']];
+//            $preset->fid = $newForm->fid;
+//            $preset->name = $rp['name'];
+//
+//            $preset->save();
+//
+//            $preset->preset = json_encode($this->getRecordArray($preset->rid, $preset->id));
+//            $preset->save();
+//        }
 
         //End Record stuff//////////////////////////////////////
 
-        //Breath now //TODO::CASTLE
-        Log::info('Done creating records for '.$form->slug.'.');
-        DB::table('exodus_overall_progress')->where('id', $exodus_id)->increment('progress',1,['updated_at'=>Carbon::now()]);
+        //Breath now
+        Log::info('Done creating records for '.$form->internal_name.'.');
+        DB::table('exodus_overall')->where('id', $exodus_id)->increment('progress',1,['updated_at'=>Carbon::now()]);
 
         mysqli_close($con);
     }
