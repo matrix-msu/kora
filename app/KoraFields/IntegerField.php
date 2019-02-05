@@ -56,6 +56,19 @@ class NumberField extends BaseField {
     /**
      * Gets the default options string for a new field.
      *
+     * @param  int $fid - Form ID
+     * @param  string $slug - Name of database column based on field internal name
+     * @param  array $options - Extra information we may need to set up about the field
+     * @return array - The default options
+     */
+    public function addDatabaseColumn($fid, $slug, $options = null) {
+        $table = new \CreateRecordsTable();
+        $table->addIntegerColumn($fid, $slug);
+    }
+
+    /**
+     * Gets the default options string for a new field.
+     *
      * @param  Request $request
      * @return string - The default options
      */

@@ -51,6 +51,12 @@ class CreateRecordsTable extends Migration {
         });
     }
 
+    public function addIntegerColumn($fid, $slug) {
+        Schema::table("records_$fid", function(Blueprint $table) use ($slug) {
+            $table->integer($slug)->nullable();
+        });
+    }
+
     public function addJSONColumn($fid, $slug) {
         Schema::table("records_$fid", function(Blueprint $table) use ($slug) {
             $table->jsonb($slug)->nullable();
