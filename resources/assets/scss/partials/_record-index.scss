@@ -5,6 +5,55 @@
   background: palette('gray', background);
   font-family: $ubuntu;
   min-height: 100vh;
+
+  .no-records-adv-search {
+    .top {
+      font-size: 60px;
+      height: 60px;
+      position: relative;
+      text-align: center;
+
+      .line {
+        background: palette('gray', base);
+        height: 2px;
+        margin-top: 35px;
+        opacity: 0.05;
+        position: absolute;
+        top: 0;
+        width: 37%;
+
+        &:last-child {
+          right: 0;
+        }
+      }
+
+      .icon {
+        opacity: 0.2;
+      }
+    }
+
+    .bottom {
+      text-align: center;
+
+      p {
+        font-family: $ubuntu;
+        font-size: 18px;
+        margin-top: 0;
+        opacity: 0.8;
+
+        &:last-child {
+          font-size: 14px;
+          line-height: 1.7;
+        }
+      }
+    }
+
+    .kora-green {
+      color: palette('green', accent);
+      cursor: pointer;
+      font-family: $ubuntu-medium;
+    }
+  }
 }
 
 .record-index,

@@ -108,6 +108,11 @@ i {
     content: $icon-profile-dark-1; 
   }
 }
+.icon-formRecords-Empty {
+  &:before {
+    content: $icon-formRecords-Empty; 
+  }
+}
 .icon-preset-Little {
   &:before {
     content: $icon-preset-Little; 
