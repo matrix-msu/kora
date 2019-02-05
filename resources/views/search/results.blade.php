@@ -613,6 +613,9 @@
 
         @include('pagination.records', ['object' => $rid_paginator])
 
+        <div class="form-group search-button-container mt-xxxl">
+            <a class="btn half-sub-btn to-top">Try Another Search</a>
+        </div>
     </div>
 
     <div style="display:none; margin-top: 1em;" id="progress" class="progress">

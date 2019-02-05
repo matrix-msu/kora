@@ -12,7 +12,7 @@
     <div id="map{{$field->flid}}_{{$record->rid}}" class="geolocator-map geolocator-map-js mt-xxs" map-id="{{$field->flid}}_{{$record->rid}}">
         <div class="field-sidebar">
             <div class="top">
-                <a target="_blank" href="{{ action('FieldController@singleGeolocator', ['pid' => $form->pid, 'fid' => $form->fid, 'rid' => $record->rid, 'flid' => $field->flid]) }}" class="field-btn external-button-js">
+                <a target="_blank" href="{{ action('FieldController@singleGeolocator', ['pid' => $field->pid, 'fid' => $field->fid, 'rid' => $record->rid, 'flid' => $field->flid]) }}" class="field-btn external-button-js">
                     <i class="icon icon-external-link"></i>
                 </a>
             </div>
