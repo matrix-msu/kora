@@ -593,6 +593,7 @@
 }
 
 .model-player-div {
+  background: palette('gray', slate);
   margin: auto;
   position: relative;
   width: 100%;
@@ -602,6 +603,10 @@
   border-radius: 5px;
   overflow: hidden;
   width: 100%;
+}
+
+.model-sidebar {
+  padding: 20px;
 }
 
 /***** Fullscreen Modal *****/

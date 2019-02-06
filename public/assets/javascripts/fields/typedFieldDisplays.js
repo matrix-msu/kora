@@ -177,7 +177,7 @@ Kora.Fields.TypedFieldDisplays.Initialize = function() {
                     var $caption = $($captions[i]);
                     setImagePosition($slide, $caption, i);
                 }
-            }
+		    }
 
             function updateCaption(index) {
                 var $caption = $($captions[index]);
@@ -566,7 +566,15 @@ Kora.Fields.TypedFieldDisplays.Initialize = function() {
             viewer.init();
             viewer.update();
 
-            var canvas = document.getElementById('cvfs'+modelID);
+            //var canvas = document.getElementById('cvfs'+modelID);
+	    var canvas = document.getElementById('cv'+modelID);
+
+            $(this).parent().parent().find('.model-sidebar-js .external-button-js').click(function (e) {
+	        console.log ( canvas.toDataURL() )
+		let win = window.open()
+		win.document.write('<iframe src="' + canvas.toDataURL() + '" style="border:0;top:0;left:0;bottom:0;right:0;" allowfullscreen></iframe>')
+                //window.open(baseURL+'projects/'+pid+'/forms/'+fid+'/records/'+rid+'/fields/'+flid+'/'+imgSrc, '_blank');
+	    });
 
             // function fullscreen() {
             //     var el = document.getElementById('cv'+modelID);

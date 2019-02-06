@@ -5,7 +5,7 @@
         $parts = explode('.', $name);
         $type = array_pop($parts);
         if(in_array($type, array('stl','obj')))
-            $model_link = action('FieldAjaxController@getFileDownload',['flid' => $field->flid, 'rid' => $record->rid, 'filename' => $name]);
+		$model_link = action('FieldAjaxController@getFileDownload',['flid' => $field->flid, 'rid' => $record->rid, 'filename' => $name]);
         ?>
     @endif
 @endforeach
@@ -19,6 +19,15 @@
                 It seems you are using an outdated browser that does not support canvas :-(
             </canvas><br>
             {{--    <button id="cvfs{{$field->flid}}_{{$record->rid}}" type="button">FULLSCREEN</button>--}}
+        </div>
+    </div>
+    <div class="field-sidebar model-sidebar model-sidebar-js">
+        <div class="top">
+            <div class="field-btn external-button-js"><i class="icon icon-external-link"></i></div>
+            <a href="{{$model_link}}" class="field-btn"><i class="icon icon-download"></i></a>
+	</div>
+	<div class="bottom">
+            <div class="field-btn full-screen-button-js"><i class="icon icon-maximize"></i></div>
         </div>
     </div>
 </div>
