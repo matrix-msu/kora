@@ -11,7 +11,7 @@
         @if($field['required'])
             <span class="oval-icon"></span>
         @endif
-		{{ strlen($unit) > 0 ? $field['name'] . ' (' . $unit . ')' : $field['name'] }}
+        {{ strlen($unit) > 0 ? $field['name'] . ' (' . $unit . ')' : $field['name'] }}
     </label>
     <span class="error-message"></span>
     <div class="number-input-container">

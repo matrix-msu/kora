@@ -35,7 +35,7 @@ class Form extends Model {
     const _TEXT = "Text";
     const _RICH_TEXT = "Rich Text";
     const _INTEGER = "Integer";
-    // const _FLOAT = "Float";
+    const _FLOAT = "Float";
     const _LIST = "List";
 //    const _MULTI_SELECT_LIST = "Multi-Select List";
 //    const _GENERATED_LIST = "Generated List";
@@ -60,7 +60,7 @@ class Form extends Model {
         ),
         'Number Fields' => array(
             self::_INTEGER => self::_INTEGER,
-            // self::_FLOAT => self::_FLOAT
+            self::_FLOAT => self::_FLOAT
         ),
         'File Fields' => array(
             self::_DOCUMENTS => self::_DOCUMENTS,
@@ -69,7 +69,6 @@ class Form extends Model {
             self::_VIDEO => self::_VIDEO.' (mp4)',
             self::_3D_MODEL => self::_3D_MODEL.' (obj, stl)'
         ),
-        //'Text Fields' => array('Text' => 'Text', 'Rich Text' => 'Rich Text', 'Floating Point' => 'Floating Point'),
         'List Fields' => array(self::_LIST => self::_LIST)
         // 'List Fields' => array('List' => 'List', 'Multi-Select List' => 'Multi-Select List', 'Generated List' => 'Generated List', 'Combo List' => 'Combo List'),
         //'Date Fields' => array('Date' => 'Date', 'Schedule' => 'Schedule'),
@@ -83,7 +82,7 @@ class Form extends Model {
         self::_TEXT,
         self::_LIST,
         self::_INTEGER,
-        //self::_FLOAT,
+        self::_FLOAT,
         //self::_MULTI_SELECT_LIST,
         //self::_GENERATED_LIST,
         //self::_DATE,
@@ -97,7 +96,7 @@ class Form extends Model {
         self::_TEXT => "TextField",
         self::_RICH_TEXT => "RichTextField",
         self::_INTEGER => "IntegerField",
-        // self::_FLOAT => "FLoatField",
+        self::_FLOAT => "FloatField",
         self::_DOCUMENTS => "DocumentsField",
         self::_LIST => "ListField",
         self::_GALLERY => "GalleryField",

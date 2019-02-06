@@ -6,7 +6,7 @@ use App\Search;
 use Illuminate\Http\Request;
 use Illuminate\Database\Query\Builder;
 
-class IntegerField extends BaseField {
+class FloatField extends BaseField {
 
     /*
     |--------------------------------------------------------------------------
@@ -20,11 +20,11 @@ class IntegerField extends BaseField {
     /**
      * @var string - Views for the typed field options
      */
-    const FIELD_OPTIONS_VIEW = "partials.fields.options.integer";
-    const FIELD_ADV_OPTIONS_VIEW = "partials.fields.advanced.integer";
-    const FIELD_ADV_INPUT_VIEW = "partials.records.advanced.integer";
-    const FIELD_INPUT_VIEW = "partials.records.input.integer";
-    const FIELD_DISPLAY_VIEW = "partials.records.display.integer";
+    const FIELD_OPTIONS_VIEW = "partials.fields.options.float";
+    const FIELD_ADV_OPTIONS_VIEW = "partials.fields.advanced.float";
+    const FIELD_ADV_INPUT_VIEW = "partials.records.advanced.float";
+    const FIELD_INPUT_VIEW = "partials.records.input.float";
+    const FIELD_DISPLAY_VIEW = "partials.records.display.float";
 
     /**
      * Get the field options view.
@@ -81,7 +81,7 @@ class IntegerField extends BaseField {
      */
     public function addDatabaseColumn($fid, $slug, $options = null) {
         $table = new \CreateRecordsTable();
-        $table->addIntegerColumn($fid, $slug);
+        $table->addDoubleColumn($fid, $slug);
     }
 
     /**
@@ -106,21 +106,21 @@ class IntegerField extends BaseField {
             ($request->min != '' && $request->max != '') &&
             ($request->min >= $request->max)
         ) {
-            $request->max = $request->min = null;
+            $request->max = $request->min = '';
         }
 
         if(
             ($request->default != '' && $request->max != '') &&
             ($request->default > $request->max)
         ) {
-            $request->default = $request->max = null;
+            $request->default = $request->max = '';
         }
 
         if(
             ($request->default != '' && $request->min != '') &&
             ($request->default < $request->min)
         ) {
-            $request->default = $request->min = null;
+            $request->default = $request->min = '';
         }
 
         $field['default'] = $request->default;
@@ -214,7 +214,7 @@ class IntegerField extends BaseField {
      * @return Request - Processed data
      */
     public function processImportDataXML($flid, $field, $value, $request, $simple = false) {
-        $request[$flid] = (int)$value;
+        $request[$flid] = (float)$value;
 
         return $request;
     }
@@ -317,7 +317,7 @@ class IntegerField extends BaseField {
      */
     public function keywordSearchTyped($flid, $arg, $recordMod, $negative = false) {
         if(is_numeric($arg)) { // Only search if we're working with a number.
-            $arg = intval($arg);
+            $arg = floatval($arg);
 
             return $recordMod->newQuery()
                 ->select('id')
