@@ -10,8 +10,8 @@
             <span class="oval-icon"></span>
         @endif
         <?php
-            $unit = $field['options']['Unit']
-			echo (strlen($unit) > 0 ? $field->name . ' (' . $unit . ')' : $field->name);
+            $unit = $field['options']['Unit'];
+			echo (strlen($unit) > 0 ? $field['name'] . ' (' . $unit . ')' : $field['name']);
 		?> </label>
     <span class="error-message"></span>
     <div class="number-input-container number-input-container-js">

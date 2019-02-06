@@ -1,11 +1,9 @@
 @php
-$options = $typedField->processDisplayData($field, $value)
+$number = $typedField->processDisplayData($field, $value);
 @endphp
 
-{{ $options }}
+{{ $number }}
 
-@foreach($options as $opt)
-    @if($opt['number'] != '')
-    {{ $opt['Unit'] }}
-    @endif
-@endforeach
+@if($number != '')
+    {{ $field['options']['Unit'] }}
+@endif

@@ -14,7 +14,7 @@
         <span class="error-message"></span>
         <div class="number-input-container number-input-container-js">
             <input type="number" name="min" class="text-input number-min-js" step="any" id="min"
-                value="{{ $field['Min'] }}"
+                value="{{ $field['options']['Min'] }}"
                 placeholder = "Enter minimum value here">
         </div>
     </div>
@@ -24,7 +24,7 @@
         <span class="error-message"></span>
         <div class="number-input-container number-input-container-js">
             <input type="number" name="max" class="text-input number-max-js" step="any" id="max"
-                value="{{ $field['Max'] }}"
+                value="{{ $field['options']['Max'] }}"
     			      placeholder="Enter max value here">
         </div>
     </div>
@@ -34,14 +34,14 @@
         <span class="error-message"></span>
         <div class="number-input-container number-input-container-js">
             <input type="number" name="inc" class="text-input number-step-js" step="any" id="inc"
-                value="{{ $field['Increment'] }}"
+                value="{{ $field['options']['Increment'] }}"
 			          placeholder="Enter value increment here">
         </div>
     </div>
 
     <div class="form-group mt-xl">
         {!! Form::label('unit','Unit of Measurement') !!}
-        {!! Form::text('unit', $field['Unit'], ['class' => 'text-input', 'placeholder' => 'Enter unit of measurement here']) !!}
+        {!! Form::text('unit', $field['options']['Unit'], ['class' => 'text-input', 'placeholder' => 'Enter unit of measurement here']) !!}
     </div>
 @stop
 
