@@ -568,12 +568,34 @@ Kora.Fields.TypedFieldDisplays.Initialize = function() {
 
             //var canvas = document.getElementById('cvfs'+modelID);
 	    var canvas = document.getElementById('cv'+modelID);
+	    var canvasModal = $(this).parent().parent().find('.model-modal-js');
 
+            // view fullscreen modal
+            $(this).parent().parent().find('.model-sidebar-js .full-screen-button-js').click(function (e) {
+	       e.preventDefault();
+	       
+	       Kora.Modal.open(canvasModal);
+
+	       var modalViewer = new JSC3D.Viewer(document.getElementById('cv'+modelID+'-modal-js'));
+               modalViewer.setParameter('SceneUrl', modelLink);
+               modalViewer.setParameter('InitRotationX', 0);
+               modalViewer.setParameter('InitRotationY', 0);
+               modalViewer.setParameter('InitRotationZ', 0);
+               modalViewer.setParameter('ModelColor', modelColor);
+               modalViewer.setParameter('BackgroundColor1', bg1Color);
+               modalViewer.setParameter('BackgroundColor2', bg2Color);
+               modalViewer.setParameter('RenderMode', 'texturesmooth');
+               modalViewer.setParameter('MipMapping', 'on');
+               modalViewer.setParameter('Renderer', 'webgl');
+               modalViewer.init();
+               modalViewer.update();
+		    
+	    });
+
+	    // view in new window
             $(this).parent().parent().find('.model-sidebar-js .external-button-js').click(function (e) {
-	        console.log ( canvas.toDataURL() )
 		let win = window.open()
-		win.document.write('<iframe src="' + canvas.toDataURL() + '" style="border:0;top:0;left:0;bottom:0;right:0;" allowfullscreen></iframe>')
-                //window.open(baseURL+'projects/'+pid+'/forms/'+fid+'/records/'+rid+'/fields/'+flid+'/'+imgSrc, '_blank');
+		win.document.write('<iframe src="' + canvas.toDataURL() + '" style="border:0;top:0;left:0;bottom:0;right:0;width:100%;height:auto;" allowfullscreen></iframe>')
 	    });
 
             // function fullscreen() {
