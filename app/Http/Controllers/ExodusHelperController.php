@@ -358,7 +358,7 @@ class ExodusHelperController extends Controller {
                 //Create field array
                 $field = array();
                 $field['type'] = $newType;
-                $field['name'] = preg_replace("/[^A-Za-z0-9 ]/", '', $c['name']);
+                $field['name'] = preg_replace("/[^A-Za-z0-9 ]/", ' ', $c['name']);
                 $newFlid = str_replace(" ","_", $field['name']).'_'.$newForm->project_id.'_'.$newForm->id.'_';
 
                 //Add it to the appropriate page
@@ -566,6 +566,7 @@ class ExodusHelperController extends Controller {
 
                             if(!file_exists($oldDir.$localname)) {
                                 //OLD FILE DOESNT EXIST SO BALE
+                                Log::info('File not found: '.$oldDir.$localname);
                                 continue;
                             }
 
@@ -581,7 +582,7 @@ class ExodusHelperController extends Controller {
                                 $type = $mimes[$ext];
 
                             $info = ['name' => $realname, 'size' => filesize($newPath.$realname), 'type' => $type, 'url' => $dataPath.urlencode($realname)];
-                            $recordDataToSave[$r['id']][$flid] = json_encode($info);
+                            $recordDataToSave[$r['id']][$flid] = json_encode([$info]);
                         }
                         break;
                     case 'Gallery':
@@ -657,8 +658,8 @@ class ExodusHelperController extends Controller {
                             else
                                 $type = $mimes[$ext];
 
-                            $info = ['name' => $realname, 'size' => filesize($newPath.$realname), 'type' => $type, 'url' => $dataPath.urlencode($realname)];
-                            $recordDataToSave[$r['id']][$flid] = json_encode($info);
+                            $info = ['name' => $realname, 'size' => filesize($newPath.$realname), 'type' => $type, 'url' => $dataPath.urlencode($realname), 'caption' => ''];
+                            $recordDataToSave[$r['id']][$flid] = json_encode([$info]);
                         }
                         break;
                     case 'List':
