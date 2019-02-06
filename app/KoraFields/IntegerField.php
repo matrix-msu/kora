@@ -1,4 +1,4 @@
-<?php namespace App;
+<?php namespace App\KoraFields;
 
 use App\Form;
 use App\Record;
@@ -6,7 +6,7 @@ use App\Search;
 use Illuminate\Http\Request;
 use Illuminate\Database\Query\Builder;
 
-class NumberField extends BaseField {
+class IntegerField extends BaseField {
 
     /*
     |--------------------------------------------------------------------------
@@ -45,12 +45,30 @@ class NumberField extends BaseField {
     }
 
     /**
-     * Get the field options view for advanced field creation.
+     * Get the field input view for advanced field search.
      *
-     * @return string - Column name
+     * @return string - The view
      */
-    public function getSortColumn() {
-        return self::SORT_COLUMN;
+    public function getAdvancedSearchInputView() {
+        return self::FIELD_ADV_INPUT_VIEW;
+    }
+
+    /**
+     * Get the field input view for record creation.
+     *
+     * @return string - The view
+     */
+    public function getFieldInputView() {
+        return self::FIELD_INPUT_VIEW;
+    }
+
+    /**
+     * Get the field input view for record creation.
+     *
+     * @return string - The view
+     */
+    public function getFieldDisplayView() {
+        return self::FIELD_DISPLAY_VIEW;
     }
 
     /**
@@ -69,11 +87,10 @@ class NumberField extends BaseField {
     /**
      * Gets the default options string for a new field.
      *
-     * @param  Request $request
      * @return string - The default options
      */
-    public function getDefaultOptions(Request $request) {
-        return ['Max' => 0, 'Min' => 0, 'Increment' => 0, 'Unit' => '']
+    public function getDefaultOptions() {
+        return ['Max' => 0, 'Min' => 0, 'Increment' => 0, 'Unit' => ''];
     }
 
     /**
@@ -81,9 +98,10 @@ class NumberField extends BaseField {
      *
      * @param  Field $field - Field to update options
      * @param  Request $request
+     * @param  int $flid - The field internal name
      * @return Redirect
      */
-    public function updateOptions($field, Request $request) {
+    public function updateOptions($field, Request $request, $flid = null) {
         if(
             ($request->min != '' && $request->max != '') &&
             ($request->min >= $request->max)
@@ -117,12 +135,13 @@ class NumberField extends BaseField {
     /**
      * Validates the record data for a field against the field's options.
      *
-     * @param  Field $field - The field to validate
+     * @param  int $flid - The field internal name
+     * @param  array $field - The field data array to validate
      * @param  Request $request
      * @param  bool $forceReq - Do we want to force a required value even if the field itself is not required?
      * @return array - Array of errors
      */
-    public function validateField($field, $request, $forceReq = false) {
+    public function validateField($flid, $field, $request, $forceReq = false) {
         $req = $field['required'];
         $value = $request->{$flid};
         $max = $field['options']['Max'];
@@ -291,8 +310,10 @@ class NumberField extends BaseField {
     /**
      * Performs a keyword search on this field and returns any results.
      *
-     * @param  int $flid - Field ID
+     * @param  string $flid - Field ID
      * @param  string $arg - The keywords
+     * @param  Record $recordMod - Model to search through
+     * @param  boolean $negative - Get opposite results of the search
      * @return array - The RIDs that match search
      */
     public function keywordSearchTyped($flid, $arg, $recordMod, $negative = false) {
@@ -337,13 +358,15 @@ class NumberField extends BaseField {
     }
 
     /**
-     * Performs an advanced search on this field and returns any results.
+     * Build the advanced query for a text field.
      *
-     * @param  int $flid - Field ID
-     * @param  array $query - The advance search user query
+     * @param  $flid, field id
+     * @param  $query, contents of query.
+     * @param  Record $recordMod - Model to search through
+     * @param  boolean $negative - Get opposite results of the search
      * @return array - The RIDs that match search
      */
-    public function advancedSearchTyped($flid, $query) {
+    public function advancedSearchTyped($flid, $query, $recordMod, $negative = false) {
         $left = $query[$flid . "_left"];
         $right = $query[$flid . "_right"];
         $invert = isset($query[$flid . "_invert"]);

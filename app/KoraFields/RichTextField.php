@@ -98,9 +98,10 @@ class RichTextField extends BaseField {
      *
      * @param  array $field - Field to update options
      * @param  Request $request
+     * @param  int $flid - The field internal name
      * @return array - The updated field array
      */
-    public function updateOptions($field, Request $request, $slug = null) {
+    public function updateOptions($field, Request $request, $flid = null) {
         $field['default'] = $request->default;
 
         return $field;

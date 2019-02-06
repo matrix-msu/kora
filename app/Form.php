@@ -56,7 +56,9 @@ class Form extends Model {
     static public $validFieldTypes = [ //TODO::NEWFIELD
         'Text Fields' => array(
             self::_TEXT => self::_TEXT,
-            self::_RICH_TEXT => self::_RICH_TEXT,
+            self::_RICH_TEXT => self::_RICH_TEXT
+        ),
+        'Number Fields' => array(
             self::_INTEGER => self::_INTEGER,
             // self::_FLOAT => self::_FLOAT
         ),
