@@ -611,14 +611,23 @@
 
 .model-modal {
   .content {
+    background: transparent;
+    box-shadow: none;
     display: block;
+    /*height: 100vh;*/
+    max-width: none;
     overflow-y: unset;
     padding: 0;
-    width: 100%;
+    width: 100vw;
 
     .body {
+      /*height: 100%;*/
       padding: 0;
-
+/*
+      .model-player-canvas {
+        height: 100%;
+      }
+*/
       .modal-toggle {
         background: palette('white', base);
         border: 1px solid palette('gray', slate, .1);

@@ -574,8 +574,6 @@ Kora.Fields.TypedFieldDisplays.Initialize = function() {
             $(this).parent().parent().find('.model-sidebar-js .full-screen-button-js').click(function (e) {
 	       e.preventDefault();
 	       
-	       Kora.Modal.open(canvasModal);
-
 	       var modalViewer = new JSC3D.Viewer(document.getElementById('cv'+modelID+'-modal-js'));
                modalViewer.setParameter('SceneUrl', modelLink);
                modalViewer.setParameter('InitRotationX', 0);
@@ -589,7 +587,8 @@ Kora.Fields.TypedFieldDisplays.Initialize = function() {
                modalViewer.setParameter('Renderer', 'webgl');
                modalViewer.init();
                modalViewer.update();
-		    
+
+	       Kora.Modal.open(canvasModal);
 	    });
 
 	    // view in new window
