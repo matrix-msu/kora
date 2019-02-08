@@ -14,7 +14,7 @@
 
             <!-- Cards of list options -->
             <div class="list-option-card-container list-option-card-container-js">
-                @foreach(\App\ListField::getList($field,false) as $option)
+                @foreach($field['options']['Options'] as $option)
                     <div class="card list-option-card list-option-card-js" data-list-value="{{ $option }}">
                         <input type="hidden" class="list-option-js" name="options[]" value="{{ $option }}">
 
@@ -57,13 +57,13 @@
 
         <div><a href="#" class="field-preset-link open-list-modal-js">Use a Value Preset for these List Options</a></div>
         <div class="open-create-regex"><a href="#" class="field-preset-link open-create-list-modal-js right
-            @if(empty(\App\ListField::getList($field,false))) disabled tooltip @endif" tooltip="You must submit or update the field before creating a New Value Preset">
+            @if(empty($field['options'])) disabled tooltip @endif" tooltip="You must submit or update the field before creating a New Value Preset">
                 Create a New Value Preset from these List Options</a></div>
     </div>
 
     <div class="form-group mt-xxxl">
         {!! Form::label('default','Default') !!}
-        {!! Form::select('default[]',\App\MultiSelectListField::getList($field,false), explode('[!]',$field->default),
+        {!! Form::select('default[]', $field['options'], explode('[!]',$field['default']),
         ['class' => 'multi-select list-default-js', 'multiple', 'data-placeholder' => 'Select the default values here (Values must be added above in order to select)']) !!}
     </div>
 @stop
