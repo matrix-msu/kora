@@ -22,10 +22,10 @@
     </div>
     <div class="field-sidebar model-sidebar model-sidebar-js">
         <div class="top">
-            <div class="field-btn external-button-js"><i class="icon icon-external-link"></i></div>
+            <a href="{{ action('FieldController@singleModel', ['pid' => $field->pid, 'fid' => $field->fid, 'rid' => $record->rid, 'flid' => $field->flid]) }}" target="_blank" class="field-btn"><i class="icon icon-external-link"></i></a>
             <a href="{{$model_link}}" class="field-btn"><i class="icon icon-download"></i></a>
-	</div>
-	<div class="bottom">
+	    </div>
+	    <div class="bottom">
             <div class="field-btn full-screen-button-js"><i class="icon icon-maximize"></i></div>
         </div>
     </div>
@@ -33,7 +33,7 @@
         <div class="content">
             <div class="body">
                 <a href="#" class="modal-toggle modal-toggle-js"><i class="icon icon-cancel"></i></a>
-		<canvas id="cv{{$field->flid}}_{{$record->rid}}-modal-js" class="model-player-canvas">
+		        <canvas id="cv{{$field->flid}}_{{$record->rid}}-modal-js" class="model-player-canvas">
                     It seems you are using an outdated browser that does not support canvas :-(
                 </canvas>
             </div> 

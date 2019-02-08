@@ -585,16 +585,11 @@ Kora.Fields.TypedFieldDisplays.Initialize = function() {
                modalViewer.setParameter('RenderMode', 'texturesmooth');
                modalViewer.setParameter('MipMapping', 'on');
                modalViewer.setParameter('Renderer', 'webgl');
+
                modalViewer.init();
-               modalViewer.update();
+	           modalViewer.update();
 
 	       Kora.Modal.open(canvasModal);
-	    });
-
-	    // view in new window
-            $(this).parent().parent().find('.model-sidebar-js .external-button-js').click(function (e) {
-		let win = window.open()
-		win.document.write('<iframe src="' + canvas.toDataURL() + '" style="border:0;top:0;left:0;bottom:0;right:0;width:100%;height:auto;" allowfullscreen></iframe>')
 	    });
 
             // function fullscreen() {
