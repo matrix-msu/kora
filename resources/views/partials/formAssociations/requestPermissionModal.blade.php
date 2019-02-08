@@ -1,5 +1,5 @@
 <div class="modal modal-js modal-mask request-permission-modal request-permission-modal-js">
-  <div class="content">
+  <div class="content overflow-yes">
     <div class="header">
       <span class="title">Request Form Association</span>
       <a href="#" class="modal-toggle modal-toggle-js">
