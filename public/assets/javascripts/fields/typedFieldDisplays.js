@@ -572,39 +572,9 @@ Kora.Fields.TypedFieldDisplays.Initialize = function() {
             viewer.init();
             viewer.update();
 
-<<<<<<< Updated upstream
             //var canvas = document.getElementById('cvfs'+modelID);
-	    var canvas = document.getElementById('cv'+modelID);
-	    var canvasModal = $(this).parent().parent().find('.model-modal-js');
-
-            // view fullscreen modal
-            $(this).parent().parent().find('.model-sidebar-js .full-screen-button-js').click(function (e) {
-	       e.preventDefault();
-	       
-	       var modalViewer = new JSC3D.Viewer(document.getElementById('cv'+modelID+'-modal-js'));
-               modalViewer.setParameter('SceneUrl', modelLink);
-               modalViewer.setParameter('InitRotationX', 0);
-               modalViewer.setParameter('InitRotationY', 0);
-               modalViewer.setParameter('InitRotationZ', 0);
-               modalViewer.setParameter('ModelColor', modelColor);
-               modalViewer.setParameter('BackgroundColor1', bg1Color);
-               modalViewer.setParameter('BackgroundColor2', bg2Color);
-               modalViewer.setParameter('RenderMode', 'texturesmooth');
-               modalViewer.setParameter('MipMapping', 'on');
-               modalViewer.setParameter('Renderer', 'webgl');
-
-               modalViewer.init();
-	           modalViewer.update();
-
-	       Kora.Modal.open(canvasModal);
-	    });
-=======
-<<<<<<< Updated upstream
-            var canvas = document.getElementById('cvfs'+modelID);
-=======
-            //var canvas = document.getElementById('cvfs'+modelID);
-	        var canvas = document.getElementById('cv'+modelID);
-	        var canvasModal = $(this).parent().parent().find('.model-modal-js');
+            var canvas = document.getElementById('cv'+modelID);
+            var canvasModal = $(this).parent().parent().find('.model-modal-js');
 
             // view fullscreen modal
             $(this).parent().parent().find('.model-sidebar-js .full-screen-button-js').click(function (e) {
@@ -630,8 +600,6 @@ Kora.Fields.TypedFieldDisplays.Initialize = function() {
 
 	            Kora.Modal.open(canvasModal);
             });
->>>>>>> Stashed changes
->>>>>>> Stashed changes
 
             // function fullscreen() {
             //     var el = document.getElementById('cv'+modelID);
