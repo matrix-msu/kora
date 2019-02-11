@@ -99,11 +99,11 @@ class MultiSelectListField extends BaseField {
     /**
      * Update the options for a field
      *
-     * @param  Field $field - Field to update options
+     * @param  array $field - Field to update options
      * @param  Request $request
-     * @return Redirect
+     * @return array - The updated field array
      */
-    public function updateOptions($field, Request $request) {
+    public function updateOptions($field, Request $request, $slug = null) {
         if(is_null($request->options)) {
             $request->options = array();
         }
@@ -143,7 +143,7 @@ class MultiSelectListField extends BaseField {
         if(($req==1 | $forceReq) && empty($value))
             return [$flid => $field['name'].' is required'];
 
-        if(!empty($value) && !array_diff($value, $options))
+        if(!empty($value) && array_diff($value, $options))
             return [$flid => $field['name'].' has an invalid value not in the list.'];
 
         return array();
@@ -161,7 +161,7 @@ class MultiSelectListField extends BaseField {
     public function processRecordData($field, $value, $request) {
         if($value=='')
             $value = null;
-        return $value;
+        return implode(',', $value);
     }
 
     /**
@@ -218,7 +218,9 @@ class MultiSelectListField extends BaseField {
      * @return mixed - Processed data
      */
     public function processDisplayData($field, $value) {
-        return $value;
+        if ($value == '')
+            $value = null;
+        return explode(',', $value);
     }
 
     /**
@@ -357,5 +359,21 @@ class MultiSelectListField extends BaseField {
             ->where($flid, $param,"$arg")
             ->pluck('id')
             ->toArray();
+    }
+
+    ///////////////////////////////////////////////END ABSTRACT FUNCTIONS///////////////////////////////////////////////
+
+    /**
+     * Gets the list options for a multi-select list field.
+     *
+     * @param  Field $field - Field to pull options from
+     * @return array - The list options
+     */
+    public static function getList($field) {
+        $options = array();
+        foreach ($field['options']['Options'] as $option) {
+            $options['Options'][$option] = $option;
+        }
+        return $options;
     }
 }
