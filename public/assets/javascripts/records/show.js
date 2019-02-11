@@ -439,14 +439,7 @@ Kora.Records.Show = function() {
         offset = date.getTimezoneOffset() * 60000 // convert to milliseconds because Date.getTime() gets time in milliseconds
         adjustedDate = new Date( date.getTime() - offset ) // subtract offset because offset has opposite sign as needed (-/+)
 
-        let year    = adjustedDate.getFullYear()
-        let month   = adjustedDate.getMonth() + 1
-        let day     = adjustedDate.getDay()
-        let hour    = adjustedDate.getHours()
-        let minute  = adjustedDate.getMinutes()
-        let second  = adjustedDate.getSeconds()
-
-        let adjustedDate_Formatted = year + '-' + month + '-' + day + ' ' + hour + ':' + minute + ':' + second + ' ' + timezoneName
+        let adjustedDate_Formatted = adjustedDate.toISOString().substr(0,19).replace('T',' ') + ' ' + timezoneName
         writeTime[i].innerText = adjustedDate_Formatted
     }
 
