@@ -990,7 +990,7 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
         if(!is_null($this->profile))
             return url('app/profiles/'.$this->id.'/'.$this->profile);
         else
-            return url('assets/images/blank_profile.jpg');
+            return '<i class="icon icon-profile-dark-1">';
     }
 
     /**

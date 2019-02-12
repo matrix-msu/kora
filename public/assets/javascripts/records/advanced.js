@@ -53,4 +53,26 @@ Kora.Records.Advanced = function() {
     }
 
     initializeDateOptions();
+
+    let keywords = []
+    $('.keyword').each(function () {
+        keywords.push($(this).children('span').text());
+    });
+
+    $('.keyword-close').click(function(){
+        let find = $(this).siblings('span').text();
+
+        keywords.splice(keywords.indexOf(find), 1);
+        let newKeys = keywords.toString();
+        newKeys = newKeys.replace(/,/g,' ');
+
+        $('.keywords-get-js').val(newKeys);
+        $('.adv-search-js').submit();
+    });
+
+    $('.back-to-search').click(function (e) {
+        e.preventDefault();
+
+        $('html,body').animate({scrollTop: 0});
+    });
 }
