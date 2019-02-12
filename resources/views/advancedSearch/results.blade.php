@@ -44,6 +44,21 @@
             </div>
         </section>
 
+        <div class="display-keywords mt-xxl"><ul class="keywords">
+            @php $keywords = explode(' ', $keywords); @endphp
+            <!-- 2/3 search pages use js for this, and this page also uses the same script that holds said js
+            but this page is not set up to work with this script.  So it exists but we can't use it.
+            I've decided to use php for this specifically to avoid cluttered js and conflicts with the other system -->
+            @for ($i = 0; $i < count($keywords); $i++)
+                <li class="keyword"><span>{{ $keywords[$i] }}</span><a class="keyword-close"></a></li>
+            @endfor
+
+            @if (count($keywords) > 0)
+                <li class="back-to-search"><span>Back to Search</span><i class="icon icon-arrow-up"></i></li>
+            @endif
+        </ul></div>
+
+        @if(sizeof($records) > 0)
         <section class="display-records">
             <div class="form-group records-title mt-xxxl">
                 Showing {{sizeof($records)}} of {{$total}} Records
@@ -76,7 +91,14 @@
             @endforeach
 
             @include('partials.records.pagination')
+
+            <div class="form-group search-button-container mt-xxxl">
+                <a class="btn half-sub-btn to-top">Try Another Search</a>
+            </div>
         </section>
+        @else
+            @include('partials.records.no-records')
+        @endif
     </section>
 @stop
 

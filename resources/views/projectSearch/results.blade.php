@@ -102,6 +102,10 @@
                     @endforeach
 
                     @include('partials.records.pagination')
+
+                    <div class="form-group search-button-container mt-xxxl">
+                        <a class="btn half-sub-btn to-top">Try Another Search</a>
+                    </div>
                 @else
                     @include('partials.records.no-records')
                 @endif

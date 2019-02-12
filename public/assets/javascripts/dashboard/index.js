@@ -317,7 +317,7 @@ Kora.Dashboard.Index = function() {
                 reorderSections()
             },
             disabled: true,
-            cancel: '.add-section'
+            cancel: '.add-section, .edit-section-title-js'
         });
 
         $('.move-action-js').click(function(e) {
@@ -382,44 +382,6 @@ Kora.Dashboard.Index = function() {
         $('.add-section-input-js').on('keyup', function (e) {
             e.preventDefault();
 
-            function createNewSection (section) {
-                // have to use JQuery's .clone() method instead of javascript .importNode or similar methods
-                // because JAVASCRIPT doesn't clone event listeners whereas JQ .clone() does
-                $('.dashboard .section-js.hidden').clone(true).insertBefore('.sections section:last-child');
-                $('.sections .section-js.hidden').find('.title').text(section.sec_title);
-                $('.sections .section-js.hidden').find('.edit-section-title-js').val('' + section.sec_title);
-                $('.sections .section-js.hidden').find('.edit-section-title-js').attr('placeholder', section.sec_title);
-                $('.sections .section-js.hidden').find('.delete-section-js').attr('data-id', section.sec_id);
-                $('.sections .section-js.hidden').attr('id', section.sec_id);
-                $('.sections .section-js.hidden').addClass('no-children');
-
-                $(".sections").sortable({
-                    helper: 'clone',
-                    revert: true,
-                    containment: ".dashboard",
-                    update: function(event, ui) {
-                        reorderSections()
-                    },
-                    disabled: false,
-                    cancel: '.add-section'
-                });
-
-                $("#sections .section-js .container").sortable({
-                    helper: 'clone',
-                    containment: ".dashboard",
-                    connectWith: '.container',
-                    items: '.element',
-                    update: function(event, ui) {
-                        reorderBlocks()
-                    },
-                    disabled: false
-                });
-
-                $('.sections .section-js.hidden').removeClass('hidden');
-
-                $('.add-section-input-js').val('');
-            }
-
             if (e.keyCode == 13) {
                 let secTitle = $('.add-section-input-js').val();
                 let url = addSectionUrl + '/' + secTitle;
@@ -433,7 +395,7 @@ Kora.Dashboard.Index = function() {
                         'sectionTitle': secTitle
                     },
                     success: function (data) {
-                        createNewSection(data)
+                        window.location.reload()
                     },
                     error: function (err) {
                         console.log(err);
@@ -445,17 +407,6 @@ Kora.Dashboard.Index = function() {
 
         $('.delete-section-js').click(function (e) {
             e.preventDefault();
-
-            function removeSection (dSection, nSectionID) {
-                let blocks = dSection.children('.container').children();
-
-                $.each(blocks, function () {
-                    $('#' + nSectionID).children('.container').append($(this));
-                });
-
-                dSection.remove();
-                reorderBlocks()
-            }
 
             let deletedSection = $(this).parent().parent().parent();
             let secID = $(this).attr('data-id');
@@ -469,7 +420,7 @@ Kora.Dashboard.Index = function() {
                     '_method': 'DELETE'
                 },
                 success: function (response) {
-                    removeSection(deletedSection, response.section)
+                    window.location.reload();
                 },
                 error: function (err) {
                     console.log(err);
@@ -484,7 +435,6 @@ Kora.Dashboard.Index = function() {
             values = {};
             $.each($('.sections .edit-section-title-js'), function () {
                 if ($(this).val() != $(this).attr('placeholder')) {
-                    console.log($(this))
                     if (!titles)
                         titles = $(this).attr('secid') + '-' + $(this).val() + '_';
                     else
@@ -502,11 +452,11 @@ Kora.Dashboard.Index = function() {
                     url: editSectionUrl,
                     method: 'POST',
                     data: values,
-                    success: function (data) {
-                        //window.location.reload();
+                    success: function ( data ) {
+                        window.location.reload();
                     },
-                    error: function (err) {
-                        console.log(err);
+                    error: function ( err ) {
+                        console.warn ( err )
                     }
                 });
             }

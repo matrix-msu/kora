@@ -22,7 +22,7 @@
                     </div>
 
                     <audio class="audio-clip audio-clip-js">
-                        <source src="{{url('app/files/p'.$form->pid.'/f'.$form->fid.'/r'.$record->rid.'/fl'.$field->flid.'/'.$filename)}}" type="{{explode('[Type]',$aud)[1]}}">
+                        <source src="{{url('app/files/p'.$field->pid.'/f'.$field->fid.'/r'.$record->rid.'/fl'.$field->flid.'/'.$filename)}}" type="{{explode('[Type]',$aud)[1]}}">
                         Your browser does not support the audio element
                     </audio>
                 </div>
@@ -30,7 +30,7 @@
 
             <div class="field-sidebar audio-sidebar audio-sidebar-js">
                 <div class="top">
-                    <a href="{{url('projects/'.$form->pid.'/forms/'.$form->fid.'/records/'.$record->rid.'/fields/'.$field->flid.'/'.$filename)}}" class="field-btn" target="_blank">
+                    <a href="{{url('projects/'.$field->pid.'/forms/'.$field->fid.'/records/'.$record->rid.'/fields/'.$field->flid.'/'.$filename)}}" class="field-btn" target="_blank">
                         <i class="icon icon-external-link"></i>
                     </a>
 
