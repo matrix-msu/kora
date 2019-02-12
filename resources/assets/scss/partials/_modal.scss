@@ -104,7 +104,7 @@
 @media screen and (max-width: $max-mobile-xs-width) {
   .modal:not(.onboarding-modal) {
     .content {
-      height: 90%;
+      /*height: 90%;*/
 
       .record-revisions & {
         height: unset;
