@@ -1,4 +1,4 @@
 <div class="form-group mt-xl">
-    {!! Form::label($field->flid.'_input',$field->name) !!}
-    {!! Form::select( $field->flid . "_input", \App\ListField::getList($field, true), '', ["class" => "single-select"]) !!}
+    {!! Form::label($flid.'_input',$field['name']) !!}
+    {!! Form::select($flid . "_input", $field['options'], '', ["class" => "single-select"]) !!}
 </div>
