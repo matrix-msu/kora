@@ -51,6 +51,24 @@ class CreateRecordsTable extends Migration {
         });
     }
 
+    public function addIntegerColumn($fid, $slug) {
+        Schema::table("records_$fid", function(Blueprint $table) use ($slug) {
+            $table->integer($slug)->nullable();
+        });
+    }
+
+    /**
+     * Creates a column with type double
+     *
+     * @param int $precision - total digits
+     * @param int $scale - decimal digits
+     */
+    public function addDoubleColumn($fid, $slug, $precision = 15, $scale = 8) {
+        Schema::table("records_$fid", function(Blueprint $table) use ($slug, $precision, $scale) {
+            $table->double($slug, $precision, $scale)->nullable();
+        });
+    }
+
     public function addJSONColumn($fid, $slug) {
         Schema::table("records_$fid", function(Blueprint $table) use ($slug) {
             $table->jsonb($slug)->nullable();
