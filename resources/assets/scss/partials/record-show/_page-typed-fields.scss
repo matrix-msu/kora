@@ -243,15 +243,21 @@
 
   .next-button {
     .icon {
-      margin-left: 12.5px;
-      transform: rotate(270deg);
+      left: 50%;
+      margin: 0;
+      position: absolute;
+      top: 50%;
+      transform: translate(-40%, -50%) rotate(270deg);
     }
   }
 
   .prev-button {
     .icon {
-      margin-right: 12.5px;
-      transform: rotate(90deg);
+      left: 50%;
+      margin: 0;
+      position: absolute;
+      top: 50%;
+      transform: translate(-60%, -50%) rotate(90deg);
     }
   }
 }
