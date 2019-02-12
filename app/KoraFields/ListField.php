@@ -101,22 +101,23 @@ class ListField extends BaseField {
      *
      * @param  Field $field - Field to update options
      * @param  Request $request
+     * @param  int $flid - The field internal name
      * @return Redirect
      */
-    public function updateOptions($field, Request $request, $slug = null) {
+    public function updateOptions($field, Request $request, $flid = null) {
         if(is_null($request->options)) {
             $request->options = array();
         }
 
-        if(is_null($slug)) {
+        if(is_null($flid)) {
             $form = FormController::getForm($request->fid);
-            $slug = str_replace(" ","_", $request->name).'_'.$form->project_id.'_'.$form->id.'_';
+            $flid = str_replace(" ","_", $request->name).'_'.$form->project_id.'_'.$form->id.'_';
         }
 
         $table = new \CreateRecordsTable();
         $table->updateEnum(
             $request->fid,
-            $slug,
+            $flid,
             $request->options
         );
 

@@ -1,8 +1,6 @@
 <?php
-    if($editRecord && $hasData)
-        $textValue = $typedField->rawtext;
-    else if($editRecord)
-        $textValue = "";
+    if($editRecord)
+        $textValue = $record->{$flid};
     else
         $textValue = $field['default'];
 ?>
