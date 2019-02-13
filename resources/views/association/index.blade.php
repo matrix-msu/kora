@@ -111,7 +111,7 @@
                             </a>
                         </div>
                     </div>
-                    <div class="content content-js {{ $index == 0 ? 'active' : '' }}">
+                    <div class="content content-js">
                         <div class="description">
                           {{ $f->description }}
                         </div>
