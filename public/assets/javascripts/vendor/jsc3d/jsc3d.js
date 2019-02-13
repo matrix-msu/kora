@@ -1107,6 +1107,7 @@ JSC3D.Viewer.prototype.setupScene = function(scene) {
         var d = scene.aabb.lengthOfDiagonal();
         var w = this.frameWidth;
         var h = this.frameHeight;
+        console.log ( d, w, h )
         this.zoomFactor = (d == 0) ? 1 : (w < h ? w : h) / d;
         this.panning = [0, 0];
     }
@@ -4465,7 +4466,8 @@ JSC3D.AABB.prototype.lengthOfDiagonal = function() {
     var xx = this.maxX - this.minX;
     var yy = this.maxY - this.minY;
     var zz = this.maxZ - this.minZ;
-    return Math.sqrt(xx * xx + yy * yy + zz * zz);
+
+    return Math.sqrt( (xx * xx + yy * yy + zz * zz) * 0.5 );
 };
 
 
