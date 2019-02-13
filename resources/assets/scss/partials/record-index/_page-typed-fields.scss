@@ -542,6 +542,7 @@
 }
 
 .model-player-div {
+  background: palette('gray', slate);
   margin: auto;
   position: relative;
   width: 100%;
@@ -551,6 +552,62 @@
   border-radius: 5px;
   overflow: hidden;
   width: 100%;
+}
+
+.model-sidebar {
+  padding: 20px;
+}
+
+.model-modal {
+  .content {
+    background: transparent;
+    box-shadow: none;
+    display: block;
+    height: 100vh;
+    max-width: none;
+    overflow-y: unset;
+    padding: 0;
+    width: 100vw;
+
+    .body {
+      height: 100vh;
+      overflow: hidden;
+      padding: 0;
+/*
+      .model-player-canvas {
+        height: 100%;
+      }
+*/
+      canvas {
+        height: 100%;
+        object-fit: cover;
+      }
+
+      .modal-toggle {
+        background: palette('white', base);
+        border: 1px solid palette('gray', slate, .1);
+        border-radius: 5px;
+        box-shadow: 0 3px 5px 0 palette('gray', slate);
+        cursor: pointer;
+        display: flex;
+        height: 32px;
+        position: absolute;
+        right: 10px;
+        top: 10px;
+        @include transition();
+        width: 32px;
+        z-index: 1;
+
+        .icon {
+          margin: auto;
+        }
+
+        &:hover {
+          background: #f4f4f4;
+        }
+      }
+    }
+  }
 }
 
 /***** Fullscreen Modal *****/

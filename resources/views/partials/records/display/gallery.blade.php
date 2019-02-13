@@ -5,7 +5,7 @@
     $singleFilename = ($single ? explode('[Name]',$typedField->images)[1] : '');
 ?>
 
-<div class="record-data-card">
+<div class="record-data-card gallery-card">
     <div class="gallery-field-display gallery-field-display-js {{ ($single ? 'single' : '') }}">
         @foreach($images as $ndx => $img)
             @if($img != '')
