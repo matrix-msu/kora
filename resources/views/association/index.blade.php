@@ -96,7 +96,7 @@
             <p class="description request-description-js {{count($available_associations) === 0 ? 'hidden' : ''}}">{{$form->name}} is allowed to associate with and can search within the following forms:</p>
             @foreach ($available_associations as $index=>$a)
                 <?php $f = \App\Form::where('fid', '=', $a->dataForm)->first() ?>
-                <div class="association association-js card {{ $index == 0 ? 'active' : '' }}" id="request-{{$f->fid}}">
+                <div class="association association-js card" id="request-{{$f->fid}}">
                     <div class="header {{ $index == 0 ? 'active' : '' }}">
                         <div class="left pl-m">
                             <a class="title association-toggle-by-name-js" href="#">
@@ -107,7 +107,7 @@
                         <div class="card-toggle-wrap">
                             <a href="#" class="card-toggle association-toggle-js">
                                 <span class="chevron-text">{{ $f->project()->get()->first()->name }}</span>
-                                <i class="icon icon-chevron {{ $index == 0 ? 'active' : '' }}"></i>
+                                <i class="icon icon-chevron"></i>
                             </a>
                         </div>
                     </div>
