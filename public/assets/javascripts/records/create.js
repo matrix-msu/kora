@@ -171,36 +171,38 @@ Kora.Records.Create = function() {
     }
 
     function initializeGenListOptions () {
-        // var genlist = document.getElementById( $('.genlist-js').attr('id') )
-
-        // let opts = $('.list-option-card-container-js').children();
-
-        // function countOpts () {
-        //     console.log ( opts )
-        //     console.log ( opts.length )
-        // }
-        // countOpts()
-
+        // The actual HTML is generated and handled in Kora.Fields.Options()
+        // This section just handles adding and removing the options from the multiselect list
+        // Option Removed
         $('.list-option-card-js .list-option-delete-js').click(function (e) {
             e.preventDefault();
 
-            let options = Array.from( document.getElementById( $('.genlist-js').attr('id') ).children )
+            let options = Array.from ( document.getElementById( $('.genlist-js').attr('id') ).children )
             let opt = this.parentElement.parentElement.children[0].children[1].innerText
-
-            let removeMe = options.find(function(option) {
+            let removeMe = options.find ( function ( option ) {
                 return option.innerText == opt
             })
-
             removeMe.remove();
 
             $('.genlist-js').trigger('chosen:updated');
         });
 
+        // Option Added
+        function optionAdded ( newOption ) {
+            $('.genlist-js').append('<option value="' + newOption + '">' + newOption + '</option>');
+            $('.genlist-js').trigger('chosen:updated');
+        }
+
+        $('.new-list-option-js').on('keyup', function (e) {
+            e.preventDefault();
+            let keyCode = e.keyCode || e.which
+            if ( e.keyCode == 13 )
+                optionAdded ( $(this).val() )
+        });
+
         $('.list-option-add-js').click(function (e) {
             e.preventDefault();
-
-            //TODO::this
-            console.log ( 'clicked!' )
+            optionAdded ( $('.new-list-option-js').val() )
         });
     }
 
