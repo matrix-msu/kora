@@ -311,9 +311,13 @@ class Form extends Model {
             $fields = ['kid'];
 
         //Adds the data fields
-        if(!is_array($filters['fields']) && $filters['fields'] == 'ALL')
-            $flids = array_keys($this->layout['fields']);
-        else
+        if(!is_array($filters['fields']) && $filters['fields'] == 'ALL') {
+            //Builds out order of fields based on page
+            $flids = array();
+            foreach($this->layout['pages'] as $page) {
+                $flids = array_merge($flids, $page['flids']);
+            }
+        } else
             $flids = $filters['fields'];
 
         //Get the real names of fields
@@ -417,9 +421,13 @@ class Form extends Model {
         $fieldToRealName = [];
 
         //Adds the data fields
-        if(!is_array($filters['fields']) && $filters['fields'] == 'ALL')
-            $flids = array_keys($this->layout['fields']);
-        else
+        if(!is_array($filters['fields']) && $filters['fields'] == 'ALL') {
+            //Builds out order of fields based on page
+            $flids = array();
+            foreach($this->layout['pages'] as $page) {
+                $flids = array_merge($flids, $page['flids']);
+            }
+        } else
             $flids = $filters['fields'];
 
         $fields = array_merge($flids,$fields);
@@ -524,9 +532,13 @@ class Form extends Model {
         //$filters['revAssoc']; //TODO::CASTLE Need assoc first
 
         //Adds the data fields
-        if(!is_array($filters['fields']) && $filters['fields'] == 'ALL')
-            $flids = array_keys($this->layout['fields']);
-        else
+        if(!is_array($filters['fields']) && $filters['fields'] == 'ALL') {
+            //Builds out order of fields based on page
+            $flids = array();
+            foreach($this->layout['pages'] as $page) {
+                $flids = array_merge($flids, $page['flids']);
+            }
+        } else
             $flids = $filters['fields'];
 
         $fields = array_merge($flids,$fields);
