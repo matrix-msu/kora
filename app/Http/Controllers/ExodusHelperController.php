@@ -71,16 +71,17 @@ class ExodusHelperController extends Controller {
     /**
      * Constructs and executes data mirgration.
      *
-     * @param $ogSid - Original id of the scheme
-     * @param $fid - Form ID that will be built
-     * @param $formArray - Array of old sids to new fids
-     * @param $pairArray - Array of old to new pids
-     * @param $dbInfo - Info to connect to db
-     * @param $filePath - Local system path for kora 2 files
-     * @param $exodus_id - Progress table id
-     * @param $userNameArray - Array of old user names to new ids
+     * @param  $ogSid - Original id of the scheme
+     * @param  $fid - Form ID that will be built
+     * @param  $formArray - Array of old sids to new fids
+     * @param  $pairArray - Array of old to new pids
+     * @param  $dbInfo - Info to connect to db
+     * @param  $filePath - Local system path for kora 2 files
+     * @param  $exodus_id - Progress table id
+     * @param  $userNameArray - Array of old user names to new ids
+     * @param  bool $commandLine - Are we executing from web or php artisan
      */
-    public function migrateControlsAndRecords($ogSid, $fid, $formArray, $pairArray, $dbInfo, $filePath, $exodus_id, $userNameArray) {
+    public function migrateControlsAndRecords($ogSid, $fid, $formArray, $pairArray, $dbInfo, $filePath, $exodus_id, $userNameArray, $commandLine) {
         //connect to db and set up variables
         $con = mysqli_connect($dbInfo['host'],$dbInfo['user'],$dbInfo['pass'],$dbInfo['name']);
         $form = FormController::getForm($fid);
@@ -95,6 +96,8 @@ class ExodusHelperController extends Controller {
         $table_array = $this->makeBackupTableArray($numRecords, $form, $exodus_id);
         if($table_array == false) { return;}
         Log::info('Started creating records for '.$form->internal_name.' (sid: '.$ogSid.').');
+        if($commandLine)
+            echo "Creating records for ".$form->internal_name." (sid: $ogSid)...\n";
 
         $row_id = DB::table('exodus_partial')->insertGetId(
             $table_array
@@ -172,25 +175,22 @@ class ExodusHelperController extends Controller {
                             $newType = 'Text';
                         }
                         break;
-                    case 'MultiTextControl': //TODO::CASTLE
-//                        $def = array();
-//                        if(!$blankOpts && !is_null($optXML->defaultValue->value)) {
-//                            foreach($optXML->defaultValue->value as $xmlopt) {
-//                                array_push($def, (string)$xmlopt);
-//                            }
-//                        }
-//
-//                        $defOpts = implode('[!]', $def);
-//
-//                        if(!$blankOpts)
-//                            $regex = $optXML->regex->__toString();
-//                        else
-//                            $regex = '';
-//
-//                        $newOpts = '[!Regex!]' . $regex . '[!Regex!][!Options!]' . $defOpts . '[!Options!]';
-//                        $newDef = $defOpts;
-//                        $newType = 'Generated List';
-                        $skip = true;
+                    case 'MultiTextControl':
+                        $def = array();
+                        if(!$blankOpts && !is_null($optXML->defaultValue->value)) {
+                            foreach($optXML->defaultValue->value as $xmlopt) {
+                                array_push($def, (string)$xmlopt);
+                            }
+                        }
+
+                        if(!$blankOpts)
+                            $regex = $optXML->regex->__toString();
+                        else
+                            $regex = '';
+
+                        $newOpts = ['Regex' => $regex, 'Options' => $def];
+                        $newDef = $def;
+                        $newType = 'Generated List';
                         break;
                     case 'DateControl': //TODO::CASTLE
 //                        if(!$blankOpts) {
@@ -314,27 +314,24 @@ class ExodusHelperController extends Controller {
                         $newDef = $def;
                         $newType = 'List';
                         break;
-                    case 'MultiListControl': //TODO::CASTLE
-//                        $opts = array();
-//                        if(!$blankOpts) {
-//                            foreach($optXML->option as $xmlopt) {
-//                                array_push($opts, (string)$xmlopt);
-//                            }
-//                        }
-//                        $allOpts = implode('[!]', $opts);
-//
-//                        $def = array();
-//                        if(!$blankOpts && !is_null($optXML->defaultValue->option)) {
-//                            foreach($optXML->defaultValue->option as $xmlopt) {
-//                                array_push($def, (string)$xmlopt);
-//                            }
-//                        }
-//                        $defOpts = implode('[!]', $def);
-//
-//                        $newOpts = '[!Options!]'.$allOpts.'[!Options!]';
-//                        $newDef = $defOpts;
-//                        $newType = 'Multi-Select List';
-                        $skip = true;
+                    case 'MultiListControl':
+                        $opts = array();
+                        if(!$blankOpts) {
+                            foreach($optXML->option as $xmlopt) {
+                                array_push($opts, (string)$xmlopt);
+                            }
+                        }
+
+                        $def = array();
+                        if(!$blankOpts && !is_null($optXML->defaultValue->option)) {
+                            foreach($optXML->defaultValue->option as $xmlopt) {
+                                array_push($def, (string)$xmlopt);
+                            }
+                        }
+
+                        $newOpts = ['Options' => $opts];
+                        $newDef = $def;
+                        $newType = 'Multi-Select List';
                         break;
                     case 'AssociatorControl': //TODO::CASTLE
 //                        $opts = array();
@@ -419,6 +416,8 @@ class ExodusHelperController extends Controller {
 
         //time to build the records
         Log::info('Iterating through data');
+        if($commandLine)
+            echo "Iterating through form record data...\n";
 
         //Record stuff//////////////////////////////////////////
         error_reporting(E_ALL);
@@ -478,21 +477,12 @@ class ExodusHelperController extends Controller {
                     case 'Rich Text':
                         $recordDataToSave[$r['id']][$flid] = $value;
                         break;
-                    case 'Generated List': //TODO::CASTLE
-//                            $mtc = array();
-//                            foreach(simplexml_load_string($value)->text as $xmlopt) {
-//                                array_push($mtc, (string)$xmlopt);
-//                            }
-//                            $optStr = implode('[!]',$mtc);
-//
-//                            $gen = [
-//                                'rid' => $recModel->rid,
-//                                'fid' => $recModel->fid,
-//                                'flid' => $field->flid,
-//                                'options' => $optStr
-//                            ];
-//                            array_push($generatelistfields,$gen);
-
+                    case 'Generated List':
+                        $mtc = array();
+                        foreach(simplexml_load_string($value)->text as $xmlopt) {
+                            array_push($mtc, (string)$xmlopt);
+                        }
+                        $recordDataToSave[$r['id']][$flid] = json_encode($mtc);
                         break;
                     case 'Date': //TODO::CASTLE
 //                            $dateXML = simplexml_load_string($value);
@@ -567,6 +557,8 @@ class ExodusHelperController extends Controller {
                             if(!file_exists($oldDir.$localname)) {
                                 //OLD FILE DOESNT EXIST SO BALE
                                 Log::info('File not found: '.$oldDir.$localname);
+                                if($commandLine)
+                                    echo 'File not found: '.$oldDir.$localname,"\n";
                                 continue;
                             }
 
@@ -623,12 +615,16 @@ class ExodusHelperController extends Controller {
                             } catch(\ImagickException $e) {
                                 $thumb = false;
                                 Log::info('Issue creating thumbnail for record '.$recordDataToSave[$r['id']]['kid'].'.');
+                                if($commandLine)
+                                    echo "Issue creating thumbnail for record ".$recordDataToSave[$r['id']]['kid']."\n";
                             }
                             try {
                                 $mImage = new \Imagick($newPath . $realname);
                             } catch(\ImagickException $e) {
                                 $medium = false;
-                                Log::info('Issue creating medium thumbnail for record '.$recordDataToSave[$r['kid']]['id'].'.');
+                                Log::info('Issue creating medium thumbnail for record '.$recordDataToSave[$r['id']]['kid'].'.');
+                                if($commandLine)
+                                    echo "Issue creating thumbnail for record ".$recordDataToSave[$r['id']]['kid']."\n";
                             }
 
                             //Size check
@@ -665,21 +661,14 @@ class ExodusHelperController extends Controller {
                     case 'List':
                         $recordDataToSave[$r['id']][$flid] = $value;
                         break;
-                    case 'Multi-Select List': //TODO::CASTLE
-//                            $mlc = array();
-//                            foreach(simplexml_load_string($value)->value as $xmlopt) {
-//                                array_push($mlc, (string)$xmlopt);
-//                            }
-//                            $optStr = implode('[!]',$mlc);
-//
-//                            $msl = [
-//                                'rid' => $recModel->rid,
-//                                'fid' => $recModel->fid,
-//                                'flid' => $field->flid,
-//                                'options' => $optStr
-//                            ];
-//                            array_push($multiselectlistfields,$msl);
+                    case 'Multi-Select List':
+                        $mlc = array();
+                        foreach(simplexml_load_string($value)->value as $xmlopt) {
+                            array_push($mlc, (string)$xmlopt);
+                        }
+                        $optStr = implode(',',$mlc);
 
+                        $recordDataToSave[$r['id']][$flid] = $optStr;
                         break;
                     case 'Associator': //TODO::CASTLE
 //                            $kids = array();
@@ -755,6 +744,8 @@ class ExodusHelperController extends Controller {
 
         //Breath now
         Log::info('Done creating records for '.$form->internal_name.'.');
+        if($commandLine)
+            echo "Done creating records for ".$form->internal_name."\n";
         DB::table('exodus_overall')->where('id', $exodus_id)->increment('progress',1,['updated_at'=>Carbon::now()]);
 
         mysqli_close($con);

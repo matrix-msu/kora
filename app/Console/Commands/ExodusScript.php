@@ -69,8 +69,8 @@ class ExodusScript extends Command {
 
         //Call Exodus function
         $ec = new ExodusController();
-        $ec->startExodus($request);
+        $ec->startExodus($request, true);
 
-        $ec->finishExodus($request);
+        $ec->finishExodus(true);
     }
 }
