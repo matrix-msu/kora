@@ -1,4 +1,4 @@
 <div class="form-group mt-xl">
-    {!! Form::label($field->flid.'_input[]',$field->name) !!}
-    {!! Form::select( $field->flid . "_input[]", \App\MultiSelectListField::getList($field, false), '', ["class" => "multi-select", "Multiple"]) !!}
+    {!! Form::label($flid.'_input[]',$field['name']) !!}
+    {!! Form::select($flid . "_input[]", $field['options'], '', ["class" => "multi-select", "Multiple"]) !!}
 </div>

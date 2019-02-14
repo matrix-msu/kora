@@ -3,34 +3,35 @@
 use App\Form;
 use App\Record;
 use App\Search;
+use App\Http\Controllers\FormController;
 use Illuminate\Http\Request;
 
-class RichTextField extends BaseField {
+class MultiSelectListField extends BaseField {
 
     /*
     |--------------------------------------------------------------------------
-    | Rich Text Field
+    | Multi-Select List Field
     |--------------------------------------------------------------------------
     |
-    | This model represents the rich text field in Kora3
+    | This model represents the multi-select list field in Kora3
     |
     */
 
     /**
-     * @var string - Views for the typed field options //TODO::NEWFIELD
+     * @var string - Views for the typed field options
      */
-    const FIELD_OPTIONS_VIEW = "partials.fields.options.richtext";
-    const FIELD_ADV_OPTIONS_VIEW = "partials.fields.advanced.richtext";
-    const FIELD_ADV_INPUT_VIEW = "partials.records.advanced.richtext";
-    const FIELD_INPUT_VIEW = "partials.records.input.richtext";
-    const FIELD_DISPLAY_VIEW = "partials.records.display.richtext";
+    const FIELD_OPTIONS_VIEW = "partials.fields.options.mslist";
+    const FIELD_ADV_OPTIONS_VIEW = "partials.fields.advanced.mslist";
+    const FIELD_ADV_INPUT_VIEW = "partials.records.advanced.mslist";
+    const FIELD_INPUT_VIEW = "partials.records.input.mslist";
+    const FIELD_DISPLAY_VIEW = "partials.records.display.mslist";
 
     /**
      * Get the field options view.
      *
      * @return string - The view
      */
-    public function getFieldOptionsView(){
+    public function getFieldOptionsView() {
         return self::FIELD_OPTIONS_VIEW;
     }
 
@@ -39,7 +40,7 @@ class RichTextField extends BaseField {
      *
      * @return string - The view
      */
-    public function getAdvancedFieldOptionsView(){
+    public function getAdvancedFieldOptionsView() {
         return self::FIELD_ADV_OPTIONS_VIEW;
     }
 
@@ -80,17 +81,19 @@ class RichTextField extends BaseField {
      */
     public function addDatabaseColumn($fid, $slug, $options = null) {
         $table = new \CreateRecordsTable();
-        $table->addMediumTextColumn($fid, $slug);
+        if(is_null($options))
+            $table->addSetColumn($fid, $slug);
+        else
+            $table->addSetColumn($fid, $slug, $options['Options']);
     }
 
     /**
      * Gets the default options string for a new field.
      *
-     * @param  Request $request
      * @return string - The default options
      */
     public function getDefaultOptions() {
-        return '';
+        return ['Options' => ['Please Modify List Values']];
     }
 
     /**
@@ -98,11 +101,27 @@ class RichTextField extends BaseField {
      *
      * @param  array $field - Field to update options
      * @param  Request $request
-     * @param  int $flid - The field internal name
      * @return array - The updated field array
      */
-    public function updateOptions($field, Request $request, $flid = null) {
+    public function updateOptions($field, Request $request, $slug = null) {
+        if(is_null($request->options)) {
+            $request->options = array();
+        }
+
+        if(is_null($slug)) {
+            $form = FormController::getForm($request->fid);
+            $slug = str_replace(" ","_", $request->name).'_'.$form->project_id.'_'.$form->id.'_';
+        }
+
+        $table = new \CreateRecordsTable();
+        $table->updateSet(
+            $request->fid,
+            $slug,
+            $request->options
+        );
+
         $field['default'] = $request->default;
+        $field['options']['Options'] = $request->options;
 
         return $field;
     }
@@ -119,9 +138,13 @@ class RichTextField extends BaseField {
     public function validateField($flid, $field, $request, $forceReq = false) {
         $req = $field['required'];
         $value = $request->{$flid};
+        $options = $field['options']['Options'];
 
-        if(($req==1 | $forceReq) && ($value==null | $value==""))
-            return ['cke_'.$flid => $field['name'].' is required'];
+        if(($req==1 | $forceReq) && empty($value))
+            return [$flid => $field['name'].' is required'];
+
+        if(!empty($value) && array_diff($value, $options))
+            return [$flid => $field['name'].' has an invalid value not in the list.'];
 
         return array();
     }
@@ -138,11 +161,11 @@ class RichTextField extends BaseField {
     public function processRecordData($field, $value, $request) {
         if($value=='')
             $value = null;
-        return $value;
+        return implode(',', $value);
     }
 
     /**
-     * Formats data for revision display.
+     * Formats data for revision entry.
      *
      * @param  mixed $data - The data to store
      * @param  Request $request
@@ -181,7 +204,7 @@ class RichTextField extends BaseField {
      * @return Request - Processed data
      */
     public function processImportDataXML($flid, $field, $value, $request, $simple = false) {
-        $request[$flid] = (string)$value;
+        $request[$flid] = (array)$value;
 
         return $request;
     }
@@ -192,10 +215,12 @@ class RichTextField extends BaseField {
      * @param  array $field - The field to represent record data
      * @param  string $value - Data to display
      *
-     * @return string - Processed data
+     * @return mixed - Processed data
      */
     public function processDisplayData($field, $value) {
-        return $value;
+        if ($value == '')
+            $value = null;
+        return explode(',', $value);
     }
 
     /**
@@ -238,13 +263,14 @@ class RichTextField extends BaseField {
             $recModel->newQuery()->whereNull($flid)->update([$flid => $formFieldValue]);
     }
 
-    /* For a test record, add test data to field.
-     *
-     * @param  string $url - Url for File Type Fields
-     * @return mixed - The data
+    /**
+     * For a test record, add test data to field.
      */
     public function getTestData($url = null) {
-        return '<i>This</i> <u>sample text</u> is <b>Rich!</b>';
+        return [
+            'This is one of the list options that was selected.',
+            'This is another list option that was selected.'
+        ];
     }
 
     /**
@@ -258,17 +284,20 @@ class RichTextField extends BaseField {
         switch($type) {
             case "XML":
                 $xml = '<' . $slug . '>';
-                $xml .= utf8_encode('<i>This</i> <u>sample text</u> is <b>Rich!</b>');
-                $xml .= '</' . $slug . '>';
+                $xml .= '<value>' . utf8_encode('This is one of the list options that was selected') . '</value>';
+                $xml .= '<value>' . utf8_encode('This is another list option that was selected') . '</value>';
+                $xml = '<' . $slug . '>';
 
                 return $xml;
                 break;
             case "JSON":
-                $fieldArray[$slug]['value'] = '<i>This</i> <u>sample text</u> is <b>Rich!</b>';
+                $fieldArray[$slug] = array('This is one of the list options that was selected',
+                    'This is another list option that was selected');
 
                 return $fieldArray;
                 break;
         }
+
     }
 
     /**
@@ -308,7 +337,7 @@ class RichTextField extends BaseField {
     }
 
     /**
-     * Build the advanced query for a rich text field.
+     * Build the advanced query for a text field.
      *
      * @param  $flid, field id
      * @param  $query, contents of query.
@@ -330,5 +359,21 @@ class RichTextField extends BaseField {
             ->where($flid, $param,"$arg")
             ->pluck('id')
             ->toArray();
+    }
+
+    ///////////////////////////////////////////////END ABSTRACT FUNCTIONS///////////////////////////////////////////////
+
+    /**
+     * Gets the list options for a multi-select list field.
+     *
+     * @param  Field $field - Field to pull options from
+     * @return array - The list options
+     */
+    public static function getList($field) {
+        $options = array();
+        foreach ($field['options']['Options'] as $option) {
+            $options['Options'][$option] = $option;
+        }
+        return $options;
     }
 }

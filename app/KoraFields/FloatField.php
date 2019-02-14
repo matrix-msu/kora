@@ -4,33 +4,34 @@ use App\Form;
 use App\Record;
 use App\Search;
 use Illuminate\Http\Request;
+use Illuminate\Database\Query\Builder;
 
-class RichTextField extends BaseField {
+class FloatField extends BaseField {
 
     /*
     |--------------------------------------------------------------------------
-    | Rich Text Field
+    | Number Field
     |--------------------------------------------------------------------------
     |
-    | This model represents the rich text field in Kora3
+    | This model represents the number field in Kora3
     |
     */
 
     /**
-     * @var string - Views for the typed field options //TODO::NEWFIELD
+     * @var string - Views for the typed field options
      */
-    const FIELD_OPTIONS_VIEW = "partials.fields.options.richtext";
-    const FIELD_ADV_OPTIONS_VIEW = "partials.fields.advanced.richtext";
-    const FIELD_ADV_INPUT_VIEW = "partials.records.advanced.richtext";
-    const FIELD_INPUT_VIEW = "partials.records.input.richtext";
-    const FIELD_DISPLAY_VIEW = "partials.records.display.richtext";
+    const FIELD_OPTIONS_VIEW = "partials.fields.options.float";
+    const FIELD_ADV_OPTIONS_VIEW = "partials.fields.advanced.float";
+    const FIELD_ADV_INPUT_VIEW = "partials.records.advanced.float";
+    const FIELD_INPUT_VIEW = "partials.records.input.float";
+    const FIELD_DISPLAY_VIEW = "partials.records.display.float";
 
     /**
      * Get the field options view.
      *
      * @return string - The view
      */
-    public function getFieldOptionsView(){
+    public function getFieldOptionsView() {
         return self::FIELD_OPTIONS_VIEW;
     }
 
@@ -39,7 +40,7 @@ class RichTextField extends BaseField {
      *
      * @return string - The view
      */
-    public function getAdvancedFieldOptionsView(){
+    public function getAdvancedFieldOptionsView() {
         return self::FIELD_ADV_OPTIONS_VIEW;
     }
 
@@ -80,29 +81,52 @@ class RichTextField extends BaseField {
      */
     public function addDatabaseColumn($fid, $slug, $options = null) {
         $table = new \CreateRecordsTable();
-        $table->addMediumTextColumn($fid, $slug);
+        $table->addDoubleColumn($fid, $slug);
     }
 
     /**
      * Gets the default options string for a new field.
      *
-     * @param  Request $request
      * @return string - The default options
      */
     public function getDefaultOptions() {
-        return '';
+        return ['Max' => '', 'Min' => '', 'Unit' => ''];
     }
 
     /**
      * Update the options for a field
      *
-     * @param  array $field - Field to update options
+     * @param  Field $field - Field to update options
      * @param  Request $request
      * @param  int $flid - The field internal name
-     * @return array - The updated field array
+     * @return Redirect
      */
     public function updateOptions($field, Request $request, $flid = null) {
+        if(
+            ($request->min != '' && $request->max != '') &&
+            ($request->min >= $request->max)
+        ) {
+            $request->max = $request->min = '';
+        }
+
+        if(
+            ($request->default != '' && $request->max != '') &&
+            ($request->default > $request->max)
+        ) {
+            $request->default = $request->max = '';
+        }
+
+        if(
+            ($request->default != '' && $request->min != '') &&
+            ($request->default < $request->min)
+        ) {
+            $request->default = $request->min = '';
+        }
+
         $field['default'] = $request->default;
+        $field['options']['Max'] = $request->max;
+        $field['options']['Min'] = $request->min;
+        $field['options']['Unit'] = $request->unit;
 
         return $field;
     }
@@ -119,9 +143,18 @@ class RichTextField extends BaseField {
     public function validateField($flid, $field, $request, $forceReq = false) {
         $req = $field['required'];
         $value = $request->{$flid};
+        $max = $field['options']['Max'];
+        $min = $field['options']['Min'];
+
 
         if(($req==1 | $forceReq) && ($value==null | $value==""))
-            return ['cke_'.$flid => $field['name'].' is required'];
+            return [$field->flid => $field['name'].' is required'];
+
+        if($min!='' && $value!="" && $value<$min)
+            return [$field->flid => $field['name'].' can not be less than '.$min];
+
+        if($max!='' && $value!="" && $value>$max)
+            return [$field->flid => $field['name'].' can not be more than '.$max];
 
         return array();
     }
@@ -181,7 +214,7 @@ class RichTextField extends BaseField {
      * @return Request - Processed data
      */
     public function processImportDataXML($flid, $field, $value, $request, $simple = false) {
-        $request[$flid] = (string)$value;
+        $request[$flid] = (float)$value;
 
         return $request;
     }
@@ -192,7 +225,7 @@ class RichTextField extends BaseField {
      * @param  array $field - The field to represent record data
      * @param  string $value - Data to display
      *
-     * @return string - Processed data
+     * @return mixed - Processed data
      */
     public function processDisplayData($field, $value) {
         return $value;
@@ -221,6 +254,7 @@ class RichTextField extends BaseField {
         return $value;
     }
 
+
     /**
      * Takes data from a mass assignment operation and applies it to an individual field.
      *
@@ -238,13 +272,14 @@ class RichTextField extends BaseField {
             $recModel->newQuery()->whereNull($flid)->update([$flid => $formFieldValue]);
     }
 
-    /* For a test record, add test data to field.
+    /**
+     * For a test record, add test data to field.
      *
      * @param  string $url - Url for File Type Fields
      * @return mixed - The data
      */
     public function getTestData($url = null) {
-        return '<i>This</i> <u>sample text</u> is <b>Rich!</b>';
+        return '';
     }
 
     /**
@@ -258,13 +293,13 @@ class RichTextField extends BaseField {
         switch($type) {
             case "XML":
                 $xml = '<' . $slug . '>';
-                $xml .= utf8_encode('<i>This</i> <u>sample text</u> is <b>Rich!</b>');
+                $xml .= utf8_encode('3');
                 $xml .= '</' . $slug . '>';
 
                 return $xml;
                 break;
             case "JSON":
-                $fieldArray[$slug]['value'] = '<i>This</i> <u>sample text</u> is <b>Rich!</b>';
+                $fieldArray[$slug] = 3;
 
                 return $fieldArray;
                 break;
@@ -281,16 +316,16 @@ class RichTextField extends BaseField {
      * @return array - The RIDs that match search
      */
     public function keywordSearchTyped($flid, $arg, $recordMod, $negative = false) {
-        if($negative)
-            $param = 'NOT LIKE';
-        else
-            $param = 'LIKE';
+        if(is_numeric($arg)) { // Only search if we're working with a number.
+            $arg = floatval($arg);
 
-        return $recordMod->newQuery()
-            ->select("id")
-            ->where($flid, $param,"%$arg%")
-            ->pluck('id')
-            ->toArray();
+            return $recordMod->newQuery()
+                ->select('id')
+                ->where($flid, $param,"%$arg%")
+                ->whereBetween("number", [$arg - self::EPSILON, $arg + self::EPSILON])
+                ->pluck('id')
+                ->toArray();
+        }
     }
 
     /**
@@ -302,13 +337,27 @@ class RichTextField extends BaseField {
      * @return Request - The update request
      */
     public function setRestfulAdvSearch($data, $flid, $request) {
-        $request->request->add([$flid.'_input' => $data->input]);
+        if(isset($data->left))
+            $leftNum = $data->left;
+        else
+            $leftNum = '';
+        $request->request->add([$flid.'_left' => $leftNum]);
+        if(isset($data->right))
+            $rightNum = $data->right;
+        else
+            $rightNum = '';
+        $request->request->add([$flid.'_right' => $rightNum]);
+        if(isset($data->invert))
+            $invert = $data->invert;
+        else
+            $invert = 0;
+        $request->request->add([$flid.'_invert' => $invert]);
 
         return $request;
     }
 
     /**
-     * Build the advanced query for a rich text field.
+     * Build the advanced query for a text field.
      *
      * @param  $flid, field id
      * @param  $query, contents of query.
@@ -317,18 +366,50 @@ class RichTextField extends BaseField {
      * @return array - The RIDs that match search
      */
     public function advancedSearchTyped($flid, $query, $recordMod, $negative = false) {
-        $arg = $query[$flid . "_input"];
-        $arg = Search::prepare($arg);
+        $left = $query[$flid . "_left"];
+        $right = $query[$flid . "_right"];
+        $invert = isset($query[$flid . "_invert"]);
 
-        if($negative)
-            $param = '!=';
-        else
-            $param = '=';
-
-        return $recordMod->newQuery()
+        $query = $recordMod->newQuery()
             ->select("id")
-            ->where($flid, $param,"$arg")
-            ->pluck('id')
+            ->where("flid", "=", $flid);
+
+        self::buildAdvancedNumberQuery($query, $left, $right, $invert);
+
+        return $query->pluck('id')
             ->toArray();
+    }
+
+    /**
+     * Build an advanced search number field query. Public because Combolist borrows it. Otherwise it would be private
+     * like the others.
+     *
+     * @param  Builder $query - Query to build upon
+     * @param  string $left - Input from the form, left index
+     * @param  string $right - Input from the form, right index
+     * @param  bool $invert - Inverts the search range if true
+     * @param  string $prefix - For dealing with joined tables
+     */
+    public static function buildAdvancedNumberQuery(Builder &$query, $left, $right, $invert, $prefix = "") {
+        // Determine the interval we should search over. With epsilons to account for float rounding.
+        if($left == "") {
+            if($invert) // [right, inf)
+                $query->where($prefix . "number", ">", floatval($right) - self::EPSILON);
+            else // (-inf, right]
+                $query->where($prefix . "number", "<=", floatval($right) + self::EPSILON);
+        } else if($right == "") {
+            if($invert) // (-inf, left]
+                $query->where($prefix . "number", "<", floatval($left) + self::EPSILON);
+            else // [left, inf)
+                $query->where($prefix . "number", ">=", floatval($left) - self::EPSILON);
+        } else {
+            if($invert) { // (-inf, left] union [right, inf)
+                $query->whereNotBetween($prefix . "number", [floatval($left) - self::EPSILON,
+                    floatval($right) + self::EPSILON]);
+            } else { // [left, right]
+                $query->whereBetween($prefix . "number", [floatval($left) - self::EPSILON,
+                    floatval($right) + self::EPSILON]);
+            }
+        }
     }
 }

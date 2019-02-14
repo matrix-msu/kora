@@ -51,6 +51,24 @@ class CreateRecordsTable extends Migration {
         });
     }
 
+    public function addIntegerColumn($fid, $slug) {
+        Schema::table("records_$fid", function(Blueprint $table) use ($slug) {
+            $table->integer($slug)->nullable();
+        });
+    }
+
+    /**
+     * Creates a column with type double
+     *
+     * @param int $precision - total digits
+     * @param int $scale - decimal digits
+     */
+    public function addDoubleColumn($fid, $slug, $precision = 15, $scale = 8) {
+        Schema::table("records_$fid", function(Blueprint $table) use ($slug, $precision, $scale) {
+            $table->double($slug, $precision, $scale)->nullable();
+        });
+    }
+
     public function addJSONColumn($fid, $slug) {
         Schema::table("records_$fid", function(Blueprint $table) use ($slug) {
             $table->jsonb($slug)->nullable();
@@ -69,9 +87,16 @@ class CreateRecordsTable extends Migration {
         );
     }
 
+    public function addSetColumn($fid, $slug, $list = ['Please Modify List Values']) {
+        DB::statement(
+            'alter table ' . DB::getTablePrefix() . 'records_' . $fid . ' add ' . $slug . ' set("' . implode('","', $list) . '")'
+        );
+    }
+
     public function renameColumn($fid, $slug, $newSlug) {
         // Workaround for enums, exists for sets as well.
         DB::getDoctrineSchemaManager()->getDatabasePlatform()->registerDoctrineTypeMapping('enum', 'string');
+        DB::getDoctrineSchemaManager()->getDatabasePlatform()->registerDoctrineTypeMapping('set', 'string');
         Schema::table("records_$fid", function (Blueprint $table) use ($slug, $newSlug) {
             $table->renameColumn($slug,$newSlug);
         });
@@ -92,6 +117,13 @@ class CreateRecordsTable extends Migration {
     public function updateEnum($fid, $slug, $list) {
         DB::statement(
             'alter table ' . DB::getTablePrefix() . 'records_' . $fid . ' modify column ' . $slug . ' enum("' . implode('","', $list) . '")'
+        );
+    }
+
+    public function updateSet($fid, $slug, $list) {
+        // might replace 'modify' with 'change'?
+        DB::statement(
+            'alter table ' . DB::getTablePrefix() . 'records_' . $fid . ' modify column ' . $slug . ' set("' . implode('","', $list) . '")'
         );
     }
 }

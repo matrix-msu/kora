@@ -74,9 +74,10 @@ abstract class BaseField extends Model {
      *
      * @param  array $field - Field to update options
      * @param  Request $request
+     * @param  int $flid - The field internal name
      * @return array - The updated field array
      */
-    abstract public function updateOptions($field, Request $request, $slug = null);
+    abstract public function updateOptions($field, Request $request, $flid = null);
 
     /**
      * Validates the record data for a field against the field's options.
