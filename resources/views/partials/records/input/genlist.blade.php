@@ -25,7 +25,7 @@
         <!-- Cards of list options -->
         <div class="list-option-card-container list-option-card-container-js">
             @foreach($listOpts as $opt)
-                <div class="card list-option-card list-option-card-js" data-list-value="{{$opt}}">
+                <div id="{{$opt}}" class="card list-option-card list-option-card-js" data-list-value="{{$opt}}">
                     <div class="header">
                         <div class="left">
                             <div class="move-actions">
