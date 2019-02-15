@@ -432,9 +432,7 @@ Kora.Records.Show = function() {
     dates.push( document.getElementById('updated-at').innerText )
 
     function adjustTime ( date ) {
-        let timezoneName = date.toString()
-        let index = ( timezoneName.length - ( timezoneName.indexOf('(') + 1 ) ) * -1
-        timezoneName = timezoneName.slice(index, -1)
+        let timezoneName = date.toLocaleTimeString('en-us', {timeZoneName:'short'}).split(' ')[2]
 
         offset = date.getTimezoneOffset() * 60000 // convert to milliseconds because Date.getTime() gets time in milliseconds
         adjustedDate = new Date( date.getTime() - offset ) // subtract offset because offset has opposite sign as needed (-/+)
