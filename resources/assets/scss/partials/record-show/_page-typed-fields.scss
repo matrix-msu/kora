@@ -634,7 +634,7 @@
         background: palette('white', base);
         border: 1px solid palette('gray', slate, .1);
         border-radius: 5px;
-        box-shadow: 0 3px 5px 0 palette('gray', slate);
+        box-shadow: 0 3px 5px 0 palette('gray', slate, .05);
         cursor: pointer;
         display: flex;
         height: 32px;
@@ -646,6 +646,7 @@
         z-index: 1;
 
         .icon {
+          font-size: 12px;
           margin: auto;
         }
 
