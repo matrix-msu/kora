@@ -332,11 +332,12 @@ class RevisionController extends Controller {
                 }
                 break;
             case Revision::DELETE:
-                foreach ($oldData as $type => $fields) {
-                    foreach ($fields as $id => $field) {
-                        $formatted[$id] = RevisionController::formatData($type, $field);
+                if(!is_null($oldData)) //i believe this is null when the revision was deleting or when a deleted record is restored
+                    foreach ($oldData as $type => $fields) {
+                        foreach ($fields as $id => $field) {
+                            $formatted[$id] = RevisionController::formatData($type, $field);
+                        }
                     }
-                }
                 break;
         }
 
@@ -383,16 +384,27 @@ class RevisionController extends Controller {
                 $data = $stringFile;
                 break;
             case 'Gallery':
-                $names = explode('[!]', $data['names']);
+                $names = isset($data['names']) ? explode('[!]', $data['names']) : $data;
+                // $names = explode('[!]', $data['names']);
                 $captions =  isset($data['captions']) ? explode('[!]', $data['captions']) : null;
                 $stringFile = '';
-                for($gi=0;$gi<count($names);$gi++) {
-                    $capString = '';
-                    if(!is_null($captions) && $captions[$gi] != '')
+                if(is_array($names)) {
+                    for($gi=0;$gi<count($names);$gi++) {
+                        $capString = '';
+                        if(!is_null($captions) && $captions[$gi] != '')
+                            $capString = ' - '.$captions[$gi];
+                        $stringFile .= '<div>'.explode('[Name]',$names[$gi])[1].$capString.'</div>';
+                    }
+                    $data = $stringFile;
+                } else { // if $names is not an array, we can assume there is just 1 entry we need to display // aka we don't need to enter a for loop
+                    if(!is_null($captions) && $captions[$gi] != '') {
+                        $capString = '';
                         $capString = ' - '.$captions[$gi];
-                    $stringFile .= '<div>'.explode('[Name]',$names[$gi])[1].$capString.'</div>';
+                        $stringFile = '<div>'.explode('[Name]',$names)[1].$capString.'</div>';
+                    } else {
+                        $stringFile = '<div>'.explode('[Name]',$names)[1].'</div>';
+                    }
                 }
-                $data = $stringFile;
                 break;
             case 'Multi-Select List':
             case 'Associator':
@@ -413,9 +425,11 @@ class RevisionController extends Controller {
                 $data = $stringLoc;
                 break;
             case 'Combo List':
-                $stringCombo = '';
-                foreach($data as $comboItem) {
-                    $stringCombo .= '<div>'.explode('[!f1!]',$comboItem)[1].' ~~~ '.explode('[!f2!]',$comboItem)[1].'</div>';
+                $stringCombo = '<div>'.$data['name_1'].' ~~~ '.$data['name_2'].'</div>';
+                if (!is_null($data['options'])) {
+                    foreach ($data['options'] as $item) {
+                        $stringCombo .= '<div>'.explode('[!f1!]',$item)[1].' ~~~ '.explode('[!f2!]',$item)[1].'</div>';
+                    }
                 }
                 $data = $stringCombo;
                 break;
