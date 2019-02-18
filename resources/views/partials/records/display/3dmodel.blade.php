@@ -20,7 +20,7 @@
             </canvas>
         </div>
     </div>
-    <div class="field-sidebar model-sidebar model-sidebar-js">
+    <div class="field-sidebar model-sidebar-js">
         <div class="top">
             <a href="{{ action('FieldController@singleModel', ['pid' => $field->pid, 'fid' => $field->fid, 'rid' => $record->rid, 'flid' => $field->flid]) }}" target="_blank" class="field-btn"><i class="icon icon-external-link"></i></a>
             <a href="{{$model_link}}" class="field-btn"><i class="icon icon-download"></i></a>
