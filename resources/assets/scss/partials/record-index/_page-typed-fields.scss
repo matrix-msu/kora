@@ -539,11 +539,19 @@
 .model-player-canvas {
   border-radius: 5px;
   width: 100%;
+
+  @media screen and (max-width: 690px) {
+    height: 100%;
+    min-height: 270px;
+    object-fit: cover;
+  }
 }
 
 .model-player-div {
   background: palette('gray', slate);
+  height: 100%;
   margin: auto;
+  min-height: 270px;
   position: relative;
   width: 100%;
 }
