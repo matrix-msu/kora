@@ -1107,7 +1107,6 @@ JSC3D.Viewer.prototype.setupScene = function(scene) {
         var d = scene.aabb.lengthOfDiagonal();
         var w = this.frameWidth;
         var h = this.frameHeight;
-        console.log ( d, w, h )
         this.zoomFactor = (d == 0) ? 1 : (w < h ? w : h) / d;
         this.panning = [0, 0];
     }
