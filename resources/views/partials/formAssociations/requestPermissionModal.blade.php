@@ -7,7 +7,7 @@
       </a>
     </div>
     <div class="body">
-      {!! Form::open(['method' => 'POST', 'action' => ['AssociationController@create', $project->pid, $form->fid]]) !!}
+      {!! Form::open(['method' => 'POST', 'action' => ['AssociationController@create', $form->project_id, $form->id]]) !!}
         <div class="form-group">
           {!! Form::label("request-form", "Select a Form to Request Association") !!}
             <span class="error-message request-assoc-error-js"></span>
@@ -15,7 +15,7 @@
             data-placeholder="Select a form here">
             <option></option>
             @foreach ($requestable_associations as $association)
-              <option value="{{$association->fid}}">{{$association->project()->get()->first()->name}} - {{$association->name}}</option>
+              <option value="{{$association->id}}">{{$association->project()->get()->first()->name}} - {{$association->name}}</option>
             @endforeach
           </select>
         </div>

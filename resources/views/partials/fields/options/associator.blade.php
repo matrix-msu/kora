@@ -26,9 +26,17 @@
         </div>
 
         <div class="form-group mt-xl">
+            @php
+                $defaultArray = [];
+                if(!is_null($field['default'])){
+                    foreach($field['default'] as $akid) {
+                        $defaultArray[$akid] = $akid;
+                    }
+                }
+            @endphp
             {!! Form::label('default','Select Default Associations') !!}
-            {!! Form::select('default[]', \App\AssociatorField::getAssociatorList($field), \App\AssociatorField::getAssociatorList($field),
-                ['class' => 'multi-select assoc-default-records-js', 'multiple', "data-placeholder" => "Search below to add associated records"]) !!}
+            {!! Form::select('default[]', $defaultArray, $defaultArray, ['class' => 'multi-select assoc-default-records-js', 'multiple',
+                "data-placeholder" => "Search below to add associated records"]) !!}
 
             <p class="sub-text mt-sm">
                 To add associated records, Start a search for records in the "Search Associations" field above.
@@ -36,35 +44,31 @@
         </div>
     </div>
 
-    <div class="form-group mt-xxxl">{!! Form::label('','Association Search Configuration') !!}</div>
+    <div class="form-group mt-xxxl">Association Search Configuration</div>
 
     <div class="associator-section">
-        @foreach(\App\Http\Controllers\AssociationController::getAvailableAssociations($field->fid) as $a)
-            <?php
-                $f = \App\Http\Controllers\FormController::getForm($a->dataForm);
-                $formFieldsData = \App\Field::where('fid','=',$f->fid)->get()->all();
+        @foreach(\App\Http\Controllers\AssociationController::getAvailableAssociations($form->id) as $a)
+            @php
+                $f = \App\Http\Controllers\FormController::getForm($a->data_form);
+                $formFieldsData = $f->layout['fields'];
                 $formFields = array();
-                foreach($formFieldsData as $fl) {
-                    $formFields[$fl->flid] = $fl->name;
+                foreach($formFieldsData as $aflid => $data) {
+                    $formFields[$aflid] = $data['name'];
                 }
 
                 //get layout info for this form
-                if(array_key_exists($f->fid,$opt_layout)){
-                    $f_check = $opt_layout[$f->fid]['search'];
-                    $f_flids = $opt_layout[$f->fid]['flids'];
+                if(array_key_exists($f->id,$assocLayout)){
+                    $f_check = $assocLayout[$f->id]['search'];
+                    $f_flids = $assocLayout[$f->id]['flids'];
                 }else{
                     $f_check = false;
                     $f_flids = null;
                 }
-
-                $selectArray = ['class' => 'single-select', "data-placeholder" => "Select field preview value", 'disabled'];
-                if($f_check)
-                    $selectArray = ['class' => 'single-select', "data-placeholder" => "Select field preview value"];
-            ?>
+            @endphp
 
             <div class="form-group mt-xl">
                 <div class="check-box-half">
-                    <input type="checkbox" value="1" id="active" class="check-box-input association-check-js" name="checkbox_{{$f->fid}}"
+                    <input type="checkbox" value="1" id="active" class="check-box-input association-check-js" name="checkbox_{{$f->id}}"
                     @if($f_check)
                         checked
                     @endif
@@ -76,12 +80,11 @@
 
             <div class="form-group mt-m
             @if(!$f_check)
-            hidden
+                hidden
             @endif
             ">
-                {!! Form::label('preview_'.$f->fid, 'Preview Value') !!}
-                {{-- {!! Form::select('preview_'.$f->fid, $formFields, $f_flids, $selectArray) !!} --}}
-                {!! Form::select('preview_'.$f->fid, $formFields, $f_flids, ['class' => 'multi-select assoc-preview-js', 'multiple', "data-placeholder" => "Select field preview value"]) !!}
+                {!! Form::label('preview_'.$f->id, 'Preview Value') !!}
+                {!! Form::select('preview_'.$f->id, $formFields, $f_flids, ['class' => 'multi-select assoc-preview-js', 'multiple', "data-placeholder" => "Select field preview value"]) !!}
             </div>
         @endforeach
     </div>
@@ -97,7 +100,7 @@
 @stop
 
 @section('fieldOptionsJS')
-    assocSearchURI = "{{ action('AssociatorSearchController@assocSearch',['pid' => $field->pid,'fid'=>$field->fid, 'flid'=>$field->flid]) }}";
+    assocSearchURI = "{{ action('AssociatorSearchController@assocSearch',['pid' => $form->project_id,'fid'=>$form->id, 'flid'=>$flid]) }}";
     csfrToken = "{{ csrf_token() }}";
 
     Kora.Fields.Options('Associator');

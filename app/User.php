@@ -567,7 +567,7 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
     public function getCustomProjectSequence() {
         $check = DB::table("project_custom")->where("user_id", "=", $this->id)->first();
 
-        return is_null($check) ? null : json_decode($check->organization);
+        return is_null($check) ? null : json_decode($check->organization,true);
     }
 
     /**
@@ -580,7 +580,7 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
         $check = DB::table("form_custom")->where("user_id", "=", $this->id)
             ->where("project_id", "=", $pid)->first();
 
-        return is_null($check) ? null : json_decode($check->organization);
+        return is_null($check) ? null : json_decode($check->organization,true);
     }
 
     /**
@@ -600,7 +600,7 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
                     "updated_at" => Carbon::now()]
             );
         } else {
-            $customArray = json_decode($check->organization);
+            $customArray = json_decode($check->organization,true);
             array_push($customArray,$pid);
 
             DB::table('project_custom')->where("id", "=", $check->id)->update(
@@ -631,7 +631,7 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
                     "updated_at" => Carbon::now()]
             );
         } else {
-            $customArray = json_decode($check->organization);
+            $customArray = json_decode($check->organization,true);
             array_push($customArray,$fid);
 
             DB::table('form_custom')->where("id", "=", $check->id)->update(
@@ -713,7 +713,7 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
 
         //remove project list for user
         if(!is_null($check)) {
-            $customArray = json_decode($check->organization);
+            $customArray = json_decode($check->organization,true);
             $remainingProjects = array();
             for($i=0;$i<sizeof($customArray);$i++) {
                 if($customArray[$i] != $pid)
@@ -741,7 +741,7 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
 
         //remove form list for user
         if(!is_null($check)) {
-            $customArray = json_decode($check->organization);
+            $customArray = json_decode($check->organization,true);
             $remainingForms = array();
             for($i=0;$i<sizeof($customArray);$i++) {
                 if($customArray[$i] != $fid)
@@ -765,7 +765,7 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
 
         //remove projects list for user
         if(!is_null($check)) {
-            $customArray = json_decode($check->organization);
+            $customArray = json_decode($check->organization,true);
             $remainingProjects = array();
             for($i=0;$i<sizeof($customArray);$i++) {
                 if(!in_array($customArray[$i],$pids))
@@ -790,7 +790,7 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
         //remove forms list for user
         foreach($check as $chk) {
             if(!is_null($chk)) {
-                $customArray = json_decode($chk->organization);
+                $customArray = json_decode($chk->organization,true);
                 $remainingForms = array();
                 for($i = 0; $i < sizeof($customArray); $i++) {
                     if(!in_array($customArray[$i],$fids))

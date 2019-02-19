@@ -56,6 +56,7 @@ Kora.FormAssociations.Index = function() {
         $('#new-form option[value='+response.form.fid+']').remove();
         $('.create-description-js').removeClass('hidden');
         Kora.Modal.close();
+        location.reload();
       }
     });
   }
@@ -211,8 +212,8 @@ Kora.FormAssociations.Index = function() {
         return function(e) {
           e.preventDefault();
           var rfid = $(this).siblings('.form-group').children('select').val();
-          if (rfid !== "") {
-            $('.new-assoc-error-js').text('Please select a form');
+          if(rfid !== "") {
+            $('.request-assoc-error-js').text('');
             self.requestPermissions(rfid);
           } else {
             $('.request-assoc-error-js').text('Please select a form');

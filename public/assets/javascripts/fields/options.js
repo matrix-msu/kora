@@ -744,6 +744,7 @@ Kora.Fields.Options = function(fieldType) {
                         "keyword": keyword
                     },
                     success: function (result) {
+                        //TODO::CASTLE Can we make this faster for associator edit and record create?
                         for(var kid in result) {
                             var preview = result[kid];
                             var opt = "<option value='"+kid+"'>"+kid+": "+preview+"</option>";

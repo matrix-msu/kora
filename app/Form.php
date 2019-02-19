@@ -48,7 +48,7 @@ class Form extends Model {
     const _VIDEO = "Video";
     const _3D_MODEL = "3D-Model";
 //    const _COMBO_LIST = "Combo List";
-//    const _ASSOCIATOR = "Associator";
+    const _ASSOCIATOR = "Associator";
 
     /**
      * @var array - This is an array of field type values for creation
@@ -72,6 +72,9 @@ class Form extends Model {
         'List Fields' => array(
             self::_LIST => self::_LIST,
             self::_MULTI_SELECT_LIST => self::_MULTI_SELECT_LIST
+        ),
+        'Specialty Fields' => array(
+            self::_ASSOCIATOR => self::_ASSOCIATOR
         )
         // 'List Fields' => array('Generated List' => 'Generated List', 'Combo List' => 'Combo List'),
         //'Date Fields' => array('Date' => 'Date', 'Schedule' => 'Schedule'),
@@ -89,7 +92,18 @@ class Form extends Model {
         self::_FLOAT,
         //self::_GENERATED_LIST,
         //self::_DATE,
-        //self::_ASSOCIATOR, //AND REVERSE ASSOCIATIONS
+        self::_ASSOCIATOR, //AND REVERSE ASSOCIATIONS
+    ];
+
+    /**
+     * @var array - This is an array of field types that can be previewed in assoc
+     */
+    static public $validAssocFields = [ //TODO::NEWFIELD
+        self::_TEXT,
+        self::_LIST,
+        self::_INTEGER,
+        self::_FLOAT,
+        //self::_DATE,
     ];
 
     /**
@@ -107,6 +121,7 @@ class Form extends Model {
         self::_PLAYLIST => "PlaylistField",
         self::_VIDEO => "VideoField",
         self::_3D_MODEL => "ModelField",
+        self::_ASSOCIATOR => "AssociatorField",
     ];
 
     /**
@@ -118,6 +133,7 @@ class Form extends Model {
         self::_PLAYLIST,
         self::_VIDEO,
         self::_3D_MODEL,
+        self::_ASSOCIATOR,
     ];
 
     /**

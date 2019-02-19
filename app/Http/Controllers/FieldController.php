@@ -86,7 +86,8 @@ class FieldController extends Controller {
         //Field Specific Stuff
         $fieldMod = $form->getFieldModel($request->type);
         $fieldMod->addDatabaseColumn($form->id, $flid);
-        $field['options'] = $fieldMod->getDefaultOptions();
+        if(!$request->advanced)
+            $field['options'] = $fieldMod->getDefaultOptions();
 
         //Add to form
         $layout['fields'][$flid] = $field;
@@ -122,7 +123,19 @@ class FieldController extends Controller {
         //$presets = OptionPresetController::getPresetsSupported($pid,$field); //TODO::CASTLE
         $presets = [];
 
-        return view($form->getFieldModel($field['type'])->getFieldOptionsView(), compact('flid', 'field', 'form', 'proj', 'presets'));
+        $assocLayout = [];
+        if($field['type'] == Form::_ASSOCIATOR) {
+            //we are building an array about the association permissions to populate the layout
+            $options = $field['options']['SearchForms'];
+
+            foreach ($options as $opt) {
+                $optFlids = explode('-', $opt['flids']);
+
+                $assocLayout[$opt['form_id']] = ['search' => $opt['search'], 'flids' => $optFlids];
+            }
+        }
+
+        return view($form->getFieldModel($field['type'])->getFieldOptionsView(), compact('flid', 'field', 'form', 'proj', 'presets', 'assocLayout'));
 
         //Combo has two presets so we make an exception //TODO::CASTLE
 //        if($field->type == Field::_COMBO_LIST) {
@@ -161,26 +174,6 @@ class FieldController extends Controller {
 //            }
 //
 //            return view(ComboListField::FIELD_OPTIONS_VIEW, compact('field', 'form', 'proj', 'presets', 'opt_layout_one', 'opt_layout_two'));
-//        } else if($field->type == Field::_ASSOCIATOR) {
-//            //we are building an array about the association permissions to populate the layout
-//            $option = self::getFieldOption($field,'SearchForms');
-//            $opt_layout = array();
-//            if($option!=''){
-//                $options = explode('[!]',$option);
-//
-//                foreach($options as $opt){
-//                    $opt_fid = explode('[fid]',$opt)[1];
-//                    $opt_search = explode('[search]',$opt)[1];
-//                    $opt_flids = explode('[flids]',$opt)[1];
-//                    $opt_flids = explode('-',$opt_flids);
-//
-//                    $opt_layout[$opt_fid] = ['search' => $opt_search, 'flids' => $opt_flids];
-//                }
-//            }
-//
-//            return view(AssociatorField::FIELD_OPTIONS_VIEW, compact('field', 'form', 'proj','presets', 'opt_layout'));
-//        } else {
-//
 //        }
 	}
 

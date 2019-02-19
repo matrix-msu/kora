@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\View\View;
 
-class AssociationController extends Controller { //TODO::CASTLE
+class AssociationController extends Controller {
 
     /*
     |--------------------------------------------------------------------------
@@ -51,7 +51,7 @@ class AssociationController extends Controller { //TODO::CASTLE
         //Create an array of fids of those associations
         $associatedForms = array();
         foreach($assocs as $a) {
-            array_push($associatedForms, FormController::getForm($a->assocForm));
+            array_push($associatedForms, FormController::getForm($a->assoc_form));
         }
         $associatable_forms = Form::all();
         $available_associations = self::getAvailableAssociations($fid);
@@ -82,11 +82,11 @@ class AssociationController extends Controller { //TODO::CASTLE
 		$assocFormID = $request->assocfid;
 
 		$assoc = new Association();
-		$assoc->dataForm = $fid;
-		$assoc->assocForm = $assocFormID;
+		$assoc->data_form = $fid;
+		$assoc->assoc_form = $assocFormID;
         $assoc->save();
 
-        $form = Form::where('fid', '=', $assocFormID)->get()->first();
+        $form = Form::where('id', $assocFormID)->get()->first();
         
         return response()->json(
             [
@@ -111,11 +111,11 @@ class AssociationController extends Controller { //TODO::CASTLE
 
 		$assocFormID = $request->assocfid;
 
-		$assoc = Association::where('dataForm','=',$fid)->where('assocForm','=',$assocFormID)->first();
+		$assoc = Association::where('data_form','=',$fid)->where('assoc_form','=',$assocFormID)->first();
 
         $assoc->delete();
 
-        $form = Form::where('fid', '=', $assocFormID)->first();
+        $form = Form::where('id', '=', $assocFormID)->first();
 
         return response()->json(
             [
@@ -140,11 +140,11 @@ class AssociationController extends Controller { //TODO::CASTLE
 
         $dataFormID = $request->assocfid;
 
-        $assoc = Association::where('assocForm','=',$fid)->where('dataForm','=',$dataFormID)->first();
+        $assoc = Association::where('assoc_form','=',$fid)->where('data_form','=',$dataFormID)->first();
 
         $assoc->delete();
 
-        $form = Form::where('fid', '=', $dataFormID)->first();
+        $form = Form::where('id', '=', $dataFormID)->first();
 
         return response()->json(
             [
@@ -162,7 +162,7 @@ class AssociationController extends Controller { //TODO::CASTLE
      * @return Collection - The forms that this form has given permission
      */
     static function getAllowedAssociations($fid) {
-		return Association::where('dataForm','=',$fid)->get()->all();
+		return Association::where('data_form','=',$fid)->get()->all();
 	}
 
     /**
@@ -172,7 +172,7 @@ class AssociationController extends Controller { //TODO::CASTLE
      * @return Collection - The forms this form has access to
      */
     static function getAvailableAssociations($fid) {
-		return Association::where('assocForm','=',$fid)->get()->all();
+		return Association::where('assoc_form','=',$fid)->get()->all();
 	}
 
     /**
@@ -191,15 +191,15 @@ class AssociationController extends Controller { //TODO::CASTLE
 
         foreach($forms as $form) {
             //if it's not the current form continue
-            if($form->fid==$fid)
+            if($form->id==$fid)
                 continue;
             //if it's in the available associations already, no worries, continue
-            $noworries = false;
+            $noWorries = false;
             foreach($available as $avail) {
-                if($avail->dataForm==$form->fid)
-                    $noworries = true;
+                if($avail->data_form==$form->id)
+                    $noWorries = true;
             }
-            if($noworries)
+            if($noWorries)
                 continue;
             //if we get here, add to array
             array_push($requestable,$form);
@@ -221,9 +221,9 @@ class AssociationController extends Controller { //TODO::CASTLE
             return response()->json(['k3_global_error' => 'form_invalid']);
 
         $myForm = FormController::getForm($fid);
-        $myProj = ProjectController::getProject($myForm->pid);
+        $myProj = ProjectController::getProject($myForm->project_id);
         $theirForm = FormController::getForm($request->rfid);
-        $theirProj = ProjectController::getProject($theirForm->pid);
+        $theirProj = ProjectController::getProject($theirForm->project_id);
 
         //form admins only
         if(!(\Auth::user()->isFormAdmin($myForm)))
@@ -243,16 +243,6 @@ class AssociationController extends Controller { //TODO::CASTLE
                 //Log for now
                 Log::info('Request access email failed');
             }
-        }
-
-        ////////REDIRECT BACK TO INDEX WITH SUCCESS MESSAGE
-
-        //Associations to this form
-        $assocs = self::getAllowedAssociations($fid);
-        //Create an array of fids of those associations
-        $associatedForms = array();
-        foreach($assocs as $a) {
-            array_push($associatedForms,$a->assocForm);
         }
 
         return response()->json(['k3_global_success' => 'assoc_access_requested']);
