@@ -38,7 +38,7 @@ class Form extends Model {
     const _FLOAT = "Float";
     const _LIST = "List";
     const _MULTI_SELECT_LIST = "Multi-Select List";
-//    const _GENERATED_LIST = "Generated List";
+    const _GENERATED_LIST = "Generated List";
 //    const _DATE = "Date";
 //    const _SCHEDULE = "Schedule";
 //    const _GEOLOCATOR = "Geolocator";
@@ -71,12 +71,13 @@ class Form extends Model {
         ),
         'List Fields' => array(
             self::_LIST => self::_LIST,
-            self::_MULTI_SELECT_LIST => self::_MULTI_SELECT_LIST
+            self::_MULTI_SELECT_LIST => self::_MULTI_SELECT_LIST,
+            self::_GENERATED_LIST => self::_GENERATED_LIST
         ),
         'Specialty Fields' => array(
             self::_ASSOCIATOR => self::_ASSOCIATOR
         )
-        // 'List Fields' => array('Generated List' => 'Generated List', 'Combo List' => 'Combo List'),
+        // 'List Fields' => array(Combo List' => 'Combo List'),
         //'Date Fields' => array('Date' => 'Date', 'Schedule' => 'Schedule'),
         //'Specialty Fields' => array('Geolocator' => 'Geolocator (latlon, utm, textual)','Associator' => 'Associator')
     ];
@@ -90,7 +91,7 @@ class Form extends Model {
         self::_MULTI_SELECT_LIST,
         self::_INTEGER,
         self::_FLOAT,
-        //self::_GENERATED_LIST,
+        self::_GENERATED_LIST,
         //self::_DATE,
         self::_ASSOCIATOR, //AND REVERSE ASSOCIATIONS
     ];
@@ -117,6 +118,7 @@ class Form extends Model {
         self::_DOCUMENTS => "DocumentsField",
         self::_LIST => "ListField",
         self::_MULTI_SELECT_LIST => "MultiSelectListField",
+        self::_GENERATED_LIST => "GeneratedListField",
         self::_GALLERY => "GalleryField",
         self::_PLAYLIST => "PlaylistField",
         self::_VIDEO => "VideoField",
@@ -134,6 +136,7 @@ class Form extends Model {
         self::_VIDEO,
         self::_3D_MODEL,
         self::_ASSOCIATOR,
+        self::_GENERATED_LIST
     ];
 
     /**

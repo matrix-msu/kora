@@ -5,25 +5,25 @@ use App\Record;
 use App\Search;
 use Illuminate\Http\Request;
 
-class TextField extends BaseField {
+class GeneratedListField extends BaseField {
 
     /*
     |--------------------------------------------------------------------------
-    | Text Field
+    | Generated List Field
     |--------------------------------------------------------------------------
     |
-    | This model represents the text field in Kora3
+    | This model represents the generated list field in Kora3
     |
     */
 
     /**
      * @var string - Views for the typed field options
      */
-    const FIELD_OPTIONS_VIEW = "partials.fields.options.text";
-    const FIELD_ADV_OPTIONS_VIEW = "partials.fields.advanced.text";
-    const FIELD_ADV_INPUT_VIEW = "partials.records.advanced.text";
-    const FIELD_INPUT_VIEW = "partials.records.input.text";
-    const FIELD_DISPLAY_VIEW = "partials.records.display.text";
+    const FIELD_OPTIONS_VIEW = "partials.fields.options.genlist";
+    const FIELD_ADV_OPTIONS_VIEW = "partials.fields.advanced.genlist";
+    const FIELD_ADV_INPUT_VIEW = "partials.records.advanced.genlist";
+    const FIELD_INPUT_VIEW = "partials.records.input.genlist";
+    const FIELD_DISPLAY_VIEW = "partials.records.display.genlist";
 
     /**
      * Get the field options view.
@@ -80,7 +80,7 @@ class TextField extends BaseField {
      */
     public function addDatabaseColumn($fid, $slug, $options = null) {
         $table = new \CreateRecordsTable();
-        $table->addTextColumn($fid, $slug);
+        $table->addJSONColumn($fid, $slug);
     }
 
     /**
@@ -89,7 +89,7 @@ class TextField extends BaseField {
      * @return array - The default options
      */
     public function getDefaultOptions() {
-        return ['Regex' => '', 'MultiLine' => 0];
+        return ['Regex' => '', 'Options' => ''];
     }
 
     /**
@@ -109,9 +109,13 @@ class TextField extends BaseField {
             $request->regex = null;
         }
 
+        if(is_null($request->options)) {
+            $request->options = array();
+        }
+
         $field['default'] = $request->default;
         $field['options']['Regex'] = $request->regex;
-        $field['options']['MultiLine'] = isset($request->multi) && $request->multi ? 1 : 0;
+        $field['options']['Options'] = $request->options;
 
         return $field;
     }
@@ -119,22 +123,25 @@ class TextField extends BaseField {
     /**
      * Validates the record data for a field against the field's options.
      *
-     * @param  int $flid - The field internal name
-     * @param  array $field - The field data array to validate
+     * @param  Field $field - The field to validate
      * @param  Request $request
      * @param  bool $forceReq - Do we want to force a required value even if the field itself is not required?
      * @return array - Array of errors
      */
-    public function validateField($flid, $field, $request, $forceReq = false) {
+    public function validateField($field, $request, $forceReq = false) {
         $req = $field['required'];
         $value = $request->{$flid};
         $regex = $field['options']['Regex'];
 
         if(($req==1 | $forceReq) && ($value==null | $value==""))
-            return [$flid => $field['name'].' is required'];
+            return [$flid->$field['name'].' is required'];
 
-        if($value!="" && ($regex!=null | $regex!="") && !preg_match($regex,$value))
-            return [$flid => $field['name'].' must match the regex pattern: '.$regex];
+		if($value!=null) {
+	        foreach($value as $opt) {
+	            if(($regex!=null | $regex!="") && !preg_match($regex,$opt))
+	                return [$flid->$field['name'].' match the regex pattern: '.$regex];
+        	}
+        }
 
         return array();
     }
@@ -155,7 +162,7 @@ class TextField extends BaseField {
     }
 
     /**
-     * Formats data for revision display.
+     * Formats data for revision entry.
      *
      * @param  mixed $data - The data to store
      * @param  Request $request
@@ -194,7 +201,7 @@ class TextField extends BaseField {
      * @return Request - Processed data
      */
     public function processImportDataXML($flid, $field, $value, $request, $simple = false) {
-        $request[$flid] = (string)$value;
+        $request[$flid] = (array)$value;
 
         return $request;
     }
@@ -208,10 +215,7 @@ class TextField extends BaseField {
      * @return mixed - Processed data
      */
     public function processDisplayData($field, $value) {
-        if($field['options']['MultiLine'])
-            return nl2br($value);
-        else
-            return $value;
+        return $value;
     }
 
     /**
@@ -256,12 +260,13 @@ class TextField extends BaseField {
 
     /**
      * For a test record, add test data to field.
-     *
-     * @param  string $url - Url for File Type Fields
-     * @return mixed - The data
      */
     public function getTestData($url = null) {
-        return 'This is sample text for this text field.';
+        return [
+            'This is one of the list options that was selected.',
+            'This is another list option that was selected.',
+            'This is a list option that user created when creating this record'
+        ];
     }
 
     /**
@@ -275,13 +280,17 @@ class TextField extends BaseField {
         switch($type) {
             case "XML":
                 $xml = '<' . $slug . '>';
-                $xml .= utf8_encode('This is sample text for this text field.');
-                $xml .= '</' . $slug . '>';
+                $xml .= '<value>' . utf8_encode('This is one of the list options that was selected') . '</value>';
+                $xml .= '<value>' . utf8_encode('This is another list option that was selected') . '</value>';
+                $xml .= '<value>' . utf8_encode('This is a list option that user created when creating this record') . '</value>';
+                $xml = '<' . $slug . '>';
 
                 return $xml;
                 break;
             case "JSON":
-                $fieldArray[$slug] = 'This is sample text for this text field.';
+                $fieldArray[$slug] = array('This is one of the list options that was selected',
+                    'This is another list option that was selected',
+                    'This is a list option that user created when creating this record');
 
                 return $fieldArray;
                 break;
@@ -347,5 +356,21 @@ class TextField extends BaseField {
             ->where($flid, $param,"$arg")
             ->pluck('id')
             ->toArray();
+    }
+
+    ///////////////////////////////////////////////END ABSTRACT FUNCTIONS///////////////////////////////////////////////
+
+    /**
+     * Gets the list options for a multi-select list field.
+     *
+     * @param  Field $field - Field to pull options from
+     * @return array - The list options
+     */
+    public static function getList($field) {
+        $options = array();
+        foreach ($field['options']['Options'] as $option) {
+            $options['Options'][$option] = $option;
+        }
+        return $options;
     }
 }
