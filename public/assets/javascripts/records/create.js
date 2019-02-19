@@ -190,7 +190,7 @@ Kora.Records.Create = function() {
 
         // Option Added
         function optionAdded ( newOption ) {
-            list.append('<option value="' + newOption + '">' + newOption + '</option>');
+            list.append('<option value="' + newOption + '" selected="selected"">' + newOption + '</option>');
             list.trigger('chosen:updated');
         }
 
