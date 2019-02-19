@@ -512,20 +512,21 @@ class ExportController extends Controller {
                       LEFT JOIN ".$prefix."users as u on r.owner=u.id where r.$wherePiece";
         $kids = $con->query($select);
         $ridMeta = ($useOpts && isset($options['meta']) && $options['meta']);
+        $tmpRecords = [];
         while($row = $kids->fetch_assoc()) {
             if(!array_key_exists($row['rid'],$ridsToKids))
                 continue;
             $ridsToKids[$row['rid']] = $row['kid'];
 
             if($ridMeta && $format == self::JSON) {
-                $records[$row['kid']] = [
+                $tmpRecords[$row['kid']] = [
                     'created_at' => $row['created_at'],
                     'updated_at' => $row['updated_at'],
                     'username' => $row['username'],
                 ];
             } else if($format == self::KORA) {
                 $kidParts = explode('-',$row['kid']);
-                $records[$row['kid']] = [
+                $tmpRecords[$row['kid']] = [
                     'kid' => $row['kid'],
                     'pid' => $kidParts[0],
                     'schemeID' => $kidParts[1],
@@ -534,9 +535,15 @@ class ExportController extends Controller {
                     'recordowner' => $row['username'],
                 ];
             } else
-                $records[$row['kid']] = [];
+                $tmpRecords[$row['kid']] = [];
         }
         $kids->free();
+        
+        //We now have to restore order
+        foreach($rids as $r) {
+	        $records[$ridsToKids[$r]] = $tmpRecords[$ridsToKids[$r]];
+        }
+        unset($tmpRecords);
 
         //Prep the table statements
         if($ridMode) {

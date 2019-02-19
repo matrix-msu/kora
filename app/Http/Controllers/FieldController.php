@@ -469,6 +469,24 @@ class FieldController extends Controller {
      * @param  string $filename - Image filename
      * @return Redirect
      */
+    public function singleModel($pid, $fid, $rid, $flid) {
+        $field = self::getField($flid);
+        $record = RecordController::getRecord($rid);
+        $typedField = $field->getTypedFieldFromRID($rid);
+
+        return view('fields.singleModel', compact('field', 'record', 'typedField'));
+    }
+
+    /**
+     * View single image/video/audio/document from a record.
+     *
+     * @param  int $pid - Project ID
+     * @param  int $fid - Form ID
+     * @param  int $rid - Record ID
+     * @param  int $flid - Field ID
+     * @param  string $filename - Image filename
+     * @return Redirect
+     */
     public function singleRichtext($pid, $fid, $rid, $flid) {
         $field = self::getField($flid);
         $record = RecordController::getRecord($rid);

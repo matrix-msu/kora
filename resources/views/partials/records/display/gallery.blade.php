@@ -5,7 +5,7 @@
     $singleFilename = ($single ? explode('[Name]',$typedField->images)[1] : '');
 ?>
 
-<div class="record-data-card">
+<div class="record-data-card gallery-card">
     <div class="gallery-field-display gallery-field-display-js {{ ($single ? 'single' : '') }}">
         @foreach($images as $ndx => $img)
             @if($img != '')
@@ -37,7 +37,14 @@
 
     <div class="caption-container caption-container-js">
         @foreach ($captions as $index => $caption)
-            <div class="caption caption-js {{ ($index == 0 ? 'active' : '') }}">{{ $caption }}</div>
+            <div class="caption caption-js {{ ($index == 0 ? 'active' : '') }}">
+	            {{ $caption }}
+	            @php
+	            	$img = $images[$index];
+	            	$name = explode('[Name]',$img)[1];
+	            @endphp
+                <div>Public URL: {{ url('app/files/p'.$record->pid.'/f'.$record->fid.'/r'.$record->rid.'/fl'.$field->flid.'/'.urlencode($name)) }}</div>
+	        </div>
         @endforeach
     </div>
     <a class="caption-more caption-more-js underline-middle-hover" showing="less" href="#">Show Full Caption</a>
