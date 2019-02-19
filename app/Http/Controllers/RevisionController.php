@@ -49,7 +49,7 @@ class RevisionController extends Controller {
 
         $pagination = app('request')->input('page-count') === null ? 10 : app('request')->input('page-count');
         $order = app('request')->input('order') === null ? 'lmd' : app('request')->input('order');
-        $order_type = substr($order, 0, 2) === "lm" ? "created_at" : "id";
+        $order_type = substr($order, 0, 2) === "lm" ? "updated_at" : "rid";
         $order_direction = substr($order, 2, 3) === "a" ? "asc" : "desc";
         $revisions = DB::table('revisions')->where('fid', '=', $fid)->orderBy($order_type, $order_direction)->paginate($pagination);
 
@@ -110,7 +110,7 @@ class RevisionController extends Controller {
 
         $pagination = app('request')->input('page-count') === null ? 10 : app('request')->input('page-count');
         $order = app('request')->input('order') === null ? 'lmd' : app('request')->input('order');
-        $order_type = substr($order, 0, 2) === "lm" ? "created_at" : "id";
+        $order_type = substr($order, 0, 2) === "lm" ? "updated_at" : "rid";
         $order_direction = substr($order, 2, 3) === "a" ? "asc" : "desc";
         $revisions = DB::table('revisions')->where('rid', '=', $rid)->orderBy($order_type, $order_direction)->paginate($pagination);
 
