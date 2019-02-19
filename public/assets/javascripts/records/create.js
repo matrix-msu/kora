@@ -208,22 +208,23 @@ Kora.Records.Create = function() {
 
         //list reordered
         $('.list-option-card-container-js').sortable({
-            update: function () {
-                let options = $('.list-option-card-container-js').sortable('toArray');
-                let chosen_choices = list.siblings('.chosen-container').find('.search-choice');
-                chosen_choices = $.map( chosen_choices, function ( val ) {
-                    return val.children[0].innerText
-                });
-                list.children().remove();
+            disabled: true
+            // update: function () {
+            //     let options = $('.list-option-card-container-js').sortable('toArray');
+            //     let chosen_choices = list.siblings('.chosen-container').find('.search-choice');
+            //     chosen_choices = $.map( chosen_choices, function ( val ) {
+            //         return val.children[0].innerText
+            //     });
+            //     list.children().remove();
 
-                options.forEach ( function ( option ) {
-                    if ( chosen_choices.includes(option) )
-                        list.append('<option value="' + option + '" selected="selected">' + option + '</option>');
-                    else
-                        list.append('<option value="' + option + '">' + option + '</option>');
-                });
-                list.trigger('chosen:updated');
-            }
+            //     options.forEach ( function ( option ) {
+            //         if ( chosen_choices.includes(option) )
+            //             list.append('<option value="' + option + '" selected="selected">' + option + '</option>');
+            //         else
+            //             list.append('<option value="' + option + '">' + option + '</option>');
+            //     });
+            //     list.trigger('chosen:updated');
+            // }
         });
     }
 

@@ -23,19 +23,12 @@
         <p class="directions">Add List Options below, and order them via drag & drop or their arrow icons.</p>
 
         <!-- Cards of list options -->
-        <div class="list-option-card-container list-option-card-container-js">
+        <div class="genlist-record-input list-option-card-container list-option-card-container-js">
             @foreach($listOpts as $opt)
                 <div id="{{$opt}}" class="card list-option-card list-option-card-js" data-list-value="{{$opt}}">
                     <div class="header">
                         <div class="left">
-                            <div class="move-actions">
-                                <a class="action move-action-js up-js"><i class="icon icon-arrow-up"></i></a>
-                                <a class="action move-action-js down-js"><i class="icon icon-arrow-down"></i></a>
-                            </div>
                             <span class="title">{{$opt}}</span>
-                        </div>
-                        <div class="card-toggle-wrap">
-                            <a class="list-option-delete list-option-delete-js tooltip" tooltip="Delete List Option"><i class="icon icon-trash"></i></a>
                         </div>
                     </div>
                 </div>
