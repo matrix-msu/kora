@@ -127,6 +127,48 @@
       }
     }
 
+    .filters {
+      list-style-type: none;
+      margin: 0;
+      padding: 0;
+
+      a {
+        color: palette('gray', text, .8);
+        display: inline-block;
+        font-family: $ubuntu;
+        font-size: 16px;
+        line-height: 1;
+        margin: 0 7.5px;
+        padding: 0 0 13px;
+        text-decoration: none;
+
+        &:first-child {
+          margin-left: 0;
+          padding-left: 0;
+        }
+
+        &:last-child {
+          margin-right: 0;
+          padding-right: 0;
+        }
+
+        &:hover {
+          color: palette('green', accent);
+        }
+
+        &.selected {
+          border-bottom: 2px solid palette('green', accent);
+          color: palette('green', accent);
+          font-family: $ubuntu-medium;
+
+          &.underline-middle-hover:hover::before,
+          &.underline-middle-hover:hover::after {
+            opacity: 0;
+          }
+        }
+      }
+    }
+
     .records-title {
       font-size: 30px;
       height: 34px;

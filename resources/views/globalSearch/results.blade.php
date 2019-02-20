@@ -64,6 +64,13 @@
 
             @if(sizeof($records)>0)
 
+                <div class="filters mt-xxxl">
+                    <a class="underline-middle underline-middle-hover selected" href="#">Records <span>({{count($records)}})</span></a>
+                    <a class="underline-middle underline-middle-hover" href="#">Forms <span></span></a>
+                    <a class="underline-middle underline-middle-hover" href="#">Fields <span></span></a>
+                    <a class="underline-middle underline-middle-hover" href="#">Projects <span></span></a>
+                </div>
+
 	            <div class="form-group records-title mt-xxxl">
 	                Showing {{sizeof($records)}} of {{$total}} Records
 	            </div>
