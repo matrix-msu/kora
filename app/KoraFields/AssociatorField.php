@@ -5,6 +5,7 @@ use App\Http\Controllers\FieldController;
 use App\Http\Controllers\RecordController;
 use App\Record;
 use App\Search;
+use Illuminate\Database\Query\Builder;
 use Illuminate\Http\Request;
 
 class AssociatorField extends BaseField {
@@ -314,7 +315,7 @@ class AssociatorField extends BaseField {
      * @param  boolean $negative - Get opposite results of the search
      * @return array - The RIDs that match search
      */
-    public function keywordSearchTyped($flid, $arg, $recordMod, $negative = false) { //TODO::CASTLE
+    public function keywordSearchTyped($flid, $arg, $recordMod, $negative = false) {
         if($negative)
             $param = 'NOT LIKE';
         else
@@ -335,8 +336,8 @@ class AssociatorField extends BaseField {
      * @param  Request $request
      * @return Request - The update request
      */
-    public function setRestfulAdvSearch($data, $flid, $request) { //TODO::CASTLE
-        $request->request->add([$flid.'_input' => $data->input]);
+    public function setRestfulAdvSearch($data, $flid, $request) {
+        $request->request->add([$flid.'_input' => $data->value]);
 
         return $request;
     }
@@ -350,19 +351,24 @@ class AssociatorField extends BaseField {
      * @param  boolean $negative - Get opposite results of the search
      * @return array - The RIDs that match search
      */
-    public function advancedSearchTyped($flid, $query, $recordMod, $negative = false) { //TODO::CASTLE
-        $arg = $query[$flid . "_input"];
-        $arg = Search::prepare($arg);
+    public function advancedSearchTyped($flid, $query, $recordMod, $negative = false) {
+        $inputs = $query[$flid . "_input"];
 
         if($negative)
-            $param = '!=';
+            $param = 'NOT LIKE';
         else
-            $param = '=';
+            $param = 'LIKE';
 
-        return $recordMod->newQuery()
-            ->select("id")
-            ->where($flid, $param,"$arg")
-            ->pluck('id')
+        $dbQuery = $recordMod->newQuery()
+            ->select("id");
+
+        $dbQuery->where(function($dbQuery) use ($flid, $param, $inputs) {
+            foreach($inputs as $arg) {
+                $dbQuery->where($flid, $param, "%$arg%");
+            }
+        });
+
+        return $dbQuery->pluck('id')
             ->toArray();
     }
 
