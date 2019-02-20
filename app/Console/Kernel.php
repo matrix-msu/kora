@@ -16,6 +16,7 @@ class Kernel extends ConsoleKernel {
 		'App\Console\Commands\FinishInstall',
 		'App\Console\Commands\ImportHelper',
 		'App\Console\Commands\RecordFileZip',
+		'App\Console\Commands\ReverseAssocCache',
 		'App\Console\Commands\ThumbScript',
 	];
 
