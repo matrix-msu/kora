@@ -158,7 +158,7 @@ class GeneratedListField extends BaseField {
      */
     public function processRecordData($field, $value, $request) {
         if($value=='')
-            $value = null;
+            return null;
         return json_encode($value);
     }
 
