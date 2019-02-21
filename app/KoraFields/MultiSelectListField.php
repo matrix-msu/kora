@@ -144,6 +144,8 @@ class MultiSelectListField extends BaseField {
      * @return mixed - Processed data
      */
     public function processRecordData($field, $value, $request) {
+        if ($value == '')
+            return null;
         return json_encode($value);
     }
 
