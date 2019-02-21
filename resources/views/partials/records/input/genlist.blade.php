@@ -1,5 +1,5 @@
 <?php
-    if($editRecord) {
+    if($editRecord && $record->{$flid} != null) {
         $selected = implode('[!]', json_decode($record->{$flid}));
     } else {
         $selected = implode('[!]',$field['default']);
