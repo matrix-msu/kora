@@ -87,16 +87,9 @@ class CreateRecordsTable extends Migration {
         );
     }
 
-    public function addSetColumn($fid, $slug, $list = ['Please Modify List Values']) {
-        DB::statement(
-            'alter table ' . DB::getTablePrefix() . 'records_' . $fid . ' add ' . $slug . ' set("' . implode('","', $list) . '")'
-        );
-    }
-
     public function renameColumn($fid, $slug, $newSlug) {
         // Workaround for enums, exists for sets as well.
         DB::getDoctrineSchemaManager()->getDatabasePlatform()->registerDoctrineTypeMapping('enum', 'string');
-        DB::getDoctrineSchemaManager()->getDatabasePlatform()->registerDoctrineTypeMapping('set', 'string');
         Schema::table("records_$fid", function (Blueprint $table) use ($slug, $newSlug) {
             $table->renameColumn($slug,$newSlug);
         });
