@@ -22,6 +22,14 @@ class CreateAssociationsTable extends Migration {
 			$table->foreign('data_form')->references('id')->on('forms')->onDelete('cascade');
 			$table->foreign('assoc_form')->references('id')->on('forms')->onDelete('cascade');
 		});
+
+        Schema::create('reverse_associator_cache', function(Blueprint $table)
+        {
+            $table->string('associated_kid');
+            $table->string('source_kid');
+            $table->string('source_flid',60);
+            $table->integer('source_form_id')->unsigned();
+        });
 	}
 
 	/**
@@ -32,6 +40,7 @@ class CreateAssociationsTable extends Migration {
 	public function down()
 	{
 		Schema::drop('associations');
+		Schema::drop('reverse_associator_cache');
 	}
 
 }
