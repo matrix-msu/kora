@@ -63,7 +63,7 @@
 
     <div class="form-group mt-xxxl">
         {!! Form::label('default','Default') !!}
-        {!! Form::select('default[]',$field['options'], $field['default'],
+        {!! Form::select('default[]',App\KoraFields\GeneratedListField::getList($field), $field['default'],
         ['class' => 'multi-select list-default-js', 'multiple', 'data-placeholder' => 'Select the default values here (Values must be added above in order to select)']) !!}
     </div>
 

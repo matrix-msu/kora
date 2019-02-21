@@ -76,7 +76,7 @@ class RecordController extends Controller {
             $notification['message'] = 'Batch Assign Successful!';
           else if ($session == 'test_records_created') {
             $numRecs = $request->session()->get('num_test_recs');
-            $notification['message'] = $numRecs.' Test Records Created!'; 
+            $notification['message'] = $numRecs.' Test Records Created!';
           }
         }
 
@@ -906,7 +906,7 @@ class RecordController extends Controller {
             $rids = explode(',', $request->rids);
         else
             $rids = array();
-      
+
         $field = FieldController::getField($flid);
         $typedField = $field->getTypedField();
 

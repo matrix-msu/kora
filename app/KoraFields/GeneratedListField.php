@@ -89,7 +89,7 @@ class GeneratedListField extends BaseField {
      * @return array - The default options
      */
     public function getDefaultOptions() {
-        return ['Regex' => '', 'Options' => ''];
+        return ['Regex' => '', 'Options' => array()];
     }
 
     /**
@@ -123,12 +123,13 @@ class GeneratedListField extends BaseField {
     /**
      * Validates the record data for a field against the field's options.
      *
-     * @param  Field $field - The field to validate
+     * @param  int $flid - The field internal name
+     * @param  array $field - The field data array to validate
      * @param  Request $request
      * @param  bool $forceReq - Do we want to force a required value even if the field itself is not required?
      * @return array - Array of errors
      */
-    public function validateField($field, $request, $forceReq = false) {
+    public function validateField($flid, $field, $request, $forceReq = false) {
         $req = $field['required'];
         $value = $request->{$flid};
         $regex = $field['options']['Regex'];
@@ -158,7 +159,7 @@ class GeneratedListField extends BaseField {
     public function processRecordData($field, $value, $request) {
         if($value=='')
             $value = null;
-        return $value;
+        return json_encode($value);
     }
 
     /**
@@ -215,7 +216,7 @@ class GeneratedListField extends BaseField {
      * @return mixed - Processed data
      */
     public function processDisplayData($field, $value) {
-        return $value;
+        return json_decode($value);
     }
 
     /**
