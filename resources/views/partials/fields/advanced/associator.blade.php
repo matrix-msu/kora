@@ -24,8 +24,8 @@
         </div>
 
         <div class="form-group mt-m mb-xl hidden">
-            {!! Form::label('preview_'.$f->id, 'Preview Value') !!}
-            {!! Form::select('preview_'.$f->id, $formFields, null, $selectArray) !!}
+            {!! Form::label('preview_'.$f->id.'[]', 'Preview Value') !!}
+            {!! Form::select('preview_'.$f->id.'[]', $formFields, null, $selectArray) !!}
         </div>
     @endforeach
 </div>

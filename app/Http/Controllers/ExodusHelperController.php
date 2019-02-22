@@ -3,7 +3,6 @@
 use App\Form;
 use App\KoraFields\FileTypeField;
 use App\Record;
-use App\User;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -175,22 +174,23 @@ class ExodusHelperController extends Controller {
                             $newType = 'Text';
                         }
                         break;
-                    case 'MultiTextControl':
-                        $def = array();
-                        if(!$blankOpts && !is_null($optXML->defaultValue->value)) {
-                            foreach($optXML->defaultValue->value as $xmlopt) {
-                                array_push($def, (string)$xmlopt);
-                            }
-                        }
-
-                        if(!$blankOpts)
-                            $regex = $optXML->regex->__toString();
-                        else
-                            $regex = '';
-
-                        $newOpts = ['Regex' => $regex, 'Options' => $def];
-                        $newDef = $def;
-                        $newType = 'Generated List';
+                    case 'MultiTextControl': //TODO::CASTLE
+//                        $def = array();
+//                        if(!$blankOpts && !is_null($optXML->defaultValue->value)) {
+//                            foreach($optXML->defaultValue->value as $xmlopt) {
+//                                array_push($def, (string)$xmlopt);
+//                            }
+//                        }
+//
+//                        if(!$blankOpts)
+//                            $regex = $optXML->regex->__toString();
+//                        else
+//                            $regex = '';
+//
+//                        $newOpts = ['Regex' => $regex, 'Options' => $def];
+//                        $newDef = $def;
+//                        $newType = 'Generated List';
+                        $skip = true;
                         break;
                     case 'DateControl': //TODO::CASTLE
 //                        if(!$blankOpts) {
@@ -314,42 +314,42 @@ class ExodusHelperController extends Controller {
                         $newDef = $def;
                         $newType = 'List';
                         break;
-                    case 'MultiListControl':
-                        $opts = array();
-                        if(!$blankOpts) {
-                            foreach($optXML->option as $xmlopt) {
-                                array_push($opts, (string)$xmlopt);
-                            }
-                        }
-
-                        $def = array();
-                        if(!$blankOpts && !is_null($optXML->defaultValue->option)) {
-                            foreach($optXML->defaultValue->option as $xmlopt) {
-                                array_push($def, (string)$xmlopt);
-                            }
-                        }
-
-                        $newOpts = ['Options' => $opts];
-                        $newDef = $def;
-                        $newType = 'Multi-Select List';
-                        break;
-                    case 'AssociatorControl': //TODO::CASTLE
+                    case 'MultiListControl': //TODO::CASTLE after 64 set fix
 //                        $opts = array();
 //                        if(!$blankOpts) {
-//                            foreach($optXML->scheme as $xmlopt) {
+//                            foreach($optXML->option as $xmlopt) {
 //                                array_push($opts, (string)$xmlopt);
 //                            }
 //                        }
 //
-//                        $assocControlCheck[$c['cid']] = $opts;
+//                        $def = array();
+//                        if(!$blankOpts && !is_null($optXML->defaultValue->option)) {
+//                            foreach($optXML->defaultValue->option as $xmlopt) {
+//                                array_push($def, (string)$xmlopt);
+//                            }
+//                        }
 //
-//                        $newOpts = '[!SearchForms!][!SearchForms!]';
-//                        $newType = 'Associator';
+//                        $newOpts = ['Options' => $opts];
+//                        $newDef = $def;
+//                        $newType = 'Multi-Select List';
                         $skip = true;
+                        break;
+                    case 'AssociatorControl':
+                        $opts = array();
+                        if(!$blankOpts) {
+                            foreach($optXML->scheme as $xmlopt) {
+                                array_push($opts, (string)$xmlopt);
+                            }
+                        }
+
+                        $assocControlCheck[$c['cid']] = $opts;
+
+                        $newOpts = ['SearchForms' => []];
+                        $newType = 'Associator';
                         break;
                 }
 
-                if($skip) //TODO::CASTLE
+                if($skip) //TODO::CASTLE remove after all fields done
                     continue;
 
                 //Create field array
@@ -390,29 +390,25 @@ class ExodusHelperController extends Controller {
         $newForm->save();
 
         //Now that we know the control options for all the associators, and which field ID they correlate to,
-        // we will save the associators options //TODO::CASTLE
-//        foreach($assocControlCheck as $cid => $sids) {
-//            $flid = $oldControlInfo[$cid];
-//
-//            $optString = '[!SearchForms!]';
-//            $subOpt = array();
-//
-//            $af = FieldController::getField($flid);
-//
-//            foreach($sids as $sid) {
-//                if(isset($formArray[$sid])) {
-//                    $optFID = $formArray[$sid];
-//                    $optVal = '[fid]' . $optFID . '[fid][search]1[search][flids][flids]';
-//                    array_push($subOpt, $optVal);
-//                }
-//            }
-//
-//            $optString .= implode('[!]',$subOpt);
-//            $optString .= '[!SearchForms!]';
-//
-//            $af->options = $optString;
-//            $af->save();
-//        }
+        // we will save the associators options
+        $tmpLayout = $newForm->layout;
+        foreach($assocControlCheck as $cid => $sids) {
+            $flid = $oldControlInfo[$cid];
+
+            $opts = ['SearchForms' => []];
+
+            foreach($sids as $sid) {
+                if(isset($formArray[$sid])) {
+                    $optFID = $formArray[$sid];
+                    $optVal = ['form_id'=>$optFID, 'flids'=>[]];
+                    $opts['SearchForms'][] = $optVal;
+                }
+            }
+
+            $tmpLayout['fields'][$flid]['options'] = $opts;
+        }
+        $newForm->layout = $tmpLayout;
+        $newForm->save();
 
         //time to build the records
         Log::info('Iterating through data');
@@ -477,12 +473,12 @@ class ExodusHelperController extends Controller {
                     case 'Rich Text':
                         $recordDataToSave[$r['id']][$flid] = $value;
                         break;
-                    case 'Generated List':
-                        $mtc = array();
-                        foreach(simplexml_load_string($value)->text as $xmlopt) {
-                            array_push($mtc, (string)$xmlopt);
-                        }
-                        $recordDataToSave[$r['id']][$flid] = json_encode($mtc);
+                    case 'Generated List': //TODO::CASTLE
+//                        $mtc = array();
+//                        foreach(simplexml_load_string($value)->text as $xmlopt) {
+//                            array_push($mtc, (string)$xmlopt);
+//                        }
+//                        $recordDataToSave[$r['id']][$flid] = json_encode($mtc);
                         break;
                     case 'Date': //TODO::CASTLE
 //                            $dateXML = simplexml_load_string($value);
@@ -661,41 +657,36 @@ class ExodusHelperController extends Controller {
                     case 'List':
                         $recordDataToSave[$r['id']][$flid] = $value;
                         break;
-                    case 'Multi-Select List':
-                        $mlc = array();
-                        foreach(simplexml_load_string($value)->value as $xmlopt) {
-                            array_push($mlc, (string)$xmlopt);
-                        }
-                        $optStr = implode(',',$mlc);
-
-                        $recordDataToSave[$r['id']][$flid] = $optStr;
+                    case 'Multi-Select List': //TODO::CASTLE after 64 set fix
+//                        $mlc = array();
+//                        foreach(simplexml_load_string($value)->value as $xmlopt) {
+//                            array_push($mlc, (string)$xmlopt);
+//                        }
+//                        $optStr = implode(',',$mlc);
+//
+//                        $recordDataToSave[$r['id']][$flid] = $optStr;
                         break;
-                    case 'Associator': //TODO::CASTLE
-//                            $kids = array();
-//                            foreach(simplexml_load_string($value)->kid as $xmlopt) {
-//                                array_push($kids, (string)$xmlopt);
-//                            }
-//
-//                            $aid = DB::table('associator_fields')->insertGetId([
-//                                'rid' => $recModel->rid,
-//                                'fid' => $recModel->fid,
-//                                'flid' => $field->flid
-//                            ]);
-//
-//                            //We want to save the Typed Field that will have the data eventually, matched to its values in Kora 2 KID form
-//                            $assocFile[$aid] = $kids;
-//
-//                            //This prevents the array from getting too big. We will just create the files in parts
-//                            if(sizeof($assocFile)>self::EXODUS_CONVERSION_SIZE) {
-//                                $dataToWrite = json_encode($assocFile);
-//                                $filename = storage_path(ExodusController::EXODUS_DATA_PATH.'assoc_'.$ogSid.'_'.$filePartNum.'.json');
-//                                file_put_contents($filename,$dataToWrite);
-//
-//                                //Reset the variables
-//                                $filePartNum++;
-//                                $assocFile = array();
-//                            }
+                    case 'Associator':
+                        $kids = array();
+                        foreach(simplexml_load_string($value)->kid as $xmlopt) {
+                            array_push($kids, (string)$xmlopt);
+                        }
 
+                        $recordDataToSave[$r['id']][$flid] = json_encode($kids);
+
+                        //We want to save the Typed Field that will have the data eventually, matched to its values in Kora 2 KID form
+                        $assocFile[$r['id']][$flid] = $kids;
+
+                        //This prevents the array from getting too big. We will just create the files in parts
+                        if(sizeof($assocFile)>self::EXODUS_CONVERSION_SIZE) {
+                            $dataToWrite = json_encode($assocFile);
+                            $filename = storage_path(ExodusController::EXODUS_DATA_PATH.'assoc_'.$ogSid.'_'.$filePartNum.'.json');
+                            file_put_contents($filename,$dataToWrite);
+
+                            //Reset the variables
+                            $filePartNum++;
+                            $assocFile = array();
+                        }
                         break;
                 }
             }
@@ -709,22 +700,22 @@ class ExodusHelperController extends Controller {
             DB::table('exodus_partial')->where('id', $row_id)->increment('progress', 1, ['updated_at' => Carbon::now()]);
         }
 
-        //We want to save the Typed Field that will have the data eventually, matched to its values in Kora 2 KID form //TODO::CASTLE
-//        $dataToWrite = json_encode($assocFile);
-//        $filename = storage_path(ExodusController::EXODUS_DATA_PATH.'assoc_'.$ogSid.'_'.$filePartNum.'.json');
-//        file_put_contents($filename,$dataToWrite);
+        //We want to save the Typed Field that will have the data eventually, matched to its values in Kora 2 KID form
+        $dataToWrite = json_encode($assocFile);
+        $filename = storage_path(ExodusController::EXODUS_DATA_PATH.'assoc_'.$ogSid.'_'.$filePartNum.'.json');
+        file_put_contents($filename,$dataToWrite);
 
         //We want to save the conversion array of Kora 2 KIDs to Kora 3 RIDs for this scheme //TODO::CASTLE
-//        $ridChunks = array_chunk($oldKidToNewRid, 500, true);
-//        $partIndex = 0;
-//        foreach($ridChunks as $ridc) {
-//            $dataToWrite = json_encode($ridc);
-//            $filename = storage_path(ExodusController::EXODUS_CONVERSION_PATH.'kid_to_rid_'.$ogSid.'_'.$partIndex.'.json');
-//            file_put_contents($filename,$dataToWrite);
-//            $partIndex++;
-//        }
-//
-//        unset($ridChunks);
+        $ridChunks = array_chunk($oldKidToNewKid, 500, true);
+        $partIndex = 0;
+        foreach($ridChunks as $ridc) {
+            $dataToWrite = json_encode($ridc);
+            $filename = storage_path(ExodusController::EXODUS_CONVERSION_PATH.'kid2_to_kid3_'.$ogSid.'_'.$partIndex.'.json');
+            file_put_contents($filename,$dataToWrite);
+            $partIndex++;
+        }
+
+        unset($ridChunks);
 
         //Last but not least, record presets!!!!!!!!! //TODO::CASTLE
 //        $recordPresets = $records = $con->query('select * from recordPreset where schemeid='.$ogSid);

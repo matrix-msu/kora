@@ -28,7 +28,7 @@
         <div class="form-group mt-xl">
             @php
                 $defaultArray = [];
-                if(!is_null($field['default'])){
+                if(!is_null($field['default']) && $field['default']!=''){
                     foreach($field['default'] as $akid) {
                         $defaultArray[$akid] = $akid;
                     }
@@ -58,7 +58,7 @@
 
                 //get layout info for this form
                 if(array_key_exists($f->id,$assocLayout)){
-                    $f_check = $assocLayout[$f->id]['search'];
+                    $f_check = true;
                     $f_flids = $assocLayout[$f->id]['flids'];
                 }else{
                     $f_check = false;
@@ -83,8 +83,8 @@
                 hidden
             @endif
             ">
-                {!! Form::label('preview_'.$f->id, 'Preview Value') !!}
-                {!! Form::select('preview_'.$f->id, $formFields, $f_flids, ['class' => 'multi-select assoc-preview-js', 'multiple', "data-placeholder" => "Select field preview value"]) !!}
+                {!! Form::label('preview_'.$f->id.'[]', 'Preview Value') !!}
+                {!! Form::select('preview_'.$f->id.'[]', $formFields, $f_flids, ['class' => 'multi-select assoc-preview-js', 'multiple', "data-placeholder" => "Select field preview value"]) !!}
             </div>
         @endforeach
     </div>

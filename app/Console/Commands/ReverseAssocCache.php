@@ -1,6 +1,8 @@
 <?php namespace App\Console\Commands;
 
 use App\Form;
+use App\Http\Controllers\AssociationController;
+use App\KoraFields\AssociatorField;
 use App\Record;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
@@ -38,13 +40,13 @@ class ReverseAssocCache extends Command
      */
     public function handle()
     {
+        ini_set('memory_limit','2G'); //We might be pulling a lot of rows so this is a safety precaution
         $this->info('Generating reverse association cache...');
 
         $forms = Form::all();
-        $inserts = [];
 
         $this->info('Clearing old cache...');
-        DB::table('reverse_associator_cache')->truncate();
+        DB::table(AssociatorField::Reverse_Cache_Table)->truncate();
 
         $this->info('Rebuilding cache...');
         foreach($forms as $form) {
@@ -52,12 +54,17 @@ class ReverseAssocCache extends Command
 
             $fields = $form->layout['fields'];
             $recModel = new Record(array(),$form->id);
+            $inserts = [];
+            $first_message = true;
 
             foreach($fields as $flid => $field) {
                 if($field['type'] == 'Associator') {
                     $assocData = $recModel->newQuery()->select('kid',$flid)->get();
                     foreach($assocData as $row) {
                         $values = json_decode($row->{$flid},true);
+                        if(is_null($values))
+                            continue;
+
                         foreach($values as $val) {
                             $inserts[] = [
                                 'associated_kid' => $val,
@@ -68,11 +75,23 @@ class ReverseAssocCache extends Command
                         }
                     }
                 }
+
+                //Break up the inserts into chuncks
+                if(sizeof($inserts) > 500) {
+                    if($first_message)
+                        $this->info('Storing values for Form ' . $form->internal_name . '...');
+                    $first_message = false;
+                    DB::table(AssociatorField::Reverse_Cache_Table)->insert($inserts);
+                    $inserts = [];
+                }
+            }
+
+            if(sizeof($inserts) > 0) {
+                if($first_message)
+                    $this->info('Storing values for Form ' . $form->internal_name . '...');
+                DB::table(AssociatorField::Reverse_Cache_Table)->insert($inserts);
             }
         }
-
-        $this->info('Storing values...');
-        DB::table('reverse_associator_cache')->insert($inserts);
 
         $this->info('Reverse association cache generated!');
     }

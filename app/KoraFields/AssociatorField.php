@@ -4,8 +4,6 @@ use App\Form;
 use App\Http\Controllers\FieldController;
 use App\Http\Controllers\RecordController;
 use App\Record;
-use App\Search;
-use Illuminate\Database\Query\Builder;
 use Illuminate\Http\Request;
 
 class AssociatorField extends BaseField {
@@ -20,11 +18,16 @@ class AssociatorField extends BaseField {
     */
 
     /**
+     * @var string - Name of cache table
+     */
+    const Reverse_Cache_Table = "reverse_associator_cache";
+
+    /**
      * @var string - Views for the typed field options
      */
     const FIELD_OPTIONS_VIEW = "partials.fields.options.associator";
     const FIELD_ADV_OPTIONS_VIEW = "partials.fields.advanced.associator";
-    const FIELD_ADV_INPUT_VIEW = "partials.records.advanced.associator"; //TODO::CASTLE
+    const FIELD_ADV_INPUT_VIEW = "partials.records.advanced.associator";
     const FIELD_INPUT_VIEW = "partials.records.input.associator";
     const FIELD_DISPLAY_VIEW = "partials.records.display.associator";
 
@@ -111,8 +114,7 @@ class AssociatorField extends BaseField {
                 $preview = $request->input("preview_".$fid);
                 $val = [
                     'form_id' => $fid,
-                    'flids' => $preview,
-                    'search' => 1
+                    'flids' => $preview
                 ];
 
                 array_push($searchForms,$val);
@@ -398,13 +400,9 @@ class AssociatorField extends BaseField {
         $options = $field['options']['SearchForms'];
         foreach($options as $opt) {
             $opt_fid = $opt['form_id'];
-            $opt_search = $opt['search'];
             $opt_flids = $opt['flids'];
-            $opt_flids = explode('-',$opt_flids);
 
-            if($opt_search == 1)
-                $flids = array();
-
+            $flids = [];
             foreach($opt_flids as $flid) {
                 //Make sure there actually is a preview field
                 if($flid=="")
