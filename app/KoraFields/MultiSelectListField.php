@@ -81,10 +81,7 @@ class MultiSelectListField extends BaseField {
      */
     public function addDatabaseColumn($fid, $slug, $options = null) {
         $table = new \CreateRecordsTable();
-        if(is_null($options))
-            $table->addSetColumn($fid, $slug);
-        else
-            $table->addSetColumn($fid, $slug, $options['Options']);
+        $table->addJSONColumn($fid, $slug);
     }
 
     /**
@@ -107,18 +104,6 @@ class MultiSelectListField extends BaseField {
         if(is_null($request->options)) {
             $request->options = array();
         }
-
-        if(is_null($slug)) {
-            $form = FormController::getForm($request->fid);
-            $slug = str_replace(" ","_", $request->name).'_'.$form->project_id.'_'.$form->id.'_';
-        }
-
-        $table = new \CreateRecordsTable();
-        $table->updateSet(
-            $request->fid,
-            $slug,
-            $request->options
-        );
 
         $field['default'] = $request->default;
         $field['options']['Options'] = $request->options;
@@ -159,9 +144,9 @@ class MultiSelectListField extends BaseField {
      * @return mixed - Processed data
      */
     public function processRecordData($field, $value, $request) {
-        if($value=='')
-            $value = null;
-        return implode(',', $value);
+        if ($value == '')
+            return null;
+        return json_encode($value);
     }
 
     /**
@@ -218,9 +203,7 @@ class MultiSelectListField extends BaseField {
      * @return mixed - Processed data
      */
     public function processDisplayData($field, $value) {
-        if ($value == '')
-            $value = null;
-        return explode(',', $value);
+        return json_decode($value);
     }
 
     /**
