@@ -347,13 +347,15 @@ class RichTextField extends BaseField {
      * @return array - The RIDs that match search
      */
     public function keywordSearchTyped($flid, $arg) {
-        return DB::table("rich_text_fields")
-            ->select("rid")
-            ->where("flid", "=", $flid)
-            ->where('searchable_rawtext','LIKE',"%$arg%")
-            ->distinct()
-            ->pluck('rid')
-            ->toArray();
+        $results = DB::table("rich_text_fields")->select("rid")->addSelect("flid")->where("flid", "=", $flid)->where("searchable_rawtext")->where('searchable_rawtext','LIKE',"%$arg%")->distinct()->get();
+        return $results;
+        // return DB::table("rich_text_fields")
+        //     ->select("rid")
+        //     ->where("flid", "=", $flid)
+        //     ->where('searchable_rawtext','LIKE',"%$arg%")
+        //     ->distinct()
+        //     ->pluck('rid')
+        //     ->toArray();
     }
 
     /**
