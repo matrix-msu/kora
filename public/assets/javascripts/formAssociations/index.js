@@ -337,7 +337,7 @@ Kora.FormAssociations.Index = function() {
       $note.text(message);
       window.localStorage.clear();
     }
-    
+	
     setTimeout(function(){
       if ($note.text() != '') {
         if ($noteDesc.text() != '') {
