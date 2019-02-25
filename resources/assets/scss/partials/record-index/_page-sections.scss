@@ -1,0 +1,18 @@
+
+.results {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+}
+
+.form-results li:not(.form-result) {
+    display: none;
+}
+
+.fields-results li:not(.field-result) {
+    display: none;
+}
+
+.projects-results li:not(.proj-result) {
+    display: none;
+}
