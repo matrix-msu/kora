@@ -107,9 +107,12 @@ class ProjectSearchController extends Controller {
             $pids = $request->projects;
 
             //Determine if we are searching all forms in project, or just specific ones
-            if(in_array("ALL",$pids))
+            if(in_array("ALL",$pids)) {
                 $projects = Project::all();
-            else
+
+                $projFormFields = $this->globalQuickSearch($request);
+                //dd($projFormFields);
+            } else
                 $projects = Project::whereIn('pid',$pids)->get();
 
             $rids = [];
@@ -149,7 +152,7 @@ class ProjectSearchController extends Controller {
             $projects[$p->pid] = $p->name;
         }
 
-        return view('globalSearch.results', compact("projects", "records", "total", "ignored"));
+    return view('globalSearch.results', compact("projects", "records", "total", "ignored", 'flids', 'projFormFields'));
     }
 
     /**
@@ -159,7 +162,10 @@ class ProjectSearchController extends Controller {
      * @return array - The results from the quick search
      */
     public function globalQuickSearch(Request $request) {
-        $term = $request->searchText;
+        if (!is_null($request->searchText))
+            $term = $request->searchText;
+        else
+            $term = $request->keywords;
         $termWC = "%".$term."%";
 
         //Do the searches
@@ -173,7 +179,7 @@ class ProjectSearchController extends Controller {
         //Filter those results
         foreach($projResults as $project) {
             if(\Auth::user()->admin || \Auth::user()->inAProjectGroup($project)) {
-                $result = "<li>Go to Project: <a data-type=\"Project\" href=\"".action("ProjectController@show",["pid" => $project->pid])
+                $result = "<li class=\"proj-result\">Go to Project: <a data-type=\"Project\" href=\"".action("ProjectController@show",["pid" => $project->pid])
                     ."\">".$project->name;
                 if(Project::where("name","=",$project->name)->count() > 1)
                     $result .= " (".$project->slug.")";
@@ -184,7 +190,7 @@ class ProjectSearchController extends Controller {
 
         foreach($formResults as $form) {
             if(\Auth::user()->admin || \Auth::user()->inAFormGroup($form)) {
-                $result = "<li>Go to Form: <a data-type=\"Form\" href=\"".action("FormController@show",["pid" => $form->pid, "fid" => $form->fid])
+                $result = "<li class=\"form-result\">Go to Form: <a data-type=\"Form\" href=\"".action("FormController@show",["pid" => $form->pid, "fid" => $form->fid])
                     ."\">".$form->name;
                 if(Form::where("name","=",$form->name)->count() > 1)
                     $result .= " (".$form->slug.")";
@@ -196,7 +202,7 @@ class ProjectSearchController extends Controller {
         foreach($fieldResults as $field) {
             $form = FormController::getForm($field->flid);
             if(\Auth::user()->admin || \Auth::user()->inAFormGroup($form)) {
-                $result = "<li>Go to Field: <a data-type=\"Field\" href=\"".action("FieldController@show",["pid" => $field->pid, "fid" => $field->fid, "flid" => $field->flid])
+                $result = "<li class=\"field-result\">Go to Field: <a data-type=\"Field\" href=\"".action("FieldController@show",["pid" => $field->pid, "fid" => $field->fid, "flid" => $field->flid])
                     ."\">".$field->name;
                 if(Field::where("name","=",$field->name)->count() > 1)
                     $result .= " (".$field->slug.")";
