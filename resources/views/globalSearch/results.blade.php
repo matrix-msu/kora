@@ -60,16 +60,15 @@
             </div>
         </section>
 
-        <section class="display-records">
+        <div class="filters mt-xxxl">
+            <a class="display-js underline-middle underline-middle-hover selected" href="#">Records <span>({{ $total }})</span></a>
+            <a class="display-js underline-middle underline-middle-hover" href="#">Forms (<span></span>)</a>
+            <a class="display-js underline-middle underline-middle-hover" href="#">Fields (<span></span>)</a>
+            <a class="display-js underline-middle underline-middle-hover" href="#">Projects <span></span>)</a>
+        </div>
 
+        <section class="display-records display-js">
             @if(sizeof($records)>0)
-
-                <div class="filters mt-xxxl">
-                    <a class="underline-middle underline-middle-hover selected" href="#">Records <span>({{ $total }})</span></a>
-                    <a class="underline-middle underline-middle-hover" href="#">Forms <span>({{ count($formResults) }})</span></a>
-                    <a class="underline-middle underline-middle-hover" href="#">Fields <span>({{ count($fieldResults) }})</span></a>
-                    <a class="underline-middle underline-middle-hover" href="#">Projects <span>({{ count($projResults) }})</span></a>
-                </div>
 
 	            <div class="form-group records-title mt-xxxl">
 	                Showing {{sizeof($records)}} of {{$total}} Records
@@ -112,9 +111,21 @@
                 <div class="display-keywords mt-xxl"><ul class="keywords"></ul></div>
                 @include('partials.records.no-records')
             @endif
+        </section>
 
+        <section class="display-js mt-xxxl hidden">
+            <ul class="form-results results form-results-js"></ul>
+        </section>
+
+        <section class="display-js mt-xxxl hidden">
+            <ul class="fields-results results fields-results-js"></ul>
+        </section>
+
+        <section class="display-js mt-xxxl hidden">
+            <ul class="projects-results results projects-results-js"></ul>
         </section>
     </section>
+    <p class="hidden json-results-js">{{ $projFormFields }}</p>
 @stop
 
 @section('footer')

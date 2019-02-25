@@ -308,6 +308,29 @@ Kora.Records.Index = function() {
         });
     }
 
+    function initializeSearchTabs () {
+        // handle JSON data
+        if ( $('.json-results-js').text() ) {
+            $('section.display-js:not(.display-records) ul').html(JSON.parse($('.json-results-js').text()));
+        }
+
+        $('a.display-js')[1].children[0].innerText = $('.form-results-js').children('.form-result').length
+        $('a.display-js')[2].children[0].innerText = $('.form-results-js').children('.field-result').length
+        $('a.display-js')[3].children[0].innerText = $('.form-results-js').children('.proj-result').length
+
+        // handles switching tabs
+        $('a.display-js').click(function (e) {
+            e.preventDefault();
+
+            if ( !$(this).hasClass('selected') ) {
+                $('.display-js').removeClass('selected');
+                $(this).addClass('selected');
+                $('section.display-js').addClass('hidden');
+                $('section.display-js')[$(this).index()].classList.remove('hidden');
+            }
+        });
+    }
+
     initializeSelectAddition();
     initializeOptionDropdowns();
     initializePaginationShortcut();
@@ -318,6 +341,7 @@ Kora.Records.Index = function() {
     initializeSearchValidation();
     displayKeywords();
     initializeAssociatorCardToggle();
+    initializeSearchTabs();
     Kora.Records.Modal();
     Kora.Fields.TypedFieldDisplays.Initialize();
 }

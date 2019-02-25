@@ -205,7 +205,7 @@ $searchInput.keyup(function(e) {
                         'searchText': searchText
                     },
                     success: function (result) {
-                        //console.log ( result )
+                        // console.log ( result )
                         var resultObj = JSON.parse(result);
                         var resultStr = resultObj.join('');
 

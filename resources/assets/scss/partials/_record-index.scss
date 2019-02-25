@@ -282,11 +282,11 @@
       }
     }
 
-	.try-another-search,
-  .to-top {
-		display: block !important;
-		margin: 0 auto;
-	}
+    .try-another-search,
+    .to-top {
+      display: block !important;
+      margin: 0 auto;
+    }
 
     .results-here-text {
       font-size: 14px;
@@ -301,6 +301,7 @@
     @import 'record-index/searched-terms';
     @import 'record-index/no-records';
     @import 'record-index/page-typed-fields';
+    @import 'record-index/page-sections';
   }
 }
 @import 'record-index/toolbar';
