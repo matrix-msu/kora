@@ -47,7 +47,7 @@ class Form extends Model {
     const _PLAYLIST = "Playlist";
     const _VIDEO = "Video";
     const _3D_MODEL = "3D-Model";
-//    const _COMBO_LIST = "Combo List";
+    const _COMBO_LIST = "Combo List";
     const _ASSOCIATOR = "Associator";
 
     /**
@@ -72,7 +72,8 @@ class Form extends Model {
         'List Fields' => array(
             self::_LIST => self::_LIST,
             self::_MULTI_SELECT_LIST => self::_MULTI_SELECT_LIST,
-            self::_GENERATED_LIST => self::_GENERATED_LIST
+            self::_GENERATED_LIST => self::_GENERATED_LIST,
+            self::_COMBO_LIST => self::_COMBO_LIST
         ),
         'Specialty Fields' => array(
             self::_ASSOCIATOR => self::_ASSOCIATOR
@@ -119,6 +120,7 @@ class Form extends Model {
         self::_LIST => "ListField",
         self::_MULTI_SELECT_LIST => "MultiSelectListField",
         self::_GENERATED_LIST => "GeneratedListField",
+        self::_COMBO_LIST => "ComboListField",
         self::_GALLERY => "GalleryField",
         self::_PLAYLIST => "PlaylistField",
         self::_VIDEO => "VideoField",

@@ -43,8 +43,7 @@ class FieldController extends Controller {
 
         $form = FormController::getForm($fid);
         $validFieldTypes = Form::$validFieldTypes;
-        //$validComboListFieldTypes = ComboListField::$validComboListFieldTypes; //TODO::CASTLE
-        $validComboListFieldTypes = [];
+        $validComboListFieldTypes = \App\KoraFields\ComboListField::$validComboListFieldTypes;
 
         return view('fields.create', compact('form','pageIndex', 'validFieldTypes', 'validComboListFieldTypes'));
 	}
@@ -84,6 +83,7 @@ class FieldController extends Controller {
             $field = $form->getFieldModel($request->type)->updateOptions($field, $request);
 
         //Field Specific Stuff
+        dd($request->type1);
         $fieldMod = $form->getFieldModel($request->type);
         $fieldMod->addDatabaseColumn($form->id, $flid);
         if(!$request->advanced)

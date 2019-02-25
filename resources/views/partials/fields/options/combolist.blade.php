@@ -11,7 +11,7 @@
     $oneName = \App\ComboListField::getComboFieldName($field,'one');
     $twoName = \App\ComboListField::getComboFieldName($field,'two');
 
-    $defs = $field->default;
+    $defs = $field['default'];
     $defArray = explode('[!def!]',$defs);
     ?>
 
@@ -85,7 +85,7 @@
                         <span class="combo-column combo-title">{{$oneName}}</span>
                         <span class="combo-column combo-title">{{$twoName}}</span>
                     </div>
-				
+
                 @if($defs!=null && $defs!='')
                     @for($i=0;$i<sizeof($defArray);$i++)
                         <div class="card combo-value-item-js">
@@ -123,7 +123,7 @@
                         </div>
                     @endfor
                 @endif
-				
+
             </div>
 
             <section class="new-object-button form-group">

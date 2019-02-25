@@ -40,6 +40,13 @@ class CreateRecordsTable extends Migration {
         });
     }
 
+    public function createComboListTable($fid) {
+        Schema::create("combo_list_$fid", function(Blueprint $table)
+        {
+            $table->string('record_id');
+        });
+    }
+
     public function removeFormRecordsTable($fid) {
         Schema::drop("records_$fid");
     }
