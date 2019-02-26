@@ -53,13 +53,14 @@ class ReverseAssocCache extends Command
 
             $fields = $form->layout['fields'];
             $recModel = new Record(array(),$form->id);
-            $inserts = [];
             $first_message = true;
 
             foreach($fields as $flid => $field) {
                 if($field['type'] == 'Associator') {
                     $assocData = $recModel->newQuery()->select('kid',$flid)->get();
                     foreach($assocData as $row) {
+                        $inserts = [];
+
                         $values = json_decode($row->{$flid},true);
                         if(is_null($values))
                             continue;
@@ -72,23 +73,16 @@ class ReverseAssocCache extends Command
                                 'source_form_id' => $form->id
                             ];
                         }
+
+                        if(!empty($inserts)) {
+                            //Break up the inserts into chuncks
+                            if($first_message)
+                                $this->info('Storing values for Form ' . $form->internal_name . '...');
+                            $first_message = false;
+                            DB::table(AssociatorField::Reverse_Cache_Table)->insert($inserts);
+                        }
                     }
                 }
-
-                //Break up the inserts into chuncks
-                if(sizeof($inserts) > 500) {
-                    if($first_message)
-                        $this->info('Storing values for Form ' . $form->internal_name . '...');
-                    $first_message = false;
-                    DB::table(AssociatorField::Reverse_Cache_Table)->insert($inserts);
-                    $inserts = [];
-                }
-            }
-
-            if(sizeof($inserts) > 0) {
-                if($first_message)
-                    $this->info('Storing values for Form ' . $form->internal_name . '...');
-                DB::table(AssociatorField::Reverse_Cache_Table)->insert($inserts);
             }
         }
 
