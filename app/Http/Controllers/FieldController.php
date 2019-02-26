@@ -82,10 +82,27 @@ class FieldController extends Controller {
         if($request->advanced)
             $field = $form->getFieldModel($request->type)->updateOptions($field, $request);
 
+        // Combo List Specific
+        $options = null;
+        if($request->type == Form::_COMBO_LIST) {
+            // TODO Clean this up
+            $flid1 = str_replace(" ","_", $request->cfname1).'_'.$form->project_id.'_'.$form->id.'_';
+            $flid2 = str_replace(" ","_", $request->cfname2).'_'.$form->project_id.'_'.$form->id.'_';
+            $options = [
+                'opt1' => [
+                    $request->cftype1,
+                    $flid1
+                ],
+                'opt2' => [
+                    $request->cftype2,
+                    $flid2
+                ]
+            ];
+        }
+
         //Field Specific Stuff
-        dd($request->type1);
         $fieldMod = $form->getFieldModel($request->type);
-        $fieldMod->addDatabaseColumn($form->id, $flid);
+        $fieldMod->addDatabaseColumn($form->id, $flid, $options);
         if(!$request->advanced)
             $field['options'] = $fieldMod->getDefaultOptions();
 
