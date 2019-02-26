@@ -361,7 +361,7 @@ Kora.Tokens.Index = function() {
                 success: function(projects){
                     var phtml = '';
                     projects.forEach(function(project, index) {
-                        phtml += '<option value='+project['pid']+' token="'+tid+'">'+project['name']+'</option>';
+                        phtml += '<option value='+project['id']+' token="'+tid+'">'+project['name']+'</option>';
                     });
                     projDiv.html(phtml);
                     projDiv.trigger("chosen:updated"); //refresh options

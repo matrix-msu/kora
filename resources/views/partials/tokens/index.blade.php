@@ -63,7 +63,7 @@
                 @foreach($token->projects()->get() as $tp)
                     <div class="token-project">
                         <span><a class="token-project-delete-js tooltip" href="#"
-                                 pid="{{$tp->pid}}" token="{{$token->id}}" pname="{{$tp->name}}" tooltip="Remove Project from Token">
+                                 pid="{{$tp->id}}" token="{{$token->id}}" pname="{{$tp->name}}" tooltip="Remove Project from Token">
                                 <i class="icon icon-cancel-circle"></i></a>
                         </span>
                         <span class="tp-title">{{$tp->name}}</span>

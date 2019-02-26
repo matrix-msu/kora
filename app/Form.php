@@ -1,5 +1,6 @@
 <?php namespace App;
 
+use App\Http\Controllers\FormController;
 use App\KoraFields\BaseField;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -319,6 +320,9 @@ class Form extends Model {
     public function getRecordsForExport($filters, $rids = null) {
         $results = [];
         $jsonFields = [];
+        $assocFields = [];
+        $assocForms = [];
+        $useAssoc = false;
 
         $con = mysqli_connect(
             config('database.connections.mysql.host'),
@@ -332,6 +336,62 @@ class Form extends Model {
         if(!mysqli_set_charset($con, "utf8")) {
             printf("Error loading character set utf8: %s\n", mysqli_error($con));
             exit();
+        }
+
+        //Some prep to make assoc searching faster
+        if($filters['assoc']) {
+            $useAssoc = true;
+            $assocSelect = "SELECT distinct(f.`id`), f.`layout` from ".$prefix."associations as a left join ".$prefix."forms as f on f.id=a.data_form where a.`assoc_form`=".$this->id;
+            $theForms = $con->query($assocSelect);
+            while($row = $theForms->fetch_assoc()) {
+                //prep fields like rest of function does
+                $aLayout = json_decode($row['layout'],true);
+                $aJsonFields = [];
+
+                //Get metadata
+                if($filters['meta'])
+                    $fields = ['kid','legacy_kid','project_id','form_id','owner','created_at','updated_at'];
+                else
+                    $fields = ['kid'];
+
+                //Adds the data fields
+                //Builds out order of fields based on page
+                $flids = array();
+                foreach($aLayout['pages'] as $page) {
+                    $flids = array_merge($flids, $page['flids']);
+                }
+
+                //Get the real names of fields
+                //Also check for json types
+                if($filters['realnames']) {
+                    $realNames = [];
+                    foreach($flids as $flid) {
+                        $name = $flid.' as `'.$aLayout['fields'][$flid]['name'].'`';
+                        //We do this in realnames because the flid gets us the type to check if its JSON, but it will be compared against the DB result which will have real names instead of flid
+                        if(in_array($aLayout['fields'][$flid]['type'], self::$jsonFields))
+                            $aJsonFields[$name] = 1;
+                        array_push($realNames,$name);
+                    }
+                    $flids = $realNames;
+                } else {
+                    foreach($flids as $flid) {
+                        if(in_array($aLayout['fields'][$flid]['type'], self::$jsonFields))
+                            $aJsonFields[$flid] = 1;
+                    }
+                }
+
+                //Determine whether to return data
+                $fields = array_merge($flids,$fields);
+                $fieldString = implode(',',$fields);
+
+                //Save it
+                $assocForms[$row['id']] = [
+                    'id' => $row['id'],
+                    'layout' => json_decode($row['layout'],true),
+                    'fieldString' => $fieldString,
+                    'jsonFields' => $aJsonFields
+                ];
+            }
         }
 
         //Get metadata
@@ -358,7 +418,9 @@ class Form extends Model {
                 $name = $flid.' as `'.$this->layout['fields'][$flid]['name'].'`';
                 //We do this in realnames because the flid gets us the type to check if its JSON, but it will be compared against the DB result which will have real names instead of flid
                 if(in_array($this->layout['fields'][$flid]['type'], self::$jsonFields))
-                    $jsonFields[$name] = 1;
+                    $jsonFields[$this->layout['fields'][$flid]['name']] = 1;
+                if($this->layout['fields'][$flid]['type'] == self::_ASSOCIATOR)
+                    $assocFields[$this->layout['fields'][$flid]['name']] = 1;
                 array_push($realNames,$name);
             }
             $flids = $realNames;
@@ -366,6 +428,8 @@ class Form extends Model {
             foreach($flids as $flid) {
                 if(in_array($this->layout['fields'][$flid]['type'], self::$jsonFields))
                     $jsonFields[$flid] = 1;
+                if($this->layout['fields'][$flid]['type'] == self::_ASSOCIATOR)
+                    $assocFields[$flid] = 1;
             }
         }
 
@@ -407,7 +471,17 @@ class Form extends Model {
         while($row = $records->fetch_assoc()) {
             $result = [];
             foreach($row as $column => $data) {
-                if(array_key_exists($column,$jsonFields)) //array key search is faster than in array so that's why we use it here
+                if($useAssoc && array_key_exists($column,$assocFields)) {
+                    $aKids = json_decode($data,true);
+                    if($aKids !== NULL) {
+                        foreach($aKids as $aKid) {
+                            $parts = explode('-',$aKid);
+                            $aForm = $assocForms[$parts[1]];
+
+                            $result[$column][$aKid] = $this->getAssocRecord($parts[2], $aForm, $con, $prefix);
+                        }
+                    }
+                } else if(array_key_exists($column,$jsonFields)) //array key search is faster than in array so that's why we use it here
                     $result[$column] = json_decode($data,true);
                 else
                     $result[$column] = $data;
@@ -419,6 +493,37 @@ class Form extends Model {
         $con->close();
 
         return $results;
+    }
+
+    /**
+     * Gets the data out of the DB for a single record.
+     *
+     * @param  $kid - Record ID
+     * @param  $aForm - The form data
+     * @param  $con - DB connection
+     * @param  $con - DB table prefix
+     *
+     * @return array - The records
+     */
+    private function getAssocRecord($rid, $aForm, $con, $prefix) {
+        $result = [];
+        $jsonFields = $aForm['jsonFields'];
+        $fieldString = $aForm['fieldString'];
+
+        $selectRecords = "SELECT $fieldString FROM ".$prefix."records_".$aForm['id']." WHERE `id`=$rid";
+
+        $records = $con->query($selectRecords);
+        while($row = $records->fetch_assoc()) {
+            foreach($row as $column => $data) {
+                if(array_key_exists($column,$jsonFields)) //array key search is faster than in array so that's why we use it here
+                    $result[$column] = json_decode($data,true);
+                else
+                    $result[$column] = $data;
+            }
+        }
+        $records->free();
+
+        return $result;
     }
 
     /**

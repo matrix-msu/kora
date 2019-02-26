@@ -1,7 +1,6 @@
 <?php namespace App\Console\Commands;
 
 use App\Form;
-use App\Http\Controllers\AssociationController;
 use App\KoraFields\AssociatorField;
 use App\Record;
 use Illuminate\Console\Command;
