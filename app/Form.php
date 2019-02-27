@@ -1,6 +1,5 @@
 <?php namespace App;
 
-use App\Http\Controllers\FormController;
 use App\KoraFields\BaseField;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -89,12 +88,13 @@ class Form extends Model {
     static public $validFilterFields = [ //TODO::NEWFIELD
         self::_TEXT,
         self::_LIST,
-        self::_MULTI_SELECT_LIST,
+        //self::_MULTI_SELECT_LIST, //TODO::CASTLE implement multi value filter types
         self::_INTEGER,
         self::_FLOAT,
-        self::_GENERATED_LIST,
+        //self::_GENERATED_LIST, //TODO::CASTLE implement multi value filter types
         //self::_DATE,
-        self::_ASSOCIATOR, //AND REVERSE ASSOCIATIONS
+        //self::_DATETIME,
+        self::_ASSOCIATOR, //TODO::CASTLE implement multi value filter types
     ];
 
     /**
@@ -394,6 +394,11 @@ class Form extends Model {
             }
         }
 
+        //Prep to make reverse associations faster
+        if($filters['revAssoc']) {
+            $reverseAssociations = $this->getReverseAssociationsMapping($con,$prefix);
+        }
+
         //Get metadata
         if($filters['meta'])
             $fields = ['kid','legacy_kid','project_id','form_id','owner','created_at','updated_at'];
@@ -486,6 +491,14 @@ class Form extends Model {
                 else
                     $result[$column] = $data;
             }
+
+            if($filters['revAssoc']) {
+                if(array_key_exists($row['kid'],$reverseAssociations))
+                    $result['reverseAssociations'] = $reverseAssociations[$row['kid']];
+                else
+                    $result['reverseAssociations'] = [];
+            }
+
             $results[$row['kid']] = $result;
         }
         $records->free();
@@ -501,7 +514,7 @@ class Form extends Model {
      * @param  $kid - Record ID
      * @param  $aForm - The form data
      * @param  $con - DB connection
-     * @param  $con - DB table prefix
+     * @param  $prefix - DB table prefix
      *
      * @return array - The records
      */
@@ -554,6 +567,9 @@ class Form extends Model {
         $fields = ['kid','legacy_kid','updated_at','owner'];
         $fieldToModel = [];
         $fieldToRealName = [];
+
+        //Prep to make reverse associations faster
+        $reverseAssociations = $this->getReverseAssociationsMapping($con,$prefix,'KORA_OLD');
 
         //Adds the data fields
         if(!is_array($filters['fields']) && $filters['fields'] == 'ALL') {
@@ -628,6 +644,13 @@ class Form extends Model {
                     $results[$kid][$fieldToRealName[$index]] = $fieldToModel[$index]->processLegacyData($value);
                 }
             }
+
+            if($filters['revAssoc']) {
+                if(array_key_exists($kid,$reverseAssociations))
+                    $results[$kid]['linkers'] = $reverseAssociations[$kid];
+                else
+                    $results[$kid]['linkers'] = [];
+            }
         }
         $records->free();
 
@@ -664,7 +687,10 @@ class Form extends Model {
         $fields = ['kid'];
         $fieldToModel = [];
 
-        //$filters['revAssoc']; //TODO::CASTLE Need assoc first
+        //Prep to make reverse associations faster
+        if($filters['revAssoc']) {
+            $reverseAssociations = $this->getReverseAssociationsMapping($con,$prefix,'XML');
+        }
 
         //Adds the data fields
         if(!is_array($filters['fields']) && $filters['fields'] == 'ALL') {
@@ -724,6 +750,14 @@ class Form extends Model {
                     $results .= $fieldToModel[$index]->processXMLData($index, $value);
             }
 
+            if($filters['revAssoc']) {
+                $results .= '<reverseAssociations>';
+                if(array_key_exists($row['kid'],$reverseAssociations)) {
+                    $results .= implode('',$reverseAssociations[$row['kid']]);
+                }
+                $results .= '</reverseAssociations>';
+            }
+
             $results .= '</Record>';
         }
         $records->free();
@@ -733,6 +767,38 @@ class Form extends Model {
         $results .= '</Records>';
 
         return $results;
+    }
+
+    /**
+     * Get mapping of records to their reverse associations
+     *
+     * @param  $con - DB connection
+     * @param  $prefix - DB table prefix
+     * @param  $includeField - Include the flid index?
+     * @return array - The mapped array
+     */
+    private function getReverseAssociationsMapping($con, $prefix, $type = 'JSON') {
+        $return = [];
+
+        $reverseSelect = "SELECT * FROM ".$prefix."reverse_associator_cache WHERE `associated_form_id`=".$this->id;
+        $results = $con->query($reverseSelect);
+        while($row = $results->fetch_assoc()) {
+            switch($type) {
+                case 'JSON':
+                    $return[$row['associated_kid']][$row['source_flid']][] = $row['source_kid'];
+                    break;
+                case 'KORA_OLD':
+                    $return[$row['associated_kid']][] = $row['source_kid'];
+                    break;
+                case 'XML':
+                    $return[$row['associated_kid']][] = "<Record flid='".$row['source_flid']."'>".$row['source_kid']."</Record>";
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        return $return;
     }
 
     /**
@@ -797,13 +863,7 @@ class Form extends Model {
                 $valids[] = $f;
         }
 
-        //TODO::CASTLE to implement, maybe?
-        //$listOccurrences = "select `option`, `flid`, `rid` from ".$prefix."list_fields where $wherePiece $flidSQL";
-        //$msListOccurrences = "select `options`, `flid`, `rid` from ".$prefix."multi_select_list_fields where $wherePiece $flidSQL";
-        //$genListOccurrences = "select `options`, `flid`, `rid` from ".$prefix."generated_list_fields where $wherePiece $flidSQL";
-        //$numberOccurrences = "select `number`, `flid`, `rid` from ".$prefix."number_fields where $wherePiece $flidSQL";
-        //$dateOccurrences = "select `month`, `day`, `year`, `flid`, `rid` from ".$prefix."date_fields where $wherePiece $flidSQL";
-        //$assocOccurrences = "select s.`flid`, r.`kid`, r.`rid` from ".$prefix."associator_support as s left join kora3_records as r on s.`record`=r.`rid` where s.$wherePiece and s.`flid` in ($flidString)";
+        //TODO::CASTLE implement reverse association counts
         //$rAssocOccurrences = "select s.`flid`, r.`kid`, r.`rid` from ".$prefix."associator_support as s left join kora3_records as r on s.`rid`=r.`rid` where s.$wherePiece and s.`flid` in ($flidString)";
 
         foreach($valids as $f) {

@@ -161,8 +161,8 @@ class RestfulController extends Controller {
             $filters['sort'] = isset($f->sort) ? $f->sort : null; //how should the data be sorted
             $filters['count'] = isset($f->count) ? $f->count : null; //how many records we should grab from that index
             $filters['index'] = isset($f->index) ? $f->index : null; //where the array of results should start [MUST USE 'count' FOR THIS TO WORK]
-            $filters['assoc'] = isset($f->assoc) ? $f->assoc : false; //do we want information back about associated records //TODO::CASTLE
-            $filters['revAssoc'] = isset($f->revAssoc) ? $f->revAssoc : true; //do we want information back about reverse associations for XML OUTPUT //TODO::CASTLE
+            $filters['assoc'] = isset($f->assoc) ? $f->assoc : false; //do we want information back about associated records
+            $filters['revAssoc'] = isset($f->revAssoc) ? $f->revAssoc : true; //do we want information back about reverse associations for XML OUTPUT
 
             //Note: Filters only captures values from certain fields (mainly single value ones), see Form::$validFilterFields to see which ones use it
             $filters['filters'] = isset($f->filters) ? $f->filters : false; //do we want information back about result filters [i.e. Field 'First Name', has value 'Tom', '12' times]

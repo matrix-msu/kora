@@ -68,6 +68,7 @@ class ReverseAssocCache extends Command
                         foreach($values as $val) {
                             $inserts[] = [
                                 'associated_kid' => $val,
+                                'associated_form_id' => explode('-',$val)[1],
                                 'source_kid' => $row->kid,
                                 'source_flid' => $flid,
                                 'source_form_id' => $form->id
