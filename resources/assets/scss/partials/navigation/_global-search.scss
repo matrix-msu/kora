@@ -134,10 +134,10 @@
 
     li {
       height: 13px;
-	  overflow: hidden;
+      overflow: hidden;
       padding: 8px 20px;
       text-align: left;
-	  text-overflow: ellipsis;
+      text-overflow: ellipsis;
 
       &:first-child {
         padding-top: 20px;
@@ -159,6 +159,11 @@
 
       &:hover {
         color: palette('white', base);
+
+        &::before,
+        &::after {
+          display: none;
+        }
       }
     }
   }

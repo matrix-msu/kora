@@ -62,9 +62,9 @@
 
         <div class="filters mt-xxxl">
             <a class="display-js underline-middle underline-middle-hover selected" href="#">Records <span>({{ $total }})</span></a>
-            <a class="display-js underline-middle underline-middle-hover" href="#">Forms (<span></span>)</a>
-            <a class="display-js underline-middle underline-middle-hover" href="#">Fields (<span></span>)</a>
-            <a class="display-js underline-middle underline-middle-hover" href="#">Projects <span></span>)</a>
+            <a class="display-js underline-middle underline-middle-hover" href="#">Forms (<span class="form-num-js"></span>)</a>
+            <a class="display-js underline-middle underline-middle-hover" href="#">Fields (<span class="fields-num-js"></span>)</a>
+            <a class="display-js underline-middle underline-middle-hover" href="#">Projects (<span class="projects-num-js"></span>)</a>
         </div>
 
         <section class="display-records display-js">
@@ -114,15 +114,24 @@
         </section>
 
         <section class="display-js mt-xxxl hidden">
+            <div class="form-group records-title mt-xxxl">Showing <span class="form-num-js"></span> Forms</div>
+            <div class="display-keywords mt-xxl"><ul class="keywords"></ul></div>
             <ul class="form-results results form-results-js"></ul>
+            <div class="hidden">@include('partials.records.no-records')</div>
         </section>
 
         <section class="display-js mt-xxxl hidden">
+            <div class="form-group records-title mt-xxxl">Showing <span class="fields-num-js"></span> Fields</div>
+            <div class="display-keywords mt-xxl"><ul class="keywords"></ul></div>
             <ul class="fields-results results fields-results-js"></ul>
+            <div class="hidden">@include('partials.records.no-records')</div>
         </section>
 
         <section class="display-js mt-xxxl hidden">
+            <div class="form-group records-title mt-xxxl">Showing <span class="projects-num-js"></span> Projects</div>
+            <div class="display-keywords mt-xxl"><ul class="keywords"></ul></div>
             <ul class="projects-results results projects-results-js"></ul>
+            <div class="hidden">@include('partials.records.no-records')</div>
         </section>
     </section>
     <p class="hidden json-results-js">{{ $projFormFields }}</p>

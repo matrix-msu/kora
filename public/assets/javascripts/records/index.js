@@ -311,12 +311,13 @@ Kora.Records.Index = function() {
     function initializeSearchTabs () {
         // handle JSON data
         if ( $('.json-results-js').text() ) {
-            $('section.display-js:not(.display-records) ul').html(JSON.parse($('.json-results-js').text()));
+            $('section.display-js:not(.display-records) ul.results').html(JSON.parse($('.json-results-js').text()));
         }
 
-        $('a.display-js')[1].children[0].innerText = $('.form-results-js').children('.form-result').length
-        $('a.display-js')[2].children[0].innerText = $('.form-results-js').children('.field-result').length
-        $('a.display-js')[3].children[0].innerText = $('.form-results-js').children('.proj-result').length
+        // handle counting results
+        $('.form-num-js').text($('.form-results-js').children('.form-result').length);
+        $('.fields-num-js').text($('.form-results-js').children('.field-result').length);
+        $('.projects-num-js').text($('.form-results-js').children('.proj-result').length);
 
         // handles switching tabs
         $('a.display-js').click(function (e) {
@@ -327,7 +328,17 @@ Kora.Records.Index = function() {
                 $(this).addClass('selected');
                 $('section.display-js').addClass('hidden');
                 $('section.display-js')[$(this).index()].classList.remove('hidden');
+                if ( $(this).children('span').text() == '0' ) {
+                    $('section.display-js')[$(this).index()].children[3].classList.remove('hidden');
+                }
             }
+        });
+
+        // handle clicking on cards
+        $('.result-js').click(function (e) {
+            e.preventDefault();
+
+            $(this).children('a').click();
         });
     }
 

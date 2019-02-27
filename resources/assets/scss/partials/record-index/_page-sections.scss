@@ -5,6 +5,42 @@
     padding: 0;
 }
 
+.form-results,
+.fields-results,
+.projects-results {
+    margin: 60px 0 100px;
+
+    .form-result,
+    .field-result,
+    .proj-result {
+        background: palette('white', base);
+        border: 2px solid palette('white', base);
+        border-radius: 5px;
+        box-shadow: 0 3px 5px 0 palette('box-shadow', base, .05);
+        cursor: pointer;
+        margin: 30px auto;
+        padding: 20px;
+
+        &:hover {
+            box-shadow: 0 6px 12px 0 palette('box-shadow', base, .06);
+        }
+
+        a {
+            box-sizing: border-box;
+            color: palette('green', accent);
+            /* display: block; */
+            font-family: $ubuntu-medium;
+            /* padding: 20px; */
+            padding: 0 0 5px 0;
+            text-decoration: none;
+        }
+    }
+
+    .go-to {
+        display: none;
+    }
+}
+
 .form-results li:not(.form-result) {
     display: none;
 }
