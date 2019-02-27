@@ -1,6 +1,7 @@
 <?php namespace App\Http\Controllers;
 
 use App\Form;
+use App\Helpers;
 use App\Http\Requests\FieldRequest;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
@@ -60,7 +61,7 @@ class FieldController extends Controller {
 
 	    $field = [];
         $form = FormController::getForm($request->fid);
-        $flid = str_replace(" ","_", $request->name).'_'.$form->project_id.'_'.$form->id.'_';
+        $flid = slugFormat($request->name, $form->project_id, $form->id);
         $layout = $form->layout;
 
         //Make sure slug doesn't already exist
@@ -83,21 +84,20 @@ class FieldController extends Controller {
             $field = $form->getFieldModel($request->type)->updateOptions($field, $request);
 
         // Combo List Specific
-        $options = null;
+        $options = array();
         if($request->type == Form::_COMBO_LIST) {
-            // TODO Clean this up
-            $flid1 = str_replace(" ","_", $request->cfname1).'_'.$form->project_id.'_'.$form->id.'_';
-            $flid2 = str_replace(" ","_", $request->cfname2).'_'.$form->project_id.'_'.$form->id.'_';
-            $options = [
-                'opt1' => [
-                    $request->cftype1,
-                    $flid1
-                ],
-                'opt2' => [
-                    $request->cftype2,
-                    $flid2
-                ]
-            ];
+            for ($i = 1;$i < 3;$i++) {
+                array_push(
+                    $options, [
+                        $request->{'cftype' . $i},
+                        slugFormat(
+                            $request->{'cfname' . $i},
+                            $form->project_id,
+                            $form->id
+                        )
+                    ]
+                );
+            }
         }
 
         //Field Specific Stuff

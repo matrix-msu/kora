@@ -43,7 +43,7 @@ class ComboListField extends BaseField {
         'Other' => array('Associator' => 'Associator')
     ];
 
-    static public $fieldToDBFuncAssoc = [
+    private $fieldToDBFuncAssoc = [
         'Text' => 'addTextColumn',
         'List' => 'addEnumColumn'
     ];
@@ -102,20 +102,19 @@ class ComboListField extends BaseField {
      * @return array - The default options
      */
     public function addDatabaseColumn($fid, $slug, $options = null) {
-        // TODO add as class var
-        $fieldToDBFuncAssoc = [
-            'Text' => 'addTextColumn',
-            'List' => 'addEnumColumn'
-        ];
         $table = new \CreateRecordsTable(
-            ['tablePrefix' => 'combo_list_']
+            ['tablePrefix' => 'combo_']
         );
         $table->createComboListTable($fid);
 
         foreach ($options as $option) {
-            $fieldFunc = $fieldToDBFuncAssoc[$option[0]];
-            $table->{$fieldFunc}($fid, $option[1]);
+            $method = $this->fieldToDBFuncAssoc[$option[0]];
+            $table->{$method}($fid, $option[1]);
         }
+
+        // Need to insert a value in order for this to work
+        $table = new \CreateRecordsTable();
+        $table->addForeignKeyColumn($fid, $slug, 'combo_', 'record_id');
     }
 
 

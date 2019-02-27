@@ -55,6 +55,15 @@ function getDashboardBlockLink($block, $link_type) {
 }
 
 /**
+ * Returns string in slug format
+ *
+ * @return string - slug
+ */
+function slugFormat($name, $project_id, $form_id) {
+  return str_replace(" ","_", $name) . '_' . $project_id . '_' . $form_id . '_';
+}
+
+/**
  * Returns array of links
  *
  * @return array - the links

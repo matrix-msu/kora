@@ -49,10 +49,11 @@ class CreateRecordsTable extends Migration {
         });
     }
 
+    // TODO::ANDREW add drop for this
     public function createComboListTable($fid) {
         Schema::create($this->tablePrefix . $fid, function(Blueprint $table)
         {
-            $table->string('record_id');
+            $table->increments('record_id');
         });
     }
 
@@ -70,6 +71,15 @@ class CreateRecordsTable extends Migration {
     public function addIntegerColumn($fid, $slug) {
         Schema::table($this->tablePrefix . $fid, function(Blueprint $table) use ($slug) {
             $table->integer($slug)->nullable();
+        });
+    }
+
+    // TODO::ANDREW add drop foreign key column
+    public function addForeignKeyColumn($fid, $slug, $fTable, $fField) {
+        Schema::table($this->tablePrefix . $fid, function(Blueprint $table) use ($fid, $slug, $fTable, $fField) {
+            $table->unsignedInteger($slug);
+
+            $table->foreign($slug)->references($fField)->on($fTable . $fid);
         });
     }
 
@@ -120,6 +130,12 @@ class CreateRecordsTable extends Migration {
     public function dropColumn($fid, $slug) {
         Schema::table($this->tablePrefix . $fid, function (Blueprint $table) use ($slug) {
             $table->dropColumn($slug);
+        });
+    }
+
+    public function dropForeignKeyColumn($fid, $slug) {
+        Schema::table($this->tablePrefix . $fid, function (Blueprint $table) use ($slug) {
+            $table->dropForeign([$slug]);
         });
     }
 
