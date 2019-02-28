@@ -34,7 +34,7 @@ Kora.FormAssociations.Index = function() {
         "assocfid": assocfid
       },
       success: function(response) {
-        window.localStorage.setItem('message', "Association successfully created!");
+        window.localStorage.setItem('message', "Form Association Successfully Created!");
         window.location.reload();
       }
     });
