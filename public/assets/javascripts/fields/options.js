@@ -403,125 +403,6 @@ Kora.Fields.Options = function(fieldType) {
         });
     }
 
-    function initializeScheduleOptions() {
-        Kora.Modal.initialize();
-        Kora.Inputs.Number();
-        Kora.Fields.TypedFieldInputs.Initialize();
-
-        // Action arrows on the cards
-        initializeMoveAction($('.schedule-card-js'));
-
-        // Drag cards to sort
-        $('.schedule-card-container-js').sortable();
-
-        // Delete card
-        initializeDelete();
-
-        $('.add-new-default-event-js').click(function(e) {
-            e.preventDefault();
-
-            Kora.Modal.open($('.schedule-add-event-modal-js'));
-        });
-
-        $('.add-new-event-js').on('click', function(e) {
-            e.preventDefault();
-
-            $('.error-message').text('');
-            $('.text-input, .text-area, .cke, .chosen-container').removeClass('error');
-
-            var nameInput = $('.event-name-js');
-            var sTimeInput = $('.event-start-time-js');
-            var eTimeInput = $('.event-end-time-js');
-
-            var name = nameInput.val().trim();
-            var sTime = sTimeInput.val().trim();
-            var eTime = eTimeInput.val().trim();
-
-            if(name==''|sTime==''|eTime=='') {
-                if(name=='') {
-                    schError = $('.event-name-js');
-                    schError.addClass('error');
-                    schError.siblings('.error-message').text('Event name is required');
-                }
-
-                if(sTime=='') {
-                    schError = $('.event-start-time-js');
-                    schError.addClass('error');
-                    schError.siblings('.error-message').text('Start time is required');
-                }
-
-                if(eTime=='') {
-                    schError = $('.event-end-time-js');
-                    schError.addClass('error');
-                    schError.siblings('.error-message').text('End time is required');
-                }
-            } else {
-                if($('.event-allday-js').is(":checked")) {
-                    sTime = sTime.split(" ")[0];
-                    eTime = eTime.split(" ")[0];
-                }
-
-                if(sTime>eTime) {
-                    schError = $('.event-start-time-js');
-                    schError.addClass('error');
-                    schError.siblings('.error-message').text('Start time can not occur before the end time');
-                } else {
-                    val = name + ': ' + sTime + ' - ' + eTime;
-
-
-                    if(val != '') {
-                        // Value is valid
-                        // Create and display new event card
-                        var newCardHtml = '<div class="card schedule-card schedule-card-js">' +
-                            '<input type="hidden" class="list-option-js" name="default[]" value="' + val + '">' +
-                            '<div class="header">' +
-                            '<div class="left">' +
-                            '<div class="move-actions">' +
-                            '<a class="action move-action-js up-js" href="">' +
-                            '<i class="icon icon-arrow-up"></i>' +
-                            '</a>' +
-                            '<a class="action move-action-js down-js" href="">' +
-                            '<i class="icon icon-arrow-down"></i>' +
-                            '</a>' +
-                            '</div>' +
-                            '<span class="title">' + name + '</span>' +
-                            '</div>' +
-                            '<div class="card-toggle-wrap">' +
-                            '<a class="schedule-delete schedule-delete-js tooltip" tooltip="Delete Event" href=""><i class="icon icon-trash"></i></a>' +
-                            '</div>' +
-                            '</div>' +
-                            '<div class="content"><p class="event-time">'+ sTime + ' - ' + eTime + '</p></div>' +
-                            '</div>';
-
-                        $('.schedule-card-container-js').append(newCardHtml);
-
-                        // Initialize New Card
-                        initializeMoveAction($('.schedule-card-js'));
-                        initializeDelete();
-                        Kora.Fields.TypedFieldInputs.Initialize();
-
-                        nameInput.val('');
-                        Kora.Modal.close($('.schedule-add-event-modal-js'));
-                    }
-                }
-            }
-        });
-
-        function initializeDelete() {
-            $('.schedule-card-js').each(function() {
-                var $card = $(this);
-                var $deleteButton = $card.find('.schedule-delete-js');
-
-                $deleteButton.unbind();
-                $deleteButton.click(function(e) {
-                    e.preventDefault();
-
-                    $card.remove();
-                })
-            });
-        }
-    }
-
     function initializeGeolocatorOptions() {
         Kora.Modal.initialize();
 
@@ -1210,9 +1091,6 @@ Kora.Fields.Options = function(fieldType) {
             break;
         case 'Multi-Select List':
             initializeList();
-            break;
-        case 'Schedule':
-            initializeScheduleOptions();
             break;
         case 'Associator':
             initializeAssociatorOptions();

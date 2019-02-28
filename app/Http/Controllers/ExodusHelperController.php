@@ -510,32 +510,6 @@ class ExodusHelperController extends Controller {
 //                            array_push($datefields,$date);
 
                         break;
-                    case 'Schedule': //TODO::CASTLE
-//                            $mlc = simplexml_load_string($value)->date;
-//                            $formattedDates = array();
-//                            $i=1;
-//
-//                            foreach($mlc as $date) {
-//                                $m = (int)$date->month;
-//                                $d = (int)$date->day;
-//                                $y = (int)$date->year;
-//                                $dateStr = 'Event '.$i.': '.$m.'/'.$d.'/'.$y.' - '.$m.'/'.$d.'/'.$y;
-//                                array_push($formattedDates,$dateStr);
-//                                ++$i;
-//                            }
-//
-//                            DB::table('schedule_fields')->insert([
-//                                [
-//                                    'rid' => $recModel->rid,
-//                                    'fid' => $recModel->fid,
-//                                    'flid' => $field->flid
-//                                ]
-//                            ]);
-//
-//                            $sched = $field->getTypedFieldFromRID($recModel->rid);
-//                            $sched->addEvents($formattedDates);
-
-                        break;
                     case 'Documents':
                         $fileXML = simplexml_load_string($value);
                         $realname = (string)$fileXML->originalName;

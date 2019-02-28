@@ -2,7 +2,6 @@
   '/assets/javascripts/vendor/jquery/jquery.js',
   '/assets/javascripts/vendor/jquery/jquery-ui.js',
   '/assets/javascripts/vendor/chosen.js',
-  '/assets/javascripts/vendor/datetimepicker/jquery.datetimepicker.full.min.js',
   '/assets/javascripts/general/modal.js',
   '/assets/javascripts/inputs/number.js',
   '/assets/javascripts/fields/typedFieldInputs.js',

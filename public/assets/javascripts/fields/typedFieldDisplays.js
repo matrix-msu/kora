@@ -485,37 +485,6 @@ Kora.Fields.TypedFieldDisplays.Initialize = function() {
         });
     }
 
-    function initalizeSchedule() {
-        $('.schedule-cal-js').each(function() {
-            var eve = [];
-            //Get the date where the calendar should focus
-            var receivedDefault = false;
-            var defDate = '';
-            $(this).children('.schedule-event-js').each(function() {
-                var eventTitle = $(this).attr('event-title');
-                var eventStart = $(this).attr('event-start');
-                if(!receivedDefault) {
-                    receivedDefault = true;
-                    defDate = eventStart;
-                }
-                var eventEnd = $(this).attr('event-end');
-                var eventAllDay = $(this).attr('event-all-day');
-
-                eve.push({title:eventTitle,start:eventStart,end:eventEnd,allDay:eventAllDay});
-            });
-
-            jQuery('.schedule-cal-js').fullCalendar({
-                header: {
-                    left: 'prev,next today',
-                    center: 'title',
-                    right: 'month,agendaWeek,agendaDay'
-                },
-                events: eve,
-                defaultDate: defDate
-            });
-        });
-    }
-
     function initializeVideo() {
         // Event listener for the full-screen button
         $('.video-field-display-js').each(function() {
@@ -598,6 +567,5 @@ Kora.Fields.TypedFieldDisplays.Initialize = function() {
     intializeAudio();
     initializeVideo();
     initializeRichtext();
-    initalizeSchedule();
     initalize3DModel();
 };

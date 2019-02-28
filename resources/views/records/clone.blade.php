@@ -13,7 +13,7 @@
 @stop
 
 @section('stylesheets')
-    <link rel="stylesheet" href="{{ url('assets/css/vendor/datetimepicker/jquery.datetimepicker.min.css') }}" />
+
 @stop
 
 @section('header')

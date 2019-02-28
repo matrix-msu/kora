@@ -99,18 +99,6 @@ Kora.Records.Create = function() {
 
             CKEDITOR.replace(textid);
         });
-
-        jQuery('.event-start-time-js').datetimepicker({
-            format:'m/d/Y g:i A', inline:true, lang:'en', step: 15,
-            minDate:'1900/01/31',
-            maxDate:'2020/12/31'
-        });
-
-        jQuery('.event-end-time-js').datetimepicker({
-            format:'m/d/Y g:i A', inline:true, lang:'en', step: 15,
-            minDate:'1900/01/31',
-            maxDate:'2020/12/31'
-        });
     }
 
     function intializeAssociatorOptions() {
@@ -314,134 +302,6 @@ Kora.Records.Create = function() {
                 $dateListInputs.css('width', '33%');
                 $dateListInputs.css('margin-bottom', '');
             }
-        }
-    }
-
-    function initializeScheduleOptions() {
-        Kora.Modal.initialize();
-
-        var flid = '';
-        var start_year = 1900;
-        var end_year = 2020;
-
-        var $scheduleCardContainers = $('.schedule-card-container-js');
-        var $scheduleCards = $scheduleCardContainers.find('.schedule-card-js');
-        var $newEventButtons = $('.add-new-default-event-js');
-
-        // Action arrows on the cards
-        initializeMoveAction($scheduleCards);
-
-        // Drag cards to sort
-        $scheduleCardContainers.sortable();
-
-        // Delete card
-        initializeDelete();
-
-        $newEventButtons.click(function(e) {
-            e.preventDefault();
-
-            flid = $(this).attr('flid');
-            start_year = $(this).attr('start');
-            end_year = $(this).attr('end');
-
-            Kora.Modal.open($('.schedule-add-event-modal-js'));
-        });
-
-        $('.add-new-event-js').on('click', function(e) {
-            e.preventDefault();
-
-            $('.error-message').text('');
-            $('.text-input, .text-area, .cke, .chosen-container').removeClass('error');
-
-            var nameInput = $('.event-name-js');
-            var sTimeInput = $('.event-start-time-js');
-            var eTimeInput = $('.event-end-time-js');
-
-            var name = nameInput.val().trim();
-            var sTime = sTimeInput.val().trim();
-            var eTime = eTimeInput.val().trim();
-
-            if(name==''|sTime==''|eTime=='') {
-                if(name=='') {
-                    schError = $('.event-name-js');
-                    schError.addClass('error');
-                    schError.siblings('.error-message').text('Event name is required');
-                }
-
-                if(sTime=='') {
-                    schError = $('.event-start-time-js');
-                    schError.addClass('error');
-                    schError.siblings('.error-message').text('Start time is required');
-                }
-
-                if(eTime=='') {
-                    schError = $('.event-end-time-js');
-                    schError.addClass('error');
-                    schError.siblings('.error-message').text('End time is required');
-                }
-            } else {
-                if($('.event-allday-js').is(":checked")) {
-                    sTime = sTime.split(" ")[0];
-                    eTime = eTime.split(" ")[0];
-                }
-
-                if(sTime>eTime) {
-                    schError = $('.event-start-time-js');
-                    schError.addClass('error');
-                    schError.siblings('.error-message').text('Start time can not occur before the end time');
-                } else {
-                    val = name + ': ' + sTime + ' - ' + eTime;
-
-                    if(val != '') {
-                        // Value is valid
-                        // Create and display new schedule card
-                        var newCardHtml = '<div class="card schedule-card schedule-card-js">' +
-                            '<input type="hidden" class="list-option-js" name="'+flid+'[]" value="' + val + '">' +
-                            '<div class="header">' +
-                            '<div class="left">' +
-                            '<div class="move-actions">' +
-                            '<a class="action move-action-js up-js" href="">' +
-                            '<i class="icon icon-arrow-up"></i>' +
-                            '</a>' +
-                            '<a class="action move-action-js down-js" href="">' +
-                            '<i class="icon icon-arrow-down"></i>' +
-                            '</a>' +
-                            '</div>' +
-                            '<span class="title">' + name + '</span>' +
-                            '</div>' +
-                            '<div class="card-toggle-wrap">' +
-                            '<a class="schedule-delete schedule-delete-js tooltip" tooltip="Delete Event" href=""><i class="icon icon-trash"></i></a>' +
-                            '</div>' +
-                            '</div>' +
-                            '<div class="content"><p class="event-time">'+ sTime + ' - ' + eTime + '</p></div>' +
-                            '</div>';
-
-                        var $scheduleCardContainer = $('.schedule-'+flid+'-js').find('.schedule-card-container-js');
-                        $scheduleCardContainer.append(newCardHtml);
-
-                        initializeMoveAction($scheduleCardContainer.find('.schedule-card-js'));
-                        initializeDelete();
-                        Kora.Fields.TypedFieldInputs.Initialize();
-
-                        nameInput.val('');
-                        Kora.Modal.close($('.schedule-add-event-modal-js'));
-                    }
-                }
-            }
-        });
-
-        function initializeDelete() {
-            $scheduleCardContainers.find('.schedule-card-js').each(function() {
-                var $card = $(this);
-                var $deleteButton = $card.find('.schedule-delete-js');
-
-                $deleteButton.unbind();
-                $deleteButton.click(function(e) {
-                    e.preventDefault();
-
-                    $card.remove();
-                })
-            });
         }
     }
 
@@ -1264,7 +1124,6 @@ Kora.Records.Create = function() {
     intializeAssociatorOptions();
     initializeComboListOptions();
     initializeDateOptions();
-    initializeScheduleOptions();
     intializeGeolocatorOptions();
     intializeFileUploaderOptions();
     initializePageNavigation();

@@ -40,7 +40,6 @@ class Form extends Model {
     const _MULTI_SELECT_LIST = "Multi-Select List";
     const _GENERATED_LIST = "Generated List";
 //    const _DATE = "Date";
-//    const _SCHEDULE = "Schedule";
 //    const _GEOLOCATOR = "Geolocator";
     const _DOCUMENTS = "Documents";
     const _GALLERY = "Gallery";
@@ -78,7 +77,7 @@ class Form extends Model {
             self::_ASSOCIATOR => self::_ASSOCIATOR
         )
         // 'List Fields' => array(Combo List' => 'Combo List'),
-        //'Date Fields' => array('Date' => 'Date', 'Schedule' => 'Schedule'),
+        //'Date Fields' => array('Date' => 'Date'),
         //'Specialty Fields' => array('Geolocator' => 'Geolocator (latlon, utm, textual)','Associator' => 'Associator')
     ];
 

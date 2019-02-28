@@ -1,1 +1,0 @@
-@include('revisions.displays.schedule', ['data' => $data])
