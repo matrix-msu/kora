@@ -90,9 +90,7 @@ class AssociationController extends Controller {
         
         return response()->json(
             [
-                'k3_global_success' => 'assoc_created',
-                'form' => $form,
-                'project_name' => $form->project()->get()->first()->name
+                'k3_global_success' => 'assoc_created'
             ]
         );
 	}
