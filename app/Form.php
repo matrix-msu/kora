@@ -40,7 +40,7 @@ class Form extends Model {
     const _MULTI_SELECT_LIST = "Multi-Select List";
     const _GENERATED_LIST = "Generated List";
 //    const _DATE = "Date";
-//    const _GEOLOCATOR = "Geolocator";
+    const _GEOLOCATOR = "Geolocator";
     const _DOCUMENTS = "Documents";
     const _GALLERY = "Gallery";
     const _PLAYLIST = "Playlist";
@@ -74,6 +74,7 @@ class Form extends Model {
             self::_GENERATED_LIST => self::_GENERATED_LIST
         ),
         'Specialty Fields' => array(
+            self::_GEOLOCATOR => self::_GEOLOCATOR,
             self::_ASSOCIATOR => self::_ASSOCIATOR
         )
         // 'List Fields' => array(Combo List' => 'Combo List'),
@@ -123,6 +124,7 @@ class Form extends Model {
         self::_PLAYLIST => "PlaylistField",
         self::_VIDEO => "VideoField",
         self::_3D_MODEL => "ModelField",
+        self::_GEOLOCATOR => "GeolocatorField",
         self::_ASSOCIATOR => "AssociatorField",
     ];
 
@@ -136,7 +138,8 @@ class Form extends Model {
         self::_VIDEO,
         self::_3D_MODEL,
         self::_ASSOCIATOR,
-        self::_GENERATED_LIST
+        self::_GENERATED_LIST,
+        self::_GEOLOCATOR
     ];
 
     /**

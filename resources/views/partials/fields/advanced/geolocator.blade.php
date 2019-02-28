@@ -14,18 +14,19 @@
 
 <div class="form-group mt-xl">
     {!! Form::label('map','Map Display') !!}
-    {!! Form::select('map', ['No' => 'No','Yes' => 'Yes'], 'No', ['class' => 'single-select']) !!}
+    {!! Form::select('map', [0 => 'No', 1 => 'Yes'], 0, ['class' => 'single-select']) !!}
 </div>
 
 <div class="form-group mt-xl">
     {!! Form::label('view','Displayed Data') !!}
-    {!! Form::select('view', ['LatLon' => 'Lat Long','UTM' => 'UTM Coordinates','Textual' => 'Address'],
+    {!! Form::select('view', ['LatLon' => 'Lat Long', 'Address' => 'Address'],
         'LatLon', ['class' => 'single-select']) !!}
 </div>
 
 <script>
     geoConvertUrl = '{{ action('FieldAjaxController@geoConvert',['pid' => 0, 'fid' => 0, 'flid' => 0]) }}';
     csrfToken = "{{ csrf_token() }}";
+    geoListDisplay = 'LatLon';
 
     Kora.Fields.Options('Geolocator');
 </script>

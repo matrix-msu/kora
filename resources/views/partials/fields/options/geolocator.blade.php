@@ -6,21 +6,21 @@
 @stop
 
 @section('fieldOptions')
-    <div class="form-group geolocator-form-group geolocator-form-group-js geolocator-{{$field->flid}}-js mt-xxxl">
+    <div class="form-group geolocator-form-group geolocator-form-group-js geolocator-{{$flid}}-js mt-xxxl">
         {!! Form::label('default','Default Locations') !!}
         <div class="form-input-container">
             <p class="directions">Add Default Locations below, and order them via drag & drop or their arrow icons.</p>
 
             <div class="geolocator-card-container geolocator-card-container-js mb-xxl">
-                @foreach(\App\GeolocatorField::getLocationList($field) as $opt)
-                    <?php
-                        $desc = explode('[Desc]',$opt)[1];
-                        $latlon = implode(', ', explode(',', explode('[LatLon]',$opt)[1]));
-                        $utm = explode('[UTM]',$opt)[1];
-                        $address = explode('[Address]',$opt)[1];
-                    ?>
+                @foreach($field['default'] as $defLoc)
+                    @php
+                        $desc = $defLoc['description'];
+                        $latlon = $defLoc['geometry']['location']['lat'].', '.$defLoc['geometry']['location']['lng'];
+                        $address = $defLoc['formatted_address'];
+                        $finalResult = json_encode($defLoc);
+                    @endphp
                     <div class="card geolocator-card geolocator-card-js">
-                        <input type="hidden" class="list-option-js" name="default[]" value="{{$opt}}'">
+                        <input type="hidden" class="list-option-js" name="default[]" value="{{$finalResult}}">
                         <div class="header">
                             <div class="left">
                                 <div class="move-actions">
@@ -40,6 +40,7 @@
                         <div class="content"><p class="location"><span class="bold">LatLon:</span> {{$latlon}}</p></div>
                     </div>
                 @endforeach
+
             </div>
 
             <section class="new-object-button">
@@ -48,29 +49,29 @@
         </div>
     </div>
 
-    <section class="form-group">
-        <div><a href="#" class="field-preset-link open-location-modal-js">Use a Value Preset for these Locations</a></div>
-        <div class="open-create-regex"><a href="#" class="field-preset-link open-create-location-modal-js right
-            @if(empty(\App\GeolocatorField::getLocationList($field))) disabled tooltip @endif" tooltip="You must submit or update the field before creating a New Value Preset">
-                Create a New Value Preset from these Locations</a></div>
-    </section>
+    {{--<section class="form-group">TODO::CASTLE--}}
+        {{--<div><a href="#" class="field-preset-link open-location-modal-js">Use a Value Preset for these Locations</a></div>--}}
+        {{--<div class="open-create-regex"><a href="#" class="field-preset-link open-create-location-modal-js right--}}
+            {{--@if(empty(\App\GeolocatorField::getLocationList($field))) disabled tooltip @endif" tooltip="You must submit or update the field before creating a New Value Preset">--}}
+                {{--Create a New Value Preset from these Locations</a></div>--}}
+    {{--</section>--}}
 
     <div class="form-group mt-xxxl">
         {!! Form::label('map','Map Display') !!}
-        {!! Form::select('map', ['No' => 'No','Yes' => 'Yes'],
-            \App\Http\Controllers\FieldController::getFieldOption($field,'Map'), ['class' => 'single-select']) !!}
+        {!! Form::select('map', [0 => 'No', 1 => 'Yes'], $field['options']['Map'], ['class' => 'single-select']) !!}
     </div>
 
     <div class="form-group mt-xl">
         {!! Form::label('view','Displayed Data') !!}
-        {!! Form::select('view', ['LatLon' => 'Lat Long','UTM' => 'UTM Coordinates','Textual' => 'Address'],
-            \App\Http\Controllers\FieldController::getFieldOption($field,'DataView'), ['class' => 'single-select']) !!}
+        {!! Form::select('view', ['LatLon' => 'Lat Long', 'Address' => 'Address'],
+            $field['options']['DataView'], ['class' => 'single-select']) !!}
     </div>
 @stop
 
 @section('fieldOptionsJS')
-    geoConvertUrl = '{{ action('FieldAjaxController@geoConvert',['pid' => $field->pid, 'fid' => $field->fid, 'flid' => $field->flid]) }}';
+    geoConvertUrl = '{{ action('FieldAjaxController@geoConvert',['pid' => $form->project_id, 'fid' => $form->id, 'flid' => $flid]) }}';
     csrfToken = "{{ csrf_token() }}";
+    geoListDisplay = '{{ $field['options']['DataView'] }}';
 
     Kora.Fields.Options('Geolocator');
 @stop
