@@ -58,7 +58,6 @@ class ProjectGroupController extends Controller {
         $prevUrlArray = $request->session()->get('_previous');
         $prevUrl = reset($prevUrlArray);
         $session = $request->session()->get('k3_global_success');
-        // we do not need to see notification every time we reload the page
         if($prevUrl == url()->current() && $session == 'project_group_created') {
             $notification['message'] = 'Project Permissions Group Successfully Created';
         }
