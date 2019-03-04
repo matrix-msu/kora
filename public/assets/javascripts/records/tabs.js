@@ -2,17 +2,19 @@ var isOverflow = document.querySelector('.content-sections-scroll');
 var isAppended = false
 var scrollPos
 
-window.setInterval(function() {
-  if (isOverflow.offsetWidth < isOverflow.scrollWidth && isAppended === false) {
-    $('<i class="icon icon-chevron tabs-right"></i>').appendTo('.content-sections');
-    $('<i class="icon icon-chevron tabs-left hidden"></i>').appendTo('.content-sections');
-    isAppended = true
-  } else if (isOverflow.offsetWidth == isOverflow.scrollWidth && isAppended === true) {
-    $('.tabs-right').remove();
-    $('.tabs-left').remove();
-    isAppended = false
-  }
-}, 200);
+if ( isOverflow ) {
+  window.setInterval(function() {
+    if (isOverflow.offsetWidth < isOverflow.scrollWidth && isAppended === false) {
+      $('<i class="icon icon-chevron tabs-right"></i>').appendTo('.content-sections');
+      $('<i class="icon icon-chevron tabs-left hidden"></i>').appendTo('.content-sections');
+      isAppended = true
+    } else if (isOverflow.offsetWidth == isOverflow.scrollWidth && isAppended === true) {
+      $('.tabs-right').remove();
+      $('.tabs-left').remove();
+      isAppended = false
+    }
+  }, 200);
+}
 
 $('.content-sections').on('click', '.tabs-left', function (e) {
   e.stopPropagation();

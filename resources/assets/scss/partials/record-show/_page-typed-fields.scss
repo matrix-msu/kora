@@ -243,13 +243,21 @@
 
   .next-button {
     .icon {
-      transform: rotate(270deg);
+      left: 50%;
+      margin: 0;
+      position: absolute;
+      top: 50%;
+      transform: translate(-38%, -50%) rotate(270deg);
     }
   }
 
   .prev-button {
     .icon {
-      transform: rotate(90deg);
+      left: 50%;
+      margin: 0;
+      position: absolute;
+      top: 50%;
+      transform: translate(-60%, -50%) rotate(90deg);
     }
   }
 }
@@ -590,9 +598,16 @@
 .model-player-canvas {
   border-radius: 5px;
   width: 100%;
+
+  @media screen and (max-width: 690px) {
+    height: 100%;
+    min-height: 270px;
+    object-fit: cover;
+  }
 }
 
 .model-player-div {
+  background: palette('gray', slate);
   margin: auto;
   position: relative;
   width: 100%;
@@ -602,6 +617,59 @@
   border-radius: 5px;
   overflow: hidden;
   width: 100%;
+}
+
+.model-modal {
+  .content {
+    background: transparent;
+    box-shadow: none;
+    display: block;
+    height: 100vh;
+    max-width: none;
+    overflow-y: unset;
+    padding: 0;
+    width: 100vw;
+
+    .body {
+      height: 100vh;
+      overflow: hidden;
+      padding: 0;
+/*
+      .model-player-canvas {
+        height: 100%;
+      }
+*/
+      canvas {
+        height: 100%;
+        object-fit: cover;
+      }
+
+      .modal-toggle {
+        background: palette('white', base);
+        border: 1px solid palette('gray', slate, .1);
+        border-radius: 5px;
+        box-shadow: 0 3px 5px 0 palette('gray', slate, .05);
+        cursor: pointer;
+        display: flex;
+        height: 32px;
+        position: absolute;
+        right: 10px;
+        top: 10px;
+        @include transition();
+        width: 32px;
+        z-index: 1;
+
+        .icon {
+          font-size: 12px;
+          margin: auto;
+        }
+
+        &:hover {
+          background: #f4f4f4;
+        }
+      }
+    }
+  }
 }
 
 /***** Fullscreen Modal *****/
