@@ -185,22 +185,22 @@ class ProjectSearchController extends Controller {
         //Filter those results
         foreach($projResults as $project) {
             if(\Auth::user()->admin || \Auth::user()->inAProjectGroup($project)) {
-                $result = "<li class=\"proj-result result-js\"><span class=\"go-to\">Go to Project: </span><a class=\"underline-middle-hover\" data-type=\"Project\" href=\"".action("ProjectController@show",["pid" => $project->pid])
-                    ."\">".$project->name;
+                $result = "<li class=\"proj-result result-js\"><span class=\"go-to\">Go to Project: </span><div class=\"left pl-xl\"><a class=\"underline-middle-hover\" data-type=\"Project\" href=\"".action("ProjectController@show",["pid" => $project->pid])
+                    ."\"><span class=\"name\">".$project->name;
                 if(Project::where("name","=",$project->name)->count() > 1)
                     $result .= " (".$project->slug.")";
-                $result .= "</a></li>";
+                $result .= "</span><i class=\"icon icon-arrow-right\"></i></a></div></li>";
                 array_push($returnArray,$result);
             }
         }
 
         foreach($formResults as $form) {
             if(\Auth::user()->admin || \Auth::user()->inAFormGroup($form)) {
-                $result = "<li class=\"form-result result-js\"><span class=\"go-to\">Go to Form: </span><a class=\"underline-middle-hover\" data-type=\"Form\" href=\"".action("FormController@show",["pid" => $form->pid, "fid" => $form->fid])
-                    ."\">".$form->name;
+                $result = "<li class=\"form-result result-js\"><span class=\"go-to\">Go to Form: </span><div class=\"left pl-xl\"><a class=\"underline-middle-hover\" data-type=\"Form\" href=\"".action("FormController@show",["pid" => $form->pid, "fid" => $form->fid])
+                    ."\"><span class=\"name\">".$form->name;
                 if(Form::where("name","=",$form->name)->count() > 1)
                     $result .= " (".$form->slug.")";
-                $result .= "</a></li>";
+                $result .= "</span><i class=\"icon icon-arrow-right\"></i></a></div></li>";
                 array_push($returnArray,$result);
             }
         }
@@ -208,11 +208,11 @@ class ProjectSearchController extends Controller {
         foreach($fieldResults as $field) {
             $form = FormController::getForm($field->flid);
             if(\Auth::user()->admin || \Auth::user()->inAFormGroup($form)) {
-                $result = "<li class=\"field-result result-js\"><span class=\"go-to\">Go to Field: </span><a class=\"underline-middle-hover\" data-type=\"Field\" href=\"".action("FieldController@show",["pid" => $field->pid, "fid" => $field->fid, "flid" => $field->flid])
-                    ."\">".$field->name;
+                $result = "<li class=\"field-result result-js\"><span class=\"go-to\">Go to Field: </span><div class=\"left pl-xl\"><a class=\"underline-middle-hover\" data-type=\"Field\" href=\"".action("FieldController@show",["pid" => $field->pid, "fid" => $field->fid, "flid" => $field->flid])
+                    ."\"><span class=\"name\">".$field->name;
                 if(Field::where("name","=",$field->name)->count() > 1)
                     $result .= " (".$field->slug.")";
-                $result .= "</a></li>";
+                $result .= "</span><i class=\"icon icon-arrow-right\"></i></a></div></li>";
                 array_push($returnArray,$result);
             }
         }
