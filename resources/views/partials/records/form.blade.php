@@ -3,7 +3,7 @@
 @foreach(\App\Http\Controllers\PageController::getFormLayout($form->fid) as $page)
     <section id="#{{$page["title"]}}" class="page-section-js hidden">
         @foreach($page["fields"] as $field)
-            <?php
+            @php
                 if($editRecord) {
                     $typedField = $field->getTypedFieldFromRID($record->rid);
                     $hasData = true;
@@ -15,8 +15,8 @@
                     $typedField = $field->getTypedField();
                     $hasData = false;
                 }
-            ?>
-            
+            @endphp
+
             @include($typedField::FIELD_INPUT_VIEW, ['field' => $field, 'hasData' => $hasData, 'editRecord' => $editRecord])
         
             <div class="form-group mt-xs">

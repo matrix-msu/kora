@@ -4465,6 +4465,7 @@ JSC3D.AABB.prototype.lengthOfDiagonal = function() {
     var xx = this.maxX - this.minX;
     var yy = this.maxY - this.minY;
     var zz = this.maxZ - this.minZ;
+
     return Math.sqrt(xx * xx + yy * yy + zz * zz);
 };
 

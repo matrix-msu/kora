@@ -388,7 +388,7 @@ class DateField extends BaseField {
         if(!is_array($revision->oldData))
             $revision->oldData = json_decode($revision->oldData, true);
 
-        if(is_null($revision->oldData[Field::_DATE][$field->flid]['data']))
+        if(!isset($revision->oldData[Field::_DATE][$field->flid]['data']))
             return null;
 
         // If the field doesn't exist or was explicitly deleted, we create a new one.

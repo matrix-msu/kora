@@ -52,11 +52,7 @@
                 </div>
 
                 <div class="form-group mt-xxxl search-button-container">
-                    @if($form->fields()->where('advsearch','=',1)->count() > 0)
-                        <a href="{{action('AdvancedSearchController@index', ['pid' => $form->pid, 'fid' => $form->fid])}}" class="btn half-sub-btn" data-unsp-sanitized="clean">Go to Advanced Search</a>
-                    @else
-                        <a href="#" class="btn half-sub-btn disabled" data-unsp-sanitized="clean">No Advanced Search Available</a>
-                    @endif
+                    <a href="{{action('AdvancedSearchController@index', ['pid' => $form->pid, 'fid' => $form->fid])}}" class="btn half-sub-btn" data-unsp-sanitized="clean">Go to Advanced Search</a>
                     <a href="#" class="btn half-btn submit-search-js right" data-unsp-sanitized="clean">Search</a>
                 </div>
             </form>

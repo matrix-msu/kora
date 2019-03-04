@@ -42,10 +42,10 @@
     border-radius: 50%;
     box-shadow: 0 3px 5px 0 palette('box-shadow', base, .2);
     box-sizing: border-box;
-    height: 24px;
-    margin: #{($navigation-height - 24px - 2px) / 2} 10px;
-    width: 24px;
-
+    height: 31px;
+    margin: 9px 6px;
+    width: 31px;
+	object-fit: cover;
   }
 
   .icon-logout {

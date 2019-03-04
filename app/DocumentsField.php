@@ -329,7 +329,7 @@ class DocumentsField extends FileTypeField {
         if(!is_array($revision->oldData))
             $revision->oldData = json_decode($revision->oldData, true);
 
-        if(is_null($revision->oldData[Field::_DOCUMENTS][$field->flid]['data']))
+        if(!isset($revision->oldData[Field::_DOCUMENTS][$field->flid]['data']))
             return null;
 
         // If the field doesn't exist or was explicitly deleted, we create a new one.

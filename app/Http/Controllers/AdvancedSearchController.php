@@ -57,14 +57,14 @@ class AdvancedSearchController extends Controller {
 
         //Need these for negative searches
         $notRids = Record::where('fid', '=', $fid)->pluck('rid')->toArray();
-
         $processed = $this->processRequest($request->all());
         foreach($processed as $flid => $query) {
             $field = FieldController::getField($flid);
             if(array_diff(array_keys($query),array($flid.'_negative',$flid.'_empty')) == [])
                 $result = [];
-            else
+            else {
                 $result = $field->getTypedField()->advancedSearchTyped($flid, $query);
+            }
 
             //This is a negative search so we want the opposite results of what the search would produce
             if(isset($request[$flid."_negative"]))
@@ -102,7 +102,9 @@ class AdvancedSearchController extends Controller {
 
         $form = FormController::getForm($fid);
 
-        return view('advancedSearch.results', compact("form", "records", "total"));
+        $keywords = $processed[$flid][$flid.'_input'];
+
+        return view('advancedSearch.results', compact("form", "records", "total", "keywords"));
     }
 
     private function imitateMerge(&$array1, &$array2) {
@@ -220,18 +222,19 @@ class AdvancedSearchController extends Controller {
                 switch($field->type) {
                     case 'Date':
                     case 'Schedule':
-                        if(isset($request[$flid.'_begin_month']))
-                            $processed[$flid][$flid.'_begin_month'] = $request[$flid.'_begin_month'];
-                        if(isset($request[$flid.'_begin_day']))
-                            $processed[$flid][$flid.'_begin_day'] = $request[$flid.'_begin_day'];
-                        if(isset($request[$flid.'_begin_year']))
-                            $processed[$flid][$flid.'_begin_year'] = $request[$flid.'_begin_year'];
-                        if(isset($request[$flid.'_end_month']))
-                            $processed[$flid][$flid.'_end_month'] = $request[$flid.'_end_month'];
-                        if(isset($request[$flid.'_end_day']))
-                            $processed[$flid][$flid.'_end_day'] = $request[$flid.'_end_day'];
-                        if(isset($request[$flid.'_end_year']))
-                            $processed[$flid][$flid.'_end_year'] = $request[$flid.'_end_year'];
+                        if(
+                            !isset($request[$flid.'_begin_month']) || !isset($request[$flid.'_begin_day']) || !isset($request[$flid.'_begin_year']) ||
+                            !isset($request[$flid.'_end_month']) || !isset($request[$flid.'_end_day']) || !isset($request[$flid.'_end_year']) ||
+                            ($request[$flid.'_begin_month'] != '') || ($request[$flid.'_begin_day'] != '') || ($request[$flid.'_begin_year'] != '') ||
+                            ($request[$flid.'_end_month'] != '') || ($request[$flid.'_end_day'] != '') || ($request[$flid.'_end_year'] != '')
+                        ) {
+                            $processed[$flid][$flid.'_begin_month'] = isset($request[$flid.'_begin_month']) ? $request[$flid.'_begin_month'] : '';
+                            $processed[$flid][$flid.'_begin_day'] = isset($request[$flid.'_begin_day']) ? $request[$flid.'_begin_day'] : '';
+                            $processed[$flid][$flid.'_begin_year'] = isset($request[$flid.'_begin_year']) ? $request[$flid.'_begin_year'] : '';
+                            $processed[$flid][$flid.'_end_month'] = isset($request[$flid.'_end_month']) ? $request[$flid.'_end_month'] : '';
+                            $processed[$flid][$flid.'_end_day'] = isset($request[$flid.'_end_day']) ? $request[$flid.'_end_day'] : '';
+                            $processed[$flid][$flid.'_end_year'] = isset($request[$flid.'_end_year']) ? $request[$flid.'_end_year'] : '';
+                        }
 
                         if(isset($request[$flid.'_begin_era']))
                             $processed[$flid][$flid.'_begin_era'] = $request[$flid.'_begin_era'];

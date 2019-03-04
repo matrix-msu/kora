@@ -16,7 +16,7 @@
 
         <div class="field-sidebar document-sidebar document-sidebar-js">
             <div class="top">
-                <a class="field-btn external-button-js" target="_blank" href="{{url('projects/'.$form->pid.'/forms/'.$form->fid.'/records/'.$record->rid.'/fields/'.$field->flid.'/'.$name)}}">
+                <a class="field-btn external-button-js" target="_blank" href="{{url('projects/'.$field->pid.'/forms/'.$field->fid.'/records/'.$record->rid.'/fields/'.$field->flid.'/'.$name)}}">
                     <i class="icon icon-external-link"></i>
                 </a>
 

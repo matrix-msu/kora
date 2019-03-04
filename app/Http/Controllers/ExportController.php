@@ -512,20 +512,21 @@ class ExportController extends Controller {
                       LEFT JOIN ".$prefix."users as u on r.owner=u.id where r.$wherePiece";
         $kids = $con->query($select);
         $ridMeta = ($useOpts && isset($options['meta']) && $options['meta']);
+        $tmpRecords = [];
         while($row = $kids->fetch_assoc()) {
             if(!array_key_exists($row['rid'],$ridsToKids))
                 continue;
             $ridsToKids[$row['rid']] = $row['kid'];
 
             if($ridMeta && $format == self::JSON) {
-                $records[$row['kid']] = [
+                $tmpRecords[$row['kid']] = [
                     'created_at' => $row['created_at'],
                     'updated_at' => $row['updated_at'],
                     'username' => $row['username'],
                 ];
             } else if($format == self::KORA) {
                 $kidParts = explode('-',$row['kid']);
-                $records[$row['kid']] = [
+                $tmpRecords[$row['kid']] = [
                     'kid' => $row['kid'],
                     'pid' => $kidParts[0],
                     'schemeID' => $kidParts[1],
@@ -534,9 +535,15 @@ class ExportController extends Controller {
                     'recordowner' => $row['username'],
                 ];
             } else
-                $records[$row['kid']] = [];
+                $tmpRecords[$row['kid']] = [];
         }
         $kids->free();
+        
+        //We now have to restore order
+        foreach($rids as $r) {
+	        $records[$ridsToKids[$r]] = $tmpRecords[$ridsToKids[$r]];
+        }
+        unset($tmpRecords);
 
         //Prep the table statements
         if($ridMode) {
@@ -678,7 +685,7 @@ class ExportController extends Controller {
 
                         $fieldIndex = $fields[$row['flid']][$fIndex];
 
-                        $records[$kid][$fieldIndex]['value'] = $row['number'];
+                        $records[$kid][$fieldIndex]['value'] = (float)$row['number'];
                     }
                     $datafields->free();
                     $con->next_result();
@@ -1128,9 +1135,9 @@ class ExportController extends Controller {
                     $kid = $ridsToKids[$row['rid']];
 
                     if($useOpts && isset($options['under']) && $options['under'])
-                    	$records[$kid][$fields[$row['flid']]['legacy_name']] = $row['number'];
+                    	$records[$kid][$fields[$row['flid']]['legacy_name']] = (float)$row['number'];
                     else
-                    	$records[$kid][$fields[$row['flid']]['name']] = $row['number'];
+                    	$records[$kid][$fields[$row['flid']]['name']] = (float)$row['number'];
                 }
                 $datafields->free();
                 $con->next_result();
@@ -1889,11 +1896,11 @@ class ExportController extends Controller {
                   GROUP_CONCAT(`allday` SEPARATOR '[!]') as `val3`,
                   GROUP_CONCAT(`desc` SEPARATOR '[!]') as `val4` 
                   FROM ".$prefix."schedule_support where `rid`=$rid group by `flid`";
-        $documentsselect = "SELECT `flid`, `documents` FROM ".$prefix."documents_fields where `rid`=$rid";
-        $galleryselect = "SELECT `flid`, `images`, `captions` FROM ".$prefix."gallery_fields where `rid`=$rid";
-        $playlistselect = "SELECT `flid`, `audio` FROM ".$prefix."playlist_fields where `rid`=$rid";
-        $videoselect = "SELECT `flid`, `video` FROM ".$prefix."video_fields where `rid`=$rid";
-        $modelselect = "SELECT `flid`, `model` FROM ".$prefix."model_fields where `rid`=$rid";
+        $documentsselect = "SELECT `rid`, `flid`, `documents` FROM ".$prefix."documents_fields where `rid`=$rid";
+        $galleryselect = "SELECT `rid`, `flid`, `images`, `captions` FROM ".$prefix."gallery_fields where `rid`=$rid";
+        $playlistselect = "SELECT `rid`, `flid`, `audio` FROM ".$prefix."playlist_fields where `rid`=$rid";
+        $videoselect = "SELECT `rid`, `flid`, `video` FROM ".$prefix."video_fields where `rid`=$rid";
+        $modelselect = "SELECT `rid`, `flid`, `model` FROM ".$prefix."model_fields where `rid`=$rid";
         $geolocatorselect = "SELECT `flid`, GROUP_CONCAT(`desc` SEPARATOR '[!]') as `value`, 
                   GROUP_CONCAT(`address` SEPARATOR '[!]') as `val2`, 
                   GROUP_CONCAT(CONCAT_WS('[!]', `lat`, `lon`) SEPARATOR '[!latlon!]') as `val3`, 

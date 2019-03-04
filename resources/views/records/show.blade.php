@@ -87,13 +87,11 @@
             @endif
         </section>
         <div class="meta-title mt-m">Created</div>
-        <section class="meta-data">
-            {{$record->created_at}}
-        </section>
+        <div id="created-at" class="hidden">{{$record->created_at}}</div>
+        <section class="meta-data time"></section>
         <div class="meta-title mt-m">Last Updated</div>
-        <section class="meta-data">
-            {{$record->updated_at}}
-        </section>
+        <div id="updated-at" class="hidden">{{$record->updated_at}}</div>
+        <section class="meta-data time"></section>
         @if(sizeof($record->getAssociatedRecords())>0)
             <div class="meta-title mt-m">Associated Records</div>
             <section class="meta-data">
