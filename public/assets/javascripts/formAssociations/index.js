@@ -34,6 +34,20 @@ Kora.FormAssociations.Index = function() {
         "assocfid": assocfid
       },
       success: function(response) {
+		var associationCards = $(".association.card");
+		var cards = 0;
+		for (var i = 0; i < associationCards.length; i++) {
+			var id = $(associationCards[i]).attr('id');
+			
+			if (id.indexOf("create") !=-1) {
+				cards++;
+			}
+		}
+		
+		if (cards == 0) {
+			location.reload();
+		}
+		  
         var element = $('<div></div>').addClass('association association-js card').attr('id', 'create-' + response.form.fid);
         var header = $('<div></div>').addClass('header');
         var title = $('<div></div>').addClass('left pl-m');
@@ -56,10 +70,6 @@ Kora.FormAssociations.Index = function() {
         $('#new-form option[value='+response.form.fid+']').remove();
         $('.create-description-js').removeClass('hidden');
         Kora.Modal.close();
-		
-		if ($(".association.card").length == 0) {
-			location.reload();
-		}
       }
     });
   }
