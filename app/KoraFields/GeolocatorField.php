@@ -178,7 +178,7 @@ class GeolocatorField extends BaseField {
      *
      * @return Request - Processed data
      */
-    public function processImportData($flid, $field, $value, $request) { //TODO::CASTLE
+    public function processImportData($flid, $field, $value, $request) {
         $request[$flid] = $value;
 
         return $request;
@@ -195,8 +195,31 @@ class GeolocatorField extends BaseField {
      *
      * @return Request - Processed data
      */
-    public function processImportDataXML($flid, $field, $value, $request, $simple = false) { //TODO::CASTLE
-        $request[$flid] = (array)$value->Record;
+    public function processImportDataXML($flid, $field, $value, $request, $simple = false) {
+        $geo = array();
+
+        foreach($value->Location as $loc) {
+            $geoReq = new Request();
+
+            if(!is_null($loc->Lat)) {
+                $geoReq->type = 'latlon';
+                $geoReq->lat = (float)$loc->Lat;
+                $geoReq->lon = (float)$loc->Lon;
+            } else if(!is_null($loc->Address)) {
+                $geoReq->type = 'geo';
+                $geoReq->addr = (string)$loc->Address;
+            }
+
+
+            $loc = GeolocatorField::geoConvert($geoReq);
+            if(empty($loc->Desc))
+                $loc['description'] = '';
+            else
+                $loc['description'] = $loc->Desc;
+            array_push($geo, $loc);
+        }
+
+        $request[$flid] = $geo;
 
         return $request;
     }
@@ -209,7 +232,7 @@ class GeolocatorField extends BaseField {
      *
      * @return mixed - Processed data
      */
-    public function processDisplayData($field, $value) { //TODO::CASTLE
+    public function processDisplayData($field, $value) {
         return json_decode($value,true);
     }
 
@@ -221,11 +244,14 @@ class GeolocatorField extends BaseField {
      *
      * @return mixed - Processed data
      */
-    public function processXMLData($field, $value) { //TODO::CASTLE
-        $recs = json_decode($value,true);
+    public function processXMLData($field, $value) {
+        $locs = json_decode($value,true);
         $xml = "<$field>";
-        foreach($recs as $rec) {
-            $xml .= '<Record>'.$rec.'</Record>';
+        foreach($locs as $loc) {
+            $xml .= '<Desc>'.$loc['description'].'</Desc>';
+            $xml .= '<Lat>'.$loc['geometry']['location']['lat'].'</Lat>';
+            $xml .= '<Lon>'.$loc['geometry']['location']['lng'].'</Lon>';
+            $xml .= '<Address>'.$loc['formatted_address'].'</Address>';
         }
         $xml .= "</$field>";
 
@@ -239,8 +265,8 @@ class GeolocatorField extends BaseField {
      *
      * @return mixed - Processed data
      */
-    public function processLegacyData($value) { //TODO::CASTLE
-        return $value;
+    public function processLegacyData($value) {
+        return null;
     }
 
     /**
