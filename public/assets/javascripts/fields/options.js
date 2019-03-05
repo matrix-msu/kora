@@ -118,7 +118,7 @@ Kora.Fields.Options = function(fieldType) {
                 $dateListInputs.css('margin-bottom', '10px');
             } else {
                 // Window is large, 1/3 width Inputs
-                $dateListInputs.css('width', '33%');
+                //$dateListInputs.css('width', '33%'); // this can be handled by setting the parent with /display:flex;/ in css
                 $dateListInputs.css('margin-bottom', '');
             }
         }

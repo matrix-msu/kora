@@ -11,8 +11,10 @@
     background: palette('white');
     border-radius: 5px;
     box-shadow: 0 3px 5px 0 palette('gray', slate, .05);
+    display: flex;
 
     .chosen-container-single {
+      box-sizing: border-box;
       .chosen-single {
         border-radius: 0;
         border-right: 2px solid palette('gray', slate, .05);
@@ -47,6 +49,14 @@
           &:hover {
             border-right: 2px solid palette('green', accent, .7);
           }
+        }
+      }
+
+      &.chosen-with-drop {
+        .chosen-single {
+          border-bottom-left-radius: 0;
+          border-bottom-right-radius: 0;
+          border-right: 2px solid palette('green', accent);
         }
       }
     }
