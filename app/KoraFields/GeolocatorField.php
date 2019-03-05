@@ -278,12 +278,13 @@ class GeolocatorField extends BaseField {
      * @param  Request $request
      * @param  bool $overwrite - Overwrite if data exists
      */
-    public function massAssignRecordField($form, $flid, $formFieldValue, $request, $overwrite=0) { //TODO::CASTLE
+    public function massAssignRecordField($form, $flid, $formFieldValue, $request, $overwrite=0) {
+        $locsValue = '['.implode(',',$formFieldValue).']';
         $recModel = new Record(array(),$form->id);
         if($overwrite)
-            $recModel->newQuery()->update([$flid => $formFieldValue]);
+            $recModel->newQuery()->update([$flid => $locsValue]);
         else
-            $recModel->newQuery()->whereNull($flid)->update([$flid => $formFieldValue]);
+            $recModel->newQuery()->whereNull($flid)->update([$flid => $locsValue]);
     }
 
     /**
@@ -292,8 +293,13 @@ class GeolocatorField extends BaseField {
      * @param  string $url - Url for File Type Fields
      * @return mixed - The data
      */
-    public function getTestData($url = null) { //TODO::CASTLE
-        return json_encode(array('0-3-0','0-3-1','0-3-2','0-3-3'));
+    public function getTestData($url = null) {
+        $locArray = [];
+        $locArray['description'] = 'Matrix';
+        $locArray['geometry']['location']['lat'] = '42.7314094';
+        $locArray['geometry']['location']['lng'] = '-84.476258';
+        $locArray['formatted_address'] = '288 Farm Ln, East Lansing, MI 48823';
+        return json_encode(array($locArray));
     }
 
     /**
@@ -303,20 +309,30 @@ class GeolocatorField extends BaseField {
      * @param  string $expType - Type of export
      * @return mixed - The example
      */
-    public function getExportSample($slug,$type) { //TODO::CASTLE
+    public function getExportSample($slug,$type) {
         switch($type) {
             case "XML":
                 $xml = '<' . $slug . '>';
-                $xml .= "<Record>".utf8_encode('0-3-0')."</Record>";
-                $xml .= "<Record>".utf8_encode('0-3-1')."</Record>";
-                $xml .= "<Record>".utf8_encode('0-3-2')."</Record>";
-                $xml .= "<Record>".utf8_encode('0-3-3')."</Record>";
+                $xml .= '<Location>';
+                $xml .= '<Desc>' . utf8_encode('Matrix') . '</Desc>';
+                $xml .= '<Lat>' . utf8_encode('42.7314094') . '</Lat>';
+                $xml .= '<Lon>' . utf8_encode('-84.476258') . '</Lon>';
+                $xml .= '<Address>' . utf8_encode('288 Farm Ln, East Lansing, MI 48823') . '</Address>';
+                $xml .= '</Location>';
                 $xml .= '</' . $slug . '>';
 
                 return $xml;
                 break;
             case "JSON":
-                $fieldArray[$slug] = array('0-3-0','0-3-1','0-3-2','0-3-3');
+                $fieldArray = [$slug => ['type' => 'Geolocator']];
+
+                $locArray = array();
+
+                $locArray['description'] = 'Matrix';
+                $locArray['geometry']['location']['lat'] = '42.7314094';
+                $locArray['geometry']['location']['lng'] = '-84.476258';
+                $locArray['formatted_address'] = '288 Farm Ln, East Lansing, MI 48823';
+                $fieldArray[$slug] = array($locArray);
 
                 return $fieldArray;
                 break;
