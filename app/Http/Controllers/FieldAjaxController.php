@@ -202,16 +202,18 @@ class FieldAjaxController extends Controller {
      * @param  int $pid - Project ID
      * @param  int $fid - Form ID
      * @param  int $rid - Record ID
-     * @param  int $flid - Field ID
-     * @param  string $filename - Image filename
+     * @param  View - The geo view
      * @return Redirect
      */
-    public function singleGeolocator($pid, $fid, $rid, $flid) { //TODO::CASTLE
-        $field = self::getField($flid,$fid);
+    public function singleGeolocator($pid, $fid, $rid, Request $request) {
+        $form = FormController::getForm($fid);
+        $flid = $request->flid;
+        $field = FieldController::getField($flid,$fid);
         $record = RecordController::getRecord($pid.'-'.$fid.'-'.$rid);
-        $typedField = $field->getTypedFieldFromRID($rid);
+        $value = $record->{$flid};
+        $typedField = $form->getFieldModel($field['type']);
 
-        return view('fields.singleGeolocator', compact('field', 'record', 'typedField'));
+        return view('fields.singleGeolocator', compact('field', 'record','value','flid','typedField'));
     }
 
     /**

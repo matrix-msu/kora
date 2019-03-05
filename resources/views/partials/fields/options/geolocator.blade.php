@@ -37,10 +37,13 @@
                                 <a class="geolocator-delete geolocator-delete-js tooltip" tooltip="Delete Location" href=""><i class="icon icon-trash"></i></a>
                             </div>
                         </div>
-                        <div class="content"><p class="location"><span class="bold">LatLon:</span> {{$latlon}}</p></div>
+                        @if($field['options']['DataView'] == 'LatLon')
+                            <div class="content"><p class="location"><span class="bold">LatLon:</span> {{$latlon}}</p></div>
+                        @elseif($field['options']['DataView'] == 'Address')
+                            <div class="content"><p class="location"><span class="bold">Address:</span> {{$address}}</p></div>
+                        @endif
                     </div>
                 @endforeach
-
             </div>
 
             <section class="new-object-button">

@@ -308,6 +308,7 @@ Kora.Records.Create = function() {
     function intializeGeolocatorOptions() {
         Kora.Modal.initialize();
         var flid = '';
+        var geoListDisplay = '';
 
         var $geoCardContainers = $('.geolocator-card-container-js');
         var $geoCards = $geoCardContainers.find('.geolocator-card-js');
@@ -326,6 +327,7 @@ Kora.Records.Create = function() {
             e.preventDefault();
 
             flid = $(this).attr('flid');
+            geoListDisplay = $(this).attr('display-type');
 
             Kora.Modal.open($('.geolocator-add-location-modal-js'));
         });
@@ -335,10 +337,6 @@ Kora.Records.Create = function() {
             if(newType=='LatLon') {
                 $('.lat-lon-switch-js').removeClass('hidden');
                 $('.utm-switch-js').addClass('hidden');
-                $('.address-switch-js').addClass('hidden');
-            } else if(newType=='UTM') {
-                $('.lat-lon-switch-js').addClass('hidden');
-                $('.utm-switch-js').removeClass('hidden');
                 $('.address-switch-js').addClass('hidden');
             } else if(newType=='Address') {
                 $('.lat-lon-switch-js').addClass('hidden');
@@ -353,84 +351,48 @@ Kora.Records.Create = function() {
             $('.error-message').text('');
             $('.text-input, .text-area, .cke, .chosen-container').removeClass('error');
 
-            //check to see if description provided
-            var desc = $('.location-desc-js').val();
-            if(desc=='') {
-                $geoError = $('.location-desc-js');
-                $geoError.addClass('error');
-                $geoError.siblings('.error-message').text('Location description required');
-            } else {
-                var type = $('.location-type-js').val();
+            var type = $('.location-type-js').val();
 
-                //determine if info is good for that type
-                var valid = true;
-                if(type == 'LatLon') {
-                    var lat = $('.location-lat-js').val();
-                    var lon = $('.location-lon-js').val();
+            //determine if info is good for that type
+            var valid = true;
+            if(type == 'LatLon') {
+                var lat = $('.location-lat-js').val();
+                var lon = $('.location-lon-js').val();
 
-                    if(lat == '') {
-                        $geoError = $('.location-lat-js');
-                        $geoError.addClass('error');
-                        $geoError.siblings('.error-message').text('Latitude value required');
-                        valid = false;
-                    }
-
-                    if(lon == '') {
-                        $geoError = $('.location-lon-js');
-                        $geoError.addClass('error');
-                        $geoError.siblings('.error-message').text('Longitude value required');
-                        valid = false;
-                    }
-                } else if(type == 'UTM') {
-                    var zone = $('.location-zone-js').val();
-                    var east = $('.location-east-js').val();
-                    var north = $('.location-north-js').val();
-
-                    if(zone == '') {
-                        $geoError = $('.location-zone-js');
-                        $geoError.addClass('error');
-                        $geoError.siblings('.error-message').text('UTM Zone is required');
-                        valid = false;
-                    }
-
-                    if(east == '') {
-                        $geoError = $('.location-east-js');
-                        $geoError.addClass('error');
-                        $geoError.siblings('.error-message').text('UTM Easting required');
-                        valid = false;
-                    }
-
-                    if(north == '') {
-                        $geoError = $('.location-north-js');
-                        $geoError.addClass('error');
-                        $geoError.siblings('.error-message').text('UTM Northing required');
-                        valid = false;
-                    }
-                } else if(type == 'Address') {
-                    var addr = $('.location-addr-js').val();
-
-                    if(addr == '') {
-                        $geoError = $('.location-addr-js');
-                        $geoError.addClass('error');
-                        $geoError.siblings('.error-message').text('Location address required');
-                        valid = false;
-                    }
+                if(lat == '') {
+                    $geoError = $('.location-lat-js');
+                    $geoError.addClass('error');
+                    $geoError.siblings('.error-message').text('Latitude value required');
+                    valid = false;
                 }
 
-                //if still valid
-                if(valid) {
-                    //find info for other loc types
-                    if(type == 'LatLon')
-                        coordinateConvert({"_token": csrfToken,type:'latlon',lat:lat,lon:lon});
-                    else if(type == 'UTM')
-                        coordinateConvert({"_token": csrfToken,type:'utm',zone:zone,east:east,north:north});
-                    else if(type == 'Address')
-                        coordinateConvert({"_token": csrfToken,type:'geo',addr:addr});
-
-                    $('.location-lat-js').val(''); $('.location-lon-js').val('');
-                    $('.location-zone-js').val(''); $('.location-east-js').val(''); $('.location-north-js').val('');
-                    $('.location-addr-js').val('');
+                if(lon == '') {
+                    $geoError = $('.location-lon-js');
+                    $geoError.addClass('error');
+                    $geoError.siblings('.error-message').text('Longitude value required');
+                    valid = false;
                 }
+            } else if(type == 'Address') {
+                var addr = $('.location-addr-js').val();
+
+                if(addr == '') {
+                    $geoError = $('.location-addr-js');
+                    $geoError.addClass('error');
+                    $geoError.siblings('.error-message').text('Location address required');
+                    valid = false;
+                }
+            }
+
+            //if still valid
+            if(valid) {
+                //find info for other loc types
+                if(type == 'LatLon')
+                    coordinateConvert({"_token": csrfToken,type:'latlon',lat:lat,lon:lon});
+                else if(type == 'Address')
+                    coordinateConvert({"_token": csrfToken,type:'geo',addr:addr});
+
+                $('.location-lat-js').val(''); $('.location-lon-js').val('');
+                $('.location-addr-js').val('');
             }
         });
 
@@ -442,14 +404,15 @@ Kora.Records.Create = function() {
                 success:function(result) {
                     // Get Values
                     var desc = $('.location-desc-js').val();
-                    var fullresult = '[Desc]'+desc+'[Desc]'+result;
-                    var latlon = result.split('[LatLon]')[1].split(',').join(', ');
-                    var utm = result.split('[UTM]')[1];
-                    var addr = result.split('[Address]')[1];
+                    result['description'] = desc;
+                    var latlon = result['geometry']['location']['lat']+', '+result['geometry']['location']['lng'];
+                    var addr = result['formatted_address'];
+
+                    finalResult = JSON.stringify(result).replace(/"/g, '&quot;');
 
                     // Create and display new geolocation card
                     var newCardHtml = '<div class="card geolocator-card geolocator-card-js">' +
-                        '<input type="hidden" class="list-option-js" name="'+flid+'[]" value="' + fullresult + '">' +
+                        '<input type="hidden" class="list-option-js" name="'+flid+'[]" value="' + finalResult + '">' +
                         '<div class="header">' +
                         '<div class="left">' +
                         '<div class="move-actions">' +
@@ -464,10 +427,13 @@ Kora.Records.Create = function() {
                         '</div>' +
                         '<div class="card-toggle-wrap">' +
                         '<a class="geolocator-delete geolocator-delete-js tooltip" tooltip="Delete Location" href=""><i class="icon icon-trash"></i></a>' +
-                        '</div>' +
-                        '</div>' +
-                        '<div class="content"><p class="location"><span class="bold">LatLon:</span> '+ latlon +'</p></div>' +
-                        '</div>';
+                        '</div></div>' +
+                        '<div class="content">';
+
+                    if(geoListDisplay=='LatLon')
+                        newCardHtml += '<p class="location"><span class="bold">Lat Long:</span> '+ latlon +'</p>' + '</div></div>';
+                    else if(geoListDisplay=='Address')
+                        newCardHtml += '<p class="location"><span class="bold">Address:</span> '+ addr +'</p>' + '</div></div>';
 
                     var $geoCardContainer = $('.geolocator-'+flid+'-js').find('.geolocator-card-container-js');
                     $geoCardContainer.append(newCardHtml);

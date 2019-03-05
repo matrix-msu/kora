@@ -1,6 +1,5 @@
 <?php namespace App\KoraFields;
 
-use App\FieldHelpers\gPoint;
 use App\Form;
 use App\Record;
 use Illuminate\Http\Request;
@@ -21,7 +20,7 @@ class GeolocatorField extends BaseField {
      */
     const FIELD_OPTIONS_VIEW = "partials.fields.options.geolocator";
     const FIELD_ADV_OPTIONS_VIEW = "partials.fields.advanced.geolocator";
-    const FIELD_ADV_INPUT_VIEW = "partials.records.advanced.geolocator";
+    const FIELD_ADV_INPUT_VIEW = "partials.records.advanced.geolocator"; //TODO::CASTLE
     const FIELD_INPUT_VIEW = "partials.records.input.geolocator";
     const FIELD_DISPLAY_VIEW = "partials.records.display.geolocator";
 
@@ -145,10 +144,10 @@ class GeolocatorField extends BaseField {
      *
      * @return mixed - Processed data
      */
-    public function processRecordData($field, $value, $request) { //TODO::CASTLE
+    public function processRecordData($field, $value, $request) {
         if(empty($value))
             $value = null;
-        return json_encode($value);
+        return '['.implode(',',$value).']';
     }
 
     /**
