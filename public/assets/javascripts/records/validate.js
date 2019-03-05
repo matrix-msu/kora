@@ -80,7 +80,8 @@ Kora.Records.Validate = function() {
                     // }
                 // }
             // });
-
+			display_loader();
+			
             $.ajax({
                 url: validationUrl,
                 method: 'POST',
@@ -113,6 +114,7 @@ Kora.Records.Validate = function() {
                     }
                 },
                 error: function(err) {
+					hide_loader();
                     console.log(err);
                 }
             });
