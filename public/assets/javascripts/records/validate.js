@@ -90,7 +90,7 @@ Kora.Records.Validate = function() {
                     $('.error-message').text('');
                     $('.text-input, .text-area, .cke, .chosen-container').removeClass('error');
 
-                    console.warn (err)
+                    console.warn(err);
 
                     if(err.errors.length==0) {
                         $('.record-form').submit();
