@@ -1,33 +1,30 @@
 <?php
-    if($editRecord && $hasData) {
-        $selected = App\GeolocatorField::locationsToOldFormat($typedField->locations()->get());
-        $listOpts = $selected;
-    } else if($editRecord) {
-        $selected = null;
-        $listOpts = array();
+    if($editRecord && !is_null($record->{$flid})) {
+        $locations = json_decode($record->{$flid},true);
     } else {
-        $selected = explode('[!]',$field->default);
-        $listOpts = \App\GeolocatorField::getLocationList($field);
+        $locations = $field['default'];
     }
+
+    $dataView = $field['options']['DataView'];
 ?>
 
-<div class="form-group geolocator-form-group geolocator-form-group-js geolocator-{{$field->flid}}-js mt-xxxl">
-    <label>@if($field->required==1)<span class="oval-icon"></span> @endif{{$field->name}}</label>
+<div class="form-group geolocator-form-group geolocator-form-group-js geolocator-{{$flid}}-js mt-xxxl">
+    <label>@if($field['required'])<span class="oval-icon"></span> @endif{{$field['name']}}</label>
     <span class="error-message"></span>
     
     <div class="form-input-container">
         <p class="directions">Add Default Locations below, and order them via drag & drop or their arrow icons.</p>
 
         <div class="geolocator-card-container geolocator-card-container-js mb-xxl">
-            @foreach($listOpts as $opt)
-                <?php
-                $desc = (array_key_exists(1, explode('[Desc]',$opt)) ? explode('[Desc]',$opt)[1] : '');
-                $latlon = (array_key_exists(1, explode('[LatLon]',$opt)) ? implode(', ', explode(',', explode('[LatLon]',$opt)[1])) : '');
-                $utm = (array_key_exists(1, explode('[UTM]',$opt)) ? explode('[UTM]',$opt)[1] : '');
-                $address = (array_key_exists(1, explode('[Address]',$opt)) ? explode('[Address]',$opt)[1] : '');
-                ?>
+            @foreach($locations as $loc)
+                @php
+                    $desc = $loc['description'];
+                    $latlon = $loc['geometry']['location']['lat'].', '.$loc['geometry']['location']['lng'];
+                    $address = $loc['formatted_address'];
+                    $finalResult = json_encode($loc);
+                @endphp
                 <div class="card geolocator-card geolocator-card-js">
-                    <input type="hidden" class="list-option-js" name="{{$field->flid}}[]" value="{{$opt}}'">
+                    <input type="hidden" class="list-option-js" name="{{$flid}}[]" value="{{$finalResult}}">
                     <div class="header">
                         <div class="left">
                             <div class="move-actions">
@@ -44,13 +41,17 @@
                             <a class="geolocator-delete geolocator-delete-js tooltip" tooltip="Delete Location" href=""><i class="icon icon-trash"></i></a>
                         </div>
                     </div>
-                    <div class="content"><p class="location"><span class="bold">LatLon:</span> {{$latlon}}</p></div>
+                    @if($dataView == 'LatLon')
+                        <div class="content"><p class="location"><span class="bold">LatLon:</span> {{$latlon}}</p></div>
+                    @elseif($dataView == 'Address')
+                        <div class="content"><p class="location"><span class="bold">Address:</span> {{$address}}</p></div>
+                    @endif
                 </div>
             @endforeach
         </div>
 
         <section class="new-object-button">
-            <input class="add-new-default-location-js" type="button" value="Create New Location" flid="{{$field->flid}}">
+            <input class="add-new-default-location-js" type="button" value="Create New Location" flid="{{$flid}}" display-type="{{$dataView}}">
         </section>
     </div>
 </div>

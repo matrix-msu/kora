@@ -29,10 +29,6 @@ Kora.OptionPresets.Create = function() {
                     openOptionPreset(['hide','show','hide','hide']);
                     enableOptionInput(['disabled',null,'disabled','disabled']);
                     break;
-                case 'Schedule':
-                    openOptionPreset(['hide','hide','show','hide']);
-                    enableOptionInput(['disabled','disabled',null,'disabled']);
-                    break;
                 case 'Geolocator':
                     openOptionPreset(['hide','hide','hide','show']);
                     enableOptionInput(['disabled','disabled','disabled',null]);
@@ -54,11 +50,6 @@ Kora.OptionPresets.Create = function() {
                 mode: order[1],
                 duration: 240
             });
-            $('.open-schedule-js').effect('slide', {
-                direction: 'up',
-                mode: order[2],
-                duration: 240
-            });
             $('.open-geolocator-js').effect('slide', {
                 direction: 'up',
                 mode: order[3],
@@ -74,99 +65,10 @@ Kora.OptionPresets.Create = function() {
                 $(this).attr('disabled',order[1]);
             });
 
-            var scheduleInput = $('.open-schedule-js').find('.schedule-event-js').first();
-            scheduleInput.attr('disabled',order[2]);
-            scheduleInput.trigger("chosen:updated");
-
             var geoInput = $('.open-geolocator-js').find('.geolocator-location-js').first();
             geoInput.attr('disabled',order[3]);
             geoInput.trigger("chosen:updated");
         }
-    }
-
-    function initializeSpecialInputs() {
-        jQuery('.event-start-time-js').datetimepicker({
-            format:'m/d/Y g:i A', inline:true, lang:'en', step: 15,
-            minDate:'1900/01/31',
-            maxDate:'2020/12/31'
-        });
-
-        jQuery('.event-end-time-js').datetimepicker({
-            format:'m/d/Y g:i A', inline:true, lang:'en', step: 15,
-            minDate:'1900/01/31',
-            maxDate:'2020/12/31'
-        });
-    }
-
-    function initializeScheduleOptions() {
-        Kora.Modal.initialize();
-
-        $('.add-new-default-event-js').click(function(e) {
-            e.preventDefault();
-
-            Kora.Modal.open($('.schedule-add-event-modal-js'));
-        });
-
-        $('.add-new-event-js').on('click', function(e) {
-            e.preventDefault();
-
-            $('.error-message').text('');
-            $('.text-input, .text-area, .cke, .chosen-container').removeClass('error');
-
-            var nameInput = $('.event-name-js');
-            var sTimeInput = $('.event-start-time-js');
-            var eTimeInput = $('.event-end-time-js');
-
-            var name = nameInput.val().trim();
-            var sTime = sTimeInput.val().trim();
-            var eTime = eTimeInput.val().trim();
-
-            if(name==''|sTime==''|eTime=='') {
-                if(name=='') {
-                    schError = $('.event-name-js');
-                    schError.addClass('error');
-                    schError.siblings('.error-message').text('Event name is required');
-                }
-
-                if(sTime=='') {
-                    schError = $('.event-start-time-js');
-                    schError.addClass('error');
-                    schError.siblings('.error-message').text('Start time is required');
-                }
-
-                if(eTime=='') {
-                    schError = $('.event-end-time-js');
-                    schError.addClass('error');
-                    schError.siblings('.error-message').text('End time is required');
-                }
-            } else {
-                if($('.event-allday-js').is(":checked")) {
-                    sTime = sTime.split(" ")[0];
-                    eTime = eTime.split(" ")[0];
-                }
-
-                if(sTime>eTime) {
-                    schError = $('.event-start-time-js');
-                    schError.addClass('error');
-                    schError.siblings('.error-message').text('Start time can not occur before the end time');
-                } else {
-                    val = name + ': ' + sTime + ' - ' + eTime;
-
-                    if(val != '') {
-                        //Value is good so let's add it
-                        var option = $("<option>").val(val).text(val);
-                        var select = $('.'+flid+'-event-js');
-
-                        select.append(option);
-                        select.find(option).prop('selected', true);
-                        select.trigger("chosen:updated");
-
-                        nameInput.val('');
-                        Kora.Modal.close($('.schedule-add-event-modal-js'));
-                    }
-                }
-            }
-        });
     }
 
     function intializeGeolocatorOptions() {
@@ -544,8 +446,6 @@ Kora.OptionPresets.Create = function() {
     }
 
     initializeOptionPresetSwitcher();
-    initializeSpecialInputs();
-    initializeScheduleOptions();
     intializeGeolocatorOptions();
     initializeList();
     initializeDeletePresetModal();

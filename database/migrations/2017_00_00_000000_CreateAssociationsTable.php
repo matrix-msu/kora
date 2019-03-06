@@ -26,6 +26,7 @@ class CreateAssociationsTable extends Migration {
         Schema::create('reverse_associator_cache', function(Blueprint $table)
         {
             $table->string('associated_kid');
+            $table->integer('associated_form_id')->unsigned();
             $table->string('source_kid');
             $table->string('source_flid',60);
             $table->integer('source_form_id')->unsigned();

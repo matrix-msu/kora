@@ -81,6 +81,12 @@ class Project extends Model {
             $user->removeCustomProject($this->id);
         }
 
+        //Cleans up record tables
+        $forms = $this->forms()->get();
+        foreach($forms as $form) {
+            $form->delete();
+        }
+
         parent::delete();
     }
 	

@@ -64,19 +64,6 @@ Kora.Fields.TypedFieldInputs.Initialize = function() {
         });
     }
 
-    function initalizeSchedule() {
-        $('.schedule-form-group-js').each(function() {
-            var $formGroup = $(this);
-            var $cards = $formGroup.find('.schedule-card-js');
-
-            sizeCardTitles($cards, 40);
-
-            $(window).resize(function() {
-                sizeCardTitles($cards, 40);
-            });
-        });
-    }
-
     function initializeVideo() {
         // Event listener for the full-screen button
         $('.video-field-display-js').each(function() {
@@ -152,7 +139,6 @@ Kora.Fields.TypedFieldInputs.Initialize = function() {
     initializeGeolocator();
     intializeAudio();
     initializeVideo();
-    initalizeSchedule();
     initalize3DModel();
     initializeList();
     initializeComboSubLists('one');

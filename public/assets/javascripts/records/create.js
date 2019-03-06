@@ -99,18 +99,6 @@ Kora.Records.Create = function() {
 
             CKEDITOR.replace(textid);
         });
-
-        jQuery('.event-start-time-js').datetimepicker({
-            format:'m/d/Y g:i A', inline:true, lang:'en', step: 15,
-            minDate:'1900/01/31',
-            maxDate:'2020/12/31'
-        });
-
-        jQuery('.event-end-time-js').datetimepicker({
-            format:'m/d/Y g:i A', inline:true, lang:'en', step: 15,
-            minDate:'1900/01/31',
-            maxDate:'2020/12/31'
-        });
     }
 
     function intializeAssociatorOptions() {
@@ -317,137 +305,10 @@ Kora.Records.Create = function() {
         }
     }
 
-    function initializeScheduleOptions() {
-        Kora.Modal.initialize();
-
-        var flid = '';
-        var start_year = 1900;
-        var end_year = 2020;
-
-        var $scheduleCardContainers = $('.schedule-card-container-js');
-        var $scheduleCards = $scheduleCardContainers.find('.schedule-card-js');
-        var $newEventButtons = $('.add-new-default-event-js');
-
-        // Action arrows on the cards
-        initializeMoveAction($scheduleCards);
-
-        // Drag cards to sort
-        $scheduleCardContainers.sortable();
-
-        // Delete card
-        initializeDelete();
-
-        $newEventButtons.click(function(e) {
-            e.preventDefault();
-
-            flid = $(this).attr('flid');
-            start_year = $(this).attr('start');
-            end_year = $(this).attr('end');
-
-            Kora.Modal.open($('.schedule-add-event-modal-js'));
-        });
-
-        $('.add-new-event-js').on('click', function(e) {
-            e.preventDefault();
-
-            $('.error-message').text('');
-            $('.text-input, .text-area, .cke, .chosen-container').removeClass('error');
-
-            var nameInput = $('.event-name-js');
-            var sTimeInput = $('.event-start-time-js');
-            var eTimeInput = $('.event-end-time-js');
-
-            var name = nameInput.val().trim();
-            var sTime = sTimeInput.val().trim();
-            var eTime = eTimeInput.val().trim();
-
-            if(name==''|sTime==''|eTime=='') {
-                if(name=='') {
-                    schError = $('.event-name-js');
-                    schError.addClass('error');
-                    schError.siblings('.error-message').text('Event name is required');
-                }
-
-                if(sTime=='') {
-                    schError = $('.event-start-time-js');
-                    schError.addClass('error');
-                    schError.siblings('.error-message').text('Start time is required');
-                }
-
-                if(eTime=='') {
-                    schError = $('.event-end-time-js');
-                    schError.addClass('error');
-                    schError.siblings('.error-message').text('End time is required');
-                }
-            } else {
-                if($('.event-allday-js').is(":checked")) {
-                    sTime = sTime.split(" ")[0];
-                    eTime = eTime.split(" ")[0];
-                }
-
-                if(sTime>eTime) {
-                    schError = $('.event-start-time-js');
-                    schError.addClass('error');
-                    schError.siblings('.error-message').text('Start time can not occur before the end time');
-                } else {
-                    val = name + ': ' + sTime + ' - ' + eTime;
-
-                    if(val != '') {
-                        // Value is valid
-                        // Create and display new schedule card
-                        var newCardHtml = '<div class="card schedule-card schedule-card-js">' +
-                            '<input type="hidden" class="list-option-js" name="'+flid+'[]" value="' + val + '">' +
-                            '<div class="header">' +
-                            '<div class="left">' +
-                            '<div class="move-actions">' +
-                            '<a class="action move-action-js up-js" href="">' +
-                            '<i class="icon icon-arrow-up"></i>' +
-                            '</a>' +
-                            '<a class="action move-action-js down-js" href="">' +
-                            '<i class="icon icon-arrow-down"></i>' +
-                            '</a>' +
-                            '</div>' +
-                            '<span class="title">' + name + '</span>' +
-                            '</div>' +
-                            '<div class="card-toggle-wrap">' +
-                            '<a class="schedule-delete schedule-delete-js tooltip" tooltip="Delete Event" href=""><i class="icon icon-trash"></i></a>' +
-                            '</div>' +
-                            '</div>' +
-                            '<div class="content"><p class="event-time">'+ sTime + ' - ' + eTime + '</p></div>' +
-                            '</div>';
-
-                        var $scheduleCardContainer = $('.schedule-'+flid+'-js').find('.schedule-card-container-js');
-                        $scheduleCardContainer.append(newCardHtml);
-
-                        initializeMoveAction($scheduleCardContainer.find('.schedule-card-js'));
-                        initializeDelete();
-                        Kora.Fields.TypedFieldInputs.Initialize();
-
-                        nameInput.val('');
-                        Kora.Modal.close($('.schedule-add-event-modal-js'));
-                    }
-                }
-            }
-        });
-
-        function initializeDelete() {
-            $scheduleCardContainers.find('.schedule-card-js').each(function() {
-                var $card = $(this);
-                var $deleteButton = $card.find('.schedule-delete-js');
-
-                $deleteButton.unbind();
-                $deleteButton.click(function(e) {
-                    e.preventDefault();
-
-                    $card.remove();
-                })
-            });
-        }
-    }
-
     function intializeGeolocatorOptions() {
         Kora.Modal.initialize();
         var flid = '';
+        var geoListDisplay = '';
 
         var $geoCardContainers = $('.geolocator-card-container-js');
         var $geoCards = $geoCardContainers.find('.geolocator-card-js');
@@ -466,6 +327,7 @@ Kora.Records.Create = function() {
             e.preventDefault();
 
             flid = $(this).attr('flid');
+            geoListDisplay = $(this).attr('display-type');
 
             Kora.Modal.open($('.geolocator-add-location-modal-js'));
         });
@@ -475,10 +337,6 @@ Kora.Records.Create = function() {
             if(newType=='LatLon') {
                 $('.lat-lon-switch-js').removeClass('hidden');
                 $('.utm-switch-js').addClass('hidden');
-                $('.address-switch-js').addClass('hidden');
-            } else if(newType=='UTM') {
-                $('.lat-lon-switch-js').addClass('hidden');
-                $('.utm-switch-js').removeClass('hidden');
                 $('.address-switch-js').addClass('hidden');
             } else if(newType=='Address') {
                 $('.lat-lon-switch-js').addClass('hidden');
@@ -493,84 +351,48 @@ Kora.Records.Create = function() {
             $('.error-message').text('');
             $('.text-input, .text-area, .cke, .chosen-container').removeClass('error');
 
-            //check to see if description provided
-            var desc = $('.location-desc-js').val();
-            if(desc=='') {
-                $geoError = $('.location-desc-js');
-                $geoError.addClass('error');
-                $geoError.siblings('.error-message').text('Location description required');
-            } else {
-                var type = $('.location-type-js').val();
+            var type = $('.location-type-js').val();
 
-                //determine if info is good for that type
-                var valid = true;
-                if(type == 'LatLon') {
-                    var lat = $('.location-lat-js').val();
-                    var lon = $('.location-lon-js').val();
+            //determine if info is good for that type
+            var valid = true;
+            if(type == 'LatLon') {
+                var lat = $('.location-lat-js').val();
+                var lon = $('.location-lon-js').val();
 
-                    if(lat == '') {
-                        $geoError = $('.location-lat-js');
-                        $geoError.addClass('error');
-                        $geoError.siblings('.error-message').text('Latitude value required');
-                        valid = false;
-                    }
-
-                    if(lon == '') {
-                        $geoError = $('.location-lon-js');
-                        $geoError.addClass('error');
-                        $geoError.siblings('.error-message').text('Longitude value required');
-                        valid = false;
-                    }
-                } else if(type == 'UTM') {
-                    var zone = $('.location-zone-js').val();
-                    var east = $('.location-east-js').val();
-                    var north = $('.location-north-js').val();
-
-                    if(zone == '') {
-                        $geoError = $('.location-zone-js');
-                        $geoError.addClass('error');
-                        $geoError.siblings('.error-message').text('UTM Zone is required');
-                        valid = false;
-                    }
-
-                    if(east == '') {
-                        $geoError = $('.location-east-js');
-                        $geoError.addClass('error');
-                        $geoError.siblings('.error-message').text('UTM Easting required');
-                        valid = false;
-                    }
-
-                    if(north == '') {
-                        $geoError = $('.location-north-js');
-                        $geoError.addClass('error');
-                        $geoError.siblings('.error-message').text('UTM Northing required');
-                        valid = false;
-                    }
-                } else if(type == 'Address') {
-                    var addr = $('.location-addr-js').val();
-
-                    if(addr == '') {
-                        $geoError = $('.location-addr-js');
-                        $geoError.addClass('error');
-                        $geoError.siblings('.error-message').text('Location address required');
-                        valid = false;
-                    }
+                if(lat == '') {
+                    $geoError = $('.location-lat-js');
+                    $geoError.addClass('error');
+                    $geoError.siblings('.error-message').text('Latitude value required');
+                    valid = false;
                 }
 
-                //if still valid
-                if(valid) {
-                    //find info for other loc types
-                    if(type == 'LatLon')
-                        coordinateConvert({"_token": csrfToken,type:'latlon',lat:lat,lon:lon});
-                    else if(type == 'UTM')
-                        coordinateConvert({"_token": csrfToken,type:'utm',zone:zone,east:east,north:north});
-                    else if(type == 'Address')
-                        coordinateConvert({"_token": csrfToken,type:'geo',addr:addr});
-
-                    $('.location-lat-js').val(''); $('.location-lon-js').val('');
-                    $('.location-zone-js').val(''); $('.location-east-js').val(''); $('.location-north-js').val('');
-                    $('.location-addr-js').val('');
+                if(lon == '') {
+                    $geoError = $('.location-lon-js');
+                    $geoError.addClass('error');
+                    $geoError.siblings('.error-message').text('Longitude value required');
+                    valid = false;
                 }
+            } else if(type == 'Address') {
+                var addr = $('.location-addr-js').val();
+
+                if(addr == '') {
+                    $geoError = $('.location-addr-js');
+                    $geoError.addClass('error');
+                    $geoError.siblings('.error-message').text('Location address required');
+                    valid = false;
+                }
+            }
+
+            //if still valid
+            if(valid) {
+                //find info for other loc types
+                if(type == 'LatLon')
+                    coordinateConvert({"_token": csrfToken,type:'latlon',lat:lat,lon:lon});
+                else if(type == 'Address')
+                    coordinateConvert({"_token": csrfToken,type:'geo',addr:addr});
+
+                $('.location-lat-js').val(''); $('.location-lon-js').val('');
+                $('.location-addr-js').val('');
             }
         });
 
@@ -582,14 +404,15 @@ Kora.Records.Create = function() {
                 success:function(result) {
                     // Get Values
                     var desc = $('.location-desc-js').val();
-                    var fullresult = '[Desc]'+desc+'[Desc]'+result;
-                    var latlon = result.split('[LatLon]')[1].split(',').join(', ');
-                    var utm = result.split('[UTM]')[1];
-                    var addr = result.split('[Address]')[1];
+                    result['description'] = desc;
+                    var latlon = result['geometry']['location']['lat']+', '+result['geometry']['location']['lng'];
+                    var addr = result['formatted_address'];
+
+                    finalResult = JSON.stringify(result).replace(/"/g, '&quot;');
 
                     // Create and display new geolocation card
                     var newCardHtml = '<div class="card geolocator-card geolocator-card-js">' +
-                        '<input type="hidden" class="list-option-js" name="'+flid+'[]" value="' + fullresult + '">' +
+                        '<input type="hidden" class="list-option-js" name="'+flid+'[]" value="' + finalResult + '">' +
                         '<div class="header">' +
                         '<div class="left">' +
                         '<div class="move-actions">' +
@@ -604,10 +427,13 @@ Kora.Records.Create = function() {
                         '</div>' +
                         '<div class="card-toggle-wrap">' +
                         '<a class="geolocator-delete geolocator-delete-js tooltip" tooltip="Delete Location" href=""><i class="icon icon-trash"></i></a>' +
-                        '</div>' +
-                        '</div>' +
-                        '<div class="content"><p class="location"><span class="bold">LatLon:</span> '+ latlon +'</p></div>' +
-                        '</div>';
+                        '</div></div>' +
+                        '<div class="content">';
+
+                    if(geoListDisplay=='LatLon')
+                        newCardHtml += '<p class="location"><span class="bold">Lat Long:</span> '+ latlon +'</p>' + '</div></div>';
+                    else if(geoListDisplay=='Address')
+                        newCardHtml += '<p class="location"><span class="bold">Address:</span> '+ addr +'</p>' + '</div></div>';
 
                     var $geoCardContainer = $('.geolocator-'+flid+'-js').find('.geolocator-card-container-js');
                     $geoCardContainer.append(newCardHtml);
@@ -1264,7 +1090,6 @@ Kora.Records.Create = function() {
     intializeAssociatorOptions();
     initializeComboListOptions();
     initializeDateOptions();
-    initializeScheduleOptions();
     intializeGeolocatorOptions();
     intializeFileUploaderOptions();
     initializePageNavigation();

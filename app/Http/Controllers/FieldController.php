@@ -146,9 +146,7 @@ class FieldController extends Controller {
             $options = $field['options']['SearchForms'];
 
             foreach ($options as $opt) {
-                $optFlids = explode('-', $opt['flids']);
-
-                $assocLayout[$opt['form_id']] = ['search' => $opt['search'], 'flids' => $optFlids];
+                $assocLayout[$opt['form_id']] = ['flids' => $opt['flids']];
             }
         }
 

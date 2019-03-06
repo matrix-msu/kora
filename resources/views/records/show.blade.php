@@ -13,7 +13,6 @@
 @stop
 
 @section('stylesheets')
-    <link rel="stylesheet" type="text/css" href="{{ url('assets/css/vendor/fullcalendar/fullcalendar.css') }}"/>
     <link rel="stylesheet" type="text/css" href="{{ url('assets/css/vendor/leaflet/leaflet.css') }}"/>
     <link rel="stylesheet" type="text/css" href="{{ url('assets/css/vendor/slick/slick.css') }}"/>
     <link rel="stylesheet" type="text/css" href="{{ url('assets/css/vendor/slick/slick-theme.css') }}"/>
@@ -93,17 +92,17 @@
         <section class="meta-data">
             {{$record->updated_at}}
         </section>
-        {{--TODO::CASTLE--}}
-        {{--@if(sizeof($record->getAssociatedRecords())>0)--}}
-            {{--<div class="meta-title mt-m">Associated Records</div>--}}
-            {{--<section class="meta-data">--}}
-                {{--@foreach($record->getAssociatedRecords() as $aRecord)--}}
-                    {{--<div><a class="meta-link underline-middle-hover"--}}
-                            {{--href='{{url('projects/'.$aRecord->pid.'/forms/'.$aRecord->fid.'/records/'.$aRecord->rid)}}'>{{$aRecord->kid}}--}}
-                        {{--</a> | {{$aRecord->getReversePreview()}}</div>--}}
-                {{--@endforeach--}}
-            {{--</section>--}}
-        {{--@endif--}}
+
+        @if(sizeof($record->getAssociatedRecords())>0)
+            <div class="meta-title mt-m">Associated Records</div>
+            <section class="meta-data">
+                @foreach($record->getAssociatedRecords() as $aRecord)
+                    <div><a class="meta-link underline-middle-hover"
+                            href='{{url('projects/'.$aRecord->project_id.'/forms/'.$aRecord->form_id.'/records/'.$aRecord->id)}}'>{{$aRecord->kid}}
+                        </a> | {{$aRecord->getReversePreview()}}</div>
+                @endforeach
+            </section>
+        @endif
     </section>
 @stop
 

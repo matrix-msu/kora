@@ -1,6 +1,7 @@
 <?php namespace App;
 
 use App\Http\Controllers\RecordController;
+use App\KoraFields\AssociatorField;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
@@ -66,7 +67,11 @@ class Record extends Model {
      * Deletes all data fields belonging to a record, then deletes self.
      */
     public function delete() {
-        //Delete reverse associations for everyone's sake //TODO::CASTLE
+        //Delete reverse associations for everyone's sake
+        DB::table(AssociatorField::Reverse_Cache_Table)
+            ->where('associated_kid','=',$this->kid)
+            ->orWhere('source_kid','=',$this->kid)
+            ->delete();
 
         parent::delete();
     }
@@ -98,15 +103,15 @@ class Record extends Model {
      *
      * @return array - Records that associate it
      */
-    public function getAssociatedRecords() { //TODO::CASTLE
-        $assoc = DB::table(AssociatorField::SUPPORT_NAME)
-            ->select("rid")
+    public function getAssociatedRecords() {
+        $assoc = DB::table(AssociatorField::Reverse_Cache_Table)
             ->distinct()
-            ->where('record','=',$this->rid)->get();
+            ->where('associated_kid','=',$this->kid)->get();
+
         $records = array();
         foreach($assoc as $af) {
-            $rid = $af->rid;
-            $rec = RecordController::getRecord($rid);
+            $kid = $af->source_kid;
+            $rec = RecordController::getRecord($kid);
             array_push($records,$rec);
         }
 
@@ -118,18 +123,23 @@ class Record extends Model {
      *
      * @return string - The preview value
      */
-    public function getReversePreview() { //TODO::CASTLE
+    public function getReversePreview() {
         $form = $this->form()->first();
+        $fields = $form->layout['fields'];
 
-        $firstPage = Page::where('fid','=',$form->fid)->where('sequence','=',0)->first();
-        $firstField = Field::where('page_id','=',$firstPage->id)->where('sequence','=',0)->first();
+        $preview = 'No Preview Field Available';
+        foreach($fields as $flid => $field) {
+            //Can this field be previewed?
+            if(!in_array($field['type'],Form::$validAssocFields))
+                continue;
+            //Is there data in this record?
+            if(is_null($this->{$flid}))
+                continue;
 
-        $value = AssociatorField::previewData($firstField->flid, $this->rid, $firstField->type);
+            $preview = $this->{$flid};
+        }
 
-        if(!is_null($value) && $value!='')
-            return $value;
-        else
-            return 'No Preview Field Available';
+        return $preview;
     }
 }
 

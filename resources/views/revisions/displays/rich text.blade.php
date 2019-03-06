@@ -1,1 +1,0 @@
-<span><b>{{$data['name']}}:</b> <?php echo $data['data'] ?></span><br/>

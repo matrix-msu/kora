@@ -1,7 +1,7 @@
 @extends('app', ['page_title' => 'Edit Field Value Presets', 'page_class' => 'option-preset-create'])
 
 @section('stylesheets')
-    <link rel="stylesheet" href="{{ url('assets/css/vendor/datetimepicker/jquery.datetimepicker.min.css') }}" />
+
 @stop
 
 @section('aside-content')

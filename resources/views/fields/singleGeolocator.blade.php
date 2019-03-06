@@ -1,22 +1,24 @@
 @extends('app-plain', ['page_title' => 'Geolocator', 'page_class' => 'field-single-geolocator'])
 
 @section('body')
-    @if(\App\Http\Controllers\FieldController::getFieldOption($field,'Map')=='No')
-        @foreach( App\GeolocatorField::locationsToOldFormat($typedField->locations()->get()) as $opt)
-            @if(\App\Http\Controllers\FieldController::getFieldOption($field,'DataView')=='LatLon')
-                <div>{{ explode('[Desc]',$opt)[1].': '.explode('[LatLon]',$opt)[1] }}</div>
-            @elseif(\App\Http\Controllers\FieldController::getFieldOption($field,'DataView')=='UTM')
-                <div>{{ explode('[Desc]',$opt)[1].': '.explode('[UTM]',$opt)[1] }}</div>
-            @elseif(\App\Http\Controllers\FieldController::getFieldOption($field,'DataView')=='Textual')
-                <div>{{ explode('[Desc]',$opt)[1].': '.explode('[Address]',$opt)[1] }}</div>
+    @if(!$field['options']['Map'])
+        @foreach($typedField->processDisplayData($field, $value) as $loc)
+            @php
+                $desc = ($loc['description'] != '') ? $loc['description'].': ' : '';
+            @endphp
+
+            @if($field['options']['DataView']=='LatLon')
+                <div>{{ $desc.$loc['geometry']['location']['lat'].', '.$loc['geometry']['location']['lng'] }}</div>
+            @elseif($field['options']['DataView']=='Address')
+                <div>{{ $desc.$loc['formatted_address'] }}</div>
             @endif
         @endforeach
     @else
-        <div id="map{{$field->flid}}_{{$record->rid}}" class="field-geolocator geolocator-map geolocator-map-js" map-id="{{$field->flid}}_{{$record->rid}}">
-            @foreach( App\GeolocatorField::locationsToOldFormat($typedField->locations()->get()) as $location)
-                <span class="geolocator-location-js hidden" loc-desc="{{explode('[Desc]',$location)[1]}}"
-                      loc-x="{{explode(',', explode('[LatLon]',$location)[1])[0]}}"
-                      loc-y="{{explode(',', explode('[LatLon]',$location)[1])[1]}}"></span>
+        <div id="map{{$flid}}_{{$record->kid}}" class="field-geolocator geolocator-map geolocator-map-js" map-id="{{$flid}}_{{$record->kid}}">
+            @foreach($typedField->processDisplayData($field, $value) as $loc)
+                <span class="geolocator-location-js hidden" loc-desc="{{$loc['description']}}"
+                      loc-x="{{$loc['geometry']['location']['lat']}}"
+                      loc-y="{{$loc['geometry']['location']['lng']}}"></span>
             @endforeach
         </div>
     @endif

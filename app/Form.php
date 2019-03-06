@@ -40,8 +40,7 @@ class Form extends Model {
     const _MULTI_SELECT_LIST = "Multi-Select List";
     const _GENERATED_LIST = "Generated List";
 //    const _DATE = "Date";
-//    const _SCHEDULE = "Schedule";
-//    const _GEOLOCATOR = "Geolocator";
+    const _GEOLOCATOR = "Geolocator";
     const _DOCUMENTS = "Documents";
     const _GALLERY = "Gallery";
     const _PLAYLIST = "Playlist";
@@ -76,10 +75,11 @@ class Form extends Model {
             self::_COMBO_LIST => self::_COMBO_LIST
         ),
         'Specialty Fields' => array(
+            self::_GEOLOCATOR => self::_GEOLOCATOR,
             self::_ASSOCIATOR => self::_ASSOCIATOR
         )
         // 'List Fields' => array(Combo List' => 'Combo List'),
-        //'Date Fields' => array('Date' => 'Date', 'Schedule' => 'Schedule'),
+        //'Date Fields' => array('Date' => 'Date'),
         //'Specialty Fields' => array('Geolocator' => 'Geolocator (latlon, utm, textual)','Associator' => 'Associator')
     ];
 
@@ -89,12 +89,13 @@ class Form extends Model {
     static public $validFilterFields = [ //TODO::NEWFIELD
         self::_TEXT,
         self::_LIST,
-        self::_MULTI_SELECT_LIST,
+        //self::_MULTI_SELECT_LIST, //TODO::CASTLE implement multi value filter types
         self::_INTEGER,
         self::_FLOAT,
-        self::_GENERATED_LIST,
+        //self::_GENERATED_LIST, //TODO::CASTLE implement multi value filter types
         //self::_DATE,
-        self::_ASSOCIATOR, //AND REVERSE ASSOCIATIONS
+        //self::_DATETIME,
+        self::_ASSOCIATOR, //TODO::CASTLE implement multi value filter types
     ];
 
     /**
@@ -125,6 +126,7 @@ class Form extends Model {
         self::_PLAYLIST => "PlaylistField",
         self::_VIDEO => "VideoField",
         self::_3D_MODEL => "ModelField",
+        self::_GEOLOCATOR => "GeolocatorField",
         self::_ASSOCIATOR => "AssociatorField",
     ];
 
@@ -138,7 +140,8 @@ class Form extends Model {
         self::_VIDEO,
         self::_3D_MODEL,
         self::_ASSOCIATOR,
-        self::_GENERATED_LIST
+        self::_GENERATED_LIST,
+        self::_GEOLOCATOR
     ];
 
     /**
@@ -321,6 +324,9 @@ class Form extends Model {
     public function getRecordsForExport($filters, $rids = null) {
         $results = [];
         $jsonFields = [];
+        $assocFields = [];
+        $assocForms = [];
+        $useAssoc = false;
 
         $con = mysqli_connect(
             config('database.connections.mysql.host'),
@@ -334,6 +340,67 @@ class Form extends Model {
         if(!mysqli_set_charset($con, "utf8")) {
             printf("Error loading character set utf8: %s\n", mysqli_error($con));
             exit();
+        }
+
+        //Some prep to make assoc searching faster
+        if($filters['assoc']) {
+            $useAssoc = true;
+            $assocSelect = "SELECT distinct(f.`id`), f.`layout` from ".$prefix."associations as a left join ".$prefix."forms as f on f.id=a.data_form where a.`assoc_form`=".$this->id;
+            $theForms = $con->query($assocSelect);
+            while($row = $theForms->fetch_assoc()) {
+                //prep fields like rest of function does
+                $aLayout = json_decode($row['layout'],true);
+                $aJsonFields = [];
+
+                //Get metadata
+                if($filters['meta'])
+                    $fields = ['kid','legacy_kid','project_id','form_id','owner','created_at','updated_at'];
+                else
+                    $fields = ['kid'];
+
+                //Adds the data fields
+                //Builds out order of fields based on page
+                $flids = array();
+                foreach($aLayout['pages'] as $page) {
+                    $flids = array_merge($flids, $page['flids']);
+                }
+
+                //Get the real names of fields
+                //Also check for json types
+                if($filters['realnames']) {
+                    $realNames = [];
+                    foreach($flids as $flid) {
+                        $name = $flid.' as `'.$aLayout['fields'][$flid]['name'].'`';
+                        //We do this in realnames because the flid gets us the type to check if its JSON, but it will be compared against the DB result which will have real names instead of flid
+                        if(in_array($aLayout['fields'][$flid]['type'], self::$jsonFields))
+                            $aJsonFields[$name] = 1;
+                        array_push($realNames,$name);
+                    }
+                    $flids = $realNames;
+                } else {
+                    foreach($flids as $flid) {
+                        if(in_array($aLayout['fields'][$flid]['type'], self::$jsonFields))
+                            $aJsonFields[$flid] = 1;
+                    }
+                }
+
+                //Determine whether to return data
+                $fields = array_merge($flids,$fields);
+                $fieldString = implode(',',$fields);
+
+                //Save it
+                $assocForms[$row['id']] = [
+                    'id' => $row['id'],
+                    'layout' => json_decode($row['layout'],true),
+                    'fieldString' => $fieldString,
+                    'jsonFields' => $aJsonFields
+                ];
+            }
+        }
+
+        //Prep to make reverse associations faster
+        if($filters['revAssoc']) {
+            $reverseAssociations = $this->getReverseAssociationsMapping($con,$prefix);
         }
 
         //Get metadata
@@ -360,7 +427,9 @@ class Form extends Model {
                 $name = $flid.' as `'.$this->layout['fields'][$flid]['name'].'`';
                 //We do this in realnames because the flid gets us the type to check if its JSON, but it will be compared against the DB result which will have real names instead of flid
                 if(in_array($this->layout['fields'][$flid]['type'], self::$jsonFields))
-                    $jsonFields[$name] = 1;
+                    $jsonFields[$this->layout['fields'][$flid]['name']] = 1;
+                if($this->layout['fields'][$flid]['type'] == self::_ASSOCIATOR)
+                    $assocFields[$this->layout['fields'][$flid]['name']] = 1;
                 array_push($realNames,$name);
             }
             $flids = $realNames;
@@ -368,6 +437,8 @@ class Form extends Model {
             foreach($flids as $flid) {
                 if(in_array($this->layout['fields'][$flid]['type'], self::$jsonFields))
                     $jsonFields[$flid] = 1;
+                if($this->layout['fields'][$flid]['type'] == self::_ASSOCIATOR)
+                    $assocFields[$flid] = 1;
             }
         }
 
@@ -409,11 +480,29 @@ class Form extends Model {
         while($row = $records->fetch_assoc()) {
             $result = [];
             foreach($row as $column => $data) {
-                if(array_key_exists($column,$jsonFields)) //array key search is faster than in array so that's why we use it here
+                if($useAssoc && array_key_exists($column,$assocFields)) {
+                    $aKids = json_decode($data,true);
+                    if($aKids !== NULL) {
+                        foreach($aKids as $aKid) {
+                            $parts = explode('-',$aKid);
+                            $aForm = $assocForms[$parts[1]];
+
+                            $result[$column][$aKid] = $this->getAssocRecord($parts[2], $aForm, $con, $prefix);
+                        }
+                    }
+                } else if(array_key_exists($column,$jsonFields)) //array key search is faster than in array so that's why we use it here
                     $result[$column] = json_decode($data,true);
                 else
                     $result[$column] = $data;
             }
+
+            if($filters['revAssoc']) {
+                if(array_key_exists($row['kid'],$reverseAssociations))
+                    $result['reverseAssociations'] = $reverseAssociations[$row['kid']];
+                else
+                    $result['reverseAssociations'] = [];
+            }
+
             $results[$row['kid']] = $result;
         }
         $records->free();
@@ -421,6 +510,37 @@ class Form extends Model {
         $con->close();
 
         return $results;
+    }
+
+    /**
+     * Gets the data out of the DB for a single record.
+     *
+     * @param  $kid - Record ID
+     * @param  $aForm - The form data
+     * @param  $con - DB connection
+     * @param  $prefix - DB table prefix
+     *
+     * @return array - The records
+     */
+    private function getAssocRecord($rid, $aForm, $con, $prefix) {
+        $result = [];
+        $jsonFields = $aForm['jsonFields'];
+        $fieldString = $aForm['fieldString'];
+
+        $selectRecords = "SELECT $fieldString FROM ".$prefix."records_".$aForm['id']." WHERE `id`=$rid";
+
+        $records = $con->query($selectRecords);
+        while($row = $records->fetch_assoc()) {
+            foreach($row as $column => $data) {
+                if(array_key_exists($column,$jsonFields)) //array key search is faster than in array so that's why we use it here
+                    $result[$column] = json_decode($data,true);
+                else
+                    $result[$column] = $data;
+            }
+        }
+        $records->free();
+
+        return $result;
     }
 
     /**
@@ -451,6 +571,9 @@ class Form extends Model {
         $fields = ['kid','legacy_kid','updated_at','owner'];
         $fieldToModel = [];
         $fieldToRealName = [];
+
+        //Prep to make reverse associations faster
+        $reverseAssociations = $this->getReverseAssociationsMapping($con,$prefix,'KORA_OLD');
 
         //Adds the data fields
         if(!is_array($filters['fields']) && $filters['fields'] == 'ALL') {
@@ -525,6 +648,13 @@ class Form extends Model {
                     $results[$kid][$fieldToRealName[$index]] = $fieldToModel[$index]->processLegacyData($value);
                 }
             }
+
+            if($filters['revAssoc']) {
+                if(array_key_exists($kid,$reverseAssociations))
+                    $results[$kid]['linkers'] = $reverseAssociations[$kid];
+                else
+                    $results[$kid]['linkers'] = [];
+            }
         }
         $records->free();
 
@@ -561,7 +691,10 @@ class Form extends Model {
         $fields = ['kid'];
         $fieldToModel = [];
 
-        //$filters['revAssoc']; //TODO::CASTLE Need assoc first
+        //Prep to make reverse associations faster
+        if($filters['revAssoc']) {
+            $reverseAssociations = $this->getReverseAssociationsMapping($con,$prefix,'XML');
+        }
 
         //Adds the data fields
         if(!is_array($filters['fields']) && $filters['fields'] == 'ALL') {
@@ -621,6 +754,14 @@ class Form extends Model {
                     $results .= $fieldToModel[$index]->processXMLData($index, $value);
             }
 
+            if($filters['revAssoc']) {
+                $results .= '<reverseAssociations>';
+                if(array_key_exists($row['kid'],$reverseAssociations)) {
+                    $results .= implode('',$reverseAssociations[$row['kid']]);
+                }
+                $results .= '</reverseAssociations>';
+            }
+
             $results .= '</Record>';
         }
         $records->free();
@@ -630,6 +771,38 @@ class Form extends Model {
         $results .= '</Records>';
 
         return $results;
+    }
+
+    /**
+     * Get mapping of records to their reverse associations
+     *
+     * @param  $con - DB connection
+     * @param  $prefix - DB table prefix
+     * @param  $includeField - Include the flid index?
+     * @return array - The mapped array
+     */
+    private function getReverseAssociationsMapping($con, $prefix, $type = 'JSON') {
+        $return = [];
+
+        $reverseSelect = "SELECT * FROM ".$prefix."reverse_associator_cache WHERE `associated_form_id`=".$this->id;
+        $results = $con->query($reverseSelect);
+        while($row = $results->fetch_assoc()) {
+            switch($type) {
+                case 'JSON':
+                    $return[$row['associated_kid']][$row['source_flid']][] = $row['source_kid'];
+                    break;
+                case 'KORA_OLD':
+                    $return[$row['associated_kid']][] = $row['source_kid'];
+                    break;
+                case 'XML':
+                    $return[$row['associated_kid']][] = "<Record flid='".$row['source_flid']."'>".$row['source_kid']."</Record>";
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        return $return;
     }
 
     /**
@@ -694,13 +867,7 @@ class Form extends Model {
                 $valids[] = $f;
         }
 
-        //TODO::CASTLE to implement, maybe?
-        //$listOccurrences = "select `option`, `flid`, `rid` from ".$prefix."list_fields where $wherePiece $flidSQL";
-        //$msListOccurrences = "select `options`, `flid`, `rid` from ".$prefix."multi_select_list_fields where $wherePiece $flidSQL";
-        //$genListOccurrences = "select `options`, `flid`, `rid` from ".$prefix."generated_list_fields where $wherePiece $flidSQL";
-        //$numberOccurrences = "select `number`, `flid`, `rid` from ".$prefix."number_fields where $wherePiece $flidSQL";
-        //$dateOccurrences = "select `month`, `day`, `year`, `flid`, `rid` from ".$prefix."date_fields where $wherePiece $flidSQL";
-        //$assocOccurrences = "select s.`flid`, r.`kid`, r.`rid` from ".$prefix."associator_support as s left join kora3_records as r on s.`record`=r.`rid` where s.$wherePiece and s.`flid` in ($flidString)";
+        //TODO::CASTLE implement reverse association counts
         //$rAssocOccurrences = "select s.`flid`, r.`kid`, r.`rid` from ".$prefix."associator_support as s left join kora3_records as r on s.`rid`=r.`rid` where s.$wherePiece and s.`flid` in ($flidString)";
 
         foreach($valids as $f) {

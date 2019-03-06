@@ -1,6 +1,7 @@
 <?php namespace App\Http\Controllers;
 
 use App\KoraFields\FileTypeField;
+use App\KoraFields\GeolocatorField;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redirect;
@@ -53,7 +54,7 @@ class FieldAjaxController extends Controller {
      * @param  Request $request
      * @return bool - Result of address validity
      */
-    public function validateAddress(Request $request) { //TODO::CASTLE
+    public function validateAddress(Request $request) {
         return GeolocatorField::validateAddress($request);
     }
 
@@ -63,7 +64,7 @@ class FieldAjaxController extends Controller {
      * @param  Request $request
      * @return string - Geolocator formatted string of the converted coordinates
      */
-    public function geoConvert(Request $request) { //TODO::CASTLE
+    public function geoConvert(Request $request) {
         return GeolocatorField::geoConvert($request);
     }
 
@@ -201,16 +202,18 @@ class FieldAjaxController extends Controller {
      * @param  int $pid - Project ID
      * @param  int $fid - Form ID
      * @param  int $rid - Record ID
-     * @param  int $flid - Field ID
-     * @param  string $filename - Image filename
+     * @param  View - The geo view
      * @return Redirect
      */
-    public function singleGeolocator($pid, $fid, $rid, $flid) { //TODO::CASTLE
-        $field = self::getField($flid);
-        $record = RecordController::getRecord($rid);
-        $typedField = $field->getTypedFieldFromRID($rid);
+    public function singleGeolocator($pid, $fid, $rid, Request $request) {
+        $form = FormController::getForm($fid);
+        $flid = $request->flid;
+        $field = FieldController::getField($flid,$fid);
+        $record = RecordController::getRecord($pid.'-'.$fid.'-'.$rid);
+        $value = $record->{$flid};
+        $typedField = $form->getFieldModel($field['type']);
 
-        return view('fields.singleGeolocator', compact('field', 'record', 'typedField'));
+        return view('fields.singleGeolocator', compact('field', 'record','value','flid','typedField'));
     }
 
     /**
@@ -225,7 +228,7 @@ class FieldAjaxController extends Controller {
      */
     public function singleRichtext($pid, $fid, $rid, $flid) { //TODO::CASTLE
         $field = self::getField($flid);
-        $record = RecordController::getRecord($rid);
+        $record = RecordController::getRecord($pid.'-'.$fid.'-'.$rid);
         $typedField = $field->getTypedFieldFromRID($rid);
 
         return view('fields.singleRichtext', compact('field', 'record', 'typedField'));

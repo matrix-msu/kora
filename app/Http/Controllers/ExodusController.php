@@ -1,5 +1,6 @@
 <?php namespace App\Http\Controllers;
 
+use App\Association;
 use App\Form;
 use App\FormGroup;
 use App\Http\Controllers\Auth\RegisterController;
@@ -31,8 +32,8 @@ class ExodusController extends Controller {
     /**
      * @var string - Storage folders for association conversions
      */
-    const EXODUS_CONVERSION_PATH = "app/exodusAssoc/conversions/";
-    const EXODUS_DATA_PATH = "app/exodusAssoc/data/";
+    const EXODUS_CONVERSION_PATH = "app/exodus/kidConversions/";
+    const EXODUS_DATA_PATH = "app/exodus/assocData/";
 
     /**
      * Constructs controller and makes sure user is the root installation user.
@@ -394,30 +395,30 @@ class ExodusController extends Controller {
                 //add to old sid/pid array
                 $pairArray[$f['schemeid']] = $f['pid'];
 
-                //We need to replicate the association permissions //TODO::CASTLE
-//                $assocXML = simplexml_load_string(utf8_encode($f['crossProjectAllowed']));
-//                //Checks if DB value is straight up null
-//                if($assocXML !== false) {
-//                    $aSchemes = (array)$assocXML->from;
-//                    //This will be an array no matter what, so if it's empty, leave it alone
-//                    if(!empty($aSchemes)) {
-//                        //Foreach scheme that can associate this one, we add its sid and store it for later.
-//                        //We want to make sure all forms exist first before this information is actually used.
-//                        $newAS = array();
-//                        //When there's only one assocation, it makes it an object and not an array of that object, so check what data type
-//                        if(is_array($aSchemes["entry"])) {
-//                            foreach($aSchemes["entry"] as $aS) {
-//                                $asid = (int)$aS->scheme;
-//                                array_push($newAS, $asid);
-//                            }
-//                        } else {
-//                            //This is the case where there's only one
-//                            array_push($newAS, (int)$aSchemes["entry"]->scheme);
-//                        }
-//                        //What we'll reference later
-//                        $masterAssoc[$form->id] = $newAS;
-//                    }
-//                }
+                //We need to replicate the association permissions
+                $assocXML = simplexml_load_string(utf8_encode($f['crossProjectAllowed']));
+                //Checks if DB value is straight up null
+                if($assocXML !== false) {
+                    $aSchemes = (array)$assocXML->from;
+                    //This will be an array no matter what, so if it's empty, leave it alone
+                    if(!empty($aSchemes)) {
+                        //Foreach scheme that can associate this one, we add its sid and store it for later.
+                        //We want to make sure all forms exist first before this information is actually used.
+                        $newAS = array();
+                        //When there's only one assocation, it makes it an object and not an array of that object, so check what data type
+                        if(is_array($aSchemes["entry"])) {
+                            foreach($aSchemes["entry"] as $aS) {
+                                $asid = (int)$aS->scheme;
+                                array_push($newAS, $asid);
+                            }
+                        } else {
+                            //This is the case where there's only one
+                            array_push($newAS, (int)$aSchemes["entry"]->scheme);
+                        }
+                        //What we'll reference later
+                        $masterAssoc[$form->id] = $newAS;
+                    }
+                }
 
                 //create admin/default groups based on project groups
                 $permGroups = $con->query("select * from permGroup where pid=" . $f['pid']);
@@ -468,20 +469,20 @@ class ExodusController extends Controller {
             }
         }
 
-        //Resolve the assoc permissions //TODO::CASTLE
+        //Resolve the assoc permissions
         if($commandLine)
             echo "Connecting forms for associators...\n\n";
-//        foreach($masterAssoc as $fid => $asids) {
-//            foreach($asids as $asid) {
-//                //Make sure the scheme it's looking for actually was transfered
-//                if(isset($formArray[$asid])) {
-//                    $assoc = new Association();
-//                    $assoc->dataForm = $formArray[$asid];
-//                    $assoc->assocForm = $fid;
-//                    $assoc->save();
-//                }
-//            }
-//        }
+        foreach($masterAssoc as $fid => $asids) {
+            foreach($asids as $asid) {
+                //Make sure the scheme it's looking for actually was transfered
+                if(isset($formArray[$asid])) {
+                    $assoc = new Association();
+                    $assoc->data_form = $formArray[$asid];
+                    $assoc->assoc_form = $fid;
+                    $assoc->save();
+                }
+            }
+        }
 
         mysqli_close($con);
 
@@ -516,53 +517,55 @@ class ExodusController extends Controller {
      *
      * @param  bool $commandLine - Are we executing from web or php artisan
      */
-    public function finishExodus($commandLine = false) { //TODO::CASTLE
+    public function finishExodus($commandLine = false) {
         Log::info("Finishing Exodus");
         if($commandLine)
-            echo "Building associations...\n";
+            echo "Building associations (May take a while)...\n";
 
-//        //Stores the KID to RID conversions
-//        $masterConvertor = array();
-//
-//        //Get all the conversion arrays for k2 KIDs to k3 RIDs
-//        $dir1 = storage_path(self::EXODUS_CONVERSION_PATH);
-//        $iterator = new \DirectoryIterator($dir1);
-//        foreach($iterator as $fileinfo) {
-//            if($fileinfo->isFile()) {
-//                $data = file_get_contents($dir1.$fileinfo->getFilename());
-//                $dataArray = json_decode($data);
-//
-//                if(!is_array($dataArray)) {
-//                    foreach($dataArray as $kid => $rid) {
-//                        $masterConvertor[$kid] = $rid;
-//                    }
-//                }
-//            }
-//        }
-//
-//        //Get all the matchups of k3 Assoc Field ids to the k2 KID values
-//        $dir2 = storage_path(self::EXODUS_DATA_PATH);
-//        $iterator = new \DirectoryIterator($dir2);
-//        foreach($iterator as $fileinfo) {
-//            if($fileinfo->isFile()) {
-//                $data = file_get_contents($dir2.$fileinfo->getFilename());
-//                $dataArray = json_decode($data);
-//
-//                foreach($dataArray as $afid => $kidArray) {
-//                    $assocfield = AssociatorField::where("id","=",$afid)->first();
-//                    $ridArray = array();
-//
-//                    foreach($kidArray as $kid) {
-//                        if(array_key_exists($kid, $masterConvertor)) {
-//                            //We add the dummy k3 KID numbers because that's the format addRecords expects
-//                            array_push($ridArray,"0-0-".$masterConvertor[$kid]);
-//                        }
-//                    }
-//
-//                    $assocfield->addRecords($ridArray);
-//                }
-//            }
-//        }
+        //Stores the KID to RID conversions
+        $masterConvertor = array();
+
+        //Get all the conversion arrays for k2 KIDs to k3 KIDs
+        $dir1 = storage_path(self::EXODUS_CONVERSION_PATH);
+        $iterator = new \DirectoryIterator($dir1);
+        foreach($iterator as $fileinfo) {
+            if($fileinfo->isFile()) {
+                $data = file_get_contents($dir1.$fileinfo->getFilename());
+                $dataArray = json_decode($data);
+
+                if(!is_array($dataArray)) {
+                    foreach($dataArray as $kid => $kid3) {
+                        $masterConvertor[$kid] = $kid3;
+                    }
+                }
+            }
+        }
+
+        //Get all the matchups of k3 Assoc Field ids to the k2 KID values
+        $dir2 = storage_path(self::EXODUS_DATA_PATH);
+        $iterator = new \DirectoryIterator($dir2);
+        foreach($iterator as $fileinfo) {
+            if($fileinfo->isFile()) {
+                $data = file_get_contents($dir2.$fileinfo->getFilename());
+                $dataArray = json_decode($data);
+
+                foreach($dataArray as $kid2 => $flids) {
+                    $record = RecordController::getRecord($masterConvertor[$kid2]);
+
+                    foreach($flids as $flid => $kidArray) {
+                        $newKids = array();
+
+                        foreach($kidArray as $oldKid) {
+                            $nKid = $masterConvertor[$oldKid];
+                            $newKids[] = $nKid;
+                        }
+                        $record->{$flid} = json_encode($newKids);
+                    }
+
+                    $record->save();
+                }
+            }
+        }
 
         Log::info("Exodus Complete");
         if($commandLine)

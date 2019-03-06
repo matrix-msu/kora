@@ -48,21 +48,18 @@ class AssociatorSearchController extends Controller {
 
         foreach($options as $opt) {
             $opt_fid = $opt['form_id'];
-            $opt_search = $opt['search'];
-            $opt_flids = explode('-',$opt['flids']);
+            $opt_flids = $opt['flids'];
 
-            if($opt_search == 1) {
-                $flids = array();
+            $flids = array();
 
-                foreach($opt_flids as $flid) {
-                    if($flid!='') {
-                        $field = FieldController::getField($flid,$opt_fid);
-                        $flids[$flid] = $field['type'];
-                    }
+            foreach($opt_flids as $flid) {
+                if($flid!='') {
+                    $field = FieldController::getField($flid,$opt_fid);
+                    $flids[$flid] = $field['type'];
                 }
-
-                $activeForms[$opt_fid] = ['flids' => $flids];
             }
+
+            $activeForms[$opt_fid] = ['flids' => $flids];
         }
 
         foreach($activeForms as $actfid => $details) {

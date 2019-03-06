@@ -1,12 +1,10 @@
 <?php namespace App\KoraFields;
 
 use App\Form;
-use App\Http\Controllers\FieldController;
-use App\Http\Controllers\RecordController;
 use App\Record;
 use Illuminate\Http\Request;
 
-class AssociatorField extends BaseField {
+class GeolocatorField extends BaseField {
 
     /*
     |--------------------------------------------------------------------------
@@ -18,18 +16,13 @@ class AssociatorField extends BaseField {
     */
 
     /**
-     * @var string - Name of cache table
-     */
-    const Reverse_Cache_Table = "reverse_associator_cache";
-
-    /**
      * @var string - Views for the typed field options
      */
-    const FIELD_OPTIONS_VIEW = "partials.fields.options.associator";
-    const FIELD_ADV_OPTIONS_VIEW = "partials.fields.advanced.associator";
-    const FIELD_ADV_INPUT_VIEW = "partials.records.advanced.associator";
-    const FIELD_INPUT_VIEW = "partials.records.input.associator";
-    const FIELD_DISPLAY_VIEW = "partials.records.display.associator";
+    const FIELD_OPTIONS_VIEW = "partials.fields.options.geolocator";
+    const FIELD_ADV_OPTIONS_VIEW = "partials.fields.advanced.geolocator";
+    const FIELD_ADV_INPUT_VIEW = "partials.records.advanced.geolocator"; //TODO::CASTLE
+    const FIELD_INPUT_VIEW = "partials.records.input.geolocator";
+    const FIELD_DISPLAY_VIEW = "partials.records.display.geolocator";
 
     /**
      * Get the field options view.
@@ -95,7 +88,7 @@ class AssociatorField extends BaseField {
      * @return array - The default options
      */
     public function getDefaultOptions() {
-        return ['SearchForms' => array()];
+        return ['Map' => 0, 'DataView' => 'LatLon'];
     }
 
     /**
@@ -107,22 +100,18 @@ class AssociatorField extends BaseField {
      * @return array - The updated field array
      */
     public function updateOptions($field, Request $request, $flid = null) {
-        $searchForms = array();
-        foreach($request->all() as $key=>$value) {
-            if(substr( $key, 0, 8 ) === "checkbox") {
-                $fid = explode('_',$key)[1];
-                $preview = $request->input("preview_".$fid);
-                $val = [
-                    'form_id' => $fid,
-                    'flids' => $preview
-                ];
+        $reqDefs = $request->default;
+        $default = [];
 
-                array_push($searchForms,$val);
+        if(!is_null($reqDefs)) {
+            foreach($reqDefs as $def) {
+                $default[] = json_decode($def,true);
             }
         }
 
-        $field['default'] = $request->default;
-        $field['options']['SearchForms'] = $searchForms;
+        $field['default'] = $default;
+        $field['options']['Map'] = $request->map;
+        $field['options']['DataView'] = $request->view;
 
         return $field;
     }
@@ -158,7 +147,7 @@ class AssociatorField extends BaseField {
     public function processRecordData($field, $value, $request) {
         if(empty($value))
             $value = null;
-        return json_encode($value);
+        return '['.implode(',',$value).']';
     }
 
     /**
@@ -169,11 +158,11 @@ class AssociatorField extends BaseField {
      *
      * @return mixed - Processed data
      */
-    public function processRevisionData($data) {
+    public function processRevisionData($data) { //TODO::CASTLE
         $data = json_decode($data,true);
         $return = '';
-        foreach($data as $record) {
-            $return .= "<div>".$record."</div>";
+        foreach($data as $location) {
+            $return .= "<div>".$location."</div>";
         }
 
         return $return;
@@ -207,7 +196,30 @@ class AssociatorField extends BaseField {
      * @return Request - Processed data
      */
     public function processImportDataXML($flid, $field, $value, $request, $simple = false) {
-        $request[$flid] = (array)$value->Record;
+        $geo = array();
+
+        foreach($value->Location as $loc) {
+            $geoReq = new Request();
+
+            if(!is_null($loc->Lat)) {
+                $geoReq->type = 'latlon';
+                $geoReq->lat = (float)$loc->Lat;
+                $geoReq->lon = (float)$loc->Lon;
+            } else if(!is_null($loc->Address)) {
+                $geoReq->type = 'geo';
+                $geoReq->addr = (string)$loc->Address;
+            }
+
+
+            $loc = GeolocatorField::geoConvert($geoReq);
+            if(empty($loc->Desc))
+                $loc['description'] = '';
+            else
+                $loc['description'] = $loc->Desc;
+            array_push($geo, $loc);
+        }
+
+        $request[$flid] = $geo;
 
         return $request;
     }
@@ -233,10 +245,13 @@ class AssociatorField extends BaseField {
      * @return mixed - Processed data
      */
     public function processXMLData($field, $value) {
-        $recs = json_decode($value,true);
+        $locs = json_decode($value,true);
         $xml = "<$field>";
-        foreach($recs as $rec) {
-            $xml .= '<Record>'.$rec.'</Record>';
+        foreach($locs as $loc) {
+            $xml .= '<Desc>'.$loc['description'].'</Desc>';
+            $xml .= '<Lat>'.$loc['geometry']['location']['lat'].'</Lat>';
+            $xml .= '<Lon>'.$loc['geometry']['location']['lng'].'</Lon>';
+            $xml .= '<Address>'.$loc['formatted_address'].'</Address>';
         }
         $xml .= "</$field>";
 
@@ -251,7 +266,7 @@ class AssociatorField extends BaseField {
      * @return mixed - Processed data
      */
     public function processLegacyData($value) {
-        return $value;
+        return null;
     }
 
     /**
@@ -264,11 +279,12 @@ class AssociatorField extends BaseField {
      * @param  bool $overwrite - Overwrite if data exists
      */
     public function massAssignRecordField($form, $flid, $formFieldValue, $request, $overwrite=0) {
+        $locsValue = '['.implode(',',$formFieldValue).']';
         $recModel = new Record(array(),$form->id);
         if($overwrite)
-            $recModel->newQuery()->update([$flid => $formFieldValue]);
+            $recModel->newQuery()->update([$flid => $locsValue]);
         else
-            $recModel->newQuery()->whereNull($flid)->update([$flid => $formFieldValue]);
+            $recModel->newQuery()->whereNull($flid)->update([$flid => $locsValue]);
     }
 
     /**
@@ -278,7 +294,12 @@ class AssociatorField extends BaseField {
      * @return mixed - The data
      */
     public function getTestData($url = null) {
-        return json_encode(array('0-3-0','0-3-1','0-3-2','0-3-3'));
+        $locArray = [];
+        $locArray['description'] = 'Matrix';
+        $locArray['geometry']['location']['lat'] = '42.7314094';
+        $locArray['geometry']['location']['lng'] = '-84.476258';
+        $locArray['formatted_address'] = '288 Farm Ln, East Lansing, MI 48823';
+        return json_encode(array($locArray));
     }
 
     /**
@@ -292,16 +313,26 @@ class AssociatorField extends BaseField {
         switch($type) {
             case "XML":
                 $xml = '<' . $slug . '>';
-                $xml .= "<Record>".utf8_encode('0-3-0')."</Record>";
-                $xml .= "<Record>".utf8_encode('0-3-1')."</Record>";
-                $xml .= "<Record>".utf8_encode('0-3-2')."</Record>";
-                $xml .= "<Record>".utf8_encode('0-3-3')."</Record>";
+                $xml .= '<Location>';
+                $xml .= '<Desc>' . utf8_encode('Matrix') . '</Desc>';
+                $xml .= '<Lat>' . utf8_encode('42.7314094') . '</Lat>';
+                $xml .= '<Lon>' . utf8_encode('-84.476258') . '</Lon>';
+                $xml .= '<Address>' . utf8_encode('288 Farm Ln, East Lansing, MI 48823') . '</Address>';
+                $xml .= '</Location>';
                 $xml .= '</' . $slug . '>';
 
                 return $xml;
                 break;
             case "JSON":
-                $fieldArray[$slug] = array('0-3-0','0-3-1','0-3-2','0-3-3');
+                $fieldArray = [$slug => ['type' => 'Geolocator']];
+
+                $locArray = array();
+
+                $locArray['description'] = 'Matrix';
+                $locArray['geometry']['location']['lat'] = '42.7314094';
+                $locArray['geometry']['location']['lng'] = '-84.476258';
+                $locArray['formatted_address'] = '288 Farm Ln, East Lansing, MI 48823';
+                $fieldArray[$slug] = array($locArray);
 
                 return $fieldArray;
                 break;
@@ -317,7 +348,7 @@ class AssociatorField extends BaseField {
      * @param  boolean $negative - Get opposite results of the search
      * @return array - The RIDs that match search
      */
-    public function keywordSearchTyped($flid, $arg, $recordMod, $negative = false) {
+    public function keywordSearchTyped($flid, $arg, $recordMod, $negative = false) { //TODO::CASTLE
         if($negative)
             $param = 'NOT LIKE';
         else
@@ -338,7 +369,7 @@ class AssociatorField extends BaseField {
      * @param  Request $request
      * @return Request - The update request
      */
-    public function setRestfulAdvSearch($data, $flid, $request) {
+    public function setRestfulAdvSearch($data, $flid, $request) { //TODO::CASTLE
         $request->request->add([$flid.'_input' => $data->value]);
 
         return $request;
@@ -353,7 +384,7 @@ class AssociatorField extends BaseField {
      * @param  boolean $negative - Get opposite results of the search
      * @return array - The RIDs that match search
      */
-    public function advancedSearchTyped($flid, $query, $recordMod, $negative = false) {
+    public function advancedSearchTyped($flid, $query, $recordMod, $negative = false) { //TODO::CASTLE
         $inputs = $query[$flid . "_input"];
 
         if($negative)
@@ -377,74 +408,80 @@ class AssociatorField extends BaseField {
     ///////////////////////////////////////////////END ABSTRACT FUNCTIONS///////////////////////////////////////////////
 
     /**
-     * For a record that was searched for in an associator, grab the data of the field that was assigned as a preview
-     * for this record.
+     * Validates the address for a Geolocator field.
      *
-     * @param  array $field - Field info array
-     * @param  int $kid - Record Kora ID
-     * @return string - Html structure of the preview field's value
+     * @param  Request $request
+     * @return bool - Result of address validity
      */
-    public static function getPreviewValues($field,$kid) {
-        //individual kid elements
-        $recParts = explode('-',$kid);
-        $pid = $recParts[0];
-        $fid = $recParts[1];
-        $rid = $recParts[2];
+    public static function validateAddress(Request $request) {
+        $address = $request->address;
 
-        $recModel = RecordController::getRecord($kid);
-        if(is_null($recModel))
-            return '';
+        $con = app('geocoder');
 
-        //get the preview flid structure of this associator
-        $activeForms = array();
-        $options = $field['options']['SearchForms'];
-        foreach($options as $opt) {
-            $opt_fid = $opt['form_id'];
-            $opt_flids = $opt['flids'];
-
-            $flids = [];
-            foreach($opt_flids as $flid) {
-                //Make sure there actually is a preview field
-                if($flid=="")
-                    continue;
-                $field = FieldController::getField($flid,$opt_fid);
-                $flids[$flid] = $field;
-            }
-            $activeForms[$opt_fid] = ['fields' => $flids];
+        try {
+            $con->geocode($address);
+        } catch(\Exception $e) {
+            return json_encode(false);
         }
 
-        //grab the preview fields associated with the form of this kid
-        //make sure one is selected first
-        $preview = array();
-        $prevField = array();
-        if(isset($activeForms[$fid])) {
-            $details = $activeForms[$fid];
-            foreach($details['fields'] as $flid => $field) {
-                array_push($prevField, $field['name']);
-                if(!in_array($field['type'],Form::$validAssocFields)) {
-                    array_push($preview, "Invalid Preview Field");
-                } else {
-                    $value = $recModel->{$flid};
-                    if(is_null($value))
-                        $value = "Preview Field Empty";
-                    array_push($preview, $value);
+        return json_encode(true);
+    }
+
+    /**
+     * Converts provide lat/long, utm, or geo coordinates into the other types.
+     *
+     * @param  Request $request
+     * @return array - Converted coordinates
+     */
+    public static function geoConvert(Request $request) {
+        $lat = null;
+        $lon = null;
+        $addr = null;
+
+        switch($request->type) {
+            case 'latlon':
+                $lat = $request->lat;
+                $lon = $request->lon;
+
+                //to address
+                $con = app('geocoder');
+                try {
+                    $res = $con->reverse($lat, $lon)->get()->first();
+                    if ($res !== null) {
+                        $addr = $res->getDisplayName();
+                    } else {
+                        $addr = 'Address Not Found';
+                    }
+                } catch(\Exception $e) {
+                    $addr = 'Address Not Found';
                 }
-            }
-        } else {
-            array_push($preview, "No Preview Field Available");
+                break;
+            case 'geo':
+                $addr = $request->addr;
+
+                //to latlon
+                $con = app('geocoder');
+                try {
+                    $res = $con->geocode($addr)->get()->first()->getCoordinates();
+                    $lat = $res->getLatitude();
+                    $lon = $res->getLongitude();
+                } catch(\Exception $e) {
+                    $lat = null;
+                    $lon = null;
+                }
+                break;
+            default:
+                break;
         }
 
-        $html = "<div class='header'><a class='mt-xxxs documents-link underline-middle-hover' href='".url("projects/".$pid."/forms/".$fid."/records/".$rid)."'>".$kid."</a><div class='card-toggle-wrap'><a class='card-toggle assoc-card-toggle-js'><i class='icon icon-chevron active'></i></a></div></div><div class='body'><div class='overlay'></div>";
-
-        foreach($preview as $i=>$val) {
-            if(isset($prevField[$i]))
-                $html .= "<div>".$prevField[$i]."</div><div>".$val."</div>";
-            else
-                $html .= "<div>".$val."</div>";
-        }
-
-        $html .= "</div>";
-
-        return $html;
+        return [
+            'geometry' => [
+                'location' => [
+                    'lat' => $lat,
+                    'lng' => $lon
+                ]
+            ],
+            'formatted_address' => $addr
+        ];
     }
 }
