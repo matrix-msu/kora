@@ -89,7 +89,7 @@ class GalleryField extends FileTypeField {
      * @param  Request $request
      * @return array - The default options
      */
-    public function getDefaultOptions() {
+    public function getDefaultOptions($types = null) {
         return ['FieldSize' => '', 'MaxFiles' => '', 'FileTypes' => ['image/jpeg','image/gif','image/png'],
             'ThumbSmall' => '150x150', 'ThumbLarge' => '300x300'];
     }

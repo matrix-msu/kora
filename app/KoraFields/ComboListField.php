@@ -48,6 +48,11 @@ class ComboListField extends BaseField {
         'List' => 'addEnumColumn'
     ];
 
+    private $fieldModel = [
+        'Text' => 'App\KoraFields\TextField',
+        'List' => 'App\KoraFields\ListField'
+    ];
+
     /**
      * Get the field options view.
      *
@@ -108,8 +113,8 @@ class ComboListField extends BaseField {
         $table->createComboListTable($fid);
 
         foreach ($options as $option) {
-            $method = $this->fieldToDBFuncAssoc[$option[0]];
-            $table->{$method}($fid, $option[1]);
+            $method = $this->fieldToDBFuncAssoc[$option['type']];
+            $table->{$method}($fid, $option['slug']);
         }
     }
 
@@ -119,8 +124,16 @@ class ComboListField extends BaseField {
      *
      * @return array - The default options
      */
-    public function getDefaultOptions() {
-        return ['Field1' => '', 'Field2' => ''];
+    public function getDefaultOptions($types = null) {
+        $defaultOptions = [];
+
+        foreach ($types as $type) {
+            $className = $this->fieldModel[$type['type']];
+            $object = new $className;
+            $defaultOptions[$type['slug']] = $object->getDefaultOptions();
+        }
+
+        return $defaultOptions;
     }
 
     /**

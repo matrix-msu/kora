@@ -279,6 +279,8 @@ class Form extends Model {
         //Remove table column
         $rTable = new \CreateRecordsTable();
         $rTable->dropColumn($this->id,$flid);
+
+        //TODO::@andrew.joye add delete table for combo list
     }
 
     /**

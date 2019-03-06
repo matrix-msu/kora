@@ -94,7 +94,7 @@ class AssociatorField extends BaseField {
      *
      * @return array - The default options
      */
-    public function getDefaultOptions() {
+    public function getDefaultOptions($types = null) {
         return ['SearchForms' => array()];
     }
 

@@ -50,7 +50,7 @@ class CreateRecordsTable extends Migration {
     }
 
     public function createComboListTable($fid) {
-        Schema::create($this->tablePrefix, function(Blueprint $table) use ($fid)
+        Schema::create($this->tablePrefix . $fid, function(Blueprint $table) use ($fid)
         {
             $table->integer('record_id')->unsigned();
             $table->foreign('record_id')->references('id')->on('records_' . $fid)->onDelete('cascade');

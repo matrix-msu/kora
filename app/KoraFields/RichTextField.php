@@ -89,7 +89,7 @@ class RichTextField extends BaseField {
      * @param  Request $request
      * @return string - The default options
      */
-    public function getDefaultOptions() {
+    public function getDefaultOptions($types = null) {
         return '';
     }
 

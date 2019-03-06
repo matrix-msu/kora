@@ -87,7 +87,7 @@ class GeolocatorField extends BaseField {
      *
      * @return array - The default options
      */
-    public function getDefaultOptions() {
+    public function getDefaultOptions($types = null) {
         return ['Map' => 0, 'DataView' => 'LatLon'];
     }
 

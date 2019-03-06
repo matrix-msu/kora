@@ -89,7 +89,7 @@ class PlaylistField extends FileTypeField {
      * @param  Request $request
      * @return array - The default options
      */
-    public function getDefaultOptions() {
+    public function getDefaultOptions($types = null) {
         return ['FieldSize' => '', 'MaxFiles' => '', 'FileTypes' => ['audio/mp3','audio/wav']];
     }
 

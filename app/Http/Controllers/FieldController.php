@@ -90,8 +90,8 @@ class FieldController extends Controller {
             for ($i = 1;$i < 3;$i++) {
                 array_push(
                     $options, [
-                        $request->{'cftype' . $i},
-                        slugFormat(
+                        'type' => $request->{'cftype' . $i},
+                        'slug' => slugFormat(
                             $request->{'cfname' . $i},
                             $form->project_id,
                             $form->id
@@ -105,7 +105,7 @@ class FieldController extends Controller {
         $fieldMod = $form->getFieldModel($request->type);
         $fieldMod->addDatabaseColumn($form->id, $flid, $options);
         if(!$request->advanced)
-            $field['options'] = $fieldMod->getDefaultOptions();
+            $field['options'] = $fieldMod->getDefaultOptions($options);
 
         //Add to form
         $layout['fields'][$flid] = $field;
