@@ -12,13 +12,13 @@
     <div id="map{{$field->flid}}_{{$record->rid}}" class="geolocator-map geolocator-map-js mt-xxs" map-id="{{$field->flid}}_{{$record->rid}}">
         <div class="field-sidebar">
             <div class="top">
-                <a target="_blank" href="{{ action('FieldController@singleGeolocator', ['pid' => $field->pid, 'fid' => $field->fid, 'rid' => $record->rid, 'flid' => $field->flid]) }}" class="field-btn external-button-js">
+                <a target="_blank" href="{{ action('FieldController@singleGeolocator', ['pid' => $field->pid, 'fid' => $field->fid, 'rid' => $record->rid, 'flid' => $field->flid]) }}" class="field-btn external-button-js tooltip" tooltip="Open in New Tab">
                     <i class="icon icon-external-link"></i>
                 </a>
             </div>
 
             <div class="bottom">
-                <div class="field-btn full-screen-button-js">
+                <div class="field-btn full-screen-button-js tooltip" tooltip="View Fullscreen">
                     <i class="icon icon-maximize"></i>
                 </div>
             </div>
