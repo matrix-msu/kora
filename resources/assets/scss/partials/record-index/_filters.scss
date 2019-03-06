@@ -4,6 +4,10 @@
   margin: 40px auto 0;
   max-width: calc(#{ $max-site-width } - 600px);
 
+  &:first-of-type {
+    margin: 60px auto 0;
+  }
+
   .pagination-options {
     float: left;
     height: 20px;
