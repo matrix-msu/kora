@@ -103,7 +103,7 @@ class ComboListField extends BaseField {
      */
     public function addDatabaseColumn($fid, $slug, $options = null) {
         $table = new \CreateRecordsTable(
-            ['tablePrefix' => 'combo_']
+            ['tablePrefix' => $slug]
         );
         $table->createComboListTable($fid);
 
@@ -111,10 +111,6 @@ class ComboListField extends BaseField {
             $method = $this->fieldToDBFuncAssoc[$option[0]];
             $table->{$method}($fid, $option[1]);
         }
-
-        // Need to insert a value in order for this to work
-        $table = new \CreateRecordsTable();
-        $table->addForeignKeyColumn($fid, $slug, 'combo_', 'record_id');
     }
 
 

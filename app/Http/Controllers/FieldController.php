@@ -86,6 +86,7 @@ class FieldController extends Controller {
         // Combo List Specific
         $options = array();
         if($request->type == Form::_COMBO_LIST) {
+            // Not sure if this is how I want to represent the combo fields.
             for ($i = 1;$i < 3;$i++) {
                 array_push(
                     $options, [
