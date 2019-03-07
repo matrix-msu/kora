@@ -1,10 +1,10 @@
-<?php
+@php
     $exists = \App\Http\Controllers\RecordController::exists($revision->rid);
     $datetime = explode(' ', $revision->updated_at);
     $showLink = action("RevisionController@show", ["pid" => $form->pid, "fid" => $form->fid, "rid" => $revision->rid]);
     $type = ucfirst($revision->type === "edit" ? 'edited' : ($revision->type === 'rollback' ? 'rollback' : $revision->type.'d'));
     $data = \App\Http\Controllers\RevisionController::formatRevision($revision->id);
-?>
+@endphp
 <div class="revision card all {{ $index == 0 ? 'active' : '' }}" id="{{$revision->id}}">
     <div class="header {{ $index == 0 ? 'active' : '' }}">
         <div class="left pl-m">
