@@ -34,28 +34,8 @@ Kora.FormAssociations.Index = function() {
         "assocfid": assocfid
       },
       success: function(response) {
-        var element = $('<div></div>').addClass('association association-js card').attr('id', 'create-' + response.form.fid);
-        var header = $('<div></div>').addClass('header');
-        var title = $('<div></div>').addClass('left pl-m');
-        var titleLink = $('<a></a>').addClass('title association-toggle-by-name-js').attr('href', '#');
-        var titleSpan = $('<span></span>').addClass('name name-js').text(response.form.name);
-        var cardToggle = $('<div></div>').addClass('card-toggle-wrap');
-        var cardToggleLink = $('<a></a>').addClass('card-toggle association-toggle-js').attr('href', '#');
-        cardToggleLink.append($('<span></span>').addClass('chevron-text').text(response.project_name));
-        cardToggleLink.append($('<i></i>').addClass('icon icon-chevron'));
-        var content = $('<div></div>').addClass('content content-js');
-        content.append($('<div></div>').addClass('description').append($('<p></p>').text(response.form.description)));
-        var footer = $('<div></div>').addClass('footer');
-        footer.append($('<a></a>').addClass('quick-action trash-container delete-permission-association-js left').attr('href', '#').attr('data-form', response.form.fid).attr('data-reverse', 'false').append($('<i></i>').addClass('icon icon-trash')));
-        element.append(header.append(title.append(titleLink.append(titleSpan))).append(cardToggle.append(cardToggleLink)));
-        content.append(footer);
-        element.append(content);
-        $('.permission-association-js.create').append(element);
-        initializePermissionsToggles();
-        initializeDeletePermissionModal();
-        $('#new-form option[value='+response.form.fid+']').remove();
-        $('.create-description-js').removeClass('hidden');
-        Kora.Modal.close();
+        window.localStorage.setItem('message', "Form Association Successfully Created!");
+        window.location.reload();
       }
     });
   }
