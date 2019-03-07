@@ -21,7 +21,7 @@
                         <div class="field-title mt-m">{{$field->name}}</div>
 
                         <section class="field-data">
-                            <?php $typedField = $field->getTypedFieldFromRID($record->rid); ?>
+                            @php $typedField = $field->getTypedFieldFromRID($record->rid); @endphp
                             @if(!is_null($typedField))
                                 @include($typedField::FIELD_DISPLAY_VIEW, ['field' => $field, 'typedField' => $typedField])
                             @else

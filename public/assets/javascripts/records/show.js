@@ -32,6 +32,8 @@ Kora.Records.Show = function() {
                     direction: 'up',
                     mode: 'show',
                     duration: 240
+                }, function () {
+                    $token.css('height', '');
                 });
             } else {
                 $token.animate({
@@ -182,14 +184,19 @@ Kora.Records.Show = function() {
                 }
 
                 function setImageSize($slideImg, imgAspectRatio) {
-                    if (imgAspectRatio > galAspectRatio) {
+                    //if (imgAspectRatio > galAspectRatio) {
+                    if (imgAspectRatio > 1 ) {
                         // Image is wider than gallery container
-                        $slideImg.css('height', 'auto');
-                        $slideImg.css('width', '100%');
+                        $slideImg.addClass('wideImage');
+                        $slideImg.removeClass('tallImage');
+                        // $slideImg.css('height', 'auto');
+                        // $slideImg.css('width', '100%');
                     } else {
                         // Image is tall or same aspect ratio as gallery container
-                        $slideImg.css('height', '100%');
-                        $slideImg.css('width', 'auto');
+                        $slideImg.removeClass('wideImage');
+                        $slideImg.addClass('tallImage');
+                        // $slideImg.css('height', '100%');
+                        // $slideImg.css('width', 'auto');
                     }
                 }
             });
@@ -206,11 +213,20 @@ Kora.Records.Show = function() {
                 $dots.removeClass('active');
                 $($dots[currentSlide]).addClass('active');
                 var pos = ((index - currentSlide) * galWidth) + "px";
-                $slide.animate({left: pos}, 100, 'swing');
+                $slide.animate({left: pos}, 100, 'swing', function () {
+                    if ( pos === '0px' ) {
+                        $slide.addClass('currentSlide');
+                        if ( $slide.height() < 400 )
+                            $slide.addClass('small');
+                        else if ( $slide.height() < $slide.children().height() ) // if img height > height of container
+                            $slide.css('height', $slide.height());
+                    }
+                });
             }
 
             // Set horizontal positioning for all slides
             function setImagePositions() {
+                $slides.removeClass('currentSlide')
                 for (var i = 0; i < slideCount; i++) {
                     var $slide = $($slides[i]);
                     setImagePosition($slide, i);
@@ -424,11 +440,37 @@ Kora.Records.Show = function() {
     });
   }
 
+  function adjustForTimezone () {
+    var writeTime = document.getElementsByClassName('time')
+
+    let dates = [];
+    dates.push( document.getElementById('created-at').innerText )
+    dates.push( document.getElementById('updated-at').innerText )
+
+    function adjustTime ( date ) {
+        let timezoneName = date.toLocaleTimeString('en-us', {timeZoneName:'short'}).split(' ')[2]
+
+        offset = date.getTimezoneOffset() * 60000 // convert to milliseconds because Date.getTime() gets time in milliseconds
+        adjustedDate = new Date( date.getTime() - offset ) // subtract offset because offset has opposite sign as needed (-/+)
+
+        let yearMonthDay = adjustedDate.toISOString().substr(0,10)
+        let time = adjustedDate.toString().substr(16,8)
+
+        let adjustedDate_Formatted = yearMonthDay + ' ' + time + ' ' + timezoneName
+        writeTime[i].innerText = adjustedDate_Formatted
+    }
+
+    for ( i = 0; i < dates.length; i++ ) {
+        adjustTime( new Date(dates[i]) )
+    }
+  }
+
     initializeToggle();
     initializeAssociatorCardToggle();
     initializeDeleteRecord();
     initializeTypedFieldDisplays();
     initializeCardTitleEllipsifying();
+    adjustForTimezone();
     Kora.Records.Modal();
     Kora.Fields.TypedFieldDisplays.Initialize();
 }

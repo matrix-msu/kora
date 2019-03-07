@@ -170,6 +170,64 @@ Kora.Records.Create = function() {
         });
     }
 
+    function initializeGenListOptions () {
+        let list = $('.genlist-js');
+        // The actual HTML is generated and handled in Kora.Fields.Options()
+        // This section just handles adding and removing the options from the multiselect list
+        // Option Removed
+        $('.list-option-card-js .list-option-delete-js').click(function (e) {
+            e.preventDefault();
+
+            let options = Array.from ( document.getElementById( list.attr('id') ).children )
+            let opt = this.parentElement.parentElement.children[0].children[1].innerText
+            let removeMe = options.find ( function ( option ) {
+                return option.innerText == opt
+            })
+            removeMe.remove();
+
+            list.trigger('chosen:updated');
+        });
+
+        // Option Added
+        function optionAdded ( newOption ) {
+            list.append('<option value="' + newOption + '" selected="selected"">' + newOption + '</option>');
+            list.trigger('chosen:updated');
+        }
+
+        $('.new-list-option-js').on('keyup', function (e) {
+            e.preventDefault();
+            let keyCode = e.keyCode || e.which
+            if ( e.keyCode == 13 )
+                optionAdded ( $(this).val() )
+        });
+
+        $('.list-option-add-js').click(function (e) {
+            e.preventDefault();
+            optionAdded ( $('.new-list-option-js').val() )
+        });
+
+        //list reordered
+        $('.list-option-card-container-js').sortable({
+            disabled: true
+            // update: function () {
+            //     let options = $('.list-option-card-container-js').sortable('toArray');
+            //     let chosen_choices = list.siblings('.chosen-container').find('.search-choice');
+            //     chosen_choices = $.map( chosen_choices, function ( val ) {
+            //         return val.children[0].innerText
+            //     });
+            //     list.children().remove();
+
+            //     options.forEach ( function ( option ) {
+            //         if ( chosen_choices.includes(option) )
+            //             list.append('<option value="' + option + '" selected="selected">' + option + '</option>');
+            //         else
+            //             list.append('<option value="' + option + '">' + option + '</option>');
+            //     });
+            //     list.trigger('chosen:updated');
+            // }
+        });
+    }
+
     function initializeComboListOptions(){
         var flid, type1, type2, $comboValueDiv, $modal;
 
@@ -1262,6 +1320,7 @@ Kora.Records.Create = function() {
     initializeSelectAddition();
     initializeSpecialInputs();
     intializeAssociatorOptions();
+    initializeGenListOptions();
     initializeComboListOptions();
     initializeDateOptions();
     initializeScheduleOptions();
