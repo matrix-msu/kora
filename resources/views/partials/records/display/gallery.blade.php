@@ -5,13 +5,13 @@
     $singleFilename = ($single ? explode('[Name]',$typedField->images)[1] : '');
 ?>
 
-<div class="record-data-card">
+<div class="record-data-card gallery-card">
     <div class="gallery-field-display gallery-field-display-js {{ ($single ? 'single' : '') }}">
         @foreach($images as $ndx => $img)
             @if($img != '')
                 <?php
                 $name = explode('[Name]',$img)[1];
-                $link = action('FieldAjaxController@getImgDisplay',['flid' => $field->flid, 'rid' => $record->rid, 'filename' => $name, 'type' => 'medium']);
+                $link = action('FieldAjaxController@getImgDisplay',['flid' => $field->flid, 'rid' => $record->rid, 'filename' => $name, 'type' => '']);
                 $caption = (array_key_exists($ndx, $captions) ? $captions[$ndx] : '');
                 ?>
                 <div class="slide slide-js">
@@ -81,7 +81,7 @@
                     @if($img != '')
                         <?php
                         $name = explode('[Name]',$img)[1];
-                        $link = action('FieldAjaxController@getImgDisplay',['flid' => $field->flid, 'rid' => $record->rid, 'filename' => $name, 'type' => 'medium']);
+                        $link = action('FieldAjaxController@getImgDisplay',['flid' => $field->flid, 'rid' => $record->rid, 'filename' => $name, 'type' => '']);
                         ?>
                         <div class="slide slide-js">
                             <img class="slide-img slide-img-js" src="{{$link}}" alt="{{$name}}">
