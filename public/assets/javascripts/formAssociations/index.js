@@ -34,7 +34,7 @@ Kora.FormAssociations.Index = function() {
         "assocfid": assocfid
       },
       success: function(response) {
-        window.localStorage.setItem('message', "Form Association Successfully Created!");
+	  	window.localStorage.setItem('message', "Form Association Successfully Created!");
         window.location.reload();
       }
     });
@@ -149,7 +149,7 @@ Kora.FormAssociations.Index = function() {
     });
   }
 
-  function initializeNewPermissionModal() {
+  function initializeNewPermissionModal() {  
     $('.new-permission-js').click(function(e) {
       e.preventDefault();
 
@@ -165,6 +165,13 @@ Kora.FormAssociations.Index = function() {
           if (assocFormID !== "") {
             $('.new-assoc-error-js').text('');
             self.createPermissions(assocFormID);
+			setTimeout(function(){
+				$('.trash-container.delete-permission-association-js').attr('tooltip', 'Remove Form Association');
+				$('.trash-container.delete-permission-association-js').addClass('tooltip');
+			}, 1000);
+			
+			window.localStorage.setItem('message', 'Form Association Successfully Created!');
+			showNotification();
           } else {
             $('.new-assoc-error-js').text('Please select a form');
           }
@@ -292,6 +299,44 @@ Kora.FormAssociations.Index = function() {
         } else {
             $('.tabs-left').removeClass('hidden');
         }
+    });
+  }
+  
+  function showNotification() {
+    var $noteBody = $('.notification');
+    var $note = $('.note').children('p');
+    var $noteDesc = $('.note').children('span');
+    
+    var message = window.localStorage.getItem('message');
+    
+    if (message) {
+      $note.text(message);
+      window.localStorage.clear();
+    }
+	
+    setTimeout(function(){
+      if ($note.text() != '') {
+        if ($noteDesc.text() != '') {
+          $noteDesc.addClass('note-description');
+          $note.addClass('with-description');
+        }
+    
+        $noteBody.removeClass('dismiss');
+        $('.welcome-body').addClass('with-notification');
+    
+        //if (!$noteBody.hasClass('static-js')) {
+        //  setTimeout(function(){
+        //    $noteBody.addClass('dismiss');
+        //  }, 4000);
+        //}
+      }
+    }, 200);
+    
+    $('.toggle-notification-js').click(function(e) {
+      e.preventDefault();
+    
+      //$noteBody.addClass('dismiss');
+      $('.welcome-body').removeClass('with-notification');
     });
   }
 
