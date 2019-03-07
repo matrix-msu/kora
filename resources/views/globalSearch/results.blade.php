@@ -60,11 +60,13 @@
             </div>
         </section>
 
-        <div class="filters">
-            <a class="display-js underline-middle underline-middle-hover selected" href="#">Records <span>({{ $total }})</span></a>
-            <a class="display-js underline-middle underline-middle-hover" href="#">Forms (<span class="form-num-js"></span>)</a>
-            <a class="display-js underline-middle underline-middle-hover" href="#">Fields (<span class="fields-num-js"></span>)</a>
-            <a class="display-js underline-middle underline-middle-hover" href="#">Projects (<span class="projects-num-js"></span>)</a>
+        <div class="content-sections">
+            <div class="content-sections-scroll">
+                <a class="display-js underline-middle underline-middle-hover selected" href="#">Records <span>({{ $total }})</span></a>
+                <a class="display-js underline-middle underline-middle-hover" href="#">Forms (<span class="form-num-js"></span>)</a>
+                <a class="display-js underline-middle underline-middle-hover" href="#">Fields (<span class="fields-num-js"></span>)</a>
+                <a class="display-js underline-middle underline-middle-hover" href="#">Projects (<span class="projects-num-js"></span>)</a>
+            </div>
         </div>
 
         <section class="display-records display-js">

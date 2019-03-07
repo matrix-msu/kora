@@ -127,40 +127,95 @@
       }
     }
 
-    .filters {
-      a {
-        color: palette('gray', text, .8);
-        display: inline-block;
-        font-family: $ubuntu;
-        font-size: 16px;
-        line-height: 1;
-        margin: 0 7.5px;
-        padding: 0 0 13px;
-        text-decoration: none;
+    /*.filters {*/
+    .content-sections {
+      margin: 60px auto 0;
+      position: relative;
 
-        &:first-child {
-          margin-left: 0;
-          padding-left: 0;
+      .content-sections-scroll {
+        display: flex;
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        overflow-y: hidden;
+        &::-webkit-scrollbar {
+          display: none;
         }
 
-        &:last-child {
-          margin-right: 0;
-          padding-right: 0;
+        a {
+          color: palette('gray', text, .8);
+          display: inline-block;
+          font-family: $ubuntu;
+          font-size: 16px;
+          line-height: 1;
+          margin: 0 7.5px;
+          padding: 0 0 13px;
+          text-decoration: none;
+          white-space: nowrap;
+
+          &:first-child {
+            margin-left: 0;
+            padding-left: 0;
+          }
+
+          &:last-child {
+            margin-right: 0;
+            padding-right: 0;
+          }
+
+          &:hover {
+            color: palette('green', accent);
+          }
+
+          &.selected {
+            border-bottom: 2px solid palette('green', accent);
+            color: palette('green', accent);
+            font-family: $ubuntu-medium;
+
+            &.underline-middle-hover:hover::before,
+            &.underline-middle-hover:hover::after {
+              opacity: 0;
+            }
+          }
         }
+      }
+
+      .tabs-left,
+      .tabs-right {
+        @include transition();
+
+        background: linear-gradient(0deg, #f5f6f7 0%, rgba(255, 255, 255, 0) 100%);
+        bottom: -6px;
+        font-size: 0.5em;
+        opacity: 0.6;
+        padding: 60px 21px 0 21px;
+        position: absolute;
 
         &:hover {
-          color: palette('green', accent);
+          opacity: 1;
         }
 
-        &.selected {
-          border-bottom: 2px solid palette('green', accent);
-          color: palette('green', accent);
-          font-family: $ubuntu-medium;
+        .hidden {
+          display: none;
+        }
+      }
 
-          &.underline-middle-hover:hover::before,
-          &.underline-middle-hover:hover::after {
-            opacity: 0;
-          }
+      .tabs-left {
+        left: -5px;
+        transform: rotate(90deg) scale(0.9);
+        &:hover {
+          bottom: -5px;
+          cursor: pointer;
+          font-size: 0.625em;
+        }
+      }
+
+      .tabs-right {
+        right: -5px;
+        transform: rotate(-90deg) scale(0.9);
+        &:hover {
+          bottom: -5px;
+          cursor: pointer;
+          font-size: 0.625em;
         }
       }
     }
