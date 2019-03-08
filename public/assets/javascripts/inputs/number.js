@@ -2,7 +2,6 @@ var Kora = Kora || {};
 Kora.Inputs = Kora.Inputs || {};
 
 Kora.Inputs.Number = function() {
-    console.log('yoo');
   var $numberInputContainers = $('.number-input-container-js');
   var $numberInputs = $numberInputContainers.find('input[type=number]');
 

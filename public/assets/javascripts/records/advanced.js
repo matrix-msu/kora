@@ -46,7 +46,7 @@ Kora.Records.Advanced = function() {
                 $dateListInputs.css('margin-bottom', '10px');
             } else {
                 // Window is large, 1/3 width Inputs
-                $dateListInputs.css('width', '33%');
+                //$dateListInputs.css('width', '33%'); // this can be handled with css
                 $dateListInputs.css('margin-bottom', '');
             }
         }

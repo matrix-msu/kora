@@ -9,7 +9,7 @@
 
 <div class="form-group mt-xl">
   <label for="email">Email Address</label>
-  <input disabled type="email" class="text-input" id="email" name="email" placeholder="Enter email here" value="{{ $user->email }}">
+  <input type="email" class="text-input" id="email" name="email" placeholder="Enter email here" value="{{ $user->email }}">
 </div>
 
 <div class="form-group half mt-xl">

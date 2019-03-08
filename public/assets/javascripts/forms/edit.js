@@ -37,14 +37,30 @@ Kora.Forms.Edit = function() {
         });
 		
 		$('.create-test-records-btn-js, .delete-test-records-btn-js').click(function(e) {
-			console.log("dislaying loader");
 			display_loader();
         });
 
 		$('.create-test-js').click(function(e) {
 			e.preventDefault();
 
-			var $cleanupModal = $('.create-test-records-js');
+            var $cleanupModal = $('.create-test-records-js');
+
+            $numberInputs = $('input[name="test_records_num"]');
+            $('.num-arrows-js').remove();
+
+            // Add on arrows to number inputs
+            $numberInputs.after('<div class="num-arrows num-arrows-js"><div class="arrow arrow-js arrow-up arrow-up-js"><i class="icon icon-chevron"></i></div><div class="spacer"></div><div class="arrow arrow-js arrow-down arrow-down-js"><i class="icon icon-chevron"></i></div></div>');
+
+            $numberInputs.each(function() {
+              var $input = $(this);
+              var val = ($input.val() && $.isNumeric($input.val()) ? parseFloat($input.val()) : 0);
+              var step = ($input.attr('step') && $.isNumeric($input.attr('step')) ? parseFloat($input.attr('step')) : 1);
+
+              // Set decimal places for val
+              $input.val(val.toFixed(getDecimalPlaces(step)));
+
+              updateArrows($input);
+            });
 
 			Kora.Modal.open($cleanupModal);
         });
@@ -56,6 +72,42 @@ Kora.Forms.Edit = function() {
 
 			Kora.Modal.open($cleanupModal);
         });
+  }
+
+  function updateArrows($input) {
+    var $arrowsContainer = $input.siblings('.num-arrows');
+    var $arrows = $arrowsContainer.find('.arrow-js');
+
+    var num = ($input.val() && $.isNumeric($input.val()) ? parseFloat($input.val()) : 0);
+    var min = ($input.attr('min') ? parseInt($input.attr('min')) : 'unlimited');
+    var max = ($input.attr('max') ? parseInt($input.attr('max')) : 'unlimited');
+    var step = ($input.attr('step') && $.isNumeric($input.attr('step')) ? parseFloat($input.attr('step')) : 1);
+    var decimalPlaces = getDecimalPlaces(step);
+
+    $arrows.click(function() {
+      var $arrow = $(this);
+
+      if ($arrow.hasClass('arrow-up-js')) {
+        num = num + step;
+        if (max != 'unlimited' && num > max) {
+          num = max;
+        }
+      } else if ($arrow.hasClass('arrow-down-js')) {
+        num = num - step;
+        if (min != 'unlimited' && num < min) {
+          num = min;
+        }
+      }
+
+      $input.val(num.toFixed(decimalPlaces));
+    });
+  }
+
+  function getDecimalPlaces(num) {
+    var numStr = num.toString();
+    var decIndex = numStr.indexOf('.') + 1;
+
+    return !decIndex ? 0 : numStr.length - decIndex;
   }
 
   function scrollTop (allScrolls) {

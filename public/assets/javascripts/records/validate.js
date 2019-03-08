@@ -39,6 +39,9 @@ Kora.Records.Validate = function() {
             var $this = $(this);
 
             e.preventDefault();
+			
+			// this prevents other types of inputs from validating though...
+			//if (!validateNumberInputs()) return;
 
             values = {};
             //We need to make sure all CKEDITOR data is actually in the form to validate it
@@ -53,6 +56,8 @@ Kora.Records.Validate = function() {
                         values[field.name] = [values[field.name], field.value];
                 else
                     values[field.name] = field.value;
+				
+				console.log(field);
             });
             values['_method'] = 'POST';
 
@@ -103,7 +108,8 @@ Kora.Records.Validate = function() {
                               errorList.push($page); 
                             }
                         });
-                    initializeValidationModal();
+						
+						initializeValidationModal();
                     }
                 },
                 error: function(err) {

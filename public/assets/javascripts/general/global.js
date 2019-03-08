@@ -241,6 +241,15 @@ $(document).ready(function() {
       if ($note.text() === 'Update Available!') {
         $('.view-updates-js').removeClass('hidden');
       }
+	  
+	  console.log("note text: " + $note.text());
+	  if ($note.text() === "Form Associations Requested") {
+		console.log("enter2");
+		$("a[href='#create']").removeClass('active');
+		$("a[href='#request']").addClass('active');
+		$('.request-section').removeClass('hidden');
+        $('.create-section').addClass('hidden');
+	  }
 
       if ($noteDesc.text() != '') {
         $noteDesc.addClass('note-description');
