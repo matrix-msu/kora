@@ -86,18 +86,16 @@ class FieldController extends Controller {
         // Combo List Specific
         $options = array();
         if($request->type == Form::_COMBO_LIST) {
-            // Not sure if this is how I want to represent the combo fields.
-            for ($i = 1;$i < 3;$i++) {
-                array_push(
-                    $options, [
-                        'type' => $request->{'cftype' . $i},
-                        'slug' => slugFormat(
-                            $request->{'cfname' . $i},
-                            $form->project_id,
-                            $form->id
-                        )
-                    ]
-                );
+            foreach(['one' => 1, 'two' => 2] as $key => $num) {
+                $options[$key] = [
+                    'type' => $request->{'cftype' . $num},
+                    'name' => slugFormat(
+                        $request->{'cfname' . $num},
+                        $form->project_id,
+                        $form->id
+                    )
+                ];
+                $field[$key] = $options[$key];
             }
         }
 

@@ -1,18 +1,18 @@
 @extends('fields.show')
 
-@section('presetModal')
+{{-- TODO::CASTLE --}}
+{{-- @section('presetModal')
 	@include('partials.fields.fieldValuePresetModals.addComboRegexPresetModal', ['presets' => $presets])
-@stop
+@stop --}}
 
 @section('fieldOptions')
     <?php
-    $oneType = \App\ComboListField::getComboFieldType($field,'one');
-    $twoType = \App\ComboListField::getComboFieldType($field,'two');
-    $oneName = \App\ComboListField::getComboFieldName($field,'one');
-    $twoName = \App\ComboListField::getComboFieldName($field,'two');
+    $oneType = $field['one']['type'];
+    $twoType = $field['two']['type'];
+    $oneName = $field['one']['name'];
+    $twoName = $field['two']['name'];
 
     $defs = $field['default'];
-    $defArray = explode('[!def!]',$defs);
     ?>
 
     {!! Form::hidden('typeone',$oneType) !!}
@@ -87,32 +87,25 @@
                     </div>
 
                 @if($defs!=null && $defs!='')
-                    @for($i=0;$i<sizeof($defArray);$i++)
+                    @for($i=0;$i<sizeof($defs['one']);$i++)
+                        @php
+                            $valueOne = $defs['one'][$i];
+                            $valueTwo = $defs['two'][$i];
+                        @endphp
                         <div class="card combo-value-item-js">
                             @if($oneType=='Text' | $oneType=='List' | $oneType=='Number' | $oneType=='Date')
-                                <?php $value = explode('[!f1!]',$defArray[$i])[1]; ?>
-                                {!! Form::hidden("default_combo_one[]",$value) !!}
-                                <span class="combo-column">{{$value}}</span>
+                                {!! Form::hidden("default_combo_one[]",$valueOne) !!}
+                                <span class="combo-column">{{$valueOne}}</span>
                             @elseif($oneType=='Multi-Select List' | $oneType=='Generated List' | $oneType=='Associator')
-                                <?php
-                                $valPre = explode('[!f1!]',$defArray[$i])[1];
-                                $value = explode('[!]',$valPre);
-                                ?>
-                                {!! Form::hidden("default_combo_one[]",$valPre) !!}
-                                <span class="combo-column">{{implode(' | ',$value)}}</span>
+                                {!! Form::hidden("default_combo_one[]",$valueOne) !!}
+                                <span class="combo-column">{{implode(' | ',$valueOne)}}</span>
                             @endif
-
                             @if($twoType=='Text' | $twoType=='List' | $twoType=='Number' | $twoType=='Date')
-                                <?php $value = explode('[!f2!]',$defArray[$i])[1]; ?>
-                                {!! Form::hidden("default_combo_two[]",$value) !!}
-                                <span class="combo-column">{{$value}}</span>
+                                {!! Form::hidden("default_combo_two[]",$valueTwo) !!}
+                                <span class="combo-column">{{$valueTwo}}</span>
                             @elseif($twoType=='Multi-Select List' | $twoType=='Generated List' | $twoType=='Associator')
-                                <?php
-                                $valPre = explode('[!f2!]',$defArray[$i])[1];
-                                $value = explode('[!]',$valPre);
-                                ?>
-                                {!! Form::hidden("default_combo_two[]",$valPre) !!}
-                                <span class="combo-column">{{implode(' | ',$value)}}</span>
+                                {!! Form::hidden("default_combo_two[]",$valueTwo) !!}
+                                <span class="combo-column">{{implode(' | ',$valueTwo)}}</span>
                             @endif
 
                             <span class="combo-delete delete-combo-value-js">
@@ -134,7 +127,7 @@
 @stop
 
 @section('fieldOptionsJS')
-    assocSearchURI = "{{ action('AssociatorSearchController@assocSearch',['pid' => $field->pid,'fid'=>$field->fid, 'flid'=>$field->flid]) }}";
+    {{-- assocSearchURI = "{{ action('AssociatorSearchController@assocSearch',['pid' => $field->pid,'fid'=>$fid, 'flid'=>$field->flid]) }}"; --}}
     csrfToken = "{{ csrf_token() }}";
     type1 = '{{$oneType}}';
     type2 = '{{$twoType}}';

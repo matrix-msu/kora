@@ -114,7 +114,7 @@ class ComboListField extends BaseField {
 
         foreach ($options as $option) {
             $method = $this->fieldToDBFuncAssoc[$option['type']];
-            $table->{$method}($fid, $option['slug']);
+            $table->{$method}($fid, $option['name']);
         }
     }
 
@@ -125,30 +125,16 @@ class ComboListField extends BaseField {
      * @return array - The default options
      */
     public function getDefaultOptions($types = null) {
+        // TODO::@andrew.joye might change arg to options
         $defaultOptions = [];
 
-        foreach ($types as $type) {
+        foreach ($types as $key => $type) {
             $className = $this->fieldModel[$type['type']];
             $object = new $className;
-            $defaultOptions[$type['slug']] = $object->getDefaultOptions();
+            $defaultOptions[$key] = $object->getDefaultOptions();
         }
 
         return $defaultOptions;
-    }
-
-    /**
-     * Helper function to process default options for sub field.
-     *
-     * @param  string $type - Type of field
-     * @param  string $name - Name of sub field
-     * @return string - The default options
-     */
-    private function getSubFieldDefaultOptions($type, $name) {
-        $options = "[Type]".$type."[Type][Name]".$name."[Name]";
-        $typedField = Field::getTypedFieldStatic($type);
-        $options .= "[Options]".$typedField->getDefaultOptions(new Request())."[Options]";
-
-        return $options;
     }
 
     /**
@@ -160,32 +146,49 @@ class ComboListField extends BaseField {
      * @return array - The updated field array
      */
     public function updateOptions($field, Request $request, $flid = null) {
-        $flopt_one ='[Type]'.$request->typeone.'[Type][Name]'.$request->cfname1.'[Name]';
-        $flopt_one .= $this->formatUpdatedSubOptions($request,"one",$field->fid);
 
-        $flopt_two ='[Type]'.$request->typetwo.'[Type][Name]'.$request->cfname2.'[Name]';
-        $flopt_two .= $this->formatUpdatedSubOptions($request,"two",$field->fid);
+        $default = array(
+            'one' => array(),
+            'two' => array()
+        );
 
-        $default='';
-        if(!is_null($request->default_combo_one) && $request->default_combo_one != '') {
-            $default .= '[!f1!]'.$request->default_combo_one[0].'[!f1!]';
-            $default .= '[!f2!]'.$request->default_combo_two[0].'[!f2!]';
-
-            for($i=1;$i<sizeof($request->default_combo_one);$i++) {
-                $default .= '[!def!]';
-                $default .= '[!f1!]'.$request->default_combo_one[$i].'[!f1!]';
-                $default .= '[!f2!]'.$request->default_combo_two[$i].'[!f2!]';
+        if(
+            !is_null($request->default_combo_one) &&
+            !is_null($request->default_combo_two)
+        ) {
+            foreach ($request->default_combo_one as $value) {
+                array_push($default['one'], $value);
+            }
+            foreach ($request->default_combo_two as $value) {
+                array_push($default['two'], $value);
             }
         }
 
-        $field->updateRequired($request->required);
-        $field->updateSearchable($request);
-        $field->updateDefault($default);
-        $field->updateOptions('Field1', $flopt_one);
-        $field->updateOptions('Field2', $flopt_two);
+        // dd($default);
 
-        return redirect('projects/' . $field->pid . '/forms/' . $field->fid . '/fields/' . $field->flid . '/options')
-            ->with('k3_global_success', 'field_options_updated');
+
+        // $flopt_one ='[Type]'.$request->typeone.'[Type][Name]'.$request->cfname1.'[Name]';
+        // $flopt_one .= $this->formatUpdatedSubOptions($request,"one",$field->fid);
+
+        // $flopt_two ='[Type]'.$request->typetwo.'[Type][Name]'.$request->cfname2.'[Name]';
+        // $flopt_two .= $this->formatUpdatedSubOptions($request,"two",$field->fid);
+
+        // $default='';
+        // if(!is_null($request->default_combo_one) && $request->default_combo_one != '') {
+        //     $default .= '[!f1!]'.$request->default_combo_one[0].'[!f1!]';
+        //     $default .= '[!f2!]'.$request->default_combo_two[0].'[!f2!]';
+
+        //     for($i=1;$i<sizeof($request->default_combo_one);$i++) {
+        //         $default .= '[!def!]';
+        //         $default .= '[!f1!]'.$request->default_combo_one[$i].'[!f1!]';
+        //         $default .= '[!f2!]'.$request->default_combo_two[$i].'[!f2!]';
+        //     }
+        // }
+        $field['default'] = $default;
+        // $field->updateOptions('Field1', $flopt_one);
+        // $field->updateOptions('Field2', $flopt_two);
+
+        return $field;
     }
 
     /**
@@ -1071,21 +1074,6 @@ class ComboListField extends BaseField {
      * @return string - The option
      */
     public static function getComboFieldOption($field, $key, $num) {
-        $options = $field->options;
-        if($num=='one')
-            $opt = explode('[!Field1!]',$options)[1];
-        else if($num=='two')
-            $opt = explode('[!Field2!]',$options)[1];
-
-        $tag = '[!'.$key.'!]';
-
-        $exploded = explode($tag, $opt);
-
-        if(sizeof($exploded) < 2)
-            return null;
-
-        $value = explode($tag,$opt)[1];
-
-        return $value;
+        return $field['options'][$num][$key];
     }
 }
