@@ -1,5 +1,6 @@
 <?php namespace App\KoraFields;
 
+use App\Form;
 use App\Http\Controllers\AssociationController;
 use App\Http\Controllers\FieldController;
 use App\Http\Controllers\FormController;
@@ -147,119 +148,50 @@ class ComboListField extends BaseField {
      */
     public function updateOptions($field, Request $request, $flid = null) {
 
-        $default = array(
-            'one' => array(),
-            'two' => array()
-        );
+        foreach (['one', 'two'] as $seq) {
+            $options = array();
 
-        if(
-            !is_null($request->default_combo_one) &&
-            !is_null($request->default_combo_two)
-        ) {
-            foreach ($request->default_combo_one as $value) {
-                array_push($default['one'], $value);
+            switch($request->{'type' . $seq}) {
+                case Form::_TEXT:
+                    $regex = $request->{'regex_' . $seq};
+                    $multi = $request->{'multi_' . $seq};
+                    if($regex!='') {
+                        $regArray = str_split($regex);
+                        if($regArray[0]!=end($regArray))
+                            $regex = '/'.$regex.'/';
+                    } else {
+                        $regex = null;
+                    }
+                    $options['Regex'] = $regex;
+                    $options['MultiLine'] = isset($multi) && $multi ? 1 : 0;
+                    break;
+                case Form::_INTEGER:
+                case Form::_FLOAT:
+                    $min = $request->{'min_' . $seq};
+                    $max = $request->{'max_' . $seq};
+
+                    if(($min != '' && $max != '') && ($min >= $max))
+                        $max = $min = '';
+
+                    $options['Max'] = $max;
+                    $options['Min'] = $min;
+                    $options['Unit'] = $request->{'unit_' . $seq};
+                    break;
+                case Form::_LIST:
+                case Form::_MULTI_SELECT_LIST:
+                    $listopts = $request->{'options_' . $seq};
+                    if(is_null($listopts)) {
+                        $listopts = array();
+                    }
+                    $options['Options'] = $listopts;
+                    break;
             }
-            foreach ($request->default_combo_two as $value) {
-                array_push($default['two'], $value);
-            }
+
+            $field['default'][$seq] = $request->{'default_combo_' . $seq};
+            $field['options'][$seq] = $options;
         }
-
-        // dd($default);
-
-
-        // $flopt_one ='[Type]'.$request->typeone.'[Type][Name]'.$request->cfname1.'[Name]';
-        // $flopt_one .= $this->formatUpdatedSubOptions($request,"one",$field->fid);
-
-        // $flopt_two ='[Type]'.$request->typetwo.'[Type][Name]'.$request->cfname2.'[Name]';
-        // $flopt_two .= $this->formatUpdatedSubOptions($request,"two",$field->fid);
-
-        // $default='';
-        // if(!is_null($request->default_combo_one) && $request->default_combo_one != '') {
-        //     $default .= '[!f1!]'.$request->default_combo_one[0].'[!f1!]';
-        //     $default .= '[!f2!]'.$request->default_combo_two[0].'[!f2!]';
-
-        //     for($i=1;$i<sizeof($request->default_combo_one);$i++) {
-        //         $default .= '[!def!]';
-        //         $default .= '[!f1!]'.$request->default_combo_one[$i].'[!f1!]';
-        //         $default .= '[!f2!]'.$request->default_combo_two[$i].'[!f2!]';
-        //     }
-        // }
-        $field['default'] = $default;
-        // $field->updateOptions('Field1', $flopt_one);
-        // $field->updateOptions('Field2', $flopt_two);
 
         return $field;
-    }
-
-    /**
-     * Helper function to format updated options for sub field.
-     *
-     * @param  Request $request
-     * @param  string $seq - Is this the first or second sub field
-     * @param  int $fid - Form ID, mostly for associator use
-     * @return string - The updated options
-     */
-    private function formatUpdatedSubOptions($request, $seq, $fid) {
-        $options = "[Options]";
-        $type = $request->{"type".$seq};
-        switch($type) {
-            case Field::_TEXT:
-                $options .= '[!Regex!]'.$request->{"regex_".$seq}.'[!Regex!]';
-                $options .= '[!MultiLine!]'.$request->{"multi_".$seq}.'[!MultiLine!]';
-                break;
-            case Field::_NUMBER:
-                $options .= '[!Max!]'.$request->{"max_".$seq}.'[!Max!]';
-                $options .= '[!Min!]'.$request->{"min_".$seq}.'[!Min!]';
-                $options .= '[!Increment!]'.$request->{"inc_".$seq}.'[!Increment!]';
-                $options .= '[!Unit!]'.$request->{"unit_".$seq}.'[!Unit!]';
-                break;
-            case Field::_DATE:
-                $options .= '[!Start!]'.$request->{"start_".$seq}.'[!Start!]';
-                $options .= '[!End!]'.$request->{"end_".$seq}.'[!End!]';
-                break;
-            case Field::_LIST:
-            case Field::_MULTI_SELECT_LIST:
-                $options .= '[!Options!]';
-
-                $reqOpts = $request->{"options_".$seq};
-                if(!is_null($reqOpts))
-                    $options .= implode("[!]",$reqOpts);
-                $options .= '[!Options!]';
-                break;
-            case Field::_GENERATED_LIST:
-                $options .= '[!Options!]';
-
-                $reqOpts = $request->{"options_".$seq};
-                if(!is_null($reqOpts))
-                    $options .= implode("[!]",$reqOpts);
-                $options .= '[!Options!]';
-                $options .= '[!Regex!]'.$request->{"regex_".$seq}.'[!Regex!]';
-                break;
-            case Field::_ASSOCIATOR:
-                $options .= '[!SearchForms!]';
-                $opt = array();
-
-                foreach(AssociationController::getAvailableAssociations($fid) as $a) {
-                    $f = FormController::getForm($a->dataForm);
-                    $box = 'checkbox_'.$f->fid.'_'.$seq;
-                    if(!is_null($request->{$box})) {
-                        $preview = 'preview_' . $f->fid . '_' . $seq;
-
-                        $val = '[fid]' . $f->fid . '[fid]';
-                        $val .= '[search]1[search]';
-                        $val .= '[flids]' . $request->{$preview} . '[flids]';
-
-                        array_push($opt, $val);
-                    }
-                }
-
-                $options .= implode('[!]',$opt);
-                $options .= '[!SearchForms!]';
-                break;
-        }
-        $options .= "[Options]";
-
-        return $options;
     }
 
     /**
