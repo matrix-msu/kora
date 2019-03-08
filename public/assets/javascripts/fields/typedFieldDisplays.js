@@ -117,15 +117,29 @@ Kora.Fields.TypedFieldDisplays.Initialize = function() {
                     galAspectRatio = galWidth / galHeight;
                 }
 
+                // this works for the thumbnail display but not for the fullscreen modal
                 function setImageSize($slideImg, imgAspectRatio) {
-                    if (imgAspectRatio > galAspectRatio) {
-                        // Image is wider than gallery container
-                        $slideImg.css('height', 'auto');
-                        $slideImg.css('width', '100%');
+                    if (!$this.hasClass('full-height')) {
+                        if (imgAspectRatio > galAspectRatio) {
+                        //if (imgAspectRatio > 1 ) {
+                            // Image is wider than gallery container
+                            $slideImg.css('height', 'auto');
+                            $slideImg.css('width', '100%');
+                        } else {
+                            // Image is tall or same aspect ratio as gallery container
+                            $slideImg.css('height', '100%');
+                            $slideImg.css('width', 'auto');
+                        }
                     } else {
-                        // Image is tall or same aspect ratio as gallery container
-                        $slideImg.css('height', '100%');
-                        $slideImg.css('width', 'auto');
+                        if (imgAspectRatio > 1 ) {
+                            // Image is wider than gallery container
+                            $slideImg.addClass('wideImage');
+                            $slideImg.removeClass('tallImage');
+                        } else {
+                            // Image is tall or same aspect ratio as gallery container
+                            $slideImg.removeClass('wideImage');
+                            $slideImg.addClass('tallImage');
+                        }
                     }
                 }
             });
@@ -158,7 +172,15 @@ Kora.Fields.TypedFieldDisplays.Initialize = function() {
 
                 // Slide slides
                 var pos = ((index - currentSlide) * galWidth) + "px";
-                $slide.animate({left: pos}, 100, 'swing');
+                $slide.animate({left: pos}, 100, 'swing', function () {
+                    if ( pos === '0px' ) {
+                        $slide.addClass('currentSlide');
+                        if ( $slide.height() < 400 )
+                            $slide.addClass('small');
+                        else if ( $slide.height() < $slide.children().height() ) // if img height > height of container
+                            $slide.css('height', $slide.height());
+                    }
+                });
 
                 // Slide captions
                 var capPos = ((index - currentSlide) * captionWidth) + "px";
@@ -172,6 +194,7 @@ Kora.Fields.TypedFieldDisplays.Initialize = function() {
 
             // Set horizontal positioning for all slides
             function setImagePositions() {
+                $slides.removeClass('currentSlide')
                 for (var i = 0; i < slideCount; i++) {
                     var $slide = $($slides[i]);
                     var $caption = $($captions[i]);

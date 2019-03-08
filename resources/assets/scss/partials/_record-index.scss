@@ -184,13 +184,16 @@
         @include transition();
 
         background: linear-gradient(0deg, #f5f6f7 0%, rgba(255, 255, 255, 0) 100%);
-        bottom: -6px;
+        bottom: -10.5px;
         font-size: 0.5em;
         opacity: 0.6;
         padding: 60px 21px 0 21px;
         position: absolute;
 
         &:hover {
+          bottom: -12px;
+          cursor: pointer;
+          font-size: 0.625em;
           opacity: 1;
         }
 
@@ -202,21 +205,11 @@
       .tabs-left {
         left: -5px;
         transform: rotate(90deg) scale(0.9);
-        &:hover {
-          bottom: -5px;
-          cursor: pointer;
-          font-size: 0.625em;
-        }
       }
 
       .tabs-right {
         right: -5px;
         transform: rotate(-90deg) scale(0.9);
-        &:hover {
-          bottom: -5px;
-          cursor: pointer;
-          font-size: 0.625em;
-        }
       }
     }
 

@@ -21,9 +21,9 @@
   }
 
   &-circle {
-    border-radius: 18px;
-    height: 36px;
-    width: 36px;
+    border-radius: 50%;
+    min-height: 36px;
+    min-width: 36px;
   }
 
   &.modal-toggle {
@@ -234,6 +234,11 @@
       background: palette('gray', slate);
     }
   }
+  
+  .dots {
+	padding-left: 10px;
+	padding-right: 10px;
+  }
 
   .field-btn {
     .icon {
@@ -288,7 +293,10 @@
   }
 
   .slide-img {
+    display: block;
     margin: auto;
+    max-height: 100%;
+    max-width: 100%;
   }
 }
 
@@ -326,6 +334,24 @@
 
       &.full-height {
         height: 100%;
+      }
+
+      .slide {
+        max-height: 75vh;
+      }
+
+      .currentSlide {
+        display: block;
+        position: static;
+
+        &.small {
+          display: flex;
+          position: absolute;
+
+          .slide-img {
+            height: 100%;
+          }
+        }
       }
     }
   }

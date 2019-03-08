@@ -18,8 +18,10 @@
 
             <div class="form-group mt-xxl">
                 {!! Form::label('test_records_num', 'Test Record Create Amount') !!}
-                {!! Form::number('test_records_num', null, ['class' => 'text-input', 'min' => '1', 'max' => '1000', 'step' => '1',
-                    'placeholder' => "Select the number of test records you would like to create here (Max. 1000)"]) !!}
+                <div class="number-input-container number-input-container-js">
+                    {!! Form::number('test_records_num', null, ['class' => 'text-input', 'min' => '1', 'max' => '1000', 'step' => '1',
+                        'placeholder' => "Select the number of test records you would like to create here (Max. 1000)"]) !!}
+                </div>
             </div>
 
             <div class="form-group mt-xxl">
