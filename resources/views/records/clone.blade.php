@@ -28,7 +28,9 @@
                 the record below as needed. Adjustments you make here will only be applied to the new duplicate record(s).</p>
             <div class="form-group mt-xl mb-xxl duplicate-record-special-js">
                 {!! Form::label('mass_creation_num', 'Select duplication amount (max 1000): ') !!}
-                <input type="number" name="mass_creation_num" class="text-input" value="2" step="1" max="1000" min="1">
+                <div class="number-input-container number-input-container-js">
+                    <input type="number" name="mass_creation_num" class="text-input" value="2" step="1" max="1000" min="1">
+                </div>
             </div>
             <div class="content-sections">
                 <div class="content-sections-scroll">

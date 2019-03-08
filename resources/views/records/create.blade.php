@@ -91,7 +91,9 @@
 
             <div class="form-group mt-xl duplicate-record-js hidden">
                 {!! Form::label('mass_creation_num', 'Select duplication amount (max 1000)') !!}
-                <input type="number" name="mass_creation_num" class="text-input" value="2" step="1" max="1000" min="2" disabled>
+                <div class="number-input-container number-input-container-js">
+                    <input type="number" name="mass_creation_num" class="text-input" value="2" step="1" max="1000" min="2" disabled>
+                </div>
             </div>
 
             <div class="form-group mt-xxxl">
@@ -112,7 +114,7 @@
             </div>
 
             <div class="form-group mt-xxxl">
-                {!! Form::submit('Create New Record',['class' => 'btn record-validate-js']) !!}
+                {!! Form::button('Create New Record',['class' => 'btn record-validate-js']) !!}
             </div>
         {!! Form::close() !!}
     </section>

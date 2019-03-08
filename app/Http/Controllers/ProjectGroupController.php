@@ -38,7 +38,7 @@ class ProjectGroupController extends Controller {
      * @param $pid - Project ID
      * @return View
      */
-    public function index($pid, $active = 0) {
+    public function index($pid, $active = 0, Request $request) {
         $project = ProjectController::getProject($pid);
 
         if(!\Auth::user()->isProjectAdmin($project))
@@ -49,11 +49,18 @@ class ProjectGroupController extends Controller {
         $all_users = User::all();
 
         $notification = array(
-          'message' => '',
-          'description' => '',
-          'warning' => false,
-          'static' => false
+            'message' => '',
+            'description' => '',
+            'warning' => false,
+            'static' => false
         );
+
+        $prevUrlArray = $request->session()->get('_previous');
+        $prevUrl = reset($prevUrlArray);
+        $session = $request->session()->get('k3_global_success');
+        if($prevUrl == url()->current() && $session == 'project_group_created') {
+            $notification['message'] = 'Project Permissions Group Successfully Created';
+        }
 
         return view('projectGroups.index', compact('project', 'projectGroups', 'users', 'all_users', 'active', 'notification'));
     }
@@ -128,7 +135,7 @@ class ProjectGroupController extends Controller {
 
             $group->users()->attach($request->users);
         }
-		
+
         return redirect('projects/'.$pid.'/manage/projectgroups')->with('k3_global_success', 'project_group_created');
     }
 

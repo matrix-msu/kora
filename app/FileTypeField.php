@@ -3,6 +3,7 @@
 use App\FieldHelpers\UploadHandler;
 use App\Http\Controllers\FieldController;
 use App\Http\Controllers\RecordController;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Http\Request;
 use ZipArchive;
 
@@ -77,8 +78,13 @@ abstract class FileTypeField extends BaseField {
             $fileNumDisk = count(glob($dir.'/*.*'));
         else
             $fileNumDisk = 0;
-
-        $maxFieldSize = FieldController::getFieldOption($field, 'FieldSize')*1024; //conversion of kb to bytes
+		
+		$maxFieldSize = FieldController::getFieldOption($field, 'FieldSize');
+		if (trim($maxFieldSize) === '') {
+			$maxFieldSize = '0';
+		}
+		$maxFieldSize = $maxFieldSize * 1024;
+		
         $fileSizeRequest = 0;
         foreach($_FILES['file'.$flid]['size'] as $size) {
             $fileSizeRequest += $size;

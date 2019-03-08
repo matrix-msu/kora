@@ -61,7 +61,8 @@ class AssociationController extends Controller {
           'message' => '',
           'description' => '',
           'warning' => false,
-          'static' => true /* the only notification to appear on this page will be static */
+          //'static' => true /* the only notification to appear on this page will be static */// which notification?
+          'static' => false
         );
 
 		return view('association.index', compact('form', 'assocs', 'associatedForms', 'project', 'available_associations', 'requestable_associations', 'associatable_forms', 'notification'));
@@ -90,9 +91,7 @@ class AssociationController extends Controller {
         
         return response()->json(
             [
-                'k3_global_success' => 'assoc_created',
-                'form' => $form,
-                'project_name' => $form->project()->get()->first()->name
+                'k3_global_success' => 'assoc_created'
             ]
         );
 	}

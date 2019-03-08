@@ -154,6 +154,8 @@ class UserController extends Controller {
 
       $message = array();
       $user = User::where('id', '=', $request->uid)->first();
+      // $newUsername = $request->username;
+      $newEmail = $request->email;
       $newFirstName = $request->first_name;
       $newLastName = $request->last_name;
       $newProfilePic = $request->profile;
@@ -162,6 +164,16 @@ class UserController extends Controller {
       $confirm = $request->password_confirmation;
 
       // Look for changes, update what was changed
+      // if(!empty($newUsername) && $newUsername != $user->username) {
+      //     $user->username = $newUsername;
+      //     array_push($message, 'username');
+      // }
+
+      if(!empty($newEmail) && $newEmail != $user->email) {
+          $user->email = $newEmail;
+          array_push($message, 'email');
+      }
+
       if(!empty($newFirstName) && $newFirstName != $user->first_name) {
         $user->first_name = $newFirstName;
         array_push($message, "first_name");

@@ -81,7 +81,8 @@ class RecordController extends Controller {
           else if ($session == 'test_records_created') { 
             $numRecs = $request->session()->get('num_test_recs');
             $notification['message'] = $numRecs.' Test Records Created!'; 
-          }
+          } else if ($session == 'test_records_deleted')
+            $notification['message'] = 'Test Records Deleted!';
         }
 
         return view('records.index', compact('form', 'records', 'total', 'notification'));
