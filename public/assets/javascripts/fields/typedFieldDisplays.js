@@ -278,7 +278,7 @@ Kora.Fields.TypedFieldDisplays.Initialize = function() {
 
             // External Button Clicked
             $geolocator.find('.external-button-js').click(function() {
-                console.log('external');
+                console.log('external'); 
             });
 
             // Full Screen Button Clicked
