@@ -174,23 +174,22 @@ class ExodusHelperController extends Controller {
                             $newType = 'Text';
                         }
                         break;
-                    case 'MultiTextControl': //TODO::CASTLE
-//                        $def = array();
-//                        if(!$blankOpts && !is_null($optXML->defaultValue->value)) {
-//                            foreach($optXML->defaultValue->value as $xmlopt) {
-//                                array_push($def, (string)$xmlopt);
-//                            }
-//                        }
-//
-//                        if(!$blankOpts)
-//                            $regex = $optXML->regex->__toString();
-//                        else
-//                            $regex = '';
-//
-//                        $newOpts = ['Regex' => $regex, 'Options' => $def];
-//                        $newDef = $def;
-//                        $newType = 'Generated List';
-                        $skip = true;
+                    case 'MultiTextControl':
+                        $def = array();
+                        if(!$blankOpts && !is_null($optXML->defaultValue->value)) {
+                            foreach($optXML->defaultValue->value as $xmlopt) {
+                                array_push($def, (string)$xmlopt);
+                            }
+                        }
+
+                        if(!$blankOpts)
+                            $regex = $optXML->regex->__toString();
+                        else
+                            $regex = '';
+
+                        $newOpts = ['Regex' => $regex, 'Options' => $def];
+                        $newDef = $def;
+                        $newType = 'Generated List';
                         break;
                     case 'DateControl': //TODO::CASTLE
 //                        if(!$blankOpts) {
@@ -225,37 +224,29 @@ class ExodusHelperController extends Controller {
 //                        $newType = 'Date';
                         $skip = true;
                         break;
-                    case 'MultiDateControl': //TODO::CASTLE
-//                        $def = array();
-//                        if(!$blankOpts) {
-//                            $startY = (int)$optXML->startYear;
-//                            $endY = (int)$optXML->endYear;
-//                            foreach($optXML->defaultValue as $xmlopt) {
-//                                array_push($def, (string)$xmlopt);
-//                            }
-//                        } else {
-//                            $startY = 1990;
-//                            $endY = 2020;
-//                        }
-//
-//                        if(isset($def['date']))
-//                            $def = $def['date'];
-//                        else
-//                            $def=array();
-//
-//                        $defOpts = '';
-//                        if(isset($def[0])) {
-//                            $defOpts = 'Event 1: ' . $def[0]->month . '/' . $def[0]->day . '/' . $def[0]->year . ' - ' . $def[0]->month . '/' . $def[0]->day . '/' . $def[0]->year;
-//                            $size = sizeof($def);
-//                            for($i = 1; $i < $size; ++$i) {
-//                                $defOpts .= '[!]' . 'Event ' . ($i + 1) . ': ' . $def[$i]->month . '/' . $def[$i]->day . '/' . $def[$i]->year . ' - ' . $def[$i]->month . '/' . $def[$i]->day . '/' . $def[$i]->year;
-//                            }
-//                        }
-//
-//                        $newOpts = '[!Start!]'.$startY.'[!Start!][!End!]'.$endY.'[!End!][!Calendar!]No[!Calendar!]';
-//                        $newDef = $defOpts;
-//                        $newType = 'Schedule';
-                        $skip = true;
+                    case 'MultiDateControl': //We convert multi date to a generated list with a date regex
+                        $def = array();
+                        if(!$blankOpts) {
+                            foreach($optXML->defaultValue as $xmlopt) {
+                                array_push($def, (string)$xmlopt);
+                            }
+                        }
+
+                        if(isset($def['date']))
+                            $def = $def['date'];
+
+                        $defOpts = array();
+                        if(isset($def[0])) {
+                            $defOpts[] = $def[0]->month . '/' . $def[0]->day . '/' . $def[0]->year;
+                            $size = sizeof($def);
+                            for($i = 1; $i < $size; ++$i) {
+                                $defOpts[] = $def[$i]->month . '/' . $def[$i]->day . '/' . $def[$i]->year;
+                            }
+                        }
+
+                        $newOpts = ['Regex' => '/^(((0)[0-9])|((1)[0-2]))(\/)([0-2][0-9]|(3)[0-1])(\/)\d{4}$/', 'Options' => $defOpts];
+                        $newDef = $defOpts;
+                        $newType = 'Generated List';
                         break;
                     case 'FileControl':
                         if(!$blankOpts)
@@ -314,25 +305,24 @@ class ExodusHelperController extends Controller {
                         $newDef = $def;
                         $newType = 'List';
                         break;
-                    case 'MultiListControl': //TODO::CASTLE after 64 set fix
-//                        $opts = array();
-//                        if(!$blankOpts) {
-//                            foreach($optXML->option as $xmlopt) {
-//                                array_push($opts, (string)$xmlopt);
-//                            }
-//                        }
-//
-//                        $def = array();
-//                        if(!$blankOpts && !is_null($optXML->defaultValue->option)) {
-//                            foreach($optXML->defaultValue->option as $xmlopt) {
-//                                array_push($def, (string)$xmlopt);
-//                            }
-//                        }
-//
-//                        $newOpts = ['Options' => $opts];
-//                        $newDef = $def;
-//                        $newType = 'Multi-Select List';
-                        $skip = true;
+                    case 'MultiListControl':
+                        $opts = array();
+                        if(!$blankOpts) {
+                            foreach($optXML->option as $xmlopt) {
+                                array_push($opts, (string)$xmlopt);
+                            }
+                        }
+
+                        $def = array();
+                        if(!$blankOpts && !is_null($optXML->defaultValue->option)) {
+                            foreach($optXML->defaultValue->option as $xmlopt) {
+                                array_push($def, (string)$xmlopt);
+                            }
+                        }
+
+                        $newOpts = ['Options' => $opts];
+                        $newDef = $def;
+                        $newType = 'Multi-Select List';
                         break;
                     case 'AssociatorControl':
                         $opts = array();
@@ -473,12 +463,12 @@ class ExodusHelperController extends Controller {
                     case 'Rich Text':
                         $recordDataToSave[$r['id']][$flid] = $value;
                         break;
-                    case 'Generated List': //TODO::CASTLE
-//                        $mtc = array();
-//                        foreach(simplexml_load_string($value)->text as $xmlopt) {
-//                            array_push($mtc, (string)$xmlopt);
-//                        }
-//                        $recordDataToSave[$r['id']][$flid] = json_encode($mtc);
+                    case 'Generated List':
+                        $mtc = array();
+                        foreach(simplexml_load_string($value)->text as $xmlopt) {
+                            array_push($mtc, (string)$xmlopt);
+                        }
+                        $recordDataToSave[$r['id']][$flid] = json_encode($mtc);
                         break;
                     case 'Date': //TODO::CASTLE
 //                            $dateXML = simplexml_load_string($value);
@@ -631,14 +621,13 @@ class ExodusHelperController extends Controller {
                     case 'List':
                         $recordDataToSave[$r['id']][$flid] = $value;
                         break;
-                    case 'Multi-Select List': //TODO::CASTLE after 64 set fix
-//                        $mlc = array();
-//                        foreach(simplexml_load_string($value)->value as $xmlopt) {
-//                            array_push($mlc, (string)$xmlopt);
-//                        }
-//                        $optStr = implode(',',$mlc);
-//
-//                        $recordDataToSave[$r['id']][$flid] = $optStr;
+                    case 'Multi-Select List':
+                        $mlc = array();
+                        foreach(simplexml_load_string($value)->value as $xmlopt) {
+                            array_push($mlc, (string)$xmlopt);
+                        }
+
+                        $recordDataToSave[$r['id']][$flid] = json_encode($mlc);
                         break;
                     case 'Associator':
                         $kids = array();
@@ -679,7 +668,7 @@ class ExodusHelperController extends Controller {
         $filename = storage_path(ExodusController::EXODUS_DATA_PATH.'assoc_'.$ogSid.'_'.$filePartNum.'.json');
         file_put_contents($filename,$dataToWrite);
 
-        //We want to save the conversion array of Kora 2 KIDs to Kora 3 RIDs for this scheme //TODO::CASTLE
+        //We want to save the conversion array of Kora 2 KIDs to Kora 3 RIDs for this scheme
         $ridChunks = array_chunk($oldKidToNewKid, 500, true);
         $partIndex = 0;
         foreach($ridChunks as $ridc) {
