@@ -39,9 +39,9 @@
                 //if($field->default!='' && explode('[Y]',$field->default)[1]=='0'){
                 //    $currYear=\Carbon\Carbon::now()->year;
 		//}
-		
-                $i = \App\ComboListField::getComboFieldOption($field, "Start", $fnum);
-                $j = \App\ComboListField::getComboFieldOption($field, "End", $fnum);
+
+                $i = App\KoraFields\ComboListField::getComboFieldOption($field, "Start", $fnum);
+                $j = App\KoraFields\ComboListField::getComboFieldOption($field, "End", $fnum);
                 while ($i <= $j) {
                     echo "<option value=" . $i . ">" . $i . "</option>";
                     $i++;
@@ -52,28 +52,28 @@
     </div>
 @elseif($type=='Number')
     <div class="form-group">
-        {!! Form::label('default_'.$fnum, $cfName.' ('.\App\ComboListField::getComboFieldOption($field, "Unit", $fnum).')') !!}
+        {!! Form::label('default_'.$fnum, $cfName.' ('.App\KoraFieComboListField::getComboFieldOption($field, "Unit", $fnum).')') !!}
         <input type="number" id="default_{{$fnum}}" name="default_{{$fnum}}" class="text-input default-input-js" value="" placeholder="Enter number here"
-               step="{{ \App\ComboListField::getComboFieldOption($field, "Increment", $fnum) }}"
-               min="{{ \App\ComboListField::getComboFieldOption($field, "Min", $fnum) }}"
-               max="{{ \App\ComboListField::getComboFieldOption($field, "Max", $fnum) }}">
+               step="{{ App\KoraFields\ComboListField::getComboFieldOption($field, "Increment", $fnum) }}"
+               min="{{ App\KoraFields\ComboListField::getComboFieldOption($field, "Min", $fnum) }}"
+               max="{{ App\KoraFields\ComboListField::getComboFieldOption($field, "Max", $fnum) }}">
     </div>
 @elseif($type=='List')
     <div class="form-group">
         {!! Form::label('default_'.$fnum, $cfName) !!}
-        {!! Form::select('default_'.$fnum,\App\ComboListField::getComboList($field,false,$fnum), null,
+        {!! Form::select('default_'.$fnum,App\KoraFields\ComboListField::getComboList($field,false,$fnum), null,
             ['id' => 'default_'.$fnum, 'class' => 'single-select default-input-js']) !!}
     </div>
 @elseif($type=='Multi-Select List')
     <div class="form-group">
         {!! Form::label('default_'.$fnum, $cfName) !!}
-        {!! Form::select('default_'.$fnum.'[]',\App\ComboListField::getComboList($field,false,$fnum), null,
+        {!! Form::select('default_'.$fnum.'[]',App\KoraFields\ComboListField::getComboList($field,false,$fnum), null,
         ['id' => 'default_'.$fnum, 'class' => 'multi-select default-input-js', 'multiple']) !!}
     </div>
 @elseif($type=='Generated List')
     <div class="form-group">
         {!! Form::label('default_'.$fnum, $cfName) !!}
-        {!! Form::select('default_'.$fnum.'[]',\App\ComboListField::getComboList($field,false,$fnum), null,
+        {!! Form::select('default_'.$fnum.'[]',App\KoraFields\ComboListField::getComboList($field,false,$fnum), null,
         ['id' => 'default_'.$fnum, 'class' => 'multi-select modify-select default-input-js', 'multiple']) !!}
     </div>
 @elseif($type=='Associator')

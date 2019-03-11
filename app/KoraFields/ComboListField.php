@@ -719,10 +719,7 @@ class ComboListField extends BaseField {
      * @return array - The list options
      */
     public static function getComboList($field, $blankOpt=false, $fnum) {
-        $dbOpt = self::getComboFieldOption($field, 'Options', $fnum);
-        if(is_null($dbOpt))
-            $dbOpt = '';
-        return self::getListOptionsFromString($dbOpt,$blankOpt);
+        return self::getComboFieldOption($field, 'Options', $fnum);
     }
 
     /**

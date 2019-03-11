@@ -6,7 +6,7 @@
 
 		<!-- Cards of list options -->
 		<div class="list-option-card-container list-option-card-container-{{$fnum}}-js">
-			@foreach(\App\ComboListField::getComboList($field,false,$fnum) as $option)
+			@foreach(App\KoraFields\ComboListField::getComboList($field,false,$fnum) as $option)
 				<div class="card list-option-card list-option-card-js" data-list-value="{{ $option }}">
 					<input type="hidden" class="list-option-js" name="options_{{$fnum}}[]" value="{{ $option }}">
 

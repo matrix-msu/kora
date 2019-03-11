@@ -80,14 +80,14 @@
     <section class="combo-list-defaults">
         {!! Form::label('default', 'Default Combo List Values') !!}
         <div class="container">
-            <div class="form-group combo-list-display combo-value-div-js {{ $defs != null || '' ? '' : 'hidden' }}">
+            <div class="form-group combo-list-display combo-value-div-js {{ is_null($defs['one']) ? 'hidden' : '' }}">
                     <div class="combo-list-title">
                         <span class="combo-column combo-title">{{$oneName}}</span>
                         <span class="combo-column combo-title">{{$twoName}}</span>
                     </div>
 
-                @if($defs!=null && $defs!='')
-                    @for($i=0;$i<sizeof($defs['one']);$i++)
+                @if(!is_null($defs['one']))
+                    @for($i=0;$i<count($defs['one']);$i++)
                         @php
                             $valueOne = $defs['one'][$i];
                             $valueTwo = $defs['two'][$i];
@@ -120,7 +120,7 @@
             </div>
 
             <section class="new-object-button form-group">
-                <input class="combolist-add-new-list-value-modal-js {{ $defs != null || '' ? 'mt-xl' : '' }}" type="button" value="Add a new Default Value">
+                <input class="combolist-add-new-list-value-modal-js {{ is_null($defs['one']) ? '' : 'mt-xl' }}" type="button" value="Add a new Default Value">
             </section>
         </div>
     </section>
