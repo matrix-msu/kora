@@ -63,9 +63,9 @@
         <div class="content-sections">
             <div class="content-sections-scroll">
                 <a class="display-js underline-middle underline-middle-hover selected" href="#">Records <span>({{ $total }})</span></a>
-                <a class="display-js underline-middle underline-middle-hover" href="#">Forms (<span class="form-num-js"></span>)</a>
-                <a class="display-js underline-middle underline-middle-hover" href="#">Fields (<span class="fields-num-js"></span>)</a>
-                <a class="display-js underline-middle underline-middle-hover" href="#">Projects (<span class="projects-num-js"></span>)</a>
+                <a class="display-js underline-middle underline-middle-hover" href="#">Forms (<span>{{ count($formArray) }}</span>)</a>
+                <a class="display-js underline-middle underline-middle-hover" href="#">Fields (<span>{{ count($fieldArray) }}</span>)</a>
+                <a class="display-js underline-middle underline-middle-hover" href="#">Projects (<span>{{ count($projectArray) }}</span>)</a>
             </div>
         </div>
 
@@ -118,22 +118,41 @@
         <section class="display-js mt-xxxl hidden">
             <div class="form-group records-title mt-xxxl">Showing <span class="form-num-js"></span> Forms</div>
             <div class="display-keywords mt-xxl"><ul class="keywords"></ul></div>
-            <ul class="form-results results form-results-js"></ul>
-            <div class="hidden">@include('partials.records.no-records')</div>
+            @if(count($formArray) > 0)
+                @php $isCustom = false; @endphp
+                @foreach($formArray as $form)
+                    @php $project = \App\Http\Controllers\ProjectController::getProject($form->pid) @endphp
+                    @include('partials.projects.show.form')
+                @endforeach
+            @else
+                @include('partials.records.no-records')
+            @endif
         </section>
 
         <section class="display-js mt-xxxl hidden">
             <div class="form-group records-title mt-xxxl">Showing <span class="fields-num-js"></span> Fields</div>
             <div class="display-keywords mt-xxl"><ul class="keywords"></ul></div>
-            <ul class="fields-results results fields-results-js"></ul>
-            <div class="hidden">@include('partials.records.no-records')</div>
+            @if(count($fieldArray) > 0)
+                @foreach($fieldArray as $field)
+                    @php $form = \App\Http\Controllers\FormController::getForm($field->fid) @endphp
+                    @include('forms.layout.field')
+                @endforeach
+            @else
+                @include('partials.records.no-records')
+            @endif
         </section>
 
         <section class="display-js mt-xxxl hidden">
-            <div class="form-group records-title mt-xxxl">Showing <span class="projects-num-js"></span> Projects</div>
+            <div class="form-group records-title mt-xxxl">Showing <span>{{ count($projectArray) }}</span> Projects</div>
             <div class="display-keywords mt-xxl"><ul class="keywords"></ul></div>
-            <ul class="projects-results results projects-results-js"></ul>
-            <div class="hidden">@include('partials.records.no-records')</div>
+            @if(count($projectArray) > 0)
+                @php $isCustom = false; $archived = false; @endphp
+                @foreach($projectArray as $project)
+                    @include('partials.projects.index.project')
+                @endforeach
+            @else
+                @include('partials.records.no-records')
+            @endif
         </section>
     </section>
     <p class="hidden json-results-js">{{ $projFormFields }}</p>

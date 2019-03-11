@@ -157,38 +157,33 @@ class ProjectSearchController extends Controller {
         $formResults = Form::where("name","like",$termWC)->orWhere("slug","like",$termWC)->get();
         $fieldResults = Field::where("name","like",$termWC)->orWhere("slug","like",$termWC)->get();
 
-        $returnArray = array();
+        $projectArray = array();
+        $formArray = array();
+        $fieldArray = array();
 
         foreach($projResults as $project) {
-            if(\Auth::user()->admin || \Auth::user()->inAProjectGroup($project)) {
-                $result = $project->pid;
-                //if(Project::where('name','=',$project->name)->count() > 1) {}
-                //array_push($returnArray,$result);
-                array_push($returnArray,$project);
-            }
+            if(\Auth::user()->admin || \Auth::user()->inAProjectGroup($project))
+                array_push($projectArray,$project);
         }
         foreach($formResults as $form) {
-            if(\Auth::user()->admin || \Auth::user()->inAFormGroup($form)) {
-                $result = $form->fid;
-                //array_push($returnArray,$result);
-                array_push($returnArray,$form);
-            }
+            if(\Auth::user()->admin || \Auth::user()->inAFormGroup($form))
+                array_push($formArray,$form);
         }
         foreach($fieldResults as $field) {
             $form = FormController::getForm($field->flid);
-            if(\Auth::user()->admin || \Auth::user()->inAFormGroup($form)) {
-                $result = $field->flid;
-                array_push($returnArray,$result);
-            }
+            if(\Auth::user()->admin || \Auth::user()->inAFormGroup($form))
+                array_push($fieldArray,$field);
         }
-        //dd($returnArray);
 
         return view('globalSearch.results', compact(
             "projects",
             "records",
             "total",
             "ignored",
-            'projFormFields'
+            'projFormFields', // remove this one later
+            'projectArray',
+            'formArray',
+            'fieldArray'
         ));
     }
 

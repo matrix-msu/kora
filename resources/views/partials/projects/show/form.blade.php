@@ -27,7 +27,7 @@
   </div>
 
   <div class="content content-js {{ $index == 0 ? 'active' : '' }}">
-    <div class="id">
+    <div class="id mb-m">
       <span class="attribute">Unique Form ID: </span>
       <span>{{$form->slug}}</span>
     </div>
