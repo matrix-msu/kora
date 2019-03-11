@@ -539,6 +539,11 @@ Kora.Fields.Show = function() {
                 }
             });
         });
+		
+		$('.number-default-js, .number-min-js, .number-max-js, .number-step-js').blur(function(){
+			console.log("BLURRED on show");
+			validateAdvancedOptions('Number');
+		});
 
         $('.text-input, .text-area').on('blur', function(e) {
             var field = this.id;
@@ -566,6 +571,8 @@ Kora.Fields.Show = function() {
 
     function validateAdvancedOptions(currType) {
         var valid = true;
+		
+		console.log("ENTEREDDDDDDDD");
 
         switch(currType) {
             case 'Text':
@@ -598,52 +605,52 @@ Kora.Fields.Show = function() {
                 var maxDiv = $('.number-max-js');
                 var stepDiv = $('.number-step-js');
 
-                var def = defDiv.val();
-                var min = minDiv.val();
-                var max = maxDiv.val();
-                var step = stepDiv.val();
+                var def = parseInt(defDiv.val());
+                var min = parseInt(minDiv.val());
+                var max = parseInt(maxDiv.val());
+                var step = parseInt(stepDiv.val());
 
                 if(min!='' && max!='') {
                     if(min >= max) {
                         minDiv.addClass('error');
-                        minDiv.siblings('.error-message').text('The minimum must be less than the max.');
+                        minDiv.parent().siblings('.error-message').text('The minimum must be less than the max.');
                         valid = false;
                     } else {
                         minDiv.removeClass('error');
-                        minDiv.siblings('.error-message').text('');
+                        minDiv.parent().siblings('.error-message').text('');
                     }
 
                     if(step > (max-min)) {
                         stepDiv.addClass('error');
-                        stepDiv.siblings('.error-message').text('The increment cannot be bigger than the gap between min and max.');
+                        stepDiv.parent().siblings('.error-message').text('The increment cannot be bigger than the gap between min and max.');
                         valid = false;
                     } else {
                         stepDiv.removeClass('error');
-                        stepDiv.siblings('.error-message').text('');
+                        stepDiv.parent().siblings('.error-message').text('');
                     }
                 } else {
                     minDiv.removeClass('error');
-                    minDiv.siblings('.error-message').text('');
+                    minDiv.parent().siblings('.error-message').text('');
                     stepDiv.removeClass('error');
-                    stepDiv.siblings('.error-message').text('');
+                    stepDiv.parent().siblings('.error-message').text('');
                 }
 
                 if(def!='') {
                     if(min!='' && def<min) {
                         defDiv.addClass('error');
-                        defDiv.siblings('.error-message').text('Default value must be greater than the minimum.');
+                        defDiv.parent().siblings('.error-message').text('Default value must be greater than the minimum.');
                         valid = false;
                     } else if(max!='' && def>max) {
                         defDiv.addClass('error');
-                        defDiv.siblings('.error-message').text('Default value must be smaller than the maximum.');
+                        defDiv.parent().siblings('.error-message').text('Default value must be smaller than the maximum.');
                         valid = false;
                     } else {
                         defDiv.removeClass('error');
-                        defDiv.siblings('.error-message').text('');
+                        defDiv.parent().siblings('.error-message').text('');
                     }
                 } else {
                     defDiv.removeClass('error');
-                    defDiv.siblings('.error-message').text('');
+                    defDiv.parent().siblings('.error-message').text('');
                 }
                 break;
             case 'Date':
