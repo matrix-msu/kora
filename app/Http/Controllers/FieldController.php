@@ -95,7 +95,10 @@ class FieldController extends Controller {
                         $form->id
                     )
                 ];
-                $field[$key] = $options[$key];
+                $field[$key] = [
+                    'type' => $request->{'cftype' . $num},
+                    'name' => $request->{'cftype' . $num}
+                ];
             }
         }
 
@@ -222,7 +225,9 @@ class FieldController extends Controller {
 
         $field['name'] = $request->name;
         $newFlid = str_replace(" ","_", $request->name).'_'.$form->project_id.'_'.$form->id.'_';
-        $field['description'] = $request->desc;$field['default'] = null;
+
+        $field['description'] = $request->desc;
+        $field['default'] = null;
         $field['required'] = isset($request->required) && $request->required ? 1 : 0;
         $field['searchable'] = isset($request->searchable) && $request->searchable ? 1 : 0;
         $field['advanced_search'] = isset($request->advsearch) && $request->advsearch ? 1 : 0;
@@ -232,9 +237,27 @@ class FieldController extends Controller {
         $field['external_view'] = isset($request->extview) && $request->extview ? 1 : 0;
         $field = $form->getFieldModel($field['type'])->updateOptions($field, $request, $flid);
 
+        // Combo List Specific
+        $comboPrefix = array();
+        if($request->type == Form::_COMBO_LIST) {
+            $comboPrefix['tablePrefix'] = $flid;
+
+            foreach (['one' => 1, 'two' => 2] as $seq => $num) {
+                $cFlid = slugFormat($field[$seq]['name'], $form->project_id, $form->id);
+                $cNewFlid = slugFormat($request->{'cfname' . $num}, $form->project_id, $form->id);
+                if($cFlid != $cNewFlid) {
+                    $form->updateSubField($flid, $cFlid, $cNewFlid);
+                } else {
+                    $form->updateSubField($flid, $cFlid);
+                }
+
+                $field[$seq]['name'] = $request->{'cfname' . $num};
+            }
+        }
+
         //Need to reindex the field if the name has changed. This will also update the column name.
         if($newFlid!=$flid) {
-            $form->updateField($flid, $field, $newFlid);
+            $form->updateField($flid, $field, $newFlid, $comboPrefix);
             $flid = $newFlid;
         } else {
             $form->updateField($flid, $field);

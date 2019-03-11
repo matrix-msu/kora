@@ -61,6 +61,11 @@ class CreateRecordsTable extends Migration {
         Schema::drop($this->tablePrefix . $fid);
     }
 
+    public function renameTable($fid, $newSlug) {
+        // Will fail if renaming to same name.
+        Schema::rename($this->tablePrefix . $fid, $newSlug . $fid);
+    }
+
     //TODO::NEWFIELD
     public function addTextColumn($fid, $slug) {
         Schema::table($this->tablePrefix . $fid, function(Blueprint $table) use ($slug) {

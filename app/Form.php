@@ -222,7 +222,7 @@ class Form extends Model {
     /**
      * Updates a field within a form. Potentially reindex field name.
      */
-    public function updateField($flid, $fieldArray, $newFlid=null) {
+    public function updateField($flid, $fieldArray, $newFlid=null, $comboPrefix=array()) {
         $layout = $this->layout;
 
         //Update the field model
@@ -230,8 +230,11 @@ class Form extends Model {
 
         //Update column name in DB and page structure
         if(!is_null($newFlid)) {
-            $rTable = new \CreateRecordsTable();
-            $rTable->renameColumn($this->id,$flid,$newFlid);
+            $rTable = new \CreateRecordsTable($comboPrefix);
+            if ($comboPrefix)
+                $rTable->renameTable($this->id, $newFlid);
+            else
+                $rTable->renameColumn($this->id,$flid,$newFlid);
 
             // Updating new field name
             $layout['fields'][$newFlid] = $layout['fields'][$flid];
@@ -250,6 +253,20 @@ class Form extends Model {
         }
 
         $this->layout = $layout;
+        $this->save();
+    }
+
+    /**
+     * Updates a field within a form within a combo list.
+     */
+    public function updateSubField($baseFlid, $flid, $newFlid=null) {
+
+        //Update column name in DB
+        if(!is_null($newFlid)) {
+            $rTable = new \CreateRecordsTable(['tablePrefix' => $baseFlid]);
+            $rTable->renameColumn($this->id,$flid,$newFlid);
+        }
+
         $this->save();
     }
 
