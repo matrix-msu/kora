@@ -39,7 +39,7 @@ class Form extends Model {
     const _LIST = "List";
     const _MULTI_SELECT_LIST = "Multi-Select List";
     const _GENERATED_LIST = "Generated List";
-//    const _DATE = "Date";
+    const _HISTORICAL_DATE = "Historical Date";
     const _GEOLOCATOR = "Geolocator";
     const _DOCUMENTS = "Documents";
     const _GALLERY = "Gallery";
@@ -61,6 +61,9 @@ class Form extends Model {
             self::_INTEGER => self::_INTEGER,
             self::_FLOAT => self::_FLOAT
         ),
+        'Date Fields' => array(
+            self::_HISTORICAL_DATE => self::_HISTORICAL_DATE
+        ),
         'File Fields' => array(
             self::_DOCUMENTS => self::_DOCUMENTS,
             self::_GALLERY => self::_GALLERY.' (jpg, gif, png)',
@@ -78,8 +81,6 @@ class Form extends Model {
             self::_ASSOCIATOR => self::_ASSOCIATOR
         )
         // 'List Fields' => array(Combo List' => 'Combo List'),
-        //'Date Fields' => array('Date' => 'Date'),
-        //'Specialty Fields' => array('Geolocator' => 'Geolocator (latlon, utm, textual)','Associator' => 'Associator')
     ];
 
     /**
@@ -106,6 +107,7 @@ class Form extends Model {
         self::_INTEGER,
         self::_FLOAT,
         //self::_DATE,
+        //self::_DATETIME,
     ];
 
     /**
@@ -126,6 +128,7 @@ class Form extends Model {
         self::_3D_MODEL => "ModelField",
         self::_GEOLOCATOR => "GeolocatorField",
         self::_ASSOCIATOR => "AssociatorField",
+        self::_HISTORICAL_DATE => "HistoricalDateField"
     ];
 
     /**
@@ -139,7 +142,8 @@ class Form extends Model {
         self::_3D_MODEL,
         self::_ASSOCIATOR,
         self::_GENERATED_LIST,
-        self::_GEOLOCATOR
+        self::_GEOLOCATOR,
+        self::_HISTORICAL_DATE
     ];
 
     /**
