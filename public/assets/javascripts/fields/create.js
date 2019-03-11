@@ -56,7 +56,7 @@ Kora.Fields.Create = function() {
                     $('.advanced-options-show').addClass('hidden');
                     $('.advanced-options-hide').removeClass('hidden');
 					
-					$('.number-default-js, .number-min-js, .number-max-js').blur(function(){
+					$('.number-default-js, .number-min-js, .number-max-js, .number-step-js').blur(function(){
 						console.log("BLURRED");
 						validateAdvancedOptions('Number');
 					});
