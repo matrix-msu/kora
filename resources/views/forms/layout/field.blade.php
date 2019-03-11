@@ -4,8 +4,8 @@
   sequence="{{$field->sequence}}"
   >
   <div class="header {{ $index == 0 ? 'active' : '' }}">
-    <div class="left">
-      @if(\Auth::user()->canEditForms(\App\Http\Controllers\ProjectController::getProject($field->pid)))
+    <div class="left {{ $onFormPage ? null : 'pl-m' }}">
+      @if(\Auth::user()->canEditForms(\App\Http\Controllers\ProjectController::getProject($field->pid)) && $onFormPage)
         <div class="move-actions">
           <a class="action move-action-js up-js" href="">
             <i class="icon icon-arrow-up"></i>

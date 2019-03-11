@@ -54,6 +54,104 @@
       font-family: $ubuntu-medium;
     }
   }
+
+  .field {
+    @include transition();
+
+    .quick-action.delete-field {
+      .icon {
+        @include transition();
+
+        color: palette('red', warning, 1);
+        font-size: 14px;
+        padding: 0 0 5px;
+        will-change: transform;
+      }
+
+      &:hover .icon-trash {
+        transform: scale($transform-scale-multiplier);
+
+        &::after {
+          top: 5px;
+        }
+      }
+
+      @media screen and (max-width: $max-mobile-l-width) {
+        padding: 0;
+      }
+    }
+
+    @media screen and (max-width: $max-mobile-l-width) {
+      width: calc(100% - 20px);
+    }
+
+    &.with-aside {
+      @media screen and (min-width: $max-mobile-xs-width) and (max-width: $max-tablet-width) {
+        width: calc(100% - 20px);
+      }
+    }
+
+    .id {
+      margin-bottom: 15px;
+    }
+
+    .allowed-actions {
+      padding-top: 40px;
+
+      .action {
+        display: inline-block;
+        padding: 0 14px;
+
+        &:first-of-type {
+          padding-left: 0;
+        }
+
+        &:last-of-type {
+          padding-right: 0;
+
+          @media screen and (max-width: $max-tablet-width) { // 980
+            display: block;
+            padding: 15px 0 0;
+          }
+        }
+
+        .action-column {
+          height: 55px;
+          display: flex;
+          flex-direction: column;
+          justify-content: space-between;
+        }
+      }
+
+      @media screen and (max-width: $max-mobile-width) { //768
+        padding-bottom: 10px;
+
+        .action {
+          display: block;
+          padding: 15px 0 0;
+
+          &:first-of-type {
+            padding-top: 0;
+          }
+        }
+      }
+
+      @media screen and (min-width: 888px) and (max-width: $max-with-aside-width) { // 886 1155
+        &.with-aside {
+          .action {
+            display: block;
+            padding: 5px 0;
+          }
+        }
+      }
+    }
+  }
+
+
+  .card .header .left .title .name {
+    font-family: $ubuntu-medium;
+  }
+
 }
 
 .record-index,

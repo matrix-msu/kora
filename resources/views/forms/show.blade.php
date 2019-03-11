@@ -153,6 +153,7 @@
         </div>
 
         <div class="field-sort-js" style="min-height: 10px;">
+        @php $onFormPage = true; @endphp
         @foreach($page["fields"] as $index=>$field)
             <div class="field-container">
               @include('forms.layout.field', ['field' => $field])

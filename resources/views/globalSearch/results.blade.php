@@ -116,7 +116,7 @@
         </section>
 
         <section class="display-js mt-xxxl hidden">
-            <div class="form-group records-title mt-xxxl">Showing <span class="form-num-js"></span> Forms</div>
+            <div class="form-group records-title mt-xxxl">Showing <span>{{ count($formArray) }}</span> Forms</div>
             <div class="display-keywords mt-xxl"><ul class="keywords"></ul></div>
             @if(count($formArray) > 0)
                 @php $isCustom = false; @endphp
@@ -130,11 +130,14 @@
         </section>
 
         <section class="display-js mt-xxxl hidden">
-            <div class="form-group records-title mt-xxxl">Showing <span class="fields-num-js"></span> Fields</div>
+            <div class="form-group records-title mt-xxxl">Showing <span>{{ count($fieldArray) }}</span> Fields</div>
             <div class="display-keywords mt-xxl"><ul class="keywords"></ul></div>
             @if(count($fieldArray) > 0)
                 @foreach($fieldArray as $field)
-                    @php $form = \App\Http\Controllers\FormController::getForm($field->fid) @endphp
+                    @php
+                        $form = \App\Http\Controllers\FormController::getForm($field->fid);
+                        $onFormPage = false;
+                    @endphp
                     @include('forms.layout.field')
                 @endforeach
             @else
