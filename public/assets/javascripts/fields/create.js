@@ -239,10 +239,10 @@ Kora.Fields.Create = function() {
                 var maxDiv = $('.number-max-js');
                 var stepDiv = $('.number-step-js');
 
-                var def = defDiv.val();
-                var min = minDiv.val();
-                var max = maxDiv.val();
-                var step = stepDiv.val();
+                var def = parseInt(defDiv.val());
+                var min = parseInt(minDiv.val());
+                var max = parseInt(maxDiv.val());
+                var step = parseInt(stepDiv.val());
 
                 if(min!='' && max!='') {
                     if(min >= max) {
