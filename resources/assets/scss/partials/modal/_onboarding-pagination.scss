@@ -45,7 +45,7 @@
                 transform: scale(1.2);
 
                 &::after {
-                transform: scale(0.834);
+                    transform: scale(0.834) translateX(-50%);
                 }
             }
 

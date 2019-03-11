@@ -69,7 +69,6 @@ class Search {
         if(is_null($fields))
             $fields = Field::where("fid", "=", $this->fid)->get();
         $rids = [];
-        $flids = [];
 
         switch($this->method) {
             case self::SEARCH_OR:
@@ -128,37 +127,18 @@ class Search {
                     // These checks make sure the field is searchable
                     if( (!$external && $field->isSearchable()) || ($external && $field->isExternalSearchable()) ) {
                         $results = $field->getTypedField()->keywordSearchTyped($field->flid, $this->arg);
-
-                        // if ( count($results) > 0 )
-                        //     dd($results);
-                        // if ( is_object($results) && count($results) > 0 ) {
-                        //     foreach ( $results as $result ) {
-                        //         $rids[] = $result->rid;
-                        //         $flids[] = $result->flid;
-                        //     }
-                        // }
-
                         $this->imitateMerge($rids, $results);
                     }
                 }
 
                 //make array unique
                 $rids = array_flip(array_flip($rids));
-
-                // $flids = array_flip(array_flip($flids));
-                // if ( count($rids) > 0 && count($flids) > 0 )
-                //     dd($rids, $flids);
                 break;
             default:
                 break;
         }
 
         return $rids;
-
-        // return array(
-        //     'rids' => $rids,
-        //     'flids' => $flids
-        // );
     }
 
     private function imitateMerge(&$array1, &$array2) {

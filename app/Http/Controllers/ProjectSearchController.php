@@ -152,6 +152,37 @@ class ProjectSearchController extends Controller {
         // use quickSearch to return fields, forms, and projects
         $projFormFields = $this->globalQuickSearch($request);
 
+        $termWC = '%'.$request->keywords.'%';
+        $projResults = Project::where("name","like",$termWC)->orWhere("slug","like",$termWC)->get();
+        $formResults = Form::where("name","like",$termWC)->orWhere("slug","like",$termWC)->get();
+        $fieldResults = Field::where("name","like",$termWC)->orWhere("slug","like",$termWC)->get();
+
+        $returnArray = array();
+
+        foreach($projResults as $project) {
+            if(\Auth::user()->admin || \Auth::user()->inAProjectGroup($project)) {
+                $result = $project->pid;
+                //if(Project::where('name','=',$project->name)->count() > 1) {}
+                //array_push($returnArray,$result);
+                array_push($returnArray,$project);
+            }
+        }
+        foreach($formResults as $form) {
+            if(\Auth::user()->admin || \Auth::user()->inAFormGroup($form)) {
+                $result = $form->fid;
+                //array_push($returnArray,$result);
+                array_push($returnArray,$form);
+            }
+        }
+        foreach($fieldResults as $field) {
+            $form = FormController::getForm($field->flid);
+            if(\Auth::user()->admin || \Auth::user()->inAFormGroup($form)) {
+                $result = $field->flid;
+                array_push($returnArray,$result);
+            }
+        }
+        //dd($returnArray);
+
         return view('globalSearch.results', compact(
             "projects",
             "records",

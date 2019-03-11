@@ -108,7 +108,7 @@
       </div>
       <div class="body">
         <span class="description">
-          Are you sure you wish to delete this field from this page?
+        Are you sure you wish to delete this field? Deleting will remove any data collected for this field on preexisting records within this form. This cannot be undone.
         </span>
 
         <div class="form-group">

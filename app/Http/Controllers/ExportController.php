@@ -574,7 +574,7 @@ class ExportController extends Controller {
                   FROM " . $prefix . "schedule_support where $wherePiece$slugQL group by `rid`, `flid`",
                 "SELECT `rid`, `flid`, `documents` FROM " . $prefix . "documents_fields where $wherePiece$slugQL",
                 "SELECT `rid`, `flid`, `images`, `captions` FROM " . $prefix . "gallery_fields where $wherePiece$slugQL",
-                "SELECT af.rid as `rid`, af.flid as `flid`, GROUP_CONCAT(aRec.kid SEPARATOR ',') as `value` 
+                "SELECT af.rid as `rid`, af.flid as `flid`, GROUP_CONCAT(aRec.kid ORDER BY af.id SEPARATOR ',') as `value` 
                   FROM " . $prefix . "associator_support as af left join " . $prefix . "records as aRec on af.record=aRec.rid 
                   where af.$wherePiece$slugQL group by `rid`, `flid`"
             );
@@ -607,7 +607,7 @@ class ExportController extends Controller {
                   GROUP_CONCAT(CONCAT_WS('[!]', `lat`, `lon`) SEPARATOR '[!latlon!]') as `val3`, 
                   GROUP_CONCAT(CONCAT_WS('[!]', `zone`, `easting`, `northing`) SEPARATOR '[!utm!]') as `val4` 
                   FROM " . $prefix . "geolocator_support where $wherePiece$slugQL group by `rid`, `flid`",
-                "SELECT af.rid as `rid`, af.flid as `flid`, GROUP_CONCAT(aRec.kid SEPARATOR ',') as `value` 
+                "SELECT af.rid as `rid`, af.flid as `flid`, GROUP_CONCAT(aRec.kid ORDER BY af.id SEPARATOR ',') as `value` 
                   FROM " . $prefix . "associator_support as af left join " . $prefix . "records as aRec on af.record=aRec.rid 
                   where af.$wherePiece$slugQL group by `rid`, `flid`"
             );
@@ -1906,7 +1906,7 @@ class ExportController extends Controller {
                   GROUP_CONCAT(CONCAT_WS('[!]', `lat`, `lon`) SEPARATOR '[!latlon!]') as `val3`, 
                   GROUP_CONCAT(CONCAT_WS('[!]', `zone`, `easting`, `northing`) SEPARATOR '[!utm!]') as `val4` 
                   FROM ".$prefix."geolocator_support where `rid`=$rid group by `flid`";
-        $associatorselect = "SELECT af.flid as `flid`, GROUP_CONCAT(aRec.kid SEPARATOR ',') as `value` 
+        $associatorselect = "SELECT af.flid as `flid`, GROUP_CONCAT(aRec.kid ORDER BY af.id SEPARATOR ',') as `value` 
                   FROM ".$prefix."associator_support as af left join ".$prefix."records as aRec on af.record=aRec.rid 
                   where af.`rid`=$rid group by `flid`";
 

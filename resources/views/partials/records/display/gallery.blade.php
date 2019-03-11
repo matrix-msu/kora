@@ -51,18 +51,18 @@
 
     <div class="field-sidebar gallery-sidebar gallery-sidebar-js {{ ($single ? 'single' : '') }}">
         <div class="top">
-            <div class="field-btn external-button-js">
+            <div class="field-btn external-button-js tooltip" tooltip="Open in New Tab">
                 <i class="icon icon-external-link"></i>
             </div>
 
             <a href="{{ ($single ? action('FieldAjaxController@getFileDownload', ['flid' => $field->flid, 'rid' => $record->rid, 'filename' => $singleFilename]) : action('FieldAjaxController@getZipDownload', ['flid' => $field->flid, 'rid' => $record->rid, 'filename' => 'gallery'])) }}"
-               class="field-btn">
+               class="field-btn tooltip" tooltip="Download Image">
                 <i class="icon icon-download"></i>
             </a>
         </div>
 
         <div class="bottom">
-            <div class="field-btn full-screen-button-js">
+            <div class="field-btn full-screen-button-js tooltip" tooltip="View Fullscreen">
                 <i class="icon icon-maximize"></i>
             </div>
         </div>

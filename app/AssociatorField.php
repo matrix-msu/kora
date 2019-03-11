@@ -538,7 +538,7 @@ class AssociatorField extends BaseField {
     public function records() {
         return DB::table(self::SUPPORT_NAME)->select("*")
             ->where("flid", "=", $this->flid)
-            ->where("rid", "=", $this->rid);
+            ->where("rid", "=", $this->rid)->orderBy('id', 'asc');
     }
 
     /**

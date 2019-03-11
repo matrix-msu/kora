@@ -364,8 +364,6 @@ class TextField extends BaseField {
      * @return array - The RIDs that match search
      */
     public function keywordSearchTyped($flid, $arg) {
-        // $results = DB::table("text_fields")->select("rid")->addSelect("flid")->where("flid", "=", $flid)->where('text','LIKE',"%$arg%")->distinct()->get();
-        // return $results;
         return DB::table("text_fields")
             ->select("rid")
             ->where("flid", "=", $flid)
