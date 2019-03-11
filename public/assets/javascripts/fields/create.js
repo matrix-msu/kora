@@ -57,7 +57,6 @@ Kora.Fields.Create = function() {
                     $('.advanced-options-hide').removeClass('hidden');
 					
 					$('.number-default-js, .number-min-js, .number-max-js, .number-step-js').blur(function(){
-						console.log("BLURRED");
 						validateAdvancedOptions('Number');
 					});
 
@@ -144,8 +143,6 @@ Kora.Fields.Create = function() {
             $.each($('.create-form').serializeArray(), function(i, field) {
                 values[field.name] = field.value;
             });
-			
-			console.log("entered");
 
             $.ajax({
                 url: validationUrl,
@@ -184,8 +181,6 @@ Kora.Fields.Create = function() {
             //For combo list
             if(field=='cfname1' || field=='cfname2')
                 values['type'] = $('#type').val();
-			
-			console.log("entered 2");
 
             $.ajax({
                 url: validationUrl,

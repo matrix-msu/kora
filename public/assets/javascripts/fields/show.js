@@ -541,7 +541,6 @@ Kora.Fields.Show = function() {
         });
 		
 		$('.number-default-js, .number-min-js, .number-max-js, .number-step-js').blur(function(){
-			console.log("BLURRED on show");
 			validateAdvancedOptions('Number');
 		});
 
@@ -571,8 +570,6 @@ Kora.Fields.Show = function() {
 
     function validateAdvancedOptions(currType) {
         var valid = true;
-		
-		console.log("ENTEREDDDDDDDD");
 
         switch(currType) {
             case 'Text':

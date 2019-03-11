@@ -1191,11 +1191,6 @@ Kora.Fields.Options = function(fieldType) {
             CKEDITOR.replace(textid);
         });
     }
-	
-	function initializeNumberOptions() {
-		console.log("EMTNTERED");
-		//$('.validate-field-js').on('click', function(e) {
-	}
 
     initializeSelects();
 
@@ -1230,9 +1225,6 @@ Kora.Fields.Options = function(fieldType) {
         case 'Rich Text':
             initializeRichTextFields();
             break;
-		case 'Number':
-			initializeNumberOptions();
-			break;
         default:
             break;
     }

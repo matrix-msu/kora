@@ -133,7 +133,6 @@ Kora.Records.Validate = function() {
                     if(err.errors.length==0) {
                         $('.record-form').submit();
                     } else {
-						console.log("Success error")
                         $.each(err.errors, function(fieldName, error) {
                             var $field = $('#'+fieldName);
                             var $page = $field.parents('section').attr('id');
