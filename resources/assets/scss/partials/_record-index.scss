@@ -56,8 +56,6 @@
   }
 
   .field {
-    @include transition();
-
     .quick-action.delete-field {
       .icon {
         @include transition();
@@ -443,7 +441,6 @@
     @import 'record-index/searched-terms';
     @import 'record-index/no-records';
     @import 'record-index/page-typed-fields';
-    @import 'record-index/page-sections';
   }
 }
 @import 'record-index/toolbar';

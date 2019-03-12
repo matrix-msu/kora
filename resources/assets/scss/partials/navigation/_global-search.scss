@@ -146,19 +146,6 @@
       &:last-child {
         padding-bottom: 20px;
       }
-
-      .pl-xl {
-        padding: 0;
-      }
-
-      .left {
-        display: inline;
-        float: none;
-      }
-
-      .icon {
-        display: none;
-      }
     }
 
     a {
@@ -172,11 +159,6 @@
 
       &:hover {
         color: palette('white', base);
-
-        &::before,
-        &::after {
-          display: none;
-        }
       }
     }
   }

@@ -120,7 +120,7 @@
             <div class="display-keywords mt-xxl"><ul class="keywords"></ul></div>
             @if(count($formArray) > 0)
                 @php $isCustom = false; @endphp
-                @foreach($formArray as $form)
+                @foreach($formArray as $index => $form)
                     @php $project = \App\Http\Controllers\ProjectController::getProject($form->pid) @endphp
                     @include('partials.projects.show.form')
                 @endforeach
@@ -133,7 +133,7 @@
             <div class="form-group records-title mt-xxxl">Showing <span>{{ count($fieldArray) }}</span> Fields</div>
             <div class="display-keywords mt-xxl"><ul class="keywords"></ul></div>
             @if(count($fieldArray) > 0)
-                @foreach($fieldArray as $field)
+                @foreach($fieldArray as $index => $field)
                     @php
                         $form = \App\Http\Controllers\FormController::getForm($field->fid);
                         $onFormPage = false;
@@ -150,7 +150,7 @@
             <div class="display-keywords mt-xxl"><ul class="keywords"></ul></div>
             @if(count($projectArray) > 0)
                 @php $isCustom = false; $archived = false; @endphp
-                @foreach($projectArray as $project)
+                @foreach($projectArray as $index => $project)
                     @include('partials.projects.index.project')
                 @endforeach
             @else
@@ -158,7 +158,6 @@
             @endif
         </section>
     </section>
-    <p class="hidden json-results-js">{{ $projFormFields }}</p>
 @stop
 
 @section('footer')
