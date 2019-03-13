@@ -333,6 +333,7 @@ class ComboListField extends BaseField {
      * @return mixed - Processed data
      */
     public function processRecordData($field, $value, $request) {
+        dd($value);
         if($value=='')
             $value = null;
         return $value;
@@ -719,7 +720,11 @@ class ComboListField extends BaseField {
      * @return array - The list options
      */
     public static function getComboList($field, $blankOpt=false, $fnum) {
-        return self::getComboFieldOption($field, 'Options', $fnum);
+        $options = array();
+        foreach (self::getComboFieldOption($field, 'Options', $fnum) as $option) {
+            $options[$option] = $option;
+        }
+        return $options;
     }
 
     /**
@@ -959,6 +964,7 @@ class ComboListField extends BaseField {
      * @param  int $num - Sequence of sub field
      * @return string - Name
      */
+    // DEPRECIATED, REMOVE
     public static function getComboFieldName($field, $num) {
         $options = $field->options;
 
@@ -980,6 +986,7 @@ class ComboListField extends BaseField {
      * @param  int $num - Sequence of sub field
      * @return string - Type
      */
+    // DEPRECIATED, REMOVE
     public static function getComboFieldType($field, $num) {
         $options = $field['options'];
 

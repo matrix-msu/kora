@@ -17,11 +17,11 @@
             mt-xl
         @endif
             ">
-        {!! Form::label('default_'.$fnum, $cfName.' ('.\App\ComboListField::getComboFieldOption($field, "Unit", $fnum).')') !!}
+        {!! Form::label('default_'.$fnum, $cfName.' ('.App\KoraFields\ComboListField::getComboFieldOption($field, "Unit", $fnum).')') !!}
         <input type="number" id="default_{{$fnum}}_{{$flid}}" name="default_{{$fnum}}" class="text-input" value="" placeholder="Enter number here"
-               step="{{ \App\ComboListField::getComboFieldOption($field, "Increment", $fnum) }}"
-               min="{{ \App\ComboListField::getComboFieldOption($field, "Min", $fnum) }}"
-               max="{{ \App\ComboListField::getComboFieldOption($field, "Max", $fnum) }}">
+               step="{{ App\KoraFields\ComboListField::getComboFieldOption($field, "Increment", $fnum) }}"
+               min="{{ App\KoraFields\ComboListField::getComboFieldOption($field, "Min", $fnum) }}"
+               max="{{ App\KoraFields\ComboListField::getComboFieldOption($field, "Max", $fnum) }}">
     </div>
 @elseif($type=='Date')
     <div class="form-group
@@ -65,8 +65,8 @@
                 if($field->default!='' && explode('[Y]',$field->default)[1]=='0'){
                     $currYear=\Carbon\Carbon::now()->year;
                 }
-                $i = \App\ComboListField::getComboFieldOption($field, "Start", $fnum);
-                $j = \App\ComboListField::getComboFieldOption($field, "End", $fnum);
+                $i = App\KoraFields\ComboListField::getComboFieldOption($field, "Start", $fnum);
+                $j = App\KoraFields\ComboListField::getComboFieldOption($field, "End", $fnum);
                 while ($i <= $j) {
                     echo "<option value=" . $i . ">" . $i . "</option>";
                     $i++;
@@ -84,7 +84,7 @@
         @endif
             ">
         {!! Form::label('default_'.$fnum, $cfName) !!}
-        {!! Form::select('default_'.$fnum,\App\ComboListField::getComboList($field,false,$fnum), null,
+        {!! Form::select('default_'.$fnum,App\KoraFields\ComboListField::getComboList($field,false,$fnum), null,
             ['id' => 'default_'.$fnum.'_'.$flid, 'class' => 'single-select']) !!}
     </div>
 @elseif($type=='Multi-Select List')
@@ -96,7 +96,7 @@
         @endif
             ">
         {!! Form::label('default_'.$fnum, $cfName) !!}
-        {!! Form::select('default_'.$fnum.'[]',\App\ComboListField::getComboList($field,false,$fnum), null,
+        {!! Form::select('default_'.$fnum.'[]',App\KoraFields\ComboListField::getComboList($field,false,$fnum), null,
         ['id' => 'default_'.$fnum.'_'.$flid, 'class' => 'multi-select', 'multiple']) !!}
     </div>
 @elseif($type=='Generated List')
@@ -108,7 +108,7 @@
         @endif
             ">
         {!! Form::label('default_'.$fnum, $cfName) !!}
-        {!! Form::select('default_'.$fnum.'[]',\App\ComboListField::getComboList($field,false,$fnum), null,
+        {!! Form::select('default_'.$fnum.'[]',App\KoraFields\ComboListField::getComboList($field,false,$fnum), null,
         ['id' => 'default_'.$fnum.'_'.$flid, 'class' => 'multi-select modify-select', 'multiple']) !!}
     </div>
 @elseif($type=='Associator')
@@ -124,11 +124,11 @@
             'multiple', "data-placeholder" => "Search below to add associated records"]) !!}
     </div>
 
-    <div class="form-group mt-xs">
+{{--     <div class="form-group mt-xs">
         {!! Form::label('search','Search Associations') !!}
         <input type="text" class="text-input assoc-search-records-js" placeholder="Enter search term or KID to find associated records (populated below)"
            search-url="{{ action('AssociatorSearchController@assocSearch',['pid' => $field->pid,'fid'=>$field->fid, 'flid'=>$field->flid]) }}">
-    </div>
+    </div> --}}
 
     <div class="form-group mt-xs">
         {!! Form::label('search','Association Results') !!}

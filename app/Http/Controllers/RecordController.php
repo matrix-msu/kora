@@ -198,6 +198,7 @@ class RecordController extends Controller {
                 $processedData = $form->getFieldModel($field['type'])->processRecordData($field, $value, $request);
                 $record->{$key} = $processedData;
             }
+            // dd($request->all());
 
             $record->save();
 
