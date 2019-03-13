@@ -57,7 +57,7 @@ Kora.Fields.Create = function() {
                     $('.advanced-options-hide').removeClass('hidden');
 					
 					$('.number-default-js, .number-min-js, .number-max-js, .number-step-js').blur(function(){
-						validateAdvancedOptions('Number');
+						validateAdvancedOptions('Number', false);
 					});
 
                     Kora.Fields.TypedFieldInputs.Initialize();
@@ -151,7 +151,7 @@ Kora.Fields.Create = function() {
                 success: function(data) {
                     var advValid = true;
                     if(advCreation)
-                        advValid = validateAdvancedOptions($('.field-types-js').val());
+                        advValid = validateAdvancedOptions($('.field-types-js').val(), true);
                     if(advValid)
                         $('.create-form').submit();
                 },
@@ -200,7 +200,7 @@ Kora.Fields.Create = function() {
 		
     }
 	
-	function validateAdvancedOptions(currType) {
+	function validateAdvancedOptions(currType, onSubmit) {
         var valid = true;
 
         switch(currType) {
@@ -239,7 +239,10 @@ Kora.Fields.Create = function() {
                 var max = parseInt(maxDiv.val());
                 var step = parseInt(stepDiv.val());
 
-                if(min!='' && max!='') {
+                if(min!='' && max!='' || onSubmit) {
+					if (min === '') min = 0;
+					if (max === '') max = 0;
+					
                     if(min >= max) {
                         minDiv.addClass('error');
                         minDiv.parent().siblings('.error-message').text('The minimum must be less than the max.');
@@ -264,14 +267,16 @@ Kora.Fields.Create = function() {
                     stepDiv.parent().siblings('.error-message').text('');
                 }
 
-                if(def!='') {
+                if(def != '' || onSubmit) {
+					if (def === '') def = 0;
+					
                     if(min!='' && def<min) {
                         defDiv.addClass('error');
-                        defDiv.parent().siblings('.error-message').text('Default value must be greater than the minimum.');
+                        defDiv.parent().siblings('.error-message').text('Default value must be greater than or equal to the minimum.');
                         valid = false;
                     } else if(max!='' && def>max) {
                         defDiv.addClass('error');
-                        defDiv.parent().siblings('.error-message').text('Default value must be smaller than the maximum.');
+                        defDiv.parent().siblings('.error-message').text('Default value must be smaller than or equal to the maximum.');
                         valid = false;
                     } else {
                         defDiv.removeClass('error');
