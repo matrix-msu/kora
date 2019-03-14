@@ -16,12 +16,12 @@
 
         <div class="field-sidebar document-sidebar document-sidebar-js">
             <div class="top">
-                <a class="field-btn external-button-js" target="_blank" href="{{url('projects/'.$field->pid.'/forms/'.$field->fid.'/records/'.$record->rid.'/fields/'.$field->flid.'/'.$name)}}">
+                <a class="field-btn external-button-js tooltip" tooltip="Open in New Tab" target="_blank" href="{{url('projects/'.$field->pid.'/forms/'.$field->fid.'/records/'.$record->rid.'/fields/'.$field->flid.'/'.$name)}}">
                     <i class="icon icon-external-link"></i>
                 </a>
 
                 <a href="{{action('FieldAjaxController@getFileDownload', ['flid' => $field->flid, 'rid' => $record->rid, 'filename' => $name])}}"
-                   class="field-btn">
+                   class="field-btn tooltip" tooltip="Download Document">
                     <i class="icon icon-download"></i>
                 </a>
             </div>

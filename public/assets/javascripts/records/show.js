@@ -234,6 +234,7 @@ Kora.Records.Show = function() {
             }
         });
 
+        //geolocator control is handled in public/assets/javascripts/fields/typedFieldDisplays.js
         //GEOLOCATOR
         // $('.geolocator-map-js').each(function() {
         //     Kora.Modal.initialize();

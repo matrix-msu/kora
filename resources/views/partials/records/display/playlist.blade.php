@@ -30,11 +30,11 @@
 
             <div class="field-sidebar audio-sidebar audio-sidebar-js">
                 <div class="top">
-                    <a href="{{url('projects/'.$field->pid.'/forms/'.$field->fid.'/records/'.$record->rid.'/fields/'.$field->flid.'/'.$filename)}}" class="field-btn" target="_blank">
+                    <a href="{{url('projects/'.$field->pid.'/forms/'.$field->fid.'/records/'.$record->rid.'/fields/'.$field->flid.'/'.$filename)}}" class="field-btn tooltip" tooltip="Open in New Tab" target="_blank">
                         <i class="icon icon-external-link"></i>
                     </a>
 
-                    <a href="{{ action('FieldAjaxController@getFileDownload', ['flid' => $field->flid, 'rid' => $record->rid, 'filename' => $filename]) }}" class="field-btn">
+                    <a href="{{ action('FieldAjaxController@getFileDownload', ['flid' => $field->flid, 'rid' => $record->rid, 'filename' => $filename]) }}" class="field-btn tooltip" tooltip="Download Audio">
                         <i class="icon icon-download"></i>
                     </a>
                 </div>
