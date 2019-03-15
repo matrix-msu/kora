@@ -44,6 +44,17 @@ class ComboListField extends BaseField {
         'Other' => array('Associator' => 'Associator')
     ];
 
+    static public $supportedViews = [
+        'Text' => 'text',
+        'List' => 'list',
+        // 'Integer' => 'integer',
+        // 'Float' => 'float',
+        // 'Date' => 'date',
+        // 'Multi-Select List' => 'mslist',
+        // 'Generated List' => 'genlist',
+        // 'Associator' => 'associator'
+    ];
+
     private $fieldToDBFuncAssoc = [
         'Text' => 'addTextColumn',
         'List' => 'addEnumColumn'
@@ -125,17 +136,10 @@ class ComboListField extends BaseField {
      *
      * @return array - The default options
      */
-    public function getDefaultOptions($types = null) {
-        // TODO::@andrew.joye might change arg to options
-        $defaultOptions = [];
-
-        foreach ($types as $key => $type) {
-            $className = $this->fieldModel[$type['type']];
-            $object = new $className;
-            $defaultOptions[$key] = $object->getDefaultOptions();
-        }
-
-        return $defaultOptions;
+    public function getDefaultOptions($type = null) {
+        $className = $this->fieldModel[$type];
+        $object = new $className;
+        return $object->getDefaultOptions();
     }
 
     /**
@@ -187,8 +191,8 @@ class ComboListField extends BaseField {
                     break;
             }
 
-            $field['default'][$seq] = $request->{'default_combo_' . $seq};
-            $field['options'][$seq] = $options;
+            $field[$seq]['default'] = $request->{'default_combo_' . $seq};
+            $field[$seq]['options'] = $options;
         }
 
         return $field;
@@ -333,10 +337,14 @@ class ComboListField extends BaseField {
      * @return mixed - Processed data
      */
     public function processRecordData($field, $value, $request) {
-        dd($value);
-        if($value=='')
-            $value = null;
-        return $value;
+        $values = array();
+        foreach(['_combo_one', '_combo_two'] as $seq) {
+            $value = $request->{$field['flid'] . $seq};
+            if ($value == '')
+                $value = null;
+            array_push($values, $value);
+        }
+        return $values;
     }
 
     /**
@@ -1006,10 +1014,11 @@ class ComboListField extends BaseField {
      *
      * @param  Field $field - Combo field to inspect
      * @param  string $key - The option we want
-     * @param  int $num - Sequence of sub field
+     * @param  int $seq - Sequence of sub field
      * @return string - The option
      */
-    public static function getComboFieldOption($field, $key, $num) {
-        return $field['options'][$num][$key];
+    public static function getComboFieldOption($field, $key, $seq) {
+        // dd($field);
+        return $field[$seq]['options'][$key];
     }
 }

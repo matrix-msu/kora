@@ -86,13 +86,13 @@ class FieldController extends Controller {
         // Combo List Specific
         $options = array();
         if($request->type == Form::_COMBO_LIST) {
-            foreach(['one' => 1, 'two' => 2] as $key => $num) {
+            foreach(['one' => 1, 'two' => 2] as $seq => $num) {
                 $slug = slugFormat(
                     $request->{'cfname' . $num},
                     $form->project_id,
                     $form->id
                 );
-                $options[$key] = [
+                $options[$seq] = [
                     'type' => $request->{'cftype' . $num},
                     'name' => $slug
                 ];
@@ -108,7 +108,13 @@ class FieldController extends Controller {
         $fieldMod = $form->getFieldModel($request->type);
         $fieldMod->addDatabaseColumn($form->id, $flid, $options);
         if(!$request->advanced)
-            $field['options'] = $fieldMod->getDefaultOptions($options);
+            if($request->type == Form::_COMBO_LIST) {
+                foreach (['one', 'two'] as $seq) {
+                    $field[$seq]['options'] = $fieldMod->getDefaultOptions($options[$seq]['type']);
+                }
+            } else {
+                $field['options'] = $fieldMod->getDefaultOptions($options);
+            }
 
         //Add to form
         $layout['fields'][$flid] = $field;

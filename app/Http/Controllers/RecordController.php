@@ -196,9 +196,12 @@ class RecordController extends Controller {
                 $request->rid = $record->id;
                 $field['flid'] = $key;
                 $processedData = $form->getFieldModel($field['type'])->processRecordData($field, $value, $request);
-                $record->{$key} = $processedData;
+                if($field['type'] == \App\Form::_COMBO_LIST) {
+                  // combo list save method
+                } else {
+                  $record->{$key} = $processedData;
+                }
             }
-            // dd($request->all());
 
             $record->save();
 

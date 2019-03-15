@@ -89,7 +89,7 @@ class MultiSelectListField extends BaseField {
      *
      * @return string - The default options
      */
-    public function getDefaultOptions($types = null) {
+    public function getDefaultOptions($type = null) {
         return ['Options' => ['Please Modify List Values']];
     }
 

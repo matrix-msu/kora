@@ -89,7 +89,7 @@ class FloatField extends BaseField {
      *
      * @return string - The default options
      */
-    public function getDefaultOptions($types = null) {
+    public function getDefaultOptions($type = null) {
         return ['Max' => '', 'Min' => '', 'Unit' => ''];
     }
 

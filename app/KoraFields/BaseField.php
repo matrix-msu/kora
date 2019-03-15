@@ -64,10 +64,10 @@ abstract class BaseField extends Model {
     /**
      * Gets the default options string for a new field.
      *
-     * @param  array $types - Field types for use with combo list (optional)
+     * @param  string $type - Field type for use with combo list (optional)
      * @return array - The default options
      */
-    abstract public function getDefaultOptions($types = null);
+    abstract public function getDefaultOptions($type = null);
 
     /**
      * Update the options for a field

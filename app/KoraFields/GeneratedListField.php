@@ -88,7 +88,7 @@ class GeneratedListField extends BaseField {
      *
      * @return array - The default options
      */
-    public function getDefaultOptions($types = null) {
+    public function getDefaultOptions($type = null) {
         return ['Regex' => '', 'Options' => ['Please Modify List Values']];
     }
 

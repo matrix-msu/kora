@@ -88,7 +88,7 @@ class TextField extends BaseField {
      *
      * @return array - The default options
      */
-    public function getDefaultOptions($types = null) {
+    public function getDefaultOptions($type = null) {
         return ['Regex' => '', 'MultiLine' => 0];
     }
 

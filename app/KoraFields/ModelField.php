@@ -86,10 +86,9 @@ class ModelField extends FileTypeField {
     /**
      * Gets the default options string for a new field.
      *
-     * @param  Request $request
      * @return array - The default options
      */
-    public function getDefaultOptions($types = null) {
+    public function getDefaultOptions($type = null) {
         return ['FieldSize' => '', 'MaxFiles' => '', 'FileTypes' => ['obj','stl','application/octet-stream','image/jpeg','image/png'],
             'ModelColor' => '#ddd', 'BackColorOne' => '#2E4F5E', 'BackColorTwo' => '#152730'];
     }

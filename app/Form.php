@@ -276,6 +276,8 @@ class Form extends Model {
     public function deleteField($flid) {
         $layout = $this->layout;
 
+        $type = $layout['fields'][$flid]['type'];
+
         //Remove from fields
         if(isset($layout['fields'][$flid]))
             unset($layout['fields'][$flid]);
@@ -294,10 +296,13 @@ class Form extends Model {
         $this->save();
 
         //Remove table column
-        $rTable = new \CreateRecordsTable();
-        $rTable->dropColumn($this->id,$flid);
-
-        //TODO::@andrew.joye add delete table for combo list
+        if ($type == Form::_COMBO_LIST) {
+            $rTable = new \CreateRecordsTable(['tablePrefix' => $flid]);
+            $rTable->removeFormRecordsTable($this->id);
+        } else {
+            $rTable = new \CreateRecordsTable();
+            $rTable->dropColumn($this->id,$flid);
+        }
     }
 
     /**

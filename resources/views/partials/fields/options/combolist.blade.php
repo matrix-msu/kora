@@ -13,6 +13,7 @@
     $twoName = $field['two']['name'];
 
     $defs = $field['default'];
+    $supportedViews = App\KoraFields\ComboListField::$supportedViews;
     ?>
 
     {!! Form::hidden('typeone',$oneType) !!}
@@ -33,21 +34,15 @@
             <label>Field Options for "{{ $oneName }}"</label>
             <div class="spacer"></div>
         </div>
-        @if($oneType=='Text')
-            @include('partials.fields.combo.options.text',['field'=>$field,'fnum'=>'one'])
-        @elseif($oneType=='Number')
-            @include('partials.fields.combo.options.number',['field'=>$field,'fnum'=>'one'])
-        @elseif($oneType=='Date')
-            @include('partials.fields.combo.options.date',['field'=>$field,'fnum'=>'one'])
-        @elseif($oneType=='List')
-            @include('partials.fields.combo.options.list',['field'=>$field,'fnum'=>'one'])
-        @elseif($oneType=='Multi-Select List')
-            @include('partials.fields.combo.options.mslist',['field'=>$field,'fnum'=>'one'])
-        @elseif($oneType=='Generated List')
-            @include('partials.fields.combo.options.genlist',['field'=>$field,'fnum'=>'one'])
-        @elseif($oneType=='Associator')
-            @include('partials.fields.combo.options.associator',['field'=>$field,'fnum'=>'one'])
-        @endif
+        @foreach($supportedViews as $type => $view)
+            @if($oneType == $type)
+                @include(
+                    'partials.fields.options.defaults.' . $view,
+                    ['field'=>$field['one'], 'seq' => 'one']
+                )
+                @break
+            @endif
+        @endforeach
     </section>
 
     <section class="combo-list-options-two">
@@ -55,21 +50,15 @@
             <label>Field Options for "{{ $twoName }}"</label>
             <div class="spacer"></div>
         </div>
-        @if($twoType=='Text')
-            @include('partials.fields.combo.options.text',['field'=>$field,'fnum'=>'two'])
-        @elseif($twoType=='Number')
-            @include('partials.fields.combo.options.number',['field'=>$field,'fnum'=>'two'])
-        @elseif($twoType=='Date')
-            @include('partials.fields.combo.options.date',['field'=>$field,'fnum'=>'two'])
-        @elseif($twoType=='List')
-            @include('partials.fields.combo.options.list',['field'=>$field,'fnum'=>'two'])
-        @elseif($twoType=='Multi-Select List')
-            @include('partials.fields.combo.options.mslist',['field'=>$field,'fnum'=>'two'])
-        @elseif($twoType=='Generated List')
-            @include('partials.fields.combo.options.genlist',['field'=>$field,'fnum'=>'two'])
-        @elseif($twoType=='Associator')
-            @include('partials.fields.combo.options.associator',['field'=>$field,'fnum'=>'two'])
-        @endif
+        @foreach($supportedViews as $type => $view)
+            @if($twoType == $type)
+                @include(
+                    'partials.fields.options.defaults.' . $view,
+                    ['field'=>$field['two'], 'seq' => 'two']
+                )
+                @break
+            @endif
+        @endforeach
     </section>
 
     <div class="form-group mt-xxxl">
