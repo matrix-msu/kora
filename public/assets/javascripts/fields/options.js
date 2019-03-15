@@ -103,6 +103,31 @@ Kora.Fields.Options = function(fieldType) {
         var $dateListInputs = $dateInputsContainers.find('.chosen-container');
         var scrollBarWidth = 17;
 
+        $eraCheckboxes = $('.era-check-js');
+
+        $eraCheckboxes.click(function() {
+            var $selected = $(this);
+
+            $('.era-check-js').prop('checked', false);
+            $selected.prop('checked', true);
+
+            currEra = $selected.val();
+            $month = $('#default_month');
+            $day = $('#default_day');
+
+            if(currEra=='BP' | currEra=='KYA BP') {
+                $month.attr('disabled','disabled');
+                $day.attr('disabled','disabled');
+                $month.trigger("chosen:updated");
+                $day.trigger("chosen:updated");
+            } else {
+                $month.removeAttr('disabled');
+                $day.removeAttr('disabled');
+                $month.trigger("chosen:updated");
+                $day.trigger("chosen:updated");
+            }
+        });
+
         $('.start-year-js').change(printYears);
 
         $('.end-year-js').change(printYears);
@@ -124,10 +149,17 @@ Kora.Fields.Options = function(fieldType) {
         }
 
         function printYears(){
-            start = $('.start-year-js').val(); end = $('.end-year-js').val();
+            start = $('.start-year-js').val();
+            end = $('.end-year-js').val();
 
             if(start=='' || start < 0) {start = 0;}
             if(end == '' || end > 9999) {end = 9999;}
+
+            if(start > end) {
+                pivot = start;
+                start = end;
+                end = pivot;
+            }
 
             val = '<option></option>';
             for(var i=start;i<+end+1;i++) {
