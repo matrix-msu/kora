@@ -4,57 +4,25 @@ use App\Form;
 use App\Record;
 use Illuminate\Http\Request;
 
-class HistoricalDateField extends BaseField {
+class DateField extends BaseField {
 
     /*
     |--------------------------------------------------------------------------
-    | Historical Date Field
+    | Date Field
     |--------------------------------------------------------------------------
     |
-    | This model represents the historical date field in Kora3
+    | This model represents the date field in Kora3
     |
     */
 
     /**
      * @var string - Views for the typed field options
      */
-    const FIELD_OPTIONS_VIEW = "partials.fields.options.historicdate";
-    const FIELD_ADV_OPTIONS_VIEW = "partials.fields.advanced.historicdate";
-    const FIELD_ADV_INPUT_VIEW = "partials.records.advanced.historicdate"; //TODO::CASTLE
-    const FIELD_INPUT_VIEW = "partials.records.input.historicdate";
-    const FIELD_DISPLAY_VIEW = "partials.records.display.historicdate";
-
-    //TODO::CASTLE Might use for advanced search?
-//    /**
-//     * @var string - Month day year format
-//     */
-//    const MONTH_DAY_YEAR = "MMDDYYYY";
-//    /**
-//     * @var string - Day month year format
-//     */
-//    const DAY_MONTH_YEAR = "DDMMYYYY";
-//    /**
-//     * @var string - Year month day format
-//     */
-//    const YEAR_MONTH_DAY = "YYYYMMDD";
-//
-//    /**
-//     * @var array - The months of the year in different languages
-//     *
-//     * These are listed without special characters because the input will be converted to close characters.
-//     * Formatted with regular expression tags to find only the exact month so "march" does not match "marches" for example.
-//     */
-//    const MONTHS_IN_LANG = [
-//        "/(\\W|^)january(\\W|$)/i", "/(\\W|^)february(\\W|$)/i", "/(\\W|^)march(\\W|$)/i",
-//        "/(\\W|^)april(\\W|$)/i", "/(\\W|^)may(\\W|$)/i", "/(\\W|^)june(\\W|$)/i",
-//        "/(\\W|^)july(\\W|$)/i", "/(\\W|^)august(\\W|$)/i", "/(\\W|^)september(\\W|$)/i",
-//        "/(\\W|^)october(\\W|$)/i", "/(\\W|^)november(\\W|$)/i", "/(\\W|^)december(\\W|$)/i"
-//    ];
-//
-//    /**
-//     * @var array - We currently support 3 languages, so this is an array of 3 copies of the number of 1 through 12
-//     */
-//    const MONTH_NUMBERS = [ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 ];
+    const FIELD_OPTIONS_VIEW = "partials.fields.options.date";
+    const FIELD_ADV_OPTIONS_VIEW = "partials.fields.advanced.date";
+    const FIELD_ADV_INPUT_VIEW = "partials.records.advanced.date"; //TODO::CASTLE
+    const FIELD_INPUT_VIEW = "partials.records.input.date";
+    const FIELD_DISPLAY_VIEW = "partials.records.display.date";
 
     /**
      * Get the field options view.
@@ -111,7 +79,7 @@ class HistoricalDateField extends BaseField {
      */
     public function addDatabaseColumn($fid, $slug, $options = null) {
         $table = new \CreateRecordsTable();
-        $table->addJSONColumn($fid, $slug);
+        $table->addDateColumn($fid, $slug);
     }
 
     /**
@@ -121,8 +89,6 @@ class HistoricalDateField extends BaseField {
      */
     public function getDefaultOptions() {
         return [
-            'ShowCirca' => 0,
-            'ShowEra' => 0,
             'Start' => 1900,
             'End' => 2030,
             'Format' => 'MMDDYYYY'
@@ -142,9 +108,7 @@ class HistoricalDateField extends BaseField {
             $default = [
                 'month' => $request->default_month,
                 'day' => $request->default_day,
-                'year' => $request->default_year,
-                'circa' => !is_null($request->default_circa) ? $request->default_circa : 0,
-                'era' => !is_null($request->default_era) ? $request->default_era : 'CE'
+                'year' => $request->default_year
             ];
         } else {
             $default = null;
@@ -164,8 +128,6 @@ class HistoricalDateField extends BaseField {
         }
 
         $field['default'] = $default;
-        $field['options']['ShowCirca'] = $request->circa;
-        $field['options']['ShowEra'] = $request->era;
         $field['options']['Start'] = $request->start;
         $field['options']['End'] = $request->end;
         $field['options']['Format'] = $request->format;
@@ -209,7 +171,7 @@ class HistoricalDateField extends BaseField {
 
         if(!self::validateDate($month,$day,$year))
             return [
-                'month_'.$flid.'_chosen' => $field['name'].' is an invalid date',
+                'month_'.$flid.'_chosen' => $field['name'].' is an invalid date or is missing pieces',
                 'day_'.$flid.'_chosen' => ' ',
                 'year_'.$flid.'_chosen' => ' '
             ];
@@ -226,21 +188,11 @@ class HistoricalDateField extends BaseField {
      * @return bool - Is valid
      */
     private static function validateDate($m,$d,$y) {
-        //No blank date
-        //No month without a year.
-        //No day without a month.
-        if(
-            ($m=='' && $d=='' && $y=='') | ($m!='' && $y=='') | ($d!='' && $m=='')
-        ) {
+        //Date requires all parts
+        if($m=='' | $d=='' | $y=='')
             return false;
-        }
 
         //Next we need to make sure the date provided is legal (i.e. no Feb 30th, etc)
-        //For the check we need to default any blank values to 1, cause checkdate doesn't like partial dates
-        if($m=='') {$m=1;}
-        if($d=='') {$d=1;}
-        if($y=='') {$y=1;}
-
         return checkdate($m, $d, $y);
     }
 
@@ -254,17 +206,13 @@ class HistoricalDateField extends BaseField {
      * @return mixed - Processed data
      */
     public function processRecordData($field, $value, $request) {
-        $date = [
-            'month' => $request->input('month_'.$value,''),
-            'day' => $request->input('day_'.$value,''),
-            'year' => $request->input('year_'.$value,''),
-            'circa' => !is_null($request->{'circa_'.$value}) ? $request->{'circa_'.$value} : 0,
-            'era' => !is_null($request->{'era_'.$value}) ? $request->{'era_'.$value} : 'CE'
-        ];
-        if(!self::validateDate($date['month'],$date['day'],$date['year']))
+        $month = $request->input('month_'.$value,'');
+        $day = $request->input('day_'.$value,'');
+        $year = $request->input('year_'.$value,'');
+        if(!self::validateDate($month,$day,$year))
             return null;
         else
-            return json_encode($date);
+            return "$year-$month-$day";
     }
 
     /**
@@ -276,12 +224,7 @@ class HistoricalDateField extends BaseField {
      * @return mixed - Processed data
      */
     public function processRevisionData($data) {
-        $date = json_decode($data,true);
-        $return = ($date['circa']) ? 'circa ' : '';
-        $return .= $date['month'].'/'.$date['day'].'/'.$date['year'];
-        $return .= ' '.$date['era'];
-
-        return $return;
+        return $data;
     }
 
     /**
@@ -296,11 +239,10 @@ class HistoricalDateField extends BaseField {
      */
     public function processImportData($flid, $field, $value, $request) {
         $request[$flid] = $flid;
-        $request['month_'.$flid] = isset($value['month']) ? $value['month'] : '';
-        $request['day_'.$flid] = isset($value['day']) ? $value['day'] : '';
-        $request['year_'.$flid] = isset($value['year']) ? $value['year'] : '';
-        $request['circa_'.$flid] = isset($value['circa']) ? $value['circa'] : 0;
-        $request['era_'.$flid] = isset($value['era']) ? $value['era'] : 'CE';
+        $parts = explode('-',$value);
+        $request['month_'.$flid] = $parts[1];
+        $request['day_'.$flid] = $parts[2];
+        $request['year_'.$flid] = $parts[0];
 
         return $request;
     }
@@ -318,11 +260,10 @@ class HistoricalDateField extends BaseField {
      */
     public function processImportDataXML($flid, $field, $value, $request, $simple = false) {
         $request[$flid] = $flid;
-        $request['month_'.$flid] = isset($value->Month) ? (string)$value->Month : '';
-        $request['day_'.$flid] = isset($value->Day) ? (string)$value->Day : '';
-        $request['year_'.$flid] = isset($value->Year) ? (string)$value->Year : '';
-        $request['circa_'.$flid] = isset($value->Circa) ? (string)$value->Circa : 0;
-        $request['era_'.$flid] = isset($value->Era) ? (string)$value->Era : 'CE';
+        $parts = explode('-',(string)$value);
+        $request['month_'.$flid] = $parts[1];
+        $request['day_'.$flid] = $parts[2];
+        $request['year_'.$flid] = $parts[0];
 
         return $request;
     }
@@ -336,8 +277,7 @@ class HistoricalDateField extends BaseField {
      * @return mixed - Processed data
      */
     public function processDisplayData($field, $value) {
-        $date = json_decode($value,true);
-        return $this->displayDate($date, $field);
+        return $this->displayDate($value, $field);
     }
 
     /**
@@ -349,14 +289,7 @@ class HistoricalDateField extends BaseField {
      * @return mixed - Processed data
      */
     public function processXMLData($field, $value) {
-        $date = json_decode($value,true);
-        $xml = "<$field>";
-        $xml .= '<Circa>'.$date['circa'].'</Circa>';
-        $xml .= '<Month>'.$date['month'].'</Month>';
-        $xml .= '<Day>'.$date['day'].'</Day>';
-        $xml .= '<Year>'.$date['year'].'</Year>';
-        $xml .= '<Era>'.$date['era'].'</Era>';
-        $xml .= "</$field>";
+        $xml = "<$field>$value</$field>";
 
         return $xml;
     }
@@ -369,14 +302,7 @@ class HistoricalDateField extends BaseField {
      * @return mixed - Processed data
      */
     public function processLegacyData($value) {
-        return [
-            'prefix' => $value['circa'],
-            'month' => $value['month'],
-            'day' => $value['day'],
-            'year' => $value['year'],
-            'era' => $value['era'],
-            'suffix' => ''
-        ];
+        return null;
     }
 
     /**
@@ -389,15 +315,14 @@ class HistoricalDateField extends BaseField {
      * @param  bool $overwrite - Overwrite if data exists
      */
     public function massAssignRecordField($form, $flid, $formFieldValue, $request, $overwrite=0) {
-        $date = [
-            'month' => $request->input('month_'.$formFieldValue,''),
-            'day' => $request->input('day_'.$formFieldValue,''),
-            'year' => $request->input('year_'.$formFieldValue,''),
-            'circa' => !is_null($request->{'circa_'.$formFieldValue}) ? $request->{'circa_'.$formFieldValue} : 0,
-            'era' => !is_null($request->{'era_'.$formFieldValue}) ? $request->{'era_'.$formFieldValue} : 'CE'
-        ];
-        if(!self::validateDate($date['month'],$date['day'],$date['year']))
+        $month = $request->input('month_'.$formFieldValue,'');
+        $day = $request->input('day_'.$formFieldValue,'');
+        $year = $request->input('year_'.$formFieldValue,'');
+
+        if(!self::validateDate($month,$day,$year))
             $date = null;
+        else
+            $date = "$year-$month-$day";
 
         $recModel = new Record(array(),$form->id);
         if($overwrite)
@@ -413,14 +338,7 @@ class HistoricalDateField extends BaseField {
      * @return mixed - The data
      */
     public function getTestData($url = null) {
-        $date = [
-            'month' => 3,
-            'day' => 3,
-            'year' => 2003,
-            'circa' => 0,
-            'era' => 'CE'
-        ];
-        return json_encode($date);
+        return "2003-03-03";
     }
 
     /**
@@ -434,21 +352,13 @@ class HistoricalDateField extends BaseField {
         switch($type) {
             case "XML":
                 $xml = '<' . $slug . '>';
-                $xml .= '<Circa>' . utf8_encode('1 if CIRCA. 0 if NOT CIRCA (Tag is optional)') . '</Circa>';
-                $xml .= '<Month>' . utf8_encode('NUMERIC VALUE OF MONTH (i.e. 03)') . '</Month>';
-                $xml .= '<Day>' . utf8_encode('3') . '</Day>';
-                $xml .= '<Year>' . utf8_encode('2003') . '</Year>';
-                $xml .= '<Era>' . utf8_encode('CE, BCE, BP, or KYA BP (Tag is optional)') . '</Era>';
+                $xml .= 'YYYY-MM-DD';
                 $xml .= '</' . $slug . '>';
 
                 return $xml;
                 break;
             case "JSON":
-                $fieldArray[$slug]['circa'] = '1 if CIRCA. 0 if NOT CIRCA (Index is optional)';
-                $fieldArray[$slug]['month'] = 'NUMERIC VALUE OF MONTH (i.e. 03)';
-                $fieldArray[$slug]['day'] = 3;
-                $fieldArray[$slug]['year'] = 2003;
-                $fieldArray[$slug]['era'] = 'CE, BCE, BP, or KYA BP (Index is optional)';
+                $fieldArray[$slug] = 'YYYY-MM-DD';
 
                 return $fieldArray;
                 break;
@@ -526,31 +436,20 @@ class HistoricalDateField extends BaseField {
     /**
      * Formatted display of a date field value.
      *
-     * @param  array $date - Takes date array and processes it for display
+     * @param  string $date - Date string
      * @param  array $field - Field data
      * @return string - The formatted string
      */
     public function displayDate($date, $field) {
+        $date = explode('-',$date);
         $dateString = '';
 
-        if($date['circa'] && $field['options']['ShowCirca'])
-            $dateString .= 'circa ';
-
-        if($date['month']=='' && $date['day']=='')
-            $dateString .= $date['year'];
-        else if($date['day']=='')
-            $dateString .= \DateTime::createFromFormat('m', $date['month'])->format('F').', '.$date['year'];
-        else if($date['year']=='')
-            $dateString .= \DateTime::createFromFormat('m', $date['month'])->format('F').' '.$date['day'];
-        else if($field['options']['Format']=='MMDDYYYY')
-            $dateString .= $date['month'].'-'.$date['day'].'-'.$date['year'];
+        if($field['options']['Format']=='MMDDYYYY')
+            $dateString .= $date[1].'-'.$date[2].'-'.$date[0];
         else if($field['options']['Format']=='DDMMYYYY')
-            $dateString .= $date['day'].'-'.$date['month'].'-'.$date['year'];
+            $dateString .= $date[2].'-'.$date[1].'-'.$date[0];
         else if($field['options']['Format']=='YYYYMMDD')
-            $dateString .= $date['year'].'-'.$date['month'].'-'.$date['day'];
-
-        if($field['options']['ShowEra'])
-            $dateString .= ' '.$date['era'];
+            $dateString .= $date[0].'-'.$date[1].'-'.$date[2];
 
         return $dateString;
     }
