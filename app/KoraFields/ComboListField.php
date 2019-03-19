@@ -182,6 +182,21 @@ class ComboListField extends BaseField {
                     $options['Unit'] = $request->{'unit_' . $seq};
                     break;
                 case Form::_LIST:
+                    $listopts = $request->{'options_' . $seq};
+                    if(is_null($listopts)) {
+                        $listopts = array();
+                    }
+                    $options['Options'] = $listopts;
+
+                    $table = new \CreateRecordsTable(
+                        ['tablePrefix' => $flid]
+                    );
+                    $table->updateEnum(
+                        $request->fid,
+                        $field[$seq]['flid'],
+                        $listopts
+                    );
+                    break;
                 case Form::_MULTI_SELECT_LIST:
                     $listopts = $request->{'options_' . $seq};
                     if(is_null($listopts)) {
@@ -338,11 +353,11 @@ class ComboListField extends BaseField {
      */
     public function processRecordData($field, $value, $request) {
         $values = array();
-        foreach(['_combo_one', '_combo_two'] as $seq) {
-            $value = $request->{$field['flid'] . $seq};
+        foreach(['_combo_one' => 'one', '_combo_two' => 'two'] as $affix => $seq) {
+            $value = $request->{$field['flid'] . $affix};
             if ($value == '')
                 $value = null;
-            array_push($values, $value);
+            $values[$seq] = $value[0];
         }
         return $values;
     }
@@ -1020,5 +1035,25 @@ class ComboListField extends BaseField {
     public static function getComboFieldOption($field, $key, $seq) {
         // dd($field);
         return $field[$seq]['options'][$key];
+    }
+
+    public function save(array $options = array()) {
+        $field = $options['field'];
+        // dd($field);
+        // dd($field['one']['flid']);
+        // $this->record_id = $options['rid'];
+        // dd($field['flid'] . $options['fid']);
+        DB::transaction(function() use ($field, $options) {
+            DB::table($field['flid'] . $options['fid'])->insert(
+                [
+                    'record_id' => $options['rid'],
+                    $field['one']['flid'] => $options['values']['one'],
+                    $field['two']['flid'] => $options['values']['two']
+                ]
+            );
+        });
+        // foreach ($options['values'] as $seq => $value) {
+        // }
+        // parent::save();
     }
 }
