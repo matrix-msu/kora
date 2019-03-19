@@ -79,15 +79,21 @@ class CreateRecordsTable extends Migration {
         });
     }
 
-    /**
-     * Creates a column with type double
-     *
-     * @param int $precision - total digits
-     * @param int $scale - decimal digits
-     */
     public function addDoubleColumn($fid, $slug, $precision = 15, $scale = 8) {
         Schema::table($this->tablePrefix . $fid, function(Blueprint $table) use ($slug, $precision, $scale) {
             $table->double($slug, $precision, $scale)->nullable();
+        });
+    }
+
+    public function addDateColumn($fid, $slug) {
+        Schema::table("records_$fid", function(Blueprint $table) use ($slug) {
+            $table->date($slug)->nullable();
+        });
+    }
+
+    public function addDateTimeColumn($fid, $slug) {
+        Schema::table("records_$fid", function(Blueprint $table) use ($slug) {
+            $table->dateTime($slug)->nullable();
         });
     }
 

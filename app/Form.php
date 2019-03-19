@@ -39,6 +39,8 @@ class Form extends Model {
     const _LIST = "List";
     const _MULTI_SELECT_LIST = "Multi-Select List";
     const _GENERATED_LIST = "Generated List";
+    const _DATE = "Date";
+    const _DATETIME = "DateTime";
     const _HISTORICAL_DATE = "Historical Date";
     const _GEOLOCATOR = "Geolocator";
     const _DOCUMENTS = "Documents";
@@ -62,6 +64,8 @@ class Form extends Model {
             self::_FLOAT => self::_FLOAT
         ),
         'Date Fields' => array(
+            self::_DATE => self::_DATE,
+            self::_DATETIME => self::_DATETIME,
             self::_HISTORICAL_DATE => self::_HISTORICAL_DATE
         ),
         'File Fields' => array(
@@ -94,9 +98,9 @@ class Form extends Model {
         self::_INTEGER,
         self::_FLOAT,
         //self::_GENERATED_LIST, //TODO::CASTLE implement multi value filter types
-        //self::_DATE,
-        //self::_DATETIME,
-        self::_ASSOCIATOR, //TODO::CASTLE implement multi value filter types
+        self::_DATE,
+        self::_DATETIME,
+        //self::_ASSOCIATOR, //TODO::CASTLE implement multi value filter types
     ];
 
     /**
@@ -107,8 +111,8 @@ class Form extends Model {
         self::_LIST,
         self::_INTEGER,
         self::_FLOAT,
-        //self::_DATE,
-        //self::_DATETIME,
+        self::_DATE,
+        self::_DATETIME,
     ];
 
     /**
@@ -130,6 +134,8 @@ class Form extends Model {
         self::_3D_MODEL => "ModelField",
         self::_GEOLOCATOR => "GeolocatorField",
         self::_ASSOCIATOR => "AssociatorField",
+        self::_DATE => "DateField",
+        self::_DATETIME => "DateTimeField",
         self::_HISTORICAL_DATE => "HistoricalDateField"
     ];
 
