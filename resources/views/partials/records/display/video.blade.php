@@ -15,7 +15,7 @@
 
       <div class="field-sidebar video-sidebar video-sidebar-js">
           <div class="top">
-              <a href="{{action('FieldAjaxController@singleResource',['kid' => $record->kid, 'filename' => $locName])}}" class="field-btn" target="_blank">
+              <a href="{{$link}}" class="field-btn" target="_blank">
                   <i class="icon icon-external-link"></i>
               </a>
 

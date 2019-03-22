@@ -10,10 +10,9 @@
                 $ogName = $img['original_name'];
                 $locName = $img['local_name'];
                 $link = action('FieldAjaxController@publicRecordFile',['filename' => $locName]);
-                $resLink = action('FieldAjaxController@singleResource',['kid' => $record->kid, 'filename' => $locName]);
             @endphp
             <div class="slide slide-js">
-                <img class="slide-img slide-img-js" src="{{$link}}" alt="{{$ogName}}" resLink="{{$resLink}}">
+                <img class="slide-img slide-img-js" src="{{$link}}" alt="{{$ogName}}" resLink="{{$link}}">
             </div>
         @endforeach
     </div>

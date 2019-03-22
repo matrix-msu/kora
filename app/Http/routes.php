@@ -194,7 +194,6 @@ Route::group(['middleware' => 'web'], function () {
     Route::get('/projects/{pid}/forms/{fid}/clone/{rid}', 'RecordController@cloneRecord');
     Route::get('/projects/{pid}/forms/{fid}/records/{rid}/resource/geolocator', 'FieldAjaxController@singleGeolocator');
     Route::get('/projects/{pid}/forms/{fid}/records/{rid}/resource/richtext', 'FieldAjaxController@singleRichtext');
-    Route::get('/resource/{kid}/{filename}', 'FieldAjaxController@singleResource');
 
 //revision routes
     Route::get('/projects/{pid}/forms/{fid}/records/revisions/recent', 'RevisionController@index');

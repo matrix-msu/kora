@@ -7,6 +7,7 @@
                     $locName = $opt['local_name'];
                     $size = $opt['size'];
                     $link = action('FieldAjaxController@getFileDownload',['kid' => $record->kid, 'filename' => $locName]);
+                    $pubLink = action('FieldAjaxController@publicRecordFile',['filename' => $locName]);
                 @endphp
                 <div>
                     <p class="filename"><a class="documents-link underline-middle-hover" href="{{$link}}">{{$ogName}}</a></p>
@@ -17,7 +18,7 @@
 
         <div class="field-sidebar document-sidebar document-sidebar-js">
             <div class="top">
-                <a class="field-btn external-button-js" target="_blank" href="{{action('FieldAjaxController@singleResource',['kid' => $record->kid, 'filename' => $locName])}}">
+                <a class="field-btn external-button-js" target="_blank" href="{{$pubLink}}">
                     <i class="icon icon-external-link"></i>
                 </a>
 

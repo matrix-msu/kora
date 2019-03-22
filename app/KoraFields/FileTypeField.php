@@ -468,6 +468,16 @@ abstract class FileTypeField extends BaseField {
      */
     public abstract function getDefaultMIMEList();
 
+    public function formatBytes($bytes) { //TODO::CASTLE
+        $units = ['b', 'kb', 'mb', 'gb', 'tb'];
+
+        for($i = 0; $bytes > 1024; $i++) {
+            $bytes /= 1024;
+        }
+
+        return round($bytes, 1) . ' ' . $units[$i];
+    }
+
     /**
      * Saves a temporary version of an uploaded file.
      *
@@ -660,33 +670,6 @@ abstract class FileTypeField extends BaseField {
         }
 
         return response()->json(["status" => false, "message" => "file_doesnt_exist"], 500);
-    }
-
-    /**
-     * View single image/video/audio/document from a record. This way even media fields can be processed in a basic documents field
-     *
-     * @param  int $kid - Record Kora ID
-     * @param  string $filename - Name of the file
-     * @return Redirect
-     */
-    public static function singleResource($kid, $filename) {
-        $src = url('files/'.$filename);
-
-        $mime = ''; //TODO::CASTLE
-        //$mime = Storage::mimeType($relative_src);
-
-        if(strpos($mime, 'image') !== false || strpos($mime, 'jpeg') !== false || strpos($mime, 'png') !== false) {
-            // Image
-            return view('fields.singleImage', compact('filename', 'src')); //TODO::CASTLE
-        } else if(strpos($mime, 'video') !== false || strpos($mime, 'mp4') !== false) {
-            // Video
-            return view('fields.singleVideo', compact('filename', 'src')); //TODO::CASTLE
-        } else if(strpos($mime, 'audio') !== false || strpos($mime, 'mpeg') !== false || strpos($mime, 'mp3') !== false) {
-            // Audio
-            return view('fields.singleAudio', compact('filename', 'src')); //TODO::CASTLE
-        }
-
-        return self::publicRecordFile($filename);
     }
 
     /**

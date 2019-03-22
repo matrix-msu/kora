@@ -166,17 +166,6 @@ class FieldAjaxController extends Controller {
     }
 
     /**
-     * View single image/video/audio/document from a record.
-     *
-     * @param  int $kid - Record Kora ID
-     * @param  string $filename - Name of the file
-     * @return Redirect
-     */
-    public function singleResource($kid, $filename) {
-        return FileTypeField::singleResource($kid, $filename);
-    }
-
-    /**
      * Validates record data for a Combo List Field.
      *
      * @param  int $pid - Project ID

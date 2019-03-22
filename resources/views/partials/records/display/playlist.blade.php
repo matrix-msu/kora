@@ -31,7 +31,7 @@
 
         <div class="field-sidebar audio-sidebar audio-sidebar-js">
             <div class="top">
-                <a href="{{action('FieldAjaxController@singleResource',['kid' => $record->kid, 'filename' => $locName])}}" class="field-btn" target="_blank">
+                <a href="{{$link}}" class="field-btn" target="_blank">
                     <i class="icon icon-external-link"></i>
                 </a>
 
