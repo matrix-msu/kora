@@ -11,7 +11,7 @@
 
 <div class="form-group mt-xl">
     {!! Form::label('filetype','Allowed File Types') !!}
-    {!! Form::select('filetype'.'[]',['video/mp4' => 'MP4'], getDefaultTypes('Video'),
+    {!! Form::select('filetype'.'[]',['video/mp4' => 'MP4'], 'video/mp4',
         ['class' => 'multi-select', 'Multiple', 'data-placeholder' => 'Search and Select the file types allowed here']) !!}
 </div>
 

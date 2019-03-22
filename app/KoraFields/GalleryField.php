@@ -1,9 +1,6 @@
 <?php namespace App\KoraFields;
 
-use App\Form;
-use App\Record;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 
 class GalleryField extends FileTypeField {
 
@@ -22,11 +19,11 @@ class GalleryField extends FileTypeField {
     /**
      * @var string - Views for the typed field options
      */
-    const FIELD_OPTIONS_VIEW = "partials.fields.options.gallery"; //TODO::CASTLE
-    const FIELD_ADV_OPTIONS_VIEW = "partials.fields.advanced.gallery"; //TODO::CASTLE
+    const FIELD_OPTIONS_VIEW = "partials.fields.options.gallery";
+    const FIELD_ADV_OPTIONS_VIEW = "partials.fields.advanced.gallery";
     const FIELD_ADV_INPUT_VIEW = null;
-    const FIELD_INPUT_VIEW = "partials.records.input.gallery"; //TODO::CASTLE
-    const FIELD_DISPLAY_VIEW = "partials.records.display.gallery"; //TODO::CASTLE
+    const FIELD_INPUT_VIEW = "partials.records.input.gallery";
+    const FIELD_DISPLAY_VIEW = "partials.records.display.gallery";
 
     /**
      * @var array - Supported file types in this field
@@ -183,27 +180,40 @@ class GalleryField extends FileTypeField {
      * @param  string $url - Url for File Type Fields
      * @return mixed - The data
      */
-    public function getTestData($url = null) { //TODO::CASTLE
-        $newPath = storage_path('app/files/'.$url);
-
-        mkdir($newPath, 0775, true);
-
+    public function getTestData($url = null) {
         $types = self::getMimeTypes();
         if(!array_key_exists('jpeg', $types))
             $type = 'application/octet-stream';
         else
             $type = $types['jpeg'];
 
+        $fileIDString = $url['flid'] . $url['rid'] . '_';
+        $newName = $fileIDString.'image.jpeg';
+
+        //Hash the file
+        $checksum = hash_file('sha256', public_path('assets/testFiles/image.jpeg'));
+
         $file = [
-            'name' => 'image.jpeg',
+            'original_name' => 'image.jpeg',
+            'local_name' => $newName,
             'caption' => 'Mountain peaking through the clouds.',
-            'url' => $url,
+            'url' => url('files').'/'.$newName,
             'size' => 154491,
-            'type' => $type
+            'type' => $type,
+            'checksum' => $checksum //TODO:: eventually hardcode this
         ];
 
-        copy(public_path('assets/testFiles/image.jpeg'),
-            $newPath . '/image.jpeg');
+        $storageType = 'LaravelStorage'; //TODO:: make this a config once we actually support other storage types
+        switch($storageType) {
+            case 'LaravelStorage':
+                $newPath = storage_path('app/files/' . $url['pid'] . '/' . $url['fid'] . '/' . $url['rid']);
+                mkdir($newPath, 0775, true);
+                copy(public_path('assets/testFiles/image.jpeg'),
+                    $newPath . '/'.$newName);
+                break;
+            default:
+                break;
+        }
 
         return json_encode([$file]);
     }
@@ -259,31 +269,6 @@ class GalleryField extends FileTypeField {
     }
 
     ///////////////////////////////////////////////END ABSTRACT FUNCTIONS///////////////////////////////////////////////
-
-    /**
-     * Gets the image associated with the Gallery Field of a particular record.
-     *
-     * @param  Record $record - Record model
-     * @param  array $filename - Name of image file
-     * @param  string $type - Get either the full image or a thumbnail of the image
-     * @return string - html for the file download
-     */
-    public function getImgDisplay($record, $filename, $type) { //TODO::CASTLE do we need this?
-        if($type == 'thumbnail' | $type == 'medium')
-            $file_path = storage_path('app/files/'.$record->project_id.'/'.$record->form_id.'/'.$record->id.'/'.$type.'/'. $filename);
-        else
-            $file_path = storage_path('app/files/'.$record->project_id.'/'.$record->form_id.'/'.$record->id.'/'. $filename);
-
-        if(file_exists($file_path)) {
-            // Send Download
-            return response()->download($file_path, $filename, [
-                'Content-Length: '. filesize($file_path)
-            ]);
-        } else {
-            // Error
-            return response()->json(["status"=>false,"message"=>"file_doesnt_exist"],500);
-        }
-    }
 
     /**
      * Returns default mime list, if file types not saved in field options.

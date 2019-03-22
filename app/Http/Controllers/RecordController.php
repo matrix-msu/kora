@@ -960,7 +960,10 @@ class RecordController extends Controller {
             foreach($form->layout['fields'] as $flid => $field) {
                 $model = $form->getFieldModel($field['type']);
                 if($model instanceof FileTypeField) {
-                    $url = $pid . '/' . $fid . '/' . $record->id;
+                    $url['pid'] = $pid;
+                    $url['fid'] = $fid;
+                    $url['flid'] = $flid;
+                    $url['rid'] = $record->id;
                     $record->{$flid} = $model->getTestData($url);
                 } else
                     $record->{$flid} = $model->getTestData();

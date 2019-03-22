@@ -2,22 +2,8 @@
     $value = array();
 
     //If this is an edit, we need to move things around
-    if($editRecord && !is_null($record->{$flid})) {
-        foreach(json_decode($record->{$flid},true) as $key => $file) {
-            $name = $file['name'];
-            $names[$key] = $name;
-            array_push($value,$name);
-        }
-        //move things over from storage to tmp
-        $dir = storage_path('app/files/'.$record->project_id.'/'.$record->form_id.'/'.$record->id);
-        $dirTmp = storage_path('app/tmpFiles/recordU'.\Auth::user()->id);
-        if(file_exists($dir)) {
-            foreach(new \DirectoryIterator($dir) as $file) {
-                if($file->isFile() && in_array($file->getFilename(),$names))
-                    copy($dir.'/'.$file->getFilename(),$dirTmp.'/'.$file->getFilename());
-            }
-        }
-    }
+    if($editRecord && !is_null($record->{$flid}))
+        $value = json_decode($record->{$flid},true);
 @endphp
 
 <div class="form-group file-input-form-group audio-input-form-group mt-xxxl">
@@ -26,9 +12,14 @@
 
     <label for="{{$flid}}" class="file-label file-label-js">
         <div class="file-cards-container file-cards-container-js filenames-{{$flid}}-js preset-clear-file-js">
-            @foreach($value as $index => $file)
+            @foreach($value as $file)
+                @php
+                    //Strip the identifier tag
+                    $nameParts = explode('_',$file['local_name']);
+                    $editTmpName = array_pop($nameParts);
+                @endphp
                 <div class="card file-card file-card-js">
-                    <input type="hidden" name="{{$flid}}[]" value="{{$file}}">
+                    <input type="hidden" name="{{$flid}}[]" value="{{$editTmpName}}">
                     <div class="header">
                         <div class="left">
                             <div class="move-actions">
@@ -39,11 +30,11 @@
                                     <i class="icon icon-arrow-down"></i>
                                 </a>
                             </div>
-                            <span class="title">{{$file}}</span>
+                            <span class="title">{{$file['original_name']}}</span>
                         </div>
 
                         <div class="card-toggle-wrap">
-                            <a href="#" class="file-delete upload-filedelete-js ml-sm tooltip" tooltip="Remove Audio" data-url="{{ url("deleteTmpFile/$form->id/$flid/".urlencode($file)) }}">
+                            <a href="#" class="file-delete upload-filedelete-js ml-sm tooltip" tooltip="Remove Audio" data-url="{{ url("deleteTmpFile/$form->id/$flid/".urlencode($editTmpName)) }}">
                                 <i class="icon icon-trash danger"></i>
                             </a>
                         </div>

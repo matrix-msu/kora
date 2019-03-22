@@ -24,10 +24,6 @@ abstract class FileTypeField extends BaseField {
      * @var array - Maps file field constant names to valid file memes
      */
 //    public static $FILE_MIME_TYPES = [ //TODO::CASTLE
-//        Form::_DOCUMENTS => [],
-//        Form::_GALLERY => ['image/jpeg','image/gif','image/png'],
-//        Form::_PLAYLIST => ['audio/mp3','audio/wav','audio/mpeg'],
-//        Form::_VIDEO => ['video/mp4'],
 //        Form::_3D_MODEL => ['obj','stl','application/octet-stream','image/jpeg','image/png'],
 //    ];
 
@@ -534,8 +530,8 @@ abstract class FileTypeField extends BaseField {
         if(!empty($fileTypes)) {
             foreach ($fileTypesRequest as $type) {
                 //This statement guards against Safari's lack of file type recognition
-//                if($field['type'] == Form::_PLAYLIST && $type == "audio/mpeg") //TODO::CASTLE
-//                    $type = "audio/mp3";
+                if($field['type'] == Form::_PLAYLIST && $type == "audio/mpeg")
+                    $type = "audio/mp3";
 
                 if(!in_array($type, $fileTypes))
                     $validTypes = false;
@@ -638,45 +634,49 @@ abstract class FileTypeField extends BaseField {
     }
 
     /**
-     * Downloads a zip file from a particular record field.
+     * Downloads a zip of all files from a particular record.
      *
      * @param  int $kid - Record Kora ID
-     * @param  string $filename - Name of the file
      * @return string - html for the file download
      */
-    public static function getZipDownload($kid, $filename) { //TODO::CASTLE
+    public static function getZipDownload($kid) { //TODO::CASTLE
         $record = RecordController::getRecord($kid);
+        $storageType = 'LaravelStorage'; //TODO:: make this a config once we actually support other storage types
 
-        // Check if directory app/storage/file folder exists
-        $dir_path = storage_path('app/files/'.$record->project_id.'/'.$record->form_id.'/'.$record->id);
-        if(file_exists($dir_path)) {
-            $zip_name = $filename . '_export' . date("Y_m_d_His") . '.zip';
-            $zip_dir = storage_path('app/exports');
-            $zip = new ZipArchive();
+        switch($storageType) {
+            case 'LaravelStorage':
+                // Check if file exists in app/storage/file folder
+                $dir_path = storage_path('app/files/'.$record->project_id.'/'.$record->form_id.'/'.$record->id);
+                if(file_exists($dir_path)) {
+                    $zip_name = $kid . '_zip_export' . date("Y_m_d_His") . '.zip';
+                    $zip_dir = storage_path('app/exports');
+                    $zip = new ZipArchive();
 
-            if($zip->open($zip_dir . '/' . $zip_name, ZipArchive::CREATE) === TRUE) {
-                foreach(new \DirectoryIterator($dir_path) as $file) {
-                    if($file->isFile()) {
-                        $content = file_get_contents($file->getRealPath());
-                        $zip->addFromString($file->getFilename(), $content);
+                    if($zip->open($zip_dir . '/' . $zip_name, ZipArchive::CREATE) === TRUE) {
+                        foreach(new \DirectoryIterator($dir_path) as $file) {
+                            if($file->isFile()) {
+                                $content = file_get_contents($file->getRealPath());
+                                $zip->addFromString($file->getFilename(), $content);
+                            }
+                        }
+                        $zip->close();
                     }
-                }
-                $zip->close();
-            }
 
-            // Set Header
-            $headers = array(
-                'Content-Type' => 'application/octet-stream',
-            );
-            $filetopath = $zip_dir . '/' . $zip_name;
-            // Create Download Response
-            if(file_exists($filetopath))
-                return response()->download($filetopath, $zip_name, $headers);
-            else
-                return response()->json(["status"=>false,"message"=>"zip_doesnt_exist"],500);
-        } else {
-            return response()->json(["status"=>false,"message"=>"directory_doesnt_exist"],500);
+                    // Set Header
+                    $headers = array(
+                        'Content-Type' => 'application/octet-stream',
+                    );
+                    $filetopath = $zip_dir . '/' . $zip_name;
+                    // Create Download Response
+                    if(file_exists($filetopath))
+                        return response()->download($filetopath, $zip_name, $headers);
+                }
+                break;
+            default:
+                break;
         }
+
+        return response()->json(["status" => false, "message" => "file_doesnt_exist"], 500);
     }
 
     /**

@@ -5,10 +5,9 @@ use App\KoraFields\GeolocatorField;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redirect;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 
-class FieldAjaxController extends Controller { //TODO::CASTLE there really should be minimal logic in this place. Logic should be in field functions
+class FieldAjaxController extends Controller {
 
     /*
     |--------------------------------------------------------------------------
@@ -82,9 +81,9 @@ class FieldAjaxController extends Controller { //TODO::CASTLE there really shoul
      * Converts provide lat/long, utm, or geo coordinates into the other types.
      *
      * @param  Request $request
-     * @return string - Geolocator formatted string of the converted coordinates
+     * @return array - Geolocator formatted string of the converted coordinates
      */
-    public function geoConvert(Request $request) { //TODO::CASTLE
+    public function geoConvert(Request $request) {
         return GeolocatorField::geoConvert($request);
     }
 
@@ -157,14 +156,13 @@ class FieldAjaxController extends Controller { //TODO::CASTLE there really shoul
     }
 
     /**
-     * Downloads a zip file from a particular record field.
+     * Downloads a zip of all files from a particular record.
      *
      * @param  int $kid - Record Kora ID
-     * @param  string $filename - Name of the file
      * @return string - html for the file download
      */
-    public function getZipDownload($kid, $filename) {
-        return FileTypeField::getZipDownload($kid, $filename);
+    public function getZipDownload($kid) {
+        return FileTypeField::getZipDownload($kid);
     }
 
     /**
@@ -176,25 +174,6 @@ class FieldAjaxController extends Controller { //TODO::CASTLE there really shoul
      */
     public function singleResource($kid, $filename) {
         return FileTypeField::singleResource($kid, $filename);
-    }
-
-    /**
-     * Gets the image associated with the Gallery Field of a particular record.
-     *
-     * @param  int $kid - Record Kora ID
-     * @param  int $flid - Field ID
-     * @param  string $filename - Name of image file
-     * @param  string $type - Get either the full image or a thumbnail of the image
-     * @return string - html for the file download
-     */
-    public function getImgDisplay($kid, $flid, $filename, $type) { //TODO::CASTLE
-        $record = RecordController::getRecord($kid);
-        $field = FieldController::getField($flid,$record->form_id);
-
-        $form = FormController::getForm($record->form_id);
-        $galleryField = $form->getFieldModel($field['type']);
-
-        return $galleryField->getImgDisplay($record, $filename, $type);
     }
 
     /**

@@ -28,15 +28,6 @@ function str_hyphenated($string) {
  }
 
 /**
- * Gets the default meme list for special file fields.
- *
- * @return bool - is installed
- */
-function getDefaultTypes($type) {
-    return \App\KoraFields\FileTypeField::$FILE_MIME_TYPES[$type];
-}
-
-/**
  * Returns array of links
  *
  * @return array - the links
