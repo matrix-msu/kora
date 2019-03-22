@@ -21,13 +21,6 @@ abstract class FileTypeField extends BaseField {
     */
 
     /**
-     * @var array - Maps file field constant names to valid file memes
-     */
-//    public static $FILE_MIME_TYPES = [ //TODO::CASTLE
-//        Form::_3D_MODEL => ['obj','stl','application/octet-stream','image/jpeg','image/png'],
-//    ];
-
-    /**
      * Gets the default options string for a new field.
      *
      * @param  int $fid - Form ID
@@ -475,16 +468,6 @@ abstract class FileTypeField extends BaseField {
      */
     public abstract function getDefaultMIMEList();
 
-    public function formatBytes($bytes) { //TODO::CASTLE
-        $units = ['b', 'kb', 'mb', 'gb', 'tb'];
-
-        for($i = 0; $bytes > 1024; $i++) {
-            $bytes /= 1024;
-        }
-
-        return round($bytes, 1) . ' ' . $units[$i];
-    }
-
     /**
      * Saves a temporary version of an uploaded file.
      *
@@ -639,7 +622,7 @@ abstract class FileTypeField extends BaseField {
      * @param  int $kid - Record Kora ID
      * @return string - html for the file download
      */
-    public static function getZipDownload($kid) { //TODO::CASTLE
+    public static function getZipDownload($kid) {
         $record = RecordController::getRecord($kid);
         $storageType = 'LaravelStorage'; //TODO:: make this a config once we actually support other storage types
 
