@@ -145,6 +145,7 @@ Route::group(['middleware' => 'web'], function () {
     Route::get('/download/{kid}/{filename}', 'FieldAjaxController@getFileDownload');
     Route::get('/download/{kid}/{flid}/{filename}/zip', 'FieldAjaxController@getZipDownload');
     Route::get('/download/{kid}/{flid}/{filename}/{type}', 'FieldAjaxController@getImgDisplay');
+    Route::get('/files/{filename}', 'FieldAjaxController@publicRecordFile');
     Route::get("/validateAddress", "FieldAjaxController@validateAddress");
 
 //record preset routes
@@ -194,7 +195,7 @@ Route::group(['middleware' => 'web'], function () {
     Route::get('/projects/{pid}/forms/{fid}/clone/{rid}', 'RecordController@cloneRecord');
     Route::get('/projects/{pid}/forms/{fid}/records/{rid}/resource/geolocator', 'FieldAjaxController@singleGeolocator');
     Route::get('/projects/{pid}/forms/{fid}/records/{rid}/resource/richtext', 'FieldAjaxController@singleRichtext');
-    Route::get('/projects/{pid}/forms/{fid}/records/{rid}/resource/{filename}', 'FieldAjaxController@singleResource');
+    Route::get('/resource/{kid}/{filename}', 'FieldAjaxController@singleResource');
 
 //revision routes
     Route::get('/projects/{pid}/forms/{fid}/records/revisions/recent', 'RevisionController@index');

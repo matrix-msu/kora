@@ -44,10 +44,10 @@ class Form extends Model {
     const _HISTORICAL_DATE = "Historical Date";
     const _GEOLOCATOR = "Geolocator";
     const _DOCUMENTS = "Documents";
-    const _GALLERY = "Gallery";
-    const _PLAYLIST = "Playlist";
-    const _VIDEO = "Video";
-    const _3D_MODEL = "3D-Model";
+//    const _GALLERY = "Gallery";
+//    const _PLAYLIST = "Playlist";
+//    const _VIDEO = "Video";
+//    const _3D_MODEL = "3D-Model";
 //    const _COMBO_LIST = "Combo List";
     const _ASSOCIATOR = "Associator";
 
@@ -70,10 +70,10 @@ class Form extends Model {
         ),
         'File Fields' => array(
             self::_DOCUMENTS => self::_DOCUMENTS,
-            self::_GALLERY => self::_GALLERY.' (jpg, gif, png)',
-            self::_PLAYLIST => self::_PLAYLIST.' (mp3, wav)',
-            self::_VIDEO => self::_VIDEO.' (mp4)',
-            self::_3D_MODEL => self::_3D_MODEL.' (obj, stl)'
+//            self::_GALLERY => self::_GALLERY.' (jpg, gif, png)',
+//            self::_PLAYLIST => self::_PLAYLIST.' (mp3, wav)',
+//            self::_VIDEO => self::_VIDEO.' (mp4)',
+//            self::_3D_MODEL => self::_3D_MODEL.' (obj, stl)'
         ),
         'List Fields' => array(
             self::_LIST => self::_LIST,
@@ -126,10 +126,10 @@ class Form extends Model {
         self::_LIST => "ListField",
         self::_MULTI_SELECT_LIST => "MultiSelectListField",
         self::_GENERATED_LIST => "GeneratedListField",
-        self::_GALLERY => "GalleryField",
-        self::_PLAYLIST => "PlaylistField",
-        self::_VIDEO => "VideoField",
-        self::_3D_MODEL => "ModelField",
+//        self::_GALLERY => "GalleryField",
+//        self::_PLAYLIST => "PlaylistField",
+//        self::_VIDEO => "VideoField",
+//        self::_3D_MODEL => "ModelField",
         self::_GEOLOCATOR => "GeolocatorField",
         self::_ASSOCIATOR => "AssociatorField",
         self::_DATE => "DateField",
@@ -142,10 +142,10 @@ class Form extends Model {
      */
     static public $jsonFields = [ //TODO::NEWFIELD
         self::_DOCUMENTS,
-        self::_GALLERY,
-        self::_PLAYLIST,
-        self::_VIDEO,
-        self::_3D_MODEL,
+//        self::_GALLERY,
+//        self::_PLAYLIST,
+//        self::_VIDEO,
+//        self::_3D_MODEL,
         self::_ASSOCIATOR,
         self::_GENERATED_LIST,
         self::_GEOLOCATOR,

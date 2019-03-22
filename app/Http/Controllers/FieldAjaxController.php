@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 
-class FieldAjaxController extends Controller {
+class FieldAjaxController extends Controller { //TODO::CASTLE there really should be minimal logic in this place. Logic should be in field functions
 
     /*
     |--------------------------------------------------------------------------
@@ -29,100 +29,7 @@ class FieldAjaxController extends Controller {
      */
     public function __construct() {
         $this->middleware('auth');
-        $this->middleware('active');
-    }
-
-    /**
-     * Validates record data for a Combo List Field.
-     *
-     * @param  int $pid - Project ID
-     * @param  int $fid - Form ID
-     * @param  int $flid - Field ID
-     * @param  Request $request
-     * @return JsonResponse - Returns success/error message
-     */
-    public function validateComboListOpt($pid, $fid, $flid, Request $request) { //TODO::CASTLE
-        if(!FieldController::validProjFormField($pid, $fid, $flid))
-            return response()->json(["status"=>false,"message"=>"field_invalid"],500);
-
-        return ComboListField::validateComboListOpt($flid, $request);
-    }
-
-    /**
-     * Validates the address for a Geolocator field.
-     *
-     * @param  Request $request
-     * @return bool - Result of address validity
-     */
-    public function validateAddress(Request $request) {
-        return GeolocatorField::validateAddress($request);
-    }
-
-    /**
-     * Converts provide lat/long, utm, or geo coordinates into the other types.
-     *
-     * @param  Request $request
-     * @return string - Geolocator formatted string of the converted coordinates
-     */
-    public function geoConvert(Request $request) {
-        return GeolocatorField::geoConvert($request);
-    }
-
-    /**
-     * Saves a temporary version of an uploaded file.
-     *
-     * @param  int $fid - Form ID
-     * @param  int $flid - File field that record file will be loaded to
-     * @param  Request $request
-     */
-    public function saveTmpFile($fid, $flid) {
-        FileTypeField::saveTmpFile($fid, $flid);
-    }
-
-    /**
-     * Removes a temporary file for a particular field.
-     *
-     * @param  int $fid - Form ID
-     * @param  int $flid - File field to clear temp files for
-     * @param  string $name - Name of the file to delete
-     * @param  Request $request
-     */
-    public function delTmpFile($fid, $flid, $filename) {
-        FileTypeField::delTmpFile($fid, $flid, $filename);
-    }
-
-    /**
-     * Downloads a file from a particular record field.
-     *
-     * @param  int $kid - Record Kora ID
-     * @param  string $filename - Name of the file
-     * @return string - html for the file download
-     */
-    public function getFileDownload($kid, $filename) {
-        return FileTypeField::getFileDownload($kid, $filename);
-    }
-
-    public function getZipDownload($kid, $filename) {
-        return FileTypeField::getZipDownload($kid, $filename);
-    }
-
-    /**
-     * Gets the image associated with the Gallery Field of a particular record.
-     *
-     * @param  int $kid - Record Kora ID
-     * @param  int $flid - Field ID
-     * @param  string $filename - Name of image file
-     * @param  string $type - Get either the full image or a thumbnail of the image
-     * @return string - html for the file download
-     */
-    public function getImgDisplay($kid, $flid, $filename, $type){
-        $record = RecordController::getRecord($kid);
-        $field = FieldController::getField($flid,$record->form_id);
-
-        $form = FormController::getForm($record->form_id);
-        $galleryField = $form->getFieldModel($field['type']);
-
-        return $galleryField->getImgDisplay($record, $filename, $type);
+        $this->middleware('active', ['except' => ['publicRecordFile']]);
     }
 
     /**
@@ -149,51 +56,36 @@ class FieldAjaxController extends Controller {
      * @param  int $pid - Project ID
      * @param  int $fid - Form ID
      * @param  int $rid - Record ID
+     * @param  int $flid - Field ID
      * @param  string $filename - Image filename
      * @return Redirect
      */
-    public function singleResource($pid, $fid, $rid, $filename) {
-        $relative_src = "files/$pid/$fid/$rid/$filename";
-        $src = url('app/'.$relative_src);
+    public function singleRichtext($pid, $fid, $rid, $flid) { //TODO::CASTLE
+        $field = self::getField($flid);
+        $record = RecordController::getRecord($pid.'-'.$fid.'-'.$rid);
+        $typedField = $field->getTypedFieldFromRID($rid);
 
-        if(!file_exists(storage_path('app/'.$relative_src))) {
-            // File does not exist
-            dd($filename . ' not found');
-        }
+        return view('fields.singleRichtext', compact('field', 'record', 'typedField'));
+    }
 
-        $mime = Storage::mimeType($relative_src);
+    /**
+     * Validates the address for a Geolocator field.
+     *
+     * @param  Request $request
+     * @return bool - Result of address validity
+     */
+    public function validateAddress(Request $request) {
+        return GeolocatorField::validateAddress($request);
+    }
 
-        if(strpos($mime, 'image') !== false || strpos($mime, 'jpeg') !== false || strpos($mime, 'png') !== false) {
-            // Image
-            return view('fields.singleImage', compact('filename', 'src'));
-        } else if(strpos($mime, 'video') !== false || strpos($mime, 'mp4') !== false) {
-            // Video
-            return view('fields.singleVideo', compact('filename', 'src'));
-        } else if(strpos($mime, 'audio') !== false || strpos($mime, 'mpeg') !== false || strpos($mime, 'mp3') !== false) {
-            // Audio
-            return view('fields.singleAudio', compact('filename', 'src'));
-        }
-
-        // Attempting to open generic document
-        $ext = \File::extension($src);
-
-        if($ext=='pdf'){
-            $content_types='application/pdf';
-        } else if($ext=='doc') {
-            $content_types='application/msword';
-        } else if($ext=='docx') {
-            $content_types='application/vnd.openxmlformats-officedocument.wordprocessingml.document';
-        } else if($ext=='xls') {
-            $content_types='application/vnd.ms-excel';
-        } else if($ext=='xlsx') {
-            $content_types='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
-        } else {
-            $content_types='application/octet-stream';
-        }
-
-        return response()->file('app/'.$relative_src, [
-            'Content-Type' => $content_types
-        ]);
+    /**
+     * Converts provide lat/long, utm, or geo coordinates into the other types.
+     *
+     * @param  Request $request
+     * @return string - Geolocator formatted string of the converted coordinates
+     */
+    public function geoConvert(Request $request) { //TODO::CASTLE
+        return GeolocatorField::geoConvert($request);
     }
 
     /**
@@ -205,7 +97,7 @@ class FieldAjaxController extends Controller {
      * @param  View - The geo view
      * @return Redirect
      */
-    public function singleGeolocator($pid, $fid, $rid, Request $request) {
+    public function singleGeolocator($pid, $fid, $rid, Request $request) { //TODO::CASTLE
         $form = FormController::getForm($fid);
         $flid = $request->flid;
         $field = FieldController::getField($flid,$fid);
@@ -217,20 +109,107 @@ class FieldAjaxController extends Controller {
     }
 
     /**
+     * Saves a temporary version of an uploaded file.
+     *
+     * @param  int $fid - Form ID
+     * @param  int $flid - File field that record file will be loaded to
+     * @param  Request $request
+     */
+    public function saveTmpFile($fid, $flid) {
+        $field = FieldController::getField($flid,$fid);
+        $form = FormController::getForm($fid);
+        $form->getFieldModel($field['type'])->saveTmpFile($form, $flid, $field);
+    }
+
+    /**
+     * Removes a temporary file for a particular field.
+     *
+     * @param  int $fid - Form ID
+     * @param  int $flid - File field to clear temp files for
+     * @param  string $name - Name of the file to delete
+     * @param  Request $request
+     */
+    public function delTmpFile($fid, $flid, $filename) {
+        $field = FieldController::getField($flid,$fid);
+        $form = FormController::getForm($fid);
+        $form->getFieldModel($field['type'])->delTmpFile($fid, $flid, $filename);
+    }
+
+    /**
+     * Public access link for a file.
+     *
+     * @param  string $filename - Name of the file
+     * @return string - the file
+     */
+    public function publicRecordFile($filename) {
+        return FileTypeField::publicRecordFile($filename);
+    }
+
+    /**
+     * Downloads a file from a particular record field.
+     *
+     * @param  int $kid - Record Kora ID
+     * @param  string $filename - Name of the file
+     * @return string - html for the file download
+     */
+    public function getFileDownload($kid, $filename) {
+        return FileTypeField::getFileDownload($kid, $filename);
+    }
+
+    /**
+     * Downloads a zip file from a particular record field.
+     *
+     * @param  int $kid - Record Kora ID
+     * @param  string $filename - Name of the file
+     * @return string - html for the file download
+     */
+    public function getZipDownload($kid, $filename) {
+        return FileTypeField::getZipDownload($kid, $filename);
+    }
+
+    /**
      * View single image/video/audio/document from a record.
+     *
+     * @param  int $kid - Record Kora ID
+     * @param  string $filename - Name of the file
+     * @return Redirect
+     */
+    public function singleResource($kid, $filename) {
+        return FileTypeField::singleResource($kid, $filename);
+    }
+
+    /**
+     * Gets the image associated with the Gallery Field of a particular record.
+     *
+     * @param  int $kid - Record Kora ID
+     * @param  int $flid - Field ID
+     * @param  string $filename - Name of image file
+     * @param  string $type - Get either the full image or a thumbnail of the image
+     * @return string - html for the file download
+     */
+    public function getImgDisplay($kid, $flid, $filename, $type) { //TODO::CASTLE
+        $record = RecordController::getRecord($kid);
+        $field = FieldController::getField($flid,$record->form_id);
+
+        $form = FormController::getForm($record->form_id);
+        $galleryField = $form->getFieldModel($field['type']);
+
+        return $galleryField->getImgDisplay($record, $filename, $type);
+    }
+
+    /**
+     * Validates record data for a Combo List Field.
      *
      * @param  int $pid - Project ID
      * @param  int $fid - Form ID
-     * @param  int $rid - Record ID
      * @param  int $flid - Field ID
-     * @param  string $filename - Image filename
-     * @return Redirect
+     * @param  Request $request
+     * @return JsonResponse - Returns success/error message
      */
-    public function singleRichtext($pid, $fid, $rid, $flid) { //TODO::CASTLE
-        $field = self::getField($flid);
-        $record = RecordController::getRecord($pid.'-'.$fid.'-'.$rid);
-        $typedField = $field->getTypedFieldFromRID($rid);
+    public function validateComboListOpt($pid, $fid, $flid, Request $request) { //TODO::CASTLE
+        if(!FieldController::validProjFormField($pid, $fid, $flid))
+            return response()->json(["status"=>false,"message"=>"field_invalid"],500);
 
-        return view('fields.singleRichtext', compact('field', 'record', 'typedField'));
+        return ComboListField::validateComboListOpt($flid, $request);
     }
 }
