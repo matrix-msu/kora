@@ -1038,7 +1038,6 @@ class ComboListField extends BaseField {
      * @return string - The option
      */
     public static function getComboFieldOption($field, $key, $seq) {
-        // dd($field);
         return $field[$seq]['options'][$key];
     }
 
@@ -1063,7 +1062,8 @@ class ComboListField extends BaseField {
         return $ids->toJson();
     }
 
-    public static function retrieve($ids) {
-        return ComboListField::find($ids);
+    public function retrieve($flid, $fid, $ids) {
+        $this->setTable($flid . $fid);
+        return $this->findMany(json_decode($ids));
     }
 }

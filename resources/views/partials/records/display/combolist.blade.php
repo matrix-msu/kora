@@ -1,11 +1,13 @@
 <?php
-$cmbName1 = \App\ComboListField::getComboFieldName($field,'one');
-$cmbName2 = \App\ComboListField::getComboFieldName($field,'two');
+$cmbName1 = $field['one']['name'];
+$cmbName2 = $field['two']['name'];
+$oneType = $field['one']['type'];
+$twoType = $field['two']['type'];
+$oneFlid = $field['one']['flid'];
+$twoFlid = $field['two']['flid'];
 
-$oneType = \App\ComboListField::getComboFieldType($field,'one');
-$twoType = \App\ComboListField::getComboFieldType($field,'two');
-
-$valArray = \App\ComboListField::dataToOldFormat($typedField->data()->get()->toArray());
+//$valArray = \App\ComboListField::dataToOldFormat($typedField->data()->get()->toArray());
+$items = $typedField->retrieve($flid, $form->id, $value);
 ?>
 <div class="combo-list-display">
     <div>
@@ -15,58 +17,49 @@ $valArray = \App\ComboListField::dataToOldFormat($typedField->data()->get()->toA
     <div>
         <span class="combo-border-large"> </span>
     </div>
-    @for($i=0;$i<sizeof($valArray);$i++)
+    {{-- @for($i=0;$i<sizeof($valArray);$i++) --}}
+    @foreach($items as $item)
         <div>
-            @if($i!=0)
+            {{-- @if($i!=0)
                 <span class="combo-border-small"> </span>
-            @endif
+            @endif --}}
 
             @if($oneType=='Text' | $oneType=='Date' | $oneType=='List')
-                <?php $value1 = explode('[!f1!]',$valArray[$i])[1]; ?>
-                <span class="combo-column">{{$value1}}</span>
-            @elseif($oneType=='Number')
+                <span class="combo-column">{{ $item->{$oneFlid} }}</span>
+            @elseif($oneType=='Integer' | $oneType=='Float')
                 <?php
-                $value1 = explode('[!f1!]',$valArray[$i])[1];
-                $unit = \App\ComboListField::getComboFieldOption($field,'Unit','one');
+                $value1 = $item->{$oneFlid};
+                $unit = App\KoraFields\ComboListField::getComboFieldOption($field,'Unit','one');
                 if($unit!=null && $unit!='')
                     $value1 .= ' '.$unit;
                 ?>
                 <span class="combo-column">{{$value1}}</span>
             @elseif($oneType=='Multi-Select List' | $oneType=='Generated List' | $oneType=='Associator')
-                <?php
-                $value1 = explode('[!f1!]',$valArray[$i])[1];
-                $value1Array = explode('[!]',$value1);
-                ?>
                 <span class="combo-column">
-                    @foreach($value1Array as $val)
+                    @foreach($item->{$oneFlid} as $val)
                         <div>{{$val}}</div>
                     @endforeach
                 </span>
             @endif
 
             @if($twoType=='Text' | $twoType=='Date' | $twoType=='List')
-                <?php $value2 = explode('[!f2!]',$valArray[$i])[1]; ?>
-                <span class="combo-column">{{$value2}}</span>
-            @elseif($twoType=='Number')
+                <span class="combo-column">{{ $item->{$twoFlid} }}</span>
+            @elseif($twoType=='Integer' | $twoType=='Float')
                 <?php
-                $value2 = explode('[!f2!]',$valArray[$i])[1];
-                $unit = \App\ComboListField::getComboFieldOption($field,'Unit','two');
+                $value2 = $item->{$twoFlid};
+                $unit = App\KoraFields\ComboListField::getComboFieldOption($field,'Unit','two');
                 if($unit!=null && $unit!=''){
                     $value2 .= ' '.$unit;
                 }
                 ?>
                 <span class="combo-column">{{$value2}}</span>
             @elseif($twoType=='Multi-Select List' | $twoType=='Generated List' | $twoType=='Associator')
-                <?php
-                $value2 = explode('[!f2!]',$valArray[$i])[1];
-                $value2Array = explode('[!]',$value2);
-                ?>
                 <span class="combo-column">
-                    @foreach($value2Array as $val)
+                    @foreach($$item->{$twoFlid} as $val)
                         <div>{{$val}}</div>
                     @endforeach
                 </span>
             @endif
         </div>
-    @endfor
+    @endforeach
 </div>
