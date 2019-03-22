@@ -12,7 +12,9 @@
     $oneName = $field['one']['name'];
     $twoName = $field['two']['name'];
 
-    $defs = $field['default'];
+    $defsOne = $field['one']['default'];
+    $defsTwo = $field['two']['default'];
+
     $supportedViews = App\KoraFields\ComboListField::$supportedViews;
     ?>
 
@@ -69,17 +71,17 @@
     <section class="combo-list-defaults">
         {!! Form::label('default', 'Default Combo List Values') !!}
         <div class="container">
-            <div class="form-group combo-list-display combo-value-div-js {{ is_null($defs['one']) ? 'hidden' : '' }}">
+            <div class="form-group combo-list-display combo-value-div-js {{ is_null($defsOne) ? 'hidden' : '' }}">
                     <div class="combo-list-title">
                         <span class="combo-column combo-title">{{$oneName}}</span>
                         <span class="combo-column combo-title">{{$twoName}}</span>
                     </div>
 
-                @if(!is_null($defs['one']))
-                    @for($i=0;$i<count($defs['one']);$i++)
+                @if(!is_null($defsOne))
+                    @for($i=0;$i<count($defsOne);$i++)
                         @php
-                            $valueOne = $defs['one'][$i];
-                            $valueTwo = $defs['two'][$i];
+                            $valueOne = $defsOne[$i];
+                            $valueTwo = $defsTwo[$i];
                         @endphp
                         <div class="card combo-value-item-js">
                             @if($oneType=='Text' | $oneType=='List' | $oneType=='Number' | $oneType=='Date')
@@ -109,7 +111,7 @@
             </div>
 
             <section class="new-object-button form-group">
-                <input class="combolist-add-new-list-value-modal-js {{ is_null($defs['one']) ? '' : 'mt-xl' }}" type="button" value="Add a new Default Value">
+                <input class="combolist-add-new-list-value-modal-js {{ is_null($defsOne) ? '' : 'mt-xl' }}" type="button" value="Add a new Default Value">
             </section>
         </div>
     </section>

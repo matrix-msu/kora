@@ -5,6 +5,7 @@ use App\Http\Controllers\AssociationController;
 use App\Http\Controllers\FieldController;
 use App\Http\Controllers\FormController;
 use Illuminate\Database\Query\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -119,14 +120,17 @@ class ComboListField extends BaseField {
      * @return array - The default options
      */
     public function addDatabaseColumn($fid, $slug, $options = null) {
-        $table = new \CreateRecordsTable(
+        $table = new \CreateRecordsTable();
+        $table->addJSONColumn($fid, $slug);
+
+        $ctable = new \CreateRecordsTable(
             ['tablePrefix' => $slug]
         );
-        $table->createComboListTable($fid);
+        $ctable->createComboListTable($fid);
 
         foreach ($options as $option) {
             $method = $this->fieldToDBFuncAssoc[$option['type']];
-            $table->{$method}($fid, $option['name']);
+            $ctable->{$method}($fid, $option['name']);
         }
     }
 
@@ -357,7 +361,7 @@ class ComboListField extends BaseField {
             $value = $request->{$field['flid'] . $affix};
             if ($value == '')
                 $value = null;
-            $values[$seq] = $value[0];
+            $values[$seq] = $value;
         }
         return $values;
     }
@@ -416,6 +420,7 @@ class ComboListField extends BaseField {
      * @return mixed - Processed data
      */
     public function processDisplayData($field, $value) {
+        dd($field);
         if($field['options']['MultiLine'])
             return nl2br($value);
         else
@@ -1039,21 +1044,26 @@ class ComboListField extends BaseField {
 
     public function save(array $options = array()) {
         $field = $options['field'];
-        // dd($field);
-        // dd($field['one']['flid']);
-        // $this->record_id = $options['rid'];
-        // dd($field['flid'] . $options['fid']);
-        DB::transaction(function() use ($field, $options) {
-            DB::table($field['flid'] . $options['fid'])->insert(
-                [
-                    'record_id' => $options['rid'],
-                    $field['one']['flid'] => $options['values']['one'],
-                    $field['two']['flid'] => $options['values']['two']
-                ]
-            );
+        $values = $options['values'];
+
+        DB::transaction(function() use ($field, $options, $values) {
+            for($i=0; $i < count($values['one']); $i++) {
+                DB::table($field['flid'] . $options['fid'])->insert(
+                    [
+                        'record_id' => $options['rid'],
+                        $field['one']['flid'] => $values['one'][$i],
+                        $field['two']['flid'] => $values['two'][$i]
+                    ]
+                );
+            }
         });
-        // foreach ($options['values'] as $seq => $value) {
-        // }
-        // parent::save();
+
+        $ids = DB::table($field['flid'] . $options['fid'])->where('record_id', $options['rid'])->pluck('id');
+
+        return $ids->toJson();
+    }
+
+    public static function retrieve($ids) {
+        return ComboListField::find($ids);
     }
 }

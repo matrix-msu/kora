@@ -10,9 +10,14 @@
     $twoName = $field['two']['name'];
 
     if($editRecord) {
-        $defs = $record->{$flid};
+        // TODO::@andrew.joye need a function to get values
+        // $combo = $record->{$flid};
+        $combo = array('one' => '', 'two' => '');
+        $defsOne = $combo['one'];
+        $defsTwo = $combo['two'];
     } else {
-        $defs = $field['default'];
+        $defsOne = $field['one']['default'];
+        $defsTwo = $field['two']['default'];
     }
     ?>
 
@@ -23,11 +28,11 @@
         </div>
 
         <div class="combo-value-item-container-js">
-            @if(!is_null($defs['one']))
-                @for($i=0;$i<count($defs['one']);$i++)
+            @if(!is_null($defsOne))
+                @for($i=0;$i<count($defsOne);$i++)
                     @php
-                        $valueOne = $defs['one'][$i];
-                        $valueTwo = $defs['two'][$i];
+                        $valueOne = $defsOne[$i];
+                        $valueTwo = $defsTwo[$i];
                     @endphp
                     <div class="combo-value-item combo-value-item-js">
                         <span class="combo-delete delete-combo-value-js tooltip" tooltip="Delete Combo Value"><i class="icon icon-trash"></i></span>
@@ -52,7 +57,7 @@
             @endif
         </div>
 
-        @if(!is_null($defs['one']))
+        @if(!is_null($defsOne))
             <div class="combo-list-empty"><span class="combo-column">Add Values to Combo List Below</span></div>
         @endif
 

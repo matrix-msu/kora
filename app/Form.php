@@ -240,11 +240,12 @@ class Form extends Model {
 
         //Update column name in DB and page structure
         if(!is_null($newFlid)) {
-            $rTable = new \CreateRecordsTable($comboPrefix);
-            if ($comboPrefix)
-                $rTable->renameTable($this->id, $newFlid);
-            else
-                $rTable->renameColumn($this->id,$flid,$newFlid);
+            $rTable = new \CreateRecordsTable();
+            if ($comboPrefix) {
+                $cTable = new \CreateRecordsTable($comboPrefix);
+                $cTable->renameTable($this->id, $newFlid);
+            }
+            $rTable->renameColumn($this->id,$flid,$newFlid);
 
             // Updating new field name
             $layout['fields'][$newFlid] = $layout['fields'][$flid];
@@ -305,14 +306,17 @@ class Form extends Model {
         $this->layout = $layout;
         $this->save();
 
-        //Remove table column
+        //Remove table for combo list
         if ($type == Form::_COMBO_LIST) {
-            $rTable = new \CreateRecordsTable(['tablePrefix' => $flid]);
+            $rTable = new \CreateRecordsTable(
+                ['tablePrefix' => $flid]
+            );
             $rTable->removeFormRecordsTable($this->id);
-        } else {
-            $rTable = new \CreateRecordsTable();
-            $rTable->dropColumn($this->id,$flid);
         }
+
+        //Remove table column
+        $rTable = new \CreateRecordsTable();
+        $rTable->dropColumn($this->id,$flid);
     }
 
     /**
