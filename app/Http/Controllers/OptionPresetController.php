@@ -290,8 +290,8 @@ class OptionPresetController extends Controller { //TODO::CASTLE
             'Generated List'=>'List','Geolocator'=>'Geolocator','Schedule'=>'Schedule']);
 
         if($field->type == "Combo List") {
-            $oneType = ComboListField::getComboFieldType($field,'one');
-            $twoType = ComboListField::getComboFieldType($field,'two');
+            $oneType = $field['one']['type'];
+            $twoType = $field['two']['type'];
             //ComboList field one
             $onePresets = self::getPresetsIndex($pid);
             foreach($onePresets as $subset) {

@@ -326,7 +326,7 @@ class RevisionController extends Controller {
 
     /**
      * Gets the number of revisions for a specific record
-     * 
+     *
      * @param  string $kid - The KID of the record
      * @return int - The number of revisions for the specified record
      */

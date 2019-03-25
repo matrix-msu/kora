@@ -250,8 +250,8 @@ class ComboListField extends BaseField {
             $fieldArray = [];
             $dataArray = [];
             $now = date("Y-m-d H:i:s");
-            $one_is_num = self::getComboFieldType($field, 'one') == 'Number';
-            $two_is_num = self::getComboFieldType($field, 'two') == 'Number';
+            $one_is_num = $field['one']['type'] == 'Number';
+            $two_is_num = $field['two']['type'] == 'Number';
             foreach($chunk as $rid) {
                 $fieldArray[] = [
                     'rid' => $rid,
@@ -374,7 +374,7 @@ class ComboListField extends BaseField {
      *
      * @return mixed - Processed data
      */
-    public function processRevisionData($data) {
+    public function processRevisionData($data) { // TODO::CASTLE
         return $data;
     }
 
@@ -388,7 +388,7 @@ class ComboListField extends BaseField {
      *
      * @return Request - Processed data
      */
-    public function processImportData($flid, $field, $value, $request) {
+    public function processImportData($flid, $field, $value, $request) { // TODO::CASTLE
         $request[$flid] = $value;
 
         return $request;
@@ -405,7 +405,7 @@ class ComboListField extends BaseField {
      *
      * @return Request - Processed data
      */
-    public function processImportDataXML($flid, $field, $value, $request, $simple = false) {
+    public function processImportDataXML($flid, $field, $value, $request, $simple = false) { // TODO::CASTLE
         $request[$flid] = (string)$value;
 
         return $request;
@@ -420,11 +420,8 @@ class ComboListField extends BaseField {
      * @return mixed - Processed data
      */
     public function processDisplayData($field, $value) {
-        dd($field);
-        if($field['options']['MultiLine'])
-            return nl2br($value);
-        else
-            return $value;
+        // See retrieve()
+        return $value;
     }
 
     /**
@@ -460,18 +457,17 @@ class ComboListField extends BaseField {
     public function getExportSample($slug,$type) {
         $field = Field::where('slug','=',$slug)->first();
 
-        $typeone = ComboListField::getComboFieldType($field, 'one');
-        $typetwo = ComboListField::getComboFieldType($field, 'two');
-        $nameone = ComboListField::getComboFieldName($field, 'one');
-        $nametwo = ComboListField::getComboFieldName($field, 'two');
+        $typeone = $field['one']['type'];
+        $typetwo = $field['two']['type'];
+        $nameone = $field['one']['name'];
+        $nametwo = $field['two']['name'];
 
         switch($type) {
             case "XML":
-                $xml = '<' . Field::xmlTagClear($slug) . ' type="Combo List">';
-
+                $xml = '<' . $slug . '>';
                 $xml .= '<Value>';
-                $xml .= '<' . Field::xmlTagClear($nameone) . '>';
-                if($typeone == 'Text' | $typeone == 'Number' | $typeone == 'List') {
+                $xml .= '<' . $nameone . '>';
+                if($typeone == 'Text' | $typeone == 'Integer' | $typeone == 'Float' | $typeone == 'List') {
                     $xml .= utf8_encode('VALUE');
                 } else if($typeone == 'Date') {
                     $xml .= utf8_encode('MM/DD/YYYY');
@@ -480,9 +476,9 @@ class ComboListField extends BaseField {
                     $xml .= '<value>'.utf8_encode('VALUE 2').'</value>';
                     $xml .= '<value>'.utf8_encode('so on..').'</value>';
                 }
-                $xml .= '</' . Field::xmlTagClear($nameone) . '>';
-                $xml .= '<' . Field::xmlTagClear($nametwo) . '>';
-                if($typetwo == 'Text' | $typetwo == 'Number' | $typetwo == 'List') {
+                $xml .= '</' . $nameone . '>';
+                $xml .= '</' . $nametwo . '>';
+                if($typetwo == 'Text' | $typeone == 'Integer' | $typeone == 'Float' | $typetwo == 'List') {
                     $xml .= utf8_encode('VALUE');
                 } else if($typetwo == 'Date') {
                     $xml .= utf8_encode('MM/DD/YYYY');
@@ -491,9 +487,9 @@ class ComboListField extends BaseField {
                     $xml .= '<value>'.utf8_encode('VALUE 2').'</value>';
                     $xml .= '<value>'.utf8_encode('so on..').'</value>';
                 }
-                $xml .= '</' . Field::xmlTagClear($nametwo) . '>';
+                $xml .= '</' . $nametwo . '>';
                 $xml .= '</Value>';
-                $xml .= '</' . Field::xmlTagClear($slug) . '>';
+                $xml .= '</' . $slug . '>';
 
                 return $xml;
                 break;
@@ -501,7 +497,7 @@ class ComboListField extends BaseField {
                 $fieldArray = [$slug => ['type' => 'Combo List']];
 
                 $valArray = array();
-                if($typeone == 'Text' | $typeone == 'Number' | $typeone == 'List') {
+                if($typeone == 'Text' | $typeone == 'Integer' | $typeone == 'Float' | $typeone == 'List') {
                     $valArray[$nameone] = 'VALUE';
                 } else if($typeone == 'Date') {
                     $valArray[$nameone] = 'MM/DD/YYYY';
@@ -509,7 +505,7 @@ class ComboListField extends BaseField {
                     $valArray[$nameone] = array('VALUE 1','VALUE 2','so on...');
                 }
 
-                if($typetwo == 'Text' | $typetwo == 'Number' | $typetwo == 'List') {
+                if($typetwo == 'Text' | $typeone == 'Integer' | $typeone == 'Float' | $typetwo == 'List') {
                     $valArray[$nametwo] = 'VALUE';
                 } else if($typetwo == 'Date') {
                     $valArray[$nametwo] = 'MM/DD/YYYY';
@@ -530,7 +526,7 @@ class ComboListField extends BaseField {
      * @param  string $url - Url for File Type Fields
      * @return mixed - The data
      */
-    public function getTestData($url = null) {
+    public function getTestData($url = null) { // TODO::CASTLE
         return '';
     }
 
@@ -544,7 +540,7 @@ class ComboListField extends BaseField {
      */
     public function setRestfulAdvSearch($data, $flid, $request) {
         $field = FieldController::getField($flid);
-        $type1 = self::getComboFieldType($field,'one');
+        $type1 = $field['one']['type'];
         switch($type1) {
             case Field::_NUMBER:
                 if(isset($data->left_one))
@@ -567,7 +563,7 @@ class ComboListField extends BaseField {
                 $request->request->add([$field->flid.'_1_input' => $data->input_one]);
                 break;
         }
-        $type2 = self::getComboFieldType($field,'two');
+        $type2 = $field['two']['type'];
         switch($type2) {
             case Field::_NUMBER:
                 if(isset($data->left_two))
@@ -630,8 +626,8 @@ class ComboListField extends BaseField {
      */
     public function advancedSearchTyped($flid, $query, $recordMod, $negative = false) {
         $field = Field::where("flid", "=", $flid)->first();
-        $type_1 = self::getComboFieldType($field, 'one');
-        $type_2 = self::getComboFieldType($field, 'two');
+        $type_1 = $field['one']['type'];
+        $type_2 = $field['two']['type'];
 
         if($query[$flid . "_operator"] == "and") {
             //
@@ -756,35 +752,6 @@ class ComboListField extends BaseField {
     }
 
     /**
-     * Overrides the delete function to first delete support fields.
-     */
-    public function delete() {
-        $this->deleteData();
-        parent::delete();
-    }
-
-    /**
-     * Returns the data for a record's combo list value.
-     *
-     * @return Builder - Query of values
-     */
-    public function data() {
-        return DB::table(self::SUPPORT_NAME)->select("*")
-            ->where("rid", "=", $this->rid)
-            ->where("flid", "=", $this->flid)
-            ->orderBy('list_index');
-    }
-
-    /**
-     * Determine if this field has data in the support table.
-     *
-     * @return bool - Has data
-     */
-    public function hasData() {
-        return !! $this->data()->count();
-    }
-
-    /**
      * Adds data to the support table.
      *
      * @param  array $data - Data to add
@@ -855,49 +822,6 @@ class ComboListField extends BaseField {
     }
 
     /**
-     * Turns the support table into the old format beforehand.
-     *
-     * @param  array $data - Data from support
-     * @param  bool $array_string - Array of old format or string of old format
-     * @return mixed - String or array of old format
-     */
-    public static function dataToOldFormat(array $data, $array_string = false) {
-        $formatted = [];
-        for($i = 0; $i < count($data); $i++) {
-            $op1 = $data[$i];
-            $op2 = $data[++$i];
-
-            if($op1->field_num == 2) {
-                $tmp = $op1;
-                $op1 = $op2;
-                $op2 = $tmp;
-            }
-
-            if(! is_null($op1->data))
-                $val1 = $op1->data;
-            else
-                $val1 = $op1->number + 0;
-
-            if(! is_null($op2->data))
-                $val2 = $op2->data;
-            else
-                $val2 = $op2->number + 0;
-
-            $formatted[] = "[!f1!]"
-                . $val1
-                . "[!f1!]"
-                . "[!f2!]"
-                . $val2
-                . "[!f2!]";
-        }
-
-        if($array_string)
-            return implode("[!val!]", $formatted);
-
-        return $formatted;
-    }
-
-    /**
      * Validates record data for a Combo List Field.
      *
      * @param  int $flid - Field ID
@@ -917,13 +841,13 @@ class ComboListField extends BaseField {
 
         $validateOne = self::validateComboListField($field,$typeone,$valone);
         if($validateOne!="sub_field_validated") {
-            $name = self::getComboFieldName($field,'one');
+            $name = $field['one']['name'];
             return response()->json(["status"=>false,"message"=>$validateOne,"sub_field_name"=>$name],500);
         }
 
         $validateTwo = self::validateComboListField($field,$typetwo,$valtwo);
         if($validateTwo!="sub_field_validated") {
-            $name = self::getComboFieldName($field,'two');
+            $name = $field['two']['name'];
             return response()->json(["status"=>false,"message"=>$validateTwo,"sub_field_name"=>$name],500);
         }
 
@@ -983,50 +907,6 @@ class ComboListField extends BaseField {
         }
 
         return "sub_field_validated";
-    }
-
-    /**
-     * Gets the name of a combo list sub field
-     *
-     * @param  Field $field - Combo field to inspect
-     * @param  int $num - Sequence of sub field
-     * @return string - Name
-     */
-    // DEPRECIATED, REMOVE
-    public static function getComboFieldName($field, $num) {
-        $options = $field->options;
-
-        if($num=='one') {
-            $oneOpts = explode('[!Field1!]', $options)[1];
-            $name = explode('[Name]', $oneOpts)[1];
-        } else if($num=='two') {
-            $twoOpts = explode('[!Field2!]', $options)[1];
-            $name = explode('[Name]', $twoOpts)[1];
-        }
-
-        return $name;
-    }
-
-    /**
-     * Gets the type of a combo list sub field
-     *
-     * @param  Field $field - Combo field to inspect
-     * @param  int $num - Sequence of sub field
-     * @return string - Type
-     */
-    // DEPRECIATED, REMOVE
-    public static function getComboFieldType($field, $num) {
-        $options = $field['options'];
-
-        if($num=='one') {
-            $oneOpts = explode('[!Field1!]', $options)[1];
-            $type = explode('[Type]', $oneOpts)[1];
-        } else if($num=='two') {
-            $twoOpts = explode('[!Field2!]', $options)[1];
-            $type = explode('[Type]', $twoOpts)[1];
-        }
-
-        return $type;
     }
 
     /**
