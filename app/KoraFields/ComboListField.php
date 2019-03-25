@@ -1044,12 +1044,15 @@ class ComboListField extends BaseField {
     public function save(array $options = array()) {
         $field = $options['field'];
         $values = $options['values'];
+        $table = $field['flid'] . $options['fid'];
+        $rid = $options['rid'];
 
-        DB::transaction(function() use ($field, $options, $values) {
+        DB::transaction(function() use ($field, $rid, $values, $table) {
             for($i=0; $i < count($values['one']); $i++) {
-                DB::table($field['flid'] . $options['fid'])->insert(
+                DB::table($table)->where('record_id', '=', $rid)->delete();
+                DB::table($table)->insert(
                     [
-                        'record_id' => $options['rid'],
+                        'record_id' => $rid,
                         $field['one']['flid'] => $values['one'][$i],
                         $field['two']['flid'] => $values['two'][$i]
                     ]
@@ -1057,7 +1060,7 @@ class ComboListField extends BaseField {
             }
         });
 
-        $ids = DB::table($field['flid'] . $options['fid'])->where('record_id', $options['rid'])->pluck('id');
+        $ids = DB::table($table)->where('record_id', $rid)->pluck('id');
 
         return $ids->toJson();
     }

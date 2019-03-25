@@ -8,16 +8,14 @@
     $twoType = $field['two']['type'];
     $oneName = $field['one']['name'];
     $twoName = $field['two']['name'];
+    $oneFlid = $field['one']['flid'];
+    $twoFlid = $field['two']['flid'];
 
     if($editRecord) {
         // TODO::@andrew.joye need a function to get values
-        // $combo = $record->{$flid};
-        $combo = array('one' => '', 'two' => '');
-        $defsOne = $combo['one'];
-        $defsTwo = $combo['two'];
+        $items = $typedField->retrieve($flid, $form->id, $record->{$flid});
     } else {
-        $defsOne = $field['one']['default'];
-        $defsTwo = $field['two']['default'];
+        $items = $field['one']['default'];
     }
     ?>
 
@@ -28,16 +26,20 @@
         </div>
 
         <div class="combo-value-item-container-js">
-            @if(!is_null($defsOne))
-                @for($i=0;$i<count($defsOne);$i++)
+            @if(!is_null($items))
+                @for($i=0;$i<count($items);$i++)
                     @php
-                        $valueOne = $defsOne[$i];
-                        $valueTwo = $defsTwo[$i];
+                        $valueOne = $field['one']['default'][$i];
+                        $valueTwo = $field['two']['default'][$i];
+                        if($editRecord) {
+                            $valueOne = $items[$i]->{$oneFlid};
+                            $valueTwo = $items[$i]->{$twoFlid};
+                        }
                     @endphp
                     <div class="combo-value-item combo-value-item-js">
                         <span class="combo-delete delete-combo-value-js tooltip" tooltip="Delete Combo Value"><i class="icon icon-trash"></i></span>
 
-                        @if($oneType=='Text' | $oneType=='List' | $oneType=='Number' | $oneType=='Date')
+                        @if($oneType=='Text' | $oneType=='List' | $oneType=='Integer' | $oneType=='Float' | $oneType=='Date')
                             {!! Form::hidden($flid."_combo_one[]",$valueOne) !!}
                             <span class="combo-column combo-value">{{$valueOne}}</span>
                         @elseif($oneType=='Multi-Select List' | $oneType=='Generated List' | $oneType=='Associator')
@@ -45,7 +47,7 @@
                             <span class="combo-column combo-value">{{implode(' | ',$valueOne)}}</span>
                         @endif
 
-                        @if($twoType=='Text' | $twoType=='List' | $twoType=='Number' | $twoType=='Date')
+                        @if($twoType=='Text' | $twoType=='List' | $oneType=='Integer' | $oneType=='Float' | $twoType=='Date')
                             {!! Form::hidden($flid."_combo_two[]",$valueTwo) !!}
                             <span class="combo-column combo-value">{{$valueTwo}}</span>
                         @elseif($twoType=='Multi-Select List' | $twoType=='Generated List' | $twoType=='Associator')
@@ -57,7 +59,7 @@
             @endif
         </div>
 
-        @if(!is_null($defsOne))
+        @if(!is_null($items))
             <div class="combo-list-empty"><span class="combo-column">Add Values to Combo List Below</span></div>
         @endif
 
