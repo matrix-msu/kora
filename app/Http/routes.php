@@ -192,8 +192,7 @@ Route::group(['middleware' => 'web'], function () {
     Route::delete('projects/{pid}/forms/{fid}/deleteAllRecords', 'RecordController@deleteAllRecords');
     Route::post('/projects/{pid}/forms/{fid}/cleanUp', 'RecordController@cleanUp');
     Route::get('/projects/{pid}/forms/{fid}/clone/{rid}', 'RecordController@cloneRecord');
-    Route::get('/projects/{pid}/forms/{fid}/records/{rid}/resource/geolocator', 'FieldAjaxController@singleGeolocator');
-    Route::get('/projects/{pid}/forms/{fid}/records/{rid}/resource/richtext', 'FieldAjaxController@singleRichtext');
+    Route::get('/projects/{pid}/forms/{fid}/records/{rid}/geolocator/{flid}', 'FieldAjaxController@singleGeolocator');
 
 //revision routes
     Route::get('/projects/{pid}/forms/{fid}/records/revisions/recent', 'RevisionController@index');

@@ -4,7 +4,6 @@ use App\KoraFields\FileTypeField;
 use App\KoraFields\GeolocatorField;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Redirect;
 use Illuminate\View\View;
 
 class FieldAjaxController extends Controller {
@@ -50,24 +49,6 @@ class FieldAjaxController extends Controller {
     }
 
     /**
-     * View single image/video/audio/document from a record.
-     *
-     * @param  int $pid - Project ID
-     * @param  int $fid - Form ID
-     * @param  int $rid - Record ID
-     * @param  int $flid - Field ID
-     * @param  string $filename - Image filename
-     * @return Redirect
-     */
-    public function singleRichtext($pid, $fid, $rid, $flid) { //TODO::CASTLE
-        $field = self::getField($flid);
-        $record = RecordController::getRecord($pid.'-'.$fid.'-'.$rid);
-        $typedField = $field->getTypedFieldFromRID($rid);
-
-        return view('fields.singleRichtext', compact('field', 'record', 'typedField'));
-    }
-
-    /**
      * Validates the address for a Geolocator field.
      *
      * @param  Request $request
@@ -88,17 +69,16 @@ class FieldAjaxController extends Controller {
     }
 
     /**
-     * View single image/video/audio/document from a record.
+     * View single geolocator field.
      *
      * @param  int $pid - Project ID
      * @param  int $fid - Form ID
      * @param  int $rid - Record ID
-     * @param  View - The geo view
-     * @return Redirect
+     * @param  int $flid - Geolocator Field ID
+     * @return View - The geolocator view
      */
-    public function singleGeolocator($pid, $fid, $rid, Request $request) { //TODO::CASTLE
+    public function singleGeolocator($pid, $fid, $rid, $flid) {
         $form = FormController::getForm($fid);
-        $flid = $request->flid;
         $field = FieldController::getField($flid,$fid);
         $record = RecordController::getRecord($pid.'-'.$fid.'-'.$rid);
         $value = $record->{$flid};
