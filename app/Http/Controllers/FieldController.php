@@ -99,7 +99,8 @@ class FieldController extends Controller {
                 $field[$seq] = [
                     'type' => $request->{'cftype' . $num},
                     'name' => $request->{'cfname' . $num},
-                    'flid' => $slug
+                    'flid' => $slug,
+                    'default' => null
                 ];
             }
         }

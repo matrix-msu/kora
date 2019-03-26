@@ -84,14 +84,14 @@
                             $valueTwo = $defsTwo[$i];
                         @endphp
                         <div class="card combo-value-item-js">
-                            @if($oneType=='Text' | $oneType=='List' | $oneType=='Number' | $oneType=='Date')
+                            @if($oneType=='Text' | $oneType=='List' | $oneType=='Integer'| $oneType=='Float' | $oneType=='Date')
                                 {!! Form::hidden("default_combo_one[]",$valueOne) !!}
                                 <span class="combo-column">{{$valueOne}}</span>
                             @elseif($oneType=='Multi-Select List' | $oneType=='Generated List' | $oneType=='Associator')
                                 {!! Form::hidden("default_combo_one[]",$valueOne) !!}
                                 <span class="combo-column">{{implode(' | ',$valueOne)}}</span>
                             @endif
-                            @if($twoType=='Text' | $twoType=='List' | $twoType=='Number' | $twoType=='Date')
+                            @if($twoType=='Text' | $twoType=='List' | $oneType=='Integer'| $oneType=='Float' | $twoType=='Date')
                                 {!! Form::hidden("default_combo_two[]",$valueTwo) !!}
                                 <span class="combo-column">{{$valueTwo}}</span>
                             @elseif($twoType=='Multi-Select List' | $twoType=='Generated List' | $twoType=='Associator')

@@ -10,10 +10,10 @@ class FloatField extends BaseField {
 
     /*
     |--------------------------------------------------------------------------
-    | Number Field
+    | Float Field
     |--------------------------------------------------------------------------
     |
-    | This model represents the number field in Kora3
+    | This model represents the float field in Kora3
     |
     */
 

@@ -259,7 +259,7 @@ class ImportMultiFormController extends Controller { //TODO::CASTLE
 
                 //TODO::modular?
 
-                if($type == 'Text' | $type == 'Rich Text' | $type == 'Number' | $type == 'List')
+                if($type == 'Text' | $type == 'Rich Text' | $type == 'Integer' | $type == 'Float' | $type == 'List')
                     $recRequest[$flid] = (string)$field;
                 else if($type == 'Multi-Select List') {
                     if(empty($field->value))
@@ -588,7 +588,9 @@ class ImportMultiFormController extends Controller { //TODO::CASTLE
                     $recRequest[$flid] = $field['value'];
                 } else if($type == 'Rich Text') {
                     $recRequest[$flid] = $field['value'];
-                } else if($type == 'Number') {
+                } else if($type == 'Integer') {
+                    $recRequest[$flid] = $field['value'];
+                } else if($type == 'Float') {
                     $recRequest[$flid] = $field['value'];
                 } else if($type == 'List') {
                     $recRequest[$flid] = $field['value'];

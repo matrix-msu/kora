@@ -10,10 +10,10 @@ class IntegerField extends BaseField {
 
     /*
     |--------------------------------------------------------------------------
-    | Number Field
+    | Integer Field
     |--------------------------------------------------------------------------
     |
-    | This model represents the number field in Kora3
+    | This model represents the integer field in Kora3
     |
     */
 

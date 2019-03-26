@@ -245,7 +245,8 @@ class AdvancedSearchController extends Controller {
                         if(isset($request[$flid.'_end_era']))
                             $processed[$flid][$flid.'_end_era'] = $request[$flid.'_end_era'];
                         break;
-                    case 'Number':
+                    case 'Integer':
+                    case 'Float':
                         if($request[$flid.'_left'] != '' | $request[$flid.'_right'] != '') {
                             $processed[$flid][$flid . '_left'] = isset($request[$flid . '_left']) ? $request[$flid . '_left'] : '';
                             $processed[$flid][$flid . '_right'] = isset($request[$flid . '_right']) ? $request[$flid . '_right'] : '';

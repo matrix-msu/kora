@@ -9,7 +9,7 @@
         {!! Form::label('default_'.$fnum, $cfName) !!}
         {!! Form::text('default_'.$fnum, null, ['id' => 'default_'.$fnum.'_'.$flid, 'class' => 'text-input', 'placeholder' => 'Enter text value here']) !!}
     </div>
-@elseif($type=='Number')
+@elseif($type=='Integer' | $type=='Float')
     <div class="form-group
         @if($fnum=='two')
             mt-xxxl
@@ -18,10 +18,7 @@
         @endif
             ">
         {!! Form::label('default_'.$fnum, $cfName.' ('.App\KoraFields\ComboListField::getComboFieldOption($field, "Unit", $fnum).')') !!}
-        <input type="number" id="default_{{$fnum}}_{{$flid}}" name="default_{{$fnum}}" class="text-input" value="" placeholder="Enter number here"
-               step="{{ App\KoraFields\ComboListField::getComboFieldOption($field, "Increment", $fnum) }}"
-               min="{{ App\KoraFields\ComboListField::getComboFieldOption($field, "Min", $fnum) }}"
-               max="{{ App\KoraFields\ComboListField::getComboFieldOption($field, "Max", $fnum) }}">
+        {!! Form::number('default_'.$fnum, null, ['id' => 'default_'.$fnum.'_'.$flid, 'class' => 'text-input', 'placeholder' => 'Enter number here', 'min' => App\KoraFields\ComboListField::getComboFieldOption($field, "Min", $fnum), 'max' => App\KoraFields\ComboListField::getComboFieldOption($field, "Max", $fnum)]) !!}
     </div>
 @elseif($type=='Date')
     <div class="form-group

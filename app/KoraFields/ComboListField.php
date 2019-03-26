@@ -39,17 +39,29 @@ class ComboListField extends BaseField {
      * @var array - This is an array of combo list field type values for creation
      */
     static public $validComboListFieldTypes = [
-        'Text Fields' => array('Text' => 'Text', 'Number' => 'Number'),
-        'Date Fields' => array('Date' => 'Date'),
-        'List Fields' => array('List' => 'List', 'Multi-Select List' => 'Multi-Select List', 'Generated List' => 'Generated List'),
-        'Other' => array('Associator' => 'Associator')
+        'Text Fields' => array(
+            'Text' => 'Text',
+            'Integer' => 'Integer',
+            'Float' => 'Float'
+        ),
+        'Date Fields' => array(
+            'Date' => 'Date'
+        ),
+        'List Fields' => array(
+            'List' => 'List',
+            'Multi-Select List' => 'Multi-Select List',
+            'Generated List' => 'Generated List'
+        ),
+        'Other' => array(
+            'Associator' => 'Associator'
+        )
     ];
 
     static public $supportedViews = [
         'Text' => 'text',
         'List' => 'list',
-        // 'Integer' => 'integer',
-        // 'Float' => 'float',
+        'Integer' => 'integer',
+        'Float' => 'float',
         // 'Date' => 'date',
         // 'Multi-Select List' => 'mslist',
         // 'Generated List' => 'genlist',
@@ -58,12 +70,16 @@ class ComboListField extends BaseField {
 
     private $fieldToDBFuncAssoc = [
         'Text' => 'addTextColumn',
-        'List' => 'addEnumColumn'
+        'List' => 'addEnumColumn',
+        'Integer' => 'addIntegerColumn',
+        'Float' => 'addDoubleColumn',
     ];
 
     private $fieldModel = [
         'Text' => 'App\KoraFields\TextField',
-        'List' => 'App\KoraFields\ListField'
+        'List' => 'App\KoraFields\ListField',
+        'Integer' => 'App\KoraFields\IntegerField',
+        'Float' => 'App\KoraFields\FloatField',
     ];
 
     /**
@@ -752,76 +768,6 @@ class ComboListField extends BaseField {
     }
 
     /**
-     * Adds data to the support table.
-     *
-     * @param  array $data - Data to add
-     * @param  string $type1 - Field type of sub-field 1
-     * @param  string $type2 - Field type of sub-field 2
-     */
-    public function addData(array $data, $type1, $type2) {
-        $now = date("Y-m-d H:i:s");
-
-        $inserts = [];
-
-        $one_is_num = $type1 == 'Number';
-        $two_is_num = $type2 == 'Number';
-
-        $i = 0;
-        foreach($data as $entry) {
-            $field_1_data = explode('[!f1!]', $entry)[1];
-            $field_2_data = explode('[!f2!]', $entry)[1];
-
-            $inserts[] = [
-                'fid' => $this->fid,
-                'rid' => $this->rid,
-                'flid' => $this->flid,
-                'field_num' => 1,
-                'list_index' => $i,
-                'data' => (!$one_is_num) ? $field_1_data : null,
-                'number' => ($one_is_num) ? $field_1_data : null,
-                'created_at' => $now,
-                'updated_at' => $now
-            ];
-
-            $inserts[] = [
-                'fid' => $this->fid,
-                'rid' => $this->rid,
-                'flid' => $this->flid,
-                'list_index' => $i,
-                'field_num' => 2,
-                'data' => (!$two_is_num) ? $field_2_data : null,
-                'number' => ($two_is_num) ? $field_2_data : null,
-                'created_at' => $now,
-                'updated_at' => $now
-            ];
-
-            $i++;
-        }
-
-        DB::table(self::SUPPORT_NAME)->insert($inserts);
-    }
-
-    /**
-     * Updates the current list of data by deleting the old ones and adding the array that has both new and old.
-     *
-     * @param  array $data - Data to add
-     */
-    public function updateData(array $data, $type_1, $type_2) {
-        $this->deleteData();
-        $this->addData($data, $type_1, $type_2);
-    }
-
-    /**
-     * Deletes data from the support table.
-     */
-    public function deleteData() {
-        DB::table(self::SUPPORT_NAME)
-            ->where("rid", "=", $this->rid)
-            ->where("flid", "=", $this->flid)
-            ->delete();
-    }
-
-    /**
      * Validates record data for a Combo List Field.
      *
      * @param  int $flid - Field ID
@@ -869,7 +815,8 @@ class ComboListField extends BaseField {
                 if(($regex!=null | $regex!="") && !preg_match($regex, $val))
                     return "regex_value_mismatch";
                 break;
-            case "Number":
+            case "Integer":
+            case "Float":
                 $max = self::getComboFieldOption($field, 'Max', 'one');
                 $min = self::getComboFieldOption($field, 'Min', 'one');
                 $inc = self::getComboFieldOption($field, 'Increment', 'one');
@@ -928,8 +875,8 @@ class ComboListField extends BaseField {
         $rid = $options['rid'];
 
         DB::transaction(function() use ($field, $rid, $values, $table) {
+            DB::table($table)->where('record_id', '=', $rid)->delete();
             for($i=0; $i < count($values['one']); $i++) {
-                DB::table($table)->where('record_id', '=', $rid)->delete();
                 DB::table($table)->insert(
                     [
                         'record_id' => $rid,

@@ -29,11 +29,12 @@
             @if(!is_null($items))
                 @for($i=0;$i<count($items);$i++)
                     @php
-                        $valueOne = $field['one']['default'][$i];
-                        $valueTwo = $field['two']['default'][$i];
                         if($editRecord) {
                             $valueOne = $items[$i]->{$oneFlid};
                             $valueTwo = $items[$i]->{$twoFlid};
+                        } else {
+                            $valueOne = $field['one']['default'][$i];
+                            $valueTwo = $field['two']['default'][$i];
                         }
                     @endphp
                     <div class="combo-value-item combo-value-item-js">

@@ -50,13 +50,10 @@
             </select>
         </div>
     </div>
-@elseif($type=='Number')
+@elseif($type=='Integer' | $type=='Float')
     <div class="form-group">
-        {!! Form::label('default_'.$fnum, $cfName.' ('.App\KoraFieComboListField::getComboFieldOption($field, "Unit", $fnum).')') !!}
-        <input type="number" id="default_{{$fnum}}" name="default_{{$fnum}}" class="text-input default-input-js" value="" placeholder="Enter number here"
-               step="{{ App\KoraFields\ComboListField::getComboFieldOption($field, "Increment", $fnum) }}"
-               min="{{ App\KoraFields\ComboListField::getComboFieldOption($field, "Min", $fnum) }}"
-               max="{{ App\KoraFields\ComboListField::getComboFieldOption($field, "Max", $fnum) }}">
+        {!! Form::label('default_'.$fnum, $cfName.' ('.App\KoraFields\ComboListField::getComboFieldOption($field, "Unit", $fnum).')') !!}
+        {!! Form::number('default_'.$fnum, null, ['id' => 'default_'.$fnum, 'class' => 'text-input default-input-js', 'placeholder' => 'Enter number here', 'min' => App\KoraFields\ComboListField::getComboFieldOption($field, "Min", $fnum), 'max' => App\KoraFields\ComboListField::getComboFieldOption($field, "Max", $fnum)]) !!}
     </div>
 @elseif($type=='List')
     <div class="form-group">
