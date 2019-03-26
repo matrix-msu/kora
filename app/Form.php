@@ -33,6 +33,7 @@ class Form extends Model {
      * @var string - These are the possible field types at the moment  //TODO::NEWFIELD
      */
     const _TEXT = "Text";
+    const _BOOLEAN = "Boolean";
     const _RICH_TEXT = "Rich Text";
     const _INTEGER = "Integer";
     const _FLOAT = "Float";
@@ -82,6 +83,7 @@ class Form extends Model {
             self::_COMBO_LIST => self::_COMBO_LIST
         ),
         'Specialty Fields' => array(
+            self::_BOOLEAN => self::_BOOLEAN,
             self::_GEOLOCATOR => self::_GEOLOCATOR,
             self::_ASSOCIATOR => self::_ASSOCIATOR
         )
@@ -93,6 +95,7 @@ class Form extends Model {
      */
     static public $validFilterFields = [ //TODO::NEWFIELD
         self::_TEXT,
+        self::_BOOLEAN,
         self::_LIST,
         //self::_MULTI_SELECT_LIST, //TODO::CASTLE implement multi value filter types
         self::_INTEGER,
@@ -113,6 +116,7 @@ class Form extends Model {
         self::_FLOAT,
         self::_DATE,
         self::_DATETIME,
+        self::_BOOLEAN,
     ];
 
     /**
@@ -120,6 +124,7 @@ class Form extends Model {
      */
     public static $fieldModelMap = [ //TODO::NEWFIELD
         self::_TEXT => "TextField",
+        self::_BOOLEAN => "BooleanField",
         self::_RICH_TEXT => "RichTextField",
         self::_INTEGER => "IntegerField",
         self::_FLOAT => "FloatField",

@@ -3,12 +3,14 @@
         <div class="field-display document-field-display">
             @if($opt != '')
                 @php
-                    $name = $opt['name'];
+                    $ogName = $opt['original_name'];
+                    $locName = $opt['local_name'];
                     $size = $opt['size'];
-                    $link = action('FieldAjaxController@getFileDownload',['kid' => $record->kid, 'filename' => $name]);
+                    $link = action('FieldAjaxController@getFileDownload',['kid' => $record->kid, 'filename' => $locName]);
+                    $pubLink = action('FieldAjaxController@publicRecordFile',['filename' => $locName]);
                 @endphp
                 <div>
-                    <p class="filename"><a class="documents-link underline-middle-hover" href="{{$link}}">{{$name}}</a></p>
+                    <p class="filename"><a class="documents-link underline-middle-hover" href="{{$link}}">{{$ogName}}</a></p>
                     <p class="file-size">File size: {{$typedField->formatBytes($size)}}</p>
                 </div>
             @endif
@@ -16,11 +18,11 @@
 
         <div class="field-sidebar document-sidebar document-sidebar-js">
             <div class="top">
-                <a class="field-btn external-button-js" target="_blank" href="{{url('projects/'.$form->project_id.'/forms/'.$form->id.'/records/'.$record->id.'/resource/'.$name)}}">
+                <a class="field-btn external-button-js" target="_blank" href="{{$pubLink}}">
                     <i class="icon icon-external-link"></i>
                 </a>
 
-                <a href="{{action('FieldAjaxController@getFileDownload', ['kid' => $record->kid, 'filename' => $name])}}"
+                <a href="{{action('FieldAjaxController@getFileDownload', ['kid' => $record->kid, 'filename' => $locName])}}"
                    class="field-btn">
                     <i class="icon icon-download"></i>
                 </a>

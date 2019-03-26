@@ -354,8 +354,27 @@ class RecordController extends Controller {
             }
         } else {
             mkdir($dirTmp,0775,true); //Make it!
-            mkdir($dirTmp.'/medium',0775,true); //Make it!
-            mkdir($dirTmp.'/thumbnail',0775,true); //Make it!
+        }
+
+        //See if record files exist, and copy over
+        $storageType = 'LaravelStorage'; //TODO:: make this a config once we actually support other storage types
+        switch($storageType) {
+            case 'LaravelStorage':
+                // Check if file exists in app/storage/file folder
+                $file_path = storage_path('app/files/'.$pid.'/'.$fid.'/'.$rid);
+                if(file_exists($file_path)) {
+                    foreach(new \DirectoryIterator($file_path) as $file) {
+                        if($file->isFile()) {
+                            //Strip the identifier tag
+                            $nameParts = explode('_',$file->getFilename());
+                            $editTmpName = array_pop($nameParts);
+                            copy($file_path . '/' . $file->getFilename(), $dirTmp . '/' . $editTmpName);
+                        }
+                    }
+                }
+                break;
+            default:
+                break;
         }
 
         return view('records.edit', compact('record', 'form'));
@@ -948,7 +967,10 @@ class RecordController extends Controller {
             foreach($form->layout['fields'] as $flid => $field) {
                 $model = $form->getFieldModel($field['type']);
                 if($model instanceof FileTypeField) {
-                    $url = $pid . '/' . $fid . '/' . $record->id;
+                    $url['pid'] = $pid;
+                    $url['fid'] = $fid;
+                    $url['flid'] = $flid;
+                    $url['rid'] = $record->id;
                     $record->{$flid} = $model->getTestData($url);
                 } else
                     $record->{$flid} = $model->getTestData();
