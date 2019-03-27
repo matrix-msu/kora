@@ -120,15 +120,28 @@
     }
 
     .search-choice-close {
-      right: 60px;
-      top: 18px;
+      @include transition(transform);
+
+      right: 50px;
+      top: 18.5px;
 
       &::before {
+        @include transition(opacity);
+  
         color: palette('gray', slate);
         content: $icon-cancel;
         font-family: 'Kora-Icons';
         font-size: 10px;
+        opacity: 0.6;
         speak: none;
+      }
+
+      &:hover {
+        transform: scale(1.2);
+
+        &::before {
+          opacity: 1;
+        }
       }
     }
   }

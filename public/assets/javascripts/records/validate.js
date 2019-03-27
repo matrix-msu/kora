@@ -33,8 +33,47 @@ Kora.Records.Validate = function() {
         $('.content-sections-scroll').find('a[href="'+ $this +'"]').trigger('click');
       });
     }
+	
+	function validateNumberInputs() {
+		var passed = true;
+		
+		$(".page-section-js .form-group .number-input-container-js").each(function() {
+			console.log(this);
+			var input = $(this).find(".text-input");
+			var input_val = parseInt(input.val());
+			
+			console.log(input.val());
+			console.log(input.attr('max'));
+			
+			if (input_val < parseInt(input.attr('min')) || input_val > parseInt(input.attr('max'))) {
+				$(this).siblings(".error-message").text("Number is outside of set range (" + input.attr('min') + "-" + input.attr('max') + ")");
+				input.addClass("error");
+				passed = false;
+			} else {
+				$(this).siblings(".error-message").text("");
+				input.removeClass("error");
+			}
+		});
+		
+		return passed;
+	}
 
     function initializeRecordValidation() {
+		$('.page-section-js .form-group .number-input-container-js').find('.text-input').blur(function(){
+			var input = $(this);
+			var container = input.parent();
+			var input_val = parseInt(input.val());
+			
+			if (input_val < parseInt(input.attr('min')) || input_val > parseInt(input.attr('max'))) {
+				container.siblings(".error-message").text("Number is outside of set range (" + input.attr('min') + "-" + input.attr('max') + ")");
+				input.addClass("error");
+				passed = false;
+			} else {
+				container.siblings(".error-message").text("");
+				input.removeClass("error");
+			}
+		});
+		
         $('.record-validate-js').click(function(e) {
             var $this = $(this);
 
@@ -89,9 +128,7 @@ Kora.Records.Validate = function() {
                 success: function(err) {
                     $('.error-message').text('');
                     $('.text-input, .text-area, .cke, .chosen-container').removeClass('error');
-
-                    console.warn(err);
-
+                  
                     if(err.errors.length==0) {
                         $('.record-form').submit();
                     } else {
@@ -110,6 +147,7 @@ Kora.Records.Validate = function() {
                             }
                         });
 						
+						validateNumberInputs();
 						initializeValidationModal();
                     }
                 },
