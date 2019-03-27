@@ -14,10 +14,10 @@
                 <span>Backup Management</span>
             </h1>
             @include('partials.backups.support')
-            <p class="description">Brief backup management intro will go here. A backup file will be created and saved
-                as a restore point on the server. You can download this file afterwards and save it somewhere safe. You
-                can include a name or short description, the start date and time will be added for you. Depending on the
-                size of your database, this may take a few minutes to finish.</p>
+            <p class="description">Creating a Backup file will create a saved restore point on the server to revert back
+                to. You can download this file afterwards and save it somewhere safe. You can include a name or short
+                description, the start date and time will be added for you. Depending on the size of your database, this
+                may take a few minutes to finish.</p>
             <div class="content-sections">
               <div class="content-sections-scroll">
                 <a href="#backups" class="backups-link section underline-middle underline-middle-hover toggle-by-name active">Your Backups</a>
