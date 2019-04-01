@@ -101,7 +101,7 @@ class IntegerField extends BaseField {
      * @param  int $flid - The field internal name
      * @return Redirect
      */
-    public function updateOptions($field, Request $request, $flid = null) {
+    public function updateOptions($field, Request $request, $flid = null, $prefix = 'records_') {
         if(
             ($request->min != '' && $request->max != '') &&
             ($request->min >= $request->max)

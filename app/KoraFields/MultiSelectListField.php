@@ -100,7 +100,7 @@ class MultiSelectListField extends BaseField {
      * @param  Request $request
      * @return array - The updated field array
      */
-    public function updateOptions($field, Request $request, $slug = null) {
+    public function updateOptions($field, Request $request, $flid = null, $prefix = 'records_') {
         if(is_null($request->options)) {
             $request->options = array();
         }

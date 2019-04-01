@@ -686,9 +686,9 @@ Kora.Fields.Options = function(fieldType) {
 
         $('.add-combo-value-js').click(function() {
             if(type1=='Date') {
-                monthOne = $('#month_one');
-                dayOne = $('#day_one');
-                yearOne = $('#year_one');
+                monthOne = $('#default_month_one');
+                dayOne = $('#default_day_one');
+                yearOne = $('#default_year_one');
                 val1 = monthOne.val()+'/'+dayOne.val()+'/'+yearOne.val();
             } else {
                 inputOne = $('#default_one');
@@ -696,9 +696,9 @@ Kora.Fields.Options = function(fieldType) {
             }
 
             if(type2=='Date') {
-                monthTwo = $('#month_two');
-                dayTwo = $('#day_two');
-                yearTwo = $('#year_two');
+                monthTwo = $('#default_month_two');
+                dayTwo = $('#default_day_two');
+                yearTwo = $('#default_year_two');
                 val2 = monthTwo.val()+'/'+dayTwo.val()+'/'+yearTwo.val();
             } else {
                 inputTwo = $('#default_two');
@@ -721,16 +721,26 @@ Kora.Fields.Options = function(fieldType) {
 
                 div = '<div class="card combo-value-item-js">';
 
-                if(type1=='Text' | type1=='List' | type1=='Integer' | type1=='Float' | type1=='Date') {
+                if(type1=='Text' | type1=='List' | type1=='Integer' | type1=='Float') {
                     div += '<input type="hidden" name="default_combo_one[]" value="'+val1+'">';
+                    div += '<span class="combo-column">'+val1+'</span>';
+                } else if (type1=='Date') {
+                    div += '<input type="hidden" name="default_day_combo_one[]" value="'+dayOne.val()+'">';
+                    div += '<input type="hidden" name="default_month_combo_one[]" value="'+monthOne.val()+'">';
+                    div += '<input type="hidden" name="default_year_combo_one[]" value="'+yearOne.val()+'">';
                     div += '<span class="combo-column">'+val1+'</span>';
                 } else if(type1=='Multi-Select List' | type1=='Generated List' | type1=='Associator') {
                     div += '<input type="hidden" name="default_combo_one[]" value="'+val1.join('[!]')+'">';
                     div += '<span class="combo-column">'+val1.join(' | ')+'</span>';
                 }
 
-                if(type2=='Text' | type2=='List' | type2=='Integer' | type2=='Float' | type2=='Date') {
+                if(type2=='Text' | type2=='List' | type2=='Integer' | type2=='Float') {
                     div += '<input type="hidden" name="default_combo_two[]" value="'+val2+'">';
+                    div += '<span class="combo-column">'+val2+'</span>';
+                } else if (type2=='Date') {
+                    div += '<input type="hidden" name="default_day_combo_two[]" value="'+dayTwo.val()+'">';
+                    div += '<input type="hidden" name="default_month_combo_two[]" value="'+monthTwo.val()+'">';
+                    div += '<input type="hidden" name="default_year_combo_two[]" value="'+yearTwo.val()+'">';
                     div += '<span class="combo-column">'+val2+'</span>';
                 } else if(type2=='Multi-Select List' | type2=='Generated List' | type2=='Associator') {
                     div += '<input type="hidden" name="default_combo_two[]" value="'+val2.join('[!]')+'">';
@@ -750,7 +760,6 @@ Kora.Fields.Options = function(fieldType) {
                     inputOne.val('');
                     inputOne.trigger("chosen:updated");
                 } else if(type1=='Date') {
-                    monthOne.val(''); dayOne.val(''); yearOne.val('');
                     monthOne.trigger("chosen:updated"); dayOne.trigger("chosen:updated"); yearOne.trigger("chosen:updated");
                 } else {
                     inputOne.val('');
@@ -760,7 +769,6 @@ Kora.Fields.Options = function(fieldType) {
                     inputTwo.val('');
                     inputTwo.trigger("chosen:updated");
                 } else if(type2=='Date') {
-                    monthTwo.val(''); dayTwo.val(''); yearTwo.val('');
                     monthTwo.trigger("chosen:updated"); dayTwo.trigger("chosen:updated"); yearTwo.trigger("chosen:updated");
                 } else {
                     inputTwo.val('');

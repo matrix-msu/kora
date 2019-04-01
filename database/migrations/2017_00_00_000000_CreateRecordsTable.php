@@ -93,13 +93,13 @@ class CreateRecordsTable extends Migration {
     }
 
     public function addDateColumn($fid, $slug) {
-        Schema::table("records_$fid", function(Blueprint $table) use ($slug) {
+        Schema::table($this->tablePrefix . $fid, function(Blueprint $table) use ($slug) {
             $table->date($slug)->nullable();
         });
     }
 
     public function addDateTimeColumn($fid, $slug) {
-        Schema::table("records_$fid", function(Blueprint $table) use ($slug) {
+        Schema::table($this->tablePrefix . $fid, function(Blueprint $table) use ($slug) {
             $table->dateTime($slug)->nullable();
         });
     }

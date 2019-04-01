@@ -30,19 +30,19 @@
             ">
         {!! Form::label('default_'.$fnum, $cfName.': ') !!}
         <div class="form-group mt-sm">
-            {!! Form::label('month_'.$fnum,'Month: ') !!}
-            {!! Form::select('month_'.$fnum,['' => '',
+            {!! Form::label('default_month_'.$fnum,'Month: ') !!}
+            {!! Form::select('default_month_'.$fnum,['' => '',
                 '1' => '01 - '.date("F", mktime(0, 0, 0, 1, 10)), '2' => '02 - '.date("F", mktime(0, 0, 0, 2, 10)),
                 '3' => '03 - '.date("F", mktime(0, 0, 0, 3, 10)), '4' => '04 - '.date("F", mktime(0, 0, 0, 4, 10)),
                 '5' => '05 - '.date("F", mktime(0, 0, 0, 5, 10)), '6' => '06 - '.date("F", mktime(0, 0, 0, 6, 10)),
                 '7' => '07 - '.date("F", mktime(0, 0, 0, 7, 10)), '8' => '08 - '.date("F", mktime(0, 0, 0, 8, 10)),
                 '9' => '09 - '.date("F", mktime(0, 0, 0, 9, 10)), '10' => '10 - '.date("F", mktime(0, 0, 0, 10, 10)),
                 '11' => '11 - '.date("F", mktime(0, 0, 0, 11, 10)), '12' => '12 - '.date("F", mktime(0, 0, 0, 12, 10))],
-                null, ['id' => 'month_'.$fnum.'_'.$flid, 'class' => 'single-select', 'data-placeholder'=>"Select a Month"]) !!}
+                null, ['id' => 'default_month_'.$fnum.'_'.$flid, 'class' => 'single-select', 'data-placeholder'=>"Select a Month"]) !!}
         </div>
         <div class="form-group mt-sm">
-            {!! Form::label('day_'.$fnum,'Day: ') !!}
-            <select id="day_{{$fnum}}_{{$flid}}" name="day_{{$fnum}}" class="single-select" data-placeholder="Select a Day">
+            {!! Form::label('default_day_'.$fnum,'Day: ') !!}
+            <select id="default_day_{{$fnum}}_{{$flid}}" name="default_day_{{$fnum}}" class="single-select" data-placeholder="Select a Day">
                 <option value=""></option>
                 <?php
                 $i = 1;
@@ -54,8 +54,8 @@
             </select>
         </div>
         <div class="form-group mt-sm">
-            {!! Form::label('year_'.$fnum,'Year: ') !!}
-            <select id="year_{{$fnum}}_{{$flid}}" name="year_{{$fnum}}" class="single-select preset-clear-chosen-js" data-placeholder="Select a Year">
+            {!! Form::label('default_year_'.$fnum,'Year: ') !!}
+            <select id="default_year_{{$fnum}}_{{$flid}}" name="default_year_{{$fnum}}" class="single-select preset-clear-chosen-js" data-placeholder="Select a Year">
                 <option value=""></option>
                 <?php
                 $currYear=0;

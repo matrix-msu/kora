@@ -104,7 +104,7 @@ class ListField extends BaseField {
      * @param  int $flid - The field internal name
      * @return Redirect
      */
-    public function updateOptions($field, Request $request, $flid = null) {
+    public function updateOptions($field, Request $request, $flid = null, $prefix = 'records_') {
         if(is_null($request->options)) {
             $request->options = array();
         }
@@ -114,7 +114,7 @@ class ListField extends BaseField {
             $flid = str_replace(" ","_", $request->name).'_'.$form->project_id.'_'.$form->id.'_';
         }
 
-        $table = new \CreateRecordsTable();
+        $table = new \CreateRecordsTable(['tablePrefix' => $prefix]);
         $table->updateEnum(
             $request->fid,
             $flid,

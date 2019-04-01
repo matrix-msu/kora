@@ -62,10 +62,12 @@ class ComboListField extends BaseField {
         'List' => 'list',
         'Integer' => 'integer',
         'Float' => 'float',
-        // 'Date' => 'date',
+        'Date' => 'date',
+        // All the dates
         // 'Multi-Select List' => 'mslist',
         // 'Generated List' => 'genlist',
-        // 'Associator' => 'associator'
+        // 'Associator' => 'associator',
+        // 'Boolean' => 'boolean',
     ];
 
     private $fieldToDBFuncAssoc = [
@@ -73,6 +75,7 @@ class ComboListField extends BaseField {
         'List' => 'addEnumColumn',
         'Integer' => 'addIntegerColumn',
         'Float' => 'addDoubleColumn',
+        'Date' => 'addDateColumn',
     ];
 
     private $fieldModel = [
@@ -80,6 +83,7 @@ class ComboListField extends BaseField {
         'List' => 'App\KoraFields\ListField',
         'Integer' => 'App\KoraFields\IntegerField',
         'Float' => 'App\KoraFields\FloatField',
+        'Date' => 'App\KoraFields\DateField',
     ];
 
     /**
@@ -170,64 +174,69 @@ class ComboListField extends BaseField {
      * @param  int $flid - The field internal name
      * @return array - The updated field array
      */
-    public function updateOptions($field, Request $request, $flid = null) {
-
+    public function updateOptions($field, Request $request, $flid = null, $prefix = 'records_') {
+        dd($request->all());
         foreach (['one', 'two'] as $seq) {
-            $options = array();
+            $defaults = array();
 
             switch($request->{'type' . $seq}) {
                 case Form::_TEXT:
-                    $regex = $request->{'regex_' . $seq};
-                    $multi = $request->{'multi_' . $seq};
-                    if($regex!='') {
-                        $regArray = str_split($regex);
-                        if($regArray[0]!=end($regArray))
-                            $regex = '/'.$regex.'/';
-                    } else {
-                        $regex = null;
-                    }
-                    $options['Regex'] = $regex;
-                    $options['MultiLine'] = isset($multi) && $multi ? 1 : 0;
+                    $defaults = array(
+                        'default',
+                        'regex',
+                        'multi'
+                    );
                     break;
                 case Form::_INTEGER:
                 case Form::_FLOAT:
-                    $min = $request->{'min_' . $seq};
-                    $max = $request->{'max_' . $seq};
-
-                    if(($min != '' && $max != '') && ($min >= $max))
-                        $max = $min = '';
-
-                    $options['Max'] = $max;
-                    $options['Min'] = $min;
-                    $options['Unit'] = $request->{'unit_' . $seq};
-                    break;
-                case Form::_LIST:
-                    $listopts = $request->{'options_' . $seq};
-                    if(is_null($listopts)) {
-                        $listopts = array();
-                    }
-                    $options['Options'] = $listopts;
-
-                    $table = new \CreateRecordsTable(
-                        ['tablePrefix' => $flid]
-                    );
-                    $table->updateEnum(
-                        $request->fid,
-                        $field[$seq]['flid'],
-                        $listopts
+                    $defaults = array(
+                        'default',
+                        'min',
+                        'max',
+                        'unit'
                     );
                     break;
                 case Form::_MULTI_SELECT_LIST:
-                    $listopts = $request->{'options_' . $seq};
-                    if(is_null($listopts)) {
-                        $listopts = array();
-                    }
-                    $options['Options'] = $listopts;
+                case Form::_LIST:
+                    $defaults = array(
+                        'default',
+                        'options'
+                    );
+                    break;
+                case Form::_GENERATED_LIST:
+                    $defaults = array(
+                        'default',
+                        'regex',
+                        'options'
+                    );
+                case Form::_DATE:
+                    $defaults = array(
+                        'default_month',
+                        'default_day',
+                        'default_year',
+                        'start',
+                        'end',
+                        'format'
+                    );
                     break;
             }
 
+            $className = $this->fieldModel[$request->{'type' . $seq}];
+            $object = new $className;
+            foreach($defaults as $default) {
+                $request->merge(
+                    [$default => $request->{$default . '_' . $seq}]
+                );
+
+            }
+            $field[$seq] = $object->updateOptions(
+                $field[$seq],
+                $request,
+                $field[$seq]['flid'],
+                $flid
+            );
+            // This needs to be set manually
             $field[$seq]['default'] = $request->{'default_combo_' . $seq};
-            $field[$seq]['options'] = $options;
         }
 
         return $field;

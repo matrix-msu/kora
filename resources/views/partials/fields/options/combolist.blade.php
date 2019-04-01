@@ -84,16 +84,26 @@
                             $valueTwo = $defsTwo[$i];
                         @endphp
                         <div class="card combo-value-item-js">
-                            @if($oneType=='Text' | $oneType=='List' | $oneType=='Integer'| $oneType=='Float' | $oneType=='Date')
+                            @if($oneType=='Text' | $oneType=='List' | $oneType=='Integer'| $oneType=='Float')
                                 {!! Form::hidden("default_combo_one[]",$valueOne) !!}
                                 <span class="combo-column">{{$valueOne}}</span>
+                            @elseif($oneType=='Date')
+                                {!! Form::hidden("default_day_combo_one[]",$valueOne['day']) !!}
+                                {!! Form::hidden("default_month_combo_one[]",$valueOne['year']) !!}
+                                {!! Form::hidden("default_year_combo_one[]",$valueOne['month']) !!}
+                                <span class="combo-column">{{$valueOne['day'].$valueOne['year'].$valueOne['month']}}</span>
                             @elseif($oneType=='Multi-Select List' | $oneType=='Generated List' | $oneType=='Associator')
                                 {!! Form::hidden("default_combo_one[]",$valueOne) !!}
                                 <span class="combo-column">{{implode(' | ',$valueOne)}}</span>
                             @endif
-                            @if($twoType=='Text' | $twoType=='List' | $oneType=='Integer'| $oneType=='Float' | $twoType=='Date')
+                            @if($twoType=='Text' | $twoType=='List' | $oneType=='Integer'| $oneType=='Float')
                                 {!! Form::hidden("default_combo_two[]",$valueTwo) !!}
                                 <span class="combo-column">{{$valueTwo}}</span>
+                            @elseif($twoType=='Date')
+                                {!! Form::hidden("default_day_combo_two[]",$valueTwo['day']) !!}
+                                {!! Form::hidden("default_month_combo_two[]",$valueTwo['year']) !!}
+                                {!! Form::hidden("default_year_combo_two[]",$valueTwo['month']) !!}
+                                <span class="combo-column">{{$valueTwo['day'].$valueTwo['year'].$valueTwo['month']}}</span>
                             @elseif($twoType=='Multi-Select List' | $twoType=='Generated List' | $twoType=='Associator')
                                 {!! Form::hidden("default_combo_two[]",$valueTwo) !!}
                                 <span class="combo-column">{{implode(' | ',$valueTwo)}}</span>

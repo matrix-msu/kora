@@ -180,9 +180,9 @@ Kora.Records.Create = function() {
 
         $('.add-combo-value-js').click(function() {
             if(type1=='Date') {
-                monthOne = $('#month_one_'+flid);
-                dayOne = $('#day_one_'+flid);
-                yearOne = $('#year_one_'+flid);
+                monthOne = $('#default_month_one_'+flid);
+                dayOne = $('#default_day_one_'+flid);
+                yearOne = $('#default_year_one_'+flid);
                 val1 = monthOne.val()+'/'+dayOne.val()+'/'+yearOne.val();
             } else {
                 inputOne = $('#default_one_'+flid);
@@ -190,9 +190,9 @@ Kora.Records.Create = function() {
             }
 
             if(type2=='Date') {
-                monthTwo = $('#month_two_'+flid);
-                dayTwo = $('#day_two_'+flid);
-                yearTwo = $('#year_two_'+flid);
+                monthTwo = $('#default_month_two_'+flid);
+                dayTwo = $('#default_day_two_'+flid);
+                yearTwo = $('#default_year_two_'+flid);
                 val2 = monthTwo.val()+'/'+dayTwo.val()+'/'+yearTwo.val();
             } else {
                 inputTwo = $('#default_two_'+flid);
@@ -236,7 +236,6 @@ Kora.Records.Create = function() {
                     inputOne.val('');
                     inputOne.trigger("chosen:updated");
                 } else if(type1=='Date') {
-                    monthOne.val(''); dayOne.val(''); yearOne.val('');
                     monthOne.trigger("chosen:updated"); dayOne.trigger("chosen:updated"); yearOne.trigger("chosen:updated");
                 } else {
                     inputOne.val('');
@@ -246,7 +245,6 @@ Kora.Records.Create = function() {
                     inputTwo.val('');
                     inputTwo.trigger("chosen:updated");
                 } else if(type2=='Date') {
-                    monthTwo.val(''); dayTwo.val(''); yearTwo.val('');
                     monthTwo.trigger("chosen:updated"); dayTwo.trigger("chosen:updated"); yearTwo.trigger("chosen:updated");
                 } else {
                     inputTwo.val('');
