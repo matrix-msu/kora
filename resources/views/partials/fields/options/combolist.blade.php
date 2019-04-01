@@ -91,7 +91,7 @@
                                 {!! Form::hidden("default_day_combo_one[]",$valueOne['day']) !!}
                                 {!! Form::hidden("default_month_combo_one[]",$valueOne['year']) !!}
                                 {!! Form::hidden("default_year_combo_one[]",$valueOne['month']) !!}
-                                <span class="combo-column">{{$valueOne['day'].$valueOne['year'].$valueOne['month']}}</span>
+                                <span class="combo-column">Month: {{$valueOne['month']}} - Day: {{$valueOne['day']}} - Year: {{$valueOne['year']}}</span>
                             @elseif($oneType=='Multi-Select List' | $oneType=='Generated List' | $oneType=='Associator')
                                 {!! Form::hidden("default_combo_one[]",$valueOne) !!}
                                 <span class="combo-column">{{implode(' | ',$valueOne)}}</span>
@@ -103,7 +103,7 @@
                                 {!! Form::hidden("default_day_combo_two[]",$valueTwo['day']) !!}
                                 {!! Form::hidden("default_month_combo_two[]",$valueTwo['year']) !!}
                                 {!! Form::hidden("default_year_combo_two[]",$valueTwo['month']) !!}
-                                <span class="combo-column">{{$valueTwo['day'].$valueTwo['year'].$valueTwo['month']}}</span>
+                                <span class="combo-column">Month: {{$valueTwo['month']}} - Day: {{$valueTwo['day']}} - Year: {{$valueTwo['year']}}</span>
                             @elseif($twoType=='Multi-Select List' | $twoType=='Generated List' | $twoType=='Associator')
                                 {!! Form::hidden("default_combo_two[]",$valueTwo) !!}
                                 <span class="combo-column">{{implode(' | ',$valueTwo)}}</span>

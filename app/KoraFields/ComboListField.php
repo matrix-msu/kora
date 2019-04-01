@@ -175,7 +175,6 @@ class ComboListField extends BaseField {
      * @return array - The updated field array
      */
     public function updateOptions($field, Request $request, $flid = null, $prefix = 'records_') {
-        dd($request->all());
         foreach (['one', 'two'] as $seq) {
             $defaults = array();
 
@@ -235,8 +234,27 @@ class ComboListField extends BaseField {
                 $field[$seq]['flid'],
                 $flid
             );
-            // This needs to be set manually
-            $field[$seq]['default'] = $request->{'default_combo_' . $seq};
+
+            if ($request->{'type' . $seq} == Form::_DATE) {
+                $field[$seq]['default'] = $request->{'default_combo_' . $seq};
+                $field[$seq]['default'] = [];
+
+                $size = 0;
+                // Determine the largest size of default
+                foreach (['day', 'month', 'year'] as $part) {
+                    if (count($request->{'default_' . $part .'_combo_' . $seq}) > $size)
+                        $size = count($request->{'default_' . $part .'_combo_' . $seq});
+                }
+
+                // Build and add default date
+                for ($i=0; $i < $size; $i++) {
+                    $defaultDate = [];
+                    foreach (['day', 'month', 'year'] as $part) {
+                        $defaultDate[$part] = $request->{'default_' . $part .'_combo_' . $seq}[$i];
+                    }
+                    array_push($field[$seq]['default'], $defaultDate);
+                }
+            }
         }
 
         return $field;
