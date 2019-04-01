@@ -44,9 +44,17 @@
       @foreach($project->adminGroup()->get() as $adminGroup)
         <span>
           @foreach($adminGroup->users()->get()->all() as $index => $user)
-            @if ($index > 0)
-                ,
-            @endif
+		  @if ( $index != count($adminGroup->users()->get()->all()) - 1 )
+            <a href='#' class='admin-name admin-name-js'
+               data-name="{{$user->getFullNameAttribute()}}"
+               data-username="{{$user->username}}"
+               data-email="{{$user->email}}"
+               data-organization="{{$user->organization}}"
+               data-profile="{{$user->getProfilePicUrl()}}"
+               data-profile-url="{{action('Auth\UserController@index', ['uid' => $user->id])}}">
+                {{ $user->getFullNameAttribute() }},
+            </a>
+          @else
             <a href='#' class='admin-name admin-name-js'
                data-name="{{$user->getFullNameAttribute()}}"
                data-username="{{$user->username}}"
@@ -56,6 +64,7 @@
                data-profile-url="{{action('Auth\UserController@index', ['uid' => $user->id])}}">
                 {{ $user->getFullNameAttribute() }}
             </a>
+		  @endif
           @endforeach
         </span>
       @endforeach
