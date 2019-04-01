@@ -91,18 +91,20 @@ class Form extends Model {
 
     /**
      * @var array - This is an array of field types that can be filtered
+     *
+     * NOTE: We currently support filter types of simple values, and JSON types that are simply an array of values
      */
     static public $validFilterFields = [ //TODO::NEWFIELD
         self::_TEXT,
         self::_BOOLEAN,
         self::_LIST,
-        //self::_MULTI_SELECT_LIST, //TODO::CASTLE implement multi value filter types
+        self::_MULTI_SELECT_LIST, //JSON Type
         self::_INTEGER,
         self::_FLOAT,
-        //self::_GENERATED_LIST, //TODO::CASTLE implement multi value filter types
+        self::_GENERATED_LIST, //JSON Type
         self::_DATE,
         self::_DATETIME,
-        //self::_ASSOCIATOR, //TODO::CASTLE implement multi value filter types
+        self::_ASSOCIATOR, //JSON Type
     ];
 
     /**
@@ -873,12 +875,12 @@ class Form extends Model {
         $filters = [];
 
         //Subset of rids?
-        $subset = '';
+        $subset = 'IS NOT NULL';
         if(!is_null($rids)) {
             if(empty($rids))
                 return [];
             $ridString = implode(',',$rids);
-            $subset = " WHERE `id` IN ($ridString)";
+            $subset .= " AND `id` IN ($ridString)";
         }
 
         if($flids == 'ALL')
@@ -896,12 +898,39 @@ class Form extends Model {
         //$rAssocOccurrences = "select s.`flid`, r.`kid`, r.`rid` from ".$prefix."associator_support as s left join kora3_records as r on s.`rid`=r.`rid` where s.$wherePiece and s.`flid` in ($flidString)";
 
         foreach($valids as $f) {
-            $filterQuery = "SELECT `$f`, COUNT(*) as count FROM $table$subset GROUP BY `$f`";
+            $filterQuery = "SELECT `$f`, COUNT(*) as count FROM $table WHERE `$f` $subset GROUP BY `$f`";
             $results = $con->query($filterQuery);
+
+            $isJson = false;
+            $tmpJsonArray = [];
+
             while($row = $results->fetch_assoc()) {
-                if(!is_null($row[$f]) && $row['count']>=$count)
-                    $filters[$f][$row[$f]] = $row['count'];
+                if(!is_array(json_decode($row[$f]))) {
+                    if(!is_null($row[$f]) && $row['count'] >= $count)
+                        $filters[$f][$row[$f]] = (int)$row['count'];
+                } else {
+                    //JSON so handle
+                    $isJson = true;
+
+                    $values = json_decode($row[$f]);
+                    foreach($values as $val) {
+                        //Check for initial assignment
+                        if(!isset($tmpJsonArray[$val]))
+                            $tmpJsonArray[$val] = (int)$row['count'];
+                        else
+                            $tmpJsonArray[$val] += $row['count'];
+                    }
+                }
             }
+
+            //Clean up count limit for JSON
+            if($isJson) {
+                foreach($tmpJsonArray as $val => $cnt) {
+                    if($cnt >= $count)
+                        $filters[$f][$val] = $cnt;
+                }
+            }
+
             $results->free();
         }
 
