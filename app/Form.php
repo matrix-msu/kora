@@ -473,8 +473,12 @@ class Form extends Model {
         $orderBy = '';
         if(!is_null($filters['sort'])) {
             $orderBy = ' ORDER BY ';
-            for($i=0;$i<sizeof($filters['sort']);$i = $i+2) {
-                $orderBy .= $filters['sort'][$i].' '.$filters['sort'][$i+1].',';
+            foreach($filters['sort'] as $sortRule) {
+                foreach($sortRule as $field => $order) {
+                    //Used to protect SQL
+                    $field = preg_replace("/[^A-Za-z0-9_]/", '', $field);
+                    $orderBy .= "$field IS NULL, $field $order,";
+                }
             }
             $orderBy = substr($orderBy, 0, -1); //Trim the last comma
         }
@@ -625,8 +629,12 @@ class Form extends Model {
         $orderBy = '';
         if(!is_null($filters['sort'])) {
             $orderBy = ' ORDER BY ';
-            for($i=0;$i<sizeof($filters['sort']);$i = $i+2) {
-                $orderBy .= $filters['sort'][$i].' '.$filters['sort'][$i+1].',';
+            foreach($filters['sort'] as $sortRule) {
+                foreach($sortRule as $field => $order) {
+                    //Used to protect SQL
+                    $field = preg_replace("/[^A-Za-z0-9_]/", '', $field);
+                    $orderBy .= "$field IS NULL, $field $order,";
+                }
             }
             $orderBy = substr($orderBy, 0, -1); //Trim the last comma
         }
@@ -741,8 +749,12 @@ class Form extends Model {
         $orderBy = '';
         if(!is_null($filters['sort'])) {
             $orderBy = ' ORDER BY ';
-            for($i=0;$i<sizeof($filters['sort']);$i = $i+2) {
-                $orderBy .= $filters['sort'][$i].' '.$filters['sort'][$i+1].',';
+            foreach($filters['sort'] as $sortRule) {
+                foreach($sortRule as $field => $order) {
+                    //Used to protect SQL
+                    $field = preg_replace("/[^A-Za-z0-9_]/", '', $field);
+                    $orderBy .= "$field IS NULL, $field $order,";
+                }
             }
             $orderBy = substr($orderBy, 0, -1); //Trim the last comma
         }

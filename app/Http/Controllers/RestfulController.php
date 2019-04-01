@@ -1,5 +1,6 @@
 <?php namespace App\Http\Controllers;
 
+use App\Form;
 use App\Record;
 use App\Search;
 use Illuminate\Http\Request;
@@ -49,7 +50,7 @@ class RestfulController extends Controller {
      */
     public function getProjectForms($pid) {
         if(!ProjectController::validProj($pid))
-            return response()->json(["status"=>false,"error"=>"Invalid Project: ".$pid],500);
+            return response()->json(["status"=>false,"error"=>"Invalid Project"],500);
 
         $project = ProjectController::getProject($pid);
         $formMods = $project->forms()->get();
@@ -72,7 +73,7 @@ class RestfulController extends Controller {
      */
     public function getFormFields($pid, $fid) {
         if(!FormController::validProjForm($pid,$fid))
-            return response()->json(["status"=>false,"error"=>"Invalid Project/Form Pair: ".$pid." ~ ".$fid],500);
+            return response()->json(["status"=>false,"error"=>"Invalid Project/Form Pair"],500);
 
         $form = FormController::getForm($fid);
 
@@ -88,7 +89,7 @@ class RestfulController extends Controller {
      */
     public function getFormRecordCount($pid, $fid) {
         if(!FormController::validProjForm($pid,$fid))
-            return response()->json(["status"=>false,"error"=>"Invalid Project/Form Pair: ".$pid." ~ ".$fid],500);
+            return response()->json(["status"=>false,"error"=>"Invalid Project/Form Pair"],500);
 
         $recTable = new Record(array(),$fid);
         return $recTable->newQuery()->count();
@@ -111,9 +112,8 @@ class RestfulController extends Controller {
             $apiFormat = $request->format;
         else
             $apiFormat = self::JSON;
-        $apiFormat = strtoupper($apiFormat);
         if(!self::isValidFormat($apiFormat))
-            return response()->json(["status"=>false,"error"=>"Invalid format provided: $apiFormat"],500);
+            return response()->json(["status"=>false,"error"=>"Invalid format provided"],500);
 
         //check for global
         $globalRecords = array();
@@ -129,11 +129,11 @@ class RestfulController extends Controller {
             //next, we authenticate the form
             $form = FormController::getForm($f->form);
             if(is_null($form))
-                return response()->json(["status"=>false,"error"=>"Invalid Form: ".$f->form],500);
+                return response()->json(["status"=>false,"error"=>"Invalid Form: ".$this->cleanseOutput($f->form)],500);
 
             //Authentication failed
-            if(!$this->validateToken($form->project_id,$f->token,"search"))
-                return response()->json(["status"=>false,"error"=>"Invalid search token provided for form: ".$f->form],500);
+            if(!$this->validateToken($form->project_id,$f->bearer_token,"search"))
+                return response()->json(["status"=>false,"error"=>"Invalid search token provided for form: ".$this->cleanseOutput($f->form)],500);
         }
 
         //now we actually do searches per form
@@ -142,7 +142,7 @@ class RestfulController extends Controller {
         $fidsGlobal = [];
         $countArray = array();
         $countGlobal = 0;
-        $minorErrors = array(); //Some errors we may not want to error out on
+        $minorErrors = array(); //Some errors we may not want to error out on //TODO::CASTLE especially with new private functions
 
         foreach($forms as $f) {
             //initialize form
@@ -154,29 +154,32 @@ class RestfulController extends Controller {
             //Configurations for what we will be returning
             //NOTE: Items marked ***, will be overwritten when using globalSort
             $filters = array();
-            $filters['data'] = isset($f->data) ? $f->data : true; //do we want data, or just info about the records theme selves
-            $filters['meta'] = isset($f->meta) ? $f->meta : false; //get meta data about record
-            $filters['size'] = isset($f->size) ? $f->size : false; //do we want the number of records in the search result returned instead of data
-            $filters['fields'] = isset($f->fields) ? $f->fields : 'ALL'; //which fields do we want data for
-            $filters['sort'] = isset($f->sort) ? $f->sort : null; //how should the data be sorted
-            $filters['count'] = isset($f->count) ? $f->count : null; //how many records we should grab from that index
-            $filters['index'] = isset($f->index) ? $f->index : null; //where the array of results should start [MUST USE 'count' FOR THIS TO WORK]
-            $filters['assoc'] = isset($f->assoc) ? $f->assoc : false; //do we want information back about associated records
-            $filters['revAssoc'] = isset($f->revAssoc) ? $f->revAssoc : true; //do we want information back about reverse associations for XML OUTPUT
+            $filters['data'] = isset($f->data) && is_bool($f->data) ? $f->data : true; //do we want data, or just info about the records theme selves
+            $filters['meta'] = isset($f->meta) && is_bool($f->meta) ? $f->meta : true; //get meta data about record
+            $filters['size'] = isset($f->size) && is_bool($f->size) ? $f->size : false; //do we want the number of records in the search result returned instead of data
 
-            //Note: Filters only captures values from certain fields (mainly single value ones), see Form::$validFilterFields to see which ones use it
-            $filters['filters'] = isset($f->filters) ? $f->filters : false; //do we want information back about result filters [i.e. Field 'First Name', has value 'Tom', '12' times]
-            $filters['filterCount'] = isset($f->filterCount) ? $f->filterCount : 1; //What is the minimum threshold for a filter to return?
-            $filters['filterFlids'] = isset($f->filterFlids) ? $f->filterFlids : 'ALL'; //What fields should filters return for? Should be array
+            //Note: Filters only captures values from certain fields, see Form::$validFilterFields to see which ones use it
+            $filters['filters'] = isset($f->filters) && is_bool($f->filters) ? $f->filters : false; //do we want information back about result filters [i.e. Field 'First Name', has value 'Tom', '12' times]
+            $filters['filterCount'] = isset($f->filter_count) && is_numeric($f->filter_count) ? $f->filter_count : 1; //What is the minimum threshold for a filter to return?
+            $filters['filterFlids'] = isset($f->filter_fields) && is_array($f->filter_fields) ? $f->filter_fields : 'ALL'; //What fields should filters return for? Should be array
 
-            //Bonus filters
+            $filters['assoc'] = isset($f->assoc) && is_bool($f->assoc) ? $f->assoc : false; //do we want information back about associated records
+            $filters['revAssoc'] = isset($f->reverse_assoc) && is_bool($f->reverse_assoc) ? $f->reverse_assoc : true; //do we want information back about reverse associations for XML OUTPUT
+
             //WARNING::IF FIELD NAMES SHARE A TITLE WITHIN THE SAME FIELD, THIS WOULD IN THEORY BREAK
-            $filters['realnames'] = isset($f->realnames) ? $f->realnames : false; //do we want records indexed by titles rather than slugs
+            $filters['realnames'] = isset($f->real_names) && is_bool($f->real_names) ? $f->real_names : false; //do we want records indexed by titles rather than slugs
             //THIS SOLELY SERVES LEGACY. YOU PROBABLY WILL NEVER USE THIS. DON'T THINK ABOUT IT
-            $filters['under'] = isset($f->under) ? $f->under : false; //Replace field spaces with underscores
+            $filters['under'] = isset($f->under) && is_bool($f->under) ? $f->under : false; //Replace field spaces with underscores
+
+            $filters['fields'] = isset($f->return_fields) && is_array($f->return_fields) ? $f->return_fields : 'ALL'; //which fields do we want data for
+            $filters['sort'] = isset($f->sort) && is_array($f->sort) ? $f->sort : null; //how should the data be sorted
+
+            $filters['index'] = isset($f->index) && is_numeric($f->index) ? $f->index : null; //where the array of results should start [MUST USE 'count' FOR THIS TO WORK]
+            $filters['count'] = isset($f->count) && is_numeric($f->count) ? $f->count : null; //how many records we should grab from that index
+
 
             //parse the query
-            if(!isset($f->query)) {
+            if(!isset($f->queries)) {
                 //return all records
                 if($apiFormat==self::XML)
                     $records = $form->getRecordsForExportXML($filters);
@@ -202,138 +205,20 @@ class RestfulController extends Controller {
 //                if($globalSort) //TODO::CASTLE
 //                    $this->imitateMerge($globalRecords,$returnRIDS);
             } else {
-                $queries = $f->query;
-                $resultSets = array();
-                foreach($queries as $query) {
-                    //determine our search type
-                    switch($query->search) {
-                        case 'keyword':
-                            //do a keyword search
-                            if(!isset($query->keys))
-                                return response()->json(["status"=>false,"error"=>"No keywords supplied in a keyword search for form: ". $form->name],500);
-                            $keys = $query->keys;
-                            //Check for limiting fields
-                            $searchFields = array();
-                            if(isset($query->fields)) {
-                                //takes care of converting slugs to flids
-                                foreach($query->fields as $qfield) {
-                                    if(!isset($form->layout['fields'][$qfield])) {
-                                        array_push($minorErrors, "The following field in keyword search is not apart of the requested form: " . $qfield);
-                                        continue;
-                                    }
-                                    $fieldMod = $form->layout['fields'][$qfield];
-
-                                    if(!$fieldMod['external_search']) {
-                                        array_push($minorErrors, "The following field in keyword search is not externally searchable: " . $fieldMod['name']);
-                                        continue;
-                                    }
-                                    $searchFields[$qfield] = $fieldMod;
-                                }
-                            } else {
-                                $searchFields = $form->layout['fields'];
-                            }
-							if(empty($searchFields))
-								return response()->json(["status"=>false,"error"=>"Invalid fields provided for keyword search for form: ". $form->name],500);
-                            //Determine type of keyword search
-                            $method = isset($query->method) ? $query->method : 'OR';
-                            switch($method) {
-                                case 'OR':
-                                    $method = Search::SEARCH_OR;
-                                    break;
-                                case 'AND':
-                                    $method = Search::SEARCH_AND;
-                                    break;
-                                case 'EXACT':
-                                    $method = Search::SEARCH_EXACT;
-                                    break;
-                                default:
-                                    return response()->json(["status"=>false,"error"=>"Invalid method, ".$method.", provided for keyword search for form: ". $form->name],500);
-                                    break;
-                            }
-                            /// HERES WHERE THE NEW SEARCH WILL HAPPEN
-                            $negative = isset($query->not) ? $query->not : false;
-                            $search = new Search($form->project_id,$form->id,$keys,$method);
-                            $rids = $search->formKeywordSearch($searchFields, true, $negative);
-
-                            $resultSets[] = $rids;
-                            break;
-                        case 'advanced':
-                            //do an advanced search
-                            if(!isset($query->fields))
-                                return response()->json(["status"=>false,"error"=>"No fields supplied in an advanced search for form: ". $form->name],500);
-                            $fields = $query->fields;
-                            foreach($fields as $flid => $data) {
-                                if(!isset($form->layout['fields'][$flid])) {
-                                    array_push($minorErrors, "The following field in keyword search is not apart of the requested form: " . $flid);
-                                    continue;
-                                }
-                                $fieldModel = $form->layout['fields'][$flid];
-
-                                //Check permission to search externally
-                                if(!$fieldModel['external_search']) {
-                                    array_push($minorErrors, "The following field in advanced search is not externally searchable: " . $fieldModel['name']);
-                                    continue;
-                                }
-                                $request->request->add([$flid.'_dropdown' => 'on']);
-                                $request->request->add([$flid.'_valid' => 1]);
-                                $request->request->add([$flid => 1]);
-                                $request = $form->getFieldModel($fieldModel['type'])->setRestfulAdvSearch($data,$flid,$request);
-                            }
-                            $negative = isset($query->not) ? $query->not : false;
-                            $advSearch = new AdvancedSearchController();
-                            $rids = $advSearch->apisearch($form->project_id, $form->id, $request, $negative);
-                            $resultSets[] = $rids;
-                            break;
-                        case 'kid':
-                            //do a kid search
-                            if(!isset($query->kids))
-                                return response()->json(["status"=>false,"error"=>"No KIDs supplied in a KID search for form: ". $form->name],500);
-                            $kids = $query->kids;
-                            for($i=0; $i < sizeof($kids); $i++) {
-                                if(!Record::isKIDPattern($kids[$i])) {
-                                    array_push($minorErrors,"Illegal KID ($kids[$i]) in a KID search for form: ". $form->name);
-                                    continue;
-                                }
-                            }
-                            $negative = isset($query->not) ? $query->not : false;
-                            if($negative)
-                                $rids = $recMod->newQuery()->whereNotIn('kid',$kids)->pluck('id');
-                            else
-                                $rids = $recMod->newQuery()->whereIn('kid',$kids)->pluck('id');
-                            $resultSets[] = $rids;
-                            break;
-                        case 'legacy_kid':
-                            //do a kid search
-                            if(!isset($query->kids))
-                                return response()->json(["status"=>false,"error"=>"No KIDs supplied in a KID search for form: ". $form->name],500);
-                            $kids = $query->kids;
-
-                            $negative = isset($query->not) ? $query->not : false;
-                            if($negative)
-                                $rids = $recMod->newQuery()->whereNotIn('legacy_kid',$kids)->pluck('id');
-                            else
-                                $rids = $recMod->newQuery()->whereIn('legacy_kid',$kids)->pluck('id');
-                            $resultSets[] = $rids;
-                            break;
-                        default:
-                            return response()->json(["status"=>false,"error"=>"No search query type supplied for form: ". $form->name],500);
-                            break;
-                    }
-                }
+                $queries = $f->queries;
+                if(!is_array($queries))
+                    return response()->json(["status"=>false,"error"=>"Invalid queries array for form: ". $form->name],500);
 
                 //perform all the and/or logic for search types
                 $returnRIDS = array();
                 if(!isset($f->logic)) {
-                    //OR IT ALL TOGETHER
-                    foreach($resultSets as $result) {
-                        $this->imitateMerge($returnRIDS,$result);
-                    }
-                    $returnRIDS = array_flip(array_flip($returnRIDS));
-                } else {
-                    //do the work!!!!
+                    $qCnt = sizeof($queries);
+                    $logic = ['or' => range(0, $qCnt - 1)];
+                } else
                     $logic = $f->logic;
-                    $returnRIDS = $this->logic_recursive($logic,$resultSets);
-                }
+
+                //go through the logic array
+                $returnRIDS = $this->logicRecursive($logic,$queries,$form,$recMod);
 
                 if($apiFormat==self::XML)
                     $records = $form->getRecordsForExportXML($filters,$returnRIDS);
@@ -393,32 +278,193 @@ class RestfulController extends Controller {
     /**
      * Recursively goes through the search logic tree and does the and/or comparisons of each query.
      *
-     * @param  array $logicArray - Query logic for the search
-     * @param  array $ridSets - The rids to be compared at current level
+     * @param  array $logic - Query logic for the search
+     * @param  array $queries - Array of search queries
+     * @param  Form $form - Form model to search in
+     * @param  Record $recMod - Record model for KID searches
      * @return array - A unique set of RIDs that fit the search query logic
      */
-    private function logic_recursive($logicArray, $ridSets) {
-        $returnRIDS = array();
-        $firstRIDS = array();
-        $secondRIDS = array();
-        //get first array of rids, or recurse till it becomes array
-        if(is_array($logicArray[0]))
-            $firstRIDS = $this->logic_recursive($logicArray[0],$ridSets);
-        else
-            $firstRIDS = $ridSets[$logicArray[0]];
-        //get second array of rids, or recurse till it becomes array
-        if(is_array($logicArray[2]))
-            $secondRIDS = $this->logic_recursive($logicArray[2],$ridSets);
-        else
-            $secondRIDS = $ridSets[$logicArray[2]];
-        $operator = $logicArray[1];
-        if(strtoupper($operator)=="AND") {
-            $returnRIDS = $this->imitateIntersect($firstRIDS,$secondRIDS);
-        } else if(strtoupper($operator)=="OR") {
-            $this->imitateMerge($firstRIDS,$secondRIDS);
-            $returnRIDS = $firstRIDS;
+    private function logicRecursive($logic, $queries, $form, $recMod) {
+        //check first to see that first index is an operator, and no other array elements exist
+        if(sizeof($logic==1) && (isset($logic['or']) || isset($logic['and']))) {
+            $operand = array_key_first($logic);
+            $ridSets = [];
+            foreach($logic[$operand] as $val) {
+                if(is_numeric($val) and isset($queries[$val])) {
+                    //run query and store
+                    $ridSets[] = $this->processQuery($queries[$val], $form, $recMod);
+                } else if(is_array($val)) {
+                    //New sub-operand, run recursive
+                    $ridSets[] = $this->logicRecursive($val, $queries, $form, $recMod);
+                } else {
+                    return response()->json(["status"=>false,"error"=>"Invalid logic array for form: ". $form->name],500);
+                }
+            }
+
+            //Apply the operand
+            $finalSet = array();
+            switch($operand) {
+                case 'or':
+                    foreach($ridSets as $set) {
+                        $this->imitateMerge($finalSet,$set);
+                    }
+                    break;
+                case 'and':
+                    $firstIntersect = true;
+                    foreach($ridSets as $set) {
+                        //First thing needs to be manually assigned
+                        if($firstIntersect) {
+                            $finalSet = $set;
+                            $firstIntersect = false;
+                        } else {
+                            $finalSet = $this->imitateIntersect($finalSet, $set);
+                        }
+                    }
+                    break;
+                default:
+                    return response()->json(["status"=>false,"error"=>"Invalid logic operand for form: ". $form->name],500);
+                    break;
+            }
+
+            return array_flip(array_flip($finalSet));
+        } else {
+            return response()->json(["status"=>false,"error"=>"Invalid logic array for form: ". $form->name],500);
         }
-        return array_flip(array_flip($returnRIDS));
+    }
+
+    /**
+     * Decipher and execute the search query.
+     *
+     * @param  array $query - The search query
+     * @param  Form $form - Form model to search in
+     * @param  Record $recMod - Record model for KID searches
+     * @return array - A unique set of RIDs that fit the search query
+     */
+    private function processQuery($query, $form, $recMod) {
+        //determine our search type
+        if(!isset($query->search) || !is_string($query->search))
+            return response()->json(["status"=>false,"error"=>"No search query type supplied for form: ". $form->name],500);
+        switch($query->search) {
+            case 'advanced':
+                //do an advanced search
+                if(!isset($query->adv_fields) || !is_array($query->adv_fields))
+                    return response()->json(["status"=>false,"error"=>"No fields supplied in an advanced search for form: ". $form->name],500);
+                $fields = $query->adv_fields;
+                foreach($fields as $flid => $data) {
+                    if(!isset($form->layout['fields'][$flid])) {
+                        array_push($minorErrors, "The following field in keyword search is not apart of the requested form: " . $this->cleanseOutput($flid));
+                        continue;
+                    }
+                    $fieldModel = $form->layout['fields'][$flid];
+
+                    //Check permission to search externally
+                    if(!$fieldModel['external_search']) {
+                        array_push($minorErrors, "The following field in advanced search is not externally searchable: " . $fieldModel['name']);
+                        continue;
+                    }
+
+                    //These variables need to be set to work with internal advanced search system
+                    $request->request->add([$flid.'_dropdown' => 'on']);
+                    $request->request->add([$flid.'_valid' => 1]);
+                    $request->request->add([$flid => 1]);
+                    $request = $form->getFieldModel($fieldModel['type'])->setRestfulAdvSearch($data,$flid,$request);
+                }
+                $negative = isset($query->not) && is_bool($query->not) ? $query->not : false;
+                $advSearch = new AdvancedSearchController();
+                $rids = $advSearch->apisearch($form->project_id, $form->id, $request, $negative);
+                return $rids;
+                break;
+            case 'keyword':
+                //do a keyword search
+                if(!isset($query->key_string) || !is_string($query->key_string))
+                    return response()->json(["status"=>false,"error"=>"No keywords supplied in a keyword search for form: ". $form->name],500);
+                $keyString = $query->key_string;
+
+                //Check for limiting fields
+                $searchFields = array();
+                if(isset($query->key_fields)) {
+                    if(!is_array($query->key_fields))
+                        return response()->json(["status"=>false,"error"=>"Invalid fields array in keyword search for form: ". $form->name],500);
+
+                    //takes care of converting slugs to flids
+                    foreach($query->key_fields as $qfield) {
+                        if(!isset($form->layout['fields'][$qfield])) {
+                            array_push($minorErrors, "The following field in keyword search is not apart of the requested form: " . $this->cleanseOutput($qfield));
+                            continue;
+                        }
+                        $fieldMod = $form->layout['fields'][$qfield];
+
+                        if(!$fieldMod['external_search']) {
+                            array_push($minorErrors, "The following field in keyword search is not externally searchable: " . $fieldMod['name']);
+                            continue;
+                        }
+                        $searchFields[$qfield] = $fieldMod;
+                    }
+                } else {
+                    $searchFields = $form->layout['fields'];
+                }
+                if(empty($searchFields))
+                    return response()->json(["status"=>false,"error"=>"Invalid fields provided for keyword search for form: ". $form->name],500);
+
+                //Determine type of keyword search
+                $method = isset($query->key_method) && is_string($query->key_method) ? $query->key_method : 'OR';
+                switch($method) {
+                    case 'OR':
+                        $method = Search::SEARCH_OR;
+                        break;
+                    case 'AND':
+                        $method = Search::SEARCH_AND;
+                        break;
+                    case 'EXACT':
+                        $method = Search::SEARCH_EXACT;
+                        break;
+                    default:
+                        return response()->json(["status"=>false,"error"=>"Invalid method, ".$this->cleanseOutput($method).", provided for keyword search for form: ". $form->name],500);
+                        break;
+                }
+
+                /// HERES WHERE THE NEW SEARCH WILL HAPPEN
+                $negative = isset($query->not) && is_bool($query->not) ? $query->not : false;
+                $search = new Search($form->project_id,$form->id,$keyString,$method);
+                $rids = $search->formKeywordSearch($searchFields, true, $negative);
+
+                return $rids;
+                break;
+            case 'kid':
+                //do a kid search
+                if(!isset($query->kids) || !is_array($query->kids))
+                    return response()->json(["status"=>false,"error"=>"No KIDs supplied in a KID search for form: ". $form->name],500);
+                $kids = $query->kids;
+                for($i=0; $i < sizeof($kids); $i++) {
+                    if(!Record::isKIDPattern($kids[$i])) {
+                        array_push($minorErrors,"Illegal KID (".$this->cleanseOutput($kids[$i]).") in a KID search for form: ". $form->name);
+                        continue;
+                    }
+                }
+                $negative = isset($query->not) && is_bool($query->not) ? $query->not : false;
+                if($negative)
+                    $rids = $recMod->newQuery()->whereNotIn('kid',$kids)->pluck('id');
+                else
+                    $rids = $recMod->newQuery()->whereIn('kid',$kids)->pluck('id');
+                return $rids;
+                break;
+            case 'legacy_kid':
+                //do a kid search
+                if(!isset($query->legacy_kids) || !is_array($query->legacy_kids))
+                    return response()->json(["status"=>false,"error"=>"No KIDs supplied in a KID search for form: ". $form->name],500);
+                $kids = $query->legacy_kids;
+
+                $negative = isset($query->not) && is_bool($query->not) ? $query->not : false;
+                if($negative)
+                    $rids = $recMod->newQuery()->whereNotIn('legacy_kid',$kids)->pluck('id');
+                else
+                    $rids = $recMod->newQuery()->whereIn('legacy_kid',$kids)->pluck('id');
+                return $rids;
+                break;
+            default:
+                return response()->json(["status"=>false,"error"=>"Invalid search query type supplied for form: ". $form->name],500);
+                break;
+        }
     }
 
     /**
@@ -752,6 +798,16 @@ class RestfulController extends Controller {
                 return true;
         }
         return false;
+    }
+
+    /**
+     * Cleanse the output so we have better error reporting, but done safely.
+     *
+     * @param  string $input - String to be altered
+     * @return string - Filtered string
+     */
+    private function cleanseOutput($input) {
+        return preg_replace("/[^A-Za-z0-9_]/", '', $input);
     }
 
     private function imitateMerge(&$array1, &$array2) {
