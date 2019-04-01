@@ -117,8 +117,9 @@ class RestfulController extends Controller {
 
         //check for global
         $globalRecords = array();
-        if(isset($request->globalSort)) {
-            $globalSortArray = json_decode($request->globalSort);
+        $globalForms = array();
+        if(isset($request->global_sort)) {
+            $globalSortArray = json_decode($request->global_sort);
             $globalSort = true;
         } else {
             $globalSort = false;
@@ -152,7 +153,6 @@ class RestfulController extends Controller {
                 array_push($fidsGlobal, $form->id);
 
             //Configurations for what we will be returning
-            //NOTE: Items marked ***, will be overwritten when using globalSort
             $filters = array();
             $filters['data'] = isset($f->data) && is_bool($f->data) ? $f->data : true; //do we want data, or just info about the records theme selves
             $filters['meta'] = isset($f->meta) && is_bool($f->meta) ? $f->meta : true; //get meta data about record
@@ -177,6 +177,11 @@ class RestfulController extends Controller {
             $filters['index'] = isset($f->index) && is_numeric($f->index) ? $f->index : null; //where the array of results should start [MUST USE 'count' FOR THIS TO WORK]
             $filters['count'] = isset($f->count) && is_numeric($f->count) ? $f->count : null; //how many records we should grab from that index
 
+            //Index and count become irrelevant to a single form in global sort, because we want to return count after all forms are sorted.
+            if($globalSort) {
+                $filters['index'] = null;
+                $filters['count'] = null;
+            }
 
             //parse the query
             if(!isset($f->queries)) {
@@ -202,15 +207,17 @@ class RestfulController extends Controller {
                 if($filters['filters'])
                     $filtersGlobal[$form->internal_name] = $form->getDataFilters($filters['filterCount'], $filters['filterFlids']);
 
-//                if($globalSort) //TODO::CASTLE
-//                    $this->imitateMerge($globalRecords,$returnRIDS);
+                if($globalSort) {
+                    $globalForms[] = $form->id;
+                    $kids = array_keys($records);
+                    $this->imitateMerge($globalRecords, $kids);
+                }
             } else {
                 $queries = $f->queries;
                 if(!is_array($queries))
                     return response()->json(["status"=>false,"error"=>"Invalid queries array for form: ". $form->name],500);
 
                 //perform all the and/or logic for search types
-                $returnRIDS = array();
                 if(!isset($f->logic)) {
                     $qCnt = sizeof($queries);
                     $logic = ['or' => range(0, $qCnt - 1)];
@@ -238,32 +245,45 @@ class RestfulController extends Controller {
                 if($filters['filters'])
                     $filtersGlobal[$form->internal_name] = $form->getDataFilters($filters['filterCount'], $filters['filterFlids'], $returnRIDS);
 
-//                if($globalSort) //TODO::CASTLE
-//                    $this->imitateMerge($globalRecords,$returnRIDS);
+                if($globalSort) {
+                    $globalForms[] = $form->id;
+                    $kids = array_keys($records);
+                    $this->imitateMerge($globalRecords, $kids);
+                }
             }
         }
 
-        if($globalSort) { //TODO::CASTLE
-//            $filters = array();
-//
-//            if(isset($request->globalFilters))
-//                $f = json_decode($request->globalFilters);
-//            else
-//                $f = array();
-//
-//            $filters['data'] = isset($f->data) ? $f->data : true; //do we want data, or just info about the records theme selves***
-//            $filters['meta'] = isset($f->meta) ? $f->meta : false; //get meta data about record***
-//            $filters['assoc'] = isset($f->assoc) ? $f->assoc : false; //do we want information back about associated records***
-//            $filters['fields'] = isset($f->fields) ? $f->fields : 'ALL'; //which fields do we want data for***
-//            $filters['index'] = isset($f->index) ? $f->index : null; //where the array of results should start***
-//            $filters['count'] = isset($f->count) ? $f->count : null; //how many records we should grab from that index***
-//            //WARNING::IF FIELD NAMES SHARE A TITLE WITHIN THE SAME FIELD, THIS WOULD IN THEORY BREAK
-//            $filters['realnames'] = isset($f->realnames) ? $f->realnames : false; //do we want records indexed by titles rather than slugs***
-//            //THIS SOLELY SERVES LEGACY. YOU PROBABLY WILL NEVER USE THIS. DON'T THINK ABOUT IT
-//            $filters['under'] = isset($f->under) ? $f->under : false; //Replace field spaces with underscores***
-//
-//            $globalSorted = $this->sortGlobalRids($globalRecords, $globalSortArray);
-//            $resultsGlobal = json_decode($this->populateRecords($globalSorted, $filters, $apiFormat, $fidsGlobal));
+        //Handle any global sorting
+        if($globalSort) {
+            $globalSortedResults = array();
+
+            //Build and run the query to get the KIDs in proper order
+            $globalSorted = Form::sortGlobalKids($globalForms, $globalRecords, $globalSortArray);
+
+            //Apply $flags if necessary
+            if(isset($request->global_flags))
+                $flags = json_decode($request->global_flags);
+            else
+                $flags = array();
+
+            if(isset($flags->index) && !is_null($flags->index) && is_numeric($flags->index))
+                $globalSorted = array_slice($globalSorted,$flags->index);
+
+            if(isset($flags->count) && !is_null($flags->count) && is_numeric($flags->count))
+                $globalSorted = array_slice($globalSorted,0,$flags->count);
+
+            //for each record in that new KID array
+            foreach($globalSorted as $kid) {
+                //Peak into the form results to find the record
+                foreach($resultsGlobal as $formRecordSet) {
+                    //Move said record to the new Results array
+                    if(isset($formRecordSet[$kid]))
+                        $globalSortedResults[$kid] = $formRecordSet[$kid];
+                }
+            }
+
+            //Add to final result array
+            $resultsGlobal = $globalSortedResults;
         }
 
         $countArray["global"] = $countGlobal;
@@ -466,97 +486,6 @@ class RestfulController extends Controller {
                 break;
         }
     }
-
-    /**
-     * Sorts RIDs by fields.
-     *
-     * @param  array $rids - The RIDs to sort
-     * @param  array $sortFields - The field arrays to sort by
-     * @return array - The new array with sorted RIDs
-     */
-    private function sortGlobalRids($rids, $sortFields) { //TODO::CASTLE
-        //get field
-        $newOrderArray = array();
-        $ridString = implode(',',$rids);
-
-        //Doing this for pretty much the same reason as keyword search above
-        $con = mysqli_connect(
-            config('database.connections.mysql.host'),
-            config('database.connections.mysql.username'),
-            config('database.connections.mysql.password'),
-            config('database.connections.mysql.database')
-        );
-        $prefix = config('database.connections.mysql.prefix');
-
-        //We want to make sure we are doing things in utf8 for special characters
-        if(!mysqli_set_charset($con, "utf8")) {
-            printf("Error loading character set utf8: %s\n", mysqli_error($con));
-            exit();
-        }
-
-        //report errors, not 100% sure how we'll get it up a level
-
-        $selectJoins = "";
-        $selectOrdArr = array();
-
-        for($s=0;$s<sizeof($sortFields);$s=$s+2) {
-            $fieldSlug = $sortFields[$s];
-            $direction = $sortFields[$s+1];
-
-            if(!is_array($fieldSlug) && $fieldSlug=='kora_meta_owner') {
-                $selectJoins .= "LEFT JOIN ".$prefix."_users as us ON us.id=rec.owner ";
-                array_push($selectOrdArr, "`username` $direction");
-            } else if(!is_array($fieldSlug) && $fieldSlug=='kora_meta_created') {
-                array_push($selectOrdArr, "`created_at` $direction");
-            } else if(!is_array($fieldSlug) && $fieldSlug=='kora_meta_updated') {
-                array_push($selectOrdArr, "`updated_at` $direction");
-            } else if(!is_array($fieldSlug) && $fieldSlug=='kora_meta_kid') {
-                array_push($selectOrdArr, "`rid` $direction");
-            } else {
-                $flids = array();
-                $type = '';
-                if(!is_array($fieldSlug))
-                    return false;
-
-                foreach($fieldSlug as $slug) {
-                    $field = FieldController::getField($slug);
-                    if(is_null($field) || !$field->isSortable())
-                        return false;
-                    array_push($flids,$field->flid);
-                    if($type=='')
-                        $type = $field->type;
-                    else if($type != $field->type)
-                        return false;
-                }
-
-                $typedField = Field::getTypedFieldStatic($type);
-
-                $flidColumn = implode('_',$flids);
-                $flidString = implode(',',$flids);
-                $type = $typedField->getSortColumn();
-                $table = $prefix.$typedField->getTable();
-
-                if(!is_null($type)) {
-                    $selectJoins .= "LEFT JOIN ".$table." as field".$flidColumn." ON field".$flidColumn.".rid=rec.rid and field".$flidColumn.".`flid` IN (".$flidString.") ";
-                    array_push($selectOrdArr, "field".$flidColumn.".`$type` IS NULL, field".$flidColumn.".`$type` $direction");
-                }
-            }
-        }
-        $selectOrders = implode(', ',$selectOrdArr);
-
-        $select = "SELECT rec.`rid` from kora3_records as rec $selectJoins";
-        $select .= "WHERE rec.`rid` IN ($ridString) ORDER BY $selectOrders";
-
-        $sort = $con->query($select);
-
-        while($row = $sort->fetch_assoc()) {
-            $newOrderArray[] = $row['rid'];
-        }
-        mysqli_free_result($sort);
-
-        return $newOrderArray;
-    }
-
 
 
     /**

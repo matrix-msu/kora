@@ -938,4 +938,85 @@ class Form extends Model {
 
         return $filters;
     }
+
+    /**
+     * Sorts RIDs by fields.
+     *
+     * @param  array $fids - The FIDs to sort in
+     * @param  array $kids - The KIDs to sort //TODO::CASTLE
+     * @param  array $sortFields - The field arrays to sort by
+     * @return array - The new array with sorted KIDs
+     */
+    public static function sortGlobalKids($fids, $kids, $sortFields) { //TODO::CASTLE
+        //get field
+        $newOrderArray = array();
+        $formSelects = array();
+
+        //Doing this for pretty much the same reason as keyword search above
+        $con = mysqli_connect(
+            config('database.connections.mysql.host'),
+            config('database.connections.mysql.username'),
+            config('database.connections.mysql.password'),
+            config('database.connections.mysql.database')
+        );
+        $prefix = config('database.connections.mysql.prefix');
+
+        //We want to make sure we are doing things in utf8 for special characters
+        if(!mysqli_set_charset($con, "utf8")) {
+            printf("Error loading character set utf8: %s\n", mysqli_error($con));
+            exit();
+        }
+
+        //First we build the selects and unionize them
+        foreach($fids as $index => $fid) {
+            $renameIndex = 1;
+
+            $pieces = 'kid';
+            foreach($sortFields as $sf) {
+                if(is_array($sf->field)) {
+                    $subField = $sf->field[$index];
+                    //Used to protect SQL
+                    $subField = preg_replace("/[^A-Za-z0-9_]/", '', $subField);
+                    $pieces .= ", `$subField` as `field$renameIndex`";
+                    $renameIndex++;
+                } else {
+                    $subField = $sf->field;
+                    //Used to protect SQL
+                    $subField = preg_replace("/[^A-Za-z0-9_]/", '', $subField);
+                    $pieces .= ", `$subField`";
+                }
+            }
+
+            $select = "SELECT $pieces from ".$prefix."records_$fid";
+            $formSelects[] = $select;
+        }
+
+        $masterSelect = implode(' UNION ALL ', $formSelects);
+
+        //Now add the sort piece
+        $orderBy = ' ORDER BY ';
+        $renameIndex = 1;
+        foreach($sortFields as $sf) {
+            if(is_array($sf->field)) {
+                $subField = "field$renameIndex";
+                $renameIndex++;
+            } else {
+                $subField = $sf->field;
+                //Used to protect SQL
+                $subField = preg_replace("/[^A-Za-z0-9_]/", '', $subField);
+            }
+
+            $order = $sf->direction;
+            $orderBy .= "`$subField` IS NULL, `$subField` $order,";
+        }
+        $orderBy = substr($orderBy, 0, -1); //Trim the last comma
+
+        $results = $con->query($masterSelect.$orderBy);
+        while($row = $results->fetch_assoc()) {
+            $newOrderArray[] = $row['kid'];
+        }
+        $results->free();
+
+        return $newOrderArray;
+    }
 }
