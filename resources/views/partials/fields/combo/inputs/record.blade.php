@@ -59,9 +59,6 @@
                 <option value=""></option>
                 <?php
                 $currYear=0;
-                if($field->default!='' && explode('[Y]',$field->default)[1]=='0'){
-                    $currYear=\Carbon\Carbon::now()->year;
-                }
                 $i = App\KoraFields\ComboListField::getComboFieldOption($field, "Start", $fnum);
                 $j = App\KoraFields\ComboListField::getComboFieldOption($field, "End", $fnum);
                 while ($i <= $j) {

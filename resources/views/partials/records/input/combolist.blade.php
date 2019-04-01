@@ -12,7 +12,6 @@
     $twoFlid = $field['two']['flid'];
 
     if($editRecord) {
-        // TODO::@andrew.joye need a function to get values
         $items = $typedField->retrieve($flid, $form->id, $record->{$flid});
     } else {
         $items = $field['one']['default'];
@@ -30,27 +29,41 @@
                 @for($i=0;$i<count($items);$i++)
                     @php
                         if($editRecord) {
-                            $valueOne = $items[$i]->{$oneFlid};
-                            $valueTwo = $items[$i]->{$twoFlid};
+                            $valueOne = $dateOne = $items[$i]->{$oneFlid};
+                            $valueTwo = $dateTwo = $items[$i]->{$twoFlid};
                         } else {
                             $valueOne = $field['one']['default'][$i];
                             $valueTwo = $field['two']['default'][$i];
+
+                            if ($oneType=='Date') {
+                                $dateOne = $valueOne['year'].'-'.$valueOne['month'].'-'.$valueOne['day'];
+                            }
+
+                            if ($twoType=='Date') {
+                                $dateTwo = $valueTwo['year'].'-'.$valueTwo['month'].'-'.$valueTwo['day'];
+                            }
                         }
                     @endphp
                     <div class="combo-value-item combo-value-item-js">
                         <span class="combo-delete delete-combo-value-js tooltip" tooltip="Delete Combo Value"><i class="icon icon-trash"></i></span>
 
-                        @if($oneType=='Text' | $oneType=='List' | $oneType=='Integer' | $oneType=='Float' | $oneType=='Date')
+                        @if($oneType=='Text' | $oneType=='List' | $oneType=='Integer' | $oneType=='Float')
                             {!! Form::hidden($flid."_combo_one[]",$valueOne) !!}
                             <span class="combo-column combo-value">{{$valueOne}}</span>
+                        @elseif($oneType=='Date')
+                            {!! Form::hidden($flid."_combo_one[]",$dateOne) !!}
+                            <span class="combo-column combo-value">{{$dateOne}}</span>
                         @elseif($oneType=='Multi-Select List' | $oneType=='Generated List' | $oneType=='Associator')
                             {!! Form::hidden($flid."_combo_one[]",$valueOne) !!}
                             <span class="combo-column combo-value">{{implode(' | ',$valueOne)}}</span>
                         @endif
 
-                        @if($twoType=='Text' | $twoType=='List' | $oneType=='Integer' | $oneType=='Float' | $twoType=='Date')
+                        @if($twoType=='Text' | $twoType=='List' | $twoType=='Integer' | $twoType=='Float')
                             {!! Form::hidden($flid."_combo_two[]",$valueTwo) !!}
                             <span class="combo-column combo-value">{{$valueTwo}}</span>
+                        @elseif($twoType=='Date')
+                            {!! Form::hidden($flid."_combo_two[]",$dateTwo) !!}
+                            <span class="combo-column combo-value">{{$dateTwo}}</span>
                         @elseif($twoType=='Multi-Select List' | $twoType=='Generated List' | $twoType=='Associator')
                             {!! Form::hidden($flid."_combo_two[]",$valueTwo) !!}
                             <span class="combo-column combo-value">{{implode(' | ',$valueTwo)}}</span>

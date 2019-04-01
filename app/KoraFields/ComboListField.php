@@ -236,13 +236,12 @@ class ComboListField extends BaseField {
             );
 
             if ($request->{'type' . $seq} == Form::_DATE) {
-                $field[$seq]['default'] = $request->{'default_combo_' . $seq};
                 $field[$seq]['default'] = [];
 
                 $size = 0;
                 // Determine the largest size of default
                 foreach (['day', 'month', 'year'] as $part) {
-                    if (count($request->{'default_' . $part .'_combo_' . $seq}) > $size)
+                    if ($request->{'default_' . $part .'_combo_' . $seq} && count($request->{'default_' . $part .'_combo_' . $seq}) > $size)
                         $size = count($request->{'default_' . $part .'_combo_' . $seq});
                 }
 
@@ -254,6 +253,8 @@ class ComboListField extends BaseField {
                     }
                     array_push($field[$seq]['default'], $defaultDate);
                 }
+            } else {
+                $field[$seq]['default'] = $request->{'default_combo_' . $seq};
             }
         }
 

@@ -197,7 +197,14 @@ class RecordController extends Controller {
                 $field['flid'] = $key;
                 $processedData = $form->getFieldModel($field['type'])->processRecordData($field, $value, $request);
                 if($field['type'] == \App\Form::_COMBO_LIST) {
-                    $processedData = $form->getFieldModel($field['type'])->save(array('fid'=>$fid,'rid'=>$request->rid,'field' => $field, 'values'=>$processedData));
+                    $processedData = $form->getFieldModel($field['type'])->save(
+                        array(
+                            'fid' => $fid,
+                            'rid' => $request->rid,
+                            'field' => $field,
+                            'values' => $processedData
+                        )
+                    );
                 }
 
                 $record->{$key} = $processedData;
