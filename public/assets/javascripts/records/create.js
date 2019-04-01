@@ -183,7 +183,7 @@ Kora.Records.Create = function() {
                 monthOne = $('#default_month_one_'+flid);
                 dayOne = $('#default_day_one_'+flid);
                 yearOne = $('#default_year_one_'+flid);
-                val1 = monthOne.val()+'/'+dayOne.val()+'/'+yearOne.val();
+                val1 = yearOne.val()+'-'+monthOne.val()+'-'+dayOne.val();
             } else {
                 inputOne = $('#default_one_'+flid);
                 val1 = inputOne.val();
@@ -193,7 +193,7 @@ Kora.Records.Create = function() {
                 monthTwo = $('#default_month_two_'+flid);
                 dayTwo = $('#default_day_two_'+flid);
                 yearTwo = $('#default_year_two_'+flid);
-                val2 = monthTwo.val()+'/'+dayTwo.val()+'/'+yearTwo.val();
+                val2 = yearTwo.val()+'-'+monthTwo.val()+'-'+dayTwo.val();
             } else {
                 inputTwo = $('#default_two_'+flid);
                 val2 = inputTwo.val();
