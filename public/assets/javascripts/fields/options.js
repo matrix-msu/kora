@@ -730,7 +730,7 @@ Kora.Fields.Options = function(fieldType) {
                     div += '<input type="hidden" name="default_year_combo_one[]" value="'+yearOne.val()+'">';
                     div += '<span class="combo-column">'+val1+'</span>';
                 } else if(type1=='Multi-Select List' | type1=='Generated List' | type1=='Associator') {
-                    div += '<input type="hidden" name="default_combo_one[]" value="'+val1.join('[!]')+'">';
+                    div += '<input type="hidden" name="default_combo_one[]" value="'+JSON.stringify(val1)+'">';
                     div += '<span class="combo-column">'+val1.join(' | ')+'</span>';
                 }
 
@@ -743,7 +743,7 @@ Kora.Fields.Options = function(fieldType) {
                     div += '<input type="hidden" name="default_year_combo_two[]" value="'+yearTwo.val()+'">';
                     div += '<span class="combo-column">'+val2+'</span>';
                 } else if(type2=='Multi-Select List' | type2=='Generated List' | type2=='Associator') {
-                    div += '<input type="hidden" name="default_combo_two[]" value="'+val2.join('[!]')+'">';
+                    div += '<input type="hidden" name="default_combo_two[]" value='+JSON.stringify(val2)+'>';
                     div += '<span class="combo-column">'+val2.join(' | ')+'</span>';
                 }
 

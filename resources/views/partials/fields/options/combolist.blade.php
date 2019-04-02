@@ -94,7 +94,7 @@
                                 <span class="combo-column">{{$valueOne['month']}}/{{$valueOne['day']}}/{{$valueOne['year']}}</span>
                             @elseif($oneType=='Multi-Select List' | $oneType=='Generated List' | $oneType=='Associator')
                                 {!! Form::hidden("default_combo_one[]",$valueOne) !!}
-                                <span class="combo-column">{{implode(' | ',$valueOne)}}</span>
+                                <span class="combo-column">{{implode(', ',$valueOne)}}</span>
                             @endif
                             @if($twoType=='Text' | $twoType=='List' | $oneType=='Integer'| $oneType=='Float')
                                 {!! Form::hidden("default_combo_two[]",$valueTwo) !!}
@@ -105,8 +105,8 @@
                                 {!! Form::hidden("default_year_combo_two[]",$valueTwo['year']) !!}
                                 <span class="combo-column">{{$valueTwo['month']}}/{{$valueTwo['day']}}/{{$valueTwo['year']}}</span>
                             @elseif($twoType=='Multi-Select List' | $twoType=='Generated List' | $twoType=='Associator')
-                                {!! Form::hidden("default_combo_two[]",$valueTwo) !!}
-                                <span class="combo-column">{{implode(' | ',$valueTwo)}}</span>
+                                {!! Form::hidden("default_combo_two[]",json_encode($valueTwo)) !!}
+                                <span class="combo-column">{{implode(', ', $valueTwo)}}</span>
                             @endif
 
                             <span class="combo-delete delete-combo-value-js">

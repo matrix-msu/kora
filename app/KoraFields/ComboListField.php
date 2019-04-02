@@ -63,8 +63,7 @@ class ComboListField extends BaseField {
         'Integer' => 'integer',
         'Float' => 'float',
         'Date' => 'date',
-        // All the dates
-        // 'Multi-Select List' => 'mslist',
+        'Multi-Select List' => 'mslist',
         // 'Generated List' => 'genlist',
         // 'Associator' => 'associator',
         // 'Boolean' => 'boolean',
@@ -76,6 +75,7 @@ class ComboListField extends BaseField {
         'Integer' => 'addIntegerColumn',
         'Float' => 'addDoubleColumn',
         'Date' => 'addDateColumn',
+        'Multi-Select List' => 'addJSONColumn',
     ];
 
     private $fieldModel = [
@@ -84,6 +84,7 @@ class ComboListField extends BaseField {
         'Integer' => 'App\KoraFields\IntegerField',
         'Float' => 'App\KoraFields\FloatField',
         'Date' => 'App\KoraFields\DateField',
+        'Multi-Select List' => 'App\KoraFields\MultiSelectListField',
     ];
 
     /**
@@ -177,8 +178,9 @@ class ComboListField extends BaseField {
     public function updateOptions($field, Request $request, $flid = null, $prefix = 'records_') {
         foreach (['one', 'two'] as $seq) {
             $defaults = array();
+            $type = $request->{'type' . $seq};
 
-            switch($request->{'type' . $seq}) {
+            switch($type) {
                 case Form::_TEXT:
                     $defaults = array(
                         'default',
@@ -220,6 +222,14 @@ class ComboListField extends BaseField {
                     break;
             }
 
+            if ($type == Form::_GENERATED_LIST || $type == Form::_MULTI_SELECT_LIST) {
+                $values = array();
+                foreach ($request->{'default_combo_' . $seq} as $value) {
+                    array_push($values, json_decode($value));
+                }
+                $request->{'default_combo_' . $seq} = $values;
+            }
+
             $className = $this->fieldModel[$request->{'type' . $seq}];
             $object = new $className;
             foreach($defaults as $default) {
@@ -235,7 +245,7 @@ class ComboListField extends BaseField {
                 $flid
             );
 
-            if ($request->{'type' . $seq} == Form::_DATE) {
+            if ($type == Form::_DATE) {
                 $field[$seq]['default'] = [];
 
                 $size = 0;
