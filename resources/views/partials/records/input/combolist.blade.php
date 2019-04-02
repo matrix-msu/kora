@@ -54,6 +54,10 @@
                             {!! Form::hidden($flid."_combo_one[]",$dateOne) !!}
                             <span class="combo-column combo-value">{{$dateOne}}</span>
                         @elseif($oneType=='Multi-Select List' | $oneType=='Generated List' | $oneType=='Associator')
+                            @php
+                                if(is_array($valueOne))
+                                    $valueOne = json_encode($valueOne);
+                            @endphp
                             {!! Form::hidden($flid."_combo_one[]",$valueOne) !!}
                             <span class="combo-column combo-value">{{implode(', ', json_decode($valueOne))}}</span>
                         @endif
@@ -65,6 +69,10 @@
                             {!! Form::hidden($flid."_combo_two[]",$dateTwo) !!}
                             <span class="combo-column combo-value">{{$dateTwo}}</span>
                         @elseif($twoType=='Multi-Select List' | $twoType=='Generated List' | $twoType=='Associator')
+                            @php
+                                if(is_array($valueTwo))
+                                    $valueTwo = json_encode($valueTwo);
+                            @endphp
                             {!! Form::hidden($flid."_combo_two[]",$valueTwo) !!}
                             <span class="combo-column combo-value">{{implode(', ', json_decode($valueTwo))}}</span>
                         @endif

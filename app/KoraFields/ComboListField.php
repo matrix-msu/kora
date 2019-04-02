@@ -64,7 +64,7 @@ class ComboListField extends BaseField {
         'Float' => 'float',
         'Date' => 'date',
         'Multi-Select List' => 'mslist',
-        // 'Generated List' => 'genlist',
+        'Generated List' => 'genlist',
         // 'Associator' => 'associator',
         // 'Boolean' => 'boolean',
     ];
@@ -76,6 +76,7 @@ class ComboListField extends BaseField {
         'Float' => 'addDoubleColumn',
         'Date' => 'addDateColumn',
         'Multi-Select List' => 'addJSONColumn',
+        'Generated List' => 'addJSONColumn',
     ];
 
     private $fieldModel = [
@@ -85,6 +86,7 @@ class ComboListField extends BaseField {
         'Float' => 'App\KoraFields\FloatField',
         'Date' => 'App\KoraFields\DateField',
         'Multi-Select List' => 'App\KoraFields\MultiSelectListField',
+        'Generated List' => 'App\KoraFields\GeneratedListField',
     ];
 
     /**
@@ -207,9 +209,10 @@ class ComboListField extends BaseField {
                 case Form::_GENERATED_LIST:
                     $defaults = array(
                         'default',
-                        'regex',
-                        'options'
+                        'options',
+                        'regex'
                     );
+                    break;
                 case Form::_DATE:
                     $defaults = array(
                         'default_month',
@@ -222,7 +225,13 @@ class ComboListField extends BaseField {
                     break;
             }
 
-            if ($type == Form::_GENERATED_LIST || $type == Form::_MULTI_SELECT_LIST) {
+            if (
+                (
+                    $type == Form::_GENERATED_LIST ||
+                    $type == Form::_MULTI_SELECT_LIST
+                ) &&
+                !is_null($request->{'default_combo_' . $seq})
+            ) {
                 $values = array();
                 foreach ($request->{'default_combo_' . $seq} as $value) {
                     array_push($values, json_decode($value));
