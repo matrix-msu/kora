@@ -221,8 +221,9 @@ class RestfulController extends Controller {
                 if(!isset($f->logic)) {
                     $qCnt = sizeof($queries);
                     $logic = ['or' => range(0, $qCnt - 1)];
-                } else
+                } else {
                     $logic = $f->logic;
+                }
 
                 //go through the logic array
                 $returnRIDS = $this->logicRecursive($logic,$queries,$form,$recMod);
@@ -306,14 +307,14 @@ class RestfulController extends Controller {
      */
     private function logicRecursive($logic, $queries, $form, $recMod) {
         //check first to see that first index is an operator, and no other array elements exist
-        if(sizeof($logic==1) && (isset($logic['or']) || isset($logic['and']))) {
-            $operand = array_key_first($logic);
+        if((isset($logic->or) || isset($logic->and))) {
+            $operand = isset($logic->or) ? 'or': 'and';
             $ridSets = [];
-            foreach($logic[$operand] as $val) {
+            foreach($logic->{$operand} as $val) {
                 if(is_numeric($val) and isset($queries[$val])) {
                     //run query and store
                     $ridSets[] = $this->processQuery($queries[$val], $form, $recMod);
-                } else if(is_array($val)) {
+                } else if(is_object($val)) {
                     //New sub-operand, run recursive
                     $ridSets[] = $this->logicRecursive($val, $queries, $form, $recMod);
                 } else {
@@ -463,9 +464,9 @@ class RestfulController extends Controller {
                 }
                 $negative = isset($query->not) && is_bool($query->not) ? $query->not : false;
                 if($negative)
-                    $rids = $recMod->newQuery()->whereNotIn('kid',$kids)->pluck('id');
+                    $rids = $recMod->newQuery()->whereNotIn('kid',$kids)->pluck('id')->toArray();
                 else
-                    $rids = $recMod->newQuery()->whereIn('kid',$kids)->pluck('id');
+                    $rids = $recMod->newQuery()->whereIn('kid',$kids)->pluck('id')->toArray();
                 return $rids;
                 break;
             case 'legacy_kid':
@@ -476,9 +477,9 @@ class RestfulController extends Controller {
 
                 $negative = isset($query->not) && is_bool($query->not) ? $query->not : false;
                 if($negative)
-                    $rids = $recMod->newQuery()->whereNotIn('legacy_kid',$kids)->pluck('id');
+                    $rids = $recMod->newQuery()->whereNotIn('legacy_kid',$kids)->pluck('id')->toArray();
                 else
-                    $rids = $recMod->newQuery()->whereIn('legacy_kid',$kids)->pluck('id');
+                    $rids = $recMod->newQuery()->whereIn('legacy_kid',$kids)->pluck('id')->toArray();
                 return $rids;
                 break;
             default:

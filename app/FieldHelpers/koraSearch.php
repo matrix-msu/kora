@@ -253,9 +253,9 @@ class KORA_Clause {
      * @param  mixed $arg2 - Compared argument for the clause
      */
     function __construct($arg1, $op, $arg2) {
-        $op = strtoupper($op);
+        $op = strtolower($op);
 
-        if($op == "AND" | $op == "OR") {
+        if($op == "and" | $op == "or") {
             if(!$arg1 instanceof self) {
                 die("The first query clause you provided must be an object of class KORA_Clause");
             }
@@ -594,20 +594,24 @@ function MPF_Search($token,$pidList,$sidList,$koraClause,$fields,$order=array(),
     $newOrder = array();
     $orderFields = array();
     foreach($order as $o) {
+        $tmpOrder = array();
         foreach ($pidList as $i => $pid) {
             $sid = $sidList[$i];
             if($o["field"]=="systimestamp")
-                array_push($orderFields,"kora_meta_updated");
+                $orderFields = "updated_at";
             else
                 array_push($orderFields,fieldMapper($o["field"],$pid,$sid));
         }
-        array_push($newOrder,$orderFields);
+        $tmpOrder['field'] = $orderFields;
+
         $dir = $o["direction"];
         if($dir==SORT_DESC)
             $newDir = "DESC";
         else
             $newDir = "ASC";
-        array_push($newOrder,$newDir);
+        $tmpOrder['direction'] = $newDir;
+
+        array_push($newOrder,$tmpOrder);
     }
     // Build forms information for each project to be searched
     $output = array();
@@ -625,7 +629,6 @@ function MPF_Search($token,$pidList,$sidList,$koraClause,$fields,$order=array(),
                     $f = fieldMapper($field, $pid, $sid);
                     array_push($fieldsMapped, $f);
                 }
-                // $fields = $fieldsMapped;
             }
         }
         //Map controls to fields in keyword searches
@@ -633,42 +636,39 @@ function MPF_Search($token,$pidList,$sidList,$koraClause,$fields,$order=array(),
         foreach($koraClause->getQueries() as $q) {
             if($q['search']=='keyword') {
                 $mapped = array();
-                foreach($q["fields"] as $f) {
+                foreach($q["key_fields"] as $f) {
                     array_push($mapped, fieldMapper($f, $pid, $sid));
                 }
-                $q["fields"] = $mapped;
+                $q["key_fields"] = $mapped;
             }
             array_push($queries, $q);
         }
+
         $tool = new kora3ApiExternalTool();
-        //Format the start/number for legacy.
-        if($start==0)
-            $start=null;
-        if($number==0)
-            $number=null;
+        $flag = ["data", "meta"];
+        if($underScores)
+            $flag[] = "under";
         $fsArray = $tool->formSearchBuilder(
             $sid,
             $token,
-            ["data", "meta"],
+            $flag,
             $fieldsMapped,
             null,
             $queries,
             $koraClause->getLogic(),
-            $start,
-            $number
+            null,
+            null
         );
         array_push($output,$fsArray);
     }
     $data = array();
     $data["forms"] = json_encode($output);
-    $data["globalSort"] = json_encode($newOrder);
-    $data["globalFilters"] = json_encode(["data" => true, "meta" => true]);
-    //Filters
-    if($underScores)
-        $data["globalFilters"]["under"] = true;
+    $data["global_sort"] = json_encode($newOrder);
+    $data["global_flags"] = json_encode(["index"=>$start, "count"=>$number]);
     $data["format"] = "KORA_OLD";
+
     $curl = curl_init();
-    curl_setopt($curl, CURLOPT_URL, $GLOBALS['kora3ApiURL']);
+    curl_setopt($curl, CURLOPT_URL, kora3ApiURL);
     if(!empty($userInfo)) {
         curl_setopt($curl, CURLOPT_USERPWD, $userInfo["user"].":".$userInfo["pass"]);
         curl_setopt($curl, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
@@ -676,10 +676,14 @@ function MPF_Search($token,$pidList,$sidList,$koraClause,$fields,$order=array(),
     curl_setopt($curl, CURLOPT_POST, 1);
     curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
     curl_setopt($curl, CURLOPT_POSTFIELDS, $data);
+
     if(!$result = curl_exec($curl))
         return curl_error($curl);
+
     curl_close($curl);
+
     $result = json_decode($result,true);
+    
     if(isset($result['records']))
         return $result['records'];
     else
