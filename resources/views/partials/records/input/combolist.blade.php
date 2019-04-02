@@ -55,7 +55,7 @@
                             <span class="combo-column combo-value">{{$dateOne}}</span>
                         @elseif($oneType=='Multi-Select List' | $oneType=='Generated List' | $oneType=='Associator')
                             {!! Form::hidden($flid."_combo_one[]",$valueOne) !!}
-                            <span class="combo-column combo-value">{{implode(' | ',$valueOne)}}</span>
+                            <span class="combo-column combo-value">{{implode(', ', json_decode($valueOne))}}</span>
                         @endif
 
                         @if($twoType=='Text' | $twoType=='List' | $twoType=='Integer' | $twoType=='Float')
@@ -66,7 +66,7 @@
                             <span class="combo-column combo-value">{{$dateTwo}}</span>
                         @elseif($twoType=='Multi-Select List' | $twoType=='Generated List' | $twoType=='Associator')
                             {!! Form::hidden($flid."_combo_two[]",$valueTwo) !!}
-                            <span class="combo-column combo-value">{{implode(' | ',$valueTwo)}}</span>
+                            <span class="combo-column combo-value">{{implode(', ', json_decode($valueTwo))}}</span>
                         @endif
                     </div>
                 @endfor

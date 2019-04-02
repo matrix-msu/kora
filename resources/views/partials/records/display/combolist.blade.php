@@ -38,7 +38,7 @@ $items = $typedField->retrieve($flid, $form->id, $value);
                 <span class="combo-column">{{$valueOne}}</span>
             @elseif($oneType=='Multi-Select List' | $oneType=='Generated List' | $oneType=='Associator')
                 <span class="combo-column">
-                    @foreach($valueOne as $val)
+                    @foreach(json_decode($valueOne) as $val)
                         <div>{{$val}}</div>
                     @endforeach
                 </span>
@@ -56,7 +56,7 @@ $items = $typedField->retrieve($flid, $form->id, $value);
                 <span class="combo-column">{{$valueTwo}}</span>
             @elseif($twoType=='Multi-Select List' | $twoType=='Generated List' | $twoType=='Associator')
                 <span class="combo-column">
-                    @foreach($valueTwo as $val)
+                    @foreach(json_decode($valueTwo) as $val)
                         <div>{{$val}}</div>
                     @endforeach
                 </span>
