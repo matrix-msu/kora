@@ -15,7 +15,6 @@
         }
 
         $selectArray = ['class' => 'single-select', "data-placeholder" => "Select field preview value", 'disabled'];
-		$forms_count++;
         ?>
         <div class="form-group mb-m">
             <div class="check-box-half">
