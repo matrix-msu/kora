@@ -92,18 +92,20 @@ class Form extends Model {
 
     /**
      * @var array - This is an array of field types that can be filtered
+     *
+     * NOTE: We currently support filter types of simple values, and JSON types that are simply an array of values
      */
     static public $validFilterFields = [ //TODO::NEWFIELD
         self::_TEXT,
         self::_BOOLEAN,
         self::_LIST,
-        //self::_MULTI_SELECT_LIST, //TODO::CASTLE implement multi value filter types
+        self::_MULTI_SELECT_LIST, //JSON Type
         self::_INTEGER,
         self::_FLOAT,
-        //self::_GENERATED_LIST, //TODO::CASTLE implement multi value filter types
+        self::_GENERATED_LIST, //JSON Type
         self::_DATE,
         self::_DATETIME,
-        //self::_ASSOCIATOR, //TODO::CASTLE implement multi value filter types
+        self::_ASSOCIATOR, //JSON Type
     ];
 
     /**
@@ -503,8 +505,12 @@ class Form extends Model {
         $orderBy = '';
         if(!is_null($filters['sort'])) {
             $orderBy = ' ORDER BY ';
-            for($i=0;$i<sizeof($filters['sort']);$i = $i+2) {
-                $orderBy .= $filters['sort'][$i].' '.$filters['sort'][$i+1].',';
+            foreach($filters['sort'] as $sortRule) {
+                foreach($sortRule as $field => $order) {
+                    //Used to protect SQL
+                    $field = preg_replace("/[^A-Za-z0-9_]/", '', $field);
+                    $orderBy .= "$field IS NULL, $field $order,";
+                }
             }
             $orderBy = substr($orderBy, 0, -1); //Trim the last comma
         }
@@ -655,8 +661,12 @@ class Form extends Model {
         $orderBy = '';
         if(!is_null($filters['sort'])) {
             $orderBy = ' ORDER BY ';
-            for($i=0;$i<sizeof($filters['sort']);$i = $i+2) {
-                $orderBy .= $filters['sort'][$i].' '.$filters['sort'][$i+1].',';
+            foreach($filters['sort'] as $sortRule) {
+                foreach($sortRule as $field => $order) {
+                    //Used to protect SQL
+                    $field = preg_replace("/[^A-Za-z0-9_]/", '', $field);
+                    $orderBy .= "$field IS NULL, $field $order,";
+                }
             }
             $orderBy = substr($orderBy, 0, -1); //Trim the last comma
         }
@@ -771,8 +781,12 @@ class Form extends Model {
         $orderBy = '';
         if(!is_null($filters['sort'])) {
             $orderBy = ' ORDER BY ';
-            for($i=0;$i<sizeof($filters['sort']);$i = $i+2) {
-                $orderBy .= $filters['sort'][$i].' '.$filters['sort'][$i+1].',';
+            foreach($filters['sort'] as $sortRule) {
+                foreach($sortRule as $field => $order) {
+                    //Used to protect SQL
+                    $field = preg_replace("/[^A-Za-z0-9_]/", '', $field);
+                    $orderBy .= "$field IS NULL, $field $order,";
+                }
             }
             $orderBy = substr($orderBy, 0, -1); //Trim the last comma
         }
@@ -891,12 +905,12 @@ class Form extends Model {
         $filters = [];
 
         //Subset of rids?
-        $subset = '';
+        $subset = 'IS NOT NULL';
         if(!is_null($rids)) {
             if(empty($rids))
                 return [];
             $ridString = implode(',',$rids);
-            $subset = " WHERE `id` IN ($ridString)";
+            $subset .= " AND `id` IN ($ridString)";
         }
 
         if($flids == 'ALL')
@@ -914,17 +928,125 @@ class Form extends Model {
         //$rAssocOccurrences = "select s.`flid`, r.`kid`, r.`rid` from ".$prefix."associator_support as s left join kora3_records as r on s.`rid`=r.`rid` where s.$wherePiece and s.`flid` in ($flidString)";
 
         foreach($valids as $f) {
-            $filterQuery = "SELECT `$f`, COUNT(*) as count FROM $table$subset GROUP BY `$f`";
+            $filterQuery = "SELECT `$f`, COUNT(*) as count FROM $table WHERE `$f` $subset GROUP BY `$f`";
             $results = $con->query($filterQuery);
+
+            $isJson = false;
+            $tmpJsonArray = [];
+
             while($row = $results->fetch_assoc()) {
-                if(!is_null($row[$f]) && $row['count']>=$count)
-                    $filters[$f][$row[$f]] = $row['count'];
+                if(!is_array(json_decode($row[$f]))) {
+                    if(!is_null($row[$f]) && $row['count'] >= $count)
+                        $filters[$f][$row[$f]] = (int)$row['count'];
+                } else {
+                    //JSON so handle
+                    $isJson = true;
+
+                    $values = json_decode($row[$f]);
+                    foreach($values as $val) {
+                        //Check for initial assignment
+                        if(!isset($tmpJsonArray[$val]))
+                            $tmpJsonArray[$val] = (int)$row['count'];
+                        else
+                            $tmpJsonArray[$val] += $row['count'];
+                    }
+                }
             }
+
+            //Clean up count limit for JSON
+            if($isJson) {
+                foreach($tmpJsonArray as $val => $cnt) {
+                    if($cnt >= $count)
+                        $filters[$f][$val] = $cnt;
+                }
+            }
+
             $results->free();
         }
 
         mysqli_close($con);
 
         return $filters;
+    }
+
+    /**
+     * Sorts RIDs by fields.
+     *
+     * @param  array $fids - The FIDs to sort in
+     * @param  array $kids - The KIDs to sort //TODO::CASTLE
+     * @param  array $sortFields - The field arrays to sort by
+     * @return array - The new array with sorted KIDs
+     */
+    public static function sortGlobalKids($fids, $kids, $sortFields) { //TODO::CASTLE
+        //get field
+        $newOrderArray = array();
+        $formSelects = array();
+
+        //Doing this for pretty much the same reason as keyword search above
+        $con = mysqli_connect(
+            config('database.connections.mysql.host'),
+            config('database.connections.mysql.username'),
+            config('database.connections.mysql.password'),
+            config('database.connections.mysql.database')
+        );
+        $prefix = config('database.connections.mysql.prefix');
+
+        //We want to make sure we are doing things in utf8 for special characters
+        if(!mysqli_set_charset($con, "utf8")) {
+            printf("Error loading character set utf8: %s\n", mysqli_error($con));
+            exit();
+        }
+
+        //First we build the selects and unionize them
+        foreach($fids as $index => $fid) {
+            $renameIndex = 1;
+
+            $pieces = 'kid';
+            foreach($sortFields as $sf) {
+                if(is_array($sf->field)) {
+                    $subField = $sf->field[$index];
+                    //Used to protect SQL
+                    $subField = preg_replace("/[^A-Za-z0-9_]/", '', $subField);
+                    $pieces .= ", `$subField` as `field$renameIndex`";
+                    $renameIndex++;
+                } else {
+                    $subField = $sf->field;
+                    //Used to protect SQL
+                    $subField = preg_replace("/[^A-Za-z0-9_]/", '', $subField);
+                    $pieces .= ", `$subField`";
+                }
+            }
+
+            $select = "SELECT $pieces from ".$prefix."records_$fid";
+            $formSelects[] = $select;
+        }
+
+        $masterSelect = implode(' UNION ALL ', $formSelects);
+
+        //Now add the sort piece
+        $orderBy = ' ORDER BY ';
+        $renameIndex = 1;
+        foreach($sortFields as $sf) {
+            if(is_array($sf->field)) {
+                $subField = "field$renameIndex";
+                $renameIndex++;
+            } else {
+                $subField = $sf->field;
+                //Used to protect SQL
+                $subField = preg_replace("/[^A-Za-z0-9_]/", '', $subField);
+            }
+
+            $order = $sf->direction;
+            $orderBy .= "`$subField` IS NULL, `$subField` $order,";
+        }
+        $orderBy = substr($orderBy, 0, -1); //Trim the last comma
+
+        $results = $con->query($masterSelect.$orderBy);
+        while($row = $results->fetch_assoc()) {
+            $newOrderArray[] = $row['kid'];
+        }
+        $results->free();
+
+        return $newOrderArray;
     }
 }

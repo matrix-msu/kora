@@ -13,8 +13,8 @@
                 <i class="icon icon-projects"></i>
                 <span>Kora Configuration File</span>
             </h1>
-            <p class="description">Brief info on Configuration File Management, followed by instructions on how to use
-                the Configuration File Management page will go here.</p>
+            <p class="description">Here you can edit the configuration file for this Kora Installation. This includes
+                updating ReCaptcha keys, which are used for User Registration, and updating your server/host settings for emails in Kora 3</p>
         </div>
     </section>
 @stop

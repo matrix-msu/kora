@@ -1,4 +1,4 @@
-<?php //TODO::CASTLE?
+<?php
 
 //THIS TOOL IS PRIMARILY (see first class for exception) THE CONVERTER FUNCTION FOR USING OLD KORA 2 KORA_Search AND KORA_Clause FUNCTIONS
 //THIS WORKS IF YOU HAVE USED EITHER Exodus OR THE K2 Importer TOOLS TO MIGRATE YOUR KORA 2 DATA
@@ -49,12 +49,12 @@ class kora3ApiExternalTool {
     static function keywordQueryBuilder($keyString,$method,$not=false,$flids=array()) {
         $qkey = array();
         $qkey["search"] = "keyword";
-        $qkey["keys"] = $keyString;
-        $qkey["method"] = $method;
+        $qkey["key_string"] = $keyString;
+        $qkey["key_method"] = $method;
         if($not)
             $qkey["not"] = $not;
         if(!empty($flids))
-            $qkey["fields"] = $flids;
+            $qkey["key_fields"] = $flids;
 
         return $qkey;
     }
@@ -69,11 +69,13 @@ class kora3ApiExternalTool {
      */
     static function kidQueryBuilder($kids,$not=false,$legacy=false) {
         $qkid = array();
-        if(!$legacy)
+        if(!$legacy) {
             $qkid["search"] = "kid";
-        else
+            $qkid["kids"] = $kids;
+        } else {
             $qkid["search"] = "legacy_kid";
-        $qkid["kids"] = $kids;
+            $qkid["legacy_kids"] = $kids;
+        }
         if($not)
             $qkid["not"] = $not;
 
@@ -91,7 +93,8 @@ class kora3ApiExternalTool {
         $qadv = array();
         $qadv["search"] = "advanced";
 
-        $qadv["fields"] = $advData;
+        $qadv["adv_fields"] = $advData;
+        //TODO::CASTLE Update this after search redone
         //Lets talk about the structure of $advData
         //First off we have the index of the array values
         //Each field is represented in the index
@@ -181,39 +184,39 @@ class kora3ApiExternalTool {
     static function formSearchBuilder($fid,$token,$flags,$fields,$sort,$queries,$qLogic,$index=null,$count=null,$filterCount=null,$fitlerFlids=null) {
         $form = array();
         $form["form"] = $fid;
-        $form["token"] = $token;
+        $form["bearer_token"] = $token;
 
         $form["data"] = in_array("data",$flags) ? in_array("data",$flags) : false;
         $form["meta"] = in_array("meta",$flags) ? in_array("meta",$flags) : false;
         $form["size"] = in_array("size",$flags) ? in_array("size",$flags) : false;
-        $form["assoc"] = in_array("assoc",$flags) ? in_array("assoc",$flags) : false;
-        $form["revAssoc"] = in_array("revAssoc",$flags) ? in_array("revAssoc",$flags) : false;
+
         $form["filters"] = in_array("filters",$flags) ? in_array("filters",$flags) : false;
-        $form["realnames"] = in_array("realnames",$flags) ? in_array("realnames",$flags) : false;
+        if(!is_null($filterCount))
+            $form["filter_count"] = $filterCount;
+        if(is_array($fitlerFlids) && empty($fitlerFlids))
+            $form["filter_fields"] = "ALL";
+        else
+            $form["filter_fields"] = $fitlerFlids;
+
+        $form["assoc"] = in_array("assoc",$flags) ? in_array("assoc",$flags) : false;
+        $form["reverse_assoc"] = in_array("reverse_assoc",$flags) ? in_array("reverse_assoc",$flags) : false;
+
+        $form["real_names"] = in_array("real_names",$flags) ? in_array("real_names",$flags) : false;
         $form["under"] = in_array("under",$flags) ? in_array("under",$flags) : false;
+
+        if(is_array($fields) && empty($fields))
+            $form["fields"] = "ALL";
+        else
+            $form["fields"] = $fields;
+        if(!empty($sort))
+            $form["sort"] = $sort;
 
         if(!is_null($index))
             $form["index"] = $index;
         if(!is_null($count))
             $form["count"] = $count;
 
-        if(!is_null($filterCount))
-            $form["filterCount"] = $filterCount;
-
-        if(is_array($fitlerFlids) && empty($fitlerFlids))
-            $form["filterFlids"] = "ALL";
-        else
-            $form["filterFlids"] = $fitlerFlids;
-
-        if(is_array($fields) && empty($fields))
-            $form["fields"] = "ALL";
-        else
-            $form["fields"] = $fields;
-
-        if(!empty($sort))
-            $form["sort"] = $sort;
-
-        $form["query"] = $queries;
+        $form["queries"] = $queries;
         if(!is_null($qLogic))
             $form["logic"] = $qLogic;
 
@@ -250,9 +253,9 @@ class KORA_Clause {
      * @param  mixed $arg2 - Compared argument for the clause
      */
     function __construct($arg1, $op, $arg2) {
-        $op = strtoupper($op);
+        $op = strtolower($op);
 
-        if($op == "AND" | $op == "OR") {
+        if($op == "and" | $op == "or") {
             if(!$arg1 instanceof self) {
                 die("The first query clause you provided must be an object of class KORA_Clause");
             }
@@ -271,27 +274,26 @@ class KORA_Clause {
             //first argument
             if(is_null($argLogic1)) {
                 //first argument is a single query, so lets set it as index 0 in the logic
-                array_push($newLogic,0);
+                $newLog1 = 0;
                 $size = 1;
             } else {
                 //first argument already has a complex query logic, so store that and record size of queries
-                array_push($newLogic,$argLogic1);
+                $newLog1 = $argLogic1;
                 $size = sizeof($argQue1);
             }
-
-            //store the operation
-            array_push($newLogic,$op);
 
             //second argument
             if(is_null($argLogic2)) {
                 //second argument is a single query, so lets set it's index as the size of query 1
-                array_push($newLogic,$size);
+                $newLog2 = $size;
             } else {
                 //second argument has complex query logic. We need to loop through and build new array where every index
                 //is increased by the size of query 1
-                $tmp = $this->recursizeLogicIndex($argLogic2,$size);
-                array_push($newLogic,$tmp);
+                $newLog2 = $this->recursizeLogicIndex($argLogic2,$size);
             }
+
+            //store the operation
+            $newLogic[$op] = [$newLog1,$newLog2];
 
             $this->logic = $newLogic;
         }
@@ -404,24 +406,27 @@ class KORA_Clause {
     private function recursizeLogicIndex($logicArray,$size) {
         $returnArray = array();
 
-        //part1
-        if(is_array($logicArray[0])) {
-            $tmp = $this->recursizeLogicIndex($logicArray[0],$size);
-            $returnArray[0] = $tmp;
-        } else {
-            $returnArray[0] = $logicArray[0]+$size;
+        foreach($logicArray as $op => $clauses) {
+            $operator = $op;
+            $logicOne = $clauses[0];
+            $logicTwo = $clauses[1];
         }
 
-        //operation
-        $returnArray[1] = $logicArray[1];
+        //part1
+        if(is_array($logicOne)) {
+            $newLog1 = $this->recursizeLogicIndex($logicOne,$size);
+        } else {
+            $newLog1 = $logicOne+$size;
+        }
 
         //part2
-        if(is_array($logicArray[2])) {
-            $tmp = $this->recursizeLogicIndex($logicArray[2],$size);
-            $returnArray[2] = $tmp;
+        if(is_array($logicTwo)) {
+            $newLog2 = $this->recursizeLogicIndex($logicTwo,$size);
         } else {
-            $returnArray[2] = $logicArray[2]+$size;
+            $newLog2 = $logicTwo+$size;
         }
+
+        $returnArray[$operator] = [$newLog1, $newLog2];
 
         return $returnArray;
     }
@@ -469,16 +474,16 @@ function KORA_Search($token,$pid,$sid,$koraClause,$fields,$order=array(),$start=
     $newOrder = array();
     foreach($order as $o) {
         if($o["field"]=="systimestamp")
-            array_push($newOrder,"kora_meta_updated");
+            $sortField = "updated_at";
         else
-            array_push($newOrder,fieldMapper($o["field"],$pid,$sid));
+            $sortField = fieldMapper($o["field"],$pid,$sid);
 
         $dir = $o["direction"];
         if($dir==SORT_DESC)
             $newDir = "DESC";
         else
             $newDir = "ASC";
-        array_push($newOrder,$newDir);
+        array_push($newOrder,[$sortField => $newDir]);
     }
 
     //Map return controls to fields if not ALL or KID
@@ -501,10 +506,10 @@ function KORA_Search($token,$pid,$sid,$koraClause,$fields,$order=array(),$start=
     foreach($koraClause->getQueries() as $q) {
         if($q['search']=='keyword') {
             $mapped = array();
-            foreach($q["fields"] as $f) {
+            foreach($q["key_fields"] as $f) {
                 array_push($mapped, fieldMapper($f, $pid, $sid));
             }
-            $q["fields"] = $mapped;
+            $q["key_fields"] = $mapped;
         }
 
         array_push($queries, $q);
@@ -581,7 +586,7 @@ function KORA_Search($token,$pid,$sid,$koraClause,$fields,$order=array(),$start=
  * @param  bool $underScores - Determines if a search should return the field names with underscores or spaces
  * @return array - The records to return from the search
  */
-function MPF_Search($token,$pidList,$sidList,$koraClause,$fields,$order=array(),$start=0,$number=0,$userInfo = array(),$underScores=false) {
+function MPF_Search($token,$pidList,$sidList,$koraClause,$fields,$order=array(),$start=0,$number=0,$userInfo = array(),$underScores=false) { //TODO::CASTLE
     if(!$koraClause instanceof KORA_Clause) {
         die("The query clause you provided must be an object of class KORA_Clause");
     }
@@ -589,20 +594,24 @@ function MPF_Search($token,$pidList,$sidList,$koraClause,$fields,$order=array(),
     $newOrder = array();
     $orderFields = array();
     foreach($order as $o) {
+        $tmpOrder = array();
         foreach ($pidList as $i => $pid) {
             $sid = $sidList[$i];
             if($o["field"]=="systimestamp")
-                array_push($orderFields,"kora_meta_updated");
+                $orderFields = "updated_at";
             else
                 array_push($orderFields,fieldMapper($o["field"],$pid,$sid));
         }
-        array_push($newOrder,$orderFields);
+        $tmpOrder['field'] = $orderFields;
+
         $dir = $o["direction"];
         if($dir==SORT_DESC)
             $newDir = "DESC";
         else
             $newDir = "ASC";
-        array_push($newOrder,$newDir);
+        $tmpOrder['direction'] = $newDir;
+
+        array_push($newOrder,$tmpOrder);
     }
     // Build forms information for each project to be searched
     $output = array();
@@ -620,7 +629,6 @@ function MPF_Search($token,$pidList,$sidList,$koraClause,$fields,$order=array(),
                     $f = fieldMapper($field, $pid, $sid);
                     array_push($fieldsMapped, $f);
                 }
-                // $fields = $fieldsMapped;
             }
         }
         //Map controls to fields in keyword searches
@@ -628,42 +636,39 @@ function MPF_Search($token,$pidList,$sidList,$koraClause,$fields,$order=array(),
         foreach($koraClause->getQueries() as $q) {
             if($q['search']=='keyword') {
                 $mapped = array();
-                foreach($q["fields"] as $f) {
+                foreach($q["key_fields"] as $f) {
                     array_push($mapped, fieldMapper($f, $pid, $sid));
                 }
-                $q["fields"] = $mapped;
+                $q["key_fields"] = $mapped;
             }
             array_push($queries, $q);
         }
+
         $tool = new kora3ApiExternalTool();
-        //Format the start/number for legacy.
-        if($start==0)
-            $start=null;
-        if($number==0)
-            $number=null;
+        $flag = ["data", "meta"];
+        if($underScores)
+            $flag[] = "under";
         $fsArray = $tool->formSearchBuilder(
             $sid,
             $token,
-            ["data", "meta"],
+            $flag,
             $fieldsMapped,
             null,
             $queries,
             $koraClause->getLogic(),
-            $start,
-            $number
+            null,
+            null
         );
         array_push($output,$fsArray);
     }
     $data = array();
     $data["forms"] = json_encode($output);
-    $data["globalSort"] = json_encode($newOrder);
-    $data["globalFilters"] = json_encode(["data" => true, "meta" => true]);
-    //Filters
-    if($underScores)
-        $data["globalFilters"]["under"] = true;
+    $data["global_sort"] = json_encode($newOrder);
+    $data["global_flags"] = json_encode(["index"=>$start, "count"=>$number]);
     $data["format"] = "KORA_OLD";
+
     $curl = curl_init();
-    curl_setopt($curl, CURLOPT_URL, $GLOBALS['kora3ApiURL']);
+    curl_setopt($curl, CURLOPT_URL, kora3ApiURL);
     if(!empty($userInfo)) {
         curl_setopt($curl, CURLOPT_USERPWD, $userInfo["user"].":".$userInfo["pass"]);
         curl_setopt($curl, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
@@ -671,10 +676,14 @@ function MPF_Search($token,$pidList,$sidList,$koraClause,$fields,$order=array(),
     curl_setopt($curl, CURLOPT_POST, 1);
     curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
     curl_setopt($curl, CURLOPT_POSTFIELDS, $data);
+
     if(!$result = curl_exec($curl))
         return curl_error($curl);
+
     curl_close($curl);
+
     $result = json_decode($result,true);
+    
     if(isset($result['records']))
         return $result['records'];
     else

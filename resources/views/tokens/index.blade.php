@@ -13,8 +13,7 @@
                 <i class="icon icon-token"></i>
                 <span>Token Management</span>
             </h1>
-            <p class="description">Brief info on user Token management, followed by instructions on how to use the
-                token management page will go here.</p>
+            <p class="description">Here you can create, edit and view all the tokens within this Kora installation. Tokens are used to authenticate requests made to the Kora 3 API.</p>
         </div>
     </section>
 @stop
