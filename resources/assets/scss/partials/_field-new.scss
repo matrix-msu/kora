@@ -65,6 +65,12 @@
       }
     }
 
+	.search-config-empty-state {
+	  padding: 20px 20px 20px !important;
+	  text-align: center;
+	  font-size: 14px;
+	}
+	
     @media screen and (max-width: $max-mobile-xs-width) {
       .error-message {
         padding: 0 0 10px;

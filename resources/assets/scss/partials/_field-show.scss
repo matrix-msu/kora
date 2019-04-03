@@ -45,6 +45,12 @@
     margin-top: 10px;
     width: calc(100%);
   }
+  
+  .search-config-empty-state {
+    padding: 20px 20px 20px !important;
+    text-align: center;
+    font-size: 14px;
+  }
 
   @import 'field-show/field-value-preset';
   @import 'field-show/typed-specific';
