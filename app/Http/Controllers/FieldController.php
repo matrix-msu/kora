@@ -80,8 +80,6 @@ class FieldController extends Controller {
         $field['viewable'] = isset($request->viewable) && $request->viewable ? 1 : 0;
         $field['viewable_in_results'] = isset($request->viewresults) && $request->viewresults ? 1 : 0;
         $field['external_view'] = isset($request->extview) && $request->extview ? 1 : 0;
-        if($request->advanced)
-            $field = $form->getFieldModel($request->type)->updateOptions($field, $request);
 
         // Combo List Specific
         $options = array();
@@ -108,7 +106,7 @@ class FieldController extends Controller {
         //Field Specific Stuff
         $fieldMod = $form->getFieldModel($request->type);
         $fieldMod->addDatabaseColumn($form->id, $flid, $options);
-        if(!$request->advanced)
+        if(!$request->advanced) {
             if($request->type == Form::_COMBO_LIST) {
                 foreach (['one', 'two'] as $seq) {
                     $field[$seq]['options'] = $fieldMod->getDefaultOptions($options[$seq]['type']);
@@ -116,6 +114,8 @@ class FieldController extends Controller {
             } else {
                 $field['options'] = $fieldMod->getDefaultOptions($options);
             }
+        } else
+            $field = $form->getFieldModel($request->type)->updateOptions($field, $request);
 
         //Add to form
         $layout['fields'][$flid] = $field;

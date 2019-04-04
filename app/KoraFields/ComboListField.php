@@ -65,7 +65,7 @@ class ComboListField extends BaseField {
         'Date' => 'date',
         'Multi-Select List' => 'mslist',
         'Generated List' => 'genlist',
-        // 'Associator' => 'associator',
+        'Associator' => 'associator',
         // 'Boolean' => 'boolean',
     ];
 
@@ -77,6 +77,7 @@ class ComboListField extends BaseField {
         'Date' => 'addDateColumn',
         'Multi-Select List' => 'addJSONColumn',
         'Generated List' => 'addJSONColumn',
+        'Associator' => 'addJSONColumn',
     ];
 
     private $fieldModel = [
@@ -87,6 +88,7 @@ class ComboListField extends BaseField {
         'Date' => 'App\KoraFields\DateField',
         'Multi-Select List' => 'App\KoraFields\MultiSelectListField',
         'Generated List' => 'App\KoraFields\GeneratedListField',
+        'Associator' => 'App\KoraFields\AssociatorField',
     ];
 
     /**
@@ -222,6 +224,13 @@ class ComboListField extends BaseField {
                         'end',
                         'format'
                     );
+                case Form::_ASSOCIATOR:
+                    dd($request->all());
+                    $defaults = array(
+                        'default',
+                        'checkbox_',
+                        'preview_'
+                    )
                     break;
             }
 
@@ -242,6 +251,7 @@ class ComboListField extends BaseField {
             $className = $this->fieldModel[$request->{'type' . $seq}];
             $object = new $className;
             foreach($defaults as $default) {
+                // substr($string, 0, strlen($query)) === $query
                 $request->merge(
                     [$default => $request->{$default . '_' . $seq}]
                 );
