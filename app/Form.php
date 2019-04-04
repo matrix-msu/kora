@@ -160,6 +160,13 @@ class Form extends Model {
     ];
 
     /**
+     * @var array - Fields that need their table updated when options updated.
+     */
+    static public $enumFields = [ //TODO::NEWFIELD
+        self::_LIST
+    ];
+
+    /**
      * Returns the project associated with a form.
      *
      * @return BelongsTo

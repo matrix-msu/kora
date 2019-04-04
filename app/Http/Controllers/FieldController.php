@@ -206,7 +206,8 @@ class FieldController extends Controller {
 
         $field['name'] = $request->name;
         $newFlid = str_replace(" ","_", $request->name).'_'.$form->project_id.'_'.$form->id.'_';
-        $field['description'] = $request->desc;$field['default'] = null;
+        $field['description'] = $request->desc;
+        $field['default'] = null;
         $field['required'] = isset($request->required) && $request->required ? 1 : 0;
         $field['searchable'] = isset($request->searchable) && $request->searchable ? 1 : 0;
         $field['advanced_search'] = isset($request->advsearch) && $request->advsearch ? 1 : 0;
