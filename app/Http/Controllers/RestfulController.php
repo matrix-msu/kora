@@ -70,9 +70,9 @@ class RestfulController extends Controller {
      * @param  int $pid - Project ID
      * @return string - Success message
      */
-    public function createForm($pid, Request $request) { //TODO::CASTLE
+    public function createForm($pid, Request $request) {
         if(!ProjectController::validProj($pid))
-            return response()->json(["status"=>false,"error"=>"Invalid Project: ".$pid],500);
+            return response()->json(["status"=>false,"error"=>"Invalid Project Provided"],500);
 
         $proj = ProjectController::getProject($pid);
 
