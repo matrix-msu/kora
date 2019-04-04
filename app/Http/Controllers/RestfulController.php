@@ -164,6 +164,7 @@ class RestfulController extends Controller {
             $filters['filterFlids'] = isset($f->filter_fields) && is_array($f->filter_fields) ? $f->filter_fields : 'ALL'; //What fields should filters return for? Should be array
 
             $filters['assoc'] = isset($f->assoc) && is_bool($f->assoc) ? $f->assoc : false; //do we want information back about associated records
+            $filters['assocFlids'] = isset($f->assoc_fields) && is_array($f->assoc_fields) ? $f->assoc_fields : 'ALL'; //What fields should associated records return? Should be array
             $filters['revAssoc'] = isset($f->reverse_assoc) && is_bool($f->reverse_assoc) ? $f->reverse_assoc : true; //do we want information back about reverse associations for XML OUTPUT
 
             //WARNING::IF FIELD NAMES SHARE A TITLE WITHIN THE SAME FIELD, THIS WOULD IN THEORY BREAK

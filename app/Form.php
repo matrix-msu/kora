@@ -360,6 +360,7 @@ class Form extends Model {
         //Some prep to make assoc searching faster
         if($filters['assoc']) {
             $useAssoc = true;
+            $allowedAssocFields = $filters['assocFlids'];
             $assocSelect = "SELECT distinct(f.`id`), f.`layout` from ".$prefix."associations as a left join ".$prefix."forms as f on f.id=a.data_form where a.`assoc_form`=".$this->id;
             $theForms = $con->query($assocSelect);
             while($row = $theForms->fetch_assoc()) {
@@ -385,6 +386,12 @@ class Form extends Model {
                 if($filters['realnames']) {
                     $realNames = [];
                     foreach($flids as $flid) {
+                        //Since this is mostly used on the API, we can force external view on fields
+                        if(!$aLayout['fields'][$flid]['external_view'])
+                            continue;
+                        if($allowedAssocFields != 'ALL' && !in_array($flid,$allowedAssocFields))
+                            continue;
+
                         $name = $flid.' as `'.$aLayout['fields'][$flid]['name'].'`';
                         //We do this in realnames because the flid gets us the type to check if its JSON, but it will be compared against the DB result which will have real names instead of flid
                         if(in_array($aLayout['fields'][$flid]['type'], self::$jsonFields))
@@ -394,6 +401,12 @@ class Form extends Model {
                     $flids = $realNames;
                 } else {
                     foreach($flids as $flid) {
+                        //Since this is mostly used on the API, we can force external view on fields
+                        if(!$aLayout['fields'][$flid]['external_view'])
+                            continue;
+                        if($allowedAssocFields != 'ALL' && !in_array($flid,$allowedAssocFields))
+                            continue;
+
                         if(in_array($aLayout['fields'][$flid]['type'], self::$jsonFields))
                             $aJsonFields[$flid] = 1;
                     }
