@@ -475,9 +475,9 @@ class RestfulController extends Controller {
                 break;
             case 'keyword':
                 //do a keyword search
-                if(!isset($query->key_string) || !is_string($query->key_string))
+                if(!isset($query->key_words) || !is_array($query->key_words))
                     return response()->json(["status"=>false,"error"=>"No keywords supplied in a keyword search for form: ". $form->name],500);
-                $keyString = $query->key_string;
+                $keys = $query->key_words;
 
                 //Check for limiting fields
                 $searchFields = array();
@@ -514,17 +514,17 @@ class RestfulController extends Controller {
                     case 'AND':
                         $method = Search::SEARCH_AND;
                         break;
-                    case 'EXACT':
-                        $method = Search::SEARCH_EXACT;
-                        break;
                     default:
                         return response()->json(["status"=>false,"error"=>"Invalid method, ".$this->cleanseOutput($method).", provided for keyword search for form: ". $form->name],500);
                         break;
                 }
 
+                //Determine if we need to add wildcards to search keywords, or if user will supply the wildcards
+                $customWildcards = isset($query->custom_wildcards) && is_bool($query->custom_wildcards) ? $query->custom_wildcards : false;
+
                 /// HERES WHERE THE NEW SEARCH WILL HAPPEN
                 $negative = isset($query->not) && is_bool($query->not) ? $query->not : false;
-                $search = new Search($form->project_id,$form->id,$keyString,$method);
+                $search = new Search($form->project_id,$form->id,$keys,$method);
                 $rids = $search->formKeywordSearch($searchFields, true, $negative);
 
                 return $rids;

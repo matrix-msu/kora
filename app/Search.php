@@ -1,6 +1,7 @@
 <?php namespace App;
 
 use App\Http\Controllers\FormController;
+use App\Http\Controllers\RecordController;
 
 class Search {
 
@@ -22,9 +23,9 @@ class Search {
      */
     const SEARCH_AND = 1;
     /**
-     * @var int - The whole phrase must be in some field
+     * @var int - Record must be a KID in this form
      */
-    const SEARCH_EXACT = 2;
+    const SEARCH_KID = 2;
     /**
      * @var int - Id of the project we're searching in
      */
@@ -34,9 +35,9 @@ class Search {
      */
     private $fid;
     /**
-     * @var string - The query as input by the user
+     * @var array - The array of keywords
      */
-    private $arg;
+    private $keys;
     /**
      * @var int - Method of search, see the search operators
      */
@@ -47,13 +48,13 @@ class Search {
      *
      * @param  int $pid - Project ID
      * @param  int $fid - Form ID
-     * @param  string $arg - The query of the search
+     * @param  array $keys - The query of the search
      * @param  int $method - The method of search, see search operators
      */
-    public function __construct($pid, $fid, $arg, $method) {
+    public function __construct($pid, $fid, $keys, $method) {
         $this->pid = $pid;
         $this->fid = $fid;
-        $this->arg = self::prepare($arg);
+        $this->keys = self::prepare($keys);
         $this->method = $method;
     }
 
@@ -63,12 +64,10 @@ class Search {
      * @param  array $fields - Field models we are searching through
      * @param  boolean $external - Is this search coming from an external source
      * @param  boolean $negative - Get opposite results of the search
+     * @param  boolean $customWildcards - Do we supply wildcards, or does the user
      * @return array - Array of rids satisfying search parameters
      */
-    public function formKeywordSearch($fields = null, $external = false, $negative = false) {
-        if($this->arg == "")
-            return [];
-
+    public function formKeywordSearch($fields = null, $external = false, $negative = false, $customWildcards = false) {
         $form = FormController::getForm($this->fid);
         $recordMod = new Record(array(),$this->fid);
 
@@ -78,11 +77,11 @@ class Search {
 
         switch($this->method) {
             case self::SEARCH_OR:
-                //break up args
-                $args = explode(' ', $this->arg);
-
                 //foreach args
-                foreach($args as $arg) {
+                foreach($this->keys as $arg) {
+                    if(!$customWildcards)
+                        $arg = "%$arg%";
+
                     //search the fields
                     foreach($fields as $flid => $field) {
                         // These checks make sure the field is searchable
@@ -100,11 +99,11 @@ class Search {
                 //array set
                 $ridSets = array();
 
-                //break up args
-                $args = explode(' ', $this->arg);
-
                 //foreach args
-                foreach($args as $arg) {
+                foreach($this->keys as $arg) {
+                    if(!$customWildcards)
+                        $arg = "%$arg%";
+
                     $set = array();
 
                     //search the fields
@@ -127,18 +126,13 @@ class Search {
                     $rids = $this->imitateIntersect($rids, $ridSets[$i]);
                 }
                 break;
-            case self::SEARCH_EXACT:
-                //search the fields
-                foreach($fields as $flid => $field) {
-                    // These checks make sure the field is searchable
-                    if( (!$external && $field['searchable']) || ($external && $field['external_search']) ) {
-                        $results = $form->getFieldModel($field['type'])->keywordSearchTyped($flid, $this->arg, $recordMod, $negativex);
-                        $this->imitateMerge($rids, $results);
-                    }
+            case self::SEARCH_KID:
+                $kid = $this->keys[0]; //Assume keys is array of size one.
+                if(Record::isKIDPattern($kid)) {
+                    $validRecord = RecordController::getRecord($kid);
+                    if(!is_null($validRecord) && $validRecord->form_id == $this->fid)
+                        $rids[] =  $validRecord->id;
                 }
-
-                //make array unique
-                $rids = array_flip(array_flip($rids));
                 break;
             default:
                 break;
@@ -178,15 +172,20 @@ class Search {
     /**
      * Prepares a statement for mysql search. Based on things we found in Kora.
      *
-     * @param  string $arg - Statement to prepare
-     * @return string - The converted string
+     * @param  array $keys - Statements to prepare
+     * @return array - The cleaned array
      */
-    public static function prepare($arg) {
-        $arg = addslashes(trim($arg));
-        $arg = str_replace('_','\_',$arg);
-        $arg = str_replace('%','\%',$arg);
+    public static function prepare($keys) {
+        $filtered = array();
+        foreach($keys as $arg) {
+            $arg = addslashes(trim($arg));
+            $arg = str_replace('_', '\_', $arg);
+            $arg = str_replace('%', '\%', $arg);
 
-        return $arg;
+            $filtered[] = $arg;
+        }
+
+        return $filtered;
     }
 
     /**
