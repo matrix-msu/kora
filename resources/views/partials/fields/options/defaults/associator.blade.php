@@ -1,8 +1,9 @@
 @php
-    if(isset($seq))
+    if(isset($seq)) {
         $seq = '_' . $seq;
-    else
+    } else {
         $seq = '';
+    }
 @endphp
 <div class="form-group mt-xxxl">Association Search Configuration</div>
 
@@ -16,13 +17,19 @@
             $formFields[$aflid] = $data['name'];
         }
 
-        //get layout info for this form
+        // building an array about the association permissions
+        $options = $field['options']['SearchForms'];
+        foreach ($options as $opt) {
+            $assocLayout[$opt['form_id']] = ['flids' => $opt['flids']];
+        }
+
+        // get layout info for this form
+        $f_check = false;
+        $f_flids = null;
+
         if(array_key_exists($f->id,$assocLayout)){
             $f_check = true;
             $f_flids = $assocLayout[$f->id]['flids'];
-        }else{
-            $f_check = false;
-            $f_flids = null;
         }
 
         @endphp

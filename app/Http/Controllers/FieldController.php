@@ -151,17 +151,7 @@ class FieldController extends Controller {
         //$presets = OptionPresetController::getPresetsSupported($pid,$field); //TODO::CASTLE
         $presets = [];
 
-        $assocLayout = [];
-        if($field['type'] == Form::_ASSOCIATOR) {
-            //we are building an array about the association permissions to populate the layout
-            $options = $field['options']['SearchForms'];
-
-            foreach ($options as $opt) {
-                $assocLayout[$opt['form_id']] = ['flids' => $opt['flids']];
-            }
-        }
-
-        return view($form->getFieldModel($field['type'])->getFieldOptionsView(), compact('flid', 'field', 'form', 'proj', 'presets', 'assocLayout'));
+        return view($form->getFieldModel($field['type'])->getFieldOptionsView(), compact('flid', 'field', 'form', 'proj', 'presets'));
 
         //Combo has two presets so we make an exception //TODO::CASTLE
 //        if($field->type == Field::_COMBO_LIST) {

@@ -225,12 +225,18 @@ class ComboListField extends BaseField {
                         'format'
                     );
                 case Form::_ASSOCIATOR:
-                    dd($request->all());
+                    $fid = '';
+                    foreach(array_keys($request->all()) as $key) {
+                        if(substr( $key, 0, 8 ) === "checkbox") {
+                            $fid = explode('_',$key)[1];
+                            break;
+                        }
+                    }
                     $defaults = array(
                         'default',
-                        'checkbox_',
-                        'preview_'
-                    )
+                        'checkbox_' . $fid,
+                        'preview_' . $fid
+                    );
                     break;
             }
 
@@ -251,7 +257,6 @@ class ComboListField extends BaseField {
             $className = $this->fieldModel[$request->{'type' . $seq}];
             $object = new $className;
             foreach($defaults as $default) {
-                // substr($string, 0, strlen($query)) === $query
                 $request->merge(
                     [$default => $request->{$default . '_' . $seq}]
                 );
