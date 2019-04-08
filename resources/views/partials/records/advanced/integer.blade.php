@@ -1,9 +1,9 @@
 <div class="form-group mt-xl">
     {!! Form::label($flid.'_left',$field['name']) !!}
-    <input class="text-input" type="number" name="{{$flid}}_left" placeholder="Enter left bound (leave blank for -infinity)">
+    <input class="text-input" type="number" name="{{$flid}}_left" placeholder="Enter left bound (leave blank for -infinity)" step="1">
 </div>
 <div class="form-group mt-sm">
-    <input class="text-input" type="number" name="{{$flid}}_right" placeholder="Enter right bound (leave blank for infinity)">
+    <input class="text-input" type="number" name="{{$flid}}_right" placeholder="Enter right bound (leave blank for infinity)" step="1">
 </div>
 <div class="form-group mt-sm">
     <div class="check-box-half">

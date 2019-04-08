@@ -288,7 +288,7 @@ class RichTextField extends BaseField {
 
         return $recordMod->newQuery()
             ->select("id")
-            ->where($flid, $param,"%$arg%")
+            ->where($flid, $param,"$arg")
             ->pluck('id')
             ->toArray();
     }

@@ -2,7 +2,6 @@
 
 use App\Form;
 use App\Record;
-use App\Search;
 use Illuminate\Http\Request;
 use Illuminate\Database\Query\Builder;
 
@@ -25,6 +24,13 @@ class FloatField extends BaseField {
     const FIELD_ADV_INPUT_VIEW = "partials.records.advanced.float";
     const FIELD_INPUT_VIEW = "partials.records.input.float";
     const FIELD_DISPLAY_VIEW = "partials.records.display.float";
+
+    /**
+     * Epsilon value for comparison purposes. Used to match between values in MySQL.
+     *
+     * @type float
+     */
+    CONST EPSILON = 0.0001;
 
     /**
      * Get the field options view.
@@ -316,15 +322,23 @@ class FloatField extends BaseField {
      * @return array - The RIDs that match search
      */
     public function keywordSearchTyped($flid, $arg, $recordMod, $negative = false) {
+
         if(is_numeric($arg)) { // Only search if we're working with a number.
             $arg = floatval($arg);
 
-            return $recordMod->newQuery()
-                ->select('id')
-                ->where($flid, $param,"%$arg%")
-                ->whereBetween("number", [$arg - self::EPSILON, $arg + self::EPSILON])
-                ->pluck('id')
-                ->toArray();
+            if($negative){
+                return $recordMod->newQuery()
+                    ->select('id')
+                    ->whereNotBetween($flid, [$arg - self::EPSILON, $arg + self::EPSILON])
+                    ->pluck('id')
+                    ->toArray();
+            } else {
+                return $recordMod->newQuery()
+                    ->select('id')
+                    ->whereBetween($flid, [$arg - self::EPSILON, $arg + self::EPSILON])
+                    ->pluck('id')
+                    ->toArray();
+            }
         }
     }
 
@@ -366,48 +380,46 @@ class FloatField extends BaseField {
      * @return array - The RIDs that match search
      */
     public function advancedSearchTyped($flid, $query, $recordMod, $negative = false) {
-        $left = $query[$flid . "_left"];
-        $right = $query[$flid . "_right"];
-        $invert = isset($query[$flid . "_invert"]);
+        $left = (double)$query[$flid . "_left"];
+        $right = (double)$query[$flid . "_right"];
+        $invert = (bool)isset($query[$flid . "_invert"]);
 
         $query = $recordMod->newQuery()
-            ->select("id")
-            ->where("flid", "=", $flid);
+            ->select("id");
 
-        self::buildAdvancedNumberQuery($query, $left, $right, $invert);
+        self::buildAdvancedNumberQuery($query, $flid, $left, $right, $invert);
 
         return $query->pluck('id')
             ->toArray();
     }
 
     /**
-     * Build an advanced search number field query. Public because Combolist borrows it. Otherwise it would be private
-     * like the others.
+     * Build an advanced search number field query.
      *
      * @param  Builder $query - Query to build upon
+     * @param  string $flid - Field ID
      * @param  string $left - Input from the form, left index
      * @param  string $right - Input from the form, right index
      * @param  bool $invert - Inverts the search range if true
-     * @param  string $prefix - For dealing with joined tables
      */
-    public static function buildAdvancedNumberQuery(Builder &$query, $left, $right, $invert, $prefix = "") {
+    private static function buildAdvancedNumberQuery(Builder &$query, $flid, $left, $right, $invert) {
         // Determine the interval we should search over. With epsilons to account for float rounding.
         if($left == "") {
             if($invert) // [right, inf)
-                $query->where($prefix . "number", ">", floatval($right) - self::EPSILON);
+                $query->where($flid, ">", floatval($right) - self::EPSILON);
             else // (-inf, right]
-                $query->where($prefix . "number", "<=", floatval($right) + self::EPSILON);
+                $query->where($flid, "<=", floatval($right) + self::EPSILON);
         } else if($right == "") {
             if($invert) // (-inf, left]
-                $query->where($prefix . "number", "<", floatval($left) + self::EPSILON);
+                $query->where($flid, "<", floatval($left) + self::EPSILON);
             else // [left, inf)
-                $query->where($prefix . "number", ">=", floatval($left) - self::EPSILON);
+                $query->where($flid, ">=", floatval($left) - self::EPSILON);
         } else {
             if($invert) { // (-inf, left] union [right, inf)
-                $query->whereNotBetween($prefix . "number", [floatval($left) - self::EPSILON,
+                $query->whereNotBetween($flid, [floatval($left) - self::EPSILON,
                     floatval($right) + self::EPSILON]);
             } else { // [left, right]
-                $query->whereBetween($prefix . "number", [floatval($left) - self::EPSILON,
+                $query->whereBetween($flid, [floatval($left) - self::EPSILON,
                     floatval($right) + self::EPSILON]);
             }
         }

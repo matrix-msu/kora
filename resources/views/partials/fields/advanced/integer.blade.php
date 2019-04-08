@@ -3,7 +3,7 @@
     {!! Form::label('default','Default') !!}
     <span class="error-message"></span>
     <div class="number-input-container">
-        <input type="number" name="default" class="text-input number-default-js" value="" placeholder="Enter number here">
+        <input type="number" name="default" class="text-input number-default-js" value="" placeholder="Enter number here" step="1">
     </div>
 </div>
 
@@ -11,7 +11,7 @@
     {!! Form::label('min','Minimum Value') !!}
     <span class="error-message"></span>
     <div class="number-input-container">
-        <input type="number" name="min" class="text-input number-min-js" id="min" value="" placeholder="Enter minimum value here">
+        <input type="number" name="min" class="text-input number-min-js" id="min" value="" placeholder="Enter minimum value here" step="1">
     </div>
 </div>
 
@@ -19,7 +19,7 @@
     {!! Form::label('max','Max Value') !!}
     <span class="error-message"></span>
     <div class="number-input-container">
-        <input type="number" name="max" class="text-input number-max-js" id="max" value="" placeholder="Enter max value here">
+        <input type="number" name="max" class="text-input number-max-js" id="max" value="" placeholder="Enter max value here" step="1">
     </div>
 </div>
 

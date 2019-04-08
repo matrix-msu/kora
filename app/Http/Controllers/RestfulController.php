@@ -525,7 +525,7 @@ class RestfulController extends Controller {
                 /// HERES WHERE THE NEW SEARCH WILL HAPPEN
                 $negative = isset($query->not) && is_bool($query->not) ? $query->not : false;
                 $search = new Search($form->project_id,$form->id,$keys,$method);
-                $rids = $search->formKeywordSearch($searchFields, true, $negative);
+                $rids = $search->formKeywordSearch($searchFields, true, $negative, $customWildcards);
 
                 return $rids;
                 break;
