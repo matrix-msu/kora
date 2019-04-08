@@ -74,26 +74,26 @@
 <div class="associator-section">
     <div class="form-group mt-xl">
         {!! Form::label('search','Search Associations') !!}
-        <input type="text" class="text-input assoc-search-records-js" placeholder="Enter search term or KID to find associated records (populated below)">
-	<p class="sub-text mt-sm">
-		Enter a search term or KID and hit enter to search. Results will then be populated in the "Association Results" field below.
-	</p>
+        <input type="text" data-combo="{{$fnum}}" class="text-input assoc-search-records-js" placeholder="Enter search term or KID to find associated records (populated below)">
+        <p class="sub-text mt-sm">
+            Enter a search term or KID and hit enter to search. Results will then be populated in the "Association Results" field below.
+	   </p>
     </div>
 
     <div class="form-group mt-xs">
         {!! Form::label('search','Association Results') !!}
         {!! Form::select('search[]', [], null, ['class' => 'multi-select assoc-select-records-js', 'multiple', "data-placeholder" => "Select a record association to add to defaults"]) !!}
-	<p class="sub-text mt-sm">
-		Once records are populated, they will appear in this fields dropdown. Selecting records will then add them to the "Default Associations" field below.
-	</p>
+        <p class="sub-text mt-sm">
+            Once records are populated, they will appear in this fields dropdown. Selecting records will then add them to the "Default Associations" field below.
+	   </p>
     </div>
 
     <div class="form-group mt-xs">
         {!! Form::label('default_'.$fnum, $cfName) !!}
         {!! Form::select('default_'.$fnum.'[]', [], null, ['id' => 'default_'.$fnum, 'class' => 'multi-select assoc-default-records-js default-input-js',
 	    'multiple', "data-placeholder" => "Search below to add associated records"]) !!}
-	<p class="sub-text mt-sm">
-        	To add associated records, Start a search for records in the "Search Associations" field above.
+        <p class="sub-text mt-sm">
+            To add associated records, Start a search for records in the "Search Associations" field above.
         </p>
     </div>
 </div>

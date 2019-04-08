@@ -93,8 +93,8 @@
                                 {!! Form::hidden("default_year_combo_one[]",$valueOne['year']) !!}
                                 <span class="combo-column">{{$valueOne['month']}}/{{$valueOne['day']}}/{{$valueOne['year']}}</span>
                             @elseif($oneType=='Multi-Select List' | $oneType=='Generated List' | $oneType=='Associator')
-                                {!! Form::hidden("default_combo_one[]",$valueOne) !!}
-                                <span class="combo-column">{{implode(', ',$valueOne)}}</span>
+                                {!! Form::hidden("default_combo_one[]",json_encode($valueOne)) !!}
+                                <span class="combo-column">{{implode(' | ',$valueOne)}}</span>
                             @endif
                             @if($twoType=='Text' | $twoType=='List' | $oneType=='Integer'| $oneType=='Float')
                                 {!! Form::hidden("default_combo_two[]",$valueTwo) !!}
@@ -106,7 +106,7 @@
                                 <span class="combo-column">{{$valueTwo['month']}}/{{$valueTwo['day']}}/{{$valueTwo['year']}}</span>
                             @elseif($twoType=='Multi-Select List' | $twoType=='Generated List' | $twoType=='Associator')
                                 {!! Form::hidden("default_combo_two[]",json_encode($valueTwo)) !!}
-                                <span class="combo-column">{{implode(', ', $valueTwo)}}</span>
+                                <span class="combo-column">{{implode(' | ', $valueTwo)}}</span>
                             @endif
 
                             <span class="combo-delete delete-combo-value-js">
@@ -128,7 +128,7 @@
 @stop
 
 @section('fieldOptionsJS')
-    {{-- assocSearchURI = "{{ action('AssociatorSearchController@assocSearch',['pid' => $field->pid,'fid'=>$fid, 'flid'=>$field->flid]) }}"; --}}
+    assocSearchURI = "{{ action('AssociatorSearchController@assocSearch',['pid' => $form->project_id,'fid'=>$form->id, 'flid'=>$flid]) }}";
     csrfToken = "{{ csrf_token() }}";
     type1 = '{{$oneType}}';
     type2 = '{{$twoType}}';

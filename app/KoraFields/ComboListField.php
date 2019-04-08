@@ -180,6 +180,7 @@ class ComboListField extends BaseField {
      * @return array - The updated field array
      */
     public function updateOptions($field, Request $request, $flid = null, $prefix = 'records_') {
+
         foreach (['one', 'two'] as $seq) {
             $defaults = array();
             $type = $request->{'type' . $seq};
@@ -243,7 +244,8 @@ class ComboListField extends BaseField {
             if (
                 (
                     $type == Form::_GENERATED_LIST ||
-                    $type == Form::_MULTI_SELECT_LIST
+                    $type == Form::_MULTI_SELECT_LIST ||
+                    $type == Form::_ASSOCIATOR
                 ) &&
                 !is_null($request->{'default_combo_' . $seq})
             ) {

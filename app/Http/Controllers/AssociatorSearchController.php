@@ -41,9 +41,9 @@ class AssociatorSearchController extends Controller {
         $activeForms = array();
         $results = array();
 
-//        if(!is_null($request->combo)) //TODO::CASTLE
-//            $option = ComboListField::getComboFieldOption($field, 'SearchForms', $request->combo);
-//        else
+        if($request->has('combo'))
+            $options = \App\KoraFields\ComboListField::getComboFieldOption($field, 'SearchForms', $request->combo);
+        else
             $options = $field['options']['SearchForms'];
 
         foreach($options as $opt) {
