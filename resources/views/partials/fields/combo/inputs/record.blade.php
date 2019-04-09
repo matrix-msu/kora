@@ -106,27 +106,29 @@
         ['id' => 'default_'.$fnum.'_'.$flid, 'class' => 'multi-select modify-select', 'multiple']) !!}
     </div>
 @elseif($type=='Associator')
-    <div class="form-group
+    <div class="form-group associator
         @if($fnum=='two')
             mt-xxxl
         @else
             mt-xl
         @endif
-            ">
-        {!! Form::label('default_'.$fnum, $cfName) !!}
-        {!! Form::select('default_'.$fnum.'[]', [], null, ['id' => 'default_'.$fnum.'_'.$flid, 'class' => 'multi-select assoc-default-records-js',
+    ">
+        <div class="form-group mb-xs">
+            {!! Form::label('search','Search Associations') !!}
+            <input type="text" data-combo="{{$fnum}}" class="text-input assoc-search-records-js" placeholder="Enter search term or KID to find associated records (populated below)" search-url="{{ action('AssociatorSearchController@assocSearch',['pid' => $form->project_id,'fid'=>$form->id, 'flid'=>$flid]) }}">
+            <p class="sub-text">Enter a search term or KID and hit enter to search. Results will then be populated in the "Association Results" field below.</p>
+        </div>
+        <div class="form-group mt-xs">
+            {!! Form::label('search','Association Results') !!}
+            {!! Form::select('search[]', [], null, ['class' => 'multi-select assoc-select-records-js', 'multiple',
+                "data-placeholder" => "Select a record association to add to defaults"]) !!}
+            <p class="sub-text mt-sm">Once records are populated, they will appear in this field's dropdown. Selecting records will then add them to the "Selected Associations" field below.</p>
+        </div>
+        <div class="form-group mt-xs">
+            {!! Form::label('default_'.$fnum, $cfName) !!}
+            {!! Form::select('default_'.$fnum.'[]', [], null, ['id' => 'default_'.$fnum.'_'.$flid, 'class' => 'multi-select assoc-default-records-js',
             'multiple', "data-placeholder" => "Search below to add associated records"]) !!}
-    </div>
-
-{{--     <div class="form-group mt-xs">
-        {!! Form::label('search','Search Associations') !!}
-        <input type="text" class="text-input assoc-search-records-js" placeholder="Enter search term or KID to find associated records (populated below)"
-           search-url="{{ action('AssociatorSearchController@assocSearch',['pid' => $field->pid,'fid'=>$field->fid, 'flid'=>$field->flid]) }}">
-    </div> --}}
-
-    <div class="form-group mt-xs">
-        {!! Form::label('search','Association Results') !!}
-        {!! Form::select('search[]', [], null, ['class' => 'multi-select assoc-select-records-js', 'multiple',
-            "data-placeholder" => "Select a record association to add to defaults"]) !!}
+            <p class="sub-text mt-sm">To add records, start a search for records in the "Search Associations" field above.</p>
+        </div>
     </div>
 @endif

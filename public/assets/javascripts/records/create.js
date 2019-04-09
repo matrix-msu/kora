@@ -108,19 +108,26 @@ Kora.Records.Create = function() {
                 e.preventDefault();
 
                 var keyword = $(this).val();
+                var combo = $(this).data('combo');
                 var assocSearchURI = $(this).attr('search-url');
                 var resultsBox = $(this).parent().next().children('.assoc-select-records-js').first();
                 //Clear old values
                 resultsBox.html('');
                 resultsBox.trigger("chosen:updated");
 
+                var data = {
+                    "_token": csrfToken,
+                    "keyword": keyword
+                };
+
+                if (combo) {
+                    data['combo'] = combo;
+                }
+
                 $.ajax({
                     url: assocSearchURI,
                     type: 'POST',
-                    data: {
-                        "_token": csrfToken,
-                        "keyword": keyword
-                    },
+                    data: data,
                     success: function (result) {
                         for(var kid in result) {
                             var preview = result[kid];
@@ -140,7 +147,6 @@ Kora.Records.Create = function() {
 
         $('.assoc-select-records-js').change(function() {
             defaultBox = $(this).parent().next().children('.assoc-default-records-js');
-            console.log(defaultBox);
 
             $(this).children('option').each(function() {
                 if($(this).is(':selected')) {
