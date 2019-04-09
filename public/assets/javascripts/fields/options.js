@@ -721,7 +721,7 @@ Kora.Fields.Options = function(fieldType) {
 
                 div = '<div class="card combo-value-item-js">';
 
-                if(type1=='Text' | type1=='List' | type1=='Integer' | type1=='Float') {
+                if(type1=='Text' | type1=='List' | type1=='Integer' | type1=='Float' | type1=='Boolean') {
                     div += '<input type="hidden" name="default_combo_one[]" value="'+val1+'">';
                     div += '<span class="combo-column">'+val1+'</span>';
                 } else if (type1=='Date') {
@@ -734,7 +734,7 @@ Kora.Fields.Options = function(fieldType) {
                     div += '<span class="combo-column">'+val1.join(' | ')+'</span>';
                 }
 
-                if(type2=='Text' | type2=='List' | type2=='Integer' | type2=='Float') {
+                if(type2=='Text' | type2=='List' | type2=='Integer' | type2=='Float' | type2=='Boolean') {
                     div += '<input type="hidden" name="default_combo_two[]" value="'+val2+'">';
                     div += '<span class="combo-column">'+val2+'</span>';
                 } else if (type2=='Date') {

@@ -75,7 +75,7 @@ class CreateRecordsTable extends Migration {
     }
 
     public function addBooleanColumn($fid, $slug) {
-        Schema::table("records_$fid", function(Blueprint $table) use ($slug) {
+        Schema::table($this->tablePrefix . $fid, function(Blueprint $table) use ($slug) {
             $table->boolean($slug);
         });
     }

@@ -52,7 +52,8 @@ class ComboListField extends BaseField {
             'Multi-Select List' => 'Multi-Select List',
             'Generated List' => 'Generated List'
         ),
-        'Other' => array(
+        'Specialty Fields' => array(
+            'Boolean' => 'Boolean',
             'Associator' => 'Associator'
         )
     ];
@@ -66,7 +67,7 @@ class ComboListField extends BaseField {
         'Multi-Select List' => 'mslist',
         'Generated List' => 'genlist',
         'Associator' => 'associator',
-        // 'Boolean' => 'boolean',
+        // 'Boolean' => 'boolean' TODO::CASTLE
     ];
 
     private $fieldToDBFuncAssoc = [
@@ -78,6 +79,7 @@ class ComboListField extends BaseField {
         'Multi-Select List' => 'addJSONColumn',
         'Generated List' => 'addJSONColumn',
         'Associator' => 'addJSONColumn',
+        'Boolean' => 'addBooleanColumn'
     ];
 
     private $fieldModel = [
@@ -89,6 +91,7 @@ class ComboListField extends BaseField {
         'Multi-Select List' => 'App\KoraFields\MultiSelectListField',
         'Generated List' => 'App\KoraFields\GeneratedListField',
         'Associator' => 'App\KoraFields\AssociatorField',
+        'Boolean' => 'App\KoraFields\BooleanField'
     ];
 
     /**
@@ -237,6 +240,11 @@ class ComboListField extends BaseField {
                         'default',
                         'checkbox_' . $fid,
                         'preview_' . $fid
+                    );
+                    break;
+                case Form::_BOOLEAN:
+                    $defaults = array(
+                        'default'
                     );
                     break;
             }
@@ -547,7 +555,7 @@ class ComboListField extends BaseField {
                 $xml = '<' . $slug . '>';
                 $xml .= '<Value>';
                 $xml .= '<' . $nameone . '>';
-                if($typeone == 'Text' | $typeone == 'Integer' | $typeone == 'Float' | $typeone == 'List') {
+                if($typeone == 'Text' | $typeone == 'Integer' | $typeone == 'Float' | $typeone == 'List' | $typeone == 'Boolean') {
                     $xml .= utf8_encode('VALUE');
                 } else if($typeone == 'Date') {
                     $xml .= utf8_encode('MM/DD/YYYY');
@@ -558,7 +566,7 @@ class ComboListField extends BaseField {
                 }
                 $xml .= '</' . $nameone . '>';
                 $xml .= '</' . $nametwo . '>';
-                if($typetwo == 'Text' | $typeone == 'Integer' | $typeone == 'Float' | $typetwo == 'List') {
+                if($typetwo == 'Text' | $typeone == 'Integer' | $typeone == 'Float' | $typetwo == 'List' | $typetwo == 'Boolean') {
                     $xml .= utf8_encode('VALUE');
                 } else if($typetwo == 'Date') {
                     $xml .= utf8_encode('MM/DD/YYYY');
@@ -577,7 +585,7 @@ class ComboListField extends BaseField {
                 $fieldArray = [$slug => ['type' => 'Combo List']];
 
                 $valArray = array();
-                if($typeone == 'Text' | $typeone == 'Integer' | $typeone == 'Float' | $typeone == 'List') {
+                if($typeone == 'Text' | $typeone == 'Integer' | $typeone == 'Float' | $typeone == 'List' | $typeone == 'Boolean') {
                     $valArray[$nameone] = 'VALUE';
                 } else if($typeone == 'Date') {
                     $valArray[$nameone] = 'MM/DD/YYYY';
@@ -585,7 +593,7 @@ class ComboListField extends BaseField {
                     $valArray[$nameone] = array('VALUE 1','VALUE 2','so on...');
                 }
 
-                if($typetwo == 'Text' | $typeone == 'Integer' | $typeone == 'Float' | $typetwo == 'List') {
+                if($typetwo == 'Text' | $typetwo == 'Integer' | $typetwo == 'Float' | $typetwo == 'List' | $typetwo == 'Boolean') {
                     $valArray[$nametwo] = 'VALUE';
                 } else if($typetwo == 'Date') {
                     $valArray[$nametwo] = 'MM/DD/YYYY';
@@ -622,51 +630,53 @@ class ComboListField extends BaseField {
         $field = FieldController::getField($flid);
         $type1 = $field['one']['type'];
         switch($type1) {
-            case Field::_NUMBER:
+            case Field::_INTEGER:
+            case Field::_FLOAT:
                 if(isset($data->left_one))
                     $leftNum = $data->left_one;
                 else
                     $leftNum = '';
-                $request->request->add([$field->flid.'_1_left' => $leftNum]);
+                $request->request->add([$flid.'_1_left' => $leftNum]);
                 if(isset($data->right_one))
                     $rightNum = $data->right_one;
                 else
                     $rightNum = '';
-                $request->request->add([$field->flid.'_1_right' => $rightNum]);
+                $request->request->add([$flid.'_1_right' => $rightNum]);
                 if(isset($data->invert_one))
                     $invert = $data->invert_one;
                 else
                     $invert = 0;
-                $request->request->add([$field->flid.'_1_invert' => $invert]);
+                $request->request->add([$flid.'_1_invert' => $invert]);
                 break;
             default:
-                $request->request->add([$field->flid.'_1_input' => $data->input_one]);
+                $request->request->add([$flid.'_1_input' => $data->input_one]);
                 break;
         }
         $type2 = $field['two']['type'];
         switch($type2) {
-            case Field::_NUMBER:
+            case Field::_INTEGER:
+            case Field::_FLOAT:
                 if(isset($data->left_two))
                     $leftNum = $data->left_two;
                 else
                     $leftNum = '';
-                $request->request->add([$field->flid.'_2_left' => $leftNum]);
+                $request->request->add([$flid.'_2_left' => $leftNum]);
                 if(isset($data->right_two))
                     $rightNum = $data->right_two;
                 else
                     $rightNum = '';
-                $request->request->add([$field->flid.'_2_right' => $rightNum]);
+                $request->request->add([$flid.'_2_right' => $rightNum]);
                 if(isset($data->invert_two))
                     $invert = $data->invert_two;
                 else
                     $invert = 0;
-                $request->request->add([$field->flid.'_2_invert' => $invert]);
+                $request->request->add([$flid.'_2_invert' => $invert]);
                 break;
             default:
-                $request->request->add([$field->flid.'_2_input' => $data->input_two]);
+                $request->request->add([$flid.'_2_input' => $data->input_two]);
                 break;
         }
-        $request->request->add([$field->flid.'_operator' => $data->operator]);
+        $request->request->add([$flid.'_operator' => $data->operator]);
 
         return $request;
     }

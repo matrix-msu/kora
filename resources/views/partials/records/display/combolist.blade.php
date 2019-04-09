@@ -27,7 +27,7 @@ $items = $typedField->retrieve($flid, $form->id, $value);
                 <span class="combo-border-small"> </span>
             @endif
 
-            @if($oneType=='Text' | $oneType=='Date' | $oneType=='List')
+            @if($oneType=='Text' | $oneType=='Date' | $oneType=='List' | $oneType=='Boolean')
                 <span class="combo-column">{{ $valueOne }}</span>
             @elseif($oneType=='Integer' | $oneType=='Float')
                 <?php
@@ -44,7 +44,7 @@ $items = $typedField->retrieve($flid, $form->id, $value);
                 </span>
             @endif
 
-            @if($twoType=='Text' | $twoType=='Date' | $twoType=='List')
+            @if($twoType=='Text' | $twoType=='Date' | $twoType=='List' | $twoType=='Boolean')
                 <span class="combo-column">{{ $valueTwo }}</span>
             @elseif($twoType=='Integer' | $twoType=='Float')
                 <?php

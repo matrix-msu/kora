@@ -47,7 +47,7 @@
                     <div class="combo-value-item combo-value-item-js">
                         <span class="combo-delete delete-combo-value-js tooltip" tooltip="Delete Combo Value"><i class="icon icon-trash"></i></span>
 
-                        @if($oneType=='Text' | $oneType=='List' | $oneType=='Integer' | $oneType=='Float')
+                        @if($oneType=='Text' | $oneType=='List' | $oneType=='Integer' | $oneType=='Float' | $oneType=='Boolean')
                             {!! Form::hidden($flid."_combo_one[]",$valueOne) !!}
                             <span class="combo-column combo-value">{{$valueOne}}</span>
                         @elseif($oneType=='Date')
@@ -62,7 +62,7 @@
                             <span class="combo-column combo-value">{{implode(', ', json_decode($valueOne))}}</span>
                         @endif
 
-                        @if($twoType=='Text' | $twoType=='List' | $twoType=='Integer' | $twoType=='Float')
+                        @if($twoType=='Text' | $twoType=='List' | $twoType=='Integer' | $twoType=='Float' | $twoType=='Boolean')
                             {!! Form::hidden($flid."_combo_two[]",$valueTwo) !!}
                             <span class="combo-column combo-value">{{$valueTwo}}</span>
                         @elseif($twoType=='Date')

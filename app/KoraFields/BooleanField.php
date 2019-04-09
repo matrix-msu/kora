@@ -88,7 +88,7 @@ class BooleanField extends BaseField {
      *
      * @return array - The default options
      */
-    public function getDefaultOptions() {
+    public function getDefaultOptions($type = null) {
         return [];
     }
 

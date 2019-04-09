@@ -216,7 +216,7 @@ Kora.Records.Create = function() {
 
                 div = '<div class="combo-value-item combo-value-item-js">';
 
-                if(type1=='Text' | type1=='List' | type1=='Integer' | type1=='Float' | type1=='Date') {
+                if(type1=='Text' | type1=='List' | type1=='Integer' | type1=='Float' | type1=='Date' | type1=='Boolean') {
                     div += '<input type="hidden" name="'+flid+'_combo_one[]" value="'+val1+'">';
                     div += '<span class="combo-column">'+val1+'</span>';
                 } else if(type1=='Multi-Select List' | type1=='Generated List' | type1=='Associator') {
@@ -224,7 +224,7 @@ Kora.Records.Create = function() {
                     div += '<span class="combo-column">'+val1.join(' | ')+'</span>';
                 }
 
-                if(type2=='Text' | type2=='List' | type2=='Integer' | type2=='Float' | type2=='Date') {
+                if(type2=='Text' | type2=='List' | type2=='Integer' | type2=='Float' | type2=='Date' | type2=='Boolean') {
                     div += '<input type="hidden" name="'+flid+'_combo_two[]" value="'+val2+'">';
                     div += '<span class="combo-column">'+val2+'</span>';
                 } else if(type2=='Multi-Select List' | type2=='Generated List' | type2=='Associator') {

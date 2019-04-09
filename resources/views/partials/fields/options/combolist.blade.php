@@ -84,7 +84,7 @@
                             $valueTwo = $defsTwo[$i];
                         @endphp
                         <div class="card combo-value-item-js">
-                            @if($oneType=='Text' | $oneType=='List' | $oneType=='Integer'| $oneType=='Float')
+                            @if($oneType=='Text' | $oneType=='List' | $oneType=='Integer'| $oneType=='Float' | $oneType=='Boolean')
                                 {!! Form::hidden("default_combo_one[]",$valueOne) !!}
                                 <span class="combo-column">{{$valueOne}}</span>
                             @elseif($oneType=='Date')
@@ -96,7 +96,7 @@
                                 {!! Form::hidden("default_combo_one[]",json_encode($valueOne)) !!}
                                 <span class="combo-column">{{implode(' | ',$valueOne)}}</span>
                             @endif
-                            @if($twoType=='Text' | $twoType=='List' | $oneType=='Integer'| $oneType=='Float')
+                            @if($twoType=='Text' | $twoType=='List' | $oneType=='Integer'| $oneType=='Float' | $twoType=='Boolean')
                                 {!! Form::hidden("default_combo_two[]",$valueTwo) !!}
                                 <span class="combo-column">{{$valueTwo}}</span>
                             @elseif($twoType=='Date')

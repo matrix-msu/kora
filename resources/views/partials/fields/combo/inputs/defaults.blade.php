@@ -97,4 +97,14 @@
         </p>
     </div>
 </div>
+@elseif($type=='Boolean')
+<div class="form-group">
+    {!! Form::label('default_'.$fnum, $cfName) !!}
+    <div class="check-box-half">
+        <input type="checkbox" id="default_{{$fnum}}" class="check-box-input default-input-js" name="default_{{$fnum}}"
+                {{ ((!is_null($field[$fnum]['default']) && $field[$fnum]['default']) ? 'checked' : '') }}>
+        <span class="check"></span>
+        <span class="placeholder"></span>
+    </div>
+</div>
 @endif
