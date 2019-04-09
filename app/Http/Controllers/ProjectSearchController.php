@@ -54,7 +54,9 @@ class ProjectSearchController extends Controller { //TODO::CASTLE
             foreach ($forms as $form) {
                 if(!Auth::user()->inAFormGroup($form))
                     continue;
-                $search = new Search($form->pid, $form->fid, $argString, $method);
+                //This line breaks apart the space separated keywords, but also maintains words held together in double quotes
+                $keys = str_getcsv($argString, ' ');
+                $search = new Search($form->pid, $form->fid, $keys, $method);
                 $results = $search->formKeywordSearch();
                 $this->imitateMerge($rids, $results);
             }
@@ -118,7 +120,9 @@ class ProjectSearchController extends Controller { //TODO::CASTLE
                 foreach($forms as $form) {
                     if(!Auth::user()->inAFormGroup($form))
                         continue;
-                    $search = new Search($form->pid, $form->fid, $argString, $method);
+                    //This line breaks apart the space separated keywords, but also maintains words held together in double quotes
+                    $keys = str_getcsv($argString, ' ');
+                    $search = new Search($form->pid, $form->fid, $keys, $method);
                     $results = $search->formKeywordSearch();
                     $this->imitateMerge($rids, $results);
                 }

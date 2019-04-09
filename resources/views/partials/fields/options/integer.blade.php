@@ -11,6 +11,7 @@
                 class="text-input number-default-js"
                 value="{{ $field['default'] }}"
                 placeholder="Enter number here"
+                step="1"
             >
         </div>
     </div>

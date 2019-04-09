@@ -24,7 +24,7 @@
                 <span>Search Kora</span>
             </h1>
             <p class="description">To search Kora, Enter keywords to in the first field below. You can also search by
-                specific projects, and filter by “Or”, “And”, or “Exact” keyword results. Select “Search” to input your
+                specific projects, and filter by “Or”, “And”, or “KID” keyword results. Select “Search” to input your
                 search query. You can also scroll beneath this section to begin exploring all Kora results.</p>
         </div>
     </section>
@@ -36,11 +36,11 @@
             <form method="GET" action="{{action('ProjectSearchController@globalSearch')}}" class="keyword-search-js">
                 <div class="form-group search-input mt-xl">
                     {!! Form::label('keywords','Search Via Keyword(s) or KID') !!}
-                    {!! Form::text('keywords', app('request')->input('keywords'), ['class' => 'text-input keywords-get-js', 'placeholder' => 'Type space separated keywords']) !!}
+                    {!! Form::text('keywords', app('request')->input('keywords'), ['class' => 'text-input keywords-get-js', 'placeholder' => 'Type space separated keywords (Use double quotes to create key phrases)']) !!}
                 </div>
                 <div class="form-group search-input mt-xl">
-                    {!! Form::label('method','or / and / exact') !!}
-                    {!! Form::select('method',[0 => 'or',1 => 'and',2 => 'exact'], app('request')->input('method'), ['class' => 'single-select method-get-js']) !!}
+                    {!! Form::label('method','or / and / kid') !!}
+                    {!! Form::select('method',[0 => 'OR',1 => 'AND',2 => 'KID'], app('request')->input('method'), ['class' => 'single-select method-get-js']) !!}
                 </div>
 
                 <div class="form-group search-spacer mt-xl">

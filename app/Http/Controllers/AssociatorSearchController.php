@@ -113,7 +113,9 @@ class AssociatorSearchController extends Controller {
         $formRecords = $form->getRecordsForExport($filters);
 
         if($arg!="") {
-            $search = new Search($pid, $fid, $arg, $method);
+            //This line breaks apart the space separated keywords, but also maintains words held together in double quotes
+            $keys = str_getcsv($arg, ' ');
+            $search = new Search($pid, $fid, $keys, $method);
             $rids = $search->formKeywordSearch();
 
             foreach($rids as $rid) {

@@ -44,17 +44,20 @@ class kora3ApiExternalTool {
      * @param  string $method - Defines if search is AND, OR, or EXACT
      * @param  bool $not - Get the negative results of the search
      * @param  array $flids - Specific fields to search in
+     * @param  bool $customWildCards - Is the user providing wildcards
      * @return array - The query array
      */
-    static function keywordQueryBuilder($keyString,$method,$not=false,$flids=array()) {
+    static function keywordQueryBuilder($keys,$method,$not=false,$flids=array(),$customWildCards=false) {
         $qkey = array();
         $qkey["search"] = "keyword";
-        $qkey["key_string"] = $keyString;
+        $qkey["key_words"] = $keys;
         $qkey["key_method"] = $method;
         if($not)
             $qkey["not"] = $not;
         if(!empty($flids))
             $qkey["key_fields"] = $flids;
+        if($customWildCards)
+            $qkey["custom_wildcards"] = $customWildCards;
 
         return $qkey;
     }
@@ -178,10 +181,11 @@ class kora3ApiExternalTool {
      * @param  int $index - In final result set, what record should we start at
      * @param  int $count - Determines, starting from $index, how many records to return
      * @param  int $filterCount - Determines what the minimum threshold us for a filter to appear
-     * @param  array $fitlerFlids - Determines what the minimum threshold us for a filter to appear
+     * @param  array $fitlerFlids - Determines what fields are processed for filters
+     * @param  array $assocFlids - Determines what fields are returned for associated records
      * @return array - Array representation of the form search for the API
      */
-    static function formSearchBuilder($fid,$token,$flags,$fields,$sort,$queries,$qLogic,$index=null,$count=null,$filterCount=null,$fitlerFlids=null) {
+    static function formSearchBuilder($fid,$token,$flags,$fields,$sort,$queries,$qLogic,$index=null,$count=null,$filterCount=null,$fitlerFlids=null,$assocFlids=null) {
         $form = array();
         $form["form"] = $fid;
         $form["bearer_token"] = $token;
@@ -199,6 +203,10 @@ class kora3ApiExternalTool {
             $form["filter_fields"] = $fitlerFlids;
 
         $form["assoc"] = in_array("assoc",$flags) ? in_array("assoc",$flags) : false;
+        if(is_array($assocFlids) && empty($assocFlids))
+            $form["assoc_fields"] = "ALL";
+        else
+            $form["assoc_fields"] = $assocFlids;
         $form["reverse_assoc"] = in_array("reverse_assoc",$flags) ? in_array("reverse_assoc",$flags) : false;
 
         $form["real_names"] = in_array("real_names",$flags) ? in_array("real_names",$flags) : false;
@@ -330,33 +338,20 @@ class KORA_Clause {
                 $query = $tool::kidQueryBuilder($arg2, $not, true);
                 array_push($this->queries,$query);
             } else {
-                if($op=="="|$op=="==") {
+                if($op=="="|$op=="=="|$op=="LIKE") {
                     $not = false;
-                    $method = "EXACT";
-                } else if($op=="!="|$op=="!==") {
+                    $arg2 = [$this->dateCleaner($arg2)];
+                } else if($op=="!="|$op=="!=="|$op=="NOT LIKE") {
                     $not = true;
-                    $method = "EXACT";
-                } else if($op=="LIKE") {
-                    $not = false;
-                    $method = "OR";
-                } else if($op=="NOT LIKE") {
-                    $not = true;
-                    $method = "OR";
+                    $arg2 = [$this->dateCleaner($arg2)];
                 } else if($op=="IN") {
                     $not = false;
-                    $method = "OR";
-                    $arg2 = implode(' ',$arg2);
                 } else if($op=="NOT IN") {
                     $not = true;
-                    $method = "OR";
-                    $arg2 = implode(' ',$arg2);
                 } else
                     die("Illegal keyword operator provided: ".$op);
 
-                //Strip away %
-                $arg2 = str_replace("%","",$arg2);
-                $arg2 = $this->dateCleaner($arg2);
-                $query = $tool::keywordQueryBuilder($arg2, $method, $not, array($arg1));
+                $query = $tool::keywordQueryBuilder($arg2, "OR", $not, array($arg1));
                 array_push($this->queries,$query);
             }
         }
@@ -369,6 +364,7 @@ class KORA_Clause {
      * @return string - The filtered date keyword
      */
     private function dateCleaner($keyword) {
+        $keyword = str_replace("%","",$keyword);
         $hasDate = false;
         $dateArray = ['month'=>01,'day'=>01,'year'=>0001];
 
@@ -683,7 +679,7 @@ function MPF_Search($token,$pidList,$sidList,$koraClause,$fields,$order=array(),
     curl_close($curl);
 
     $result = json_decode($result,true);
-    
+
     if(isset($result['records']))
         return $result['records'];
     else

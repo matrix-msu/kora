@@ -25,7 +25,7 @@
                 <i class="icon icon-form-record-search mr-sm"></i>
                 <span>Form Records & Search</span>
             </h1>
-            <p class="description">Enter keywords to search below. You can also filter by “Or”, “And”, or “Exact”
+            <p class="description">Enter keywords to search below. You can also filter by “Or”, “And”, or “KID”
                 keyword results. The Form Records & Search page also allows you to individually select a number of
                 records in order to batch delete, assign field values, or to export. To create a selection of records,
                 select the radio buttons next to each record name use wish to select.</p>
@@ -40,11 +40,11 @@
             <form method="GET" action="{{action('FormSearchController@keywordSearch',['pid' => $form->project_id, 'fid' => $form->id])}}" class="keyword-search-js">
                 <div class="form-group search-input mt-xl">
                     {!! Form::label('keywords','Search Via Keyword(s) or KID') !!}
-                    {!! Form::text('keywords', app('request')->input('keywords'), ['class' => 'text-input keywords-get-js', 'placeholder' => 'Type space separated keywords']) !!}
+                    {!! Form::text('keywords', app('request')->input('keywords'), ['class' => 'text-input keywords-get-js', 'placeholder' => 'Type space separated keywords (Use double quotes to create key phrases)']) !!}
                 </div>
                 <div class="form-group search-input mt-xl">
-                    {!! Form::label('method','or / and / exact') !!}
-                    {!! Form::select('method',[0 => 'or',1 => 'and',2 => 'exact'], app('request')->input('method'), ['class' => 'single-select method-get-js']) !!}
+                    {!! Form::label('method','or / and / kid') !!}
+                    {!! Form::select('method',[0 => 'OR',1 => 'AND',2 => 'KID'], app('request')->input('method'), ['class' => 'single-select method-get-js']) !!}
                 </div>
 
                 <div class="form-group mt-xxxl search-button-container">

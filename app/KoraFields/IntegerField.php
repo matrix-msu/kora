@@ -2,7 +2,6 @@
 
 use App\Form;
 use App\Record;
-use App\Search;
 use Illuminate\Http\Request;
 use Illuminate\Database\Query\Builder;
 
@@ -316,13 +315,17 @@ class IntegerField extends BaseField {
      * @return array - The RIDs that match search
      */
     public function keywordSearchTyped($flid, $arg, $recordMod, $negative = false) {
+        if($negative)
+            $param = '!=';
+        else
+            $param = '=';
+
         if(is_numeric($arg)) { // Only search if we're working with a number.
             $arg = intval($arg);
 
             return $recordMod->newQuery()
                 ->select('id')
-                ->where($flid, $param,"%$arg%")
-                ->whereBetween("number", [$arg - self::EPSILON, $arg + self::EPSILON])
+                ->where($flid, $param,"$arg")
                 ->pluck('id')
                 ->toArray();
         }
@@ -342,11 +345,13 @@ class IntegerField extends BaseField {
         else
             $leftNum = '';
         $request->request->add([$flid.'_left' => $leftNum]);
+
         if(isset($data->right))
             $rightNum = $data->right;
         else
             $rightNum = '';
         $request->request->add([$flid.'_right' => $rightNum]);
+
         if(isset($data->invert))
             $invert = $data->invert;
         else
@@ -366,49 +371,45 @@ class IntegerField extends BaseField {
      * @return array - The RIDs that match search
      */
     public function advancedSearchTyped($flid, $query, $recordMod, $negative = false) {
-        $left = $query[$flid . "_left"];
-        $right = $query[$flid . "_right"];
-        $invert = isset($query[$flid . "_invert"]);
+        $left = (int)$query[$flid . "_left"];
+        $right = (int)$query[$flid . "_right"];
+        $invert = (bool)isset($query[$flid . "_invert"]);
 
         $query = $recordMod->newQuery()
-            ->select("id")
-            ->where("flid", "=", $flid);
+            ->select("id");
 
-        self::buildAdvancedNumberQuery($query, $left, $right, $invert);
+        self::buildAdvancedNumberQuery($query, $flid, $left, $right, $invert);
 
         return $query->pluck('id')
             ->toArray();
     }
 
     /**
-     * Build an advanced search number field query. Public because Combolist borrows it. Otherwise it would be private
-     * like the others.
+     * Build an advanced search number field query.
      *
      * @param  Builder $query - Query to build upon
+     * @param  string $flid - Field ID
      * @param  string $left - Input from the form, left index
      * @param  string $right - Input from the form, right index
      * @param  bool $invert - Inverts the search range if true
-     * @param  string $prefix - For dealing with joined tables
      */
-    public static function buildAdvancedNumberQuery(Builder &$query, $left, $right, $invert, $prefix = "") {
+    private static function buildAdvancedNumberQuery(Builder &$query, $flid, $left, $right, $invert) {
         // Determine the interval we should search over. With epsilons to account for float rounding.
         if($left == "") {
             if($invert) // [right, inf)
-                $query->where($prefix . "number", ">", floatval($right) - self::EPSILON);
+                $query->where($flid, ">", $right);
             else // (-inf, right]
-                $query->where($prefix . "number", "<=", floatval($right) + self::EPSILON);
+                $query->where($flid, "<=", $right);
         } else if($right == "") {
             if($invert) // (-inf, left]
-                $query->where($prefix . "number", "<", floatval($left) + self::EPSILON);
+                $query->where($flid, "<", $left);
             else // [left, inf)
-                $query->where($prefix . "number", ">=", floatval($left) - self::EPSILON);
+                $query->where($flid, ">=", $left);
         } else {
             if($invert) { // (-inf, left] union [right, inf)
-                $query->whereNotBetween($prefix . "number", [floatval($left) - self::EPSILON,
-                    floatval($right) + self::EPSILON]);
+                $query->whereNotBetween($flid, [$left, $right]);
             } else { // [left, right]
-                $query->whereBetween($prefix . "number", [floatval($left) - self::EPSILON,
-                    floatval($right) + self::EPSILON]);
+                $query->whereBetween($flid, [$left, $right]);
             }
         }
     }

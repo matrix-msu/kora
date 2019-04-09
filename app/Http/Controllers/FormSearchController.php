@@ -43,7 +43,9 @@ class FormSearchController extends Controller {
 
         //if no keyword is entered then we want to get all the records back
         if($argString!='') {
-            $search = new Search($pid, $fid, $argString, $method);
+            //This line breaks apart the space separated keywords, but also maintains words held together in double quotes
+            $keys = str_getcsv($argString, ' ');
+            $search = new Search($pid, $fid, $keys, $method);
 
             $rids = $search->formKeywordSearch();
         } else {

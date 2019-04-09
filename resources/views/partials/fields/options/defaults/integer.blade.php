@@ -15,6 +15,7 @@
             id="min"
             value="{{ $field['options']['Min'] }}"
             placeholder="Enter minimum value here"
+            step="1"
         >
     </div>
 </div>
@@ -30,6 +31,7 @@
             id="max"
             value="{{ $field['options']['Max'] }}"
             placeholder="Enter max value here"
+            step="1"
         >
     </div>
 </div>

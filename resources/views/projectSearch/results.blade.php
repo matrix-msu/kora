@@ -1,12 +1,12 @@
 @extends('app', ['page_title' => 'Project Records', 'page_class' => 'project-records'])
 
 @section('leftNavLinks')
-    @include('partials.menu.project', ['pid' => $project->pid])
+    @include('partials.menu.project', ['pid' => $project->id])
     @include('partials.menu.static', ['name' => 'Project Records'])
 @stop
 
 @section('aside-content')
-  @include('partials.sideMenu.project', ['pid' => $project->pid, 'openDrawer' => true])
+  @include('partials.sideMenu.project', ['pid' => $project->id, 'openDrawer' => true])
 @stop
 
 
@@ -26,7 +26,7 @@
                 <span>Search Project Records</span>
             </h1>
             <p class="description">Enter keywords to search below. A keyword is required in order to search project
-                records. You can also search by a specific form, and filter by “Or”, “And”, or “Exact” keyword results. </p>
+                records. You can also search by a specific form, and filter by “Or”, “And”, or “KID” keyword results. </p>
         </div>
     </section>
 @stop
@@ -34,15 +34,15 @@
 @section('body')
     <section class="view-records center">
         <section class="search-records">
-            <form method="GET" action="{{action('ProjectSearchController@keywordSearch',['pid' => $project->pid])}}" class="keyword-search-js">
+            <form method="GET" action="{{action('ProjectSearchController@keywordSearch',['pid' => $project->id])}}" class="keyword-search-js">
                 <div class="form-group search-input mt-xl">
                     {!! Form::label('keywords','Search Via Keyword(s) or KID') !!}
                     <span class="error-message"></span>
-                    {!! Form::text('keywords', app('request')->input('keywords'), ['class' => 'text-input keywords-get-js', 'placeholder' => 'Type space separated keywords']) !!}
+                    {!! Form::text('keywords', app('request')->input('keywords'), ['class' => 'text-input keywords-get-js', 'placeholder' => 'Type space separated keywords (Use double quotes to create key phrases)']) !!}
                 </div>
                 <div class="form-group search-input mt-xl">
-                    {!! Form::label('method','or / and / exact') !!}
-                    {!! Form::select('method',[0 => 'or',1 => 'and',2 => 'exact'], app('request')->input('method'), ['class' => 'single-select method-get-js']) !!}
+                    {!! Form::label('method','or / and / kid') !!}
+                    {!! Form::select('method',[0 => 'OR',1 => 'AND',2 => 'KID'], app('request')->input('method'), ['class' => 'single-select method-get-js']) !!}
                 </div>
 
                 <div class="form-group search-spacer mt-xl">

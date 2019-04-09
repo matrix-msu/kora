@@ -65,6 +65,35 @@ class RestfulController extends Controller {
     }
 
     /**
+     * Import form into project.
+     *
+     * @param  int $pid - Project ID
+     * @return string - Success message
+     */
+    public function createForm($pid, Request $request) {
+        if(!ProjectController::validProj($pid))
+            return response()->json(["status"=>false,"error"=>"Invalid Project Provided"],500);
+
+        $proj = ProjectController::getProject($pid);
+
+        $validated = $this->validateToken($proj->id,$request->token,"create");
+        //Authentication failed
+        if(!$validated)
+            return response()->json(["status"=>false,"error"=>"Invalid create token provided"],500);
+
+        //Gather form data to insert
+        if(!isset($request->k3Form))
+            return response()->json(["status"=>false,"error"=>"No form data supplied to insert into: ".$proj->name],500);
+
+        $formData = json_decode($request->k3Form);
+
+        $ic = new ImportController();
+        $ic->importFormNoFile($proj->id,$formData);
+
+        return "Form Created!";
+    }
+
+    /**
      * Get a basic list of the fields in a form.
      *
      * @param  int $pid - Project ID
@@ -78,6 +107,54 @@ class RestfulController extends Controller {
         $form = FormController::getForm($fid);
 
         return $form->layout['fields'];
+    }
+
+    /**
+     * Modify options on a field page.
+     *
+     * @param  int $pid - Project ID
+     * @param  int $fid - Form ID
+     * @return mixed - Number of records
+     */
+    public function modifyFormFields($pid, $fid, Request $request) {
+        if(!FormController::validProjForm($pid,$fid))
+            return response()->json(["status"=>false,"error"=>"Invalid Project/Form Pair"],500);
+
+        $validated = $this->validateToken($pid,$request->token,"create");
+        //Authentication failed
+        if(!$validated)
+            return response()->json(["status"=>false,"error"=>"Invalid create token provided"],500);
+
+        $form = FormController::getForm($fid);
+        $layout = $form->layout;
+
+        $toModify = json_decode($request->fields,true);
+        if(!is_array($toModify))
+            return response()->json(["status"=>false,"error"=>"Invalid Field Modification Array"],500);
+
+        //For types that use enum
+        $table = new \CreateRecordsTable();
+        foreach($toModify as $flid => $options) {
+            foreach($options as $opt => $value) {
+                if(isset($layout['fields'][$flid]['options'][$opt]))
+                    $layout['fields'][$flid]['options'][$opt] = $value;
+                else
+                    return response()->json(["status"=>false,"error"=>"Invalid Provided Option: ".$this->cleanseOutput($opt)],500);
+            }
+
+            if(in_array($layout['fields'][$flid]['type'],Form::$enumFields)) {
+                $table->updateEnum(
+                    $fid,
+                    $flid,
+                    $layout['fields'][$flid]['options']['Options']
+                );
+            }
+        }
+
+        $form->layout = $layout;
+        $form->save();
+
+        return "Field Options Updated!";
     }
 
     /**
@@ -164,6 +241,7 @@ class RestfulController extends Controller {
             $filters['filterFlids'] = isset($f->filter_fields) && is_array($f->filter_fields) ? $f->filter_fields : 'ALL'; //What fields should filters return for? Should be array
 
             $filters['assoc'] = isset($f->assoc) && is_bool($f->assoc) ? $f->assoc : false; //do we want information back about associated records
+            $filters['assocFlids'] = isset($f->assoc_fields) && is_array($f->assoc_fields) ? $f->assoc_fields : 'ALL'; //What fields should associated records return? Should be array
             $filters['revAssoc'] = isset($f->reverse_assoc) && is_bool($f->reverse_assoc) ? $f->reverse_assoc : true; //do we want information back about reverse associations for XML OUTPUT
 
             //WARNING::IF FIELD NAMES SHARE A TITLE WITHIN THE SAME FIELD, THIS WOULD IN THEORY BREAK
@@ -397,9 +475,9 @@ class RestfulController extends Controller {
                 break;
             case 'keyword':
                 //do a keyword search
-                if(!isset($query->key_string) || !is_string($query->key_string))
+                if(!isset($query->key_words) || !is_array($query->key_words))
                     return response()->json(["status"=>false,"error"=>"No keywords supplied in a keyword search for form: ". $form->name],500);
-                $keyString = $query->key_string;
+                $keys = $query->key_words;
 
                 //Check for limiting fields
                 $searchFields = array();
@@ -436,18 +514,18 @@ class RestfulController extends Controller {
                     case 'AND':
                         $method = Search::SEARCH_AND;
                         break;
-                    case 'EXACT':
-                        $method = Search::SEARCH_EXACT;
-                        break;
                     default:
                         return response()->json(["status"=>false,"error"=>"Invalid method, ".$this->cleanseOutput($method).", provided for keyword search for form: ". $form->name],500);
                         break;
                 }
 
+                //Determine if we need to add wildcards to search keywords, or if user will supply the wildcards
+                $customWildcards = isset($query->custom_wildcards) && is_bool($query->custom_wildcards) ? $query->custom_wildcards : false;
+
                 /// HERES WHERE THE NEW SEARCH WILL HAPPEN
                 $negative = isset($query->not) && is_bool($query->not) ? $query->not : false;
-                $search = new Search($form->project_id,$form->id,$keyString,$method);
-                $rids = $search->formKeywordSearch($searchFields, true, $negative);
+                $search = new Search($form->project_id,$form->id,$keys,$method);
+                $rids = $search->formKeywordSearch($searchFields, true, $negative, $customWildcards);
 
                 return $rids;
                 break;
@@ -486,36 +564,6 @@ class RestfulController extends Controller {
                 return response()->json(["status"=>false,"error"=>"Invalid search query type supplied for form: ". $form->name],500);
                 break;
         }
-    }
-
-
-    /**
-     * Import form into project.
-     *
-     * @param  int $pid - Project ID
-     * @return string - Success message
-     */
-    public function createForm($pid, Request $request) { //TODO::CASTLE
-        if(!ProjectController::validProj($pid))
-            return response()->json(["status"=>false,"error"=>"Invalid Project: ".$pid],500);
-
-        $proj = ProjectController::getProject($pid);
-
-        $validated = $this->validateToken($proj->id,$request->token,"create");
-        //Authentication failed
-        if(!$validated)
-            return response()->json(["status"=>false,"error"=>"Invalid create token provided"],500);
-
-        //Gather form data to insert
-        if(!isset($request->k3Form))
-            return response()->json(["status"=>false,"error"=>"No form data supplied to insert into: ".$proj->name],500);
-
-        $formData = json_decode($request->k3Form);
-
-        $ic = new ImportController();
-        $ic->importFormNoFile($proj->id,$formData);
-
-        return "Form Created!";
     }
 
     /**
