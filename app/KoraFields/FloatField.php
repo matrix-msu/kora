@@ -322,23 +322,25 @@ class FloatField extends BaseField {
      * @return array - The RIDs that match search
      */
     public function keywordSearchTyped($flid, $arg, $recordMod, $negative = false) {
-
-        if(is_numeric($arg)) { // Only search if we're working with a number.
-            $arg = floatval($arg);
+        $tmpArg = str_replace("%","",$arg);
+        if(is_numeric($tmpArg)) { // Only search if we're working with a number.
+            $tmpArg = floatval($tmpArg);
 
             if($negative){
                 return $recordMod->newQuery()
                     ->select('id')
-                    ->whereNotBetween($flid, [$arg - self::EPSILON, $arg + self::EPSILON])
+                    ->whereNotBetween($flid, [$tmpArg - self::EPSILON, $tmpArg + self::EPSILON])
                     ->pluck('id')
                     ->toArray();
             } else {
                 return $recordMod->newQuery()
                     ->select('id')
-                    ->whereBetween($flid, [$arg - self::EPSILON, $arg + self::EPSILON])
+                    ->whereBetween($flid, [$tmpArg - self::EPSILON, $tmpArg + self::EPSILON])
                     ->pluck('id')
                     ->toArray();
             }
+        } else {
+            return [];
         }
     }
 
@@ -346,28 +348,25 @@ class FloatField extends BaseField {
      * Updates the request for an API search to mimic the advanced search structure.
      *
      * @param  array $data - Data from the search
-     * @param  int $flid - Field ID
-     * @param  Request $request
-     * @return Request - The update request
+     * @return array - The update request
      */
-    public function setRestfulAdvSearch($data, $flid, $request) {
-        if(isset($data->left))
-            $leftNum = $data->left;
-        else
-            $leftNum = '';
-        $request->request->add([$flid.'_left' => $leftNum]);
-        if(isset($data->right))
-            $rightNum = $data->right;
-        else
-            $rightNum = '';
-        $request->request->add([$flid.'_right' => $rightNum]);
-        if(isset($data->invert))
-            $invert = $data->invert;
-        else
-            $invert = 0;
-        $request->request->add([$flid.'_invert' => $invert]);
+    public function setRestfulAdvSearch($data) {
+        $return = [];
 
-        return $request;
+        if(isset($data->left) && is_int($data->left))
+            $return['left'] = $data->left;
+        else
+            $return['left'] = '';
+
+        if(isset($data->right) && is_int($data->right))
+            $return['right'] = $data->right;
+        else
+            $return['right'] = '';
+
+        if(isset($data->invert) && is_bool($data->invert))
+            $return['invert'] = $data->invert;
+
+        return $return;
     }
 
     /**
@@ -380,9 +379,9 @@ class FloatField extends BaseField {
      * @return array - The RIDs that match search
      */
     public function advancedSearchTyped($flid, $query, $recordMod, $negative = false) {
-        $left = (double)$query[$flid . "_left"];
-        $right = (double)$query[$flid . "_right"];
-        $invert = (bool)isset($query[$flid . "_invert"]);
+        $left = (int)$query['left'];
+        $right = (int)$query['right'];
+        $invert = isset($query['invert']) ? (bool)$query['invert'] : false;
 
         $query = $recordMod->newQuery()
             ->select("id");
@@ -402,7 +401,7 @@ class FloatField extends BaseField {
      * @param  string $right - Input from the form, right index
      * @param  bool $invert - Inverts the search range if true
      */
-    private static function buildAdvancedNumberQuery(Builder &$query, $flid, $left, $right, $invert) {
+    private static function buildAdvancedNumberQuery(&$query, $flid, $left, $right, $invert) {
         // Determine the interval we should search over. With epsilons to account for float rounding.
         if($left == "") {
             if($invert) // [right, inf)

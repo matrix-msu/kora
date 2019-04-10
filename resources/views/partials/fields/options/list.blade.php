@@ -57,13 +57,13 @@
 
         <div><a href="#" class="field-preset-link open-list-modal-js">Use a Value Preset for these List Options</a></div>
         <div class="open-create-regex"><a href="#" class="field-preset-link open-create-list-modal-js right
-            @if(empty($field['options'])) disabled tooltip @endif" tooltip="You must submit or update the field before creating a New Value Preset">
+            @if(empty($field['options']['Options'])) disabled tooltip @endif" tooltip="You must submit or update the field before creating a New Value Preset">
                 Create a New Value Preset from these List Options</a></div>
     </div>
 
     <div class="form-group mt-70-xl">
         {!! Form::label('default','Default') !!}
-        {!! Form::select('default',$field['options'], $field['default'],
+        {!! Form::select('default',[null=>'']+\App\KoraFields\ListField::getList($field), $field['default'],
         ['class' => 'single-select list-default-js', 'data-placeholder' => 'Select the default value here (Value must be added above in order to select)']) !!}
     </div>
 @stop

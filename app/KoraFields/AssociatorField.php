@@ -334,11 +334,9 @@ class AssociatorField extends BaseField {
      * Updates the request for an API search to mimic the advanced search structure.
      *
      * @param  array $data - Data from the search
-     * @param  int $flid - Field ID
-     * @param  Request $request
-     * @return Request - The update request
+     * @return array - The update request
      */
-    public function setRestfulAdvSearch($data, $flid, $request) {
+    public function setRestfulAdvSearch($data) {
         $request->request->add([$flid.'_input' => $data->value]);
 
         return $request;

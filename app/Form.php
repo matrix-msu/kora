@@ -64,6 +64,11 @@ class Form extends Model {
             self::_INTEGER => self::_INTEGER,
             self::_FLOAT => self::_FLOAT
         ),
+        'List Fields' => array(
+            self::_LIST => self::_LIST,
+            self::_MULTI_SELECT_LIST => self::_MULTI_SELECT_LIST,
+            self::_GENERATED_LIST => self::_GENERATED_LIST
+        ),
         'Date Fields' => array(
             self::_DATE => self::_DATE,
             self::_DATETIME => self::_DATETIME,
@@ -75,11 +80,6 @@ class Form extends Model {
             self::_PLAYLIST => self::_PLAYLIST.' (mp3, wav)',
             self::_VIDEO => self::_VIDEO.' (mp4)',
             self::_3D_MODEL => self::_3D_MODEL.' (obj, stl)'
-        ),
-        'List Fields' => array(
-            self::_LIST => self::_LIST,
-            self::_MULTI_SELECT_LIST => self::_MULTI_SELECT_LIST,
-            self::_GENERATED_LIST => self::_GENERATED_LIST
         ),
         'Specialty Fields' => array(
             self::_BOOLEAN => self::_BOOLEAN,

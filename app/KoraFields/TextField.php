@@ -314,14 +314,13 @@ class TextField extends BaseField {
      * Updates the request for an API search to mimic the advanced search structure.
      *
      * @param  array $data - Data from the search
-     * @param  int $flid - Field ID
-     * @param  Request $request
-     * @return Request - The update request
+     * @return array - The update request
      */
-    public function setRestfulAdvSearch($data, $flid, $request) {
-        $request->request->add([$flid.'_input' => $data->input]);
-
-        return $request;
+    public function setRestfulAdvSearch($data) {
+        if(isset($data->input) && is_string($data->input))
+            return ['input' => $data->input];
+        else
+            return [];
     }
 
     /**
@@ -334,8 +333,8 @@ class TextField extends BaseField {
      * @return array - The RIDs that match search
      */
     public function advancedSearchTyped($flid, $query, $recordMod, $negative = false) {
-        $arg = $query[$flid . "_input"];
-        $arg = Search::prepare($arg);
+        $arg = $query['input'];
+        $arg = Search::prepare([$arg])[0]; //We make an array to 'prepare' the term
 
         if($negative)
             $param = '!=';

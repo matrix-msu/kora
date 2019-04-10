@@ -1,17 +1,12 @@
-<?php
+@php
     if($editRecord)
         $listValue = $record->{$flid};
     else
         $listValue = $field['default'];
-
-    $options = array();
-    foreach ($field['options']['Options'] as $option) {
-        $options['Options'][$option] = $option;
-    }
-?>
+@endphp
 <div class="form-group mt-xxxl">
     <label>@if($field['required'])<span class="oval-icon"></span> @endif{{$field['name']}}</label>
     <span class="error-message"></span>
-    {!! Form::select($flid, $options, $listValue,
+    {!! Form::select($flid, [null=>'']+\App\KoraFields\ListField::getList($field), $listValue,
         ['class' => 'single-select preset-clear-chosen-js', 'id' => 'list'.$flid]) !!}
 </div>

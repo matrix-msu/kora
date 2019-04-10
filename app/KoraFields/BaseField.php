@@ -210,11 +210,9 @@ abstract class BaseField extends Model {
      * Updates the request for an API search to mimic the advanced search structure.
      *
      * @param  array $data - Data from the search
-     * @param  int $flid - Field ID
-     * @param  Request $request
-     * @return Request - The update request
+     * @return array - The update request
      */
-    abstract public function setRestfulAdvSearch($data, $flid, $request);
+    abstract public function setRestfulAdvSearch($data);
 
     /**
      * Build the advanced query for a text field.

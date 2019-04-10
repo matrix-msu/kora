@@ -269,7 +269,7 @@ class MultiSelectListField extends BaseField {
                 $xml = '<' . $slug . '>';
                 $xml .= '<value>' . utf8_encode('This is one of the list options that was selected') . '</value>';
                 $xml .= '<value>' . utf8_encode('This is another list option that was selected') . '</value>';
-                $xml = '<' . $slug . '>';
+                $xml .= '<' . $slug . '>';
 
                 return $xml;
                 break;
@@ -300,7 +300,7 @@ class MultiSelectListField extends BaseField {
 
         return $recordMod->newQuery()
             ->select("id")
-            ->where($flid, $param,"%$arg%")
+            ->where($flid, $param,"$arg")
             ->pluck('id')
             ->toArray();
     }
@@ -309,14 +309,13 @@ class MultiSelectListField extends BaseField {
      * Updates the request for an API search to mimic the advanced search structure.
      *
      * @param  array $data - Data from the search
-     * @param  int $flid - Field ID
-     * @param  Request $request
-     * @return Request - The update request
+     * @return array - The update request
      */
-    public function setRestfulAdvSearch($data, $flid, $request) {
-        $request->request->add([$flid.'_input' => $data->input]);
-
-        return $request;
+    public function setRestfulAdvSearch($data) {
+        if(isset($data->input) && is_array($data->input))
+            return ['input' => $data->input];
+        else
+            return [];
     }
 
     /**
@@ -329,18 +328,23 @@ class MultiSelectListField extends BaseField {
      * @return array - The RIDs that match search
      */
     public function advancedSearchTyped($flid, $query, $recordMod, $negative = false) {
-        $arg = $query[$flid . "_input"];
-        $arg = Search::prepare($arg);
+        $arg = $query['input'];
+        $args = Search::prepare($arg);
 
-        if($negative)
-            $param = '!=';
-        else
-            $param = '=';
+        $query = $recordMod->newQuery()
+            ->select("id");
 
-        return $recordMod->newQuery()
-            ->select("id")
-            ->where($flid, $param,"$arg")
-            ->pluck('id')
+        if($negative) {
+            foreach($args as $a) {
+                $query->orWhereRaw("JSON_SEARCH(`$flid`,'one','$a') IS NULL");
+            }
+        } else {
+            foreach($args as $a) {
+                $query->whereRaw("JSON_SEARCH(`$flid`,'one','$a') IS NOT NULL");
+            }
+        }
+
+        return $query->pluck('id')
             ->toArray();
     }
 
@@ -349,7 +353,7 @@ class MultiSelectListField extends BaseField {
     /**
      * Gets the list options for a multi-select list field.
      *
-     * @param  Field $field - Field to pull options from
+     * @param  array $field - Field to pull options from
      * @return array - The list options
      */
     public static function getList($field) {

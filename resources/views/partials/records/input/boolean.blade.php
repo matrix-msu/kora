@@ -9,6 +9,7 @@
     <span class="error-message"></span>
 	
     <div class="check-box-half">
+        <input type="hidden" name="{{$flid}}" value="0">
         <input type="checkbox" value="1" id="preset" class="check-box-input" name="{{$flid}}"
                 {{ ((!is_null($boolValue) && $boolValue) ? 'checked' : '') }}>
         <span class="check"></span>

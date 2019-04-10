@@ -20,7 +20,7 @@ class BooleanField extends BaseField {
      * @var string - Views for the typed field options
      */
     const FIELD_OPTIONS_VIEW = "partials.fields.options.boolean";
-    const FIELD_ADV_OPTIONS_VIEW = null;
+    const FIELD_ADV_OPTIONS_VIEW = "partials.fields.advanced.boolean";
     const FIELD_ADV_INPUT_VIEW = "partials.records.advanced.boolean"; //TODO::CASTLE
     const FIELD_INPUT_VIEW = "partials.records.input.boolean";
     const FIELD_DISPLAY_VIEW = "partials.records.display.boolean";
@@ -277,15 +277,24 @@ class BooleanField extends BaseField {
      * @param  boolean $negative - Get opposite results of the search
      * @return array - The RIDs that match search
      */
-    public function keywordSearchTyped($flid, $arg, $recordMod, $negative = false) { //TODO::CASTLE
+    public function keywordSearchTyped($flid, $arg, $recordMod, $negative = false) {
         if($negative)
-            $param = 'NOT LIKE';
+            $param = '!=';
         else
-            $param = 'LIKE';
+            $param = '=';
+
+        $tmpArg = str_replace("%","",$arg);
+
+        if(strtolower($tmpArg)=="true")
+            $tmpArg = 1;
+        else if(strtolower($tmpArg)=="false")
+            $tmpArg = 0;
+        else
+            return [];
 
         return $recordMod->newQuery()
             ->select("id")
-            ->where($flid, $param,"%$arg%")
+            ->where($flid, $param,"$tmpArg")
             ->pluck('id')
             ->toArray();
     }
@@ -294,14 +303,13 @@ class BooleanField extends BaseField {
      * Updates the request for an API search to mimic the advanced search structure.
      *
      * @param  array $data - Data from the search
-     * @param  int $flid - Field ID
-     * @param  Request $request
-     * @return Request - The update request
+     * @return array - The update request
      */
-    public function setRestfulAdvSearch($data, $flid, $request) { //TODO::CASTLE
-        $request->request->add([$flid.'_input' => $data->input]);
-
-        return $request;
+    public function setRestfulAdvSearch($data) {
+        if(isset($data->input) && is_bool($data->input))
+            return ['input' => $data->input];
+        else
+            return [];
     }
 
     /**
@@ -313,9 +321,8 @@ class BooleanField extends BaseField {
      * @param  boolean $negative - Get opposite results of the search
      * @return array - The RIDs that match search
      */
-    public function advancedSearchTyped($flid, $query, $recordMod, $negative = false) { //TODO::CASTLE
-        $arg = $query[$flid . "_input"];
-        $arg = Search::prepare($arg);
+    public function advancedSearchTyped($flid, $query, $recordMod, $negative = false) {
+        $arg = is_bool($query['input']) && $query['input'] ? 1 : 0;
 
         if($negative)
             $param = '!=';
@@ -324,7 +331,7 @@ class BooleanField extends BaseField {
 
         return $recordMod->newQuery()
             ->select("id")
-            ->where($flid, $param,"$arg")
+            ->where($flid, $param, $arg)
             ->pluck('id')
             ->toArray();
     }

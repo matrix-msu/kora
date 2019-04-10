@@ -1,10 +1,9 @@
-<?php
-    if($editRecord && $record->{$flid} != null) {
-        $listValues = implode('[!]',json_decode($record->{$flid}));
-    } else {
-        $listValues = implode('[!]',$field['default']);
-    }
-?>
+@php
+    if($editRecord)
+        $listValues = json_decode($record->{$flid});
+    else
+        $listValues = $field['default'];
+@endphp
 <div class="form-group mt-xxxl">
     <label>@if($field['required'])<span class="oval-icon"></span> @endif{{$field['name']}}</label>
     <span class="error-message"></span>
