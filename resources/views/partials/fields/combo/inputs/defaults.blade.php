@@ -3,7 +3,7 @@
         {!! Form::label('default_'.$fnum, $cfName) !!}
         {!! Form::text('default_'.$fnum, null, ['id' => 'default_'.$fnum, 'class' => 'text-input default-input-js', 'placeholder' => 'Enter text value here']) !!}
     </div>
-@elseif($type=='Date')
+@elseif($type=='Date' | $type=='Historical Date')
     <div class="form-group date-input-form-group date-input-form-group-js mt-xs">
         <div class="form-input-container">
             <div class="form-group">
@@ -44,10 +44,52 @@
                         @endphp
                     </select>
                 </div>
+                {{-- not returning anything!!!! --}}
+                @if($type=='Historical Date')
+                    <div class="form-group mt-xl">
+                        <div class="check-box-half">
+                            <input type="checkbox" value="1" id="preset default_circa_{{$fnum}}" class="check-box-input default-input-js" name="default_circa_{{$fnum}}"
+                                {{ ((!is_null($field['default']) && $field['default']['circa']) ? 'checked' : '') }}>
+                            <span class="check"></span>
+                            <span class="placeholder">Mark this date as an approximate (Circa)?</span>
+                        </div>
+                    </div>
+
+                    <div class="form-group mt-xl">
+                        <label>Select Calendar/Date Notation</label>
+                        <div class="check-box-half mr-m">
+                            <input type="checkbox" value="CE" id="default_era_{{$fnum}}" class="check-box-input era-check-js default-input-js" name="default_era_{{$fnum}}"
+                                {{ ((is_null($field[$fnum]['default']) || $field[$fnum]['default']['era'] == 'CE') ? 'checked' : '') }}>
+                            <span class="check"></span>
+                            <span class="placeholder">CE</span>
+                        </div>
+
+                        <div class="check-box-half mr-m">
+                            <input type="checkbox" value="BCE" id="default_era_{{$fnum}}" class="check-box-input era-check-js default-input-js" name="default_era_{{$fnum}}"
+                                {{ ((!is_null($field[$fnum]['default']) && $field[$fnum]['default']['era'] == 'BCE') ? 'checked' : '') }}>
+                            <span class="check"></span>
+                            <span class="placeholder">BCE</span>
+                        </div>
+
+                        <div class="check-box-half mr-m">
+                            <input type="checkbox" value="BP" id="default_era_{{$fnum}}" class="check-box-input era-check-js default-input-js" name="default_era_{{$fnum}}"
+                                {{ ((!is_null($field[$fnum]['default']) && $field[$fnum]['default']['era'] == 'BP') ? 'checked' : '') }}>
+                            <span class="check"></span>
+                            <span class="placeholder">BP</span>
+                        </div>
+
+                        <div class="check-box-half">
+                            <input type="checkbox" value="KYA BP" id="default_era_{{$fnum}}" class="check-box-input era-check-js default-input-js" name="default_era_{{$fnum}}"
+                                {{ ((!is_null($field[$fnum]['default']) && $field[$fnum]['default']['era'] == 'KYA BP') ? 'checked' : '') }}>
+                            <span class="check"></span>
+                            <span class="placeholder">KYA BP</span>
+                        </div>
+                    </div>
+                @endif
             </div>
         </div>
     </div>
-@elseif($type=='Integer' | $type=='Float')
+@elseif($type=='Integer' || $type=='Float')
     <div class="form-group">
         {!! Form::label('default_'.$fnum, $cfName.' ('.App\KoraFields\ComboListField::getComboFieldOption($field, "Unit", $fnum).')') !!}
         {!! Form::number('default_'.$fnum, null, ['id' => 'default_'.$fnum, 'class' => 'text-input default-input-js', 'placeholder' => 'Enter number here', 'min' => App\KoraFields\ComboListField::getComboFieldOption($field, "Min", $fnum), 'max' => App\KoraFields\ComboListField::getComboFieldOption($field, "Max", $fnum)]) !!}

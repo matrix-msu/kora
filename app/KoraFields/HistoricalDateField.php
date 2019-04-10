@@ -119,7 +119,7 @@ class HistoricalDateField extends BaseField {
      *
      * @return array - The default options
      */
-    public function getDefaultOptions() {
+    public function getDefaultOptions($type = null) {
         return [
             'ShowCirca' => 0,
             'ShowEra' => 0,

@@ -45,7 +45,8 @@ class ComboListField extends BaseField {
             'Float' => 'Float'
         ),
         'Date Fields' => array(
-            'Date' => 'Date'
+            'Date' => 'Date',
+            'Historical Date' => 'Historical Date'
         ),
         'List Fields' => array(
             'List' => 'List',
@@ -64,6 +65,7 @@ class ComboListField extends BaseField {
         'Integer' => 'integer',
         'Float' => 'float',
         'Date' => 'date',
+        'Historical Date' => 'historicdate',
         'Multi-Select List' => 'mslist',
         'Generated List' => 'genlist',
         'Associator' => 'associator',
@@ -76,6 +78,7 @@ class ComboListField extends BaseField {
         'Integer' => 'addIntegerColumn',
         'Float' => 'addDoubleColumn',
         'Date' => 'addDateColumn',
+        'Historical Date' => 'addJSONColumn',
         'Multi-Select List' => 'addJSONColumn',
         'Generated List' => 'addJSONColumn',
         'Associator' => 'addJSONColumn',
@@ -88,6 +91,7 @@ class ComboListField extends BaseField {
         'Integer' => 'App\KoraFields\IntegerField',
         'Float' => 'App\KoraFields\FloatField',
         'Date' => 'App\KoraFields\DateField',
+        'Historical Date' => 'App\KoraFields\HistoricalDateField',
         'Multi-Select List' => 'App\KoraFields\MultiSelectListField',
         'Generated List' => 'App\KoraFields\GeneratedListField',
         'Associator' => 'App\KoraFields\AssociatorField',
@@ -185,7 +189,7 @@ class ComboListField extends BaseField {
     public function updateOptions($field, Request $request, $flid = null, $prefix = 'records_') {
 
         foreach (['one', 'two'] as $seq) {
-            $defaults = array();
+            $defaults = $parts = array();
             $type = $request->{'type' . $seq};
 
             switch($type) {
@@ -228,6 +232,31 @@ class ComboListField extends BaseField {
                         'end',
                         'format'
                     );
+                    $parts = array(
+                        'day',
+                        'month',
+                        'year'
+                    );
+                    break;
+                case Form::_HISTORICAL_DATE:
+                    $defaults = array(
+                        'default_month',
+                        'default_day',
+                        'default_year',
+                        'circa',
+                        'era',
+                        'start',
+                        'end',
+                        'format'
+                    );
+                    $parts = array(
+                        'day',
+                        'month',
+                        'year',
+                        'circa',
+                        'era'
+                    );
+                    break;
                 case Form::_ASSOCIATOR:
                     $fid = '';
                     foreach(array_keys($request->all()) as $key) {
@@ -279,12 +308,12 @@ class ComboListField extends BaseField {
                 $flid
             );
 
-            if ($type == Form::_DATE) {
+            if ($type == Form::_DATE || $type == Form::_HISTORICAL_DATE) {
+                $size = 0;
                 $field[$seq]['default'] = [];
 
-                $size = 0;
                 // Determine the largest size of default
-                foreach (['day', 'month', 'year'] as $part) {
+                foreach ($parts as $part) {
                     if ($request->{'default_' . $part .'_combo_' . $seq} && count($request->{'default_' . $part .'_combo_' . $seq}) > $size)
                         $size = count($request->{'default_' . $part .'_combo_' . $seq});
                 }
@@ -292,7 +321,7 @@ class ComboListField extends BaseField {
                 // Build and add default date
                 for ($i=0; $i < $size; $i++) {
                     $defaultDate = [];
-                    foreach (['day', 'month', 'year'] as $part) {
+                    foreach ($parts as $part) {
                         $defaultDate[$part] = $request->{'default_' . $part .'_combo_' . $seq}[$i];
                     }
                     array_push($field[$seq]['default'], $defaultDate);

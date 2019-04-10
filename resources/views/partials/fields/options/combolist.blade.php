@@ -87,10 +87,14 @@
                             @if($oneType=='Text' | $oneType=='List' | $oneType=='Integer'| $oneType=='Float' | $oneType=='Boolean')
                                 {!! Form::hidden("default_combo_one[]",$valueOne) !!}
                                 <span class="combo-column">{{$valueOne}}</span>
-                            @elseif($oneType=='Date')
+                            @elseif($oneType=='Date' | $oneType=='Historical Date')
                                 {!! Form::hidden("default_day_combo_one[]",$valueOne['day']) !!}
                                 {!! Form::hidden("default_month_combo_one[]",$valueOne['month']) !!}
                                 {!! Form::hidden("default_year_combo_one[]",$valueOne['year']) !!}
+                                @if($oneType=='Historical Date')
+                                    {!! Form::hidden("default_circa_combo_one[]",$valueOne['circa']) !!}
+                                    {!! Form::hidden("default_circa_combo_one[]",$valueOne['era']) !!}
+                                @endif
                                 <span class="combo-column">{{$valueOne['month']}}/{{$valueOne['day']}}/{{$valueOne['year']}}</span>
                             @elseif($oneType=='Multi-Select List' | $oneType=='Generated List' | $oneType=='Associator')
                                 {!! Form::hidden("default_combo_one[]",json_encode($valueOne)) !!}
@@ -99,10 +103,14 @@
                             @if($twoType=='Text' | $twoType=='List' | $oneType=='Integer'| $oneType=='Float' | $twoType=='Boolean')
                                 {!! Form::hidden("default_combo_two[]",$valueTwo) !!}
                                 <span class="combo-column">{{$valueTwo}}</span>
-                            @elseif($twoType=='Date')
+                            @elseif($twoType=='Date' | $twoType=='Historical Date')
                                 {!! Form::hidden("default_day_combo_two[]",$valueTwo['day']) !!}
                                 {!! Form::hidden("default_month_combo_two[]",$valueTwo['month']) !!}
                                 {!! Form::hidden("default_year_combo_two[]",$valueTwo['year']) !!}
+                                @if($twoType=='Historical Date')
+                                    {!! Form::hidden("default_circa_combo_two[]",$valueTwo['circa']) !!}
+                                    {!! Form::hidden("default_circa_combo_two[]",$valueTwo['era']) !!}
+                                @endif
                                 <span class="combo-column">{{$valueTwo['month']}}/{{$valueTwo['day']}}/{{$valueTwo['year']}}</span>
                             @elseif($twoType=='Multi-Select List' | $twoType=='Generated List' | $twoType=='Associator')
                                 {!! Form::hidden("default_combo_two[]",json_encode($valueTwo)) !!}

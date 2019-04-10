@@ -102,36 +102,7 @@
         </div>
     </div>
 
-    <div class="form-group mt-xl">
-        {!! Form::label('format','Date Format') !!}
-        {!! Form::select('format', ['MMDDYYYY' => 'MM DD, YYYY','DDMMYYYY' => 'DD MM YYYY','YYYYMMDD' => 'YYYY MM DD'], $field['options']['Format'], ['class' => 'single-select']) !!}
-    </div>
-
-    <div class="form-group mt-xl half pr-m">
-        {!! Form::label('start','Start Year') !!}
-        <span class="error-message"></span>
-        <div class="number-input-container number-input-container-js">
-            {!! Form::input('number', 'start', $field['options']['Start'], ['class' => 'text-input start-year-js', 'placeholder' => 'Enter start year here']) !!}
-        </div>
-    </div>
-
-    <div class="form-group mt-xl half pl-m">
-        {!! Form::label('end','End Year') !!}
-        <span class="error-message"></span>
-        <div class="number-input-container number-input-container-js">
-            {!! Form::input('number', 'end', $field['options']['End'], ['class' => 'text-input end-year-js', 'placeholder' => 'Enter end year here']) !!}
-        </div>
-    </div>
-
-    <div class="form-group mt-xl">
-        {!! Form::label('circa','Show Circa Approximations?') !!}
-        {!! Form::select('circa', [0 => 'No', 1 => 'Yes'], $field['options']['ShowCirca'], ['class' => 'single-select']) !!}
-    </div>
-
-    <div class="form-group mt-xl">
-        {!! Form::label('era','Show Calendar/Date Notation?') !!}
-        {!! Form::select('era', [0 => 'No', 1 => 'Yes'], $field['options']['ShowEra'], ['class' => 'single-select']) !!}
-    </div>
+    @include('partials.fields.options.defaults.historicdate')
 @stop
 
 @section('fieldOptionsJS')
