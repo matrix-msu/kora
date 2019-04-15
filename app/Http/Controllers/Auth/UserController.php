@@ -116,7 +116,7 @@ class UserController extends Controller {
 
           if($session == 'user_updated') {
             if(in_array('password', $changes)) {
-              $notification['message'] = 'Password Successfully Reset!';
+              $notification['message'] = 'Password Successfully Changed!';
               $notification['static'] = true;
             } else {
               $notification['message'] = 'Profile Successfully Updated!';
@@ -439,6 +439,15 @@ class UserController extends Controller {
     public function validateUserFields(UserRequest $request) {
         return response()->json(["status"=>true, "message"=>"User Valid", 200]);
     }
+	
+	public function validateEditProfile(Request $request) {
+		$validatedData = $request->validate([
+			'password' => 'confirmed|min:6'
+		]);
+		
+		
+		return response()->json(["status"=>true, "message"=>"User Valid", 200]);
+	}
 
     /**
      * Changes the user profile picture and returns the pic URI.
