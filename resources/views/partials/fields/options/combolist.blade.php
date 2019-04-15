@@ -88,14 +88,24 @@
                                 {!! Form::hidden("default_combo_one[]",$valueOne) !!}
                                 <span class="combo-column">{{$valueOne}}</span>
                             @elseif($oneType=='Date' | $oneType=='Historical Date')
+                                @php
+                                $date = [$valueOne['month'], $valueOne['day'], $valueOne['year']];
+                                @endphp
                                 {!! Form::hidden("default_day_combo_one[]",$valueOne['day']) !!}
                                 {!! Form::hidden("default_month_combo_one[]",$valueOne['month']) !!}
                                 {!! Form::hidden("default_year_combo_one[]",$valueOne['year']) !!}
                                 @if($oneType=='Historical Date')
+                                    @php
+                                        array_push(
+                                            $date,
+                                            $valueOne['circa'] ? 'Circa' : '',
+                                            $valueOne['era']
+                                        );
+                                    @endphp
                                     {!! Form::hidden("default_circa_combo_one[]",$valueOne['circa']) !!}
                                     {!! Form::hidden("default_era_combo_one[]",$valueOne['era']) !!}
                                 @endif
-                                <span class="combo-column">{{implode('/', array_filter([$valueOne['month'], $valueOne['day'], $valueOne['year']]))}}</span>
+                                <span class="combo-column">{{implode('/', array_filter($date))}}</span>
                             @elseif($oneType=='Multi-Select List' | $oneType=='Generated List' | $oneType=='Associator')
                                 {!! Form::hidden("default_combo_one[]",json_encode($valueOne)) !!}
                                 <span class="combo-column">{{implode(' | ',$valueOne)}}</span>
@@ -104,14 +114,24 @@
                                 {!! Form::hidden("default_combo_two[]",$valueTwo) !!}
                                 <span class="combo-column">{{$valueTwo}}</span>
                             @elseif($twoType=='Date' | $twoType=='Historical Date')
+                                @php
+                                    $date = [$valueTwo['month'], $valueTwo['day'], $valueTwo['year']];
+                                @endphp
                                 {!! Form::hidden("default_day_combo_two[]",$valueTwo['day']) !!}
                                 {!! Form::hidden("default_month_combo_two[]",$valueTwo['month']) !!}
                                 {!! Form::hidden("default_year_combo_two[]",$valueTwo['year']) !!}
                                 @if($twoType=='Historical Date')
+                                    @php
+                                        array_push(
+                                            $date,
+                                            $valueTwo['circa'] ? 'Circa' : '',
+                                            $valueTwo['era']
+                                        );
+                                    @endphp
                                     {!! Form::hidden("default_circa_combo_two[]",$valueTwo['circa']) !!}
                                     {!! Form::hidden("default_era_combo_two[]",$valueTwo['era']) !!}
                                 @endif
-                                <span class="combo-column">{{implode('/', array_filter([$valueTwo['month'], $valueTwo['day'], $valueTwo['year']]))}}</span>
+                                <span class="combo-column">{{implode('/', array_filter($date))}}</span>
                             @elseif($twoType=='Multi-Select List' | $twoType=='Generated List' | $twoType=='Associator')
                                 {!! Form::hidden("default_combo_two[]",json_encode($valueTwo)) !!}
                                 <span class="combo-column">{{implode(' | ', $valueTwo)}}</span>

@@ -697,8 +697,13 @@ Kora.Fields.Options = function(fieldType) {
                         }
                     });
                     circaOne = $('#default_circa_one');
+                    circaOneVal = 'Circa';
+                    if (circaTwo.prop('checked') != true) {
+                        circaTwo.val('0');
+                        circaOneVal = '';
+                    }
                 }
-                val1 = [monthOne.val(), dayOne.val(), yearOne.val()].filter(Boolean).join('/');
+                val1 = [monthOne.val(), dayOne.val(), yearOne.val(), circaOneVal, eraOne.val()].filter(Boolean).join('/');
             } else {
                 inputOne = $('#default_one');
                 val1 = inputOne.val();
@@ -715,13 +720,13 @@ Kora.Fields.Options = function(fieldType) {
                         }
                     });
                     circaTwo = $('#default_circa_two');
-                    console.log(circaTwo.val())
+                    circaTwoVal = 'Circa';
                     if (circaTwo.prop('checked') != true) {
                         circaTwo.val('0');
+                        circaTwoVal = '';
                     }
-                    console.log(circaTwo.val())
                 }
-                val2 = [monthTwo.val(), dayTwo.val(), yearTwo.val()].filter(Boolean).join('/');
+                val2 = [monthTwo.val(), dayTwo.val(), yearTwo.val(), circaTwoVal, eraTwo.val()].filter(Boolean).join('/');
             } else {
                 inputTwo = $('#default_two');
                 val2 = inputTwo.val();
