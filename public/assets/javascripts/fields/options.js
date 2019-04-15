@@ -685,15 +685,20 @@ Kora.Fields.Options = function(fieldType) {
         });
 
         $('.add-combo-value-js').click(function() {
+            // TODO::CASTLE refactor this!
             if(type1=='Date' | type1=='Historical Date') {
                 monthOne = $('#default_month_one');
                 dayOne = $('#default_day_one');
                 yearOne = $('#default_year_one');
                 if(type1=='Historical Date') {
+                    $('[id^=default_era_one]').each(function () {
+                        if ($(this).is(':checked')) {
+                            eraOne = $(this);
+                        }
+                    });
                     circaOne = $('#default_circa_one');
-                    eraOne = $('#default_era_one');
                 }
-                val1 = monthOne.val()+'/'+dayOne.val()+'/'+yearOne.val();
+                val1 = [monthOne.val(), dayOne.val(), yearOne.val()].filter(Boolean).join('/');
             } else {
                 inputOne = $('#default_one');
                 val1 = inputOne.val();
@@ -704,10 +709,19 @@ Kora.Fields.Options = function(fieldType) {
                 dayTwo = $('#default_day_two');
                 yearTwo = $('#default_year_two');
                 if(type2=='Historical Date') {
+                    $('[id^=default_era_two]').each(function () {
+                        if ($(this).is(':checked')) {
+                            eraTwo = $(this);
+                        }
+                    });
                     circaTwo = $('#default_circa_two');
-                    eraTwo = $('#default_era_two');
+                    console.log(circaTwo.val())
+                    if (circaTwo.prop('checked') != true) {
+                        circaTwo.val('0');
+                    }
+                    console.log(circaTwo.val())
                 }
-                val2 = monthTwo.val()+'/'+dayTwo.val()+'/'+yearTwo.val();
+                val2 = [monthTwo.val(), dayTwo.val(), yearTwo.val()].filter(Boolean).join('/');
             } else {
                 inputTwo = $('#default_two');
                 val2 = inputTwo.val();
@@ -737,8 +751,8 @@ Kora.Fields.Options = function(fieldType) {
                     div += '<input type="hidden" name="default_month_combo_one[]" value="'+monthOne.val()+'">';
                     div += '<input type="hidden" name="default_year_combo_one[]" value="'+yearOne.val()+'">';
                     if(type1=='Historical Date') {
-                        div += '<input type="hidden" name="default_year_circa_one[]" value="'+circaOne.val()+'">';
-                        div += '<input type="hidden" name="default_year_era_one[]" value="'+eraOne.val()+'">';
+                        div += '<input type="hidden" name="default_circa_combo_one[]" value="'+circaOne.val()+'">';
+                        div += '<input type="hidden" name="default_era_combo_one[]" value="'+eraOne.val()+'">';
                     }
                     div += '<span class="combo-column">'+val1+'</span>';
                 } else if(type1=='Multi-Select List' | type1=='Generated List' | type1=='Associator') {
@@ -754,8 +768,8 @@ Kora.Fields.Options = function(fieldType) {
                     div += '<input type="hidden" name="default_month_combo_two[]" value="'+monthTwo.val()+'">';
                     div += '<input type="hidden" name="default_year_combo_two[]" value="'+yearTwo.val()+'">';
                     if(type2=='Historical Date') {
-                        div += '<input type="hidden" name="default_year_circa_two[]" value="'+circaTwo.val()+'">';
-                        div += '<input type="hidden" name="default_year_era_two[]" value="'+eraTwo.val()+'">';
+                        div += '<input type="hidden" name="default_circa_combo_two[]" value="'+circaTwo.val()+'">';
+                        div += '<input type="hidden" name="default_era_combo_two[]" value="'+eraTwo.val()+'">';
                     }
                     div += '<span class="combo-column">'+val2+'</span>';
                 } else if(type2=='Multi-Select List' | type2=='Generated List' | type2=='Associator') {
@@ -776,9 +790,15 @@ Kora.Fields.Options = function(fieldType) {
                     inputOne.val('');
                     inputOne.trigger("chosen:updated");
                 } else if(type1=='Date' | type1=='Historical Date') {
+                    monthOne.val(''); dayOne.val(''); yearOne.val('');
                     monthOne.trigger("chosen:updated"); dayOne.trigger("chosen:updated"); yearOne.trigger("chosen:updated");
                     if(type1=='Historical Date') {
-                        circaOne.trigger("chosen:updated"); eraOne.trigger("chosen:updated");
+                        eraOne.prop("checked", false);
+                        $("#default_era_one_ce").prop("checked", true);
+                        $('[id^=default_era_one]').each(function () {
+                            $(this).trigger("chosen:updated");
+                        });
+                        circaOne.trigger("chosen:updated");
                     }
                 } else {
                     inputOne.val('');
@@ -788,9 +808,15 @@ Kora.Fields.Options = function(fieldType) {
                     inputTwo.val('');
                     inputTwo.trigger("chosen:updated");
                 } else if(type2=='Date' | type2=='Historical Date') {
+                    monthTwo.val(''); dayTwo.val(''); yearTwo.val('');
                     monthTwo.trigger("chosen:updated"); dayTwo.trigger("chosen:updated"); yearTwo.trigger("chosen:updated");
                     if(type2=='Historical Date') {
-                        circaTwo.trigger("chosen:updated"); eraTwo.trigger("chosen:updated");
+                        eraTwo.prop("checked", false);
+                        $("#default_era_two_ce").prop("checked", true);
+                        $('[id^=default_era_two]').each(function () {
+                            $(this).trigger("chosen:updated");
+                        });
+                        circaTwo.trigger("chosen:updated");
                     }
                 } else {
                     inputTwo.val('');
@@ -1036,8 +1062,8 @@ Kora.Fields.Options = function(fieldType) {
                 $day = $('[id^=default_day_]');
 
                 if(currEra=='BP' | currEra=='KYA BP') {
-                    $month.attr('disabled','disabled');
-                    $day.attr('disabled','disabled');
+                    $month.attr('disabled','disabled').val('');
+                    $day.attr('disabled','disabled').val('');
                     $month.trigger("chosen:updated");
                     $day.trigger("chosen:updated");
                 } else {

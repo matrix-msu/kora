@@ -135,7 +135,7 @@
     <div class="form-group">
         {!! Form::label('default_'.$fnum, $cfName) !!}
         <div class="check-box-half">
-            <input type="checkbox" value="1" id="default_{{$fnum}}_{{$flid}}" class="check-box-input default-input-js" name="default_{{$fnum}}_{{$flid}}"
+            <input type="checkbox" value="1" id="default_{{$fnum}}_{{$flid}}" class="check-box-input" name="default_{{$fnum}}_{{$flid}}"
                     {{ ((!is_null($field[$fnum]['default']) && $field[$fnum]['default']) ? 'checked' : '') }}>
             <span class="check"></span>
             <span class="placeholder"></span>

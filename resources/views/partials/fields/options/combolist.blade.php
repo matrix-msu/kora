@@ -93,9 +93,9 @@
                                 {!! Form::hidden("default_year_combo_one[]",$valueOne['year']) !!}
                                 @if($oneType=='Historical Date')
                                     {!! Form::hidden("default_circa_combo_one[]",$valueOne['circa']) !!}
-                                    {!! Form::hidden("default_circa_combo_one[]",$valueOne['era']) !!}
+                                    {!! Form::hidden("default_era_combo_one[]",$valueOne['era']) !!}
                                 @endif
-                                <span class="combo-column">{{$valueOne['month']}}/{{$valueOne['day']}}/{{$valueOne['year']}}</span>
+                                <span class="combo-column">{{implode('/', array_filter([$valueOne['month'], $valueOne['day'], $valueOne['year']]))}}</span>
                             @elseif($oneType=='Multi-Select List' | $oneType=='Generated List' | $oneType=='Associator')
                                 {!! Form::hidden("default_combo_one[]",json_encode($valueOne)) !!}
                                 <span class="combo-column">{{implode(' | ',$valueOne)}}</span>
@@ -109,9 +109,9 @@
                                 {!! Form::hidden("default_year_combo_two[]",$valueTwo['year']) !!}
                                 @if($twoType=='Historical Date')
                                     {!! Form::hidden("default_circa_combo_two[]",$valueTwo['circa']) !!}
-                                    {!! Form::hidden("default_circa_combo_two[]",$valueTwo['era']) !!}
+                                    {!! Form::hidden("default_era_combo_two[]",$valueTwo['era']) !!}
                                 @endif
-                                <span class="combo-column">{{$valueTwo['month']}}/{{$valueTwo['day']}}/{{$valueTwo['year']}}</span>
+                                <span class="combo-column">{{implode('/', array_filter([$valueTwo['month'], $valueTwo['day'], $valueTwo['year']]))}}</span>
                             @elseif($twoType=='Multi-Select List' | $twoType=='Generated List' | $twoType=='Associator')
                                 {!! Form::hidden("default_combo_two[]",json_encode($valueTwo)) !!}
                                 <span class="combo-column">{{implode(' | ', $valueTwo)}}</span>

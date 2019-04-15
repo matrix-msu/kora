@@ -15,9 +15,9 @@
                         '05' => '05 - '.date("F", mktime(0, 0, 0, 5, 10)), '06' => '06 - '.date("F", mktime(0, 0, 0, 6, 10)),
                         '07' => '07 - '.date("F", mktime(0, 0, 0, 7, 10)), '08' => '08 - '.date("F", mktime(0, 0, 0, 8, 10)),
                         '09' => '09 - '.date("F", mktime(0, 0, 0, 9, 10)), '10' => '10 - '.date("F", mktime(0, 0, 0, 10, 10)),
-                        '11' => '11 - '.date("F", mktime(0, 0, 0, 11, 10)), '12' => '12 - '.date("F", mktime(0, 0, 0, 12, 10))], null, ['class' => 'single-select default-input-js', 'data-placeholder'=>"Select a Month", 'id' => 'default_month_' . $fnum]) !!}
+                        '11' => '11 - '.date("F", mktime(0, 0, 0, 11, 10)), '12' => '12 - '.date("F", mktime(0, 0, 0, 12, 10))], null, ['class' => 'single-select', 'data-placeholder'=>"Select a Month", 'id' => 'default_month_' . $fnum]) !!}
 
-                    <select name="default_day_{{$fnum}}" id="default_day_{{$fnum}}" class="single-select default-input-js" data-placeholder="Select a Day">
+                    <select name="default_day_{{$fnum}}" id="default_day_{{$fnum}}" class="single-select" data-placeholder="Select a Day">
                         <option value=""></option>
                         @php
                             echo "<option value=" . 0 . ">Current Day</option>";
@@ -48,7 +48,7 @@
                 @if($type=='Historical Date')
                     <div class="form-group mt-xl">
                         <div class="check-box-half">
-                            <input type="checkbox" value="1" id="preset default_circa_{{$fnum}}" class="check-box-input default-input-js" name="default_circa_{{$fnum}}"
+                            <input type="checkbox" value="1" id="default_circa_{{$fnum}}" class="check-box-input" name="default_circa_{{$fnum}}"
                                 {{ ((!is_null($field['default']) && $field['default']['circa']) ? 'checked' : '') }}>
                             <span class="check"></span>
                             <span class="placeholder">Mark this date as an approximate (Circa)?</span>
@@ -58,29 +58,25 @@
                     <div class="form-group mt-xl">
                         <label>Select Calendar/Date Notation</label>
                         <div class="check-box-half mr-m">
-                            <input type="checkbox" value="CE" id="default_era_{{$fnum}}" class="check-box-input era-check-js default-input-js" name="default_era_{{$fnum}}"
-                                {{ ((is_null($field[$fnum]['default']) || $field[$fnum]['default']['era'] == 'CE') ? 'checked' : '') }}>
+                            <input type="checkbox" value="CE" id="default_era_{{$fnum}}_ce" class="check-box-input era-check-js" name="default_era_{{$fnum}}_ce" checked>
                             <span class="check"></span>
                             <span class="placeholder">CE</span>
                         </div>
 
                         <div class="check-box-half mr-m">
-                            <input type="checkbox" value="BCE" id="default_era_{{$fnum}}" class="check-box-input era-check-js default-input-js" name="default_era_{{$fnum}}"
-                                {{ ((!is_null($field[$fnum]['default']) && $field[$fnum]['default']['era'] == 'BCE') ? 'checked' : '') }}>
+                            <input type="checkbox" value="BCE" id="default_era_{{$fnum}}_bce" class="check-box-input era-check-js" name="default_era_{{$fnum}}_bce">
                             <span class="check"></span>
                             <span class="placeholder">BCE</span>
                         </div>
 
                         <div class="check-box-half mr-m">
-                            <input type="checkbox" value="BP" id="default_era_{{$fnum}}" class="check-box-input era-check-js default-input-js" name="default_era_{{$fnum}}"
-                                {{ ((!is_null($field[$fnum]['default']) && $field[$fnum]['default']['era'] == 'BP') ? 'checked' : '') }}>
+                            <input type="checkbox" value="BP" id="default_era_{{$fnum}}_bp" class="check-box-input era-check-js" name="default_era_{{$fnum}}_bp">
                             <span class="check"></span>
                             <span class="placeholder">BP</span>
                         </div>
 
                         <div class="check-box-half">
-                            <input type="checkbox" value="KYA BP" id="default_era_{{$fnum}}" class="check-box-input era-check-js default-input-js" name="default_era_{{$fnum}}"
-                                {{ ((!is_null($field[$fnum]['default']) && $field[$fnum]['default']['era'] == 'KYA BP') ? 'checked' : '') }}>
+                            <input type="checkbox" value="KYA BP" id="default_era_{{$fnum}}_kya" class="check-box-input era-check-js" name="default_era_{{$fnum}}_kya">
                             <span class="check"></span>
                             <span class="placeholder">KYA BP</span>
                         </div>
@@ -143,7 +139,7 @@
 <div class="form-group">
     {!! Form::label('default_'.$fnum, $cfName) !!}
     <div class="check-box-half">
-        <input type="checkbox" value="1" id="default_{{$fnum}}" class="check-box-input default-input-js" name="default_{{$fnum}}"
+        <input type="checkbox" value="1" id="default_{{$fnum}}" class="check-box-input" name="default_{{$fnum}}"
                 {{ ((!is_null($field[$fnum]['default']) && $field[$fnum]['default']) ? 'checked' : '') }}>
         <span class="check"></span>
         <span class="placeholder"></span>
