@@ -8,8 +8,6 @@
     $twoType = $field['two']['type'];
     $oneName = $field['one']['name'];
     $twoName = $field['two']['name'];
-    $oneFlid = $field['one']['flid'];
-    $twoFlid = $field['two']['flid'];
 
     if($editRecord) {
         $items = $typedField->retrieve($flid, $form->id, $record->{$flid});
@@ -27,55 +25,42 @@
         <div class="combo-value-item-container-js">
             @if(!is_null($items))
                 @for($i=0;$i<count($items);$i++)
-                    @php
-                        if($editRecord) {
-                            $valueOne = $dateOne = $items[$i]->{$oneFlid};
-                            $valueTwo = $dateTwo = $items[$i]->{$twoFlid};
-                        } else {
-                            $valueOne = $field['one']['default'][$i];
-                            $valueTwo = $field['two']['default'][$i];
-
-                            if ($oneType=='Date') {
-                                $dateOne = $valueOne['year'].'-'.$valueOne['month'].'-'.$valueOne['day'];
-                            }
-
-                            if ($twoType=='Date') {
-                                $dateTwo = $valueTwo['year'].'-'.$valueTwo['month'].'-'.$valueTwo['day'];
-                            }
-                        }
-                    @endphp
                     <div class="combo-value-item combo-value-item-js">
                         <span class="combo-delete delete-combo-value-js tooltip" tooltip="Delete Combo Value"><i class="icon icon-trash"></i></span>
-
-                        @if($oneType=='Text' | $oneType=='List' | $oneType=='Integer' | $oneType=='Float' | $oneType=='Boolean')
-                            {!! Form::hidden($flid."_combo_one[]",$valueOne) !!}
-                            <span class="combo-column combo-value">{{$valueOne}}</span>
-                        @elseif($oneType=='Date')
-                            {!! Form::hidden($flid."_combo_one[]",$dateOne) !!}
-                            <span class="combo-column combo-value">{{$dateOne}}</span>
-                        @elseif($oneType=='Multi-Select List' | $oneType=='Generated List' | $oneType=='Associator')
+                        @foreach (['one', 'two'] as $seq)
                             @php
-                                if(is_array($valueOne))
-                                    $valueOne = json_encode($valueOne);
-                            @endphp
-                            {!! Form::hidden($flid."_combo_one[]",$valueOne) !!}
-                            <span class="combo-column combo-value">{{implode(', ', json_decode($valueOne))}}</span>
-                        @endif
+                                $value = $display = null;
+                                $type = $field[$seq]['type'];
 
-                        @if($twoType=='Text' | $twoType=='List' | $twoType=='Integer' | $twoType=='Float' | $twoType=='Boolean')
-                            {!! Form::hidden($flid."_combo_two[]",$valueTwo) !!}
-                            <span class="combo-column combo-value">{{$valueTwo}}</span>
-                        @elseif($twoType=='Date')
-                            {!! Form::hidden($flid."_combo_two[]",$dateTwo) !!}
-                            <span class="combo-column combo-value">{{$dateTwo}}</span>
-                        @elseif($twoType=='Multi-Select List' | $twoType=='Generated List' | $twoType=='Associator')
-                            @php
-                                if(is_array($valueTwo))
-                                    $valueTwo = json_encode($valueTwo);
+                                if($editRecord) {
+                                    $value = $display = $items[$i]->{$field[$seq]['flid']};
+                                } else {
+                                    $value = $display = $field[$seq]['default'][$i];
+
+                                    if(in_array($type, ['Date', 'Historical Date'])) {
+                                        $value = $display = implode(
+                                            '-',
+                                            array_filter([
+                                                $value['year'],
+                                                $value['month'],
+                                                $value['day']
+                                            ])
+                                        );
+                                        if($type == 'Historical Date') {
+                                            $value = json_encode($value);
+                                        }
+                                    }
+
+                                    if(in_array($field[$seq]['type'], ['Multi-Select List', 'Generated List', 'Associator'])) {
+                                        if(is_array($value))
+                                            $value = json_encode($value);
+                                        $display = implode(', ', json_decode($value));
+                                    }
+                                }
                             @endphp
-                            {!! Form::hidden($flid."_combo_two[]",$valueTwo) !!}
-                            <span class="combo-column combo-value">{{implode(', ', json_decode($valueTwo))}}</span>
-                        @endif
+                            {!! Form::hidden($flid."_combo_".$seq."[]",$value) !!}
+                            <span class="combo-column combo-value">{{$display}}</span>
+                        @endforeach
                     </div>
                 @endfor
             @endif
@@ -99,13 +84,11 @@
                 </div>
                 <div class="body">
                     <span class="error-message combo-error-{{$flid}}-js"></span>
-
-                    <section class="combo-list-input-one" cfType="{{$oneType}}">
-                        @include('partials.fields.combo.inputs.record',['field'=>$field, 'type'=>$oneType,'cfName'=>$oneName,  'fnum'=>'one', 'flid'=>$flid])
-                    </section>
-                    <section class="combo-list-input-two" cfType="{{$twoType}}">
-                        @include('partials.fields.combo.inputs.record',['field'=>$field, 'type'=>$twoType,'cfName'=>$twoName,  'fnum'=>'two', 'flid'=>$flid])
-                    </section>
+                    @foreach(['one', 'two'] as $seq)
+                        <section class="combo-list-input-{{$seq}}" cfType="{{$field[$seq]['type']}}">
+                            @include('partials.fields.combo.inputs.record',['field'=>$field, 'type'=>$field[$seq]['type'],'cfName'=>$field[$seq]['name'],  'fnum'=>$seq, 'flid'=>$flid])
+                        </section>
+                    @endforeach
                     <input class="btn mt-xs add-combo-value-js" type="button" value="Create Combo Value">
                 </div>
             </div>

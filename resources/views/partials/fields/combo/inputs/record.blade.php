@@ -20,7 +20,7 @@
         {!! Form::label('default_'.$fnum, $cfName.' ('.App\KoraFields\ComboListField::getComboFieldOption($field, "Unit", $fnum).')') !!}
         {!! Form::number('default_'.$fnum, null, ['id' => 'default_'.$fnum.'_'.$flid, 'class' => 'text-input', 'placeholder' => 'Enter number here', 'min' => App\KoraFields\ComboListField::getComboFieldOption($field, "Min", $fnum), 'max' => App\KoraFields\ComboListField::getComboFieldOption($field, "Max", $fnum)]) !!}
     </div>
-@elseif($type=='Date')
+@elseif($type=='Date' | $type=='Historical Date')
     <div class="form-group
         @if($fnum=='two')
             mt-xxxl
@@ -68,6 +68,42 @@
                 ?>
             </select>
         </div>
+        @if($type=='Historical Date')
+            <div class="form-group mt-xl">
+                <div class="check-box-half">
+                    <input type="checkbox" value="1" id="default_circa_{{$fnum}}_{{$flid}}" class="check-box-input" name="default_circa_{{$fnum}}_{{$flid}}">
+                    <span class="check"></span>
+                    <span class="placeholder">Mark this date as an approximate (Circa)?</span>
+                </div>
+            </div>
+
+            <div class="form-group mt-xl">
+                <label>Select Calendar/Date Notation</label>
+                <div class="check-box-half mr-m">
+                    <input type="checkbox" value="CE" id="default_era_{{$fnum}}_{{$flid}}_ce" class="check-box-input era-check-js" name="default_era_{{$fnum}}_{{$flid}}_ce" checked>
+                    <span class="check"></span>
+                    <span class="placeholder">CE</span>
+                </div>
+
+                <div class="check-box-half mr-m">
+                    <input type="checkbox" value="BCE" id="default_era_{{$fnum}}_{{$flid}}_bce" class="check-box-input era-check-js" name="default_era_{{$fnum}}_{{$flid}}_bce">
+                    <span class="check"></span>
+                    <span class="placeholder">BCE</span>
+                </div>
+
+                <div class="check-box-half mr-m">
+                    <input type="checkbox" value="BP" id="default_era_{{$fnum}}_{{$flid}}_bp" class="check-box-input era-check-js" name="default_era_{{$fnum}}_{{$flid}}_bp">
+                    <span class="check"></span>
+                    <span class="placeholder">BP</span>
+                </div>
+
+                <div class="check-box-half">
+                    <input type="checkbox" value="KYA BP" id="default_era_{{$fnum}}_{{$flid}}_kya" class="check-box-input era-check-js" name="default_era_{{$fnum}}_{{$flid}}_kya">
+                    <span class="check"></span>
+                    <span class="placeholder">KYA BP</span>
+                </div>
+            </div>
+        @endif
     </div>
 @elseif($type=='List')
     <div class="form-group

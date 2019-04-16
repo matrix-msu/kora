@@ -44,12 +44,10 @@
                         @endphp
                     </select>
                 </div>
-                {{-- not returning anything!!!! --}}
                 @if($type=='Historical Date')
                     <div class="form-group mt-xl">
                         <div class="check-box-half">
-                            <input type="checkbox" value="1" id="default_circa_{{$fnum}}" class="check-box-input" name="default_circa_{{$fnum}}"
-                                {{ ((!is_null($field['default']) && $field['default']['circa']) ? 'checked' : '') }}>
+                            <input type="checkbox" value="1" id="default_circa_{{$fnum}}" class="check-box-input" name="default_circa_{{$fnum}}">
                             <span class="check"></span>
                             <span class="placeholder">Mark this date as an approximate (Circa)?</span>
                         </div>
