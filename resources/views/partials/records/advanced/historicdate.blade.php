@@ -38,6 +38,35 @@
             </div>
         </div>
 
+        @if($field['options']['ShowEra'])
+            <div class="form-group mt-xl">
+                <label>Select Calendar/Date Notation</label>
+                <div class="check-box-half mr-m">
+                    <input type="checkbox" value="CE" class="check-box-input era-check-js era-check-{{$flid}}-begin-js" name="{{$flid}}_begin_era" checked flid="{{$flid}}" range="begin">
+                    <span class="check"></span>
+                    <span class="placeholder">CE</span>
+                </div>
+
+                <div class="check-box-half mr-m">
+                    <input type="checkbox" value="BCE" class="check-box-input era-check-js era-check-{{$flid}}-begin-js" name="{{$flid}}_begin_era" flid="{{$flid}}" range="begin">
+                    <span class="check"></span>
+                    <span class="placeholder">BCE</span>
+                </div>
+
+                <div class="check-box-half mr-m">
+                    <input type="checkbox" value="BP" class="check-box-input era-check-js era-check-{{$flid}}-begin-js" name="{{$flid}}_begin_era" flid="{{$flid}}" range="begin">
+                    <span class="check"></span>
+                    <span class="placeholder">BP</span>
+                </div>
+
+                <div class="check-box-half">
+                    <input type="checkbox" value="KYA BP" class="check-box-input era-check-js era-check-{{$flid}}-begin-js" name="{{$flid}}_begin_era" flid="{{$flid}}" range="begin">
+                    <span class="check"></span>
+                    <span class="placeholder">KYA BP</span>
+                </div>
+            </div>
+        @endif
+
         <div class="form-group mt-xl">
             {!! Form::label($flid.'_input',$field['name'].' End Date') !!}
             <div class="date-inputs-container">
@@ -75,4 +104,36 @@
                 </select>
             </div>
         </div>
+
+        @if($field['options']['ShowEra'])
+            <div class="form-group mt-xl">
+                <label>Select Calendar/Date Notation</label>
+                <div class="check-box-half mr-m">
+                    <input type="checkbox" value="CE" class="check-box-input era-check-js era-check-{{$flid}}-end-js" name="{{$flid}}_end_era" checked flid="{{$flid}}" range="end">
+                    <span class="check"></span>
+                    <span class="placeholder">CE</span>
+                </div>
+
+                <div class="check-box-half mr-m">
+                    <input type="checkbox" value="BCE" class="check-box-input era-check-js era-check-{{$flid}}-end-js" name="{{$flid}}_end_era" flid="{{$flid}}" range="end">
+                    <span class="check"></span>
+                    <span class="placeholder">BCE</span>
+                </div>
+
+                <div class="check-box-half mr-m">
+                    <input type="checkbox" value="BP" class="check-box-input era-check-js era-check-{{$flid}}-end-js" name="{{$flid}}_end_era" flid="{{$flid}}" range="end">
+                    <span class="check"></span>
+                    <span class="placeholder">BP</span>
+                </div>
+
+                <div class="check-box-half">
+                    <input type="checkbox" value="KYA BP" class="check-box-input era-check-js era-check-{{$flid}}-end-js" name="{{$flid}}_end_era" flid="{{$flid}}" range="end">
+                    <span class="check"></span>
+                    <span class="placeholder">KYA BP</span>
+                </div>
+
+                <p class="sub-text mt-m">Check your Start/End notations. Can't mix BP with KYA BP. Can't mix any BP with any CE. Can't have CE before BCE. Doing so will return no results for this advanced search.</p>
+            </div>
+        @endif
+    </div>
 </div>

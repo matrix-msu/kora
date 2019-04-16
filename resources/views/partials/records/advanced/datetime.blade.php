@@ -1,7 +1,7 @@
 <div class="form-group date-input-form-group date-input-form-group-js mt-xl">
     <div class="form-input-container">
         <div class="form-group">
-            {!! Form::label($flid.'_input',$field['name'].' Start Date') !!}
+            {!! Form::label($flid.'_input',$field['name'].' Start DateTime') !!}
             <div class="date-inputs-container">
                 {!! Form::select($flid."_begin_month",['' => '',
                     '01' => '01 - '.date("F", mktime(0, 0, 0, 1, 10)), '02' => '02 - '.date("F", mktime(0, 0, 0, 2, 10)),
@@ -38,8 +38,34 @@
             </div>
         </div>
 
+        <div class="date-inputs-container">
+            <select id="{{$flid}}_begin_hour" name="{{$flid}}_begin_hour" class="single-select" data-placeholder="Select an Hour">
+                @php
+                    for($i=0;$i<24;$i++) {
+                        echo "<option value=" . $i . ">" . $i . " hours</option>";
+                    }
+                @endphp
+            </select>
+
+            <select id="{{$flid}}_begin_minute" name="{{$flid}}_begin_minute" class="single-select" data-placeholder="Select a Minute">
+                @php
+                    for($i=0;$i<60;$i++) {
+                        echo "<option value=" . $i . ">" . $i . " minutes</option>";
+                    }
+                @endphp
+            </select>
+
+            <select id="{{$flid}}_begin_second" name="{{$flid}}_begin_second" class="single-select" data-placeholder="Select a Second">
+                @php
+                    for($i=0;$i<60;$i++) {
+                        echo "<option value=" . $i . ">" . $i . " seconds</option>";
+                    }
+                @endphp
+            </select>
+        </div>
+
         <div class="form-group mt-xl">
-            {!! Form::label($flid.'_input',$field['name'].' End Date') !!}
+            {!! Form::label($flid.'_input',$field['name'].' End DateTime') !!}
             <div class="date-inputs-container">
                 {!! Form::select($flid."_end_month",['' => '',
                     '01' => '01 - '.date("F", mktime(0, 0, 0, 1, 10)), '02' => '02 - '.date("F", mktime(0, 0, 0, 2, 10)),
@@ -75,4 +101,31 @@
                 </select>
             </div>
         </div>
+
+        <div class="date-inputs-container">
+            <select id="{{$flid}}_end_hour" name="{{$flid}}_end_hour" class="single-select" data-placeholder="Select an Hour">
+                @php
+                    for($i=0;$i<24;$i++) {
+                        echo "<option value=" . $i . ">" . $i . " hours</option>";
+                    }
+                @endphp
+            </select>
+
+            <select id="{{$flid}}_end_minute" name="{{$flid}}_end_minute" class="single-select" data-placeholder="Select a Minute">
+                @php
+                    for($i=0;$i<60;$i++) {
+                        echo "<option value=" . $i . ">" . $i . " minutes</option>";
+                    }
+                @endphp
+            </select>
+
+            <select id="{{$flid}}_end_second" name="{{$flid}}_end_second" class="single-select" data-placeholder="Select a Second">
+                @php
+                    for($i=0;$i<60;$i++) {
+                        echo "<option value=" . $i . ">" . $i . " seconds</option>";
+                    }
+                @endphp
+            </select>
+        </div>
+    </div>
 </div>

@@ -20,7 +20,7 @@ class DateTimeField extends BaseField {
      */
     const FIELD_OPTIONS_VIEW = "partials.fields.options.datetime";
     const FIELD_ADV_OPTIONS_VIEW = "partials.fields.advanced.datetime";
-    const FIELD_ADV_INPUT_VIEW = "partials.records.advanced.datetime"; //TODO::CASTLE
+    const FIELD_ADV_INPUT_VIEW = "partials.records.advanced.datetime";
     const FIELD_INPUT_VIEW = "partials.records.input.datetime";
     const FIELD_DISPLAY_VIEW = "partials.records.display.datetime";
 
@@ -393,7 +393,7 @@ class DateTimeField extends BaseField {
      * @param  boolean $negative - Get opposite results of the search
      * @return array - The RIDs that match search
      */
-    public function keywordSearchTyped($flid, $arg, $recordMod, $negative = false) { //TODO::CASTLE
+    public function keywordSearchTyped($flid, $arg, $recordMod, $negative = false) {
         if($negative)
             $param = 'NOT LIKE';
         else
@@ -413,7 +413,35 @@ class DateTimeField extends BaseField {
      * @return array - The update request
      */
     public function setRestfulAdvSearch($data) {
-        $request->request->add([$flid.'_input' => $data->value]);
+        $request = [];
+
+        if(isset($data->begin_month) && is_int($data->begin_month))
+            $request['begin_month'] = $data->begin_month;
+        if(isset($data->begin_day) && is_int($data->begin_day))
+            $request['begin_day'] = $data->begin_day;
+        if(isset($data->begin_year) && is_int($data->begin_year))
+            $request['begin_year'] = $data->begin_year;
+
+        if(isset($data->end_month) && is_int($data->end_month))
+            $request['end_month'] = $data->end_month;
+        if(isset($data->end_day) && is_int($data->end_day))
+            $request['end_day'] = $data->end_day;
+        if(isset($data->end_year) && is_int($data->end_year))
+            $request['end_year'] = $data->end_year;
+
+        if(isset($data->begin_hour) && is_int($data->begin_hour))
+            $request['begin_hour'] = $data->begin_hour;
+        if(isset($data->begin_minute) && is_int($data->begin_minute))
+            $request['begin_minute'] = $data->begin_minute;
+        if(isset($data->begin_second) && is_int($data->begin_second))
+            $request['begin_second'] = $data->begin_second;
+
+        if(isset($data->end_hour) && is_int($data->end_hour))
+            $request['end_hour'] = $data->end_hour;
+        if(isset($data->end_minute) && is_int($data->end_minute))
+            $request['end_minute'] = $data->end_minute;
+        if(isset($data->end_second) && is_int($data->end_second))
+            $request['end_second'] = $data->end_second;
 
         return $request;
     }
@@ -427,24 +455,19 @@ class DateTimeField extends BaseField {
      * @param  boolean $negative - Get opposite results of the search
      * @return array - The RIDs that match search
      */
-    public function advancedSearchTyped($flid, $query, $recordMod, $negative = false) { //TODO::CASTLE
-        $inputs = $query[$flid . "_input"];
+    public function advancedSearchTyped($flid, $query, $recordMod, $negative = false) {
+        $from = date($query['begin_year'].'-'.$query['begin_month'].'-'.$query['begin_day'].' '.$query['begin_hour'].':'.$query['begin_minute'].':'.$query['begin_second']);
+        $to = date($query['end_year'].'-'.$query['end_month'].'-'.$query['end_day'].' '.$query['end_hour'].':'.$query['end_minute'].':'.$query['end_second']);
 
-        if($negative)
-            $param = 'NOT LIKE';
-        else
-            $param = 'LIKE';
-
-        $dbQuery = $recordMod->newQuery()
+        $return = $recordMod->newQuery()
             ->select("id");
 
-        $dbQuery->where(function($dbQuery) use ($flid, $param, $inputs) {
-            foreach($inputs as $arg) {
-                $dbQuery->where($flid, $param, "%$arg%");
-            }
-        });
+        if($negative)
+            $return->whereNotBetween($flid, [$from, $to]);
+        else
+            $return->whereBetween($flid, [$from, $to]);
 
-        return $dbQuery->pluck('id')
+        return $return->pluck('id')
             ->toArray();
     }
 

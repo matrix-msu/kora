@@ -7,6 +7,7 @@
 
         $results = $asc->assocSearch($form->project_id, $form->id, $flid, $request);
         $rids = array();
+
         foreach($results as $kid => $prevArray) {
             $preview = implode(" | ", $prevArray);
             $rids[$kid] = "$kid: $preview";

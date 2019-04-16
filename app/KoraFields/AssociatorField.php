@@ -4,6 +4,7 @@ use App\Form;
 use App\Http\Controllers\FieldController;
 use App\Http\Controllers\RecordController;
 use App\Record;
+use App\Search;
 use Illuminate\Http\Request;
 
 class AssociatorField extends BaseField {
@@ -325,7 +326,7 @@ class AssociatorField extends BaseField {
 
         return $recordMod->newQuery()
             ->select("id")
-            ->where($flid, $param,"%$arg%")
+            ->where($flid, $param,"$arg")
             ->pluck('id')
             ->toArray();
     }
@@ -337,9 +338,10 @@ class AssociatorField extends BaseField {
      * @return array - The update request
      */
     public function setRestfulAdvSearch($data) {
-        $request->request->add([$flid.'_input' => $data->value]);
-
-        return $request;
+        if(isset($data->input) && is_array($data->input))
+            return ['input' => $data->input];
+        else
+            return [];
     }
 
     /**
@@ -352,23 +354,23 @@ class AssociatorField extends BaseField {
      * @return array - The RIDs that match search
      */
     public function advancedSearchTyped($flid, $query, $recordMod, $negative = false) {
-        $inputs = $query[$flid . "_input"];
+        $arg = $query['input'];
+        $args = Search::prepare($arg);
 
-        if($negative)
-            $param = 'NOT LIKE';
-        else
-            $param = 'LIKE';
-
-        $dbQuery = $recordMod->newQuery()
+        $query = $recordMod->newQuery()
             ->select("id");
 
-        $dbQuery->where(function($dbQuery) use ($flid, $param, $inputs) {
-            foreach($inputs as $arg) {
-                $dbQuery->where($flid, $param, "%$arg%");
+        if($negative) {
+            foreach($args as $a) {
+                $query->orWhereRaw("JSON_SEARCH(`$flid`,'one','$a') IS NULL");
             }
-        });
+        } else {
+            foreach($args as $a) {
+                $query->whereRaw("JSON_SEARCH(`$flid`,'one','$a') IS NOT NULL");
+            }
+        }
 
-        return $dbQuery->pluck('id')
+        return $query->pluck('id')
             ->toArray();
     }
 

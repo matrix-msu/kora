@@ -21,7 +21,7 @@ class BooleanField extends BaseField {
      */
     const FIELD_OPTIONS_VIEW = "partials.fields.options.boolean";
     const FIELD_ADV_OPTIONS_VIEW = "partials.fields.advanced.boolean";
-    const FIELD_ADV_INPUT_VIEW = "partials.records.advanced.boolean"; //TODO::CASTLE
+    const FIELD_ADV_INPUT_VIEW = "partials.records.advanced.boolean";
     const FIELD_INPUT_VIEW = "partials.records.input.boolean";
     const FIELD_DISPLAY_VIEW = "partials.records.display.boolean";
 

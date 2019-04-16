@@ -1,10 +1,15 @@
 @php
     if($editRecord) {
-        $stuff = explode('-',$record->{$flid});
+        $stuff = explode(' ',$record->{$flid});
+        $dateParts = explode('-',$stuff[0]);
+        $timeParts = explode(':',$stuff[1]);
         $dateObj = [
-            'month' => $stuff[1],
-            'day' => $stuff[2],
-            'year' => $stuff[0]
+            'month' => $dateParts[1],
+            'day' => $dateParts[2],
+            'year' => $dateParts[0],
+            'hour' => $timeParts[0],
+            'minute' => $timeParts[1],
+            'second' => $timeParts[2]
         ];
     } else {
         $dateObj = $field['default'];
@@ -84,7 +89,7 @@
 
                 <select id="minute_{{$flid}}" name="minute_{{$flid}}" class="single-select" data-placeholder="Select a Minute">
                     @php
-                        for($i=0;$i<59;$i++) {
+                        for($i=0;$i<60;$i++) {
                             if($i==$dateObj['minute'])
                                 echo "<option value=" . $i . " selected>" . $i . " minutes</option>";
                             else
@@ -95,7 +100,7 @@
 
                 <select id="second_{{$flid}}" name="second_{{$flid}}" class="single-select" data-placeholder="Select a Second">
                     @php
-                        for($i=0;$i<59;$i++) {
+                        for($i=0;$i<60;$i++) {
                             if($i==$dateObj['second'])
                                 echo "<option value=" . $i . " selected>" . $i . " seconds</option>";
                             else
