@@ -3,6 +3,7 @@
 use App\Form;
 use App\Record;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class HistoricalDateField extends BaseField {
 
@@ -20,41 +21,14 @@ class HistoricalDateField extends BaseField {
      */
     const FIELD_OPTIONS_VIEW = "partials.fields.options.historicdate";
     const FIELD_ADV_OPTIONS_VIEW = "partials.fields.advanced.historicdate";
-    const FIELD_ADV_INPUT_VIEW = "partials.records.advanced.historicdate"; //TODO::CASTLE
+    const FIELD_ADV_INPUT_VIEW = "partials.records.advanced.historicdate";
     const FIELD_INPUT_VIEW = "partials.records.input.historicdate";
     const FIELD_DISPLAY_VIEW = "partials.records.display.historicdate";
 
-    //TODO::CASTLE Might use for advanced search?
-//    /**
-//     * @var string - Month day year format
-//     */
-//    const MONTH_DAY_YEAR = "MMDDYYYY";
-//    /**
-//     * @var string - Day month year format
-//     */
-//    const DAY_MONTH_YEAR = "DDMMYYYY";
-//    /**
-//     * @var string - Year month day format
-//     */
-//    const YEAR_MONTH_DAY = "YYYYMMDD";
-//
-//    /**
-//     * @var array - The months of the year in different languages
-//     *
-//     * These are listed without special characters because the input will be converted to close characters.
-//     * Formatted with regular expression tags to find only the exact month so "march" does not match "marches" for example.
-//     */
-//    const MONTHS_IN_LANG = [
-//        "/(\\W|^)january(\\W|$)/i", "/(\\W|^)february(\\W|$)/i", "/(\\W|^)march(\\W|$)/i",
-//        "/(\\W|^)april(\\W|$)/i", "/(\\W|^)may(\\W|$)/i", "/(\\W|^)june(\\W|$)/i",
-//        "/(\\W|^)july(\\W|$)/i", "/(\\W|^)august(\\W|$)/i", "/(\\W|^)september(\\W|$)/i",
-//        "/(\\W|^)october(\\W|$)/i", "/(\\W|^)november(\\W|$)/i", "/(\\W|^)december(\\W|$)/i"
-//    ];
-//
-//    /**
-//     * @var array - We currently support 3 languages, so this is an array of 3 copies of the number of 1 through 12
-//     */
-//    const MONTH_NUMBERS = [ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 ];
+    /**
+     * @var string - The year that represent 0 BP/KYA BP
+     */
+    const BEFORE_PRESENT_REFERENCE = 1950;
 
     /**
      * Get the field options view.
@@ -464,16 +438,28 @@ class HistoricalDateField extends BaseField {
      * @param  boolean $negative - Get opposite results of the search
      * @return array - The RIDs that match search
      */
-    public function keywordSearchTyped($flid, $arg, $recordMod, $negative = false) { //TODO::CASTLE
+    public function keywordSearchTyped($flid, $arg, $recordMod, $negative = false) {
         if($negative)
             $param = 'NOT LIKE';
         else
             $param = 'LIKE';
 
-        return $recordMod->newQuery()
-            ->select("id")
-            ->where($flid, $param,"%$arg%")
-            ->pluck('id')
+        $dbQuery = $recordMod->newQuery()
+            ->select("id");
+
+        if($negative) { //TODO::This may have to be rethought later
+            $dbQuery->where($flid, $param, "%\"month\": \"$arg\"%");
+            $dbQuery->where($flid, $param, "%\"day\": \"$arg\"%");
+            $dbQuery->where($flid, $param, "%\"year\": \"$arg\"%");
+            $dbQuery->where($flid, $param, "%\"era\": \"$arg\"%");
+        } else {
+            $dbQuery->orWhere($flid, $param, "%\"month\": \"$arg\"%");
+            $dbQuery->orWhere($flid, $param, "%\"day\": \"$arg\"%");
+            $dbQuery->orWhere($flid, $param, "%\"year\": \"$arg\"%");
+            $dbQuery->orWhere($flid, $param, "%\"era\": \"$arg\"%");
+        }
+
+        return $dbQuery->pluck('id')
             ->toArray();
     }
 
@@ -481,12 +467,29 @@ class HistoricalDateField extends BaseField {
      * Updates the request for an API search to mimic the advanced search structure.
      *
      * @param  array $data - Data from the search
-     * @param  int $flid - Field ID
-     * @param  Request $request
-     * @return Request - The update request
+     * @return array - The update request
      */
-    public function setRestfulAdvSearch($data, $flid, $request) { //TODO::CASTLE
-        $request->request->add([$flid.'_input' => $data->value]);
+    public function setRestfulAdvSearch($data) {
+        $request = [];
+
+        if(isset($data->begin_month) && is_int($data->begin_month))
+            $request['begin_month'] = $data->begin_month;
+        if(isset($data->begin_day) && is_int($data->begin_day))
+            $request['begin_day'] = $data->begin_day;
+        if(isset($data->begin_year) && is_int($data->begin_year))
+            $request['begin_year'] = $data->begin_year;
+
+        if(isset($data->end_month) && is_int($data->end_month))
+            $request['end_month'] = $data->end_month;
+        if(isset($data->end_day) && is_int($data->end_day))
+            $request['end_day'] = $data->end_day;
+        if(isset($data->end_year) && is_int($data->end_year))
+            $request['end_year'] = $data->end_year;
+
+        if(isset($data->begin_era) && in_array($data->begin_era, ['CE','BCE','BP','KYA BP']))
+            $request['begin_era'] = $data->begin_era;
+        if(isset($data->end_era) && in_array($data->end_era, ['CE','BCE','BP','KYA BP']))
+            $request['end_era'] = $data->end_era;
 
         return $request;
     }
@@ -500,25 +503,105 @@ class HistoricalDateField extends BaseField {
      * @param  boolean $negative - Get opposite results of the search
      * @return array - The RIDs that match search
      */
-    public function advancedSearchTyped($flid, $query, $recordMod, $negative = false) { //TODO::CASTLE
-        $inputs = $query[$flid . "_input"];
+    public function advancedSearchTyped($flid, $query, $recordMod, $negative = false) {
+        $beginEra = isset($query['begin_era']) ? $query['begin_era'] : 'CE';
+        $endEra = isset($query['end_era']) ? $query['end_era'] : 'CE';
 
-        if($negative)
-            $param = 'NOT LIKE';
-        else
-            $param = 'LIKE';
+        //Verify era
+        if(
+            ($beginEra == 'CE' && $endEra == 'CE') |
+            ($beginEra == 'BCE' && ($endEra == 'BCE' | $endEra == 'CE')) |
+            ($beginEra == 'BP' && $endEra == 'BP') |
+            ($beginEra == 'KYA BP' && $endEra == 'KYA BP')
+        ) {
+            //We need to create a mathematical represenation of each date to make MYSQL comparisons
+            $beginMonth = isset($query['begin_month']) ? $query['begin_month'] : 1;
+            $endMonth = isset($query['end_month']) ? $query['end_month'] : 12;
+            $beginDay = isset($query['begin_day']) ? $query['begin_day'] : 1;
+            $endDay = isset($query['end_day']) ? $query['end_day'] : 31;
+            $beginYear = $query['begin_year'];
+            $endYear = $query['end_year'];
 
-        $dbQuery = $recordMod->newQuery()
-            ->select("id");
-
-        $dbQuery->where(function($dbQuery) use ($flid, $param, $inputs) {
-            foreach($inputs as $arg) {
-                $dbQuery->where($flid, $param, "%$arg%");
+            switch($beginEra) {
+                case 'CE':
+                    $beginValue = $beginYear + ($beginMonth*0.01) + ($beginDay*0.0001);
+                    break;
+                case 'BCE':
+                    $beginValue = -1*($beginYear + ($beginMonth*0.01) + ($beginDay*0.0001));
+                    break;
+                case 'BP':
+                    $beginValue = self::BEFORE_PRESENT_REFERENCE - $beginYear;
+                    break;
+                case 'KYA BP':
+                    $beginValue = self::BEFORE_PRESENT_REFERENCE - ($beginYear*1000);
+                    break;
             }
-        });
 
-        return $dbQuery->pluck('id')
-            ->toArray();
+            switch($endEra) {
+                case 'CE':
+                    $endValue = $endYear + ($endMonth*0.01) + ($endDay*0.0001);
+                    break;
+                case 'BCE':
+                    $endValue = -1*($endYear + ($endMonth*0.01) + ($endDay*0.0001));
+                    break;
+                case 'BP':
+                    $endValue = self::BEFORE_PRESENT_REFERENCE - $endYear;
+                    break;
+                case 'KYA BP':
+                    $endValue = self::BEFORE_PRESENT_REFERENCE - ($endYear*1000);
+                    break;
+            }
+
+            if($negative)
+                $param = 'middleVal > `end` OR middleVal < `begin`';
+            else
+                $param = 'middleVal <= `end` AND middleVal >= `begin`';
+
+            //This function determines if historical date is in between given date values
+            DB::unprepared("DROP FUNCTION IF EXISTS `inDateRange`;
+            CREATE FUNCTION `inDateRange`(`date` JSON, `begin` DOUBLE, `end` DOUBLE)
+            RETURNS BOOL
+            BEGIN
+                DECLARE result BOOL DEFAULT false;
+                DECLARE monthVal INT DEFAULT 1;
+                DECLARE dayVal INT DEFAULT 1;
+                DECLARE yearVal INT DEFAULT 1;
+                DECLARE eraVal TEXT;
+                DECLARE middleVal DOUBLE;
+                
+                IF `date`->\"$.month\" != \"\" THEN SET monthVal = `date`->\"$.month\";
+                END IF;
+                
+                IF `date`->\"$.day\" != \"\" THEN SET dayVal = `date`->\"$.day\";
+                END IF;
+                
+                IF `date`->\"$.year\" != \"\" THEN SET yearVal = `date`->\"$.year\";
+                END IF;
+                
+                SET eraVal = `date`->\"$.era\";
+                
+                IF eraVal = '\"CE\"' THEN SET middleVal = (yearVal + (monthVal*0.01) + (dayVal*0.0001));
+                ELSEIF eraVal = '\"BCE\"' THEN SET middleVal = (-1*(yearVal + (monthVal*0.01) + (dayVal*0.0001)));
+                ELSEIF eraVal = '\"BP\"' THEN SET middleVal = (".self::BEFORE_PRESENT_REFERENCE." - yearVal);
+                ELSEIF eraVal = '\"KYA BP\"' THEN SET middleVal = (".self::BEFORE_PRESENT_REFERENCE." - (yearVal*1000));
+                END IF;
+                
+                IF $param THEN SET result = TRUE;
+                END IF;
+                
+                RETURN result;
+            END;");
+
+            $dbQuery = $recordMod->newQuery()
+                ->select("id")
+                ->whereRaw("inDateRange(`$flid`,?,?)")
+                ->setBindings([$beginValue, $endValue]);
+
+            return $dbQuery->pluck('id')
+                ->toArray();
+        } else {
+            return [];
+        }
     }
 
     ///////////////////////////////////////////////END ABSTRACT FUNCTIONS///////////////////////////////////////////////

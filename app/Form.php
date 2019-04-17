@@ -64,6 +64,11 @@ class Form extends Model {
             self::_INTEGER => self::_INTEGER,
             self::_FLOAT => self::_FLOAT
         ),
+        'List Fields' => array(
+            self::_LIST => self::_LIST,
+            self::_MULTI_SELECT_LIST => self::_MULTI_SELECT_LIST,
+            self::_GENERATED_LIST => self::_GENERATED_LIST
+        ),
         'Date Fields' => array(
             self::_DATE => self::_DATE,
             self::_DATETIME => self::_DATETIME,
@@ -87,7 +92,6 @@ class Form extends Model {
             self::_GEOLOCATOR => self::_GEOLOCATOR,
             self::_ASSOCIATOR => self::_ASSOCIATOR
         )
-        // 'List Fields' => array(Combo List' => 'Combo List'),
     ];
 
     /**

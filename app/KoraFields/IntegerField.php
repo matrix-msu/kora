@@ -320,14 +320,17 @@ class IntegerField extends BaseField {
         else
             $param = '=';
 
-        if(is_numeric($arg)) { // Only search if we're working with a number.
-            $arg = intval($arg);
+        $tmpArg = str_replace("%","",$arg);
+        if(is_numeric($tmpArg)) { // Only search if we're working with a number.
+            $tmpArg = intval($tmpArg);
 
             return $recordMod->newQuery()
                 ->select('id')
-                ->where($flid, $param,"$arg")
+                ->where($flid, $param,"$tmpArg")
                 ->pluck('id')
                 ->toArray();
+        } else {
+            return [];
         }
     }
 
@@ -335,30 +338,25 @@ class IntegerField extends BaseField {
      * Updates the request for an API search to mimic the advanced search structure.
      *
      * @param  array $data - Data from the search
-     * @param  int $flid - Field ID
-     * @param  Request $request
-     * @return Request - The update request
+     * @return array - The update request
      */
-    public function setRestfulAdvSearch($data, $flid, $request) {
-        if(isset($data->left))
-            $leftNum = $data->left;
-        else
-            $leftNum = '';
-        $request->request->add([$flid.'_left' => $leftNum]);
+    public function setRestfulAdvSearch($data) {
+        $return = [];
 
-        if(isset($data->right))
-            $rightNum = $data->right;
+        if(isset($data->left) && is_int($data->left))
+            $return['left'] = $data->left;
         else
-            $rightNum = '';
-        $request->request->add([$flid.'_right' => $rightNum]);
+            $return['left'] = '';
 
-        if(isset($data->invert))
-            $invert = $data->invert;
+        if(isset($data->right) && is_int($data->right))
+            $return['right'] = $data->right;
         else
-            $invert = 0;
-        $request->request->add([$flid.'_invert' => $invert]);
+            $return['right'] = '';
 
-        return $request;
+        if(isset($data->invert) && is_bool($data->invert))
+            $return['invert'] = $data->invert;
+
+        return $return;
     }
 
     /**
@@ -371,9 +369,9 @@ class IntegerField extends BaseField {
      * @return array - The RIDs that match search
      */
     public function advancedSearchTyped($flid, $query, $recordMod, $negative = false) {
-        $left = (int)$query[$flid . "_left"];
-        $right = (int)$query[$flid . "_right"];
-        $invert = (bool)isset($query[$flid . "_invert"]);
+        $left = (int)$query['left'];
+        $right = (int)$query['right'];
+        $invert = isset($query['invert']) ? (bool)$query['invert'] : false;
 
         $query = $recordMod->newQuery()
             ->select("id");
@@ -393,7 +391,7 @@ class IntegerField extends BaseField {
      * @param  string $right - Input from the form, right index
      * @param  bool $invert - Inverts the search range if true
      */
-    private static function buildAdvancedNumberQuery(Builder &$query, $flid, $left, $right, $invert) {
+    private static function buildAdvancedNumberQuery(&$query, $flid, $left, $right, $invert) {
         // Determine the interval we should search over. With epsilons to account for float rounding.
         if($left == "") {
             if($invert) // [right, inf)

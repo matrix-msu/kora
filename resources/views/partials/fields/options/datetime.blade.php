@@ -70,7 +70,7 @@
 
                     <select name="default_minute" id='default_minute' class="single-select" data-placeholder="Select a Minute">
                         @php
-                            for($i=0;$i<59;$i++) {
+                            for($i=0;$i<60;$i++) {
                                 if(!is_null($field['default']) && $field['default']['minute'] == $i)
                                     echo "<option value=" . $i . " selected>" . $i . " minutes</option>";
                                 else
@@ -81,7 +81,7 @@
 
                     <select name="default_second" id='default_second' class="single-select" data-placeholder="Select a Second">
                         @php
-                            for($i=0;$i<59;$i++) {
+                            for($i=0;$i<60;$i++) {
                                 if(!is_null($field['default']) && $field['default']['second'] == $i)
                                     echo "<option value=" . $i . " selected>" . $i . " seconds</option>";
                                 else

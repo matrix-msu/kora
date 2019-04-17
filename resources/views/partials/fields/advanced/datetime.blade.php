@@ -52,7 +52,7 @@
 
                 <select name="default_minute" id='default_minute' class="single-select" data-placeholder="Select a Minute">
                     @php
-                        for($i=0;$i<59;$i++) {
+                        for($i=0;$i<60;$i++) {
                             echo "<option value=" . $i . ">" . $i . " minutes</option>";
                         }
                     @endphp
@@ -60,7 +60,7 @@
 
                 <select name="default_second" id='default_second' class="single-select" data-placeholder="Select a Second">
                     @php
-                        for($i=0;$i<59;$i++) {
+                        for($i=0;$i<60;$i++) {
                             echo "<option value=" . $i . ">" . $i . " seconds</option>";
                         }
                     @endphp

@@ -3,6 +3,7 @@
 use App\Form;
 use App\Record;
 use App\Search;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -298,13 +299,15 @@ class RestfulController extends Controller {
                 //perform all the and/or logic for search types
                 if(!isset($f->logic)) {
                     $qCnt = sizeof($queries);
-                    $logic = ['or' => range(0, $qCnt - 1)];
+                    $logic = (object)['or' => range(0, $qCnt - 1)];
                 } else {
                     $logic = $f->logic;
                 }
 
                 //go through the logic array
                 $returnRIDS = $this->logicRecursive($logic,$queries,$form,$recMod);
+                if($returnRIDS instanceof JsonResponse)
+                    return $returnRIDS;
 
                 if($apiFormat==self::XML)
                     $records = $form->getRecordsForExportXML($filters,$returnRIDS);
@@ -425,6 +428,8 @@ class RestfulController extends Controller {
                     break;
             }
 
+            if($finalSet instanceof JsonResponse)
+                return $finalSet;
             return array_flip(array_flip($finalSet));
         } else {
             return response()->json(["status"=>false,"error"=>"Invalid logic array for form: ". $form->name],500);
@@ -446,9 +451,10 @@ class RestfulController extends Controller {
         switch($query->search) {
             case 'advanced':
                 //do an advanced search
-                if(!isset($query->adv_fields) || !is_array($query->adv_fields))
+                if(!isset($query->adv_fields) || !is_object($query->adv_fields))
                     return response()->json(["status"=>false,"error"=>"No fields supplied in an advanced search for form: ". $form->name],500);
                 $fields = $query->adv_fields;
+                $processed = [];
                 foreach($fields as $flid => $data) {
                     if(!isset($form->layout['fields'][$flid])) {
                         array_push($minorErrors, "The following field in keyword search is not apart of the requested form: " . $this->cleanseOutput($flid));
@@ -462,15 +468,15 @@ class RestfulController extends Controller {
                         continue;
                     }
 
-                    //These variables need to be set to work with internal advanced search system
-                    $request->request->add([$flid.'_dropdown' => 'on']);
-                    $request->request->add([$flid.'_valid' => 1]);
-                    $request->request->add([$flid => 1]);
-                    $request = $form->getFieldModel($fieldModel['type'])->setRestfulAdvSearch($data,$flid,$request);
+                    $processed[$flid] = $form->getFieldModel($fieldModel['type'])->setRestfulAdvSearch($data);
+                    if(isset($data->negative) && is_bool($data->negative))
+                        $processed[$flid]['negative'] = true;
+                    if(isset($data->empty) && is_bool($data->empty))
+                        $processed[$flid]['empty'] = true;
                 }
                 $negative = isset($query->not) && is_bool($query->not) ? $query->not : false;
                 $advSearch = new AdvancedSearchController();
-                $rids = $advSearch->apisearch($form->project_id, $form->id, $request, $negative);
+                $rids = $advSearch->apisearch($form->project_id, $form->id, $processed, $negative);
                 return $rids;
                 break;
             case 'keyword':

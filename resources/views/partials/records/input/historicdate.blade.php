@@ -24,6 +24,10 @@
             <label>Select Date</label>
             @php
                 $preDisabled = ($histDate['era'] == 'BP' | $histDate['era'] == 'KYA BP');
+                if($preDisabled)
+                    $monthClasses = ['class' => 'single-select preset-clear-chosen-js', 'data-placeholder'=>"Select a Month", 'id' => 'month_'.$flid, 'disabled' => $preDisabled];
+                else
+                    $monthClasses = ['class' => 'single-select preset-clear-chosen-js', 'data-placeholder'=>"Select a Month", 'id' => 'month_'.$flid];
             @endphp
 
             <div class="date-inputs-container">
@@ -34,7 +38,7 @@
                     '7' => '07 - '.date("F", mktime(0, 0, 0, 7, 10)), '8' => '08 - '.date("F", mktime(0, 0, 0, 8, 10)),
                     '9' => '09 - '.date("F", mktime(0, 0, 0, 9, 10)), '10' => '10 - '.date("F", mktime(0, 0, 0, 10, 10)),
                     '11' => '11 - '.date("F", mktime(0, 0, 0, 11, 10)), '12' => '12 - '.date("F", mktime(0, 0, 0, 12, 10))],
-                    $histDate['month'], ['class' => 'single-select preset-clear-chosen-js', 'data-placeholder'=>"Select a Month", 'id' => 'month_'.$flid, 'disabled' => $preDisabled]) !!}
+                    $histDate['month'], $monthClasses) !!}
 
 
                 <select id="day_{{$flid}}" name="day_{{$flid}}" class="single-select preset-clear-chosen-js" data-placeholder="Select a Day" {{ $preDisabled ? 'disabled' : '' }}>

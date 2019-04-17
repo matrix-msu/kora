@@ -53,7 +53,7 @@
                     @else
                         <a href="#" class="btn half-sub-btn disabled" data-unsp-sanitized="clean">No Advanced Search Available</a>
                     @endif
-                    <a href="#" class="btn half-sub-btn disabled" data-unsp-sanitized="clean">No Advanced Search Available</a>
+                    <a href="#" class="btn half-btn submit-search-js right" data-unsp-sanitized="clean">Search</a>
                 </div>
             </form>
 

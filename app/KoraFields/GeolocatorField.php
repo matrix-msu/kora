@@ -3,6 +3,7 @@
 use App\Form;
 use App\Record;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class GeolocatorField extends BaseField {
 
@@ -20,7 +21,7 @@ class GeolocatorField extends BaseField {
      */
     const FIELD_OPTIONS_VIEW = "partials.fields.options.geolocator";
     const FIELD_ADV_OPTIONS_VIEW = "partials.fields.advanced.geolocator";
-    const FIELD_ADV_INPUT_VIEW = "partials.records.advanced.geolocator"; //TODO::CASTLE
+    const FIELD_ADV_INPUT_VIEW = "partials.records.advanced.geolocator";
     const FIELD_INPUT_VIEW = "partials.records.input.geolocator";
     const FIELD_DISPLAY_VIEW = "partials.records.display.geolocator";
 
@@ -348,16 +349,24 @@ class GeolocatorField extends BaseField {
      * @param  boolean $negative - Get opposite results of the search
      * @return array - The RIDs that match search
      */
-    public function keywordSearchTyped($flid, $arg, $recordMod, $negative = false) { //TODO::CASTLE
+    public function keywordSearchTyped($flid, $arg, $recordMod, $negative = false) {
         if($negative)
             $param = 'NOT LIKE';
         else
             $param = 'LIKE';
 
-        return $recordMod->newQuery()
-            ->select("id")
-            ->where($flid, $param,"%$arg%")
-            ->pluck('id')
+        $dbQuery = $recordMod->newQuery()
+            ->select("id");
+
+        if($negative) { //TODO::This may have to be rethought later
+            $dbQuery->where($flid, $param, "%\"formatted_address\": \"$arg\"%");
+            $dbQuery->where($flid, $param, "%\"description\": \"$arg\"%");
+        } else {
+            $dbQuery->orWhere($flid, $param, "%\"formatted_address\": \"$arg\"%");
+            $dbQuery->orWhere($flid, $param, "%\"description\": \"$arg\"%");
+        }
+
+        return $dbQuery->pluck('id')
             ->toArray();
     }
 
@@ -365,14 +374,27 @@ class GeolocatorField extends BaseField {
      * Updates the request for an API search to mimic the advanced search structure.
      *
      * @param  array $data - Data from the search
-     * @param  int $flid - Field ID
-     * @param  Request $request
-     * @return Request - The update request
+     * @return array - The update request
      */
-    public function setRestfulAdvSearch($data, $flid, $request) { //TODO::CASTLE
-        $request->request->add([$flid.'_input' => $data->value]);
+    public function setRestfulAdvSearch($data) {
+        $return = [];
 
-        return $request;
+        if(isset($data->lat) && is_double($data->lat))
+            $return['lat'] = $data->lat;
+        else
+            $return['lat'] = '';
+
+        if(isset($data->lng) && is_double($data->lng))
+            $return['lng'] = $data->lng;
+        else
+            $return['lng'] = '';
+
+        if(isset($data->range) && is_int($data->range))
+            $return['range'] = $data->range;
+        else
+            $return['range'] = '';
+
+        return $return;
     }
 
     /**
@@ -384,22 +406,41 @@ class GeolocatorField extends BaseField {
      * @param  boolean $negative - Get opposite results of the search
      * @return array - The RIDs that match search
      */
-    public function advancedSearchTyped($flid, $query, $recordMod, $negative = false) { //TODO::CASTLE
-        $inputs = $query[$flid . "_input"];
+    public function advancedSearchTyped($flid, $query, $recordMod, $negative = false) {
+        $lat = (double)$query['lat'];
+        $lng = (double)$query['lng'];
+        $range = (int)$query['range'];
 
         if($negative)
-            $param = 'NOT LIKE';
+            $param = '>';
         else
-            $param = 'LIKE';
+            $param = '<';
+
+        //This function determines if a single LatLon point is in range of a set of LatLon coordinates
+        DB::unprepared("DROP FUNCTION IF EXISTS `inRange`;
+            CREATE FUNCTION `inRange`(`lats` JSON,`lngs` JSON,`range` INT, rangeLat DOUBLE, rangeLng DOUBLE)
+            RETURNS BOOL
+            BEGIN
+                DECLARE i INT DEFAULT 0;
+                DECLARE result BOOL DEFAULT false;
+                DECLARE providedLat DOUBLE;
+                DECLARE providedLng DOUBLE;
+                
+                WHILE i < JSON_LENGTH(`lats`) DO
+                    SELECT JSON_EXTRACT(`lats`,CONCAT('$[',i,']')) INTO providedLat;
+                    SELECT JSON_EXTRACT(`lngs`,CONCAT('$[',i,']')) INTO providedLng;
+                    IF (6371 * acos(cos(radians(rangeLat)) * cos(radians(providedLat)) * cos(radians(providedLng) - radians(rangeLng)) + sin(radians(rangeLat)) * sin( radians(providedLat)))) $param `range` THEN SET result = TRUE;
+                    END IF;
+                    SET i = i+1;
+                END WHILE;
+                
+                RETURN result;
+            END;");
 
         $dbQuery = $recordMod->newQuery()
-            ->select("id");
-
-        $dbQuery->where(function($dbQuery) use ($flid, $param, $inputs) {
-            foreach($inputs as $arg) {
-                $dbQuery->where($flid, $param, "%$arg%");
-            }
-        });
+            ->select("id")
+            ->whereRaw("inRange(`$flid`->\"$[*].geometry.location.lat\",`$flid`->\"$[*].geometry.location.lng\",?,?,?)")
+            ->setBindings([$range, $lat, $lng]);
 
         return $dbQuery->pluck('id')
             ->toArray();

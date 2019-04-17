@@ -20,7 +20,7 @@ class DateField extends BaseField {
      */
     const FIELD_OPTIONS_VIEW = "partials.fields.options.date";
     const FIELD_ADV_OPTIONS_VIEW = "partials.fields.advanced.date";
-    const FIELD_ADV_INPUT_VIEW = "partials.records.advanced.date"; //TODO::CASTLE
+    const FIELD_ADV_INPUT_VIEW = "partials.records.advanced.date";
     const FIELD_INPUT_VIEW = "partials.records.input.date";
     const FIELD_DISPLAY_VIEW = "partials.records.display.date";
 
@@ -374,7 +374,7 @@ class DateField extends BaseField {
      * @param  boolean $negative - Get opposite results of the search
      * @return array - The RIDs that match search
      */
-    public function keywordSearchTyped($flid, $arg, $recordMod, $negative = false) { //TODO::CASTLE
+    public function keywordSearchTyped($flid, $arg, $recordMod, $negative = false) {
         if($negative)
             $param = 'NOT LIKE';
         else
@@ -391,12 +391,24 @@ class DateField extends BaseField {
      * Updates the request for an API search to mimic the advanced search structure.
      *
      * @param  array $data - Data from the search
-     * @param  int $flid - Field ID
-     * @param  Request $request
-     * @return Request - The update request
+     * @return array - The update request
      */
-    public function setRestfulAdvSearch($data, $flid, $request) { //TODO::CASTLE
-        $request->request->add([$flid.'_input' => $data->value]);
+    public function setRestfulAdvSearch($data) {
+        $request = [];
+
+        if(isset($data->begin_month) && is_int($data->begin_month))
+            $request['begin_month'] = $data->begin_month;
+        if(isset($data->begin_day) && is_int($data->begin_day))
+            $request['begin_day'] = $data->begin_day;
+        if(isset($data->begin_year) && is_int($data->begin_year))
+            $request['begin_year'] = $data->begin_year;
+
+        if(isset($data->end_month) && is_int($data->end_month))
+            $request['end_month'] = $data->end_month;
+        if(isset($data->end_day) && is_int($data->end_day))
+            $request['end_day'] = $data->end_day;
+        if(isset($data->end_year) && is_int($data->end_year))
+            $request['end_year'] = $data->end_year;
 
         return $request;
     }
@@ -410,24 +422,19 @@ class DateField extends BaseField {
      * @param  boolean $negative - Get opposite results of the search
      * @return array - The RIDs that match search
      */
-    public function advancedSearchTyped($flid, $query, $recordMod, $negative = false) { //TODO::CASTLE
-        $inputs = $query[$flid . "_input"];
+    public function advancedSearchTyped($flid, $query, $recordMod, $negative = false) {
+        $from = date($query['begin_year'].'-'.$query['begin_month'].'-'.$query['begin_day']);
+        $to = date($query['end_year'].'-'.$query['end_month'].'-'.$query['end_day']);
 
-        if($negative)
-            $param = 'NOT LIKE';
-        else
-            $param = 'LIKE';
-
-        $dbQuery = $recordMod->newQuery()
+        $return = $recordMod->newQuery()
             ->select("id");
 
-        $dbQuery->where(function($dbQuery) use ($flid, $param, $inputs) {
-            foreach($inputs as $arg) {
-                $dbQuery->where($flid, $param, "%$arg%");
-            }
-        });
+        if($negative)
+            $return->whereNotBetween($flid, [$from, $to]);
+        else
+            $return->whereBetween($flid, [$from, $to]);
 
-        return $dbQuery->pluck('id')
+        return $return->pluck('id')
             ->toArray();
     }
 
