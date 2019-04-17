@@ -27,8 +27,17 @@ $items = $typedField->retrieve($flid, $form->id, $value);
                 <span class="combo-border-small"> </span>
             @endif
 
-            @if($oneType=='Text' | $oneType=='Date' | $oneType=='Historical Date' | $oneType=='List' | $oneType=='Boolean')
+            @if($oneType=='Text' | $oneType=='Date' | $oneType=='List' | $oneType=='Boolean')
                 <span class="combo-column">{{ $valueOne }}</span>
+            @elseif($oneType=='Historical Date')
+                @php
+                    $valueOne = json_decode($valueOne, true);
+                    $date = implode(
+                        '-',
+                        array_filter([$valueOne['year'], $valueOne['month'], $valueOne['day']])
+                    );
+                @endphp
+                <span class="combo-column">{{ $date }}</span>
             @elseif($oneType=='Integer' | $oneType=='Float')
                 <?php
                 $unit = App\KoraFields\ComboListField::getComboFieldOption($field,'Unit','one');
@@ -44,8 +53,17 @@ $items = $typedField->retrieve($flid, $form->id, $value);
                 </span>
             @endif
 
-            @if($twoType=='Text' | $twoType=='Date' | $twoType=='Historical Date' | $twoType=='List' | $twoType=='Boolean')
+            @if($twoType=='Text' | $twoType=='Date' | $twoType=='List' | $twoType=='Boolean')
                 <span class="combo-column">{{ $valueTwo }}</span>
+            @elseif($twoType=='Historical Date')
+                @php
+                    $valueTwo = json_decode($valueTwo, true);
+                    $date = implode(
+                        '-',
+                        array_filter([$valueTwo['year'], $valueTwo['month'], $valueTwo['day']])
+                    );
+                @endphp
+                <span class="combo-column">{{ $date }}</span>
             @elseif($twoType=='Integer' | $twoType=='Float')
                 <?php
                 $unit = App\KoraFields\ComboListField::getComboFieldOption($field,'Unit','two');

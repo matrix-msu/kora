@@ -5,6 +5,7 @@
     </div>
 @elseif($type=='Date' | $type=='Historical Date')
     <div class="form-group date-input-form-group date-input-form-group-js mt-xs">
+        {!! Form::label('default_'.$fnum, $cfName) !!}
         <div class="form-input-container">
             <div class="form-group">
                 <label>Select Date</label>

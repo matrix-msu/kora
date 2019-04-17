@@ -21,7 +21,7 @@
         {!! Form::number('default_'.$fnum, null, ['id' => 'default_'.$fnum.'_'.$flid, 'class' => 'text-input', 'placeholder' => 'Enter number here', 'min' => App\KoraFields\ComboListField::getComboFieldOption($field, "Min", $fnum), 'max' => App\KoraFields\ComboListField::getComboFieldOption($field, "Max", $fnum)]) !!}
     </div>
 @elseif($type=='Date' | $type=='Historical Date')
-    <div class="form-group
+    <div class="form-group date-input-form-group date-input-form-group-js
         @if($fnum=='two')
             mt-xxxl
         @else
@@ -29,81 +29,83 @@
         @endif
             ">
         {!! Form::label('default_'.$fnum, $cfName.': ') !!}
-        <div class="form-group mt-sm">
-            {!! Form::label('default_month_'.$fnum,'Month: ') !!}
-            {!! Form::select('default_month_'.$fnum,['' => '',
-                '01' => '01 - '.date("F", mktime(0, 0, 0, 1, 10)), '02' => '02 - '.date("F", mktime(0, 0, 0, 2, 10)),
-                '03' => '03 - '.date("F", mktime(0, 0, 0, 3, 10)), '04' => '04 - '.date("F", mktime(0, 0, 0, 4, 10)),
-                '05' => '05 - '.date("F", mktime(0, 0, 0, 5, 10)), '06' => '06 - '.date("F", mktime(0, 0, 0, 6, 10)),
-                '07' => '07 - '.date("F", mktime(0, 0, 0, 7, 10)), '08' => '08 - '.date("F", mktime(0, 0, 0, 8, 10)),
-                '09' => '09 - '.date("F", mktime(0, 0, 0, 9, 10)), '10' => '10 - '.date("F", mktime(0, 0, 0, 10, 10)),
-                '11' => '11 - '.date("F", mktime(0, 0, 0, 11, 10)), '12' => '12 - '.date("F", mktime(0, 0, 0, 12, 10))],
-                null, ['id' => 'default_month_'.$fnum.'_'.$flid, 'class' => 'single-select', 'data-placeholder'=>"Select a Month"]) !!}
-        </div>
-        <div class="form-group mt-sm">
-            {!! Form::label('default_day_'.$fnum,'Day: ') !!}
-            <select id="default_day_{{$fnum}}_{{$flid}}" name="default_day_{{$fnum}}" class="single-select" data-placeholder="Select a Day">
-                <option value=""></option>
-                <?php
-                $i = 1;
-                while ($i <= 31) {
-                    echo "<option value=" . $i . ">" . $i . "</option>";
-                    $i++;
-                }
-                ?>
-            </select>
-        </div>
-        <div class="form-group mt-sm">
-            {!! Form::label('default_year_'.$fnum,'Year: ') !!}
-            <select id="default_year_{{$fnum}}_{{$flid}}" name="default_year_{{$fnum}}" class="single-select preset-clear-chosen-js" data-placeholder="Select a Year">
-                <option value=""></option>
-                <?php
-                $currYear=0;
-                $i = App\KoraFields\ComboListField::getComboFieldOption($field, "Start", $fnum);
-                $j = App\KoraFields\ComboListField::getComboFieldOption($field, "End", $fnum);
-                while ($i <= $j) {
-                    echo "<option value=" . $i . ">" . $i . "</option>";
-                    $i++;
-                }
-                ?>
-            </select>
-        </div>
-        @if($type=='Historical Date')
-            <div class="form-group mt-xl">
-                <div class="check-box-half">
-                    <input type="checkbox" value="1" id="default_circa_{{$fnum}}_{{$flid}}" class="check-box-input" name="default_circa_{{$fnum}}_{{$flid}}">
-                    <span class="check"></span>
-                    <span class="placeholder">Mark this date as an approximate (Circa)?</span>
+        <div class="form-input-container">
+            <div class="form-group">
+                <div class="date-inputs-container">
+                    {!! Form::select('default_month_'.$fnum,['' => '',
+                        '01' => '01 - '.date("F", mktime(0, 0, 0, 1, 10)), '02' => '02 - '.date("F", mktime(0, 0, 0, 2, 10)),
+                        '03' => '03 - '.date("F", mktime(0, 0, 0, 3, 10)), '04' => '04 - '.date("F", mktime(0, 0, 0, 4, 10)),
+                        '05' => '05 - '.date("F", mktime(0, 0, 0, 5, 10)), '06' => '06 - '.date("F", mktime(0, 0, 0, 6, 10)),
+                        '07' => '07 - '.date("F", mktime(0, 0, 0, 7, 10)), '08' => '08 - '.date("F", mktime(0, 0, 0, 8, 10)),
+                        '09' => '09 - '.date("F", mktime(0, 0, 0, 9, 10)), '10' => '10 - '.date("F", mktime(0, 0, 0, 10, 10)),
+                        '11' => '11 - '.date("F", mktime(0, 0, 0, 11, 10)), '12' => '12 - '.date("F", mktime(0, 0, 0, 12, 10))],
+                        null, ['id' => 'default_month_'.$fnum.'_'.$flid, 'class' => 'single-select', 'data-placeholder'=>"Select a Month"]) !!}
+
+                    <select id="default_day_{{$fnum}}_{{$flid}}" name="default_day_{{$fnum}}" class="single-select" data-placeholder="Select a Day">
+                        <option value=""></option>
+                        <?php
+                        $i = 1;
+                        while ($i <= 31) {
+                            echo "<option value=" . $i . ">" . $i . "</option>";
+                            $i++;
+                        }
+                        ?>
+                    </select>
+
+                    <select id="default_year_{{$fnum}}_{{$flid}}" name="default_year_{{$fnum}}" class="single-select preset-clear-chosen-js" data-placeholder="Select a Year">
+                        <option value=""></option>
+                        <?php
+                        $i = $field[$fnum]['options']['Start'];
+                        $j = $field[$fnum]['options']['End'];
+                        while ($i <= $j) {
+                            echo "<option value=" . $i . ">" . $i . "</option>";
+                            $i++;
+                        }
+                        ?>
+                    </select>
                 </div>
+                @if($type=='Historical Date')
+                    @if($field[$fnum]['options']['ShowCirca'])
+                        <div class="form-group mt-xl">
+                            <div class="check-box-half">
+                                <input type="checkbox" value="1" id="default_circa_{{$fnum}}_{{$flid}}" class="check-box-input" name="default_circa_{{$fnum}}_{{$flid}}">
+                                <span class="check"></span>
+                                <span class="placeholder">Mark this date as an approximate (Circa)?</span>
+                            </div>
+                        </div>
+                    @endif
+
+                    @if($field[$fnum]['options']['ShowEra'])
+                        <div class="form-group mt-xl">
+                            <label>Select Calendar/Date Notation</label>
+                            <div class="check-box-half mr-m">
+                                <input type="checkbox" value="CE" id="default_era_{{$fnum}}_{{$flid}}_ce" class="check-box-input era-check-js era-check-{{$flid}}-js" name="default_era_{{$fnum}}_{{$flid}}_ce" flid="{{$flid}}" fnum="{{$fnum}}" checked>
+                                <span class="check"></span>
+                                <span class="placeholder">CE</span>
+                            </div>
+
+                            <div class="check-box-half mr-m">
+                                <input type="checkbox" value="BCE" id="default_era_{{$fnum}}_{{$flid}}_bce" class="check-box-input era-check-js era-check-{{$flid}}-js" name="default_era_{{$fnum}}_{{$flid}}_bce" flid="{{$flid}}" fnum="{{$fnum}}">
+                                <span class="check"></span>
+                                <span class="placeholder">BCE</span>
+                            </div>
+
+                            <div class="check-box-half mr-m">
+                                <input type="checkbox" value="BP" id="default_era_{{$fnum}}_{{$flid}}_bp" class="check-box-input era-check-js era-check-{{$flid}}-js" name="default_era_{{$fnum}}_{{$flid}}_bp" flid="{{$flid}}" fnum="{{$fnum}}">
+                                <span class="check"></span>
+                                <span class="placeholder">BP</span>
+                            </div>
+
+                            <div class="check-box-half">
+                                <input type="checkbox" value="KYA BP" id="default_era_{{$fnum}}_{{$flid}}_kya" class="check-box-input era-check-js era-check-{{$flid}}-js" name="default_era_{{$fnum}}_{{$flid}}_kya" flid="{{$flid}}" fnum="{{$fnum}}">
+                                <span class="check"></span>
+                                <span class="placeholder">KYA BP</span>
+                            </div>
+                        </div>
+                    @endif
+                @endif
             </div>
-
-            <div class="form-group mt-xl">
-                <label>Select Calendar/Date Notation</label>
-                <div class="check-box-half mr-m">
-                    <input type="checkbox" value="CE" id="default_era_{{$fnum}}_{{$flid}}_ce" class="check-box-input era-check-js" name="default_era_{{$fnum}}_{{$flid}}_ce" checked>
-                    <span class="check"></span>
-                    <span class="placeholder">CE</span>
-                </div>
-
-                <div class="check-box-half mr-m">
-                    <input type="checkbox" value="BCE" id="default_era_{{$fnum}}_{{$flid}}_bce" class="check-box-input era-check-js" name="default_era_{{$fnum}}_{{$flid}}_bce">
-                    <span class="check"></span>
-                    <span class="placeholder">BCE</span>
-                </div>
-
-                <div class="check-box-half mr-m">
-                    <input type="checkbox" value="BP" id="default_era_{{$fnum}}_{{$flid}}_bp" class="check-box-input era-check-js" name="default_era_{{$fnum}}_{{$flid}}_bp">
-                    <span class="check"></span>
-                    <span class="placeholder">BP</span>
-                </div>
-
-                <div class="check-box-half">
-                    <input type="checkbox" value="KYA BP" id="default_era_{{$fnum}}_{{$flid}}_kya" class="check-box-input era-check-js" name="default_era_{{$fnum}}_{{$flid}}_kya">
-                    <span class="check"></span>
-                    <span class="placeholder">KYA BP</span>
-                </div>
-            </div>
-        @endif
+        </div>
     </div>
 @elseif($type=='List')
     <div class="form-group

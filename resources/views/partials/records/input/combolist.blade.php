@@ -21,7 +21,6 @@
             <span class="combo-column combo-title">{{$oneName}}</span>
             <span class="combo-column combo-title">{{$twoName}}</span>
         </div>
-
         <div class="combo-value-item-container-js">
             @if(!is_null($items))
                 @for($i=0;$i<count($items);$i++)
@@ -34,11 +33,23 @@
 
                                 if($editRecord) {
                                     $value = $display = $items[$i]->{$field[$seq]['flid']};
+
+                                    if($type == 'Historical Date') {
+                                        $tmp = json_decode($value, true);
+                                        $display = implode(
+                                            '-',
+                                            array_filter([
+                                                $tmp['year'],
+                                                $tmp['month'],
+                                                $tmp['day']
+                                            ])
+                                        );
+                                    }
                                 } else {
                                     $value = $display = $field[$seq]['default'][$i];
 
                                     if(in_array($type, ['Date', 'Historical Date'])) {
-                                        $value = $display = implode(
+                                        $display = implode(
                                             '-',
                                             array_filter([
                                                 $value['year'],
@@ -46,16 +57,19 @@
                                                 $value['day']
                                             ])
                                         );
+
                                         if($type == 'Historical Date') {
                                             $value = json_encode($value);
+                                        } else {
+                                            $value = $display;
                                         }
                                     }
+                                }
 
-                                    if(in_array($field[$seq]['type'], ['Multi-Select List', 'Generated List', 'Associator'])) {
-                                        if(is_array($value))
-                                            $value = json_encode($value);
-                                        $display = implode(', ', json_decode($value));
-                                    }
+                                if(in_array($type, ['Multi-Select List', 'Generated List', 'Associator'])) {
+                                    if(is_array($value))
+                                        $value = json_encode($value);
+                                    $display = implode(', ', json_decode($value));
                                 }
                             @endphp
                             {!! Form::hidden($flid."_combo_".$seq."[]",$value) !!}
