@@ -1,4 +1,5 @@
 <?php
+    dd($presets);
     $presetFormattedOne = array(''=>'');
     foreach($presets['one'] as $index => $sets) {
         if($index=="Stock") {

@@ -89,7 +89,7 @@ class MultiSelectListField extends BaseField {
      *
      * @return string - The default options
      */
-    public function getDefaultOptions() {
+    public function getDefaultOptions($type = null) {
         return ['Options' => ['Please Modify List Values']];
     }
 
@@ -100,7 +100,7 @@ class MultiSelectListField extends BaseField {
      * @param  Request $request
      * @return array - The updated field array
      */
-    public function updateOptions($field, Request $request, $slug = null) {
+    public function updateOptions($field, Request $request, $flid = null, $prefix = 'records_') {
         if(is_null($request->options)) {
             $request->options = array();
         }

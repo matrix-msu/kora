@@ -86,10 +86,9 @@ class RichTextField extends BaseField {
     /**
      * Gets the default options string for a new field.
      *
-     * @param  Request $request
      * @return string - The default options
      */
-    public function getDefaultOptions() {
+    public function getDefaultOptions($type = null) {
         return '';
     }
 
@@ -101,7 +100,7 @@ class RichTextField extends BaseField {
      * @param  int $flid - The field internal name
      * @return array - The updated field array
      */
-    public function updateOptions($field, Request $request, $flid = null) {
+    public function updateOptions($field, Request $request, $flid = null, $prefix = 'records_') {
         $field['default'] = $request->default;
 
         return $field;

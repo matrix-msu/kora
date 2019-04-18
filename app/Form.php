@@ -49,7 +49,7 @@ class Form extends Model {
     const _PLAYLIST = "Playlist";
     const _VIDEO = "Video";
     const _3D_MODEL = "3D-Model";
-//    const _COMBO_LIST = "Combo List";
+    const _COMBO_LIST = "Combo List";
     const _ASSOCIATOR = "Associator";
 
     /**
@@ -67,7 +67,8 @@ class Form extends Model {
         'List Fields' => array(
             self::_LIST => self::_LIST,
             self::_MULTI_SELECT_LIST => self::_MULTI_SELECT_LIST,
-            self::_GENERATED_LIST => self::_GENERATED_LIST
+            self::_GENERATED_LIST => self::_GENERATED_LIST,
+            self::_COMBO_LIST => self::_COMBO_LIST
         ),
         'Date Fields' => array(
             self::_DATE => self::_DATE,
@@ -86,7 +87,6 @@ class Form extends Model {
             self::_GEOLOCATOR => self::_GEOLOCATOR,
             self::_ASSOCIATOR => self::_ASSOCIATOR
         )
-        // 'List Fields' => array(Combo List' => 'Combo List'),
     ];
 
     /**
@@ -133,6 +133,7 @@ class Form extends Model {
         self::_LIST => "ListField",
         self::_MULTI_SELECT_LIST => "MultiSelectListField",
         self::_GENERATED_LIST => "GeneratedListField",
+        self::_COMBO_LIST => "ComboListField",
         self::_GALLERY => "GalleryField",
         self::_PLAYLIST => "PlaylistField",
         self::_VIDEO => "VideoField",
@@ -244,7 +245,7 @@ class Form extends Model {
     /**
      * Updates a field within a form. Potentially reindex field name.
      */
-    public function updateField($flid, $fieldArray, $newFlid=null) {
+    public function updateField($flid, $fieldArray, $newFlid=null, $comboPrefix=array()) {
         $layout = $this->layout;
 
         //Update the field model
@@ -253,6 +254,10 @@ class Form extends Model {
         //Update column name in DB and page structure
         if(!is_null($newFlid)) {
             $rTable = new \CreateRecordsTable();
+            if ($comboPrefix) {
+                $cTable = new \CreateRecordsTable($comboPrefix);
+                $cTable->renameTable($this->id, $newFlid);
+            }
             $rTable->renameColumn($this->id,$flid,$newFlid);
 
             // Updating new field name
@@ -276,10 +281,26 @@ class Form extends Model {
     }
 
     /**
+     * Updates a field within a form within a combo list.
+     */
+    public function updateSubField($baseFlid, $flid, $newFlid=null) {
+
+        //Update column name in DB
+        if(!is_null($newFlid)) {
+            $rTable = new \CreateRecordsTable(['tablePrefix' => $baseFlid]);
+            $rTable->renameColumn($this->id,$flid,$newFlid);
+        }
+
+        $this->save();
+    }
+
+    /**
      * Updates a field within a form.
      */
     public function deleteField($flid) {
         $layout = $this->layout;
+
+        $type = $layout['fields'][$flid]['type'];
 
         //Remove from fields
         if(isset($layout['fields'][$flid]))
@@ -297,6 +318,14 @@ class Form extends Model {
 
         $this->layout = $layout;
         $this->save();
+
+        //Remove table for combo list
+        if ($type == Form::_COMBO_LIST) {
+            $rTable = new \CreateRecordsTable(
+                ['tablePrefix' => $flid]
+            );
+            $rTable->removeFormRecordsTable($this->id);
+        }
 
         //Remove table column
         $rTable = new \CreateRecordsTable();

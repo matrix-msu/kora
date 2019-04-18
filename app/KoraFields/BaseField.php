@@ -64,10 +64,10 @@ abstract class BaseField extends Model {
     /**
      * Gets the default options string for a new field.
      *
-     * @param  Request $request
+     * @param  string $type - Field type for use with combo list (optional)
      * @return array - The default options
      */
-    abstract public function getDefaultOptions();
+    abstract public function getDefaultOptions($type = null);
 
     /**
      * Update the options for a field
@@ -75,9 +75,10 @@ abstract class BaseField extends Model {
      * @param  array $field - Field to update options
      * @param  Request $request
      * @param  int $flid - The field internal name
+     * @param  string $prefix - Table prefix
      * @return array - The updated field array
      */
-    abstract public function updateOptions($field, Request $request, $flid = null);
+    abstract public function updateOptions($field, Request $request, $flid = null, $prefix = 'records_');
 
     /**
      * Validates the record data for a field against the field's options.

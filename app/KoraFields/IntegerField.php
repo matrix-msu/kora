@@ -9,10 +9,10 @@ class IntegerField extends BaseField {
 
     /*
     |--------------------------------------------------------------------------
-    | Number Field
+    | Integer Field
     |--------------------------------------------------------------------------
     |
-    | This model represents the number field in Kora3
+    | This model represents the integer field in Kora3
     |
     */
 
@@ -88,7 +88,7 @@ class IntegerField extends BaseField {
      *
      * @return string - The default options
      */
-    public function getDefaultOptions() {
+    public function getDefaultOptions($type = null) {
         return ['Max' => '', 'Min' => '', 'Unit' => ''];
     }
 
@@ -100,7 +100,7 @@ class IntegerField extends BaseField {
      * @param  int $flid - The field internal name
      * @return Redirect
      */
-    public function updateOptions($field, Request $request, $flid = null) {
+    public function updateOptions($field, Request $request, $flid = null, $prefix = 'records_') {
         if(
             ($request->min != '' && $request->max != '') &&
             ($request->min >= $request->max)

@@ -685,21 +685,48 @@ Kora.Fields.Options = function(fieldType) {
         });
 
         $('.add-combo-value-js').click(function() {
-            if(type1=='Date') {
-                monthOne = $('#month_one');
-                dayOne = $('#day_one');
-                yearOne = $('#year_one');
-                val1 = monthOne.val()+'/'+dayOne.val()+'/'+yearOne.val();
+            // TODO::CASTLE refactor this!
+            if(type1=='Date' | type1=='Historical Date') {
+                monthOne = $('#default_month_one');
+                dayOne = $('#default_day_one');
+                yearOne = $('#default_year_one');
+                if(type1=='Historical Date') {
+                    $('[id^=default_era_one]').each(function () {
+                        if ($(this).is(':checked')) {
+                            eraOne = $(this);
+                        }
+                    });
+                    circaOne = $('#default_circa_one');
+                    circaOneVal = 'Circa';
+                    if (circaTwo.prop('checked') != true) {
+                        circaTwo.val('0');
+                        circaOneVal = '';
+                    }
+                }
+                val1 = [monthOne.val(), dayOne.val(), yearOne.val(), circaOneVal, eraOne.val()].filter(Boolean).join('/');
             } else {
                 inputOne = $('#default_one');
                 val1 = inputOne.val();
             }
 
-            if(type2=='Date') {
-                monthTwo = $('#month_two');
-                dayTwo = $('#day_two');
-                yearTwo = $('#year_two');
-                val2 = monthTwo.val()+'/'+dayTwo.val()+'/'+yearTwo.val();
+            if(type2=='Date' | type2=='Historical Date') {
+                monthTwo = $('#default_month_two');
+                dayTwo = $('#default_day_two');
+                yearTwo = $('#default_year_two');
+                if(type2=='Historical Date') {
+                    $('[id^=default_era_two]').each(function () {
+                        if ($(this).is(':checked')) {
+                            eraTwo = $(this);
+                        }
+                    });
+                    circaTwo = $('#default_circa_two');
+                    circaTwoVal = 'Circa';
+                    if (circaTwo.prop('checked') != true) {
+                        circaTwo.val('0');
+                        circaTwoVal = '';
+                    }
+                }
+                val2 = [monthTwo.val(), dayTwo.val(), yearTwo.val(), circaTwoVal, eraTwo.val()].filter(Boolean).join('/');
             } else {
                 inputTwo = $('#default_two');
                 val2 = inputTwo.val();
@@ -721,19 +748,37 @@ Kora.Fields.Options = function(fieldType) {
 
                 div = '<div class="card combo-value-item-js">';
 
-                if(type1=='Text' | type1=='List' | type1=='Number' | type1=='Date') {
+                if(type1=='Text' | type1=='List' | type1=='Integer' | type1=='Float' | type1=='Boolean') {
                     div += '<input type="hidden" name="default_combo_one[]" value="'+val1+'">';
                     div += '<span class="combo-column">'+val1+'</span>';
+                } else if(type1=='Date' | type1=='Historical Date') {
+                    div += '<input type="hidden" name="default_day_combo_one[]" value="'+dayOne.val()+'">';
+                    div += '<input type="hidden" name="default_month_combo_one[]" value="'+monthOne.val()+'">';
+                    div += '<input type="hidden" name="default_year_combo_one[]" value="'+yearOne.val()+'">';
+                    if(type1=='Historical Date') {
+                        div += '<input type="hidden" name="default_circa_combo_one[]" value="'+circaOne.val()+'">';
+                        div += '<input type="hidden" name="default_era_combo_one[]" value="'+eraOne.val()+'">';
+                    }
+                    div += '<span class="combo-column">'+val1+'</span>';
                 } else if(type1=='Multi-Select List' | type1=='Generated List' | type1=='Associator') {
-                    div += '<input type="hidden" name="default_combo_one[]" value="'+val1.join('[!]')+'">';
+                    div += '<input type="hidden" name="default_combo_one[]" value='+JSON.stringify(val1)+'>';
                     div += '<span class="combo-column">'+val1.join(' | ')+'</span>';
                 }
 
-                if(type2=='Text' | type2=='List' | type2=='Number' | type2=='Date') {
+                if(type2=='Text' | type2=='List' | type2=='Integer' | type2=='Float' | type2=='Boolean') {
                     div += '<input type="hidden" name="default_combo_two[]" value="'+val2+'">';
                     div += '<span class="combo-column">'+val2+'</span>';
+                } else if(type2=='Date' | type2=='Historical Date') {
+                    div += '<input type="hidden" name="default_day_combo_two[]" value="'+dayTwo.val()+'">';
+                    div += '<input type="hidden" name="default_month_combo_two[]" value="'+monthTwo.val()+'">';
+                    div += '<input type="hidden" name="default_year_combo_two[]" value="'+yearTwo.val()+'">';
+                    if(type2=='Historical Date') {
+                        div += '<input type="hidden" name="default_circa_combo_two[]" value="'+circaTwo.val()+'">';
+                        div += '<input type="hidden" name="default_era_combo_two[]" value="'+eraTwo.val()+'">';
+                    }
+                    div += '<span class="combo-column">'+val2+'</span>';
                 } else if(type2=='Multi-Select List' | type2=='Generated List' | type2=='Associator') {
-                    div += '<input type="hidden" name="default_combo_two[]" value="'+val2.join('[!]')+'">';
+                    div += '<input type="hidden" name="default_combo_two[]" value='+JSON.stringify(val2)+'>';
                     div += '<span class="combo-column">'+val2.join(' | ')+'</span>';
                 }
 
@@ -749,9 +794,17 @@ Kora.Fields.Options = function(fieldType) {
                 if(type1=='Multi-Select List' | type1=='Generated List' | type1=='List' | type1=='Associator') {
                     inputOne.val('');
                     inputOne.trigger("chosen:updated");
-                } else if(type1=='Date') {
+                } else if(type1=='Date' | type1=='Historical Date') {
                     monthOne.val(''); dayOne.val(''); yearOne.val('');
                     monthOne.trigger("chosen:updated"); dayOne.trigger("chosen:updated"); yearOne.trigger("chosen:updated");
+                    if(type1=='Historical Date') {
+                        eraOne.prop("checked", false);
+                        $("#default_era_one_ce").prop("checked", true);
+                        $('[id^=default_era_one]').each(function () {
+                            $(this).trigger("chosen:updated");
+                        });
+                        circaOne.trigger("chosen:updated");
+                    }
                 } else {
                     inputOne.val('');
                 }
@@ -759,9 +812,17 @@ Kora.Fields.Options = function(fieldType) {
                 if(type2=='Multi-Select List' | type2=='Generated List' | type2=='List' | type2=='Associator') {
                     inputTwo.val('');
                     inputTwo.trigger("chosen:updated");
-                } else if(type2=='Date') {
+                } else if(type2=='Date' | type2=='Historical Date') {
                     monthTwo.val(''); dayTwo.val(''); yearTwo.val('');
                     monthTwo.trigger("chosen:updated"); dayTwo.trigger("chosen:updated"); yearTwo.trigger("chosen:updated");
+                    if(type2=='Historical Date') {
+                        eraTwo.prop("checked", false);
+                        $("#default_era_two_ce").prop("checked", true);
+                        $('[id^=default_era_two]').each(function () {
+                            $(this).trigger("chosen:updated");
+                        });
+                        circaTwo.trigger("chosen:updated");
+                    }
                 } else {
                     inputTwo.val('');
                 }
@@ -797,6 +858,7 @@ Kora.Fields.Options = function(fieldType) {
                 e.preventDefault();
 
                 var keyword = $(this).val();
+                var combo = $(this).data('combo');
                 var resultsBox = $(this).parent().next().children('.assoc-select-records-js').first();
                 //Clear old values
                 resultsBox.html('');
@@ -807,7 +869,8 @@ Kora.Fields.Options = function(fieldType) {
                     type: 'POST',
                     data: {
                         "_token": csrfToken,
-                        "keyword": keyword
+                        "keyword": keyword,
+                        "combo": combo
                     },
                     success: function (result) {
                         for(var kid in result) {
@@ -990,11 +1053,39 @@ Kora.Fields.Options = function(fieldType) {
             });
         }
 
+        function initializeDateOptions() {
+            $eraCheckboxes = $('.era-check-js');
+
+            $eraCheckboxes.click(function() {
+                var $selected = $(this);
+
+                $('.era-check-js').prop('checked', false);
+                $selected.prop('checked', true);
+
+                currEra = $selected.val();
+                $month = $('[id^=default_month_]');
+                $day = $('[id^=default_day_]');
+
+                if(currEra=='BP' | currEra=='KYA BP') {
+                    $month.attr('disabled','disabled').val('');
+                    $day.attr('disabled','disabled').val('');
+                    $month.trigger("chosen:updated");
+                    $day.trigger("chosen:updated");
+                } else {
+                    $month.removeAttr('disabled');
+                    $day.removeAttr('disabled');
+                    $month.trigger("chosen:updated");
+                    $day.trigger("chosen:updated");
+                }
+            });
+        }
+
         setCardTitleWidth();
         initializeListAddOption('one');
         initializeListAddOption('two');
         initializeListSort();
         initializeListOptionDelete();
+        initializeDateOptions();
         Kora.Fields.TypedFieldInputs.Initialize();
     }
 

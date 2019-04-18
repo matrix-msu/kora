@@ -95,7 +95,7 @@ class AssociatorField extends BaseField {
      *
      * @return array - The default options
      */
-    public function getDefaultOptions() {
+    public function getDefaultOptions($type = null) {
         return ['SearchForms' => array()];
     }
 
@@ -107,7 +107,7 @@ class AssociatorField extends BaseField {
      * @param  int $flid - The field internal name
      * @return array - The updated field array
      */
-    public function updateOptions($field, Request $request, $flid = null) {
+    public function updateOptions($field, Request $request, $flid = null, $prefix = 'records_') {
         $searchForms = array();
         foreach($request->all() as $key=>$value) {
             if(substr( $key, 0, 8 ) === "checkbox") {

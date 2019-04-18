@@ -1094,7 +1094,7 @@ class ImportController extends Controller {
         $adminGroup = ProjectGroup::makeAdminGroup($project, $request);
         ProjectGroup::makeDefaultGroup($project);
         $project->adminGroup_id = $adminGroup->id;
-        
+
         $project->internal_name = str_replace(" ","_", $project->name).'_'.$project->id.'_';
 
         $project->save();
@@ -1266,10 +1266,10 @@ class ImportController extends Controller {
                 $rows = explode('[!val!]', $data);
                 $fieldxml = '';
 
-                $nameone = Field::xmlTagClear(ComboListField::getComboFieldName($field, 'one'));
-                $nametwo = Field::xmlTagClear(ComboListField::getComboFieldName($field, 'two'));
-                $typeone = ComboListField::getComboFieldType($field, 'one');
-                $typetwo = ComboListField::getComboFieldType($field, 'two');
+                $nameone = Field::xmlTagClear($field['one']['name']);
+                $nametwo = Field::xmlTagClear($field['two']['name']);
+                $typeone = $field['one']['type'];
+                $typetwo = $field['two']['type'];
 
                 foreach($rows as $row) {
                     $rowParts = explode('[!data!]', $row);

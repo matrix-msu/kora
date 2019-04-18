@@ -22,7 +22,9 @@
                         <div class="field-title mt-m">{{$field['name']}}</div>
 
                         <section class="field-data">
-                            @php $typedField = $form->getFieldModel($field['type']); @endphp
+                            @php
+                                $typedField = $form->getFieldModel($field['type']);
+                            @endphp
                             @if(!is_null($record->{$flid}))
                                 @include($typedField->getFieldDisplayView(), ['field' => $field, 'typedField' => $typedField, 'value' => $record->{$flid}])
                             @else

@@ -1,6 +1,6 @@
 <?php
-$oneType = \App\ComboListField::getComboFieldType($field,'one');
-$twoType = \App\ComboListField::getComboFieldType($field,'two');
+$oneType = $field['one']['type'];
+$twoType = $field['two']['type'];
 
 $types = [
     1 => $oneType,
@@ -8,13 +8,13 @@ $types = [
 ];
 
 $names = [
-    1 => \App\ComboListField::getComboFieldName($field,'one'),
-    2 =>\App\ComboListField::getComboFieldName($field,'two')
+    1 => $field['one']['name'],
+    2 => $field['two']['name']
 ];
 
 $_options = [
-    1 => \App\ComboListField::getComboList($field, false, "one"),
-    2 => \App\ComboListField::getComboList($field, false, "two"),
+    1 => App\Korafields\ComboListField::getComboList($field, false, "one"),
+    2 => App\Korafields\ComboListField::getComboList($field, false, "two"),
 ];
 
 ?>
