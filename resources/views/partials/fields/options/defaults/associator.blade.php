@@ -7,8 +7,11 @@
 @endphp
 <div class="form-group mt-xxxl">Association Search Configuration</div>
 
-<div class="associator-section">
-    @foreach(\App\Http\Controllers\AssociationController::getAvailableAssociations($form->id) as $a)
+@php
+    $associations = \App\Http\Controllers\AssociationController::getAvailableAssociations($field->fid);
+@endphp
+<div class="associator-section {{count($associations) == 0 ? 'search-config-empty-state' : ''}}">
+    @foreach($associations as $a)
         @php
         $f = \App\Http\Controllers\FormController::getForm($a->data_form);
         $formFieldsData = $f->layout['fields'];
@@ -54,4 +57,5 @@
             {!! Form::select('preview_' . $f->id . $seq . '[]', $formFields, $f_flids, ['class' => 'multi-select assoc-preview-js', 'multiple', 'data-placeholder' => 'Select field preview value']) !!}
         </div>
     @endforeach
+    @if(count($associations) == 0) No Forms Associated @endif
 </div>

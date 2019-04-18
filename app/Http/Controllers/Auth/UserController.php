@@ -116,7 +116,7 @@ class UserController extends Controller {
 
           if($session == 'user_updated') {
             if(in_array('password', $changes)) {
-              $notification['message'] = 'Password Successfully Reset!';
+              $notification['message'] = 'Password Successfully Changed!';
               $notification['static'] = true;
             } else {
               $notification['message'] = 'Profile Successfully Updated!';
@@ -198,20 +198,22 @@ class UserController extends Controller {
       $newOrganization = $request->organization;
       $newPass = $request->password;
       $confirm = $request->password_confirmation;
+	  
+	  $userPrefs = $user->preferences; // doesn't access property directly, uses __get
 
       // Look for changes, update what was changed
       if(!empty($newFirstName) && $newFirstName != $user->first_name) {
-        $user->preferences['first_name'] = $newFirstName;
+        $userPrefs['first_name'] = $newFirstName;
         array_push($message, "first_name");
       }
 
       if(!empty($newLastName) && $newLastName != $user->last_name) {
-        $user->preferences['last_name'] = $newLastName;
+        $userPrefs['last_name'] = $newLastName;
         array_push($message, "last_name");
       }
 
       if(!empty($newOrganization) && $newOrganization != $user->organization) {
-        $user->preferences['organization'] = $newOrganization;
+        $userPrefs['organization'] = $newOrganization;
         array_push($message, "organization");
       }
 
@@ -233,6 +235,7 @@ class UserController extends Controller {
           array_push($message,"password");
       }
 
+	  $user->preferences = $userPrefs; // __set
       $user->save();
 
       if(!empty($newProfilePic)) {
@@ -439,6 +442,15 @@ class UserController extends Controller {
     public function validateUserFields(UserRequest $request) {
         return response()->json(["status"=>true, "message"=>"User Valid", 200]);
     }
+	
+	public function validateEditProfile(Request $request) {
+		$validatedData = $request->validate([
+			'password' => 'confirmed|min:6'
+		]);
+		
+		
+		return response()->json(["status"=>true, "message"=>"User Valid", 200]);
+	}
 
     /**
      * Changes the user profile picture and returns the pic URI.
