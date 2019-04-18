@@ -86,7 +86,7 @@
   @include('partials.user.javascripts')
 
   <script type="text/javascript">
-      var validationUrl = '{{action('Auth\UserController@validateUserFields',['uid'=>$user->id])}}';
+      var validationUrl = '{{action('Auth\UserController@validateEditProfile')}}';
       var CSRFToken = '{{ csrf_token() }}';
       var userid = '{{$user->id}}';
       var redirectUrl = '{{ (\Auth::user()->id == $user->id ? url('/') : url('admin/users')) }}';
