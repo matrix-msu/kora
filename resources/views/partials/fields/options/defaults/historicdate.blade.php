@@ -7,7 +7,7 @@
 
 <div class="form-group mt-xl">
     {!! Form::label('format' . $seq,'Date Format') !!}
-    {!! Form::select('format' . $seq, ['MMDDYYYY' => 'MM DD, YYYY','DDMMYYYY' => 'DD MM YYYY','YYYYMMDD' => 'YYYY MM DD'], $field['options']['Format'], ['class' => 'single-select']) !!}
+    {!! Form::select('format' . $seq, ['YYYYMMDD' => 'YYYY-MM-DD','MMDDYYYY' => 'MM-DD-YYYY','DDMMYYYY' => 'DD-MM-YYYY'], $field['options']['Format'], ['class' => 'single-select']) !!}
 </div>
 
 <div class="form-group mt-xl half pr-m">

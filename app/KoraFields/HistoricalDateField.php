@@ -99,7 +99,7 @@ class HistoricalDateField extends BaseField {
             'ShowEra' => 0,
             'Start' => 1900,
             'End' => 2030,
-            'Format' => 'MMDDYYYY'
+            'Format' => 'YYYYMMDD'
         ];
     }
 
@@ -200,11 +200,10 @@ class HistoricalDateField extends BaseField {
      * @return bool - Is valid
      */
     private static function validateDate($m,$d,$y) {
-        //No blank date
-        //No month without a year.
+        //Must have a year
         //No day without a month.
         if(
-            ($m=='' && $d=='' && $y=='') | ($m!='' && $y=='') | ($d!='' && $m=='')
+            ($y=='') | ($d!='' && $m=='')
         ) {
             return false;
         }
@@ -213,7 +212,6 @@ class HistoricalDateField extends BaseField {
         //For the check we need to default any blank values to 1, cause checkdate doesn't like partial dates
         if($m=='') {$m=1;}
         if($d=='') {$d=1;}
-        if($y=='') {$y=1;}
 
         return checkdate($m, $d, $y);
     }
@@ -252,7 +250,7 @@ class HistoricalDateField extends BaseField {
     public function processRevisionData($data) {
         $date = json_decode($data,true);
         $return = ($date['circa']) ? 'circa ' : '';
-        $return .= $date['month'].'/'.$date['day'].'/'.$date['year'];
+        $return .= $date['year'].'-'.$date['month'].'-'.$date['day'];
         $return .= ' '.$date['era'];
 
         return $return;
@@ -622,15 +620,13 @@ class HistoricalDateField extends BaseField {
         if($date['month']=='' && $date['day']=='')
             $dateString .= $date['year'];
         else if($date['day']=='')
-            $dateString .= \DateTime::createFromFormat('m', $date['month'])->format('F').', '.$date['year'];
-        else if($date['year']=='')
-            $dateString .= \DateTime::createFromFormat('m', $date['month'])->format('F').' '.$date['day'];
+            $dateString .= $date['year'].'-'.$date['month'];
+        else if($field['options']['Format']=='YYYYMMDD')
+            $dateString .= $date['year'].'-'.$date['month'].'-'.$date['day'];
         else if($field['options']['Format']=='MMDDYYYY')
             $dateString .= $date['month'].'-'.$date['day'].'-'.$date['year'];
         else if($field['options']['Format']=='DDMMYYYY')
             $dateString .= $date['day'].'-'.$date['month'].'-'.$date['year'];
-        else if($field['options']['Format']=='YYYYMMDD')
-            $dateString .= $date['year'].'-'.$date['month'].'-'.$date['day'];
 
         if($field['options']['ShowEra'])
             $dateString .= ' '.$date['era'];
