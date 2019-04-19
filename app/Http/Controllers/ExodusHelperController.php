@@ -78,9 +78,8 @@ class ExodusHelperController extends Controller {
      * @param  $filePath - Local system path for kora 2 files
      * @param  $exodus_id - Progress table id
      * @param  $userNameArray - Array of old user names to new ids
-     * @param  bool $commandLine - Are we executing from web or php artisan
      */
-    public function migrateControlsAndRecords($ogSid, $fid, $formArray, $pairArray, $dbInfo, $filePath, $exodus_id, $userNameArray, $commandLine) {
+    public function migrateControlsAndRecords($ogSid, $fid, $formArray, $pairArray, $dbInfo, $filePath, $exodus_id, $userNameArray) {
         //connect to db and set up variables
         $con = mysqli_connect($dbInfo['host'],$dbInfo['user'],$dbInfo['pass'],$dbInfo['name']);
         $form = FormController::getForm($fid);
@@ -95,8 +94,7 @@ class ExodusHelperController extends Controller {
         $table_array = $this->makeBackupTableArray($numRecords, $form, $exodus_id);
         if($table_array == false) { return;}
         Log::info('Started creating records for '.$form->internal_name.' (sid: '.$ogSid.').');
-        if($commandLine)
-            echo "Creating records for ".$form->internal_name." (sid: $ogSid)...\n";
+        echo "Creating records for ".$form->internal_name." (sid: $ogSid)...\n";
 
         $row_id = DB::table('exodus_partial')->insertGetId(
             $table_array
@@ -136,8 +134,6 @@ class ExodusHelperController extends Controller {
                 $newOpts = '';
                 $newDef = '';
                 $newType = '';
-
-                $skip = false; //TODO::CASTLE remove when all types done;
 
                 switch($type) {
                     case 'TextControl':
@@ -191,37 +187,49 @@ class ExodusHelperController extends Controller {
                         $newDef = $def;
                         $newType = 'Generated List';
                         break;
-                    case 'DateControl': //TODO::CASTLE
-//                        if(!$blankOpts) {
-//                            $startY = (int)$optXML->startYear;
-//                            $endY = (int)$optXML->endYear;
-//                            $era = $optXML->era->__toString();
-//                            $format = $optXML->displayFormat->__toString();
-//                            $defYear = (int)$optXML->defaultValue->year;
-//                            $defMon = (int)$optXML->defaultValue->month;
-//                            $defDay = (int)$optXML->defaultValue->day;
-//                            $prefix = $optXML->prefixes->__toString();
-//                        } else {
-//                            $startY = 1900;
-//                            $endY = 2020;
-//                            $era = 'No';
-//                            $format = 'MMDDYYYY';
-//                            $defYear = '';
-//                            $defMon = '';
-//                            $defDay = '';
-//                            $prefix = 'No';
-//                        }
-//
-//                        $circa = 'No';
-//                        $for = 'MMDDYYYY';
-//                        if($prefix=='circa') {$circa='Yes';}
-//                        if($format=='MDY') {$for='MMDDYYYY';}
-//                        else if($format=='DMY') {$for='DDMMYYYY';}
-//                        else if($format=='YMD') {$for='YYYYMMDD';}
-//
-//                        $newOpts = '[!Circa!]'.$circa.'[!Circa!][!Start!]'.$startY.'[!Start!][!End!]'.$endY.'[!End!][!Format!]'.$for.'[!Format!][!Era!]'.$era.'[!Era!]';
-//                        $newDef = '[M]'.$defMon.'[M][D]'.$defDay.'[D][Y]'.$defYear.'[Y]';
-//                        $newType = 'Date';
+                    case 'DateControl':
+                        if(!$blankOpts) {
+                            $startY = (int)$optXML->startYear;
+                            $endY = (int)$optXML->endYear;
+                            $era = $optXML->era->__toString();
+                            $format = $optXML->displayFormat->__toString() == 'Yes' ? 1 : 0;
+                            $defYear = (int)$optXML->defaultValue->year;
+                            $defMon = (int)$optXML->defaultValue->month;
+                            $defDay = (int)$optXML->defaultValue->day;
+                            $prefix = $optXML->prefixes->__toString();
+                        } else {
+                            $startY = 1900;
+                            $endY = 2020;
+                            $era = 0;
+                            $format = 'YYYYMMDD';
+                            $defYear = '';
+                            $defMon = '';
+                            $defDay = '';
+                            $prefix = '';
+                        }
+
+                        $circa = 0;
+                        $for = 'YYYYMMDD';
+                        if($prefix=='circa') {$circa=1;}
+                        if($format=='MDY') {$for='MMDDYYYY';}
+                        else if($format=='DMY') {$for='DDMMYYYY';}
+                        else if($format=='YMD') {$for='YYYYMMDD';}
+
+                        $newOpts = [
+                            'ShowCirca' => $circa,
+                            'ShowEra' => $era,
+                            'Start' => $startY,
+                            'End' => $endY,
+                            'Format' => $for
+                        ];
+                        $newDef = [
+                            'month' => $defMon,
+                            'day' => $defDay,
+                            'year' => $defYear,
+                            'circa' => 0,
+                            'era' => 'CE'
+                        ];
+                        $newType = 'Historical Date';
                         $skip = true;
                         break;
                     case 'MultiDateControl': //We convert multi date to a generated list with a date regex
@@ -339,9 +347,6 @@ class ExodusHelperController extends Controller {
                         break;
                 }
 
-                if($skip) //TODO::CASTLE remove after all fields done
-                    continue;
-
                 //Create field array
                 $field = array();
                 $field['type'] = $newType;
@@ -402,8 +407,7 @@ class ExodusHelperController extends Controller {
 
         //time to build the records
         Log::info('Iterating through data');
-        if($commandLine)
-            echo "Iterating through form record data...\n";
+        echo "Iterating through form record data...\n";
 
         //Record stuff//////////////////////////////////////////
         error_reporting(E_ALL);
@@ -470,35 +474,27 @@ class ExodusHelperController extends Controller {
                         }
                         $recordDataToSave[$r['id']][$flid] = json_encode($mtc);
                         break;
-                    case 'Date': //TODO::CASTLE
-//                            $dateXML = simplexml_load_string($value);
-//                            $circa=0;
-//                            if((string)$dateXML->prefix == 'circa')
-//                                $circa=1;
-//                            $era = 'CE';
-//                            if(FieldController::getFieldOption($field,'Era')=='Yes')
-//                                $era = (string)$dateXML->era;
-//
-//                            $monthData = (int)$dateXML->month;
-//                            $dayData = (int)$dateXML->day;
-//                            $yearData = (int)$dateXML->year;
-//
-//                            $dateObj = new \DateTime("$monthData/$dayData/$yearData");
-//                            $date_object = date_format($dateObj, 'Y-m-d');
-//
-//                            $date = [
-//                                'rid' => $recModel->rid,
-//                                'fid' => $recModel->fid,
-//                                'flid' => $field->flid,
-//                                'circa' => $circa,
-//                                'month' => $monthData,
-//                                'day' => $dayData,
-//                                'year' => $yearData,
-//                                'era' => $era,
-//                                'date_object' => $date_object
-//                            ];
-//                            array_push($datefields,$date);
+                    case 'Historical Date':
+                        $dateXML = simplexml_load_string($value);
+                        $circa=0;
+                        if((string)$dateXML->prefix == 'circa')
+                            $circa=1;
+                        $era = 'CE';
+                        if(FieldController::getFieldOption($field,'Era')=='Yes')
+                            $era = (string)$dateXML->era;
 
+                        $monthData = (int)$dateXML->month;
+                        $dayData = (int)$dateXML->day;
+                        $yearData = (int)$dateXML->year;
+
+                        $date = [
+                            'month' => $monthData,
+                            'day' => $dayData,
+                            'year' => $yearData,
+                            'circa' => $circa,
+                            'era' => $era
+                        ];
+                        $recordDataToSave[$r['id']][$flid] = json_encode($date);
                         break;
                     case 'Documents':
                         $fileXML = simplexml_load_string($value);
@@ -517,8 +513,7 @@ class ExodusHelperController extends Controller {
                             if(!file_exists($oldDir.$localname)) {
                                 //OLD FILE DOESNT EXIST SO BALE
                                 Log::info('File not found: '.$oldDir.$localname);
-                                if($commandLine)
-                                    echo 'File not found: '.$oldDir.$localname,"\n";
+                                echo 'File not found: '.$oldDir.$localname,"\n";
                                 continue;
                             }
 
@@ -575,16 +570,14 @@ class ExodusHelperController extends Controller {
                             } catch(\ImagickException $e) {
                                 $thumb = false;
                                 Log::info('Issue creating thumbnail for record '.$recordDataToSave[$r['id']]['kid'].'.');
-                                if($commandLine)
-                                    echo "Issue creating thumbnail for record ".$recordDataToSave[$r['id']]['kid']."\n";
+                                echo "Issue creating thumbnail for record ".$recordDataToSave[$r['id']]['kid']."\n";
                             }
                             try {
                                 $mImage = new \Imagick($newPath . $realname);
                             } catch(\ImagickException $e) {
                                 $medium = false;
                                 Log::info('Issue creating medium thumbnail for record '.$recordDataToSave[$r['id']]['kid'].'.');
-                                if($commandLine)
-                                    echo "Issue creating thumbnail for record ".$recordDataToSave[$r['id']]['kid']."\n";
+                                echo "Issue creating thumbnail for record ".$recordDataToSave[$r['id']]['kid']."\n";
                             }
 
                             //Size check
@@ -698,8 +691,7 @@ class ExodusHelperController extends Controller {
 
         //Breath now
         Log::info('Done creating records for '.$form->internal_name.'.');
-        if($commandLine)
-            echo "Done creating records for ".$form->internal_name."\n";
+        echo "Done creating records for ".$form->internal_name."\n";
         DB::table('exodus_overall')->where('id', $exodus_id)->increment('progress',1,['updated_at'=>Carbon::now()]);
 
         mysqli_close($con);

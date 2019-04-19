@@ -29,11 +29,5 @@
         <li class="content-link content-link-js" data-page="update">
             <a href="{{ action('UpdateController@index') }}">Update Kora Installation</a>
         </li>
-
-        @if (null !== \Auth::user() && \Auth::user()->id == 1)
-          <li class="content-link content-link-js" data-page="kora-exodus">
-              <a href="{{ action('ExodusController@index') }}">Kora 2 Exodus</a>
-          </li>
-        @endif
     </ul>
 </div>

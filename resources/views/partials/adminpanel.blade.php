@@ -29,8 +29,4 @@
         <button type="submit" class="btn btn-default"> {{trans('partials_adminpanel.update')}} </button>
     </form>
 
-    <form action="{{ action('ExodusController@index') }}" style="display: inline">
-        <button type="submit" class="btn btn-default"> {{trans('partials_adminpanel.exodus')}} </button>
-    </form>
-
 @endif
