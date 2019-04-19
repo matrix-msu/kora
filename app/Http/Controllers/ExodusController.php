@@ -47,86 +47,20 @@ class ExodusController extends Controller {
         $this->middleware(function ($request, $next) {
             if (Auth::check())
                 if (Auth::user()->id != 1)
-                    return redirect("/projects")->with('k3_global_error', 'not_admin')->send();
+                    return false;
 
             return $next($request);
         });
     }
 
     /**
-     * Returns the view for the Exodus tool.
-     *
-     * @return View
-     */
-    public function index() {
-        return view('exodus.index');
-    }
-
-    /**
-     * Initializes the migration process and returns the progress view.
-     *
-     * @param  Request $request
-     * @return View
-     */
-    public function migrate(Request $request) {
-        $users_exempt_from_lockout = new Collection();
-        $users_exempt_from_lockout->put(1,1); //Add another one of these with (userid,userid) to exempt extra users
-
-        //MySQL Info
-        $host = $request->host;
-        $name = $request->name;
-        $user = $request->user;
-        $pass = $request->pass;
-
-        $migrateUsers = isset($request->users) ? 1 : 0;
-        $migrateTokens = isset($request->tokens) ? 1 : 0;
-        $projects = $request->projects;
-        $filePath = $request->filePath;
-
-        return view('exodus.progress',compact('host', 'name', 'user', 'pass', 'migrateUsers', 'migrateTokens', 'projects', 'filePath'));
-    }
-
-    /**
-     * Gets a list of all the Kora 2 projects to be migrated.
-     *
-     * @param  Request $request
-     * @return array - The list of projects
-     */
-    public function getProjectList(Request $request) {
-		$validator = Validator::make($request->all(), [
-			'host' => 'required',
-			'user' => 'required',
-			'pass' => 'required',
-			'name' => 'required'
-		]);
-		
-		if ($validator->fails()) {
-			return response()->json(["response"=>"validation failed"], 422);
-		}
-		
-		$con = mysqli_connect($request->host, $request->user, $request->pass, $request->name);
-	
-		$projectArray = array();
-	
-		$projects = $con->query("select * from project");
-		while($p = $projects->fetch_assoc()) {
-			$projectArray[$p['pid']] = $p['name'];
-		}
-	
-		mysqli_close($con);
-	
-		return $projectArray;
-    }
-
-    /**
      * Actually initiates the Exodus process.
      *
      * @param  Request $request
-     * @param  bool $commandLine - Are we executing from web or php artisan
      */
-    public function startExodus(Request $request, $commandLine = false) {
-        if($commandLine)
-            echo "Prepping Exodus...\n";
+    public function startExodus(Request $request) {
+        echo "Prepping Exodus...\n";
+
         $con = mysqli_connect($request->host,$request->user,$request->pass,$request->name);
         $dbInfo = array();
         $dbInfo['host'] = $request->host;
@@ -157,8 +91,8 @@ class ExodusController extends Controller {
         //we should do the user table and project related tables and then divide all the scheme tasks into queued jobs
 
         //Users
-        if($commandLine)
-            echo "Gathering user info...\n";
+        echo "Gathering user info...\n";
+
         $users = $con->query("select * from user where username!='koraadmin'");
         while($u = $users->fetch_assoc()) {
             if($u['salt']!=0 && $migrateUsers) {
@@ -230,8 +164,8 @@ class ExodusController extends Controller {
         }
 
         //Projects
-        if($commandLine)
-            echo "Building projects...\n";
+        echo "Building projects...\n";
+
         $projects = $con->query("select * from project");
         while($p = $projects->fetch_assoc()) {
             if(in_array($p['pid'],$migratedProjects)) {
@@ -298,8 +232,8 @@ class ExodusController extends Controller {
         }
 
         //Back to tokens
-        if($commandLine)
-            echo "Migrating search tokens...\n";
+        echo "Migrating search tokens...\n";
+
         if($migrateTokens) {
             foreach($tokenArray as $t => $tokenProjs) {
                 $token = new Token();
@@ -322,8 +256,8 @@ class ExodusController extends Controller {
         }
 
         //Option Presets //TODO::CASTLE
-        if($commandLine)
-            echo "Building field value presets...\n";
+        echo "Building field value presets...\n";
+
 //        $optPresets = $con->query("select * from controlPreset");
 //        while($o = $optPresets->fetch_assoc()) {
 //            if($o['project']==0 | !isset($projectArray[$o['project']]))
@@ -368,8 +302,8 @@ class ExodusController extends Controller {
 //        }
 
         //Forms
-        if($commandLine)
-            echo "Building forms...\n";
+        echo "Building forms...\n";
+
         $forms = $con->query("select * from scheme");
         $masterAssoc = array();
         while($f = $forms->fetch_assoc()) {
@@ -470,8 +404,8 @@ class ExodusController extends Controller {
         }
 
         //Resolve the assoc permissions
-        if($commandLine)
-            echo "Connecting forms for associators...\n\n";
+        echo "Connecting forms for associators...\n\n";
+
         foreach($masterAssoc as $fid => $asids) {
             foreach($asids as $asid) {
                 //Make sure the scheme it's looking for actually was transfered
@@ -488,39 +422,21 @@ class ExodusController extends Controller {
 
         ini_set('max_execution_time',0);
         Log::info("Begin Exodus");
-        if($commandLine)
-            echo "Begin Exodus...\n";
+        echo "Begin Exodus...\n";
+
         $exodus_id = DB::table('exodus_overall')->insertGetId(['progress'=>0,'total_forms'=>sizeof($formArray),'created_at'=>Carbon::now(),'updated_at'=>Carbon::now()]);
         foreach($formArray as $sid=>$fid) {
             $job = new ExodusHelperController();
-            $job->migrateControlsAndRecords($sid, $fid, $formArray, $pairArray, $dbInfo, $filePath, $exodus_id, $userNameArray, $commandLine);
+            $job->migrateControlsAndRecords($sid, $fid, $formArray, $pairArray, $dbInfo, $filePath, $exodus_id, $userNameArray);
         }
     }
 
     /**
-     * Returns the current progress of the Exodus migration.
-     *
-     * @return string - Json array of the progress
-     */
-    public function checkProgress() {
-        $overall = DB::table('exodus_overall')->where('id',DB::table('exodus_overall')->max('id'))->first();
-        if(is_null($overall))
-            return 'inprogress';
-
-        $partial = DB::table('exodus_partial')->where('exodus_id',$overall->id)->get();
-
-        return response()->json(["overall"=>$overall,"partial"=>$partial],200);
-    }
-
-    /**
      * Finishes the Exodus process by completeing associations.
-     *
-     * @param  bool $commandLine - Are we executing from web or php artisan
      */
-    public function finishExodus($commandLine = false) {
+    public function finishExodus() {
         Log::info("Finishing Exodus");
-        if($commandLine)
-            echo "Building associations (May take a while)...\n";
+        echo "Building associations (May take a while)...\n";
 
         //Stores the KID to RID conversions
         $masterConvertor = array();
@@ -568,8 +484,7 @@ class ExodusController extends Controller {
         }
 
         Log::info("Exodus Complete");
-        if($commandLine)
-            echo "Exodus Complete!\n";
+        echo "Exodus Complete!\n";
     }
 
     /**
