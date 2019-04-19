@@ -368,7 +368,7 @@ class UserController extends Controller {
         $logoTargetOptions = self::logoTargetOptions();
         $projPageTabSelOptions = self::projPageTabSelOptions();
         $singleProjTabSelOptions = self::singleProjTabSelOptions();
-
+		
         $notification = array(
             'message' => '',
             'description' => '',
