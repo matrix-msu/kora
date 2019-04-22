@@ -33,7 +33,14 @@
 
     <div class="caption-container caption-container-js">
         @foreach($images as $index => $img)
-            <div class="caption caption-js {{ ($index == 0 ? 'active' : '') }}">{{ $img['caption'] }}</div>
+            <div class="caption caption-js {{ ($index == 0 ? 'active' : '') }}">
+                {{ $img['caption'] }}
+                @php
+                    $locName = $img['local_name'];
+                    $link = action('FieldAjaxController@publicRecordFile',['filename' => $locName]);
+                @endphp
+                <div>Public URL: {{ $link }}</div>
+            </div>
         @endforeach
     </div>
     <a class="caption-more caption-more-js underline-middle-hover" showing="less" href="#">Show Full Caption</a>
@@ -94,7 +101,14 @@
 
             <div class="caption-container caption-container-js">
                 @foreach($images as $index => $img)
-                    <div class="caption caption-js modal-caption-js {{ ($index == 0 ? 'active' : '') }}">{{ $img['caption'] }}</div>
+                    <div class="caption caption-js modal-caption-js {{ ($index == 0 ? 'active' : '') }}">
+                        {{ $img['caption'] }}
+                        @php
+                            $locName = $img['local_name'];
+                            $link = action('FieldAjaxController@publicRecordFile',['filename' => $locName]);
+                        @endphp
+                        <div>Public URL: {{ $link }}</div>
+                    </div>
                 @endforeach
             </div>
             <a class="caption-more caption-more-js underline-middle-hover" showing="less" href="#">Show Full Caption</a>
