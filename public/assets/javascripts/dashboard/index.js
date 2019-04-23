@@ -637,7 +637,7 @@ Kora.Dashboard.Index = function() {
                 data: values,
                 success: function () {
                     Kora.Modal.close($('.delete-block-modal-js'));
-                    $("#" + $('.delete-block-modal-js input[name="blkID"]').val() + ".element").remove();
+                    window.location.reload();
                 },
                 error: function (err) {
                     console.log(err);
