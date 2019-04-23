@@ -153,7 +153,40 @@ class ProjectSearchController extends Controller { //TODO::CASTLE
             $projects[$p->pid] = $p->name;
         }
 
-        return view('globalSearch.results', compact("projects", "records", "total", "ignored"));
+        // Search through Forms, Fields, and Projects and display results as a card
+        $termWC = '%'.$request->keywords.'%';
+        $projResults = Project::where("name","like",$termWC)->get();
+        $formResults = Form::where("name","like",$termWC)->get();
+        $fieldResults = Form::whereRaw("layout->\"$.fields.*.name\" like \"$termWC\"")->get();
+        $projectArray = array();
+        $formArray = array();
+        $fieldArray = array();
+        foreach($projResults as $project) {
+            if(\Auth::user()->admin || \Auth::user()->inAProjectGroup($project))
+                array_push($projectArray,$project);
+        }
+        foreach($formResults as $form) {
+            if(\Auth::user()->admin || \Auth::user()->inAFormGroup($form))
+                array_push($formArray,$form);
+        }
+        foreach($fieldResults as $form) {
+            $lo = $form->layout;
+            if(\Auth::user()->admin || \Auth::user()->inAFormGroup($form)) {
+                foreach($lo['fields'] as $flid => $field) {
+                    if( strpos( $flid, $request->keywords ) !== false)
+                        $fieldArray[$flid] = $field;
+                }
+            }
+        }
+        return view('globalSearch.results', compact(
+            "projects",
+            "records",
+            "total",
+            "ignored",
+            'projectArray',
+            'formArray',
+            'fieldArray'
+        ));
     }
 
     /**
@@ -163,7 +196,10 @@ class ProjectSearchController extends Controller { //TODO::CASTLE
      * @return array - The results from the quick search
      */
     public function globalQuickSearch(Request $request) {
-        $term = $request->searchText;
+        if(!is_null($request->searchText))
+            $term = $request->searchText;
+        else
+            $term = $request->keywords;
         $termWC = "%".$term."%";
 
         //Do the searches

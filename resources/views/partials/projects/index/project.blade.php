@@ -29,16 +29,16 @@
   </div>
 
   <div class="content content-js {{ $index == 0 ? 'active' : '' }}">
-    <div class="id">
+    <div class="id mb-m">
       <span class="attribute">Unique Project ID: </span>
       <span>{{$project->internal_name}}</span>
     </div>
 
-    <div class="description">
+    <div class="description mb-m">
       {{$project->description}}
     </div>
 
-    <div class="admins">
+    <div class="admins mb-m">
       {{--TODO::CASTLE--}}
       <span class="attribute">Project Admins: </span>
       @foreach($project->adminGroup()->get() as $adminGroup)
@@ -61,7 +61,7 @@
       @endforeach
     </div>
 
-    <div class="forms">
+    <div class="forms mb-m">
       <span class="attribute">Project Forms:</span>
 
       @foreach($project->forms()->get() as $form)

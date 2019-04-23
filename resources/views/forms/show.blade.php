@@ -146,7 +146,10 @@
 
         {{--TODO::CASTLE--}}
         <div class="field-sort-js" style="min-height: 10px;">
-          @php $index = 0; @endphp
+          @php
+            $index = 0;
+            $onFormPage = true;
+          @endphp
         @foreach($page["flids"] as $flid)
             <div class="field-container">
               @include('forms.layout.field', ['flid' => $flid, 'field' => $layout['fields'][$flid], 'pid' => $form->project_id, 'fid' => $form->id])
