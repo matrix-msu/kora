@@ -181,6 +181,35 @@ Kora.Install.Create = function() {
             });
     }
 
+    // init validation modal pseudo-links
+    $('.error-pages').on('click', 'a', function(e){
+        e.preventDefault();
+
+        var $this = $(this).attr('href').toLowerCase();
+        Kora.Modal.close($('.install-validation-modal-js'));
+
+        $('.content-sections-scroll').find('a[href="#'+ $this +'"]').trigger('click');
+    });
+
+    var errorList = []
+    function validationModal () {
+        Kora.Modal.initialize();
+
+        var uniquePages = Array.from(new Set(errorList));
+
+        $('div.error-pages p').remove();
+        $('.error-count-js').text(errorList.length);
+        errorList = [];
+
+        uniquePages.forEach(function(page, uniquePages) {
+            pageLink = page;
+            pageNum = $('.content-sections-scroll').children('a[href="#'+pageLink.toLowerCase()+'"]').index() + 1;
+            $('div.error-pages').append('<p><a href="'+pageLink+'" class="validation-errorpage-link">Page '+pageNum+' - '+page+'</a></p>');
+        });
+
+        Kora.Modal.open($('.install-validation-modal-js'));
+    }
+
     $('#install_submit').on('click', function() {
         //gather the form data
         if (!photoDroppedFile && photoInput.val() != '') { // if there was no dropped photo and if no photo was added by default
@@ -195,18 +224,49 @@ Kora.Install.Create = function() {
             }
         }
 
-        //make ajax call to save env
-        $.ajax({
-            type: "POST",
-            url: installPartOneURL,
-            data: data,
-            contentType: false,
-            processData: false,
-            success: function(data) {
-                //Submit the form
-                $('#install_form').submit();
+        $.each($('section input.text-input'), function () {
+            if ( $(this).val() == '' ) {
+                // apply error state and message
+                $(this).addClass('error');
+                $(this).prev().text('This field is required.');
+
+                // add page to errorList array for the Validation Modal
+                if ( $(this).parent().parent().attr('page-name') != undefined )
+                    errorList.push($(this).parent().parent().attr('page-name'))
+                else
+                    console.warn( $(this) )
             }
         });
+
+        if (errorList.length != 0) {
+            validationModal()
+        } else {
+            //make ajax call to save env
+            $.ajax({
+                type: "POST",
+                url: installPartOneURL,
+                data: data,
+                contentType: false,
+                processData: false,
+                success: function(data) {
+                    //Submit the form
+                    $('#install_form').submit();
+                },
+                error: function (err) {
+                    console.log(err)
+                }
+            });
+        }
+    });
+
+    $('input.text-input').blur(function (e) {
+        if ( $(this).val() == '' ) {
+            $(this).addClass('error');
+            $(this).prev().text('This field is required.');
+        } else if ( $(this).hasClass('error') && $(this).val() != '' ) {
+            $(this).removeClass('error');
+            $(this).prev().text('');
+        }
     });
 
     var navbar = document.getElementsByClassName("navigation")[0];
@@ -218,4 +278,3 @@ Kora.Install.Create = function() {
     initializeFileUpload();
     initializeInstallToggles();
 }
-
