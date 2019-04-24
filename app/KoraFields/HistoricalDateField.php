@@ -124,14 +124,23 @@ class HistoricalDateField extends BaseField {
             $default = null;
         }
 
-        if($request->start=='' | $request->start==0)
+        if($request->start=='')
             $request->start = 1;
 
         if($request->end=='')
             $request->end = 9999;
 
-        //If the years don't make sense, flip em
-        if($request->start > $request->end) {
+        // If the years don't make sense, flip em
+        // Use temp start & end vars to keep 0 (current year) value
+        $start = $request->start;
+        if ($start == 0)
+            $start = date("Y");
+
+        $end = $request->end;
+        if ($end == 0)
+            $end = date("Y");
+
+        if ($start > $end) {
             $pivot = $request->start;
             $request->start = $request->end;
             $request->end = $pivot;
@@ -165,6 +174,16 @@ class HistoricalDateField extends BaseField {
         $year = $request->input('year_'.$flid,'');
 
         $dateNotProvided = ($month=='' && $day=='' && $year=='');
+
+        // A year set to 0 is actually 'Current Year'
+        if ($year == 0)
+            $year = date("Y");
+
+        if ($start == 0)
+            $start = date("Y");
+
+        if ($end == 0)
+            $end = date("Y");
 
         if(($req==1 | $forceReq) && $dateNotProvided) {
             return [
@@ -566,27 +585,27 @@ class HistoricalDateField extends BaseField {
                 DECLARE yearVal INT DEFAULT 1;
                 DECLARE eraVal TEXT;
                 DECLARE middleVal DOUBLE;
-                
+
                 IF `date`->\"$.month\" != \"\" THEN SET monthVal = `date`->\"$.month\";
                 END IF;
-                
+
                 IF `date`->\"$.day\" != \"\" THEN SET dayVal = `date`->\"$.day\";
                 END IF;
-                
+
                 IF `date`->\"$.year\" != \"\" THEN SET yearVal = `date`->\"$.year\";
                 END IF;
-                
+
                 SET eraVal = `date`->\"$.era\";
-                
+
                 IF eraVal = '\"CE\"' THEN SET middleVal = (yearVal + (monthVal*0.01) + (dayVal*0.0001));
                 ELSEIF eraVal = '\"BCE\"' THEN SET middleVal = (-1*(yearVal + (monthVal*0.01) + (dayVal*0.0001)));
                 ELSEIF eraVal = '\"BP\"' THEN SET middleVal = (".self::BEFORE_PRESENT_REFERENCE." - yearVal);
                 ELSEIF eraVal = '\"KYA BP\"' THEN SET middleVal = (".self::BEFORE_PRESENT_REFERENCE." - (yearVal*1000));
                 END IF;
-                
+
                 IF $param THEN SET result = TRUE;
                 END IF;
-                
+
                 RETURN result;
             END;");
 

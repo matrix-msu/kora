@@ -232,3 +232,13 @@
     text-align: left;
   }
 }
+
+&.inline-checkbox-form-group {
+    label {
+        display: block;
+    }
+
+    .check-box-half {
+        display: inline-block;
+    }
+}

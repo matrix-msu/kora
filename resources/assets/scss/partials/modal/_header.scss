@@ -101,6 +101,7 @@
 &.small .header {
   .title {
     padding: 25px 0 25px 25px;
+    width: calc(100% - 87px);
   }
 
   .modal-toggle {

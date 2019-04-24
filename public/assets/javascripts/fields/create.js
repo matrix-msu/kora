@@ -57,6 +57,9 @@ Kora.Fields.Create = function() {
                     $('.advanced-options-hide').removeClass('hidden');
 
                     Kora.Fields.TypedFieldInputs.Initialize();
+                },
+                error: function(err) {
+                    console.log(err);
                 }
             });
         }

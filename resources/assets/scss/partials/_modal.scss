@@ -29,8 +29,8 @@
       }
     }
   }
-  
-   &.onboarding-modal {
+
+  &.onboarding-modal {
     overflow: auto;
   }
   
@@ -69,9 +69,10 @@
     box-shadow: 0 10px 20px 0 palette('box-shadow', base, .2);
     left: 0;
     margin: auto;
+    max-height: 90vh;
     max-width: 840px;
     opacity: 0;
-    overflow-y: scroll;
+    overflow-y: auto;
     overflow-x: hidden;
     position: absolute;
     right: 0;
@@ -85,8 +86,8 @@
         margin: 0 0 -15px;
       }
     }
-    
-    
+
+
     &.small {
       max-width: 340px;
     }
@@ -111,7 +112,7 @@
         width: 90%;
       }
     }
-    
+
     &.record-validation-modal-js .content {
       height: unset;
     }

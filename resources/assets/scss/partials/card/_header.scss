@@ -136,7 +136,7 @@
         transform: scale($transform-scale-multiplier);
       }
 
-      .active {
+      .active:not(.chevron-text) {
         transform: rotate(-180deg) scale($transform-scale-multiplier);
       }
     }
