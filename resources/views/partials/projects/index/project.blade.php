@@ -49,7 +49,7 @@
                data-name="{{$user->getFullNameAttribute()}}"
                data-username="{{$user->username}}"
                data-email="{{$user->email}}"
-               data-organization="{{$user->organization}}"
+               data-organization="{{$user->preferences["organization"]}}"
                data-profile="{{$user->getProfilePicUrl()}}"
                data-profile-url="{{action('Auth\UserController@index', ['uid' => $user->id])}}">
                 {{ $user->getFullNameAttribute() }},
@@ -59,7 +59,7 @@
                data-name="{{$user->getFullNameAttribute()}}"
                data-username="{{$user->username}}"
                data-email="{{$user->email}}"
-               data-organization="{{$user->organization}}"
+               data-organization="{{$user->preferences["organization"]}}"
                data-profile="{{$user->getProfilePicUrl()}}"
                data-profile-url="{{action('Auth\UserController@index', ['uid' => $user->id])}}">
                 {{ $user->getFullNameAttribute() }}
