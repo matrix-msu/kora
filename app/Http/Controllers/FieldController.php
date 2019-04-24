@@ -1,6 +1,7 @@
 <?php namespace App\Http\Controllers;
 
 use App\Form;
+use App\Helpers;
 use App\Http\Requests\FieldRequest;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
@@ -43,8 +44,7 @@ class FieldController extends Controller {
 
         $form = FormController::getForm($fid);
         $validFieldTypes = Form::$validFieldTypes;
-        //$validComboListFieldTypes = ComboListField::$validComboListFieldTypes; //TODO::CASTLE
-        $validComboListFieldTypes = [];
+        $validComboListFieldTypes = \App\KoraFields\ComboListField::$validComboListFieldTypes;
 
         return view('fields.create', compact('form','pageIndex', 'validFieldTypes', 'validComboListFieldTypes'));
 	}
@@ -61,7 +61,7 @@ class FieldController extends Controller {
 
 	    $field = [];
         $form = FormController::getForm($request->fid);
-        $flid = str_replace(" ","_", $request->name).'_'.$form->project_id.'_'.$form->id.'_';
+        $flid = slugFormat($request->name, $form->project_id, $form->id);
         $layout = $form->layout;
 
         //Make sure slug doesn't already exist
@@ -80,14 +80,42 @@ class FieldController extends Controller {
         $field['viewable'] = isset($request->viewable) && $request->viewable ? 1 : 0;
         $field['viewable_in_results'] = isset($request->viewresults) && $request->viewresults ? 1 : 0;
         $field['external_view'] = isset($request->extview) && $request->extview ? 1 : 0;
-        if($request->advanced)
-            $field = $form->getFieldModel($request->type)->updateOptions($field, $request);
+
+        // Combo List Specific
+        $options = array();
+        if($request->type == Form::_COMBO_LIST) {
+            foreach(['one' => 1, 'two' => 2] as $seq => $num) {
+                $slug = slugFormat(
+                    $request->{'cfname' . $num},
+                    $form->project_id,
+                    $form->id
+                );
+                $options[$seq] = [
+                    'type' => $request->{'cftype' . $num},
+                    'name' => $slug
+                ];
+                $field[$seq] = [
+                    'type' => $request->{'cftype' . $num},
+                    'name' => $request->{'cfname' . $num},
+                    'flid' => $slug,
+                    'default' => null
+                ];
+            }
+        }
 
         //Field Specific Stuff
         $fieldMod = $form->getFieldModel($request->type);
-        $fieldMod->addDatabaseColumn($form->id, $flid);
-        if(!$request->advanced)
-            $field['options'] = $fieldMod->getDefaultOptions();
+        $fieldMod->addDatabaseColumn($form->id, $flid, $options);
+        if(!$request->advanced) {
+            if($request->type == Form::_COMBO_LIST) {
+                foreach (['one', 'two'] as $seq) {
+                    $field[$seq]['options'] = $fieldMod->getDefaultOptions($options[$seq]['type']);
+                }
+            } else {
+                $field['options'] = $fieldMod->getDefaultOptions($options);
+            }
+        } else
+            $field = $form->getFieldModel($request->type)->updateOptions($field, $request);
 
         //Add to form
         $layout['fields'][$flid] = $field;
@@ -123,17 +151,7 @@ class FieldController extends Controller {
         //$presets = OptionPresetController::getPresetsSupported($pid,$field); //TODO::CASTLE
         $presets = [];
 
-        $assocLayout = [];
-        if($field['type'] == Form::_ASSOCIATOR) {
-            //we are building an array about the association permissions to populate the layout
-            $options = $field['options']['SearchForms'];
-
-            foreach ($options as $opt) {
-                $assocLayout[$opt['form_id']] = ['flids' => $opt['flids']];
-            }
-        }
-
-        return view($form->getFieldModel($field['type'])->getFieldOptionsView(), compact('flid', 'field', 'form', 'proj', 'presets', 'assocLayout'));
+        return view($form->getFieldModel($field['type'])->getFieldOptionsView(), compact('flid', 'field', 'form', 'proj', 'presets'));
 
         //Combo has two presets so we make an exception //TODO::CASTLE
 //        if($field->type == Field::_COMBO_LIST) {
@@ -206,6 +224,7 @@ class FieldController extends Controller {
 
         $field['name'] = $request->name;
         $newFlid = str_replace(" ","_", $request->name).'_'.$form->project_id.'_'.$form->id.'_';
+
         $field['description'] = $request->desc;
         $field['default'] = null;
         $field['required'] = isset($request->required) && $request->required ? 1 : 0;
@@ -217,9 +236,27 @@ class FieldController extends Controller {
         $field['external_view'] = isset($request->extview) && $request->extview ? 1 : 0;
         $field = $form->getFieldModel($field['type'])->updateOptions($field, $request, $flid);
 
+        // Combo List Specific
+        $comboPrefix = array();
+        if($request->type == Form::_COMBO_LIST) {
+            $comboPrefix['tablePrefix'] = $flid;
+
+            foreach (['one' => 1, 'two' => 2] as $seq => $num) {
+                $cFlid = slugFormat($field[$seq]['name'], $form->project_id, $form->id);
+                $cNewFlid = slugFormat($request->{'cfname' . $num}, $form->project_id, $form->id);
+                if($cFlid != $cNewFlid) {
+                    $form->updateSubField($flid, $cFlid, $cNewFlid);
+                    $field[$seq]['flid'] = $cNewFlid;
+                    $field[$seq]['name'] = $request->{'cfname' . $num};
+                } else {
+                    $form->updateSubField($flid, $cFlid);
+                }
+            }
+        }
+
         //Need to reindex the field if the name has changed. This will also update the column name.
         if($newFlid!=$flid) {
-            $form->updateField($flid, $field, $newFlid);
+            $form->updateField($flid, $field, $newFlid, $comboPrefix);
             $flid = $newFlid;
         } else {
             $form->updateField($flid, $field);

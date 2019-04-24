@@ -147,6 +147,8 @@ Kora.Admin.Users = function() {
 
     // Display corresponding content
     content.addClass('active');
+	
+	$(window).resize(); // fixes name disappearing bug
   }
 
   /**

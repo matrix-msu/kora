@@ -227,7 +227,8 @@ Kora.Fields.Create = function() {
                         defDiv.siblings('.error-message').text('');
                     }
                     break;
-                case 'Number':
+                case 'Integer':
+                case 'Float':
                     var defDiv = $('.number-default-js');
                     var minDiv = $('.number-min-js');
                     var maxDiv = $('.number-max-js');

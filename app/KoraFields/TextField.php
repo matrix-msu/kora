@@ -88,7 +88,7 @@ class TextField extends BaseField {
      *
      * @return array - The default options
      */
-    public function getDefaultOptions() {
+    public function getDefaultOptions($type = null) {
         return ['Regex' => '', 'MultiLine' => 0];
     }
 
@@ -100,7 +100,7 @@ class TextField extends BaseField {
      * @param  int $flid - The field internal name
      * @return array - The updated field array
      */
-    public function updateOptions($field, Request $request, $flid = null) {
+    public function updateOptions($field, Request $request, $flid = null, $prefix = 'records_') {
         if($request->regex!='') {
             $regArray = str_split($request->regex);
             if($regArray[0]!=end($regArray))

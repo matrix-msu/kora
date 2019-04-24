@@ -63,15 +63,6 @@ Route::group(['middleware' => 'web'], function () {
     Route::delete('admin/deleteUser/{id}', 'AdminController@deleteUser');
     Route::post('/admin/order66', 'AdminController@deleteData');
 
-//Kora Exodus routes
-    Route::get('/exodus', 'ExodusController@index');
-    Route::post('/exodus/projects', 'ExodusController@getProjectList');
-    Route::post('/exodus/migrate', 'ExodusController@migrate');
-    Route::get('/exodus/progress', 'ExodusController@checkProgress');
-    Route::post('/exodus/user/unlock', 'ExodusController@unlockUsers');
-    Route::post('/exodus/start', 'ExodusController@startExodus');
-    Route::post('/exodus/finish', 'ExodusController@finishExodus');
-
 //token routes
     Route::get('/tokens', 'TokenController@index');
     Route::post('/tokens/create', 'TokenController@create');
@@ -218,6 +209,7 @@ Route::group(['middleware' => 'web'], function () {
     Route::post('/auth/activator', 'Auth\UserController@activator');
     Route::post('/user/picture', 'Auth\UserController@changepicture');
     Route::post('/user/validate', 'Auth\RegisterController@validateUserFields');
+	Route::patch('/user/validateEditProfile', 'Auth\UserController@validateEditProfile');
 
 //metadata routes
     Route::get('/projects/{pid}/forms/{fid}/metadata/setup', 'MetadataController@index');

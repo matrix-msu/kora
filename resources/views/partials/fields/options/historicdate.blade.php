@@ -110,62 +110,7 @@
         </div>
     </div>
 
-    <div class="form-group mt-xl">
-        {!! Form::label('format','Date Format') !!}
-        {!! Form::select('format', ['MMDDYYYY' => 'MM DD, YYYY','DDMMYYYY' => 'DD MM YYYY','YYYYMMDD' => 'YYYY MM DD'], $field['options']['Format'], ['class' => 'single-select']) !!}
-    </div>
-
-    <div class="form-group mt-xl half pr-m">
-        {!! Form::label('start','Start Year') !!}
-        <span class="error-message"></span>
-        <div class="number-input-container number-input-container-js">
-            @php
-                $start = $field['options']['Start'];
-                if ($start == 0)
-                    $start = date("Y");
-            @endphp
-            {!! Form::input('number', 'start', $start, ['class' => 'text-input start-year-js', 'placeholder' => 'Enter start year here', 'data-current-year-id' => 'start']) !!}
-            {!! Form::input('hidden', 'start', 0, ['class' => 'hidden-current-year-js', 'disabled']) !!}
-        </div>
-
-        <div class="check-box-half mt-m">
-            {!! Form::input('checkbox', 'start-current-year', null, ['class' => 'check-box-input current-year-js', 'data-current-year-id' => 'start', ($field['options']['Start'] == 0 ? 'checked' : '')]) !!}
-            <span class="check"></span>
-            <span class="placeholder">Use Current Year as Start Year</span>
-        </div>
-    </div>
-
-    <div class="form-group mt-xl half pl-m">
-        {!! Form::label('end','End Year') !!}
-        <span class="error-message"></span>
-        <div class="number-input-container number-input-container-js">
-            @php
-                $end = $field['options']['End'];
-                if ($end == 0)
-                    $end = date("Y");
-            @endphp
-            {!! Form::input('number', 'end', $end, ['class' => 'text-input end-year-js', 'placeholder' => 'Enter end year here', 'data-current-year-id' => 'end']) !!}
-            {!! Form::input('hidden', 'end', 0, ['class' => 'hidden-current-year-js', 'disabled']) !!}
-        </div>
-
-        <div class="check-box-half mt-m">
-            {!! Form::input('checkbox', 'end-current-year', null, ['class' => 'check-box-input current-year-js', 'data-current-year-id' => 'end', ($field['options']['End'] == 0 ? 'checked' : '')]) !!}
-            <span class="check"></span>
-            <span class="placeholder">Use Current Year as End Year</span>
-        </div>
-    </div>
-
-    <div class="form-group mt-xl">
-        {!! Form::label('circa','Show Circa Approximations?') !!}
-        {!! Form::select('circa', [0 => 'No', 1 => 'Yes'], $field['options']['ShowCirca'], ['class' => 'single-select']) !!}
-    </div>
-
-    <div class="form-group mt-xl">
-        {!! Form::label('era','Show Calendar/Date Notation?') !!}
-        {!! Form::select('era', [0 => 'No', 1 => 'Yes'], $field['options']['ShowEra'], ['class' => 'single-select']) !!}
-    </div>
-
-    @include("partials.fields.modals.changeDefaultYearModal")
+	@include('partials.fields.options.defaults.historicdate')
 @stop
 
 @section('fieldOptionsJS')

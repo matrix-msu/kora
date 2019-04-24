@@ -259,7 +259,7 @@ class ImportMultiFormController extends Controller { //TODO::CASTLE
 
                 //TODO::modular?
 
-                if($type == 'Text' | $type == 'Rich Text' | $type == 'Number' | $type == 'List')
+                if($type == 'Text' | $type == 'Rich Text' | $type == 'Integer' | $type == 'Float' | $type == 'List')
                     $recRequest[$flid] = (string)$field;
                 else if($type == 'Multi-Select List') {
                     if(empty($field->value))
@@ -278,10 +278,10 @@ class ImportMultiFormController extends Controller { //TODO::CASTLE
                     $oneVals = array();
                     $twoVals = array();
                     $cf = FieldController::getField($flid);
-                    $nameone = Field::xmlTagClear(ComboListField::getComboFieldName($cf, 'one'));
-                    $nametwo = Field::xmlTagClear(ComboListField::getComboFieldName($cf, 'two'));
-                    $typeone = ComboListField::getComboFieldType($cf, 'one');
-                    $typetwo = ComboListField::getComboFieldType($cf, 'two');
+                    $nameone = Field::xmlTagClear($cf['one']['name']);
+                    $nametwo = Field::xmlTagClear($cf['two']['name']);
+                    $typeone = $cf['one']['type'];
+                    $typetwo = $cf['two']['type'];
                     if($typeone == "Associator")
                         $comboAssocArray[] = $flid.' 1';
                     if($typetwo == "Associator")
@@ -588,7 +588,9 @@ class ImportMultiFormController extends Controller { //TODO::CASTLE
                     $recRequest[$flid] = $field['value'];
                 } else if($type == 'Rich Text') {
                     $recRequest[$flid] = $field['value'];
-                } else if($type == 'Number') {
+                } else if($type == 'Integer') {
+                    $recRequest[$flid] = $field['value'];
+                } else if($type == 'Float') {
                     $recRequest[$flid] = $field['value'];
                 } else if($type == 'List') {
                     $recRequest[$flid] = $field['value'];
@@ -600,10 +602,10 @@ class ImportMultiFormController extends Controller { //TODO::CASTLE
                     $oneVals = array();
                     $twoVals = array();
                     $cf = FieldController::getField($flid);
-                    $nameone = Field::xmlTagClear(ComboListField::getComboFieldName($cf, 'one'));
-                    $nametwo = Field::xmlTagClear(ComboListField::getComboFieldName($cf, 'two'));
-                    $typeone = ComboListField::getComboFieldType($cf, 'one');
-                    $typetwo = ComboListField::getComboFieldType($cf, 'two');
+                    $nameone = Field::xmlTagClear($cf['one']['name']);
+                    $nametwo = Field::xmlTagClear($cf['two']['name']);
+                    $typeone = $cf['one']['type'];
+                    $typetwo = $cf['two']['type'];
                     if($typeone == "Associator")
                         $comboAssocArray[] = $flid.' 1';
                     if($typetwo == "Associator")

@@ -515,10 +515,5 @@ TEXT;
         $combo->updateData($new, Field::_NUMBER, Field::_GENERATED_LIST);
 
         ComboListField::rollback($revision, $field);
-
-        $data = ComboListField::dataToOldFormat($combo->data()->get());
-        foreach ($old as $data_str) {
-            $this->assertContains($data_str, $data);
-        }
     }
 }

@@ -59,15 +59,24 @@
             </div>
         </section>
 
-        <section class="display-records">
-	        
-	        <div class="display-keywords mt-xxl"><ul class="keywords"></ul></div>
+        <div class="content-sections">
+            <div class="content-sections-scroll">
+                <a class="display-js underline-middle underline-middle-hover selected" href="#">Records <span>({{ $total }})</span></a>
+                <a class="display-js underline-middle underline-middle-hover" href="#">Forms (<span>{{ count($formArray) }}</span>)</a>
+                <a class="display-js underline-middle underline-middle-hover" href="#">Fields (<span>{{ count($fieldArray) }}</span>)</a>
+                <a class="display-js underline-middle underline-middle-hover" href="#">Projects (<span>{{ count($projectArray) }}</span>)</a>
+            </div>
+        </div>
+
+        <section class="display-records display-js">
 
             @if(sizeof($records)>0)
               
 	            <div class="form-group records-title mt-xxxl">
 	                Showing {{sizeof($records)}} of {{$total}} Records
 	            </div>
+
+                <div class="display-keywords mt-xxl"><ul class="keywords"></ul></div>
             
                 @include('partials.records.pagination')
 
@@ -101,9 +110,52 @@
                   <a class="btn half-sub-btn to-top">Try Another Search</a>
                 </div>
             @else
-              @include('partials.records.no-records')
+                <div class="display-keywords mt-xxl"><ul class="keywords"></ul></div>
+                @include('partials.records.no-records')
             @endif
+        </section>
 
+        <section class="display-js mt-xxxl hidden">
+            <div class="form-group records-title mt-xxxl">Showing <span>{{ count($formArray) }}</span> Forms</div>
+            <div class="display-keywords mt-xxl"><ul class="keywords"></ul></div>
+            @if(count($formArray) > 0)
+                @php $isCustom = false; @endphp
+                @foreach($formArray as $index => $form)
+                    @php $project = \App\Http\Controllers\ProjectController::getProject($form->pid) @endphp
+                    @include('partials.projects.show.form')
+                @endforeach
+            @else
+                @include('partials.records.no-records')
+            @endif
+        </section>
+
+        <section class="display-js mt-xxxl hidden">
+            <div class="form-group records-title mt-xxxl">Showing <span>{{ count($fieldArray) }}</span> Fields</div>
+            <div class="display-keywords mt-xxl"><ul class="keywords"></ul></div>
+            @if(count($fieldArray) > 0)
+                @foreach($fieldArray as $index => $field)
+                    @php
+                        $form = \App\Http\Controllers\FormController::getForm($field->fid);
+                        $onFormPage = false;
+                    @endphp
+                    @include('forms.layout.field')
+                @endforeach
+            @else
+                @include('partials.records.no-records')
+            @endif
+        </section>
+
+        <section class="display-js mt-xxxl hidden">
+            <div class="form-group records-title mt-xxxl">Showing <span>{{ count($projectArray) }}</span> Projects</div>
+            <div class="display-keywords mt-xxl"><ul class="keywords"></ul></div>
+            @if(count($projectArray) > 0)
+                @php $isCustom = false; $archived = false; @endphp
+                @foreach($projectArray as $index => $project)
+                    @include('partials.projects.index.project')
+                @endforeach
+            @else
+                @include('partials.records.no-records')
+            @endif
         </section>
     </section>
 @stop

@@ -1,6 +1,6 @@
 <div class="record card all active form-group" id="{{$record->id}}">
     <div class="header active check-box">
-    
+
         @if (is_null(app('request')->input('projects')))
           <span class="check ml-xxs mt-xxs"></span>
         @endif

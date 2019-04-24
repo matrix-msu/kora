@@ -81,10 +81,10 @@ class ListField extends BaseField {
      */
     public function addDatabaseColumn($fid, $slug, $options = null) {
         $table = new \CreateRecordsTable();
-        if(is_null($options))
+        if(!empty($options))
             $table->addEnumColumn($fid, $slug);
         else
-            $table->addEnumColumn($fid, $slug, $options['Options']);
+            $table->addEnumColumn($fid, $slug, $options);
     }
 
     /**
@@ -92,7 +92,7 @@ class ListField extends BaseField {
      *
      * @return string - The default options
      */
-    public function getDefaultOptions() {
+    public function getDefaultOptions($type = null) {
         return ['Options' => ['Please Modify List Values']];
     }
 
@@ -104,7 +104,7 @@ class ListField extends BaseField {
      * @param  int $flid - The field internal name
      * @return Redirect
      */
-    public function updateOptions($field, Request $request, $flid = null) {
+    public function updateOptions($field, Request $request, $flid = null, $prefix = 'records_') {
         if(is_null($request->options)) {
             $request->options = array();
         }
@@ -114,7 +114,8 @@ class ListField extends BaseField {
             $flid = str_replace(" ","_", $request->name).'_'.$form->project_id.'_'.$form->id.'_';
         }
 
-        $table = new \CreateRecordsTable();
+        $table = new \CreateRecordsTable(['tablePrefix' => $prefix]);
+
         $table->updateEnum(
             $request->fid,
             $flid,

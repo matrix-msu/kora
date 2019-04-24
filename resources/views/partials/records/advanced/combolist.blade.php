@@ -1,12 +1,12 @@
 <?php
-    $type_1 = \App\ComboListField::getComboFieldType($field, 'one');
-    $type_2 = \App\ComboListField::getComboFieldType($field, 'two');
-    $title_1 = \App\ComboListField::getComboFieldName($field, 'one');
-    $title_2 = \App\ComboListField::getComboFieldName($field, 'two');
+    $type_1 = $field['one']['type'];
+    $type_2 = $field['two']['type'];
+    $title_1 = $field['one']['name'];
+    $title_2 = $field['two']['name'];
 ?>
 
 <div class="form-group mt-xl">
-    {!! Form::label($field->flid,$field->name) !!}
+    {!! Form::label($flid,$field['name']) !!}
 </div>
 <div class="record-data-card">
     @include('partials.records.advanced.combo-sub', ['cftype' => $type_1, 'cftitle' => $title_1, 'cfnum' => 'one'])

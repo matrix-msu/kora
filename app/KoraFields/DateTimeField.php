@@ -103,7 +103,7 @@ class DateTimeField extends BaseField {
      * @param  int $flid - The field internal name
      * @return array - The updated field array
      */
-    public function updateOptions($field, Request $request, $flid = null) {
+    public function updateOptions($field, Request $request, $flid = null, $prefix = 'records_') {
         if(self::validateDate($request->default_month,$request->default_day,$request->default_year)) {
             $default = [
                 'month' => $request->default_month,

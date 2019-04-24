@@ -81,7 +81,7 @@
 
 <div class="form-group mt-xl">
     {!! Form::label('format','Date Format') !!}
-    {!! Form::select('format', ['MMDDYYYY' => 'MM DD, YYYY','DDMMYYYY' => 'DD MM YYYY','YYYYMMDD' => 'YYYY MM DD'], 'MMDDYYYY', ['class' => 'single-select']) !!}
+    {!! Form::select('format', ['YYYYMMDD' => 'YYYY-MM-DD','MMDDYYYY' => 'MM-DD-YYYY','DDMMYYYY' => 'DD-MM-YYYY'], 'YYYYMMDD', ['class' => 'single-select']) !!}
 </div>
 
 <div class="form-group mt-xl half pr-m">

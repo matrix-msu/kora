@@ -78,7 +78,7 @@ class ModelField extends FileTypeField {
      * @param  Request $request
      * @return array - The default options
      */
-    public function getDefaultOptions() {
+    public function getDefaultOptions($type = null) {
         return ['FieldSize' => '', 'MaxFiles' => '', 'FileTypes' => self::SUPPORTED_TYPES,
             'ModelColor' => '#ddd', 'BackColorOne' => '#2E4F5E', 'BackColorTwo' => '#152730'];
     }
@@ -93,7 +93,7 @@ class ModelField extends FileTypeField {
      * @param  int $flid - The field internal name
      * @return array - The updated field array
      */
-    public function updateOptions($field, Request $request, $flid = null) {
+    public function updateOptions($field, Request $request, $flid = null, $prefix = 'records_') {
         $field = parent::updateOptions($field, $request, $flid);
         $field['options']['ModelColor'] = $request->color;
         $field['options']['BackColorOne'] = $request->backone;

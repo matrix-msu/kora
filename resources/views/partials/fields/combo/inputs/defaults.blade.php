@@ -3,104 +3,145 @@
         {!! Form::label('default_'.$fnum, $cfName) !!}
         {!! Form::text('default_'.$fnum, null, ['id' => 'default_'.$fnum, 'class' => 'text-input default-input-js', 'placeholder' => 'Enter text value here']) !!}
     </div>
-@elseif($type=='Date')
-    <div class="form-group">
-        {!! Form::label('default_'.$fnum, $cfName.': ') !!}
-        <div class="form-group mt-sm">
-            {!! Form::label('month_'.$fnum,'Month: ') !!}
-            {!! Form::select('month_'.$fnum,['' => '',
-                '1' => '01 - '.date("F", mktime(0, 0, 0, 1, 10)), '2' => '02 - '.date("F", mktime(0, 0, 0, 2, 10)),
-                '3' => '03 - '.date("F", mktime(0, 0, 0, 3, 10)), '4' => '04 - '.date("F", mktime(0, 0, 0, 4, 10)),
-                '5' => '05 - '.date("F", mktime(0, 0, 0, 5, 10)), '6' => '06 - '.date("F", mktime(0, 0, 0, 6, 10)),
-                '7' => '07 - '.date("F", mktime(0, 0, 0, 7, 10)), '8' => '08 - '.date("F", mktime(0, 0, 0, 8, 10)),
-                '9' => '09 - '.date("F", mktime(0, 0, 0, 9, 10)), '10' => '10 - '.date("F", mktime(0, 0, 0, 10, 10)),
-                '11' => '11 - '.date("F", mktime(0, 0, 0, 11, 10)), '12' => '12 - '.date("F", mktime(0, 0, 0, 12, 10))],
-                null, ['class' => 'single-select default-input-js', 'data-placeholder'=>"Select a Month"]) !!}
-        </div>
-        <div class="form-group mt-sm">
-            {!! Form::label('day_'.$fnum,'Day: ') !!}
-            <select id="day_{{$fnum}}" name="day_{{$fnum}}" class="single-select default-input-js" data-placeholder="Select a Day">
-                <option value=""></option>
-                <?php
-                $i = 1;
-                while ($i <= 31) {
-                    echo "<option value=" . $i . ">" . $i . "</option>";
-                    $i++;
-                }
-                ?>
-            </select>
-        </div>
-        <div class="form-group mt-sm">
-            {!! Form::label('year_'.$fnum,'Year: ') !!}
-            <select id="year_{{$fnum}}" name="year_{{$fnum}}" class="single-select preset-clear-chosen-js default-input-js" data-placeholder="Select a Year">
-                <option value=""></option>
-                <?php
-                //$currYear=0;
-                //if($field->default!='' && explode('[Y]',$field->default)[1]=='0'){
-                //    $currYear=\Carbon\Carbon::now()->year;
-		//}
-		
-                $i = \App\ComboListField::getComboFieldOption($field, "Start", $fnum);
-                $j = \App\ComboListField::getComboFieldOption($field, "End", $fnum);
-                while ($i <= $j) {
-                    echo "<option value=" . $i . ">" . $i . "</option>";
-                    $i++;
-                }
-                ?>
-            </select>
+@elseif($type=='Date' | $type=='Historical Date')
+    <div class="form-group date-input-form-group date-input-form-group-js mt-xs">
+        {!! Form::label('default_'.$fnum, $cfName) !!}
+        <div class="form-input-container">
+            <div class="form-group">
+                <label>Select Date</label>
+                <div class="date-inputs-container date-inputs-container-js">
+                    {!! Form::select('default_month_' . $fnum,['' => '', '0' => 'Current Month',
+                        '01' => '01 - '.date("F", mktime(0, 0, 0, 1, 10)), '02' => '02 - '.date("F", mktime(0, 0, 0, 2, 10)),
+                        '03' => '03 - '.date("F", mktime(0, 0, 0, 3, 10)), '04' => '04 - '.date("F", mktime(0, 0, 0, 4, 10)),
+                        '05' => '05 - '.date("F", mktime(0, 0, 0, 5, 10)), '06' => '06 - '.date("F", mktime(0, 0, 0, 6, 10)),
+                        '07' => '07 - '.date("F", mktime(0, 0, 0, 7, 10)), '08' => '08 - '.date("F", mktime(0, 0, 0, 8, 10)),
+                        '09' => '09 - '.date("F", mktime(0, 0, 0, 9, 10)), '10' => '10 - '.date("F", mktime(0, 0, 0, 10, 10)),
+                        '11' => '11 - '.date("F", mktime(0, 0, 0, 11, 10)), '12' => '12 - '.date("F", mktime(0, 0, 0, 12, 10))], null, ['class' => 'single-select', 'data-placeholder'=>"Select a Month", 'id' => 'default_month_' . $fnum]) !!}
+
+                    <select name="default_day_{{$fnum}}" id="default_day_{{$fnum}}" class="single-select" data-placeholder="Select a Day">
+                        <option value=""></option>
+                        @php
+                            echo "<option value=" . 0 . ">Current Day</option>";
+                            $i = 1;
+                            while($i <= 31) {
+                                echo "<option value=" . $i . ">" . $i . "</option>";
+                                $i++;
+                            }
+                        @endphp
+                    </select>
+
+                    <select name="default_year_{{$fnum}}" id="default_year_{{$fnum}}" class="single-select default-input-js" data-placeholder="Select a Year">
+                        <option value=""></option>
+                        @php
+                            echo "<option value=" . 0 . ">Current Year</option>";
+
+                            $i = $field[$fnum]['options']['Start'];
+                            $j = $field[$fnum]['options']['End'];
+
+                            while($i <= $j) {
+                                echo "<option value=" . $i . ">" . $i . "</option>";
+                                $i++;
+                            }
+                        @endphp
+                    </select>
+                </div>
+                @if($type=='Historical Date')
+                    <div class="form-group mt-xl">
+                        <div class="check-box-half">
+                            <input type="checkbox" value="1" id="default_circa_{{$fnum}}" class="check-box-input" name="default_circa_{{$fnum}}">
+                            <span class="check"></span>
+                            <span class="placeholder">Mark this date as an approximate (Circa)?</span>
+                        </div>
+                    </div>
+
+                    <div class="form-group mt-xl">
+                        <label>Select Calendar/Date Notation</label>
+                        <div class="check-box-half mr-m">
+                            <input type="checkbox" value="CE" id="default_era_{{$fnum}}_ce" class="check-box-input era-check-js" name="default_era_{{$fnum}}_ce" checked>
+                            <span class="check"></span>
+                            <span class="placeholder">CE</span>
+                        </div>
+
+                        <div class="check-box-half mr-m">
+                            <input type="checkbox" value="BCE" id="default_era_{{$fnum}}_bce" class="check-box-input era-check-js" name="default_era_{{$fnum}}_bce">
+                            <span class="check"></span>
+                            <span class="placeholder">BCE</span>
+                        </div>
+
+                        <div class="check-box-half mr-m">
+                            <input type="checkbox" value="BP" id="default_era_{{$fnum}}_bp" class="check-box-input era-check-js" name="default_era_{{$fnum}}_bp">
+                            <span class="check"></span>
+                            <span class="placeholder">BP</span>
+                        </div>
+
+                        <div class="check-box-half">
+                            <input type="checkbox" value="KYA BP" id="default_era_{{$fnum}}_kya" class="check-box-input era-check-js" name="default_era_{{$fnum}}_kya">
+                            <span class="check"></span>
+                            <span class="placeholder">KYA BP</span>
+                        </div>
+                    </div>
+                @endif
+            </div>
         </div>
     </div>
-@elseif($type=='Number')
+@elseif($type=='Integer' || $type=='Float')
     <div class="form-group">
-        {!! Form::label('default_'.$fnum, $cfName.' ('.\App\ComboListField::getComboFieldOption($field, "Unit", $fnum).')') !!}
-        <input type="number" id="default_{{$fnum}}" name="default_{{$fnum}}" class="text-input default-input-js" value="" placeholder="Enter number here"
-               step="{{ \App\ComboListField::getComboFieldOption($field, "Increment", $fnum) }}"
-               min="{{ \App\ComboListField::getComboFieldOption($field, "Min", $fnum) }}"
-               max="{{ \App\ComboListField::getComboFieldOption($field, "Max", $fnum) }}">
+        {!! Form::label('default_'.$fnum, $cfName.' ('.App\KoraFields\ComboListField::getComboFieldOption($field, "Unit", $fnum).')') !!}
+        {!! Form::number('default_'.$fnum, null, ['id' => 'default_'.$fnum, 'class' => 'text-input default-input-js', 'placeholder' => 'Enter number here', 'min' => App\KoraFields\ComboListField::getComboFieldOption($field, "Min", $fnum), 'max' => App\KoraFields\ComboListField::getComboFieldOption($field, "Max", $fnum)]) !!}
     </div>
 @elseif($type=='List')
     <div class="form-group">
         {!! Form::label('default_'.$fnum, $cfName) !!}
-        {!! Form::select('default_'.$fnum,\App\ComboListField::getComboList($field,false,$fnum), null,
+        {!! Form::select('default_'.$fnum,App\KoraFields\ComboListField::getComboList($field,false,$fnum), null,
             ['id' => 'default_'.$fnum, 'class' => 'single-select default-input-js']) !!}
     </div>
 @elseif($type=='Multi-Select List')
     <div class="form-group">
         {!! Form::label('default_'.$fnum, $cfName) !!}
-        {!! Form::select('default_'.$fnum.'[]',\App\ComboListField::getComboList($field,false,$fnum), null,
+        {!! Form::select('default_'.$fnum.'[]',App\KoraFields\ComboListField::getComboList($field,false,$fnum), null,
         ['id' => 'default_'.$fnum, 'class' => 'multi-select default-input-js', 'multiple']) !!}
     </div>
 @elseif($type=='Generated List')
     <div class="form-group">
         {!! Form::label('default_'.$fnum, $cfName) !!}
-        {!! Form::select('default_'.$fnum.'[]',\App\ComboListField::getComboList($field,false,$fnum), null,
+        {!! Form::select('default_'.$fnum.'[]',App\KoraFields\ComboListField::getComboList($field,false,$fnum), null,
         ['id' => 'default_'.$fnum, 'class' => 'multi-select modify-select default-input-js', 'multiple']) !!}
     </div>
 @elseif($type=='Associator')
 <div class="associator-section">
     <div class="form-group mt-xl">
         {!! Form::label('search','Search Associations') !!}
-        <input type="text" class="text-input assoc-search-records-js" placeholder="Enter search term or KID to find associated records (populated below)">
-	<p class="sub-text mt-sm">
-		Enter a search term or KID and hit enter to search. Results will then be populated in the "Association Results" field below.
-	</p>
+        <input type="text" data-combo="{{$fnum}}" class="text-input assoc-search-records-js" placeholder="Enter search term or KID to find associated records (populated below)">
+        <p class="sub-text mt-sm">
+            Enter a search term or KID and hit enter to search. Results will then be populated in the "Association Results" field below.
+	   </p>
     </div>
 
     <div class="form-group mt-xs">
         {!! Form::label('search','Association Results') !!}
         {!! Form::select('search[]', [], null, ['class' => 'multi-select assoc-select-records-js', 'multiple', "data-placeholder" => "Select a record association to add to defaults"]) !!}
-	<p class="sub-text mt-sm">
-		Once records are populated, they will appear in this fields dropdown. Selecting records will then add them to the "Default Associations" field below.
-	</p>
+        <p class="sub-text mt-sm">
+            Once records are populated, they will appear in this fields dropdown. Selecting records will then add them to the "Default Associations" field below.
+	   </p>
     </div>
 
     <div class="form-group mt-xs">
         {!! Form::label('default_'.$fnum, $cfName) !!}
         {!! Form::select('default_'.$fnum.'[]', [], null, ['id' => 'default_'.$fnum, 'class' => 'multi-select assoc-default-records-js default-input-js',
 	    'multiple', "data-placeholder" => "Search below to add associated records"]) !!}
-	<p class="sub-text mt-sm">
-        	To add associated records, Start a search for records in the "Search Associations" field above.
+        <p class="sub-text mt-sm">
+            To add associated records, Start a search for records in the "Search Associations" field above.
         </p>
+    </div>
+</div>
+@elseif($type=='Boolean')
+<div class="form-group">
+    {!! Form::label('default_'.$fnum, $cfName) !!}
+    <div class="check-box-half">
+        <input type="checkbox" value="1" id="default_{{$fnum}}" class="check-box-input" name="default_{{$fnum}}"
+                {{ ((!is_null($field[$fnum]['default']) && $field[$fnum]['default']) ? 'checked' : '') }}>
+        <span class="check"></span>
+        <span class="placeholder"></span>
     </div>
 </div>
 @endif

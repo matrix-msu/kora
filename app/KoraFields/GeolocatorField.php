@@ -88,7 +88,7 @@ class GeolocatorField extends BaseField {
      *
      * @return array - The default options
      */
-    public function getDefaultOptions() {
+    public function getDefaultOptions($type = null) {
         return ['Map' => 0, 'DataView' => 'LatLon'];
     }
 
@@ -100,7 +100,7 @@ class GeolocatorField extends BaseField {
      * @param  int $flid - The field internal name
      * @return array - The updated field array
      */
-    public function updateOptions($field, Request $request, $flid = null) {
+    public function updateOptions($field, Request $request, $flid = null, $prefix = 'records_') {
         $reqDefs = $request->default;
         $default = [];
 

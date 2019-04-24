@@ -78,7 +78,7 @@ class PlaylistField extends FileTypeField {
      * @param  Request $request
      * @return array - The default options
      */
-    public function getDefaultOptions() {
+    public function getDefaultOptions($type = null) {
         return ['FieldSize' => '', 'MaxFiles' => '', 'FileTypes' => self::SUPPORTED_TYPES];
     }
 
