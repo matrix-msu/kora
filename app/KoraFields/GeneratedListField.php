@@ -185,7 +185,7 @@ class GeneratedListField extends BaseField {
      * @return Request - Processed data
      */
     public function processImportData($flid, $field, $value, $request) {
-        $request[$flid] = $value;
+        $request[$flid] = explode(' | ', $value);
 
         return $request;
     }

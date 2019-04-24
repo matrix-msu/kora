@@ -572,7 +572,9 @@ class ComboListField extends BaseField {
      * @return mixed - The example
      */
     public function getExportSample($slug,$type) {
-        $field = Field::where('slug','=',$slug)->first();
+        $fid = explode('_', $slug)[2];
+        $form = FormController::getForm($fid);
+        $field = $form->layout['fields'][$slug];
 
         $typeone = $field['one']['type'];
         $typetwo = $field['two']['type'];
@@ -651,63 +653,13 @@ class ComboListField extends BaseField {
      * Updates the request for an API search to mimic the advanced search structure.
      *
      * @param  array $data - Data from the search
-     * @param  int $flid - Field ID
-     * @param  Request $request
      * @return Request - The update request
      */
-    public function setRestfulAdvSearch($data, $flid, $request) {
-        $field = FieldController::getField($flid);
-        $type1 = $field['one']['type'];
-        switch($type1) {
-            case Field::_INTEGER:
-            case Field::_FLOAT:
-                if(isset($data->left_one))
-                    $leftNum = $data->left_one;
-                else
-                    $leftNum = '';
-                $request->request->add([$flid.'_1_left' => $leftNum]);
-                if(isset($data->right_one))
-                    $rightNum = $data->right_one;
-                else
-                    $rightNum = '';
-                $request->request->add([$flid.'_1_right' => $rightNum]);
-                if(isset($data->invert_one))
-                    $invert = $data->invert_one;
-                else
-                    $invert = 0;
-                $request->request->add([$flid.'_1_invert' => $invert]);
-                break;
-            default:
-                $request->request->add([$flid.'_1_input' => $data->input_one]);
-                break;
-        }
-        $type2 = $field['two']['type'];
-        switch($type2) {
-            case Field::_INTEGER:
-            case Field::_FLOAT:
-                if(isset($data->left_two))
-                    $leftNum = $data->left_two;
-                else
-                    $leftNum = '';
-                $request->request->add([$flid.'_2_left' => $leftNum]);
-                if(isset($data->right_two))
-                    $rightNum = $data->right_two;
-                else
-                    $rightNum = '';
-                $request->request->add([$flid.'_2_right' => $rightNum]);
-                if(isset($data->invert_two))
-                    $invert = $data->invert_two;
-                else
-                    $invert = 0;
-                $request->request->add([$flid.'_2_invert' => $invert]);
-                break;
-            default:
-                $request->request->add([$flid.'_2_input' => $data->input_two]);
-                break;
-        }
-        $request->request->add([$flid.'_operator' => $data->operator]);
-
-        return $request;
+    public function setRestfulAdvSearch($data) { // TODO::CASTLE
+        if(isset($data->input) && is_array($data->input))
+            return ['input' => $data->input];
+        else
+            return [];
     }
 
     /**

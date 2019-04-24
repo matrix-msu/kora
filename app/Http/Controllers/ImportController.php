@@ -26,6 +26,7 @@ class ImportController extends Controller {
      */
     const JSON = "JSON";
     const XML = "XML";
+    const CSV = "CSV";
 
     /**
      * Constructs controller and makes sure user is authenticated.
@@ -88,6 +89,24 @@ class ImportController extends Controller {
                 echo $json;
                 exit;
                 break;
+            // case self::CSV:
+                // TODO::CASTLE getExportSample() for all fields
+                // $tmpArray = array();
+
+                // foreach($form->layout['fields'] as $flid => $field) {
+                //     $csv .= $form->getFieldModel($field['type'])->getExportSample($flid, self::CSV);
+                // }
+
+                // $csv .= 'id,reverseAssociations';
+                // $csv .= '1337,1-3-37 | 1-3-37';
+
+
+                // header("Content-Disposition: attachment; filename=" . $form->name . '_exampleData.csv');
+                // header("Content-Type: application/octet-stream; ");
+
+                // echo $csv;
+                // exit;
+                // break;
         }
     }
 
@@ -131,8 +150,7 @@ class ImportController extends Controller {
 
         $type = strtoupper($request->type);
 
-        $tagNames = array();
-        $recordObjs = array();
+        $tagNames = $recordObjs = array();
 
         switch($type) {
             case self::XML:
@@ -151,6 +169,18 @@ class ImportController extends Controller {
                 $json = json_decode(file_get_contents($request->file('records')), true);
 
                 foreach($json as $kid => $record) {
+                    $recordObjs[$kid] = $record;
+                    foreach(array_keys($record) as $field) {
+                        array_push($tagNames, $field);
+                    }
+                }
+
+                $tagNames = array_unique($tagNames);
+                break;
+            case self::CSV:
+                $csv = self::parseCSV($request->file('records'));
+
+                foreach($csv as $kid => $record) {
                     $recordObjs[$kid] = $record;
                     foreach(array_keys($record) as $field) {
                         array_push($tagNames, $field);
@@ -280,7 +310,7 @@ class ImportController extends Controller {
                 $simple = !is_null($field->attributes()->simple);
                 $recRequest = $typedField->processImportDataXML($flid,$fieldMod,$field,$recRequest,$simple);
             }
-        } else if($request->type==self::JSON) {
+        } else if($request->type==self::JSON | $request->type==self::CSV) {
             $originKid = $request->kid;
             if(Record::isKIDPattern($originKid))
                 $recRequest->query->add(['originRid' => explode('-', $originKid)[2]]);
@@ -1459,5 +1489,47 @@ class ImportController extends Controller {
         }
 
         return '';
+    }
+
+    private function parseCSV($record) {
+        if (($handle = fopen($record, "r")) !== FALSE) {
+            $row = 0;
+            $result = $fields = $ids = $data = $records = array();
+            while (($data = fgetcsv($handle, 0, ",")) !== FALSE) {
+                $num = count($data);
+                for ($c=0; $c < $num; $c++) {
+                    if ($row == 0) {
+                        $result[$c] = [];
+                        array_push($fields, $data[$c]);
+                    } else {
+                        if($data[$c]) {
+                            if(!in_array($row, $ids))
+                                array_push($ids, $row);
+                            array_push($result[$c], array($row => $data[$c]));
+                        }
+                    }
+                }
+                $row++;
+            }
+            fclose($handle);
+
+            for ($i=0; $i < count($fields); $i++) {
+                if ($result[$i])
+                    $data[$fields[$i]] = $result[$i];
+            }
+            foreach ($ids as $id) {
+                $record = array();
+                foreach($data as $field => $pairs) {
+                    $value = '';
+                    foreach($pairs as $pair)
+                        if(array_key_exists($id, $pair))
+                            $value = $pair[$id];
+                    $record[$field] = $value;
+                }
+                array_push($records, $record);
+            }
+
+            return $records;
+        }
     }
 }
