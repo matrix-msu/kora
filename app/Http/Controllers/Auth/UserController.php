@@ -419,9 +419,11 @@ class UserController extends Controller {
         if ($userPrefs['onboarding'] == 1) {
             $userPrefs['onboarding'] = 0;
             $user->preferences = $userPrefs;
+			$user->save();
         } else {
             $userPrefs['onboarding'] = 1;
             $user->preferences = $userPrefs;
+			$user->save();
             return redirect('/');
         }
     }
