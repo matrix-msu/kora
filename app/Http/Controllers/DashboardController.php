@@ -384,13 +384,13 @@ class DashboardController extends Controller { //TODO::CASTLE
                 $pid = $request->block_project;
                 $optString = '{"pid": ' . $pid .
                     ', "displayed": ["edit", "search", "form-new", "form-import", "permissions", "presets"]' .
-                    ', "hidden": []}';
+                    ', "hidden": ["import", "import2k", "export"]}';
                 break;
             case 'Form':
                 $fid = $request->block_form;
                 $optString = '{"fid": ' . $fid .
                     ', "displayed": ["edit", "search", "record-new", "field-new", "permissions", "revisions"]' .
-                    ', "hidden": []}';
+                    ', "hidden": ["import", "batch", "export-records", "assoc-permissions", "export-form"]}';
                 break;
             case 'Record':
                 $kid = $request->block_record;

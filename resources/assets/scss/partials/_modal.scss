@@ -22,12 +22,42 @@
       @include vertical-align($transform: scale(1));
 
       opacity: 1;
+	  
+	  &.smallBrowser {
+        top: 0;
+        transform: scale(1);
+      }
     }
   }
 
+  &.onboarding-modal {
+    overflow: auto;
+  }
+  
   &.add-users-modal .content,
-  &.nav-request-permissions-modal-js .content {
+  &.nav-request-permissions-modal-js .content,
+  &.onboarding-modal .content {
     overflow: visible;
+	
+	section {
+      box-shadow: 0 3px 5px 0 rgba(21,39,48,0.05);
+
+      .body {
+        padding: 0 40px 30px;
+
+        @media screen and (max-width: $max-mobile-med-width) {
+          padding: 0 15px 15px;
+        }
+      }
+    }
+
+    @import 'modal/onboarding-pagination';
+}
+
+  @media screen and (max-width: 420px) {
+    &.onboarding-modal .content {
+      width: 280px;
+    }
   }
 
   .content {
@@ -73,7 +103,7 @@
 }
 
 @media screen and (max-width: $max-mobile-xs-width) {
-  .modal {
+  .modal:not(.onboarding-modal) {
     .content {
       height: 90%;
 

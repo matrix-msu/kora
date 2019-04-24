@@ -38,6 +38,10 @@
     @include('partials.dashboard.deleteBlockModal')
     @include('partials.dashboard.editBlockModal')
     @include('partials.dashboard.editQuickOptionsModal')
+	
+	@if (\App\Http\Controllers\Auth\UserController::returnUserPrefs('onboarding'))
+		@include('partials.onboarding.onboardingModal')
+	@endif
 
     <div class="floating-buttons">
         <div class="form-group">
@@ -339,4 +343,9 @@
 
         Kora.Dashboard.Index();
     </script>
+	
+	@if (\App\Http\Controllers\Auth\UserController::returnUserPrefs('onboarding'))
+		<script> var toggleOnboardingUrl = '{{ action('Auth\UserController@toggleOnboarding') }}'; </script>
+		<script src="{{ url('/assets/javascripts/general/onboarding.js') }}"></script>
+	@endif
 @stop
