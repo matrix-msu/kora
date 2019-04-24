@@ -288,9 +288,9 @@ Kora.Records.Create = function() {
             }
         });
 
-        setTextInputWidth();
+        //setTextInputWidth();
 
-        $(window).resize(setTextInputWidth);
+        //$(window).resize(setTextInputWidth);
 
         function setTextInputWidth() {
             if ($(window).outerWidth() < 1175 - scrollBarWidth) {
