@@ -655,7 +655,11 @@ class ComboListField extends BaseField {
      * @param  Request $request
      * @return Request - The update request
      */
-    public function setRestfulAdvSearch($data, $flid, $request) {
+    public function setRestfulAdvSearch($data) {
+        $return = [];
+
+        $flid = $data->$flid;
+
         $field = FieldController::getField($flid);
         $type1 = $field['one']['type'];
         switch($type1) {
@@ -665,20 +669,20 @@ class ComboListField extends BaseField {
                     $leftNum = $data->left_one;
                 else
                     $leftNum = '';
-                $request->request->add([$flid.'_1_left' => $leftNum]);
+                $return[$flid.'_1_left'] = $leftNum;
                 if(isset($data->right_one))
                     $rightNum = $data->right_one;
                 else
                     $rightNum = '';
-                $request->request->add([$flid.'_1_right' => $rightNum]);
+                $return[$flid.'_1_right'] = $rightNum;
                 if(isset($data->invert_one))
                     $invert = $data->invert_one;
                 else
                     $invert = 0;
-                $request->request->add([$flid.'_1_invert' => $invert]);
+                $return[$flid.'_1_invert'] = $invert;
                 break;
             default:
-                $request->request->add([$flid.'_1_input' => $data->input_one]);
+                $return[$flid.'_1_input'] = $data->input_one;
                 break;
         }
         $type2 = $field['two']['type'];
@@ -689,25 +693,25 @@ class ComboListField extends BaseField {
                     $leftNum = $data->left_two;
                 else
                     $leftNum = '';
-                $request->request->add([$flid.'_2_left' => $leftNum]);
+                $return[$flid.'_2_left'] = $leftNum;
                 if(isset($data->right_two))
                     $rightNum = $data->right_two;
                 else
                     $rightNum = '';
-                $request->request->add([$flid.'_2_right' => $rightNum]);
+                $return[$flid.'_2_right'] = $rightNum;
                 if(isset($data->invert_two))
                     $invert = $data->invert_two;
                 else
                     $invert = 0;
-                $request->request->add([$flid.'_2_invert' => $invert]);
+                $return[$flid.'_2_invert'] = $invert;
                 break;
             default:
-                $request->request->add([$flid.'_2_input' => $data->input_two]);
+                $return[$flid.'_2_input'] = $data->input_two;
                 break;
         }
-        $request->request->add([$flid.'_operator' => $data->operator]);
+        $return[$flid.'_operator'] = $data->operator;
 
-        return $request;
+        return $return;
     }
 
     /**
