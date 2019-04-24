@@ -8,10 +8,6 @@ Kora.Inputs.Number = function() {
 
   initializeNumberArrows();
 
-  $numberInputs.change(function() {
-    updateArrows($(this));
-  });
-
   function initializeNumberArrows() {
     // Remove any existing arrows
     $('.num-arrows-js').remove();
@@ -21,42 +17,48 @@ Kora.Inputs.Number = function() {
 
     $numberInputs.each(function() {
       var $input = $(this);
-      var val = ($input.val() && $.isNumeric($input.val()) ? parseFloat($input.val()) : 0);
+      var $arrowsContainer = $input.siblings('.num-arrows');
+      var $arrows = $arrowsContainer.find('.arrow-js');
+
+      var num = ($input.val() && $.isNumeric($input.val()) ? parseFloat($input.val()) : 0);
+      var min = ($input.attr('min') ? parseInt($input.attr('min')) : 'unlimited');
+      var max = ($input.attr('max') ? parseInt($input.attr('max')) : 'unlimited');
       var step = ($input.attr('step') && $.isNumeric($input.attr('step')) ? parseFloat($input.attr('step')) : 1);
+      var decimalPlaces = getDecimalPlaces(step);
 
       // Set decimal places for val
-      $input.val(val.toFixed(getDecimalPlaces(step)));
-
-      updateArrows($input);
-    });
-  }
-
-  function updateArrows($input) {
-    var $arrowsContainer = $input.siblings('.num-arrows');
-    var $arrows = $arrowsContainer.find('.arrow-js');
-
-    var num = ($input.val() && $.isNumeric($input.val()) ? parseFloat($input.val()) : 0);
-    var min = ($input.attr('min') ? parseInt($input.attr('min')) : 'unlimited');
-    var max = ($input.attr('max') ? parseInt($input.attr('max')) : 'unlimited');
-    var step = ($input.attr('step') && $.isNumeric($input.attr('step')) ? parseFloat($input.attr('step')) : 1);
-    var decimalPlaces = getDecimalPlaces(step);
-
-    $arrows.click(function() {
-      var $arrow = $(this);
-
-      if ($arrow.hasClass('arrow-up-js')) {
-        num = num + step;
-        if (max != 'unlimited' && num > max) {
-          num = max;
-        }
-      } else if ($arrow.hasClass('arrow-down-js')) {
-        num = num - step;
-        if (min != 'unlimited' && num < min) {
-          num = min;
-        }
-      }
-
       $input.val(num.toFixed(decimalPlaces));
+
+      $input.change(function() {
+        updateValues($(this));
+      });
+
+      $arrows.click(function() {
+        var $arrow = $(this);
+        updateValues($input);
+
+        if ($arrow.hasClass('arrow-up-js')) {
+            num = num + step;
+            if (max != 'unlimited' && num > max) {
+                num = max;
+            }
+        } else if ($arrow.hasClass('arrow-down-js')) {
+            num = num - step;
+            if (min != 'unlimited' && num < min) {
+                num = min;
+            }
+        }
+
+        $input.val(num.toFixed(decimalPlaces));
+      });
+
+      function updateValues($input) {
+          num = ($input.val() && $.isNumeric($input.val()) ? parseFloat($input.val()) : 0);
+          min = ($input.attr('min') ? parseInt($input.attr('min')) : 'unlimited');
+          max = ($input.attr('max') ? parseInt($input.attr('max')) : 'unlimited');
+          step = ($input.attr('step') && $.isNumeric($input.attr('step')) ? parseFloat($input.attr('step')) : 1);
+          decimalPlaces = getDecimalPlaces(step);
+      }
     });
   }
 
