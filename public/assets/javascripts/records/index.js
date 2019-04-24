@@ -306,6 +306,59 @@ Kora.Records.Index = function() {
         });
     }
 
+    function initializeSearchTabs () {
+        // handles switching tabs
+        $('a.display-js').click(function (e) {
+            e.preventDefault();
+
+            if ( !$(this).hasClass('selected') ) {
+                $('.display-js').removeClass('selected');
+                $(this).addClass('selected');
+                $('section.display-js').addClass('hidden');
+                $('section.display-js')[$(this).index()].classList.remove('hidden');
+                if ( $(this).children('span').text() == '0' ) {
+                    $('section.display-js')[$(this).index()].children[3].classList.remove('hidden');
+                }
+            }
+        });
+
+        // toggles cards
+        $('.project-toggle-js, .form-toggle-js, .field-toggle-js').click(function(e) {
+            e.preventDefault();
+
+            var $this = $(this);
+            var $header = $this.parent().parent();
+            var $project = $header.parent();
+            var $content = $header.next();
+
+            $this.children().toggleClass('active');
+            $project.toggleClass('active');
+            if ($project.hasClass('active')) {
+                $header.addClass('active');
+                $project.animate({
+                    height: $project.height() + $content.outerHeight(true) + 'px'
+                }, 230);
+                $content.effect('slide', {
+                    direction: 'up',
+                    mode: 'show',
+                    duration: 240
+                });
+            } else {
+                $project.animate({
+                    height: '58px'
+                }, 230, function() {
+                    $header.hasClass('active') ? $header.removeClass('active') : null;
+                    $content.hasClass('active') ? $content.removeClass('active') : null;
+                });
+                $content.effect('slide', {
+                    direction: 'up',
+                    mode: 'hide',
+                    duration: 240
+                });
+            }
+        });
+    }
+
     initializeSelectAddition();
     initializeOptionDropdowns();
     initializePaginationShortcut();
@@ -316,6 +369,7 @@ Kora.Records.Index = function() {
     initializeSearchValidation();
     displayKeywords();
     initializeAssociatorCardToggle();
+    initializeSearchTabs();
     Kora.Records.Modal();
     Kora.Fields.TypedFieldDisplays.Initialize();
 }

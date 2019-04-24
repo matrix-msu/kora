@@ -39,9 +39,10 @@ abstract class FileTypeField extends BaseField {
      * @param  array $field - Field to update options
      * @param  Request $request
      * @param  string $slug - Name of database column based on field internal name
+     * @param  string $prefix - Table prefix
      * @return array - The updated field array
      */
-    public function updateOptions($field, Request $request, $slug = null) {
+    public function updateOptions($field, Request $request, $slug = null, $prefix = 'records_') {
         if($request->filesize==0)
             $request->filesize = null;
         if($request->maxfiles==0)

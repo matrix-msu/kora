@@ -47,7 +47,7 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
     ];
 	
 
-    public function getFullNameAttribute() {
+    public function getFullNameAttribute() { //TODO::CASTLE Should these be converted to getNameOrUsername? Also getNameOrUsername needs to be re-evaluated since first name last name is required
         return $this->preferences['first_name'].' '.$this->preferences['last_name'];
     }
 
@@ -138,6 +138,7 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
         $preferences['logo_target'] = 2;
         $preferences['proj_tab_selection'] = 2;
         $preferences['form_tab_selection'] = 2;
+        $preferences['onboarding'] = 1;
         $user->preferences = $preferences;
         $user->save();
 

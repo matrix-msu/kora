@@ -99,8 +99,22 @@ Kora.Fields.Options = function(fieldType) {
     //Fields that have specific functionality will have their own initialization process
 
     function initializeDateOptions() {
-        var $dateInputsContainers = $('.date-inputs-container-js');
-        var $dateListInputs = $dateInputsContainers.find('.chosen-container');
+        Kora.Modal.initialize();
+
+        var $start = $('.start-year-js');
+        var $end = $('.end-year-js');
+        var $default = $('.default-year-js');
+        var $startCheck = $('.current-year-js[data-current-year-id="start"]');
+        var $endCheck = $('.current-year-js[data-current-year-id="end"]');
+        var $changeDefaultYearModal = $('.change-default-year-modal-js');
+        var $continueButton = $changeDefaultYearModal.find('.change-default-year-js');
+        var $closeModalButton = $changeDefaultYearModal.find('.modal-toggle-js');
+
+        var oldStartVal = $start.val();
+        var oldEndVal = $end.val();
+        var oldStartCheck = $startCheck.is(':checked');
+        var oldStartCheck = $endCheck.is(':checked');
+        var currentYear = new Date().getFullYear();
         var scrollBarWidth = 17;
 
         $eraCheckboxes = $('.era-check-js');
@@ -108,7 +122,7 @@ Kora.Fields.Options = function(fieldType) {
         $eraCheckboxes.click(function() {
             var $selected = $(this);
 
-            $('.era-check-js').prop('checked', false);
+            $eraCheckboxes.prop('checked', false);
             $selected.prop('checked', true);
 
             currEra = $selected.val();
@@ -128,45 +142,137 @@ Kora.Fields.Options = function(fieldType) {
             }
         });
 
-        $('.start-year-js').change(printYears);
+        // Setting year value to the current year
+        var $currentYearCheckboxes = $('.current-year-js');
+        setCurrentYearInput($currentYearCheckboxes);
 
-        $('.end-year-js').change(printYears);
+        $currentYearCheckboxes.click(function() {
+            setCurrentYearInput($(this));
+        });
 
-        setTextInputWidth();
+        // Clicking arrows on numbers sets Default Year options
+        $('.arrow-js').click(function() {
+            printYears();
+        });
 
-        $(window).resize(setTextInputWidth);
+        // Changing start and end dates sets Default Year options
+        $start.change(printYears);
+        $end.change(printYears);
 
-        function setTextInputWidth() {
-            if ($(window).outerWidth() < 1000 - scrollBarWidth) {
-                // Window is small, full width Inputs
-                $dateListInputs.css('width', '100%');
-                $dateListInputs.css('margin-bottom', '10px');
-            } else {
-                // Window is large, 1/3 width Inputs
-                $dateListInputs.css('width', '33%');
-                $dateListInputs.css('margin-bottom', '');
-            }
-        }
+        function printYears() {
+            var start = $start.val();
+            var end = $end.val();
+            var defaultYear = $default.children("option:selected").val();
 
-        function printYears(){
-            start = $('.start-year-js').val();
-            end = $('.end-year-js').val();
+            // Set start and end years
+            if (start == '' || start < 0) {start = 1;}
+            if (start == 0) {start = currentYear}
+            if (end == '' || end > 9999) {end = 9999;}
+            if (end == 0) {end = currentYear}
 
-            if(start=='' || start < 0) {start = 0;}
-            if(end == '' || end > 9999) {end = 9999;}
-
-            if(start > end) {
+            // Switch start and end if necessary
+            if (start > end) {
                 pivot = start;
                 start = end;
                 end = pivot;
             }
 
-            val = '<option></option>';
-            for(var i=start;i<+end+1;i++) {
-                val += "<option value=" + i + ">" + i + "</option>";
+            if (defaultYear != "" &&
+                ((defaultYear != 0 && (defaultYear < start || defaultYear > end)) ||
+                (defaultYear == 0 && (currentYear < start || currentYear > end)))) {
+                // User must approve of clearing default date if set outside range of dates
+                Kora.Modal.open($changeDefaultYearModal);
+
+                $continueButton.unbind();
+                $continueButton.click(function(e) {
+                    e.preventDefault();
+                    createOptions();
+                    Kora.Modal.close($changeDefaultYearModal);
+                });
+
+                $closeModalButton.unbind();
+                $closeModalButton.click(function(e) {
+                    e.preventDefault();
+
+                    // Reset Values
+                    $start.val(oldStartVal);
+                    $startCheck.prop('checked', oldStartCheck);
+                    $start.prop('disabled', oldStartCheck);
+                    if (oldStartCheck) {
+                        $start.siblings('.num-arrows-js').hide();
+                    } else {
+                        $start.siblings('.num-arrows-js').show();
+                    }
+
+                    $end.val(oldEndVal);
+                    $endCheck.prop('checked', oldEndCheck);
+                    $end.prop('disabled', oldEndCheck);
+                    if (oldEndCheck) {
+                        $end.siblings('.num-arrows-js').hide();
+                    } else {
+                        $end.siblings('.num-arrows-js').show();
+                    }
+
+                    Kora.Modal.close($changeDefaultYearModal);
+                })
+            } else {
+                createOptions();
             }
 
-            $('.default-year-js').html(val); $('.default-year-js').trigger("chosen:updated");
+            function createOptions() {
+                // New options between start and end years
+                var val = '<option></option>';
+
+                if (defaultYear != "" && defaultYear == 0  && currentYear >= start && currentYear <= end) {
+                    val += '<option value="0" selected>Current Year</option>';
+                } else {
+                    val += '<option value="0">Current Year</option>';
+                }
+
+                for (var i=start;i<+end+1;i++) {
+                    if (i == defaultYear) {
+                        val += "<option value=" + i + " selected>" + i + "</option>";
+                    } else {
+                        val += "<option value=" + i + ">" + i + "</option>";
+                    }
+                }
+
+                oldStartVal = $start.val();
+                oldEndVal = $end.val();
+                oldStartCheck = $startCheck.is(':checked');
+                oldEndCheck = $endCheck.is(':checked');
+
+                $default.html(val); $default.trigger("chosen:updated");
+            }
+        }
+
+        // Clicking on a 'Current Year' checkbox
+        function setCurrentYearInput($sel) {
+            $sel.each(function() {
+                var $selected = $(this);
+                var $yearInput = $('[data-current-year-id="'+$selected.data('current-year-id')+'"]').not('[type="checkbox"]');
+                var $yearInputHidden = $yearInput.siblings('.hidden-current-year-js');
+                var $arrows = $yearInput.siblings('.num-arrows-js');
+
+                if ($selected.is(":checked")) {
+                    // Current Year now selected
+                    // Set input to current year
+                    $yearInput.val(new Date().getFullYear());
+
+                    // Disable input, enable hidden current year input
+                    $yearInputHidden.prop('disabled', false);
+                    $yearInput.prop('disabled', true);
+                    $arrows.hide();
+                } else {
+                    // Current Year now unselected
+                    // Enable input, disable hidden current year input
+                    $yearInputHidden.prop('disabled', true);
+                    $yearInput.prop('disabled', false);
+                    $arrows.show();
+                }
+            });
+
+            printYears();
         }
     }
 

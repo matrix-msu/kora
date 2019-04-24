@@ -73,17 +73,12 @@ class DashboardController extends Controller { //TODO::CASTLE
             $this->makeNonSectionFirst();
 
         foreach($results as $sec) {
-            $s = array();
-            $s['title'] = $sec->title;
-            $s['id'] = $sec->id;
-
             $blocks = array();
             $blkResults = DB::table('dashboard_blocks')->where('sec_id','=',$sec->id)->orderBy('order')->get();
 
             foreach($blkResults as $blk) {
                 $b = array();
-                $b['id'] = $blk->id;
-                $b['type'] = $blk->type;
+
                 $options = json_decode($blk->options, true);
                 switch($blk->type) {
                     case 'Project':
@@ -92,6 +87,11 @@ class DashboardController extends Controller { //TODO::CASTLE
                         $hidOpts = $options['hidden'];
 
                         $project = ProjectController::getProject($pid);
+
+                        if(!is_object($project)) {
+                            $this->deleteBlock($blk->id, $blk->sec_id);
+                            break;
+                        }
 
                         $b['pid'] = $pid;
                         $b['name'] = $project->name;
@@ -116,6 +116,12 @@ class DashboardController extends Controller { //TODO::CASTLE
                         $hidOpts = $options['hidden'];
 
                         $form = FormController::getForm($fid);
+
+                        if(!is_object($form)) {
+                            $this->deleteBlock($blk->id, $blk->sec_id);
+                            break;
+                        }
+
                         $b['projName'] = ProjectController::getProject($form->pid)->name;
 
                         $b['fid'] = $fid;
@@ -140,6 +146,12 @@ class DashboardController extends Controller { //TODO::CASTLE
                         $rid = $options['rid'];
 
                         $record = RecordController::getRecord($rid);
+
+                        if(!is_object($record)) {
+                            $this->deleteBlock($blk->id, $blk->sec_id);
+                            break;
+                        }
+
                         $project = ProjectController::getProject($record->pid);
                         $form = FormController::getForm($record->fid);
 
@@ -177,9 +189,21 @@ class DashboardController extends Controller { //TODO::CASTLE
                     default:
                         break;
                 }
-                array_push($blocks,$b);
+
+                if($blk->type === 'Note' || $blk->type === 'Quote' || $blk->type === 'Twitter') {// if twitter, count($b) = 0; if quote, count($b) = 3; note, count($b) = 2;
+                    $b['id'] = $blk->id;
+                    $b['type'] = $blk->type;
+                    array_push($blocks,$b);
+                } else if(sizeof($b) > 2) { // projects, forms, and records should all have more than 2 entries in $b, if not, then the proj/form/rec was probably deleted, and should not be added to this array.  otherwise the page will not load
+                    $b['id'] = $blk->id;
+                    $b['type'] = $blk->type;
+                    array_push($blocks,$b);
+                }
             }
 
+            $s = array();
+            $s['title'] = $sec->title;
+            $s['id'] = $sec->id;
             $s['blocks'] = $blocks;
             array_push($sections,$s);
         }
@@ -360,13 +384,13 @@ class DashboardController extends Controller { //TODO::CASTLE
                 $pid = $request->block_project;
                 $optString = '{"pid": ' . $pid .
                     ', "displayed": ["edit", "search", "form-new", "form-import", "permissions", "presets"]' .
-                    ', "hidden": []}';
+                    ', "hidden": ["import", "import2k", "export"]}';
                 break;
             case 'Form':
                 $fid = $request->block_form;
                 $optString = '{"fid": ' . $fid .
                     ', "displayed": ["edit", "search", "record-new", "field-new", "permissions", "revisions"]' .
-                    ', "hidden": []}';
+                    ', "hidden": ["import", "batch", "export-records", "assoc-permissions", "export-form"]}';
                 break;
             case 'Record':
                 $kid = $request->block_record;
@@ -549,7 +573,7 @@ class DashboardController extends Controller { //TODO::CASTLE
         //reorder remaining blocks in section
         $this->reorderBlocks($secID);
 
-        return response()->json(["status"=>true, "message"=>"Block destroyed", 200]);
+        return redirect('dashboard')->with('k3_global_success', 'block_destroyed');
     }
 
     private function reorderBlocks($secID) {

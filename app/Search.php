@@ -69,6 +69,8 @@ class Search {
      */
     public function formKeywordSearch($fields = null, $external = false, $negative = false, $customWildcards = false) {
         $form = FormController::getForm($this->fid);
+        if(is_null($form))
+            return [];
         $recordMod = new Record(array(),$this->fid);
 
         if(is_null($fields))

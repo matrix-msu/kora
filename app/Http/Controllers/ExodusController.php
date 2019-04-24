@@ -136,6 +136,7 @@ class ExodusController extends Controller {
                     $preferences['logo_target'] = 2;
                     $preferences['proj_tab_selection'] = 2;
                     $preferences['form_tab_selection'] = 2;
+                    $preferences['onboarding'] = 1;
                     $user->preferences = $preferences;
                     $user->save();
 

@@ -5,6 +5,151 @@
   background: palette('gray', background);
   font-family: $ubuntu;
   min-height: 100vh;
+
+  .no-records-adv-search {
+    .top {
+      font-size: 60px;
+      height: 60px;
+      position: relative;
+      text-align: center;
+
+      .line {
+        background: palette('gray', base);
+        height: 2px;
+        margin-top: 35px;
+        opacity: 0.05;
+        position: absolute;
+        top: 0;
+        width: 37%;
+
+        &:last-child {
+          right: 0;
+        }
+      }
+
+      .icon {
+        opacity: 0.2;
+      }
+    }
+
+    .bottom {
+      text-align: center;
+
+      p {
+        font-family: $ubuntu;
+        font-size: 18px;
+        margin-top: 0;
+        opacity: 0.8;
+
+        &:last-child {
+          font-size: 14px;
+          line-height: 1.7;
+        }
+      }
+    }
+
+    .kora-green {
+      color: palette('green', accent);
+      cursor: pointer;
+      font-family: $ubuntu-medium;
+    }
+  }
+
+  .field {
+    .quick-action.delete-field {
+      .icon {
+        @include transition();
+
+        color: palette('red', warning, 1);
+        font-size: 14px;
+        padding: 0 0 5px;
+        will-change: transform;
+      }
+
+      &:hover .icon-trash {
+        transform: scale($transform-scale-multiplier);
+
+        &::after {
+          top: 5px;
+        }
+      }
+
+      @media screen and (max-width: $max-mobile-l-width) {
+        padding: 0;
+      }
+    }
+
+    @media screen and (max-width: $max-mobile-l-width) {
+      width: calc(100% - 20px);
+    }
+
+    &.with-aside {
+      @media screen and (min-width: $max-mobile-xs-width) and (max-width: $max-tablet-width) {
+        width: calc(100% - 20px);
+      }
+    }
+
+    .id {
+      margin-bottom: 15px;
+    }
+
+    .allowed-actions {
+      padding-top: 40px;
+
+      .action {
+        display: inline-block;
+        padding: 0 14px;
+
+        &:first-of-type {
+          padding-left: 0;
+        }
+
+        &:last-of-type {
+          padding-right: 0;
+
+          @media screen and (max-width: $max-tablet-width) { // 980
+            display: block;
+            padding: 15px 0 0;
+          }
+        }
+
+        .action-column {
+          height: 55px;
+          display: flex;
+          flex-direction: column;
+          justify-content: space-between;
+        }
+      }
+
+      @media screen and (max-width: $max-mobile-width) { //768
+        padding-bottom: 10px;
+
+        .action {
+          display: block;
+          padding: 15px 0 0;
+
+          &:first-of-type {
+            padding-top: 0;
+          }
+        }
+      }
+
+      @media screen and (min-width: 888px) and (max-width: $max-with-aside-width) { // 886 1155
+        &.with-aside {
+          .action {
+            display: block;
+            padding: 5px 0;
+          }
+        }
+      }
+    }
+  }
+
+
+  .card .header .left .title .name {
+    font-family: $ubuntu-medium;
+  }
+
 }
 
 .record-index,
@@ -56,6 +201,7 @@
         // scss-lint:disable SelectorDepth
         .half-sub-btn,
         .half-btn {
+          float: unset;
           margin-top: 40px;
           max-width: $max-mobile-l-width;
           width: 100%;
@@ -77,6 +223,92 @@
       }
     }
 
+    /*.filters {*/
+    .content-sections {
+      margin: 60px auto 0;
+      position: relative;
+
+      .content-sections-scroll {
+        display: flex;
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        overflow-y: hidden;
+        &::-webkit-scrollbar {
+          display: none;
+        }
+
+        a {
+          color: palette('gray', text, .8);
+          display: inline-block;
+          font-family: $ubuntu;
+          font-size: 16px;
+          line-height: 1;
+          margin: 0 7.5px;
+          padding: 0 0 13px;
+          text-decoration: none;
+          white-space: nowrap;
+
+          &:first-child {
+            margin-left: 0;
+            padding-left: 0;
+          }
+
+          &:last-child {
+            margin-right: 0;
+            padding-right: 0;
+          }
+
+          &:hover {
+            color: palette('green', accent);
+          }
+
+          &.selected {
+            border-bottom: 2px solid palette('green', accent);
+            color: palette('green', accent);
+            font-family: $ubuntu-medium;
+
+            &.underline-middle-hover:hover::before,
+            &.underline-middle-hover:hover::after {
+              opacity: 0;
+            }
+          }
+        }
+      }
+
+      .tabs-left,
+      .tabs-right {
+        @include transition();
+
+        background: linear-gradient(0deg, #f5f6f7 0%, rgba(255, 255, 255, 0) 100%);
+        bottom: -10.5px;
+        font-size: 0.5em;
+        opacity: 0.6;
+        padding: 60px 21px 0 21px;
+        position: absolute;
+
+        &:hover {
+          bottom: -12px;
+          cursor: pointer;
+          font-size: 0.625em;
+          opacity: 1;
+        }
+
+        .hidden {
+          display: none;
+        }
+      }
+
+      .tabs-left {
+        left: -5px;
+        transform: rotate(90deg) scale(0.9);
+      }
+
+      .tabs-right {
+        right: -5px;
+        transform: rotate(-90deg) scale(0.9);
+      }
+    }
+
     .records-title {
       font-size: 30px;
       height: 34px;
@@ -84,7 +316,7 @@
       color: palette('gray', text);
 
       @media screen and (max-width: $max-mobile-xs-width) {
-        margin-top: 80px;
+        margin-top: 40px;
       }
     }
 
@@ -171,7 +403,7 @@
           vertical-align: middle;
           will-change: transform;
         }
-		
+
         &:hover {
           border-color: palette('green', accent);
           box-shadow: 0 5px 10px 0 rgba(4,182,175,0.1);
@@ -190,11 +422,11 @@
       }
     }
 
-	.try-another-search,
-  .to-top {
-		display: block !important;
-		margin: 0 auto;
-	}
+    .try-another-search,
+    .to-top {
+      display: block !important;
+      margin: 0 auto;
+    }
 
     .results-here-text {
       font-size: 14px;

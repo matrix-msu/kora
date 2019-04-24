@@ -4,6 +4,13 @@
   position: relative;
   text-align: left;
   width: 100%;
+  
+  img {
+    border-radius: 5px 5px 0 0;
+    height: auto;
+    max-height: 250px;
+    width: 100%;
+  }
 
   .title {
     display: block;
@@ -15,6 +22,64 @@
     &.delete-block {
       text-align: left;
     }
+  }
+  
+  &.onboarding {
+    img {
+      object-fit: cover;
+    }
+
+    .title {
+      border-radius: 5px 5px 0 0;
+      box-sizing: border-box;
+      color: palette('white', base);
+      font-size: 14px;
+      left: 0;
+      padding: 15px 20px 0;
+      position: absolute;
+      text-align: left;
+      top: 0;
+      width: 100%;
+
+      &:hover {
+        cursor: default;
+      }
+
+      .skip {
+        float: right;
+
+        > span {
+          font-family: $ubuntu-medium;
+          margin-right: 20px;
+        }
+
+        .modal-toggle {
+          padding: 15px;
+          top: 0;
+
+          .icon {
+            padding: 0;
+            font-size: 14px;
+          }
+        }
+
+        &:hover {
+          cursor: pointer;
+
+          .modal-toggle {
+            transform: rotate(90deg) scale($transform-scale-multiplier);
+          }
+        }
+      }
+    }
+/*
+    @media screen and (max-width: 700px) {
+      height: 110px;
+      img {
+        height: 100%;
+      }
+    }
+*/
   }
 
   .modal-toggle {
@@ -36,6 +101,7 @@
 &.small .header {
   .title {
     padding: 25px 0 25px 25px;
+    width: calc(100% - 87px);
   }
 
   .modal-toggle {

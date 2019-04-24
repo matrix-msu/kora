@@ -213,6 +213,9 @@ $searchInput.keyup(function(e) {
                         });
 
                         $searchResults.parent().slideDown(100);
+                    },
+                    error: function (err) {
+                        console.warn ( err )
                     }
                 });
             } else if (searchText == '') {
