@@ -112,7 +112,7 @@
     &:hover {
       border: 2px solid rgba(4, 182, 175, .5);
       box-shadow: 0 7px 10px 0 palette('box-shadow', base, .05);
-	  
+
       &::before {
         opacity: 0.8;
         transform: scale(1.25);
@@ -333,7 +333,7 @@
       overflow: hidden;
       padding: 0;
       white-space: nowrap;
-      width: 90%;
+      width: 100%;
 
       input[type="text"] {
         background: transparent !important;
