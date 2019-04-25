@@ -25,7 +25,7 @@ Kora.Modal.open = function($overide) {
 Kora.Modal.initialize = function() {
   $('.modal-js').on('click', function(e) {
 
-    if (e.target !== this) {
+    if (e.target !== this || this.classList.contains('onboarding-modal-js')) {
       return;
     } else {
       e.preventDefault();

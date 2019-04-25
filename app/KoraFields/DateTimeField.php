@@ -117,14 +117,23 @@ class DateTimeField extends BaseField {
             $default = null;
         }
 
-        if($request->start=='' | $request->start==0)
+        if($request->start=='')
             $request->start = 1;
 
         if($request->end=='')
             $request->end = 9999;
 
-        //If the years don't make sense, flip em
-        if($request->start > $request->end) {
+        // If the years don't make sense, flip em
+        // Use temp start & end vars to keep 0 (current year) value
+        $start = $request->start;
+        if ($start == 0)
+            $start = date("Y");
+
+        $end = $request->end;
+        if ($end == 0)
+            $end = date("Y");
+
+        if ($start > $end) {
             $pivot = $request->start;
             $request->start = $request->end;
             $request->end = $pivot;
@@ -156,6 +165,16 @@ class DateTimeField extends BaseField {
         $year = $request->input('year_'.$flid,'');
 
         $dateNotProvided = ($month=='' && $day=='' && $year=='');
+
+        // A year set to 0 is actually 'Current Year'
+        if ($year == 0)
+            $year = date("Y");
+
+        if ($start == 0)
+            $start = date("Y");
+
+        if ($end == 0)
+            $end = date("Y");
 
         if(($req==1 | $forceReq) && $dateNotProvided) {
             return [

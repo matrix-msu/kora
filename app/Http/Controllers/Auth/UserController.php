@@ -368,7 +368,7 @@ class UserController extends Controller {
         $logoTargetOptions = self::logoTargetOptions();
         $projPageTabSelOptions = self::projPageTabSelOptions();
         $singleProjTabSelOptions = self::singleProjTabSelOptions();
-
+		
         $notification = array(
             'message' => '',
             'description' => '',
@@ -410,6 +410,23 @@ class UserController extends Controller {
 
         return view('user.preferences', compact('user', 'preference', 'logoTargetOptions', 'projPageTabSelOptions', 'singleProjTabSelOptions', 'sideMenuOptions', 'notification'));
     }
+	
+	 // triggered from onboarding.js and from 'replay kora intro' button on user preferences page
+    public function toggleOnboarding () {
+		$user = \Auth::user();
+		$userPrefs = $user->preferences;
+		
+        if ($userPrefs['onboarding'] == 1) {
+            $userPrefs['onboarding'] = 0;
+            $user->preferences = $userPrefs;
+			$user->save();
+        } else {
+            $userPrefs['onboarding'] = 1;
+            $user->preferences = $userPrefs;
+			$user->save();
+            return redirect('/');
+        }
+    }
 
     /**
      * Return a specific user preference
@@ -428,9 +445,26 @@ class UserController extends Controller {
             $preferences['logo_target'] = 2;
             $preferences['proj_tab_selection'] = 2;
             $preferences['form_tab_selection'] = 2;
+			$preferences['onboarding'] = 1;
 
             return $preferences[$pref];
         }
+    }
+	
+	public static function getOnboardingProjects (User $user) {
+        $all_projects = Project::all()->sortBy("name", SORT_NATURAL|SORT_FLAG_CASE);
+        $projects = array();
+        $requestableProjects = array();
+        foreach ($all_projects as $project) {
+            if ($project->active) {
+                if (\Auth::user()->admin || \Auth::user()->inAProjectGroup($project)) {
+                    array_push($projects, $project->name);
+                } else {
+                    $requestableProjects[$project->pid] = $project->name;
+                }
+            }
+        }
+        return array($projects, $requestableProjects);
     }
 
     /**

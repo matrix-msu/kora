@@ -22,12 +22,42 @@
       @include vertical-align($transform: scale(1));
 
       opacity: 1;
+	  
+	  &.smallBrowser {
+        top: 0;
+        transform: scale(1);
+      }
     }
+  }
+
+  &.onboarding-modal {
+    overflow: auto;
   }
   
   &.add-users-modal .content,
-  &.nav-request-permissions-modal-js .content {
+  &.nav-request-permissions-modal-js .content,
+  &.onboarding-modal .content {
     overflow: visible;
+	
+	section {
+      box-shadow: 0 3px 5px 0 rgba(21,39,48,0.05);
+
+      .body {
+        padding: 0 40px 30px;
+
+        @media screen and (max-width: $max-mobile-med-width) {
+          padding: 0 15px 15px;
+        }
+      }
+    }
+
+    @import 'modal/onboarding-pagination';
+}
+
+  @media screen and (max-width: 420px) {
+    &.onboarding-modal .content {
+      width: 280px;
+    }
   }
 
   .content {
@@ -39,9 +69,10 @@
     box-shadow: 0 10px 20px 0 palette('box-shadow', base, .2);
     left: 0;
     margin: auto;
+    max-height: 90vh;
     max-width: 840px;
     opacity: 0;
-    overflow-y: scroll;
+    overflow-y: auto;
     overflow-x: hidden;
     position: absolute;
     right: 0;
@@ -55,8 +86,8 @@
         margin: 0 0 -15px;
       }
     }
-    
-    
+
+
     &.small {
       max-width: 340px;
     }
@@ -72,7 +103,7 @@
 }
 
 @media screen and (max-width: $max-mobile-xs-width) {
-  .modal {
+  .modal:not(.onboarding-modal) {
     .content {
       height: 90%;
 
@@ -81,7 +112,7 @@
         width: 90%;
       }
     }
-    
+
     &.record-validation-modal-js .content {
       height: unset;
     }

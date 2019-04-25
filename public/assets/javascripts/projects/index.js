@@ -321,6 +321,8 @@ Kora.Projects.Index = function() {
 		archived = true;
 		var cards = $($(".inactive-projects").find(".project.card"));
 	  }
+	  
+	  if (cards === undefined || cards.length === null) return;
       
       for (i = 0; i < cards.length; i++)
       {	
