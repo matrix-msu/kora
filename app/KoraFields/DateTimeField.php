@@ -85,9 +85,10 @@ class DateTimeField extends BaseField {
     /**
      * Gets the default options string for a new field.
      *
+     * @param  string $type - Field type for use with combo list (optional)
      * @return array - The default options
      */
-    public function getDefaultOptions() {
+    public function getDefaultOptions($type = null) {
         return [
             'Start' => 1900,
             'End' => 2030,

@@ -143,6 +143,7 @@ Kora.Records.Import = function () {
                                     local_kid: kid,
                                     impType: importType,
                                     success: function (data) {
+                                        console.log(data)
                                         succ++;
                                         progressText.text(succ + ' of ' + total + ' Records Submitted');
 
@@ -159,6 +160,7 @@ Kora.Records.Import = function () {
                                             completeImport(succ, total, this.impType);
                                     },
                                     error: function (data) {
+                                        console.log(data)
                                         failedRecords.push([this.local_kid, importRecs[this.local_kid], data]);
 
                                         done++;

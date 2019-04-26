@@ -6,7 +6,7 @@ Kora.FormAssociations.Index = function() {
 
   /**
    * Request association permissions for another group
-   * 
+   *
    * @param rfid {int} The form id being requested.
    */
   self.requestPermissions = function(rfid) {
@@ -18,7 +18,7 @@ Kora.FormAssociations.Index = function() {
         "rfid": rfid
       },
       success: function(response) {
-        window.localStorage.setItem('message', 'Form Associations Requested');     
+        window.localStorage.setItem('message', 'Form Associations Requested');
         Kora.Modal.close();
         location.reload();
       }
@@ -109,11 +109,11 @@ Kora.FormAssociations.Index = function() {
     $('.toggle-by-name').unbind('click');
     $('.toggle-by-name').click(function(e) {
       e.preventDefault();
-      
+
       $this = $(this);
       $this.addClass('active');
       $this.siblings().removeClass('active');
-      
+
       $active = $this.attr("href");
       if ($active == "#request") {
         $('.request-section').removeClass('hidden');
@@ -194,7 +194,7 @@ Kora.FormAssociations.Index = function() {
 
       $('.add-association-submit-js').unbind('click');
       $('.add-association-submit-js').click(submitAssociation());
-      
+
       Kora.Modal.open($newPermissionsModal);
     });
   }

@@ -213,11 +213,13 @@ abstract class FileTypeField extends BaseField {
             mkdir($newDir, 0775, true);
         }
 
+        $value = explode(' | ', $value);
+
         foreach($value as $file) {
-            if(!isset($file['name']))
+            if(!$file)
                 return response()->json(["status"=>false,"message"=>"json_validation_error",
                     "record_validation_error"=>[$request->kid => "$flid is missing name for a file"]],500);
-            $name = $file['name'];
+            $name = $file;
             //move file from imp temp to tmp files
             copy($currDir . '/' . $name, $newDir . '/' . $name);
             //add input for this file

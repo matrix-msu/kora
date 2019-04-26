@@ -321,7 +321,7 @@ class ImportController extends Controller {
                     continue;
 
                 //If value is not set, move on
-                if(is_null($field))
+                if(!$field | is_null($field))
                     continue;
 
                 //Deal with reverse associations and move on

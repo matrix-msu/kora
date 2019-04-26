@@ -3,14 +3,16 @@ var isAppended = false
 var scrollPos
 
 window.setInterval(function() {
-  if (isOverflow.offsetWidth < isOverflow.scrollWidth && isAppended === false) {
-    $('<i class="icon icon-chevron tabs-right"></i>').appendTo('.content-sections');
-    $('<i class="icon icon-chevron tabs-left hidden"></i>').appendTo('.content-sections');
-    isAppended = true
-  } else if (isOverflow.offsetWidth == isOverflow.scrollWidth && isAppended === true) {
-    $('.tabs-right').remove();
-    $('.tabs-left').remove();
-    isAppended = false
+  if(isOverflow) {
+    if (isOverflow.offsetWidth < isOverflow.scrollWidth && isAppended === false) {
+      $('<i class="icon icon-chevron tabs-right"></i>').appendTo('.content-sections');
+      $('<i class="icon icon-chevron tabs-left hidden"></i>').appendTo('.content-sections');
+      isAppended = true
+    } else if (isOverflow.offsetWidth == isOverflow.scrollWidth && isAppended === true) {
+      $('.tabs-right').remove();
+      $('.tabs-left').remove();
+      isAppended = false
+    }
   }
 }, 200);
 
