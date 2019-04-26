@@ -91,7 +91,7 @@ class ProjectController extends Controller {
           'static' => false
         );
 
-        if($user->admin) {
+        if($user->admin && $user->id == 1) {
             $current = new UpdateController();
             if($current->checkVersion())
                 $notification['message'] = 'Update Available!';
