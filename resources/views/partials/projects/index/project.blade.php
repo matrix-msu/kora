@@ -39,7 +39,6 @@
     </div>
 
     <div class="admins mb-m">
-      {{--TODO::CASTLE--}}
       <span class="attribute">Project Admins: </span>
       @foreach($project->adminGroup()->get() as $adminGroup)
         <span>

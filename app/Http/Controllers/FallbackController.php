@@ -2,12 +2,18 @@
 
 use App\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Redirect;
-use Illuminate\View\View;
 
-class FallbackController extends Controller { //TODO::CASTLE
+class FallbackController extends Controller {
+
+    /*
+    |--------------------------------------------------------------------------
+    | Dashboard Controller
+    |--------------------------------------------------------------------------
+    |
+    | This controller handles the user dashboard system
+    |
+    */
+
     /**
      * Constructs controller and makes sure user is authenticated.
      */
@@ -15,11 +21,12 @@ class FallbackController extends Controller { //TODO::CASTLE
         $this->middleware('auth');
         $this->middleware('active');
     }
-	
+
+    /**
+     * Bounces user to unknown page if route is invalid.
+     */
 	public function routeNotFound(Request $request) {
 		$install_admin = User::where('id','=',1)->first();
 		return response()->view('errors.404', ['install_admin_email' => $install_admin->email], 404);
 	}
-	
-
 }
