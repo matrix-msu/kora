@@ -120,25 +120,16 @@
     }
 
     .search-choice-close {
-        @include transition();
+      right: 60px;
+      top: 18px;
 
-        opacity: .6;
-        right: 45px;
-        top: 18px;
-        will-change: transform;
-
-        &::before {
-            color: palette('gray', slate);
-            content: $icon-cancel;
-            font-family: 'Kora-Icons';
-            font-size: 10px;
-            speak: none;
-        }
-
-        &:hover {
-            opacity: 1;
-            transform: scale(1.2);
-        }
+      &::before {
+        color: palette('gray', slate);
+        content: $icon-cancel;
+        font-family: 'Kora-Icons';
+        font-size: 10px;
+        speak: none;
+      }
     }
   }
 
@@ -342,7 +333,7 @@
       overflow: hidden;
       padding: 0;
       white-space: nowrap;
-      width: 90%;
+      width: 100%;
 
       input[type="text"] {
         background: transparent !important;
