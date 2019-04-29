@@ -143,8 +143,44 @@ class GalleryField extends FileTypeField {
      *
      * @return Request - Processed data
      */
-    public function processImportData($flid, $field, $value, $request) { //TODO::CASTLE
-        //Same as parent but with captions
+    public function processImportData($flid, $field, $value, $request) {
+        $files = array();
+        $originRid = $request->originRid;
+
+        //See where we are looking first
+        if(is_null($originRid))
+            $currDir = storage_path( 'app/tmpFiles/impU' . \Auth::user()->id);
+        else
+            $currDir = storage_path('app/tmpFiles/impU' . \Auth::user()->id . '/' . $originRid);
+
+        //Make destination directory
+        $newDir = storage_path('app/tmpFiles/recordU' . \Auth::user()->id);
+        if(file_exists($newDir)) {
+            foreach(new \DirectoryIterator($newDir) as $file) {
+                if($file->isFile())
+                    unlink($newDir . '/' . $file->getFilename());
+            }
+        } else {
+            mkdir($newDir, 0775, true);
+        }
+
+        $value = explode(' | ', $value);
+
+        foreach($value as $file) {
+            list($file, $caption) = explode(' [CAPTION] ', $file);
+
+            if(!$file)
+                return response()->json(["status"=>false,"message"=>"json_validation_error",
+                    "record_validation_error"=>[$request->kid => "$flid is missing name for a file"]],500);
+            $name = $file;
+            //move file from imp temp to tmp files
+            copy($currDir . '/' . $name, $newDir . '/' . $name);
+            //add input for this file
+            array_push($files, ['original_name' => $name, 'caption' => $caption]);
+        }
+        $request[$flid] = $files;
+
+        return $request;
     }
 
     /**
@@ -158,8 +194,65 @@ class GalleryField extends FileTypeField {
      *
      * @return Request - Processed data
      */
-    public function processImportDataXML($flid, $field, $value, $request, $simple = false) { //TODO::CASTLE
-        //Same as parent but with captions
+    public function processImportDataXML($flid, $field, $value, $request, $simple = false) {
+        $files = array();
+        $originRid = $request->originRid;
+
+        //See where we are looking first
+        if(is_null($originRid))
+            $currDir = storage_path( 'app/tmpFiles/impU' . \Auth::user()->id);
+        else
+            $currDir = storage_path('app/tmpFiles/impU' . \Auth::user()->id . '/' . $originRid);
+
+        //Make destination directory
+        $newDir = storage_path('app/tmpFiles/recordU' . \Auth::user()->id);
+        if(file_exists($newDir)) {
+            foreach(new \DirectoryIterator($newDir) as $file) {
+                if($file->isFile())
+                    unlink($newDir . '/' . $file->getFilename());
+            }
+        } else {
+            mkdir($newDir, 0775, true);
+        }
+
+        if($simple) {
+            $name = (string)$value;
+            //move file from imp temp to tmp files
+            if(!file_exists($currDir . '/' . $name)) {
+                //Before we fail, let's see first if it's just failing because the originRid was specified
+                // and not because the file doesn't actually exist. We will now force look into the ZIPs root folder
+                $currDir = storage_path( 'app/tmpFiles/impU' . \Auth::user()->id);
+                if(!file_exists($currDir . '/' . $name))
+                    return response()->json(["status" => false, "message" => "xml_validation_error",
+                        "record_validation_error" => [$request->kid => "$flid: trouble finding file $name"]], 500);
+            }
+            copy($currDir . '/' . $name, $newDir . '/' . $name);
+            //add input for this file
+            array_push($files, $name);
+        } else {
+            if(empty($value->File))
+                return response()->json(["status"=>false,"message"=>"xml_validation_error",
+                    "record_validation_error"=>[$request->kid => "$flid format is incorrect for a File Type Field"]],500);
+            foreach ($value->File as $file) {
+                $name = (string)$file;
+                //move file from imp temp to tmp files
+                if(!file_exists($currDir . '/' . $name)) {
+                    //Before we fail, let's see first if it's just failing because the originRid was specified
+                    // and not because the file doesn't actually exist. We will now force look into the ZIPs root folder
+                    $currDir = storage_path( 'app/tmpFiles/impU' . \Auth::user()->id);
+                    if(!file_exists($currDir . '/' . $name))
+                        return response()->json(["status" => false, "message" => "xml_validation_error",
+                            "record_validation_error" => [$request->kid => "$flid: trouble finding file $name"]], 500);
+                }
+                copy($currDir . '/' . $name, $newDir . '/' . $name);
+                //add input for this file
+                array_push($files, ['original_name' => $name, 'caption' => $value->Caption]);
+            }
+        }
+
+        $request[$flid] = $files;
+
+        return $request;
     }
 
     /**

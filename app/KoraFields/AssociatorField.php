@@ -157,8 +157,12 @@ class AssociatorField extends BaseField {
      * @return mixed - Processed data
      */
     public function processRecordData($field, $value, $request) {
-        if(empty($value))
+        if(empty($value)) {
             $value = null;
+        } elseif(is_string($value)) {
+            $value = explode(' | ', $value);
+        }
+
         return json_encode($value);
     }
 

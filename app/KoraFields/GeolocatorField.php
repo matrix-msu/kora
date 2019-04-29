@@ -425,7 +425,7 @@ class GeolocatorField extends BaseField {
                 DECLARE result BOOL DEFAULT false;
                 DECLARE providedLat DOUBLE;
                 DECLARE providedLng DOUBLE;
-                
+
                 WHILE i < JSON_LENGTH(`lats`) DO
                     SELECT JSON_EXTRACT(`lats`,CONCAT('$[',i,']')) INTO providedLat;
                     SELECT JSON_EXTRACT(`lngs`,CONCAT('$[',i,']')) INTO providedLng;
@@ -433,7 +433,7 @@ class GeolocatorField extends BaseField {
                     END IF;
                     SET i = i+1;
                 END WHILE;
-                
+
                 RETURN result;
             END;");
 
