@@ -9,7 +9,7 @@ class UpdateKora extends Command
 {
     /*
     |--------------------------------------------------------------------------
-    | Finish Install Script
+    | Finish Update Script
     |--------------------------------------------------------------------------
     |
     | This script finishes the Kora 3 update process by running any un-run update

@@ -16,15 +16,10 @@
             </div>
 
             <div class="commander mt-m">
-                We are ready to begin the Kora Initialization sequence, Commander.
-                Ready when you are.
+                We are ready to begin the Kora Initialization sequence, Commander. It looks like you still need to run
+                the PHP ARTISAN command for completing the installation process. I recommend reviewing the handy-dandy
+                <a href="https://github.com/matrix-msu/Kora3">Installation Guide</a>!
             </div>
-
-            <form class="form-horizontal" role="form" method="GET" action="{{ url('/install') }}">
-                <div class="form-group mt-xxl">
-                    <button type="submit" class="btn btn-primary">Begin Initialization Sequence</button>
-                </div>
-            </form>
         </div>
     </div>
 @stop
