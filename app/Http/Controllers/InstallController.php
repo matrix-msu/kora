@@ -1,14 +1,10 @@
 <?php namespace App\Http\Controllers;
 
-use App\Http\Requests\InstallRequest;
 use App\User;
 use App\Version;
-use Carbon\Carbon;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Artisan;
-use Illuminate\Support\Facades\Input;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\View\View;
@@ -34,8 +30,6 @@ class InstallController extends Controller {
      * @var array - Directories that will be created upon installation.
      */
     public $DIRECTORIES = [
-        "app/backups",
-		"app/backups/user_upload",
         "app/exodusAssoc",
         "app/exodusAssoc/conversions",
         "app/exodusAssoc/data",

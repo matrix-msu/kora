@@ -35,11 +35,6 @@
 	  <li class="link">
         <a href="{{ action('TokenController@index') }}">Token Management</a>
       </li>
-      @if(\Auth::user()->id==1)
-          <li class="link pre-spacer">
-              <a href="{{ action('BackupController@index') }}">Backup Management</a>
-          </li>
-      @endif
     @endif
     <li class="spacer mt-0"></li>
     <li class="link">
