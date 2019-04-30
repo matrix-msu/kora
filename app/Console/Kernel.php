@@ -13,11 +13,8 @@ class Kernel extends ConsoleKernel {
 	protected $commands = [
 		'App\Console\Commands\Inspire',
 		'App\Console\Commands\ExodusScript',
-		'App\Console\Commands\ImportHelper',
 		'App\Console\Commands\InstallKora',
-		'App\Console\Commands\RecordFileZip',
 		'App\Console\Commands\ReverseAssocCache',
-		'App\Console\Commands\ThumbScript',
 		'App\Console\Commands\UpdateKora',
 	];
 

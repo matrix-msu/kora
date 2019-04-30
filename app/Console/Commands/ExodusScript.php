@@ -28,7 +28,7 @@ class ExodusScript extends Command {
      *
      * @var string
      */
-    protected $signature = 'exodus:migrate {dbhost} {dbuser} {dbname} {dbpass} {project} {fileDir}';
+    protected $signature = 'kora3:exodus {dbhost} {dbuser} {dbname} {dbpass} {project} {fileDir}';
 
     /**
      * The console command description.

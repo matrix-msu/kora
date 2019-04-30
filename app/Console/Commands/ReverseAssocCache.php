@@ -13,7 +13,7 @@ class ReverseAssocCache extends Command
      *
      * @var string
      */
-    protected $signature = 'revAssoc:generate-cache';
+    protected $signature = 'kora3:assoc-cache';
 
     /**
      * The console command description.
