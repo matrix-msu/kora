@@ -43,9 +43,10 @@ abstract class FileTypeField extends BaseField {
      * @return array - The updated field array
      */
     public function updateOptions($field, Request $request, $slug = null, $prefix = 'records_') {
-        if($request->filesize==0)
+        dd($request->filesize);
+        if($request->filesize==0 | $request->filesize=='')
             $request->filesize = null;
-        if($request->maxfiles==0)
+        if($request->maxfiles==0 | $request->maxfiles=='')
             $request->maxfiles = null;
 
         $field['default'] = $request->default;
@@ -141,11 +142,7 @@ abstract class FileTypeField extends BaseField {
                             $infoArray[$file->getFilename()] = $info;
 
                             //Move the file to its new home
-                            if(isset($request->mass_creation_num))
-                                copy(storage_path($tmpPath . '/' . $file->getFilename()),
-                                    $newPath . '/' . $newlySavedName);
-                            else
-                                rename(storage_path($tmpPath . '/' . $file->getFilename()),
+                            copy(storage_path($tmpPath . '/' . $file->getFilename()),
                                     $newPath . '/' . $newlySavedName);
                         }
                     }
@@ -204,14 +201,8 @@ abstract class FileTypeField extends BaseField {
 
         //Make destination directory
         $newDir = storage_path('app/tmpFiles/recordU' . \Auth::user()->id);
-        if(file_exists($newDir)) {
-            foreach(new \DirectoryIterator($newDir) as $file) {
-                if($file->isFile())
-                    unlink($newDir . '/' . $file->getFilename());
-            }
-        } else {
+        if(!file_exists($newDir))
             mkdir($newDir, 0775, true);
-        }
 
         $value = explode(' | ', $value);
 
@@ -253,14 +244,8 @@ abstract class FileTypeField extends BaseField {
 
         //Make destination directory
         $newDir = storage_path('app/tmpFiles/recordU' . \Auth::user()->id);
-        if(file_exists($newDir)) {
-            foreach(new \DirectoryIterator($newDir) as $file) {
-                if($file->isFile())
-                    unlink($newDir . '/' . $file->getFilename());
-            }
-        } else {
+        if(file_exists($newDir))
             mkdir($newDir, 0775, true);
-        }
 
         if($simple) {
             $name = (string)$value;

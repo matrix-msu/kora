@@ -1,5 +1,6 @@
 <?php namespace App\KoraFields;
 
+use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 
 class GalleryField extends FileTypeField {
@@ -82,7 +83,7 @@ class GalleryField extends FileTypeField {
      * @return array - The default options
      */
     public function getDefaultOptions($type = null) {
-        return ['FieldSize' => '', 'MaxFiles' => '', 'FileTypes' => self::SUPPORTED_TYPES];
+        return ['FieldSize' => null, 'MaxFiles' => null, 'FileTypes' => self::SUPPORTED_TYPES];
     }
 
     /**
@@ -144,40 +145,44 @@ class GalleryField extends FileTypeField {
      * @return Request - Processed data
      */
     public function processImportData($flid, $field, $value, $request) {
-        $files = array();
+        $files = $captions = array();
         $originRid = $request->originRid;
 
         //See where we are looking first
         if(is_null($originRid))
-            $currDir = storage_path( 'app/tmpFiles/impU' . \Auth::user()->id);
+            $currDir = storage_path('app/tmpFiles/impU' . \Auth::user()->id);
         else
             $currDir = storage_path('app/tmpFiles/impU' . \Auth::user()->id . '/' . $originRid);
 
         //Make destination directory
         $newDir = storage_path('app/tmpFiles/recordU' . \Auth::user()->id);
-        if(file_exists($newDir)) {
-            foreach(new \DirectoryIterator($newDir) as $file) {
-                if($file->isFile())
-                    unlink($newDir . '/' . $file->getFilename());
-            }
-        } else {
+        if(!file_exists($newDir))
             mkdir($newDir, 0775, true);
-        }
 
         $value = explode(' | ', $value);
 
         foreach($value as $file) {
-            list($file, $caption) = explode(' [CAPTION] ', $file);
+            $blob = explode(' [CAPTION] ', $file);
+            $file = $caption = '';
 
-            if(!$file)
+            if (count($blob) == 2) {
+                list($file, $caption) = $blob;
+            } else {
+                $file = $blob[0];
+            }
+
+            //move file from imp temp to tmp files
+            if (!copy($currDir . '/' . $file, $newDir . '/' . $file)) {
                 return response()->json(["status"=>false,"message"=>"json_validation_error",
                     "record_validation_error"=>[$request->kid => "$flid is missing name for a file"]],500);
-            $name = $file;
-            //move file from imp temp to tmp files
-            copy($currDir . '/' . $name, $newDir . '/' . $name);
-            //add input for this file
-            array_push($files, ['original_name' => $name, 'caption' => $caption]);
+            } else {
+                //add input for this file
+                array_push($files, $file);
+                array_push($captions, $caption);
+            }
         }
+
+        $request['file_captions' . $flid] = $captions;
         $request[$flid] = $files;
 
         return $request;

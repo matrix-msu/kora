@@ -275,7 +275,7 @@ Route::group(['middleware' => 'web'], function () {
 	Route::post("/reset/email/validate", "Auth\ResetPasswordController@preValidateEmail");
 
 //user auth
-    Auth::routes(); // generates user authentication routes 
+    Auth::routes(); // generates user authentication routes
 
     Route::post("/user/projectCustom", "Auth\UserController@saveProjectCustomOrder");
     Route::post("/user/formCustom/{pid}", "Auth\UserController@saveFormCustomOrder");
