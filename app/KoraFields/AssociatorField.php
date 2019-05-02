@@ -197,6 +197,9 @@ class AssociatorField extends BaseField {
     public function processImportData($flid, $field, $value, $request) {
         $request[$flid] = $value;
 
+        if (is_string($value))
+            $request[$flid] = explode(' | ', $value);
+
         return $request;
     }
 

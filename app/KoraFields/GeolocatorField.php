@@ -148,6 +148,8 @@ class GeolocatorField extends BaseField {
     public function processRecordData($field, $value, $request) {
         if(empty($value))
             $value = null;
+        elseif(is_array($value))
+            return json_encode($value);
         return '['.implode(',',$value).']';
     }
 
@@ -181,6 +183,40 @@ class GeolocatorField extends BaseField {
      */
     public function processImportData($flid, $field, $value, $request) {
         $request[$flid] = $value;
+
+        if (is_string($value)) {
+            $geo = array();
+            $values = explode(' | ', $value);
+
+            foreach ($values as $value) {
+                $blob = explode(' [DESCRIPTION] ', $value);
+                $loc = $description = '';
+                $geoReq = new Request();
+
+                if (count($blob) == 2) {
+                    list($loc, $description) = $blob;
+                } else {
+                    $loc = $blob[0];
+                }
+
+                list($lat, $lon) = array_merge(explode(',', $loc), array(''));
+
+                if (is_numeric($lat) && is_numeric($lon)) {
+                    $geoReq->type = 'latlon';
+                    $geoReq->lat = $lat;
+                    $geoReq->lon = $lon;
+                } else {
+                    $geoReq->type = 'geo';
+                    $geoReq->addr = $loc;
+                }
+
+                $loc = GeolocatorField::geoConvert($geoReq);
+                $loc['description'] = $description;
+                array_push($geo, $loc);
+            }
+
+            $request[$flid] = $geo;
+        }
 
         return $request;
     }

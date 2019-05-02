@@ -162,14 +162,9 @@ class GalleryField extends FileTypeField {
         $value = explode(' | ', $value);
 
         foreach($value as $file) {
-            $blob = explode(' [CAPTION] ', $file);
-            $file = $caption = '';
-
-            if (count($blob) == 2) {
-                list($file, $caption) = $blob;
-            } else {
-                $file = $blob[0];
-            }
+            list($file, $caption) = array_merge(
+                explode(' [CAPTION] ', $file), array('')
+            );
 
             //move file from imp temp to tmp files
             if (!copy($currDir . '/' . $file, $newDir . '/' . $file)) {

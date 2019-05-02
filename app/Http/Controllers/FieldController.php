@@ -114,8 +114,9 @@ class FieldController extends Controller {
             } else {
                 $field['options'] = $fieldMod->getDefaultOptions($options);
             }
-        } else
-            $field = $form->getFieldModel($request->type)->updateOptions($field, $request);
+        }
+
+        $field = $form->getFieldModel($request->type)->updateOptions($field, $request);
 
         //Add to form
         $layout['fields'][$flid] = $field;
