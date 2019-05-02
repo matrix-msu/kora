@@ -185,7 +185,6 @@ Kora.Records.Create = function() {
         });
 
         $('.add-combo-value-js').click(function() {
-            // TODO::CASTLE refactor this!
             if(type1=='Date'| type1=='Historical Date') {
                 monthOne = $('#default_month_one_'+flid);
                 dayOne = $('#default_day_one_'+flid);
@@ -792,7 +791,7 @@ Kora.Records.Create = function() {
         })
     }
 
-    function initializeRecordPresets() {
+    function initializeRecordPresets() { //TODO::CASTLE
         $('.preset-check-js').click(function() {
             var presetDiv = $('.preset-record-div-js');
             if(this.checked) {

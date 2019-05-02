@@ -47,7 +47,6 @@
     </section>
 </section>
 
-{{--TODO::CASTLE--}}
 <div class="form-group mt-xxxl">
     <section class="advanced-options-show">
         <a href="#" class="btn half-sub-btn extend advanced-options-btn-js">Show Advanced Field Options</a>

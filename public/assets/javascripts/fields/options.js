@@ -791,7 +791,6 @@ Kora.Fields.Options = function(fieldType) {
         });
 
         $('.add-combo-value-js').click(function() {
-            // TODO::CASTLE refactor this!
             if(type1=='Date' | type1=='Historical Date') {
                 monthOne = $('#default_month_one');
                 dayOne = $('#default_day_one');

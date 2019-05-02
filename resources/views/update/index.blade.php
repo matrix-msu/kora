@@ -18,12 +18,17 @@
                 @endif
             </h1>
             @if($update)
-            <p class="description">Before beginning, update your installation via 'git update'. If you manually
-                installed Kora3, visit <a href="https://github.com/matrix-msu/Kora3">Github</a> to download and merge the latest release
-                file set. Once this is done select “Update Kora” to update your installation. The new update is detailed
-                below. Once the update begins, leave the page open until completion.</p>
+                @if($ready)
+                    <p class="description">It looks like your file set is up to date. Please run the 'php artisan kora3:update' command to complete
+                        your installation update. The new update is detailed below.</p>
+                @else
+                    <p class="description">Please update your installation via 'git pull'. If you manually
+                        installed Kora3, visit <a href="https://github.com/matrix-msu/Kora3">Github</a> to download and merge the latest release
+                        file set. Once this is done run the 'php artisan kora3:update' command to complete your installation update. The new update is detailed
+                        below.</p>
+                @endif
             @else
-            <p class="description">Your installation is up to date with the latest features! You may review the patch notes below.</p>
+                <p class="description">Your installation is up to date with the latest features! You may review the patch notes below.</p>
             @endif
         </div>
     </section>
@@ -48,19 +53,6 @@
                 @endforeach
             </ul>
         </div>
-        @if($update)
-            <div class="form-group update-button">
-                @if($ready)
-                    <form method="get" id="update_form" action={{action("UpdateController@runScripts")}}>
-                        {!! Form::submit("Update Kora to Version ".$info['version'],['class' => 'btn edit-btn update-submit pre-fixed-js']) !!}
-                    </form>
-                @else
-                    {!! Form::submit('Must update Kora3 file set first.',['class' => 'btn edit-btn update-submit pre-fixed-js disabled']) !!}
-                @endif
-            </div>
-        @else
-
-        @endif
     </section>
 @stop
 

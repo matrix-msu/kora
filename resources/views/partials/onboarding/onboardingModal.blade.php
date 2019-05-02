@@ -1,5 +1,5 @@
 <div class="modal modal-js modal-mask onboarding-modal onboarding-modal-js">
-    <div class="content">
+    <div class="content onboarding">
         <section id="onboarding-home">
             <div class="header onboarding">
                 <span class="title">
@@ -59,4 +59,3 @@
 		</div>
     </div>
 </div>
-

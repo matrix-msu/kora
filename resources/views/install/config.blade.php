@@ -1,7 +1,7 @@
 @extends('app', ['page_title' => "Edit Config", 'page_class' => 'edit-config'])
 
 @section('aside-content')
-  <?php $openManagement = true ?>
+  @php $openManagement = true @endphp
   @include('partials.sideMenu.dashboard', ['openDashboardDrawer' => false, 'openProjectDrawer' => false])
 @stop
 

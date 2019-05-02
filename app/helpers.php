@@ -1,4 +1,4 @@
-<?php //TODO::CASTLE
+<?php
 
 /**
 * Hyphenates a string

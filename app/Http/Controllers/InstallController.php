@@ -1,18 +1,15 @@
 <?php namespace App\Http\Controllers;
 
-use App\Http\Requests\InstallRequest;
+use App\User;
 use App\Version;
-use Carbon\Carbon;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Artisan;
-use Illuminate\Support\Facades\Input;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\View\View;
 
-class InstallController extends Controller { //TODO::CASTLE
+class InstallController extends Controller {
 
 	/*
 	|--------------------------------------------------------------------------
@@ -27,27 +24,24 @@ class InstallController extends Controller { //TODO::CASTLE
     /**
      * @var string - The version that will be assigned when you install Kora.
      */
-	const INSTALLED_VERSION = '3.0';
+	const INSTALLED_VERSION = '3.1';
 
     /**
      * @var array - Directories that will be created upon installation.
      */
     public $DIRECTORIES = [
-        "app/backups",
-		"app/backups/user_upload",
         "app/exodusAssoc",
         "app/exodusAssoc/conversions",
         "app/exodusAssoc/data",
         "app/exports",
         "app/files",
-        "app/plugins",
         "app/presetFiles",
         "app/profiles",
 		"app/tmpFiles",
 	];
 
     /**
-     * @var array - Stock option presets for various field types.
+     * @var array - Stock option presets for various field types. //TODO::CASTLE
      */
     public $STOCKPRESETS = ["URL_URI" => ["type"=>"Text","preset"=>"/^(http|ftp|https):\/\//"],
         "Boolean" => ["type"=>"List","preset"=>"Yes[!]No"],
@@ -71,173 +65,111 @@ class InstallController extends Controller { //TODO::CASTLE
     }
 
     /**
-     * Gets home view for the installation page.
+     * Install Kora 3 - Creates the database, and adds any defaults needed
      *
-     * @return View
+     * @return bool - Whether things were successful or not
      */
-	public function index() {
-        if(file_exists(base_path(".env")))
-			return redirect('/');
-
-		return view('install.install');
-	}
-
-    /**
-     * Install Kora 3 - Creates the env file.
-     *
-     * @param  InstallRequest $request
-     * @return JsonResponse
-     */
-	public function install(InstallRequest $request) {
-	    Log::info("Beginning Installation");
-
-        //Write the env file
-        $envData = $this->envBuilder($request);
+	public function install() {
+        //Build the App Key
         try {
-            Log::info("Beginning ENV Write");
-            
-            $envfile = fopen(base_path(".env"), "w");
-            fwrite($envfile, $envData);
-            fclose($envfile);
-            chmod(base_path(".env"),0660);
-			
-            Log::info("Ending ENV Write ");
-        } catch(\Exception $e) { //Most likely if the file is owned by another user or PHP doesn't have permission
+            echo "Generating app key...\n";
+            Artisan::call("key:generate", array('--force' => true));
+            echo "App Key generated!\n";
+        } catch (\Exception $e) {
             Log::info($e);
+            echo "Failed to add App Key to ENV! Review the logs for more error information.\n";
             $this->resetInstall();
-            return response()->json(["status"=>false,"message"=>"env_cant_write"],500);
+            return false;
         }
 
-        //Since we need to refresh the env variables before we install.
-        return response()->json(["status"=>true,"message"=>"env_saved"],200);
-    }
-
-    /**
-     * Finish install of Kora 3 - Creates DB, directories, default values, admin user.
-     *
-     * @param  InstallRequest $request
-     * @return Redirect
-     */
-    public function installPartTwo(InstallRequest $request) {
         //Test out the DB connection
         $dbc = null;
         try{
-            Log::info("Beginning DB Test");
+            echo "Testing database connection...\n";
             $dbc = new \PDO('mysql:host='.config('database.connections.mysql.host').';dbname='.config('database.connections.mysql.database'),
                 config('database.connections.mysql.username'), config('database.connections.mysql.password'));
-            Log::info("Ending DB Test");
+            echo "Database connection successful!\n";
         } catch(\PDOException $e) {
             Log::info($e);
+            echo "Failed to connect to database! Check your database credentials or review the logs for more error information.\n";
             $this->resetInstall();
-            return redirect('/install')->withInput(Input::all())->with('k3_global_error', 'database_connection_failed');
+            return false;
         }
 
         //Install database tables
+        $shellRes = null;
         try {
-            Log::info("Beginning Artisan Migrate");
+            echo "Installing Kora 3 tables...\n";
             $shellRes = Artisan::call('migrate', array('--force' => true));
-            Log::info($shellRes);
-            Log::info("Ending Artisan Migrate");
+            echo "Kora 3 tables installed!\n";
         } catch(\Exception $e) {
             Log::info($e);
+            Log::info($shellRes);
+            echo "Failed to install database tables! Review the logs for more error information.\n";
             $this->resetInstall($dbc);
-            return redirect('/install')->withInput(Input::all())->with('k3_global_error', 'db_creation_failed');
+            return false;
         }
+
+        //Set the version number for this Kora 3 install
         try {
-            Log::info("Beginning Version Set");
+            echo "Setting Kora 3 version number...\n";
             $v = new Version();
             $v->version = InstallController::INSTALLED_VERSION;
             $v->save();
-            Log::info("Ending Version Set");
+            echo "Version number set!\n";
         } catch(\Exception $e) {
             Log::info($e);
+            echo "Failed to set version number! Review the logs for more error information.\n";
             $this->resetInstall($dbc);
-            return redirect('/install')->withInput(Input::all())->with('k3_global_error', 'k3_version_issue');
+            return false;
         }
 
         //Create all the needed directories for storage
         try {
-            Log::info("Beginning Directory Creation");
+            echo "Creating local storage directories...\n";
             $this->createDirectories();
-            Log::info("Ending Directory Creation");
+            echo "Storage directories created!\n";
         } catch(\Exception $e) {
             Log::info($e);
+            echo "Failed to create storage directories! Check user permissions for writing files to the Kora 3 directory.\n";
             $this->resetInstall($dbc);
-            return redirect('/install')->withInput(Input::all())->with('k3_global_error', 'install_directories_failed');
+            return false;
         }
 
         //Create admin user
         try {
-            Log::info("Beginning Admin Construction");
-            $this->makeAdmin($request);
-            Log::info("Ending Admin Construction");
+            echo "Creating the admin user...\n";
+            $this->makeAdmin();
+            echo "Admin user created!\n";
         } catch(\Exception $e) {
             Log::info($e);
+            echo "Failed to create the admin user! Review the logs for more error information.\n";
             $this->resetInstall($dbc);
-            return redirect('/install')->withInput(Input::all())->with('k3_global_error', 'admin_creation_fail');
+            return false;
         }
 
+        //Add the default field value presets
         try {
-            Log::info("Beginning Preset Creation");
-            foreach($this->STOCKPRESETS as $name => $info) {
-                $pid = null;
-                $type = $info['type'];
-                $preset = $info['preset'];
-                $created_at = $updated_at = Carbon::now();
-
-                OptionPreset::create(compact("name","pid","type","preset","created_at","updated_at"));
-            }
-            Log::info("Ending Preset Creation");
+            echo "Adding global field value presets...\n";
+//            foreach($this->STOCKPRESETS as $name => $info) { //TODO::CASTLE
+//                $pid = null;
+//                $type = $info['type'];
+//                $preset = $info['preset'];
+//                $created_at = $updated_at = Carbon::now();
+//
+//                OptionPreset::create(compact("name","pid","type","preset","created_at","updated_at"));
+//            }
+            echo "Global field value presets created!\n";
         } catch(\Exception $e) {
             Log::info($e);
+            echo "Failed to add global field value presets! Review the logs for more error information.\n";
             $this->resetInstall($dbc);
-            return redirect('/install')->withInput(Input::all())->with('k3_global_error', 'stock_presets_failed');
+            return false;
         }
 
         //CLOSE THE CONNECTION
         $dbc = null;
-
-        Log::info("Ending Installation");
-        return redirect('/readyplayerone')->with('k3_global_success', 'kora_success_install');
-    }
-
-    /**
-     * Build the text for the env config file.
-     *
-     * @param  InstallRequest $request
-     * @return string - The text to write to file
-     */
-    private function envBuilder(InstallRequest $request){
-        Log::info("Generating App Key");
-        //We are basically replicating what the artisan command does to generate the cipher in php
-        $key = 'base64:'.base64_encode(
-            random_bytes(32)
-        );
-
-        $layout =
-            "APP_ENV=production\n".
-            "APP_DEBUG=false\n".
-            "APP_KEY=$key\n\n".
-
-            "DB_HOST=" . $request->db_host . "\n" .
-            "DB_DATABASE=" . $request->db_database . "\n" .
-            "DB_USERNAME=" . $request->db_username . "\n" .
-            "DB_PASSWORD=" . $request->db_password . "\n" .
-            "DB_PREFIX=" . $request->db_prefix . "\n\n" .
-
-            "MAIL_HOST=" . $request->mail_host . "\n" .
-            "MAIL_FROM_ADDRESS=" . $request->mail_from_address . "\n" .
-            "MAIL_FROM_NAME=\"" . $request->mail_from_name . "\"\n" .
-            "MAIL_USER=" . $request->mail_username . "\n" .
-            "MAIL_PASSWORD=" . $request->mail_password . "\n\n" .
-
-            "CACHE_DRIVER=file\n".
-            "SESSION_DRIVER=file\n\n".
-
-            "RECAPTCHA_PUBLIC_KEY=" . $request->recaptcha_public_key . "\n" .
-            "RECAPTCHA_PRIVATE_KEY=" . $request->recaptcha_private_key;
-
-        return $layout;
+        return true;
     }
 
     /**
@@ -260,35 +192,32 @@ class InstallController extends Controller { //TODO::CASTLE
     }
 
     /**
-     * Create the admin user for the installation.
-     *
-     * @param  InstallRequest $request
+     * Create the admin user for the installation.*
      */
-    private function makeAdmin(InstallRequest $request) {
-        $username = $request->user_username;
-        $first_name = $request->user_firstname;
-        $last_name = $request->user_lastname;
-        $email = $request->user_email;
-        $password = bcrypt($request->user_password);
-        $organization = $request->user_organization;
-        $language = $request->user_language;
+    private function makeAdmin() {
+        $newuser = User::create([
+            'username' => 'admin',
+            'email' => 'root@localhost.com',
+            'password' => bcrypt('password'),
+            'regtoken' => ''
+        ]);
 
-        $newuser = \App\User::create(compact("username","first_name","last_name","email","password","organization","language"));
+        $preferences = array();
+        $preferences['first_name'] = 'Kora3';
+        $preferences['last_name'] = 'Admin';
+        $preferences['organization'] = 'Kora User';
+        $preferences['language'] = 'en';
+        $preferences['profile_pic'] = '';
+        $preferences['use_dashboard'] = 1;
+        $preferences['logo_target'] = 2;
+        $preferences['proj_tab_selection'] = 2;
+        $preferences['form_tab_selection'] = 2;
+        $preferences['onboarding'] = 1;
+
+        $newuser->preferences = $preferences;
         $newuser->active = 1;
         $newuser->admin = 1;
         $newuser->save();
-
-        if(!is_null($request->file('user_profile'))) {
-            $file = $request->file('user_profile');
-            $pDir = storage_path('app/profiles/1/');
-
-            $newFilename = $file->getClientOriginalName();
-            $newuser->profile = $newFilename;
-            $newuser->save();
-
-            //move photo and return new path
-            $file->move($pDir,$newFilename);
-        }
     }
 
     /**
@@ -297,21 +226,20 @@ class InstallController extends Controller { //TODO::CASTLE
      * @param  \PDO $dbc - Connection to the DB
      */
     private function resetInstall(\PDO $dbc = null) {
-        //Delete the ENV
-        if(file_exists(base_path(".env")))
-            unlink(base_path(".env"));
-
         //Empty the Database
         if(!is_null($dbc)) {
             if($result = $dbc->query("SHOW TABLES")) {
                 while($row = $result->fetch(\PDO::FETCH_NUM)) {
                     $dbc->query('DROP TABLE IF EXISTS ' . $row[0]);
                 }
+                echo "Database reset!\n";
             }
         }
 
         //Close the connection
         $dbc = null;
+
+        echo "Resolve issues and please try again!\n";
     }
 
     /**
@@ -362,6 +290,7 @@ class InstallController extends Controller { //TODO::CASTLE
             "DB_DATABASE=" . config('database.connections.mysql.database') . "\n" .
             "DB_USERNAME=" . config('database.connections.mysql.username') . "\n" .
             "DB_PASSWORD=" . config('database.connections.mysql.password') . "\n" .
+            "DB_DEFAULT=" . config('database.default') . "\n" .
             "DB_PREFIX=" . config('database.connections.mysql.prefix') . "\n\n" .
 
             "MAIL_HOST=" . $request->mail_host . "\n" .

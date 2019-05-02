@@ -3,11 +3,12 @@
 use App\Version;
 use App\Script;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\View\View;
 
-class UpdateController extends Controller { //TODO::CASTLE
+class UpdateController extends Controller {
 
     /*
     |--------------------------------------------------------------------------
@@ -30,6 +31,15 @@ class UpdateController extends Controller { //TODO::CASTLE
         $this->middleware('auth');
         $this->middleware('active');
         $this->middleware('admin');
+
+        //Custom middleware for handling root user checks
+        $this->middleware(function ($request, $next) {
+            if(Auth::check())
+                if(Auth::user()->id != 1)
+                    return false;
+
+            return $next($request);
+        });
     }
 
     /**
@@ -90,10 +100,10 @@ class UpdateController extends Controller { //TODO::CASTLE
 
         // Run scripts that have not yet been run.
         foreach(Script::all() as $script) {
-            if(!$script->hasRun) {
+            if(!$script->has_run) {
                 $includeString = base_path('scripts/' . $script->filename);
                 include $includeString;
-                $script->hasRun = true;
+                $script->has_run = true;
                 $script->save();
             }
         }
@@ -140,7 +150,7 @@ class UpdateController extends Controller { //TODO::CASTLE
         foreach($scriptNames as $scriptName) {
             if(is_null(Script::where('filename', '=', $scriptName)->first())) {
                 $script = new Script();
-                $script->hasRun = false;
+                $script->has_run = false;
                 $script->filename = $scriptName;
                 $script->save();
             }
@@ -148,7 +158,7 @@ class UpdateController extends Controller { //TODO::CASTLE
 
         //Then check if any havent run
         foreach(Script::all() as $script) {
-            if(!$script->hasRun)   // We have found a script that has not run, hence the user has executed a git pull successfully.
+            if(!$script->has_run)   // We have found a script that has not run, hence the user has executed a git pull successfully.
                 return true;
         }
         // No scripts were found that were not already run, hence the user has not executed a git pull successfully.

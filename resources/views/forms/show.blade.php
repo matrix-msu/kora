@@ -144,7 +144,6 @@
 		  @endif
         </div>
 
-        {{--TODO::CASTLE--}}
         <div class="field-sort-js" style="min-height: 10px;">
           @php
             $index = 0;

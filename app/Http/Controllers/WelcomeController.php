@@ -1,5 +1,6 @@
 <?php namespace App\Http\Controllers;
 
+use App\Http\Controllers\Auth\UserController;
 Use \Illuminate\Support\Facades\Request;
 use \Illuminate\Support\Facades\Session;
 use Illuminate\View\View;
@@ -79,25 +80,12 @@ class WelcomeController extends Controller {
 
 			return view('/auth/activate', compact('notification'));
 		} else {
-			if (\App\Http\Controllers\Auth\UserController::returnUserPrefs('logo_target') == 1)
+			if(UserController::returnUserPrefs('logo_target') == 1)
 				return redirect('/dashboard');
 			else
 				return redirect('/projects');
 		}
 	}
-
-    /**
-     * Gets the view for successful installation.
-     *
-     * @return View
-     */
-	public function installSuccess() {
-        if(!isInstalled())
-            return redirect('/helloworld');
-        else {
-          return view('install.success');
-        }
-    }
 
     /**
      * Allows guest users to switch language.
