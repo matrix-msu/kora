@@ -316,8 +316,8 @@ class FormGroupController extends Controller { //TODO::CASTLE
      * @param  Form $form - Form that group belongs to
      */
     public static function updateMainGroupNames($form) {
-        $admin = FormGroup::where('fid', '=', $form->fid)->where('name', 'like', '% Admin Group')->get()->first();
-        $default = FormGroup::where('fid', '=', $form->fid)->where('name', 'like', '% Default Group')->get()->first();
+        $admin = FormGroup::where('form_id', '=', $form->id)->where('name', 'like', '% Admin Group')->get()->first();
+        $default = FormGroup::where('form_id', '=', $form->id)->where('name', 'like', '% Default Group')->get()->first();
 
         $admin->name = $form->name.' Admin Group';
         $admin->save();
