@@ -5,8 +5,6 @@ Kora.Install.Config = function() {
 
     function initializeValidation() {
         $('.validate-config-js').on('click', function(e) {
-            var $this = $(this);
-
             e.preventDefault();
 
             values = {};

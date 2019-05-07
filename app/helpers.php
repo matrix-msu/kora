@@ -24,7 +24,12 @@ function str_hyphenated($string) {
  * @return bool - is installed
  */
  function isInstalled() {
-     return file_exists("../.env");
+     try {
+         \Illuminate\Support\Facades\DB::connection()->getPdo();
+     } catch (\Exception $e) {
+         return false;
+     }
+     return \Illuminate\Support\Facades\Schema::hasTable('users');
  }
 
 /**

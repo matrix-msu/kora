@@ -16,10 +16,23 @@
             </div>
 
             <div class="commander mt-m">
-                We are ready to begin the Kora Initialization sequence, Commander. It looks like you still need to run
-                the PHP ARTISAN command for completing the installation process. I recommend reviewing the handy-dandy
-                <a href="https://github.com/matrix-msu/Kora3">Installation Guide</a>!
+                We are ready to begin the Kora Initialization sequence, Commander.
+                Ready when you are.
             </div>
+
+            @if(file_exists(base_path('.env')))
+                <form class="form-horizontal" role="form" method="GET" action="{{ url('/install') }}">
+                    <div class="form-group mt-xxl">
+                        <button type="submit" class="btn btn-primary">Begin Initialization Sequence</button>
+                    </div>
+                </form>
+            @else
+                <form class="form-horizontal" role="form" method="GET" action="{{ url('/helloworld') }}">
+                    <div class="form-group mt-xxl">
+                        <button type="submit" class="btn btn-primary disabled">Copy the ENV example first, then come back!</button>
+                    </div>
+                </form>
+            @endif
         </div>
     </div>
 @stop
