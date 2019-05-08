@@ -45,19 +45,9 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
     protected $casts = [
         'preferences' => 'array'
     ];
-	
 
-    public function getFullNameAttribute() { //TODO::CASTLE Should these be converted to getNameOrUsername? Also getNameOrUsername needs to be re-evaluated since first name last name is required
+    public function getFullName() {
         return $this->preferences['first_name'].' '.$this->preferences['last_name'];
-    }
-
-    /**
-     * A User's Permissions
-     *
-     * @return HasOne
-     */
-    public function permissions() {
-        return $this->preferences;
     }
 
     /**
@@ -829,25 +819,4 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
         else
             return 'blank_profile.jpg';
     }
-	
-	/**
-     * Returns full name if both first name and last name are defined,
-	 * otherwise return first or last name (whichever one is defined),
-	 * otherwise return username.
-     *
-     * @return string - identifier for user
-     */
-	public function getNameOrUsername() {
-		$has_first = $this->preferences['first_name'] !== '';
-		$has_last = $this->preferences['last_name'] !== '';
-		
-		if($has_first && $has_last)
-			return $this->preferences['first_name'] . " " . $this->preferences['last_name'];
-		else if(!$has_first && !$has_last)
-			return $this->username;
-		else if($has_first)
-			return $this->preferences['first_name'];
-		else
-			return $this->preferences['last_name'];
-	}
 }
