@@ -16,7 +16,7 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\View\View;
 
-class AdminController extends Controller { //TODO::CASTLE
+class AdminController extends Controller {
 
     /*
     |--------------------------------------------------------------------------
@@ -26,13 +26,6 @@ class AdminController extends Controller { //TODO::CASTLE
     | This controller handles administrative functions for Kora 3
     |
     */
-
-    /**
-     * @var array - The data tables. Admin functions will use for both deletion, and backup/restore processes
-     */
-    public $DATA_TABLES = [
-
-    ];
 
     /**
      * Constructs the controller and makes sure active user is an administrator.
@@ -95,40 +88,35 @@ class AdminController extends Controller { //TODO::CASTLE
      */
     public function update(Request $request) {
         $message = array();
-        $user = User::where('id', '=', $request->id)->first();
+        $user = User::where('id', '=', $request->uid)->first();
+        $newUsername = $request->username;
+        $newEmail = $request->email;
         $newFirstName = $request->first_name;
         $newLastName = $request->last_name;
         $newProfilePic = $request->profile;
         $newOrganization = $request->organization;
-        $newLanguage = $request->language;
         $newPass = $request->password;
         $confirm = $request->password_confirmation;
 
+        $userPrefs = $user->preferences; // doesn't access property directly, uses __get
+
+        $user->username = $newUsername;
+        $user->email = $newEmail;
+
         // Look for changes, update what was changed
-        if(!empty($newFirstName) && $newFirstName != $user->first_name) {
-          $user->first_name = $newFirstName;
-          array_push($message, "first_name");
+        if(!empty($newFirstName) && $newFirstName != $user->preferences['first_name']) {
+            $userPrefs['first_name'] = $newFirstName;
+            array_push($message, "first_name");
         }
 
-        if(!empty($newLastName) && $newLastName != $user->last_name) {
-          $user->last_name = $newLastName;
-          array_push($message, "last_name");
+        if(!empty($newLastName) && $newLastName != $user->preferences['last_name']) {
+            $userPrefs['last_name'] = $newLastName;
+            array_push($message, "last_name");
         }
 
-        if(!empty($newProfilePic)) {
-          $user->profile = $newProfilePic;
-          array_push($message, "profile");
-        }
-
-        if(!empty($newOrganization) && $newOrganization != $user->organization) {
-          $user->organization = $newOrganization;
-          array_push($message, "organization");
-        }
-
-        // Need to test comparing language code vs language name (en vs English)
-        if(!empty($newLanguage) && $newLanguage != $user->language) {
-          $user->language = $newLanguage;
-          array_push($message, "language");
+        if(!empty($newOrganization) && $newOrganization != $user->preferences['organization']) {
+            $userPrefs['organization'] = $newOrganization;
+            array_push($message, "organization");
         }
 
         // Handle password change cases.
@@ -149,7 +137,15 @@ class AdminController extends Controller { //TODO::CASTLE
             array_push($message,"password");
         }
 
+        $user->preferences = $userPrefs; // __set
         $user->save();
+
+        if(!empty($newProfilePic)) {
+            $changePicResponse = json_decode($this->changepicture($request, $user), true);
+            if($changePicResponse['status'])
+                array_push($message, $changePicResponse['message']);
+        }
+
         return redirect('admin/users')->with('k3_global_success', 'user_updated')->with('user_changes', $message);
     }
 
@@ -187,7 +183,7 @@ class AdminController extends Controller { //TODO::CASTLE
 		
         $message = array();
 		
-        if($request->status == "admin") {
+        if($request->status == "admin") { //TODO::CASTLE check after permission groups fixed
           // Updating admin status
           $action = "admin";
 
@@ -284,10 +280,9 @@ class AdminController extends Controller { //TODO::CASTLE
         $emails = array_unique(explode(' ', $emails));
 
         $existingEmails = array();
-        foreach ($emails as $email) {
-            if (self::emailExists($email)) {
+        foreach($emails as $email) {
+            if(self::emailExists($email))
                 array_push($existingEmails, $email);
-            }
         }
 
         // return json response of all emails that already exist
@@ -306,9 +301,9 @@ class AdminController extends Controller { //TODO::CASTLE
         $emails = array_unique(explode(' ', $emails));
         $personal_message = $request->message;
 
-        if (isset($request->projectGroup)) {
+        if(isset($request->projectGroup)) {
             $projectGroup = ProjectGroup::where('id', '=', $request->projectGroup)->first();
-            $project = Project::where('pid','=',$projectGroup->pid)->first();
+            $project = Project::where('id','=',$projectGroup->project_id)->first();
         }
 
         $notification = array(
@@ -326,7 +321,7 @@ class AdminController extends Controller { //TODO::CASTLE
             $created = 0;
 			$user_ids = array();
 
-            foreach ($emails as $email) {
+            foreach($emails as $email) {
                 if (filter_var($email, FILTER_VALIDATE_EMAIL)) {
                     $username = explode('@', $email)[0];
                     $i = 1;
@@ -347,26 +342,27 @@ class AdminController extends Controller { //TODO::CASTLE
                         $user = new User;
                         $user->username = $username;
                         $user->email = $email;
-                        $password = self::passwordGen();
+                        $password = uniqid();
                         $user->password = bcrypt($password);
-                        $user->language = 'en';
                         $token = RegisterController::makeRegToken();
                         $user->regtoken = $token;
+
+                        $preferences = [];
+                        $preferences['created_at'] = Carbon::now();
+                        $preferences['language'] = 'en';
+                        $preferences['first_name'] = 'New';
+                        $preferences['last_name'] = 'User';
+                        $preferences['logo_target'] = 2;
+                        $preferences['profile_pic'] = '';
+                        $preferences['organization'] = 'None';
+                        $preferences['onboarding'] = 1;
+                        $preferences['use_dashboard'] = 1;
+                        $preferences['form_tab_selection'] = 2;
+                        $preferences['proj_tab_selection'] = 2;
+
+                        $user->preferences = $preferences;
                         $user->save();
                         array_push($user_ids, $user->id);
-
-                        //
-                        // Assign the new user a default set of preferences.
-                        //
-                        $preference = new Preference;
-                        $preference->user_id = $user->id;
-                        $preference->created_at = Carbon::now();
-                        $preference->use_dashboard = 1;
-                        $preference->logo_target = 1;
-                        $preference->proj_page_tab_selection = 3;
-                        $preference->single_proj_page_tab_selection = 3;
-						$preference->onboarding = 1;
-                        $preference->save();
 
                         //
                         // Send a confirmation email.
@@ -405,35 +401,6 @@ class AdminController extends Controller { //TODO::CASTLE
     }
 
     /**
-     * Deletes all information from Kora3, except the root user. Only the root user can use this function.
-     *
-     * @return string - Success message
-     */
-    public function deleteData() {
-        if(Auth::check()) {
-            if(Auth::user()->id != 1)
-                return response()->json(["status"=>false,"message"=>"delete_all_not_root"],500);
-        }
-
-        try {
-            foreach(User::all() as $User) {
-                if($User->id == 1) //Do not delete the default admin user
-                    continue;
-                else
-                    $User->delete();
-            }
-
-            foreach($this->DATA_TABLES as $table)
-                DB::table($table["name"])->delete();
-
-        } catch(\Exception $e) {
-            return response()->json(["status"=>false,"message"=>"delete_all_db_fail"],500);
-        }
-
-        return response()->json(["status"=>true,"message"=>"delete_all_success"],200);
-    }
-
-    /**
      * Checks if username is already taken.
      *
      * @param  string $username - Username to check for
@@ -451,22 +418,5 @@ class AdminController extends Controller { //TODO::CASTLE
      */
     private function emailExists($email) {
         return !is_null(User::where('email', '=', $email)->first());
-    }
-
-    /**
-     * Generates a temporary password of length 10.
-     *
-     * @return string - Generated password
-     */
-    private function passwordGen() {
-        $valid = 'abcdefghijklmnopqrstuvwxyz';
-        $valid .= 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-        $valid .= '0123456789';
-
-        $password = '';
-        for($i = 0; $i < 10; $i++) {
-            $password .= $valid[( rand() % 62 )];
-        }
-        return $password;
     }
 }

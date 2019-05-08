@@ -4,15 +4,15 @@
       <span class="title">
         <span class="name mr-xl">
           <span class="profile mr-m">
-          @if ($user->profile)
+          @if ($user->preferences['profile_pic'])
             <img src="{{ $user->getProfilePicUrl() }}" alt="Profile Pic">
           @else
             <i class="icon icon-user-little"></i>
           @endif
           </span>
-          @if ($user->first_name) <span class="mr-xxs firstname">{{$user->first_name}}</span> @endif
-          @if ($user->last_name) <span class="mr-m lastname">{{$user->last_name}}</span> @endif
-          @if ($user->username) <span class="username">{{$user->username}}</span> @endif
+          <span class="mr-xxs firstname">{{$user->preferences['first_name']}}</span>
+          <span class="mr-m lastname">{{$user->preferences['last_name']}}</span>
+          <span class="username">{{$user->username}}</span>
         </span>
       </span>
     </div>
@@ -27,7 +27,7 @@
   <div class="content content-js {{ $index == 0 ? 'active' : '' }}">
     <div class="organization">
       <span class="attribute">Organization:</span>
-      <span class="mr-xl">{{ ($user->organization ? $user->organization : 'None') }}</span>
+      <span class="mr-xl">{{ ($user->preferences['organization'] ? $user->preferences['organization'] : 'None') }}</span>
       <span class="email">{{$user->email}}</span>
     </div>
 
