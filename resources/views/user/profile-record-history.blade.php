@@ -20,7 +20,7 @@
           <div class="content-sections-scroll">
             @if (count($userRevisions) > 0)
                 <div class="my-xl">
-                    <p>@if (Auth::user()->id == $user->id) You have @else {{$user->first_name}} has @endif recently modified the following {{$userRevisions->total()}} records...</p>
+                    <p>@if (Auth::user()->id == $user->id) You have @else {{$user->preferences['first_name']}} has @endif recently modified the following {{$userRevisions->total()}} records...</p>
                 </div>
 
                 @include('partials.user.profile.filters')
@@ -32,7 +32,7 @@
                 @include('partials.user.profile.pagination', ['revisions' => $userRevisions])
             @else
                 <div class="my-xl">
-                    <p>@if (Auth::user()->id == $user->id) You have @else {{$user->first_name}} has @endif recently modified {{$userRevisions->total()}} records...</p>
+                    <p>@if (Auth::user()->id == $user->id) You have @else {{$user->preferences['first_name']}} has @endif recently modified {{$userRevisions->total()}} records...</p>
                 </div>
             @endif
           </div>
@@ -42,7 +42,7 @@
           <div class="content-sections-scroll">
             @if (count($userCreatedRecords) > 0)
                 <div class="my-xl">
-                    <p>@if (Auth::user()->id == $user->id) You have @else {{$user->first_name}} has @endif created the following {{$userCreatedRecords->total()}} records...</p>
+                    <p>@if (Auth::user()->id == $user->id) You have @else {{$user->preferences['first_name']}} has @endif created the following {{$userCreatedRecords->total()}} records...</p>
                 </div>
 
                 @include('partials.user.profile.filters')
@@ -54,7 +54,7 @@
                 @include('partials.user.profile.pagination', ['revisions' => $userCreatedRecords])
             @else
                 <div class="my-xl">
-                    <p>@if (Auth::user()->id == $user->id) You have @else {{$user->first_name}} has @endif created {{$userCreatedRecords->total()}} records...</p>
+                    <p>@if (Auth::user()->id == $user->id) You have @else {{$user->preferences['first_name']}} has @endif created {{$userCreatedRecords->total()}} records...</p>
                 </div>
             @endif
           </div>

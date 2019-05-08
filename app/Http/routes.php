@@ -202,7 +202,6 @@ Route::group(['middleware' => 'web'], function () {
 	Route::get('/getOnboardingProjects/{user}', 'Auth\UserController@getOnboardingProjects');
     Route::delete('/user/{uid}/delete', 'Auth\UserController@delete');
     Route::patch('/user/validate/{uid}', 'Auth\UserController@validateUserFields');
-    Route::patch('/user/changepw', 'Auth\UserController@changepw');
     Route::patch('/user/{uid}/update', 'Auth\UserController@update');
     Route::patch('/user/{uid}/updateFromEmail', 'Auth\UserController@updateFromEmail');
     Route::patch('/user/{uid}/preferences', 'Auth\UserController@updatePreferences'); // edit user prefs from user prefs page

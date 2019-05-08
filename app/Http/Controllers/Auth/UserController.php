@@ -4,9 +4,8 @@ use App\Form;
 use App\Http\Requests\UserRequest;
 use App\Project;
 use App\ProjectGroup;
-use App\Record;
-use App\Revision;
 use App\Http\Controllers\Controller;
+use App\Revision;
 use App\User;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
@@ -128,6 +127,7 @@ class UserController extends Controller {
             if($admin) {
                 return view('user/profile-permissions',compact('user', 'admin',  'section', 'notification'));
             } else {
+                //TODO::CASTLE Test with fresh user
                 $projects = self::buildProjectsArray($user);
                 $forms = self::buildFormsArray($user);
                 return view('user/profile-permissions',compact('user', 'admin', 'projects', 'forms', 'section', 'notification'));
@@ -144,19 +144,22 @@ class UserController extends Controller {
             $mcr_order = $request->input('mcr-order') === null ? 'lmd' : app('request')->input('mcr-order');
             $mcr_order_type = substr($mcr_order, 0, 2) === "lm" ? "records.created_at" : "records.rid";
             $mcr_order_direction = substr($mcr_order, 2, 3) === "a" ? "asc" : "desc";
-            $userRevisions = Revision::leftJoin('records', 'revisions.rid', '=', 'records.rid')
-                ->leftJoin('users', 'revisions.owner', '=', 'users.id')
-                ->select('revisions.*', 'records.kid', 'records.pid', 'users.username as ownerUsername')
-                ->where('revisions.username', '=', $user->username)
-                ->whereNotNull('kid')
-                ->orderBy($rm_order_type, $rm_order_direction)
-                ->paginate($pagination);
-            $userCreatedRecords = Record::where('owner', '=', $user->id)
-                ->whereNotNull('kid')
-                ->orderBy($mcr_order_type, $mcr_order_direction)
-                ->paginate($pagination);
+            //TODO::CASTLE In new system
+            $userRevisions = Revision::where('id',-1)->paginate($pagination);
+            $userCreatedRecords = Revision::where('id',-1)->paginate($pagination);
+//            $userRevisions = Revision::leftJoin('records', 'revisions.rid', '=', 'records.rid')
+//                ->leftJoin('users', 'revisions.owner', '=', 'users.id')
+//                ->select('revisions.*', 'records.kid', 'records.pid', 'users.username as ownerUsername')
+//                ->where('revisions.username', '=', $user->username)
+//                ->whereNotNull('kid')
+//                ->orderBy($rm_order_type, $rm_order_direction)
+//                ->paginate($pagination);
+//            $userCreatedRecords = Record::where('owner', '=', $user->id)
+//                ->whereNotNull('kid')
+//                ->orderBy($mcr_order_type, $mcr_order_direction)
+//                ->paginate($pagination);
 
-            return view('user/profile-record-history',compact('user', 'admin', 'userRevisions', 'userOwnedRevisions', 'userCreatedRecords', 'section', 'sec', 'notification'));
+            return view('user/profile-record-history',compact('user', 'admin', 'userRevisions', 'userCreatedRecords', 'section', 'sec', 'notification'));
         } else {
             return view('user/profile',compact('user', 'admin', 'section', 'notification'));
         }
@@ -192,6 +195,8 @@ class UserController extends Controller {
 
       $message = array();
       $user = User::where('id', '=', $request->uid)->first();
+      $newUsername = $request->username;
+      $newEmail = $request->email;
       $newFirstName = $request->first_name;
       $newLastName = $request->last_name;
       $newProfilePic = $request->profile;
@@ -201,18 +206,21 @@ class UserController extends Controller {
 	  
 	  $userPrefs = $user->preferences; // doesn't access property directly, uses __get
 
+      $user->username = $newUsername;
+      $user->email = $newEmail;
+
       // Look for changes, update what was changed
-      if(!empty($newFirstName) && $newFirstName != $user->first_name) {
+      if(!empty($newFirstName) && $newFirstName != $user->preferences['first_name']) {
         $userPrefs['first_name'] = $newFirstName;
         array_push($message, "first_name");
       }
 
-      if(!empty($newLastName) && $newLastName != $user->last_name) {
+      if(!empty($newLastName) && $newLastName != $user->preferences['last_name']) {
         $userPrefs['last_name'] = $newLastName;
         array_push($message, "last_name");
       }
 
-      if(!empty($newOrganization) && $newOrganization != $user->organization) {
+      if(!empty($newOrganization) && $newOrganization != $user->preferences['organization']) {
         $userPrefs['organization'] = $newOrganization;
         array_push($message, "organization");
       }
@@ -255,36 +263,37 @@ class UserController extends Controller {
      * What to return here?
      */
     public function updateFromEmail(Request $request) {
-
-      if (!\Auth::user()->admin && \Auth::user()->id != $request->uid) {
+      if(!\Auth::user()->admin && \Auth::user()->id != $request->uid)
         return response()->json(["status" => false, "message" => "cannot_update_user"], 200);
-      }
 
       $message = array();
       $user = User::where('id', '=', $request->uid)->first();
       $newFirstName = $request->first_name;
       $newLastName = $request->last_name;
-      $newUserName = $request->username;
+      $newUsername = $request->username;
       $newProfilePic = $request->profile;
       $newOrganization = $request->organization;
       $newPass = $request->password;
       $confirm = $request->password_confirmation;
 
-      // Look for changes, update what was changed
-      if (!empty($newFirstName) && $newFirstName != $user->first_name) {
-        $user->preferences['first_name'] = $newFirstName;
-        array_push($message, "first_name");
-      }
+      $userPrefs = $user->preferences; // doesn't access property directly, uses __get
 
-      if (!empty($newLastName) && $newLastName != $user->last_name) {
-        $user->preferences['last_name'] = $newLastName;
-        array_push($message, "last_name");
-      }
+      $user->username = $newUsername;
 
-      if (!empty($newOrganization) && $newOrganization != $user->organization) {
-        $user->preferences['organization'] = $newOrganization;
-        array_push($message, "organization");
-      }
+        if(!empty($newFirstName) && $newFirstName != $user->preferences['first_name']) {
+            $userPrefs['first_name'] = $newFirstName;
+            array_push($message, "first_name");
+        }
+
+        if(!empty($newLastName) && $newLastName != $user->preferences['last_name']) {
+            $userPrefs['last_name'] = $newLastName;
+            array_push($message, "last_name");
+        }
+
+        if(!empty($newOrganization) && $newOrganization != $user->preferences['organization']) {
+            $userPrefs['organization'] = $newOrganization;
+            array_push($message, "organization");
+        }
 
       // Handle password change cases.
       if(!empty($newPass) || !empty($confirm)) {
@@ -307,13 +316,13 @@ class UserController extends Controller {
           array_push($message,"password");
       }
 
-      $user->save();
+        $user->preferences = $userPrefs; // __set
+        $user->save();
 
-      if (!empty($newProfilePic)) {
+      if(!empty($newProfilePic)) {
         $changePicResponse = json_decode($this->changepicture($request, $user), true);
-        if ($changePicResponse['status']) {
+        if($changePicResponse['status'])
           array_push($message, $changePicResponse['message']);
-        }
       }
 
       // Send email
@@ -376,7 +385,7 @@ class UserController extends Controller {
             'static' => false
         );
 
-        return view('user.preferences', compact('user', 'preference', 'logoTargetOptions', 'projPageTabSelOptions', 'singleProjTabSelOptions', 'sideMenuOptions', 'notification'));
+        return view('user.preferences', compact('user', 'logoTargetOptions', 'projPageTabSelOptions', 'singleProjTabSelOptions', 'sideMenuOptions', 'notification'));
     }
 
     /**
@@ -391,11 +400,15 @@ class UserController extends Controller {
             return redirect('user/'.\Auth::user()->id.'/preferences')->with('k3_global_error', 'cannot_edit_preferences');
 
         $user = \Auth::user();
+        $userPref = $user->preferences;
 
-        $user->preferences['use_dashboard'] = ($request->useDashboard == "true" ? 1 : 0);
-        $user->preferences['logo_target'] = $request->logoTarget;
-        $user->preferences['proj_tab_selection'] = $request->projPageTabSel;
-        $user->preferences['form_tab_selection'] = $request->singleProjPageTabSel;
+        $userPref['use_dashboard'] = ($request->useDashboard == "true" ? 1 : 0);
+        $userPref['logo_target'] = $request->logoTarget;
+        $userPref['proj_tab_selection'] = $request->projPageTabSel;
+        $userPref['form_tab_selection'] = $request->formPageTabSel;
+
+        $user->preferences = $userPref;
+        $user->save();
 
         $logoTargetOptions = self::logoTargetOptions();
         $projPageTabSelOptions = self::projPageTabSelOptions();
@@ -408,7 +421,7 @@ class UserController extends Controller {
             'static' => false
         );
 
-        return view('user.preferences', compact('user', 'preference', 'logoTargetOptions', 'projPageTabSelOptions', 'singleProjTabSelOptions', 'sideMenuOptions', 'notification'));
+        return view('user.preferences', compact('user', 'logoTargetOptions', 'projPageTabSelOptions', 'singleProjTabSelOptions', 'sideMenuOptions', 'notification'));
     }
 	
 	 // triggered from onboarding.js and from 'replay kora intro' button on user preferences page
@@ -457,10 +470,10 @@ class UserController extends Controller {
         $requestableProjects = array();
         foreach ($all_projects as $project) {
             if ($project->active) {
-                if (\Auth::user()->admin || \Auth::user()->inAProjectGroup($project)) {
+                if ($user->admin || $user->inAProjectGroup($project)) {
                     array_push($projects, $project->name);
                 } else {
-                    $requestableProjects[$project->pid] = $project->name;
+                    $requestableProjects[$project->id] = $project->name;
                 }
             }
         }
@@ -476,15 +489,6 @@ class UserController extends Controller {
     public function validateUserFields(UserRequest $request) {
         return response()->json(["status"=>true, "message"=>"User Valid", 200]);
     }
-	
-	public function validateEditProfile(Request $request) {
-		$validatedData = $request->validate([
-			'password' => 'confirmed|min:6'
-		]);
-		
-		
-		return response()->json(["status"=>true, "message"=>"User Valid", 200]);
-	}
 
     /**
      * Changes the user profile picture and returns the pic URI.
@@ -498,7 +502,7 @@ class UserController extends Controller {
         $pURL = url('app/profiles/'.$user->id).'/';
 
         //remove old pic
-        $oldFile = $pDir.$user->profile;
+        $oldFile = $pDir.$user->preferences['profile_pic'];
         if(file_exists($oldFile))
             unlink($oldFile);
 
@@ -512,31 +516,6 @@ class UserController extends Controller {
         $file->move($pDir, $newFilename);
 
         return json_encode(["status"=>true,"message"=>"profile_pic_updated","pic_url"=>$pURL.$newFilename],200);
-    }
-
-    /**
-     * Validates and changes user password.
-     *
-     * @param  Request $request
-     * @return Redirect
-     */
-    public function changepw(Request $request) {
-        $user = Auth::user();
-        $new_pass = $request->new_password;
-        $confirm = $request->confirm;
-
-        if(empty($new_pass) && empty($confirm)) {
-            return redirect('user/profile')->with('k3_global_error', 'fill_both_passwords');
-        } else if(strlen($new_pass) < 6) {
-            return redirect('user/profile')->with('k3_global_error', 'password_minimum');
-        } else if($new_pass != $confirm) {
-            return redirect('user/profile')->with('k3_global_error', 'passwords_unmatched');
-        } else {
-            $user->password = bcrypt($new_pass);
-            $user->save();
-
-            return redirect('user/profile')->with('k3_global_success', 'password_change_success');
-        }
     }
 
     /**
@@ -667,9 +646,7 @@ class UserController extends Controller {
     private function makeDefaultProject($user) {
         $default = new Project();
 
-        $default->name = "ZZTest ".$user->username;
-        $slugUser = preg_replace('/[^A-Za-z0-9_]/', '_', $user->username);
-        $default->slug = "ZZTest_".$slugUser;
+        $default->name = "Test Project for ".$user->username;
         $default->description = "Test project for user, ".$user->username;
         $default->save();
 
@@ -677,6 +654,7 @@ class UserController extends Controller {
         ProjectGroup::makeDefaultGroup($default);
         $default->adminGID = $adminGroup->id;
         $default->active = 1;
+        $default->internal_name = str_replace(" ","_", $default->name).'_'.$default->id.'_';
         $default->save();
     }
 
@@ -751,7 +729,7 @@ class UserController extends Controller {
         foreach($all_projects as $project) {
             if($user->inAProjectGroup($project)) {
                 $permissions = '';
-                $projects[$i]['pid'] = $project->pid;
+                $projects[$i]['id'] = $project->id;
                 $projects[$i]['name'] = $project->name;
                 $projects[$i]['group'] = $user->getProjectGroup($project);
 
@@ -789,8 +767,8 @@ class UserController extends Controller {
         foreach($all_forms as $form) {
             if($user->inAFormGroup($form)) {
                 $permissions = '';
-                $forms[$i]['fid'] = $form->fid;
-                $forms[$i]['pid'] = $form->pid;
+                $forms[$i]['id'] = $form->id;
+                $forms[$i]['project_id'] = $form->project_id;
                 $forms[$i]['name'] = $form->name;
                 $forms[$i]['group'] = $user->getFormGroup($form);
 

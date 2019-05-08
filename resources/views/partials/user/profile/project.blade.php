@@ -1,10 +1,10 @@
-<div class="project card {{ $index == 0 ? 'active' : '' }}" id="{{$project['pid']}}">
+<div class="project card {{ $index == 0 ? 'active' : '' }}" id="{{$project['id']}}">
     <div class="header {{ $index == 0 ? 'active' : '' }}">
         <div class="left pl-m">
-            <a class="title underline-middle-hover mr-xl" href="{{ action("ProjectController@show",["pid" => $project['pid']]) }}">
+            <a class="title underline-middle-hover mr-xl" href="{{ action("ProjectController@show",["pid" => $project['id']]) }}">
                 <span class="name">{{$project['name']}}</span>
             </a>
-            <a class="group" href="{{ action("ProjectGroupController@index",["pid" => $project['pid'], 'active' => $project['group']['id']]) }}">
+            <a class="group" href="{{ action("ProjectGroupController@index",["pid" => $project['id'], 'active' => $project['group']['id']]) }}">
                 <span>{{$project['group']['name']}}</span>
             </a>
         </div>
@@ -19,9 +19,9 @@
     <div class="content content-js {{ $index == 0 ? 'active' : '' }}">
         <div class="pb-m">
             @if ($project['permissions'] == 'Admin')
-                <p>{{ (Auth::user()->id == $user->id ? 'You are' : $user->first_name . ' is') }} an Admin for this project.</p>
+                <p>{{ (Auth::user()->id == $user->id ? 'You are' : $user->preferences['first_name'] . ' is') }} an Admin for this project.</p>
             @else
-                <p>{{ (Auth::user()->id == $user->id ? 'You can' : $user->first_name . ' can') }} {{$project['permissions']}} within this project</p>
+                <p>{{ (Auth::user()->id == $user->id ? 'You can' : $user->preferences['first_name'] . ' can') }} {{$project['permissions']}} within this project</p>
             @endif
         </div>
     </div>

@@ -4,26 +4,26 @@
 
 <div class="form-group mt-xl">
   <label for="username">User Name</label>
-  <input disabled type="text" class="text-input" id="username" name="username" placeholder="Enter username here" value="{{ $user->username }}">
+  <input type="text" class="text-input" id="username" name="username" placeholder="Enter username here" value="{{ $user->username }}">
 </div>
 
 <div class="form-group mt-xl">
   <label for="email">Email Address</label>
-  <input disabled type="email" class="text-input" id="email" name="email" placeholder="Enter email here" value="{{ $user->email }}">
+  <input type="email" class="text-input" id="email" name="email" placeholder="Enter email here" value="{{ $user->email }}">
 </div>
 
 <div class="form-group half mt-xl">
   <label for="first-name">First Name</label>
     <span class="error-message">{{array_key_exists("first_name", $errors->messages()) ? $errors->messages()["first_name"][0] : ''}}</span>
   <input type="text" class="text-input {{(array_key_exists("first_name", $errors->messages()) ? ' error' : '')}}"
-         id="first_name" name="first_name" placeholder="Enter first name here" value="{{ $user->first_name }}">
+         id="first_name" name="first_name" placeholder="Enter first name here" value="{{ $user->preferences['first_name'] }}">
 </div>
 
 <div class="form-group half mt-xl">
   <label for="first-name">Last Name</label>
     <span class="error-message">{{array_key_exists("last_name", $errors->messages()) ? $errors->messages()["last_name"][0] : ''}}</span>
   <input type="text" class="text-input {{(array_key_exists("last_name", $errors->messages()) ? ' error' : '')}}"
-         id="last_name" name="last_name" placeholder="Enter last name here" value="{{ $user->last_name }}">
+         id="last_name" name="last_name" placeholder="Enter last name here" value="{{ $user->preferences['last_name'] }}">
 </div>
 
 <div class="form-group mt-xl">
@@ -37,7 +37,7 @@
         <div class="icon-user-cont"><i class="icon icon-user"></i></div>
         <p class="filename">Add a photo to help others identify you</p>
       @endif
-    <p class="instruction mb-0 @if($user->profile) photo-selected @endif">
+    <p class="instruction mb-0 @if($user->preferences['profile_pic']) photo-selected @endif">
       <span class="dd">Drag and Drop or Select a Photo here</span>
       <span class="no-dd">Select a Photo here</span>
       <span class="select-new">Select a Different Photo?</span>
@@ -49,13 +49,13 @@
   <label for="organization">Organization</label>
     <span class="error-message">{{array_key_exists("organization", $errors->messages()) ? $errors->messages()["organization"][0] : ''}}</span>
   <input type="text" class="text-input {{(array_key_exists("organization", $errors->messages()) ? ' error' : '')}}"
-         id="organization" name="organization" placeholder="Enter organization here" value="{{ $user->organization }}">
+         id="organization" name="organization" placeholder="Enter organization here" value="{{ $user->preferences['organization'] }}">
 </div>
 
 <div class="form-group mt-xl">
     <label for="language">Language</label>
     <select id="language" name="language" class="chosen-select">
-        {{$languages_available = Config::get('app.locales_supported')}}
+        {{$languages_available = getLangs()}}
         @foreach($languages_available->keys() as $lang)
             <option value='{{$languages_available->get($lang)[0]}}'>{{$languages_available->get($lang)[1]}} </option>
         @endforeach

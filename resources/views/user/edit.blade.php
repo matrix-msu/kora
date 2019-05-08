@@ -16,10 +16,10 @@
             <i class="icon icon-user"></i>
           @endif
         </div>
-        <span>Editing {{ $user->first_name }} {{  $user->last_name }}</span>
+        <span>Editing {{ $user->preferences['first_name'] }} {{  $user->preferences['last_name'] }}</span>
       </h1>
       @if (\Auth::user()->admin && \Auth::user()->id != $user->id)
-        <p class="description">Edit {{ $user->first_name }} {{ $user->last_name }}'s profile information below, and then select "Update Profile"</p>
+        <p class="description">Edit {{ $user->preferences['first_name'] }} {{ $user->preferences['last_name'] }}'s profile information below, and then select "Update Profile"</p>
       @else
         <p class="description">Edit your profile information below, and then
           select "Update Profile"</p>
@@ -86,7 +86,7 @@
   @include('partials.user.javascripts')
 
   <script type="text/javascript">
-      var validationUrl = '{{action('Auth\UserController@validateEditProfile')}}';
+      var validationUrl = '{{action('Auth\UserController@validateUserFields', ['uid' => $user->id])}}';
       var CSRFToken = '{{ csrf_token() }}';
       var userid = '{{$user->id}}';
       var redirectUrl = '{{ (\Auth::user()->id == $user->id ? url('/') : url('admin/users')) }}';
