@@ -11,7 +11,7 @@
 @endsection
 
 @section('button-link')
-    {{action('AssociationController@index', ['pid'=>$theirForm->pid,'fid'=>$theirForm->fid])}}
+    {{action('AssociationController@index', ['pid'=>$theirForm->id,'fid'=>$theirForm->id])}}
 @endsection
 
 @section('button-text')

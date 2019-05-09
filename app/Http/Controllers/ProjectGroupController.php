@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\View\View;
 
-class ProjectGroupController extends Controller { //TODO::CASTLE
+class ProjectGroupController extends Controller {
 
     /*
     |--------------------------------------------------------------------------
@@ -96,7 +96,7 @@ class ProjectGroupController extends Controller { //TODO::CASTLE
                 //foreach of the user's project groups, see if one belongs to the current project
                 foreach($currGroups as $prev) {
                     $grp = ProjectGroup::where('id', '=', $prev->project_group_id)->first();
-                    if($grp->pid==$group->pid) {
+                    if($grp->project_id==$group->project_id) {
                         $newUser = false;
                         $idOld = $grp->id;
                         break;
@@ -107,9 +107,9 @@ class ProjectGroupController extends Controller { //TODO::CASTLE
 
                 if($newUser) {
                     //add to all forms
-                    $forms = Form::where('pid', '=', $group->pid)->get();
+                    $forms = Form::where('project_id', '=', $group->project_id)->get();
                     foreach($forms as $form) {
-                        $defGroup = FormGroup::where('name', '=', $form->name . ' Default Group')->get()->first();
+                        $defGroup = FormGroup::where('name', '=', $form->name . ' Default Group')->where('form_id', '=', $form->id)->get()->first();
                         $FGC = new FormGroupController();
                         $request->formGroup = $defGroup->id;
 						$request->userIDs = array($uid);
@@ -123,7 +123,7 @@ class ProjectGroupController extends Controller { //TODO::CASTLE
             }
 			
 			// add the users to the custom project
-			$project = Project::where('pid', '=', $pid)->first();
+			$project = Project::where('id', '=', $pid)->first();
 			$project->batchAddUsersAsCustom($request->users);
 
             $group->users()->attach($request->users);
@@ -140,17 +140,17 @@ class ProjectGroupController extends Controller { //TODO::CASTLE
     public function removeUser(Request $request) {
         $instance = ProjectGroup::where('id', '=', $request->projectGroup)->first();
 
-        if($request->pid == $instance->id)
+        if($request->pid == $instance->project_id)
             self::wipeAdminRights($request);
 
-        $forms = Form::where('pid', '=', $instance->pid)->get();
+        $forms = Form::where('project_id', '=', $instance->project_id)->get();
         foreach($forms as $form) {
-			$fg_ids = FormGroup::where('fid','=',$form->fid)->pluck('id');
+			$fg_ids = FormGroup::where('form_id','=',$form->id)->pluck('id');
 			DB::table('form_group_user')->where('user_id', $request->userId)->whereIn('form_group_id', $fg_ids)->delete();
         }
 
         $user = User::where("id",(int)$request->userId)->first();
-        $user->removeCustomProject($instance->pid);
+        $user->removeCustomProject($instance->project_id);
 		
 		
         $instance->users()->detach($request->userId);
@@ -194,7 +194,7 @@ class ProjectGroupController extends Controller { //TODO::CASTLE
 
 			foreach($groups as $group) {
 				if($group == null){Log::info("Null group"); continue;}
-				if($group->pid == $instance->pid) {
+				if($group->project_id == $instance->project_id) {
 					$newUser = false;
 					$idOld = $group->id;
 					break;
@@ -213,7 +213,7 @@ class ProjectGroupController extends Controller { //TODO::CASTLE
 			$instance->users()->attach($userID);
 		}
 
-	    $proj = ProjectController::getProject($instance->pid);
+	    $proj = ProjectController::getProject($instance->project_id);
 		// add the users to the custom project
 		$proj->batchAddUsersAsCustom($request->userIDs);
 
@@ -222,18 +222,18 @@ class ProjectGroupController extends Controller { //TODO::CASTLE
         } else {
 			$tag = ' Default Group';
         }
-		$forms = Form::where('pid', '=', $instance->pid)->get();
+		$forms = Form::where('project_id', '=', $instance->project_id)->get();
 
 		$names = array(); $fids = array();
 		foreach ($forms as $form) {
 			array_push($names, $form->name . $tag);
-			$fids[$form->fid] = true;
+			$fids[$form->id] = true;
 		}
 
 		$possible_formgroups = FormGroup::whereIn('name', $names)->get();
 
 		foreach ($possible_formgroups as $form_group) {
-			if (isset($fids[$form_group->fid])) { // this filters out form groups with same name but different fid
+			if (isset($fids[$form_group->form_id])) { // this filters out form groups with same name but different fid
 				$FGC = new FormGroupController();
 				$request->formGroup = $form_group;
 				$request->_internal = true;
@@ -254,17 +254,17 @@ class ProjectGroupController extends Controller { //TODO::CASTLE
         $instance = ProjectGroup::where('id', '=', $request->projectGroup)->first();
 
         $users = $instance->users()->get();
-        $forms = Form::where('pid', '=', $instance->pid)->get();
+        $forms = Form::where('project_id', '=', $instance->project_id)->get();
         foreach($users as $user) {
             foreach($forms as $form) {
-                $formGroups = FormGroup::where('fid','=',$form->fid)->get();
+                $formGroups = FormGroup::where('form_id','=',$form->id)->get();
                 foreach($formGroups as $fg) {
                     DB::table('form_group_user')->where('user_id', $user->id)->where('form_group_id', $fg->id)->delete();
                 }
             }
 
             //Remove their custom project connection
-            $user->removeCustomProject($instance->pid);
+            $user->removeCustomProject($instance->project_id);
 
             $this->emailUserProject("removed", $user->id, $instance->id);
         }
@@ -279,7 +279,7 @@ class ProjectGroupController extends Controller { //TODO::CASTLE
      *
      * @param  Request $request
      */
-    public function updatePermissions(Request $request) {
+    public function updatePermissions(Request $request) { //TODO::CASTLE
         $instance = ProjectGroup::where('id', '=', $request->projectGroup)->first();
 
         if($request->permCreate)
@@ -309,12 +309,15 @@ class ProjectGroupController extends Controller { //TODO::CASTLE
      * Update the name of a project group.
      *
      * @param  Request $request
+     * @return JsonResponse
      */
     public function updateName(Request $request) {
         $instance = ProjectGroup::where('id', '=', $request->gid)->first();
         $instance->name = $request->name;
 
         $instance->save();
+
+        return response()->json(["status"=>true,"message"=>"project_group_name_updated"],200);
     }
 
     /**
@@ -327,7 +330,7 @@ class ProjectGroupController extends Controller { //TODO::CASTLE
     private function buildGroup($pid, Request $request) {
         $group = new ProjectGroup();
         $group->name = $request->name;
-        $group->pid = $pid;
+        $group->project_id = $pid;
         $group->create = 0;
         $group->edit = 0;
         $group->delete = 0;
@@ -368,16 +371,12 @@ class ProjectGroupController extends Controller { //TODO::CASTLE
      * @param  int $pgid - Project Group ID
      */
     private function emailUserProject($type, $uid, $pgid) {
-        $userMail = DB::table('users')->where('id', $uid)->value('email');
-        $name = DB::table('users')->where('id', $uid)->value('first_name');
+        $user = User::where('id',$uid)->first();
+        $userMail = $user->email;
+        $name = $user->preferences['first_name'];
         $group = ProjectGroup::where('id', '=', $pgid)->first();
-        $project = ProjectController::getProject($group->pid);
-        if($type=="added")
-            $email = 'emails.project.added';
-        else if($type=="removed")
-            $email = 'emails.project.removed';
-        else if($type=="changed")
-            $email = 'emails.project.changed';
+        $project = ProjectController::getProject($group->project_id);
+        $email = "emails.project.$type";
 
         try {
             Mail::send($email, compact('project', 'name', 'group'), function ($message) use ($userMail) {

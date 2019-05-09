@@ -1,7 +1,7 @@
 @extends('email')
 
 @section('main-text')
-    <span class="green">{{ $sender->first_name }} {{ $sender->last_name }}</span> 
+    <span class="green">{{ $sender->getFullName() }}</span>
     has invited you to join them on 
     @if (isset($project))
         the following Kora Project: <br>
@@ -53,7 +53,7 @@
 @endsection
 
 @section('footer-text')
-    You have been invited by {{ $sender->first_name }} {{ $sender->last_name }}
+    You have been invited by {{ $sender->getFullName() }}
 @endsection
 
 @section('footer-email')

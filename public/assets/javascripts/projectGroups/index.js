@@ -300,7 +300,7 @@ Kora.ProjectGroups.Index = function() {
       var gid = $(this).data('group');
 
       var $editNameModal = $('.edit-group-name-modal-js');
-      var $editNameModalInput = $editNameModal.find('.create-group-name-js');
+      var $editNameModalInput = $editNameModal.find('.group-name-js');
       $editNameModalInput.val(groupName);
 
       // Submission of Editing a Name
@@ -308,7 +308,7 @@ Kora.ProjectGroups.Index = function() {
         return function(e) {
           e.preventDefault();
 
-          var groupName = $('.edit-group-name-modal-js').find('.create-group-name-js').val();
+          var groupName = $('.edit-group-name-modal-js').find('.group-name-js').val();
           self.editGroupName(gid, groupName);
         }
       }

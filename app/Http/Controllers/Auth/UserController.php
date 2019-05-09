@@ -652,7 +652,7 @@ class UserController extends Controller {
 
         $adminGroup = ProjectGroup::makeAdminGroup($default);
         ProjectGroup::makeDefaultGroup($default);
-        $default->adminGID = $adminGroup->id;
+        $default->adminGroup_id = $adminGroup->id;
         $default->active = 1;
         $default->internal_name = str_replace(" ","_", $default->name).'_'.$default->id.'_';
         $default->save();

@@ -1,13 +1,13 @@
 @extends('app', ['page_title' => "{$form->name} Permissions", 'page_class' => 'form-permissions'])
 
 @section('leftNavLinks')
-  @include('partials.menu.project', ['pid' => $form->pid])
-  @include('partials.menu.form', ['pid' => $form->pid, 'fid' => $form->fid])
+  @include('partials.menu.project', ['pid' => $form->project_id])
+  @include('partials.menu.form', ['pid' => $form->project_id, 'fid' => $form->id])
   @include('partials.menu.static', ['name' => 'Form Permissions'])
 @stop
 
 @section('aside-content')
-  @include('partials.sideMenu.form', ['pid' => $form->pid, 'fid' => $form->fid, 'openDrawer' => true])
+  @include('partials.sideMenu.form', ['pid' => $form->project_id, 'fid' => $form->id, 'openDrawer' => true])
 @stop
 
 @section('header')
@@ -42,14 +42,14 @@
 
   <section class="permission-group-selection center permission-group-js permission-group-selection">
     @foreach($formGroups as $index=>$formGroup)
-      <?php
-        $specialGroup = ($form->adminGID == $formGroup->id) ||
+      @php
+        $specialGroup = ($form->adminGroup_id == $formGroup->id) ||
           ($formGroup->name == $form->name . " Default Group")
-      ?>
+      @endphp
       <div class="group group-js card {{ $index == 0 ? 'active' : '' }}" id="{{$formGroup->id}}">
         <div class="header {{ $index == 0 ? 'active' : '' }}">
           <div class="left pl-m">
-            @if ($form->adminGID == $formGroup->id)
+            @if ($form->adminGroup_id == $formGroup->id)
               <i class="icon icon-star pr-xs"></i>
             @elseif ($formGroup->name == $form->name." Default Group")
               <i class="icon icon-shield pr-xs"></i>
@@ -73,7 +73,7 @@
               <div class="action-column">
                 <div class="check-box-half check-box-rectangle">
                   <input type="checkbox"
-                    @if ($form->adminGID == $formGroup->id)
+                    @if ($form->adminGroup_id == $formGroup->id)
                       checked disabled
                     @elseif ($formGroup->create)
                       checked
@@ -88,7 +88,7 @@
                 </div>
                 <div class="check-box-half check-box-rectangle">
                   <input type="checkbox"
-                    @if ($form->adminGID == $formGroup->id)
+                    @if ($form->adminGroup_id == $formGroup->id)
                       checked disabled
                     @elseif ($formGroup->ingest)
                       checked
@@ -108,7 +108,7 @@
               <div class="action-column">
                 <div class="check-box-half check-box-rectangle">
                   <input type="checkbox"
-                    @if ($form->adminGID == $formGroup->id)
+                    @if ($form->adminGroup_id == $formGroup->id)
                       checked disabled
                     @elseif ($formGroup->edit)
                       checked
@@ -124,7 +124,7 @@
 
                 <div class="check-box-half check-box-rectangle">
                 <input type="checkbox"
-                  @if ($form->adminGID == $formGroup->id)
+                  @if ($form->adminGroup_id == $formGroup->id)
                     checked disabled
                   @elseif ($formGroup->modify)
                     checked
@@ -144,7 +144,7 @@
               <div class="action-column">
                 <div class="check-box-half check-box-rectangle">
                   <input type="checkbox"
-                    @if ($form->adminGID == $formGroup->id)
+                    @if ($form->adminGroup_id == $formGroup->id)
                       checked disabled
                     @elseif ($formGroup->delete)
                       checked
@@ -160,7 +160,7 @@
 
                 <div class="check-box-half check-box-rectangle">
                   <input type="checkbox"
-                    @if ($form->adminGID == $formGroup->id)
+                    @if ($form->adminGroup_id == $formGroup->id)
                       checked disabled
                     @elseif ($formGroup->destroy)
                       checked
@@ -178,9 +178,9 @@
           </div>
 
           <div class="users users-js" data-group="{{$formGroup->id}}">
-            <?php
+            @php
               $users = $formGroup->users()->get();
-            ?>
+            @endphp
             @if (sizeof($users) == 0)
               <p class="no-users no-users-js">
                 <span>No users in this group, select</span>
@@ -200,14 +200,14 @@
                    data-name="{{$user->getFullName()}}"
                    data-username="{{$user->username}}"
                    data-email="{{$user->email}}"
-                   data-organization="{{$user->organization}}"
+                   data-organization="{{$user->preferences['organization']}}"
                    data-profile="{{$user->getProfilePicUrl()}}"
                    data-profile-url="{{action('Auth\UserController@index', ['uid' => $user->id])}}">
                   {{$user->getFullName()}}
                 </a>
 
                 @if (\Auth::user()->id != $user->id)
-                  <a href="#" class="cancel remove-user-js" data-value="[{{$formGroup->id}}, {{$user->id}}, {{$project->pid}}, {{$form->fid}}]">
+                  <a href="#" class="cancel remove-user-js" data-value="[{{$formGroup->id}}, {{$user->id}}, {{$project->id}}, {{$form->id}}]">
                     <i class="icon icon-cancel"></i>
                   </a>
                 @endif
@@ -250,12 +250,12 @@
 
   <script type="text/javascript">
     var CSRFToken = '{{ csrf_token() }}';
-    var pid = '{{$project->pid}}';
-    var removeUserPath = '{{ action('FormGroupController@removeUser', ["pid" => $project->pid, "fid" => $form->fid]) }}';
-    var addUsersPath = '{{ action('FormGroupController@addUser', ["pid" => $project->pid, "fid" => $form->fid]) }}';
-    var editNamePath = '{{ action('FormGroupController@updateName', ["pid" => $project->pid, "fid" => $form->fid]) }}';
-    var updatePermissionsPath = '{{ action('FormGroupController@updatePermissions', ["pid" => $project->pid, "fid" => $form->fid]) }}';
-    var deletePermissionsPath = '{{ action('FormGroupController@deleteFormGroup', ["pid" => $project->pid, "fid" => $form->fid]) }}';
+    var pid = '{{$project->id}}';
+    var removeUserPath = '{{ action('FormGroupController@removeUser', ["pid" => $project->id, "fid" => $form->id]) }}';
+    var addUsersPath = '{{ action('FormGroupController@addUser', ["pid" => $project->id, "fid" => $form->id]) }}';
+    var editNamePath = '{{ action('FormGroupController@updateName', ["pid" => $project->id, "fid" => $form->id]) }}';
+    var updatePermissionsPath = '{{ action('FormGroupController@updatePermissions', ["pid" => $project->id, "fid" => $form->id]) }}';
+    var deletePermissionsPath = '{{ action('FormGroupController@deleteFormGroup', ["pid" => $project->id, "fid" => $form->id]) }}';
     Kora.FormGroups.Index();
   </script>
 @stop

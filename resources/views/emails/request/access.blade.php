@@ -1,7 +1,7 @@
 @extends('email')
 
 @section('main-text')
-    <span class="bold-highlight">{{\Auth::user()->first_name}} {{\Auth::user()->last_name}}</span> is requesting access to the following Kora Project:
+    <span class="bold-highlight">{{ \Auth::user()->getFullName() }}</span> is requesting access to the following Kora Project:
 @endsection
 
 @section('project-text')
@@ -15,7 +15,7 @@
 @endsection
 
 @section('button-link')
-    {{action('ProjectGroupController@index', ['pid'=>$project->pid])}}
+    {{action('ProjectGroupController@index', ['pid'=>$project->id])}}
 @endsection
 
 @section('button-text')
@@ -23,7 +23,7 @@
 @endsection
 
 @section('footer-text')
-    Permissions are being requested by {{\Auth::user()->first_name}} {{\Auth::user()->last_name}}
+    Permissions are being requested by {{ \Auth::user()->getFullName() }}
 @endsection
 
 @section('footer-email')

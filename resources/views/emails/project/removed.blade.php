@@ -19,7 +19,7 @@
 @endsection
 
 @section('footer-text')
-    Your permissions have been updated by {{\Auth::user()->first_name}} {{\Auth::user()->last_name}}
+    Your permissions have been updated by {{ \Auth::user()->getFullName() }}
 @endsection
 
 @section('footer-email')

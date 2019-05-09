@@ -124,7 +124,7 @@ class ProjectController extends Controller {
 	}
 	
 	/**
-     * Gets modal to request project permissions //TODO::CASTLE
+     * Gets modal to request project permissions
      *
      * @param  Request $request
      * @return View
@@ -134,14 +134,14 @@ class ProjectController extends Controller {
 		$requestableProjects = array();
 		foreach($projectCollections as $project) {
 			if($project->active and !(\Auth::user()->inAProjectGroup($project)))
-				$requestableProjects[$project->pid] = $project->name. " (" . $project->slug.")";
+				$requestableProjects[$project->id] = $project->name. " (" . $project->internal_name.")";
 		}
 		
 		return view('partials.projects.projectRequestModalForm', ['requestableProjects' => $requestableProjects])->render();
 	}
 
     /**
-     * Sends an access request to admins of project(s). //TODO::CASTLE
+     * Sends an access request to admins of project(s).
      *
      * @param  Request $request
      * @return Redirect
