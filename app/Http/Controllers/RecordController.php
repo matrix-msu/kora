@@ -373,6 +373,14 @@ class RecordController extends Controller {
 
         //Validates records
         foreach($fieldsArray as $flid => $field) {
+            //If API update and flid not mentioned, ignore it
+            if($request->api && !isset($request->$flid))
+                continue;
+
+            //If API update and flid's value is null, ignore it's validation
+            if($request->api && !isset($request->$flid))
+                continue;
+
             $message = $form->getFieldModel($field['type'])->validateField($flid, $field, $request);
             if(!empty($message))
                 return redirect()->back()->withInput()->with('k3_global_error', 'record_validation_error')->with('record_validation_error', $message);
@@ -438,7 +446,7 @@ class RecordController extends Controller {
         if(!$request->api)
             return redirect('projects/' . $pid . '/forms/' . $fid . '/records/' . $rid)->with('k3_global_success', 'record_updated');
         else
-            return response()->json(["status"=>true,"message"=>"record_updated"],200);
+            return response()->json(["status"=>true,"message"=>"record_updated","kid"=>$record->kid],200);
 	}
 
     /**

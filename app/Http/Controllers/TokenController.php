@@ -58,7 +58,7 @@ class TokenController extends Controller {
 		]);
 		
         $token = new Token();
-        $token->token = self::tokenGen();
+        $token->token = uniqid();
         $token->title = $request->token_name;
         $token->search = isset($request->token_search) ? true : false;
         $token->create = isset($request->token_create) ? true : false;
@@ -147,23 +147,6 @@ class TokenController extends Controller {
         $token->delete();
 
         return redirect('tokens')->with('k3_global_success', 'token_deleted');
-    }
-
-    /**
-     * Generates a new 24 character token.
-     *
-     * @return string - Newly created token
-     */
-    public static function tokenGen() {
-        $valid = 'abcdefghijklmnopqrstuvwxyz';
-        $valid .= 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-        $valid .= '0123456789';
-
-        $token = '';
-        for($i = 0; $i < 24; $i++) {
-            $token .= $valid[( rand() % 62 )];
-        }
-        return $token;
     }
 
     /**
