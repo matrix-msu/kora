@@ -183,7 +183,7 @@ class AdminController extends Controller {
 		
         $message = array();
 		
-        if($request->status == "admin") { //TODO::CASTLE check after permission groups fixed
+        if($request->status == "admin") {
           // Updating admin status
           $action = "admin";
 
@@ -202,7 +202,7 @@ class AdminController extends Controller {
 			$safe_pids_assoc = array();
 			$pids_data = ProjectGroup::whereIn('id', $user_project_group_ids)->get();
 			foreach($pids_data as $project) {// json -> array
-				$safe_pids_assoc[$project->pid] = true;
+				$safe_pids_assoc[$project->project_id] = true;
 			}
 
             //Build the list of form groups they are a part of
@@ -216,15 +216,15 @@ class AdminController extends Controller {
 			$safe_fids_assoc = array();
 			$fids_data = FormGroup::whereIn('id', $user_form_group_ids)->get();
 			foreach($fids_data as $group) { // json -> array
-				$safe_fids_assoc[$group->fid] = true;
+				$safe_fids_assoc[$group->form_id] = true;
 			}
 
             //If the user isn't a part of the project group, we want to remove their custom access to it
             $projects = Project::all();
 			$pids_to_remove = array();
             foreach($projects as $project) {
-                if(!array_key_exists($project->pid, $safe_pids_assoc))
-					array_push($pids_to_remove, $project->pid);
+                if(!array_key_exists($project->project_id, $safe_pids_assoc))
+					array_push($pids_to_remove, $project->project_id);
             }
 			$user->bulkRemoveCustomProjects($pids_to_remove);
 			
@@ -232,8 +232,8 @@ class AdminController extends Controller {
             $forms = Form::all();
 			$fids_to_remove = array();
             foreach($forms as $form) {
-                if(!array_key_exists($form->fid, $safe_fids_assoc))
-					array_push($fids_to_remove, $form->fid);
+                if(!array_key_exists($form->form_id, $safe_fids_assoc))
+					array_push($fids_to_remove, $form->form_id);
             }
 			$user->bulkRemoveCustomForms($fids_to_remove);
 

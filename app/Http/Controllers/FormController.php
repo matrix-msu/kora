@@ -50,8 +50,8 @@ class FormController extends Controller {
 		$userNames = array();
 		foreach ($users as $user) {
 			if (!$currProjectAdmins->contains($user) && !$admins->contains($user)) {
-				$firstName = $user->first_name;
-				$lastName = $user->last_name;
+				$firstName = $user->preferences['first_name'];
+				$lastName = $user->preferences['last_name'];
 				$userName = $user->username;
 
 				$pushThis = $firstName.' '.$lastName.' ('.$userName.')';

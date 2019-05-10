@@ -20,7 +20,7 @@
           <div class="content-sections-scroll">
             @if (count($userRevisions) > 0)
                 <div class="my-xl">
-                    <p>@if (Auth::user()->id == $user->id) You have @else {{$user->preferences['first_name']}} has @endif recently modified the following {{$userRevisions->total()}} records...</p>
+                    <p>@if (Auth::user()->id == $user->id) You have @else {{$user->preferences['first_name']}} has @endif recently modified the following {{$rmCount}} records...</p>
                 </div>
 
                 @include('partials.user.profile.filters')
@@ -29,10 +29,10 @@
                     @include('partials.user.profile.userRevision')
                 @endforeach
 
-                @include('partials.user.profile.pagination', ['revisions' => $userRevisions])
+                @include('partials.user.profile.pagination', ['totalCount' => $rmCount])
             @else
                 <div class="my-xl">
-                    <p>@if (Auth::user()->id == $user->id) You have @else {{$user->preferences['first_name']}} has @endif recently modified {{$userRevisions->total()}} records...</p>
+                    <p>@if (Auth::user()->id == $user->id) You have @else {{$user->preferences['first_name']}} has @endif recently modified {{$rmCount}} records...</p>
                 </div>
             @endif
           </div>
@@ -40,21 +40,21 @@
 
         <div class="content-section content-section-js {{$sec == 'mcr' ? 'active' : ''}}" id="mcr">
           <div class="content-sections-scroll">
-            @if (count($userCreatedRecords) > 0)
+            @if(count($userCreatedRecords) > 0)
                 <div class="my-xl">
-                    <p>@if (Auth::user()->id == $user->id) You have @else {{$user->preferences['first_name']}} has @endif created the following {{$userCreatedRecords->total()}} records...</p>
+                    <p>@if (Auth::user()->id == $user->id) You have @else {{$user->preferences['first_name']}} has @endif created the following {{$mcrCount}} records...</p>
                 </div>
 
                 @include('partials.user.profile.filters')
 
-                @foreach ($userCreatedRecords as $index=>$record)
+                @foreach ($userCreatedRecords as $index=>$kid)
                     @include('partials.user.profile.userCreatedRecords')
                 @endforeach
 
-                @include('partials.user.profile.pagination', ['revisions' => $userCreatedRecords])
+                @include('partials.user.profile.pagination', ['totalCount' => $mcrCount])
             @else
                 <div class="my-xl">
-                    <p>@if (Auth::user()->id == $user->id) You have @else {{$user->preferences['first_name']}} has @endif created {{$userCreatedRecords->total()}} records...</p>
+                    <p>@if (Auth::user()->id == $user->id) You have @else {{$user->preferences['first_name']}} has @endif created {{$mcrCount}} records...</p>
                 </div>
             @endif
           </div>

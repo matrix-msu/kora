@@ -5,6 +5,7 @@ use App\Http\Requests\UserRequest;
 use App\Project;
 use App\ProjectGroup;
 use App\Http\Controllers\Controller;
+use App\Record;
 use App\Revision;
 use App\User;
 use Carbon\Carbon;
@@ -127,7 +128,6 @@ class UserController extends Controller {
             if($admin) {
                 return view('user/profile-permissions',compact('user', 'admin',  'section', 'notification'));
             } else {
-                //TODO::CASTLE Test with fresh user
                 $projects = self::buildProjectsArray($user);
                 $forms = self::buildFormsArray($user);
                 return view('user/profile-permissions',compact('user', 'admin', 'projects', 'forms', 'section', 'notification'));
@@ -135,31 +135,57 @@ class UserController extends Controller {
         } else if ($section == 'history') {
             // Record History revisions
             $sec = $request->input('sec') === null ? 'rm' : $request->input('sec');
-            $pagination = $request->input('page-count') === null ? 10 : app('request')->input('page-count');
+            $pageCount = $request->input('page-count') === null ? 10 : app('request')->input('page-count');
+            $page = $request->input('page') === null ? 1 : app('request')->input('page');
             // Recently Modified Order
             $rm_order = $request->input('rm-order') === null ? 'lmd' : app('request')->input('rm-order');
-            $rm_order_type = substr($rm_order, 0, 2) === "lm" ? "revisions.created_at" : "revisions.id";
+            $rm_order_type = substr($rm_order, 0, 2) === "lm" ? "created_at" : "id";
             $rm_order_direction = substr($rm_order, 2, 3) === "a" ? "asc" : "desc";
             // My Created Records Order
             $mcr_order = $request->input('mcr-order') === null ? 'lmd' : app('request')->input('mcr-order');
-            $mcr_order_type = substr($mcr_order, 0, 2) === "lm" ? "records.created_at" : "records.rid";
+            $mcr_order_type = substr($mcr_order, 0, 2) === "lm" ? "created_at" : "kid";
             $mcr_order_direction = substr($mcr_order, 2, 3) === "a" ? "asc" : "desc";
-            //TODO::CASTLE In new system
-            $userRevisions = Revision::where('id',-1)->paginate($pagination);
-            $userCreatedRecords = Revision::where('id',-1)->paginate($pagination);
-//            $userRevisions = Revision::leftJoin('records', 'revisions.rid', '=', 'records.rid')
-//                ->leftJoin('users', 'revisions.owner', '=', 'users.id')
-//                ->select('revisions.*', 'records.kid', 'records.pid', 'users.username as ownerUsername')
-//                ->where('revisions.username', '=', $user->username)
-//                ->whereNotNull('kid')
-//                ->orderBy($rm_order_type, $rm_order_direction)
-//                ->paginate($pagination);
-//            $userCreatedRecords = Record::where('owner', '=', $user->id)
-//                ->whereNotNull('kid')
-//                ->orderBy($mcr_order_type, $mcr_order_direction)
-//                ->paginate($pagination);
 
-            return view('user/profile-record-history',compact('user', 'admin', 'userRevisions', 'userCreatedRecords', 'section', 'sec', 'notification'));
+            //Get all the revisions and records for user in every form they have access to
+            //We have to basically joins these tables together for each forms record table, and then we can sort properly below
+            //ALso did custom pagination since the unions break laravel's pagination system
+            $first = true;
+            $userRevisions = null;
+            $userCreatedRecords = null;
+            foreach($user->allowedProjects() as $project) {
+                foreach($user->allowedForms($project->id) as $form) {
+                    $fid = $form->id;
+                    $recMod = new Record(array(),$fid);
+
+                    if($first) {
+                        $userRevisions = Revision::leftJoin("records_$fid", "revisions.record_kid", "=", "records_$fid.kid")
+                            ->select("revisions.*", "records_$fid.kid", "records_$fid.project_id")
+                            ->where("revisions.owner", "=", $user->username)
+                            ->whereNotNull("kid");
+
+                        $userCreatedRecords = $recMod->newQuery()->select('kid','created_at')->where('owner', '=', $user->id);
+
+                        $first = false;
+                    } else {
+                        $userRevisions = Revision::leftJoin("records_$fid", "revisions.record_kid", "=", "records_$fid.kid")
+                            ->select("revisions.*", "records_$fid.kid", "records_$fid.project_id")
+                            ->where("revisions.owner", "=", $user->username)
+                            ->whereNotNull("kid")
+                            ->union($userRevisions);
+
+                        $userCreatedRecords = $recMod->newQuery()->select('kid','created_at')->where('owner', '=', $user->id)
+                            ->union($userCreatedRecords);
+                    }
+                }
+            }
+
+            $rmCount = $userRevisions->get()->count();
+            $mcrCount = $userCreatedRecords->get()->count();
+            $userRevisions = $userRevisions->orderBy($rm_order_type, $rm_order_direction)->skip(($page-1)*$pageCount)->take($pageCount)->get();
+            $userCreatedRecords = $userCreatedRecords->orderBy($mcr_order_type, $mcr_order_direction)->skip(($page-1)*$pageCount)->take($pageCount)->pluck('kid')->toArray();
+
+            return view('user/profile-record-history',compact('user', 'admin', 'userRevisions',
+                'userCreatedRecords', 'section', 'sec', 'notification', 'page', 'pageCount', 'rmCount', 'mcrCount'));
         } else {
             return view('user/profile',compact('user', 'admin', 'section', 'notification'));
         }

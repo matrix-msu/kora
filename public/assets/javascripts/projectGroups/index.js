@@ -39,7 +39,7 @@ Kora.ProjectGroups.Index = function() {
 
           // If was the last user of the group display no-users text
 
-          if ($parent.children('.user-js').length == 0) {
+          if($parent.children('.user-js').length == 0) {
             self.showNoUsersText($parent, projectGroup);
           }
         });
@@ -50,13 +50,13 @@ Kora.ProjectGroups.Index = function() {
         var canAddToSelect = true;
 
         $select.children('option').each(function() {
-          if ($(this).val() == userID) {
+          if($(this).val() == userID) {
             canAddToSelect = false;
             return;
           }
         });
 
-        if (canAddToSelect) {
+        if(canAddToSelect) {
           $select.append(option);
         }
 
@@ -78,8 +78,8 @@ Kora.ProjectGroups.Index = function() {
    */
   self.showUser = function(isUserMove, pid, projectGroup, userIDs, userMap, $groupCard) {
     // Add the user to the users currently in the group.
-    for (userID of userIDs) {
-      if (isUserMove.length > 0) {
+    for(userID of userIDs) {
+      if(isUserMove.length > 0) {
         var element = '<div style="display:none" class="user user-js" ';
         element += 'id="list-element' + projectGroup + userID + '">';
         element += userMap[userID];
@@ -133,7 +133,7 @@ Kora.ProjectGroups.Index = function() {
         window.localStorage.setItem('message', "User(s) Successfully Added to Permissions Group!");
         window.location.reload();
       },
-      error: function (err) {
+      error: function(err) {
         console.log(err)
       }
     });
@@ -146,7 +146,7 @@ Kora.ProjectGroups.Index = function() {
    * @param newName {string} The new name of the group.
    */
   self.editGroupName = function(gid, newName) {
-    if (newName == '') {
+    if(newName == '') {
       // Validation: no blank name
       $('.edit-group-name-button-js input').prop('disabled', true);
       return;

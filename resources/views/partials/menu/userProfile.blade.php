@@ -1,6 +1,6 @@
 <li class="navigation-profile">
   <a href="#" class="profile-toggle navigation-toggle-js">
-    <?php  $imgpath = 'app/profiles/' . \Auth::user()->id . '/' . \Auth::user()->profile ?>
+    <?php  $imgpath = 'app/profiles/' . \Auth::user()->id . '/' . \Auth::user()->preferences['profile_pic'] ?>
     @if(File::exists( public_path('app/' . $imgpath) ))
       <img class="profile-picture" src="{{url($imgpath)}}">
     @else
@@ -10,7 +10,7 @@
 
   <ul class="navigation-sub-menu navigation-sub-menu-js">
     <li class="header">
-      Hello, {{ Auth::user()->first_name }}!
+      Hello, {{ Auth::user()->preferences['first_name'] }}!
     </li>
     <li class="link">
       <a href="{{ action('Auth\UserController@index',['uid'=>Auth::user()->id]) }}">View My Profile</a>

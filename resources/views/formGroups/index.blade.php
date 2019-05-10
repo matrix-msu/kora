@@ -49,9 +49,9 @@
       <div class="group group-js card {{ $index == 0 ? 'active' : '' }}" id="{{$formGroup->id}}">
         <div class="header {{ $index == 0 ? 'active' : '' }}">
           <div class="left pl-m">
-            @if ($form->adminGroup_id == $formGroup->id)
+            @if($form->adminGroup_id == $formGroup->id)
               <i class="icon icon-star pr-xs"></i>
-            @elseif ($formGroup->name == $form->name." Default Group")
+            @elseif($formGroup->name == $form->name." Default Group")
               <i class="icon icon-shield pr-xs"></i>
             @endif
 
@@ -73,9 +73,9 @@
               <div class="action-column">
                 <div class="check-box-half check-box-rectangle">
                   <input type="checkbox"
-                    @if ($form->adminGroup_id == $formGroup->id)
+                    @if($form->adminGroup_id == $formGroup->id)
                       checked disabled
-                    @elseif ($formGroup->create)
+                    @elseif($formGroup->create)
                       checked
                     @endif
                     value="1"
@@ -88,9 +88,9 @@
                 </div>
                 <div class="check-box-half check-box-rectangle">
                   <input type="checkbox"
-                    @if ($form->adminGroup_id == $formGroup->id)
+                    @if($form->adminGroup_id == $formGroup->id)
                       checked disabled
-                    @elseif ($formGroup->ingest)
+                    @elseif($formGroup->ingest)
                       checked
                     @endif
                     value="1"
@@ -108,9 +108,9 @@
               <div class="action-column">
                 <div class="check-box-half check-box-rectangle">
                   <input type="checkbox"
-                    @if ($form->adminGroup_id == $formGroup->id)
+                    @if($form->adminGroup_id == $formGroup->id)
                       checked disabled
-                    @elseif ($formGroup->edit)
+                    @elseif($formGroup->edit)
                       checked
                     @endif
                     value="1"
@@ -124,9 +124,9 @@
 
                 <div class="check-box-half check-box-rectangle">
                 <input type="checkbox"
-                  @if ($form->adminGroup_id == $formGroup->id)
+                  @if($form->adminGroup_id == $formGroup->id)
                     checked disabled
-                  @elseif ($formGroup->modify)
+                  @elseif($formGroup->modify)
                     checked
                   @endif
                   value="1"
@@ -144,9 +144,9 @@
               <div class="action-column">
                 <div class="check-box-half check-box-rectangle">
                   <input type="checkbox"
-                    @if ($form->adminGroup_id == $formGroup->id)
+                    @if($form->adminGroup_id == $formGroup->id)
                       checked disabled
-                    @elseif ($formGroup->delete)
+                    @elseif($formGroup->delete)
                       checked
                     @endif
                     value="1"
@@ -160,9 +160,9 @@
 
                 <div class="check-box-half check-box-rectangle">
                   <input type="checkbox"
-                    @if ($form->adminGroup_id == $formGroup->id)
+                    @if($form->adminGroup_id == $formGroup->id)
                       checked disabled
-                    @elseif ($formGroup->destroy)
+                    @elseif($formGroup->destroy)
                       checked
                     @endif
                     value="1"
@@ -181,7 +181,7 @@
             @php
               $users = $formGroup->users()->get();
             @endphp
-            @if (sizeof($users) == 0)
+            @if(sizeof($users) == 0)
               <p class="no-users no-users-js">
                 <span>No users in this group, select</span>
                 <a href="#" class="user-add add-users-js underline-middle-hover"
@@ -206,7 +206,7 @@
                   {{$user->getFullName()}}
                 </a>
 
-                @if (\Auth::user()->id != $user->id)
+                @if(\Auth::user()->id != $user->id)
                   <a href="#" class="cancel remove-user-js" data-value="[{{$formGroup->id}}, {{$user->id}}, {{$project->id}}, {{$form->id}}]">
                     <i class="icon icon-cancel"></i>
                   </a>
@@ -216,7 +216,7 @@
             @include("partials.formGroups.addUsersBody")
           </div>
           <div class="footer">
-            @if (!$specialGroup)
+            @if(!$specialGroup)
               <a class="quick-action trash-container delete-permission-group-js left" href="#" data-group="{{$formGroup->id}}">
                 <i class="icon icon-trash"></i>
               </a>
@@ -229,7 +229,7 @@
               <span>Add User(s) to Group</span>
             </a>
 
-            @if (!$specialGroup)
+            @if(!$specialGroup)
               <a class="quick-action edit-group-name-js underline-middle-hover"
                 href="#"
                 data-name="{{ str_replace($form->name." ", "", $formGroup->name) }}"

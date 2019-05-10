@@ -44,7 +44,7 @@
 		  
 		  foreach ($allowed_projects as $project)
 		  {
-		    $name_pid_projects[$project->pid] = $project->name;
+		    $name_pid_projects[$project->id] = $project->name;
 		  }
 		  
 		  asort($name_pid_projects, SORT_NATURAL | SORT_FLAG_CASE);
