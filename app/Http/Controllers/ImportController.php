@@ -265,6 +265,7 @@ class ImportController extends Controller {
             return redirect('projects/'.$pid)->with('k3_global_error', 'not_form_admin');
 
         $matchup = $request->table;
+        $matchup['KORA ID CONNECTION'] = 'connection';
 
         $record = $request->record;
 
@@ -307,8 +308,7 @@ class ImportController extends Controller {
                         "record_validation_error"=>[$request->kid => "Invalid provided field, $flid"]],500);
                 $fieldMod = $form->layout['fields'][$flid];
                 $typedField = $form->getFieldModel($fieldMod['type']);
-                $simple = !is_null($field->attributes()->simple);
-                $recRequest = $typedField->processImportDataXML($flid,$fieldMod,$field,$recRequest,$simple);
+                $recRequest = $typedField->processImportDataXML($flid,$fieldMod,$field,$recRequest);
             }
         } else if($request->type==self::JSON | $request->type==self::CSV) {
             $originKid = $request->kid;
@@ -316,6 +316,7 @@ class ImportController extends Controller {
                 $recRequest->query->add(['originRid' => explode('-', $originKid)[2]]);
 
             foreach($record as $flid => $field) {
+
                 //Just in case there are extra/unused fields in the JSON
                 if(!array_key_exists($flid,$matchup))
                     continue;
@@ -330,6 +331,12 @@ class ImportController extends Controller {
                     continue;
                 }
 
+                //Kora id connection for associator
+                if($matchup[$flid] == 'connection') {
+                    $recRequest['connection'] = $field;
+                    continue;
+                }
+
                 $flid = $matchup[$flid];
                 $fieldMod = $form->layout['fields'][$flid];
                 $typedField = $form->getFieldModel($fieldMod['type']);
@@ -340,6 +347,40 @@ class ImportController extends Controller {
         $recRequest->query->add(['pid' => $pid, 'fid' => $fid]);
         $recCon = new RecordController();
         return $recCon->store($pid,$fid,$recRequest);
+    }
+
+    public function connectRecords($pid, $fid, Request $request) {
+        $form = FormController::getForm($fid);
+
+        if(!(\Auth::user()->isFormAdmin($form)))
+            return redirect('projects/'.$pid)->with('k3_global_error', 'not_form_admin');
+
+        $fieldsArray = $form->layout['fields'];
+
+        $assocField = array();
+        foreach ($fieldsArray as $flid => $field) {
+            if($field['type'] == \App\Form::_ASSOCIATOR)
+                $assocField[$flid] = $field;
+        }
+
+        if($assocField) {
+            foreach($request->kids as $kid) {
+                $record = RecordController::getRecord($kid);
+                $key = key($assocField);
+                $assoc = json_decode($record->{$key});
+                if($assoc) {
+                    foreach ($request->connections as $connection => $kid) {
+                        for($i=0;$i<count($assoc);$i++) {
+                            if($assoc[$i] == $connection) {
+                                $assoc[$i] = $kid;
+                            }
+                        }
+                    }
+                    $record->{$key} = json_encode($assoc);
+                    $record->save();
+                }
+            }
+        }
     }
 
     /**

@@ -176,6 +176,7 @@ class RecordController extends Controller {
             $makePreset = true;
         }
 
+        $connection = '';
         for($i = 0; $i < $numRecs ; $i++) {
             $record = new Record(array(),$fid);
             $record->project_id = $pid;
@@ -188,9 +189,15 @@ class RecordController extends Controller {
             $record->kid = $pid . '-' . $fid . '-' . $record->id;
 
             foreach($request->all() as $key => $value) {
+                //Import assoc specific, then skip
+                if($key == 'connection') {
+                  $connection = $value;
+                  continue;
+                }
+
                 //Skip request variables that are not fields
                 if(!array_key_exists($key,$fieldsArray))
-                    continue;
+                  continue;
 
                 $field = $fieldsArray[$key];
                 $request->rid = $record->id;
@@ -234,7 +241,7 @@ class RecordController extends Controller {
         }
 
         if($request->api)
-            return response()->json(["status"=>true,"message"=>"record_created","kid"=>$record->kid],200);
+            return response()->json(["status"=>true,"message"=>"record_created","kid"=>$record->kid, "connection"=>$connection],200);
         else if($request->mass_creation_num > 0)
             return redirect('projects/' . $pid . '/forms/' . $fid . '/records')->with('k3_global_success', 'record_duplicated');
         else
