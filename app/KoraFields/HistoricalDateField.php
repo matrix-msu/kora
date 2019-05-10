@@ -342,56 +342,16 @@ class HistoricalDateField extends BaseField {
      * @param  array $field - The field to represent record data
      * @param  \SimpleXMLElement $value - Data to add
      * @param  Request $request
-     * @param  bool $simple - Is this a simple xml field value
      *
      * @return Request - Processed data
      */
-    public function processImportDataXML($flid, $field, $value, $request, $simple = false) {
+    public function processImportDataXML($flid, $field, $value, $request) {
         $request[$flid] = $flid;
-
-        if(property_exists($value, 'Date') && (string)$value->Date != '') {
-            $value = (string)$value->Date;
-            // Assume failure
-            $request['circa_'.$flid] = 0;
-            $request['era_'.$flid] = 'CE';
-            foreach(['month_', 'day_', 'year_'] as $part) {
-                $request[$part.$flid] = '';
-            }
-
-            if(Str::startsWith($value, 'circa')) {
-                $request['circa_'.$flid] = 1;
-                $value = explode('circa', $value)[1];
-            }
-
-            // Era order matters here
-            foreach(['BCE', 'KYA BP', 'CE', 'BP'] as $era) {
-                if(Str::endsWith($value, $era)) {
-                    $request['era_'.$flid] = $era;
-                    $value = explode(' ' . $era, $value)[0];
-                    break;
-                }
-            }
-
-            $year = $value;
-            if(Str::contains($value, '-')) {
-                $value = explode('-', $value);
-                $year = $value[0];
-
-                $request['month_'.$flid] = $value[1];
-
-                if(count($value) == 3) {
-                    $request['day_'.$flid] = $value[2];
-                }
-            }
-
-            $request['year_'.$flid] = $year;
-        } else {
-            $request['month_'.$flid] = isset($value->Month) ? (string)$value->Month : '';
-            $request['day_'.$flid] = isset($value->Day) ? (string)$value->Day : '';
-            $request['year_'.$flid] = isset($value->Year) ? (string)$value->Year : '';
-            $request['circa_'.$flid] = isset($value->Circa) ? (string)$value->Circa : 0;
-            $request['era_'.$flid] = isset($value->Era) ? (string)$value->Era : 'CE';
-        }
+        $request['month_'.$flid] = isset($value->Month) ? (string)$value->Month : '';
+        $request['day_'.$flid] = isset($value->Day) ? (string)$value->Day : '';
+        $request['year_'.$flid] = isset($value->Year) ? (string)$value->Year : '';
+        $request['circa_'.$flid] = isset($value->Circa) ? (string)$value->Circa : 0;
+        $request['era_'.$flid] = isset($value->Era) ? (string)$value->Era : 'CE';
 
         return $request;
     }
