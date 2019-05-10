@@ -1,0 +1,19 @@
+.install-success-body {
+  background: palette('gray', background);
+  font-family: $ubuntu;
+  min-height: 100vh;
+}
+
+.install-success {
+  margin: $navigation-height auto 0;
+  width: 100%;
+
+  .last-steps {
+    margin: #{map-get($spacing, 100-xl)} auto;
+    max-width: calc(#{ $max-site-width } - 600px);
+    padding: 0 20px;
+
+    @import 'install-success/last-description';
+    @import 'install-success/last-command';
+  }
+}

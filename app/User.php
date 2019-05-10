@@ -45,19 +45,9 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
     protected $casts = [
         'preferences' => 'array'
     ];
-	
 
-    public function getFullNameAttribute() { //TODO::CASTLE Should these be converted to getNameOrUsername? Also getNameOrUsername needs to be re-evaluated since first name last name is required
+    public function getFullName() {
         return $this->preferences['first_name'].' '.$this->preferences['last_name'];
-    }
-
-    /**
-     * A User's Permissions
-     *
-     * @return HasOne
-     */
-    public function permissions() {
-        return $this->preferences;
     }
 
     /**
@@ -367,7 +357,7 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
     public function canCreateFields(Form $form) {
         if($this->admin) return true;
 
-        if($this->isProjectAdmin(ProjectController::getProject($form->pid))) return true;
+        if($this->isProjectAdmin(ProjectController::getProject($form->project_id))) return true;
 
         $formGroups = $form->groups()->get();
         foreach($formGroups as $formGroup) {
@@ -386,7 +376,7 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
     public function canEditFields(Form $form) {
         if($this->admin) return true;
 
-        if($this->isProjectAdmin(ProjectController::getProject($form->pid))) return true;
+        if($this->isProjectAdmin(ProjectController::getProject($form->project_id))) return true;
 
         $formGroups = $form->groups()->get();
         foreach($formGroups as $formGroup) {
@@ -405,7 +395,7 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
     public function canDeleteFields(Form $form) {
         if($this->admin) return true;
 
-        if($this->isProjectAdmin(ProjectController::getProject($form->pid))) return true;
+        if($this->isProjectAdmin(ProjectController::getProject($form->project_id))) return true;
 
         $formGroups = $form->groups()->get();
         foreach($formGroups as $formGroup) {
@@ -424,7 +414,7 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
     public function canIngestRecords(Form $form) {
         if($this->admin) return true;
 
-        if($this->isProjectAdmin(ProjectController::getProject($form->pid))) return true;
+        if($this->isProjectAdmin(ProjectController::getProject($form->project_id))) return true;
 
         $formGroups = $form->groups()->get();
         foreach($formGroups as $formGroup) {
@@ -443,7 +433,7 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
     public function canModifyRecords(Form $form) {
         if($this->admin) return true;
 
-        if($this->isProjectAdmin(ProjectController::getProject($form->pid))) return true;
+        if($this->isProjectAdmin(ProjectController::getProject($form->project_id))) return true;
 
         $formGroups = $form->groups()->get();
         foreach($formGroups as $formGroup) {
@@ -462,7 +452,7 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
     public function canDestroyRecords(Form $form) {
         if($this->admin) return true;
 
-        if($this->isProjectAdmin(ProjectController::getProject($form->pid))) return true;
+        if($this->isProjectAdmin(ProjectController::getProject($form->project_id))) return true;
 
         $formGroups = $form->groups()->get();
         foreach($formGroups as $formGroup) {
@@ -494,7 +484,7 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
     public function inAFormGroup(Form $form) {
         if($this->admin) return true;
 
-        if($this->isProjectAdmin(ProjectController::getProject($form->pid))) return true;
+        if($this->isProjectAdmin(ProjectController::getProject($form->project_id))) return true;
 
         $formGroups = $form->groups()->get();
         foreach($formGroups as $formGroup) {
@@ -513,7 +503,7 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
     public function isFormAdmin(Form $form) {
         if($this->admin) return true;
 
-        if($this->isProjectAdmin(ProjectController::getProject($form->pid))) return true;
+        if($this->isProjectAdmin(ProjectController::getProject($form->project_id))) return true;
 
         $adminGroup = $form->adminGroup()->first();
         if($adminGroup->hasUser($this))
@@ -829,25 +819,4 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
         else
             return 'blank_profile.jpg';
     }
-	
-	/**
-     * Returns full name if both first name and last name are defined,
-	 * otherwise return first or last name (whichever one is defined),
-	 * otherwise return username.
-     *
-     * @return string - identifier for user
-     */
-	public function getNameOrUsername() {
-		$has_first = $this->preferences['first_name'] !== '';
-		$has_last = $this->preferences['last_name'] !== '';
-		
-		if($has_first && $has_last)
-			return $this->preferences['first_name'] . " " . $this->preferences['last_name'];
-		else if(!$has_first && !$has_last)
-			return $this->username;
-		else if($has_first)
-			return $this->preferences['first_name'];
-		else
-			return $this->preferences['last_name'];
-	}
 }

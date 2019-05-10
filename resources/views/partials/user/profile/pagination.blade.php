@@ -1,39 +1,43 @@
+@php
+    $lastPage = ceil($totalCount/$pageCount);
+@endphp
 <section class="pagination pagination-js center">
-    <div class="previous page page-js {{$revisions->onFirstPage() ? 'disabled' : ''}}">
-        <a href="#{{$revisions->currentPage()-1}}" class="{{$revisions->onFirstPage() ? '' : 'page-link-js'}}">
+    <div class="previous page page-js {{$page == 1 ? 'disabled' : ''}}">
+        <a href="#{{$page-1}}" class="{{$page == 1 ? '' : 'page-link-js'}}">
             <i class="icon icon-chevron left"></i>
             <span class="name underline-middle-hover">Previous Page</span>
         </a>
     </div>
     <div class="pages">
-        @if (!$revisions->onFirstPage())
-            <a href="{{$revisions->url(1)}}" class="page-link first-page">1</a>
-            @if ($revisions->currentPage() > 2)
-                @if ($revisions->currentPage() > 4)
+        @if($page != 1)
+{{--CURRENT SPOT--}}
+            <a href="#1" class="page-link first-page page-link-js">1</a>
+            @if ($page > 2)
+                @if ($page > 4)
                     <span class="page-link dots-backwards">...</span>
                 @endif
-                @if ($revisions->currentPage() > 3)
-                    <a href="#{{$revisions->currentPage()-2}}" class="page-link page-link-js">{{$revisions->currentPage() - 2}}</a>
+                @if ($page > 3)
+                    <a href="#{{$page-2}}" class="page-link page-link-js">{{$page - 2}}</a>
                 @endif
-                <a href="#{{$revisions->previousPageUrl()}}" class="page-link page-link-js">{{$revisions->currentPage() - 1}}</a>
+                <a href="#{{$page-1}}" class="page-link page-link-js">{{$page - 1}}</a>
             @endif
         @endif
-        <a href="" class="page-link active">{{$revisions->currentPage()}}</a>
-        @if ($revisions->lastPage() !== $revisions->currentPage())
-            @if ($revisions->lastPage() - 1 > $revisions->currentPage())
-                <a href="#{{$revisions->currentPage()+1}}" class="page-link page-link-js">{{$revisions->currentPage() + 1}}</a>
-                @if ($revisions->lastPage() - 2 > $revisions->currentPage())
-                    <a href="#{{$revisions->currentPage()+2}}" class="page-link page-link-js">{{$revisions->currentPage() + 2}}</a>
+        <a href="" class="page-link active">{{$page}}</a>
+        @if ($lastPage != $page)
+            @if ($lastPage - 1 > $page)
+                <a href="#{{$page+1}}" class="page-link page-link-js">{{$page + 1}}</a>
+                @if ($lastPage - 2 > $page)
+                    <a href="#{{$page+2}}" class="page-link page-link-js">{{$page + 2}}</a>
                 @endif
-                @if ($revisions->lastPage() - 3 > $revisions->currentPage())
+                @if ($lastPage - 3 > $page)
                     <span class="page-link dots-forwards">...</span>
                 @endif
             @endif
-            <a href="{{$revisions->url($revisions->lastPage())}}" class="page-link last-page">{{$revisions->lastPage()}}</a>
+            <a href="#{{$lastPage}}" class="page-link last-page page-link-js">{{$lastPage}}</a>
         @endif
     </div>
-    <div class="next page {{$revisions->hasMorePages() ? '' : 'disabled'}}">
-        <a href="#{{$revisions->currentPage()+1}}" class="{{$revisions->hasMorePages() ? 'page-link-js' : ''}}">
+    <div class="next page {{$lastPage >$page ? '' : 'disabled'}}">
+        <a href="#{{$page+1}}" class="{{$lastPage >$page ? 'page-link-js' : ''}}">
             <i class="icon icon-chevron right"></i>
             <span class="name underline-middle-hover">Next Page</span>
         </a>

@@ -1,10 +1,3 @@
-<?php
-use App\User;
-use App\Project;
-use App\ProjectGroup;
-use App\Http\Requests\ProjectRequest;
-?>
-
 <nav class="navigation navigation-js {{ (Auth::guest() || !Auth::user()->active ? 'auth' : '') }}">
   <div class="status status-js">
     <span class="information">This is a successful status example.</span>
@@ -58,7 +51,7 @@ use App\Http\Requests\ProjectRequest;
         </a>
         <ul class="navigation-sub-menu navigation-sub-menu-js language-select">
           @foreach(getLangs()->keys() as $lang)
-              <li><a onclick='setTempLang({{$lang}})' href='#'>{{\Illuminate\Support\Facades\Config::get('app.locales_supported')->get($lang)[1]}}</a> </li>
+              <li><a onclick='setTempLang({{$lang}})' href='#'>{{getLangs()->get($lang)[1]}}</a> </li>
           @endforeach
           <li>More Languages <br> Coming Soon!</li>
         </ul>

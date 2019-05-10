@@ -1,6 +1,7 @@
 <?php namespace App\Http\Controllers;
 
 use App\Form;
+use App\Http\Requests\FieldRequest;
 use App\User;
 use App\FormGroup;
 use Illuminate\Http\JsonResponse;
@@ -49,8 +50,8 @@ class FormController extends Controller {
 		$userNames = array();
 		foreach ($users as $user) {
 			if (!$currProjectAdmins->contains($user) && !$admins->contains($user)) {
-				$firstName = $user->first_name;
-				$lastName = $user->last_name;
+				$firstName = $user->preferences['first_name'];
+				$lastName = $user->preferences['last_name'];
 				$userName = $user->username;
 
 				$pushThis = $firstName.' '.$lastName.' ('.$userName.')';
@@ -61,7 +62,7 @@ class FormController extends Controller {
 
         $presets = array();
         foreach(Form::where('preset', '=', 1, 'and', 'pid', '=', $pid)->get() as $form)
-            $presets[$form->fid] = $form->project->name.' - '.$form->name;
+            $presets[$form->id] = $form->project->name.' - '.$form->name;
 
         return view('forms.create', compact('project', 'userNames', 'presets')); //pass in
 	}
@@ -75,8 +76,7 @@ class FormController extends Controller {
 	public function store(FormRequest $request) {
 	    $form = Form::create($request->all());
 
-	    //TODO::CASTLE
-        //if($request->preset[0]=="") //Since the preset is copying the target form, no need to make a default page
+	    if($request->preset[0]=="") //Since the preset is copying the target form, no need to make a default page
             PageController::makePageOnForm($form->id,$form->name." Default Page");
 
         $adminGroup = FormGroup::makeAdminGroup($form, $request);
@@ -89,9 +89,10 @@ class FormController extends Controller {
         $rTable = new \CreateRecordsTable();
         $rTable->createFormRecordsTable($form->id);
 
-        //TODO::CASTLE
-        //if($request->preset[0]!="")
-            //self::addPresets($form, $request->preset[0]);
+        if($request->preset[0]!="") {
+            //Copy the preset (this function will add the new record table)
+            self::addPresets($form, $request->preset[0]);
+        }
 
         return redirect('projects/'.$form->project_id.'/forms/'.$form->id)->with('k3_global_success', 'form_created');
 	}
@@ -355,53 +356,114 @@ class FormController extends Controller {
     }
 
     /**
-     * Copys a form's information from another preset form. //TODO::CASTLE
+     * Copys a form's information from another preset form.
      *
      * @param  Form $form - Form being created
      * @param  int $fid - Form ID of preset form
      */
     private function addPresets(Form $form, $fid) {
-        $preset = Form::where('fid', '=', $fid)->first();
+        //Copy layout with new IDs
+        $preset = Form::where('id', '=', $fid)->first();
+        foreach($preset->layout['pages'] as $pageNum => $data) {
+            //create page on new form
+            $pageArray = [];
+            $pageArray['title'] = $data['title'];
+            $pageArray['flids'] = [];
+            $layout = $form->layout;
 
-        $field_assoc = array();
-        $pageConvert = array();
+            if(is_null($layout)) {
+                $layout = ['pages' => [$pageArray], 'fields' => []];
+            } else {
+                $currPages = $layout['pages'];
+                array_push($currPages, $pageArray);
 
-        //Duplicate pages
-        foreach($preset->pages()->get() as $page) {
-            $newP = new Page();
-            $newP->fid = $form->fid;
-            $newP->title = $page->title;
-            $newP->sequence = $page->sequence;
-            $newP->save();
+                $layout['pages'] = $currPages;
+            }
 
-            $pageConvert[$page->id] = $newP->id;
+            foreach($data['flids'] as $preFlid) {
+                //build out  and create field
+                $oldField = $preset->layout['fields'][$preFlid];
+
+                $field = [];
+                $flid = slugFormat($oldField['name'], $form->project_id, $form->id);
+
+                //Fill out its data
+                $field['type'] = $oldField['type'];
+                $field['name'] = $oldField['name'];
+                $field['description'] = $oldField['description'];
+                $field['default'] = $oldField['default'];
+                if(isset($oldField['options'])) //Combo doesn't store it here
+                    $field['options'] = $oldField['options'];
+                $field['required'] = $oldField['required'];
+                $field['searchable'] = $oldField['searchable'];
+                $field['advanced_search'] = $oldField['advanced_search'];
+                $field['external_search'] = $oldField['external_search'];
+                $field['viewable'] = $oldField['viewable'];
+                $field['viewable_in_results'] = $oldField['viewable_in_results'];
+                $field['external_view'] = $oldField['external_view'];
+
+                // Combo List Specific
+                $options = array();
+                if($field['type'] == Form::_COMBO_LIST) {
+                    foreach(['one' => 1, 'two' => 2] as $seq => $num) {
+                        $slug = slugFormat(
+                            $oldField[$seq]['name'],
+                            $form->project_id,
+                            $form->id
+                        );
+                        $options[$seq] = [
+                            'type' => $oldField[$seq]['type'],
+                            'name' => $slug
+                        ];
+                        $field[$seq] = [
+                            'type' => $oldField[$seq]['type'],
+                            'name' => $oldField[$seq]['name'],
+                            'flid' => $slug,
+                            'default' => $oldField[$seq]['default'],
+                            'options' => $oldField[$seq]['options']
+                        ];
+                    }
+                }
+
+                //Field Specific Stuff
+                $fieldMod = $form->getFieldModel($field['type']);
+                $fieldMod->addDatabaseColumn($form->id, $flid, $options);
+
+                //The HARD part about field specific options
+                if(in_array($field['type'],Form::$enumFields)) {
+                    $table = new \CreateRecordsTable(['tablePrefix' => 'records_']);
+                    $table->updateEnum(
+                        $form->id,
+                        $flid,
+                        $field['options']['Options']
+                    );
+                } else if($field['type'] == Form::_COMBO_LIST) {
+                    //When a combo list has an enum type
+                    if(in_array($field['one']['type'],Form::$enumFields)) {
+                        $table = new \CreateRecordsTable(['tablePrefix' => $flid]);
+                        $table->updateEnum(
+                            $form->id,
+                            $field['one']['flid'],
+                            $field['one']['options']['Options']
+                        );
+                    }
+                    if(in_array($field['two']['type'],Form::$enumFields)) {
+                        $table = new \CreateRecordsTable(['tablePrefix' => $flid]);
+                        $table->updateEnum(
+                            $form->id,
+                            $field['two']['flid'],
+                            $field['two']['options']['Options']
+                        );
+                    }
+                }
+
+                //Add to form
+                $layout['fields'][$flid] = $field;
+                $layout['pages'][$pageNum]["flids"][] = $flid;
+            }
+
+            $form->layout = $layout;
+            $form->save();
         }
-
-        //Duplicate fields
-        foreach($preset->fields()->get() as $field)  {
-            $new = new Field();
-            $new->pid = $form->pid;
-            $new->fid = $form->fid;
-            $new->page_id = $pageConvert[$field->page_id];
-            $new->sequence = $field->sequence;
-            $new->type = $field->type;
-            $new->name = $field->name;
-            $new->slug = $field->slug.'_'.$form->slug;
-            $new->desc = $field->desc;
-            $new->required = $field->required;
-            $new->searchable = $field->searchable;
-            $new->advsearch = $field->advsearch;
-            $new->extsearch = $field->extsearch;
-            $new->viewable = $field->viewable;
-            $new->viewresults = $field->viewresults;
-            $new->extview = $field->extview;
-            $new->default = $field->default;
-            $new->options = $field->options;
-            $new->save();
-
-            $field_assoc[$field->flid] = $new->flid;
-        }
-
-        $form->save();
     }
 }

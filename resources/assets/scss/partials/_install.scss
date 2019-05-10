@@ -1,3 +1,16 @@
+.install-body {
+  background: palette('gray', background);
+  font-family: $ubuntu;
+  min-height: 100vh;
+}
+
+.install {
+  margin: $navigation-height auto 0;
+  width: 100%;
+
+  @import 'install/install-form';
+}
+
 .welcome-fresh-body {
   background: url('../images/auth-bg.jpg');
   background-position: center;
@@ -30,12 +43,6 @@
     .commander {
       font-size: 16px;
       line-height: 28px;
-
-      a {
-        font-family: $ubuntu-medium;
-        text-decoration: none;
-        cursor: pointer;
-      }
     }
   }
 }

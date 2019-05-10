@@ -12,7 +12,7 @@ class IsInstalled
      * @return mixed
      */
     public function handle($request, Closure $next) {
-        if(!file_exists("../.env"))
+        if(!isInstalled())
             return redirect('/');
 
         return $next($request);

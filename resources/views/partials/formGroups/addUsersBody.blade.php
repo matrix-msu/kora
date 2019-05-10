@@ -8,7 +8,7 @@
         multiple >
         @foreach($all_users as $user)
           @if(!$formGroup->hasUser($user) && \Auth::user()->id != $user->id)
-            <option value="{{$user->id}}">{{$user->first_name}} {{$user->last_name}} ({{ $user->username }})</option>
+            <option value="{{$user->id}}">{{$user->getFullName()}} ({{ $user->username }})</option>
           @endif
         @endforeach
       </select>

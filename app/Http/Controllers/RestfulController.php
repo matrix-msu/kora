@@ -77,7 +77,7 @@ class RestfulController extends Controller {
 
         $proj = ProjectController::getProject($pid);
 
-        $validated = $this->validateToken($proj->id,$request->token,"create");
+        $validated = $this->validateToken($proj->id,$request->bearer_token,"create");
         //Authentication failed
         if(!$validated)
             return response()->json(["status"=>false,"error"=>"Invalid create token provided"],500);
@@ -121,7 +121,7 @@ class RestfulController extends Controller {
         if(!FormController::validProjForm($pid,$fid))
             return response()->json(["status"=>false,"error"=>"Invalid Project/Form Pair"],500);
 
-        $validated = $this->validateToken($pid,$request->token,"create");
+        $validated = $this->validateToken($pid,$request->bearer_token,"create");
         //Authentication failed
         if(!$validated)
             return response()->json(["status"=>false,"error"=>"Invalid create token provided"],500);
@@ -578,15 +578,15 @@ class RestfulController extends Controller {
      * @param  Request $request
      * @return mixed - The new RID, if successful
      */
-    public function create(Request $request) { //TODO::CASTLE
+    public function create(Request $request) {
         //get the form
         $f = $request->form;
         //next, we authenticate the form
         $form = FormController::getForm($f);
         if(is_null($form))
-            return response()->json(["status"=>false,"error"=>"Invalid Form: ".$form->fid],500);
+            return response()->json(["status"=>false,"error"=>"Invalid Form"],500);
 
-        $validated = $this->validateToken($form->pid,$request->token,"create");
+        $validated = $this->validateToken($form->project_id,$request->bearer_token,"create");
         //Authentication failed
         if(!$validated)
             return response()->json(["status"=>false,"error"=>"Invalid create token provided"],500);
@@ -597,50 +597,38 @@ class RestfulController extends Controller {
 
         $fields = json_decode($request->fields);
         $recRequest = new Request();
-        $uToken = $this->fileToken(); //need a temp user id to interact, specifically for files
+
+        $uToken = uniqid(); //need a temp user id to interact, specifically for files
         $recRequest['userId'] = $uToken; //the new record will ultimately be owned by the root/sytem
-        if( !is_null($request->file("zipFile")) ) {
+        if(!is_null($request->file("zipFile")) ) {
             $file = $request->file("zipFile");
-            $zipPath = $file->move(storage_path('app/tmpFiles/impU' . $uToken));
+            $zipPath = $file->move(storage_path('app/tmpFiles/recordU' . $uToken));
             $zip = new \ZipArchive();
             $res = $zip->open($zipPath);
             if($res === TRUE) {
-                $zip->extractTo(storage_path('app/tmpFiles/impU' . $uToken));
+                $zip->extractTo(storage_path('app/tmpFiles/recordU' . $uToken));
                 $zip->close();
             } else {
                 return response()->json(["status"=>false,"error"=>"There was an error extracting the provided zip"],500);
             }
         }
-        foreach($fields as $fieldName => $jsonField) {
-            $fieldSlug = $fieldName;
-            $field = Field::where('slug', '=', $fieldSlug)->get()->first();
-            if(is_null($field))
-                return response()->json(["status"=>false,"error"=>"The field, $fieldSlug, does not exist"],500);
 
-            $recRequest = $field->getTypedField()->setRestfulRecordData($jsonField, $field->flid, $recRequest, $uToken);
+        foreach($fields as $fieldName => $jsonField) {
+            if(!isset($form->layout['fields'][$fieldName]))
+                return response()->json(["status"=>false,"error"=>"The field, ".$this->cleanseOutput($fieldName).", does not exist"],500);
+
+            $field = $form->layout['fields'][$fieldName];
+            $typedField = $form->getFieldModel($field['type']);
+
+            $recRequest = $typedField->processImportData($fieldName, $field, $jsonField, $recRequest);
         }
+
         $recRequest['api'] = true;
         $recRequest['assignRoot'] = true;
         $recCon = new RecordController();
 
-        $response = $recCon->store($form->pid,$form->fid,$recRequest);
+        $response = $recCon->store($form->project_id,$form->id,$recRequest);
         return $response;
-    }
-
-    /**
-     * Creates a fake user id to exist within the temp file structure of Kora3.
-     *
-     * @return string - The id
-     */
-    private function fileToken() { //TODO::CASTLE
-        $valid = 'abcdefghijklmnopqrstuvwxyz';
-        $valid .= 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-        $valid .= '0123456789';
-        $token = '';
-        for($i = 0; $i < 12; $i++) {
-            $token .= $valid[( rand() % 62 )];
-        }
-        return $token;
     }
 
     /**
@@ -649,18 +637,18 @@ class RestfulController extends Controller {
      * @param  Request $request
      * @return mixed - Status of record modification
      */
-    public function edit(Request $request) { //TODO::CASTLE
+    public function edit(Request $request) {
         //get the form
         $f = $request->form;
         //next, we authenticate the form
         $form = FormController::getForm($f);
         if(is_null($form))
-            return response()->json(["status"=>false,"error"=>"Invalid Form: ".$form->fid],500);
+            return response()->json(["status"=>false,"error"=>"Invalid Form"],500);
 
-        $validated = $this->validateToken($form->pid,$request->token,"edit");
+        $validated = $this->validateToken($form->project_id,$request->bearer_token,"edit");
         //Authentication failed
         if(!$validated)
-            return response()->json(["status"=>false,"error"=>"Invalid create token provided"],500);
+            return response()->json(["status"=>false,"error"=>"Invalid edit token provided"],500);
 
         //Gather field data to insert
         if(!isset($request->kid))
@@ -671,48 +659,42 @@ class RestfulController extends Controller {
             return response()->json(["status"=>false,"error"=>"No data supplied to insert into: ".$form->name],500);
 
         $fields = json_decode($request->fields);
-        $record = RecordController::getRecordByKID($request->kid);
+        $record = RecordController::getRecord($request->kid);
         if(is_null($record))
-            return response()->json(["status"=>false,"error"=>"Invalid Record: ".$request->kid],500);
+            return response()->json(["status"=>false,"error"=>"Invalid KID provided"],500);
 
         $recRequest = new Request();
-        $uToken = $this->fileToken(); //need a temp user id to interact, specifically for files
+        $uToken = uniqid(); //need a temp user id to interact, specifically for files
+
         $recRequest['userId'] = $uToken; //the new record will ultimately be owned by the root/sytem
-        //Basically this determines if we keep data for fields we don't mention in the request
-        //if true, we keep the data
-        //by default, we delete data from unmentioned fields
-        $keepFields = isset($request->keepFields) ? $request->keepFields : "false";
-        $fieldsToEditArray = array(); //These are the fields that are allowed to be editted if we are doing keepfields
         if( !is_null($request->file("zipFile")) ) {
             $file = $request->file("zipFile");
-            $zipPath = $file->move(storage_path('app/tmpFiles/impU' . $uToken));
+            $zipPath = $file->move(storage_path('app/tmpFiles/recordU' . $uToken));
             $zip = new \ZipArchive();
             $res = $zip->open($zipPath);
             if($res === TRUE) {
-                $zip->extractTo(storage_path('app/tmpFiles/impU' . $uToken));
+                $zip->extractTo(storage_path('app/tmpFiles/recordU' . $uToken));
                 $zip->close();
             } else {
                 return response()->json(["status"=>false,"error"=>"There was an issue extracting the provided file zip"],500);
             }
         }
+
         foreach($fields as $fieldName => $jsonField) {
-            $fieldSlug = $fieldName;
-            $field = Field::where('slug', '=', $fieldSlug)->get()->first();
-            if(is_null($field))
-                return response()->json(["status"=>false,"error"=>"The field, $fieldSlug, does not exist"],500);
-            //if keepfields scenario, keep track of this field that will be edited
-            if($keepFields=="true")
-                $fieldsToEditArray[] = $field->flid;
+            if(!isset($form->layout['fields'][$fieldName]))
+                return response()->json(["status"=>false,"error"=>"The field, ".$this->cleanseOutput($fieldName).", does not exist"],500);
 
-            $recRequest = $field->getTypedField()->setRestfulRecordData($jsonField, $field->flid, $recRequest, $uToken);
+            $field = $form->layout['fields'][$fieldName];
+            $typedField = $form->getFieldModel($field['type']);
+
+            $recRequest = $typedField->processImportData($fieldName, $field, $jsonField, $recRequest);
         }
-        $recRequest['api'] = true;
-        $recRequest['keepFields'] = $keepFields; //whether we keep unmentioned fields
-        $recRequest['fieldsToEdit'] = $fieldsToEditArray; //what fields can be modified if keepfields
-        $recCon = new RecordController();
-        $recCon->update($form->pid,$form->fid,$record->rid,$recRequest);
 
-        return "Modified record: ".$request->kid;
+        $recRequest['api'] = true;
+        $recCon = new RecordController();
+
+        $response = $recCon->update($form->project_id,$form->id,$record->id,$recRequest);
+        return $response;
     }
 
     /**
@@ -721,37 +703,40 @@ class RestfulController extends Controller {
      * @param  Request $request
      * @return mixed - Status of record deletion
      */
-    public function delete(Request $request) { //TODO::CASTLE
+    public function delete(Request $request) {
         //get the form
         $f = $request->form;
         //next, we authenticate the form
         $form = FormController::getForm($f);
         if(is_null($form))
-            return response()->json(["status"=>false,"error"=>"Invalid Form: ".$form->fid],500);
+            return response()->json(["status"=>false,"error"=>"Invalid Form"],500);
 
-        $validated = $this->validateToken($form->pid,$request->token,"delete");
+        $validated = $this->validateToken($form->project_id,$request->bearer_token,"delete");
         //Authentication failed
         if(!$validated)
-            return response()->json(["status"=>false,"error"=>"Invalid create token provided"],500);
+            return response()->json(["status"=>false,"error"=>"Invalid delete token provided"],500);
 
         //Gather records to delete
         if(!isset($request->kids))
-            return response()->json(["status"=>false,"error"=>"No record KIDs supplied to delete in: ".$form->name],500);
+            return response()->json(["status"=>false,"error"=>"No KIDs supplied to delete in: ".$form->name],500);
 
-        $kids = explode(",",$request->kids);
+        $kids = json_decode($request->kids);
         $recsToDelete = array();
-        for($i=0;$i<sizeof($kids);$i++) {
-            $rid = explode("-",$kids[$i])[2];
-            $record = RecordController::getRecord($rid);
+        foreach($kids as $kid) {
+            if(!Record::isKIDPattern($kid))
+                return response()->json(["status"=>false,"error"=>"Illegal KID format for: ".$this->cleanseOutput($kid)],500);
+
+            $record = RecordController::getRecord($kid);
+
             if(is_null($record))
-                return response()->json(["status"=>false,"error"=>"Supplied record does not exist: ".$kids[$i]],500);
+                return response()->json(["status"=>false,"error"=>"Supplied record does not exist: ".$kid],500);
             else
                 array_push($recsToDelete,$record);
         }
         foreach($recsToDelete as $record) {
             $record->delete();
         }
-        return "Deleted records";
+        return response()->json(["status"=>true,"message"=>"record_deleted"],200);
     }
 
     /**

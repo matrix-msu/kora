@@ -16,50 +16,54 @@ educational value of the objects.
 
 ### Installation
 
-NOTE: If you are using a previous version of Kora 3 (3.0.*), you will not be able to upgrade through Kora. Create a 
+**NOTE**: If you are using a previous version of Kora 3 (3.0.*), you will not be able to upgrade through Kora. Create a 
 fresh Kora 3 install and use the provided database conversion tool [COMING SOON]
 
 1) Clone the repository:
     
-       git clone https://github.com/matrix-msu/Kora3.git
+        git clone https://github.com/matrix-msu/Kora3.git
 
 2) Create `.htaccess` from the example in `Kora3/public`:
 
        cp Kora3/public/.htaccess.example Kora3/public/.htaccess
-
-3) Configure the `RewriteBase` rule in the newly created `.htaccess` if the installation is **NOT** located at the root 
-of your url:
-
-       i.e. if the URL is: http://www.example.com/digitalRepo/Kora3/public
-       then the .htaccess rule is: RewriteBase /digitalRepo/Kora3/public
        
-4) Configure the `php_value` rules in the newly created `.htaccess` if the installation supports variable overwriting in 
-htaccess:
+    a) Configure the `RewriteBase` rule if the installation is **NOT** located at the root of your url.
+    
+    i.e if url is http://www.example.com/digitalRepo/Kora3/public, then rule is:
+       
+       RewriteBase /digitalRepo/Kora3/public
+       
+    b) Configure the `php_value` rules in the newly created `.htaccess` if the installation supports variable 
+       overwriting in htaccess (i.e. if you plan on uploading larger files).
 
-       i.e. if you plan on uploading larger files
-
-5) Create `.env` from the example in `Kora3`:
+3) Create `.env` from the example in `Kora3`:
 
        cp Kora3/.env.example Kora3/.env
        
-6) Configure any settings in the `.env` file as needed. If you wish to use the defaults, please configure your database 
-with the expected defaults.
-        
-       in mysql:
+    a) If you wish to use the defaults, please configure your database with the expected defaults. 
+    
+    i.e. in mysql:
+       
        GRANT ALL PRIVILEGES ON *.* TO 'kora3'@'localhost' IDENTIFIED BY 'kora3';
        CREATE DATABASE kora3;
 
-7) Run the following command in the Kora 3 root directory to complete the installation:
+4) Run the following command in the Kora 3 root directory to complete the installation:
 
        php artisan kora3:install
+       
+   **NOTE**: Alternatively, you can visit Kora 3 on the web at this point to complete installation there.
 
-8) Give **READ** access to the web user for Kora3 and **ALL** sub-folders.
+5) After installation is complete:
+
+    a) Give **READ** access to the web user for Kora 3 and **ALL** sub-folders.
     
-9) Give **WRITE** access to the web user for the following directories and **ALL** their sub-folders:
-
+    b) Give **WRITE** access to the web user for the following directories and **ALL** their sub-folders:
+       
        Kora3/bootstrap/cache/
        Kora3/storage/
        Kora3/public/assets/javascripts/production/
+       
+    c) **COPY THE ADMIN USER PASSWORD YOU ARE GIVEN!!!**
 
 ## Contributing
 

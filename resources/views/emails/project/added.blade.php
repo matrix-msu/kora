@@ -1,7 +1,7 @@
 @extends('email')
 
 @section('main-text')
-    <span class="bold-highlight">{{\Auth::user()->first_name}} {{\Auth::user()->last_name}}</span> has added you to the following Kora Project:
+    <span class="bold-highlight">{{ \Auth::user()->getFullName() }}</span> has added you to the following Kora Project:
 @endsection
 
 @section('project-text')
@@ -11,7 +11,7 @@
 @endsection
 
 @section('button-link')
-    {{action('ProjectController@show', ['id'=>$project->pid])}}
+    {{action('ProjectController@show', ['id'=>$project->id])}}
 @endsection
 
 @section('button-text')
@@ -35,7 +35,7 @@
 @endsection
 
 @section('footer-text')
-    Your permissions have been updated by {{\Auth::user()->first_name}} {{\Auth::user()->last_name}}
+    Your permissions have been updated by {{ \Auth::user()->getFullName() }}
 @endsection
 
 @section('footer-email')

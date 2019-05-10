@@ -91,7 +91,10 @@ abstract class FileTypeField extends BaseField {
      * @return mixed - Processed data
      */
     public function processRecordData($field, $value, $request) {
-        $uid = Auth::user()->id;
+        if($request->api && isset($request->userId))
+            $uid = $request->userId;
+        else
+            $uid = Auth::user()->id;
         $tmpPath = 'app/tmpFiles/recordU' . $uid;
 
         //See if files were uploaded

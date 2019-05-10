@@ -13,12 +13,12 @@
     <section class="center profile page-section page-section-js {{($section == 'profile' ? 'active' : '')}}" id="profile">
         <div class="attr mt-xl">
             <span class="title">First Name: </span>
-            <span class="desc">{{$user->first_name}}</span>
+            <span class="desc">{{$user->preferences['first_name']}}</span>
         </div>
 
         <div class="attr mt-xl">
             <span class="title">Last Name: </span>
-            <span class="desc">{{$user->last_name}}</span>
+            <span class="desc">{{$user->preferences['last_name']}}</span>
         </div>
 
         <div class="attr mt-xl">
@@ -33,7 +33,7 @@
 
         <div class="attr mt-xl">
             <span class="title">Organization: </span>
-            <span class="desc">{{$user->organization}}</span>
+            <span class="desc">{{$user->preferences['organization']}}</span>
         </div>
     </section>
 @stop

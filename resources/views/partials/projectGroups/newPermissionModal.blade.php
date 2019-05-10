@@ -7,7 +7,7 @@
       </a>
     </div>
     <div class="body">
-      {!! Form::open(['method' => 'POST', 'action' => ['ProjectGroupController@create', $project->pid]]) !!}
+      {!! Form::open(['method' => 'POST', 'action' => ['ProjectGroupController@create', $project->id]]) !!}
         <div class="form-group">
           {!! Form::label('name', 'Permissions Group Name') !!}
 		  <span class="error-message"></span>
@@ -59,7 +59,7 @@
             multiple >
             @foreach($all_users as $user)
               @if ($user->id !== 1)
-                <option value="{{$user->id}}">{{$user->first_name}} {{$user->last_name}} ({{$user->username}})</option>
+                <option value="{{$user->id}}">{{$user->getFullName()}} ({{$user->username}})</option>
               @endif
             @endforeach
           </select>

@@ -61,7 +61,6 @@ Route::group(['middleware' => 'web'], function () {
     Route::patch('/admin/updateStatus/{id}', 'AdminController@updateStatus');
     Route::patch('/admin/batch', 'AdminController@batch');
     Route::delete('admin/deleteUser/{id}', 'AdminController@deleteUser');
-    Route::post('/admin/order66', 'AdminController@deleteData');
 
 //token routes
     Route::get('/tokens', 'TokenController@index');
@@ -203,7 +202,6 @@ Route::group(['middleware' => 'web'], function () {
 	Route::get('/getOnboardingProjects/{user}', 'Auth\UserController@getOnboardingProjects');
     Route::delete('/user/{uid}/delete', 'Auth\UserController@delete');
     Route::patch('/user/validate/{uid}', 'Auth\UserController@validateUserFields');
-    Route::patch('/user/changepw', 'Auth\UserController@changepw');
     Route::patch('/user/{uid}/update', 'Auth\UserController@update');
     Route::patch('/user/{uid}/updateFromEmail', 'Auth\UserController@updateFromEmail');
     Route::patch('/user/{uid}/preferences', 'Auth\UserController@updatePreferences'); // edit user prefs from user prefs page
@@ -226,6 +224,9 @@ Route::group(['middleware' => 'web'], function () {
 
 //install routes
     Route::get('/helloworld', 'InstallController@helloworld');
+    Route::get('/install', 'InstallController@index');
+    Route::post('/install', 'InstallController@installFromWeb');
+    Route::get('/readyplayerone', "WelcomeController@installSuccess");
     Route::get('/install/config', "InstallController@editEnvConfigs");
     Route::post('/install/config', "InstallController@updateEnvConfigs");
 

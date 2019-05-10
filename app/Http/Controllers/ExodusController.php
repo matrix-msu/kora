@@ -118,7 +118,7 @@ class ExodusController extends Controller {
                     $user->email = $email;
                     $user->admin = $u['admin'];
                     $user->active = 1;
-                    $password = $this->passwordGen();
+                    $password = uniqid();
                     $user->password = bcrypt($password);
                     $token = RegisterController::makeRegToken();
                     $user->regtoken = $token;
@@ -506,23 +506,6 @@ class ExodusController extends Controller {
      */
     private function emailExists($email) {
         return !is_null(User::where('email', '=', $email)->first());
-    }
-
-    /**
-     * Generates a new 10-character password.
-     *
-     * @return string - The new password
-     */
-    private function passwordGen() {
-        $valid = 'abcdefghijklmnopqrstuvwxyz';
-        $valid .= 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-        $valid .= '0123456789';
-
-        $password = '';
-        for($i = 0; $i < 10; $i++) {
-            $password .= $valid[( rand() % 62 )];
-        }
-        return $password;
     }
 
     /**

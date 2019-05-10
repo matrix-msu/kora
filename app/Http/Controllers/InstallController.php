@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\Session;
 use Illuminate\View\View;
 
 class InstallController extends Controller {
@@ -58,18 +59,99 @@ class InstallController extends Controller {
      * @return View
      */
     public function helloworld() {
-        if(file_exists(base_path(".env")))
+        if(isInstalled())
             return redirect('/');
 
         return view('install.helloworld');
     }
 
     /**
+     * Gets view for install setup.
+     *
+     * @return View
+     */
+    public function index() {
+        if(isInstalled())
+            return redirect('/');
+
+        return view('install.install');
+    }
+
+    /**
+     * Installs kora from the web interface.
+     *
+     * @param  Request $request
+     * @return View
+     */
+    public function installFromWeb(Request $request) {
+        if($this->updateEnvDB($request)) {
+            $password = uniqid();
+            if($this->install($password,$request))
+                return redirect()->action('WelcomeController@installSuccess',['pw'=>$password]);
+        }
+
+        return redirect('/install')->withInput();
+    }
+
+    /**
+     * Updates DB in the ENV configuration file.
+     *
+     * @param  Request $request
+     * @return bool
+     */
+    private function updateEnvDB(Request $request) {
+        if(config('app.debug'))
+            $debug = 'true';
+        else
+            $debug = 'false';
+
+        $layout = "APP_ENV=" . config('app.env') . "\n".
+            "APP_DEBUG=" . $debug . "\n".
+            "APP_KEY=" . config('app.key') . "\n\n".
+
+            "DB_HOST=" . $request->db_host . "\n" .
+            "DB_DATABASE=" . $request->db_database . "\n" .
+            "DB_USERNAME=" . $request->db_username . "\n" .
+            "DB_PASSWORD=" . $request->db_password . "\n" .
+            "DB_DEFAULT=" . config('database.default') . "\n" .
+            "DB_PREFIX=" . $request->db_prefix . "\n\n" .
+
+            "MAIL_HOST=" . config('mail.host') . "\n" .
+            "MAIL_FROM_ADDRESS=" . config('mail.from.address') . "\n" .
+            "MAIL_FROM_NAME=\"" . config('mail.from.name') . "\"\n" .
+            "MAIL_USER=" . config('mail.username') . "\n" .
+            "MAIL_PASSWORD=" . config('mail.password') . "\n\n" .
+
+            "CACHE_DRIVER=" . config('cache.default') . "\n".
+            "SESSION_DRIVER=" . config('session.driver') . "\n\n".
+
+            "RECAPTCHA_PUBLIC_KEY=" . config('auth.recap_public') . "\n" .
+            "RECAPTCHA_PRIVATE_KEY=" . config('auth.recap_private');
+
+        try {
+            Log::info("Beginning ENV Write");
+            $envfile = fopen(base_path(".env"), "w");
+
+            fwrite($envfile, $layout);
+
+            fclose($envfile);
+            Log::info("Ending ENV Write");
+        } catch(\Exception $e) { //Most likely if the file is owned by another user or PHP doesn't have permission
+            Log::info($e);
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
      * Install Kora 3 - Creates the database, and adds any defaults needed
      *
+     * @param  string $password - The admin password to create
+     * @param  array $request - Optional DB values
      * @return bool - Whether things were successful or not
      */
-	public function install() {
+	public function install($password, $request = null) {
         //Build the App Key
         try {
             echo "Generating app key...\n";
@@ -84,12 +166,15 @@ class InstallController extends Controller {
 
         //Test out the DB connection
         $dbc = null;
+        $dbHost = (!is_null($request) && isset($request->db_host)) ? $request->db_host : config('database.connections.mysql.host');
+        $dbDatabase = (!is_null($request) && isset($request->db_database)) ? $request->db_database : config('database.connections.mysql.database');
+        $dbUser = (!is_null($request) && isset($request->db_username)) ? $request->db_username : config('database.connections.mysql.username');
+        $dbPassword = (!is_null($request) && isset($request->db_password)) ? $request->db_password : config('database.connections.mysql.password');
         try{
             echo "Testing database connection...\n";
-            $dbc = new \PDO('mysql:host='.config('database.connections.mysql.host').';dbname='.config('database.connections.mysql.database'),
-                config('database.connections.mysql.username'), config('database.connections.mysql.password'));
+            $dbc = new \PDO('mysql:host='.$dbHost.';dbname='.$dbDatabase, $dbUser, $dbPassword);
             echo "Database connection successful!\n";
-        } catch(\PDOException $e) {
+        } catch(\Exception $e) {
             Log::info($e);
             echo "Failed to connect to database! Check your database credentials or review the logs for more error information.\n";
             $this->resetInstall();
@@ -139,7 +224,7 @@ class InstallController extends Controller {
         //Create admin user
         try {
             echo "Creating the admin user...\n";
-            $this->makeAdmin();
+            $this->makeAdmin($password);
             echo "Admin user created!\n";
         } catch(\Exception $e) {
             Log::info($e);
@@ -192,13 +277,15 @@ class InstallController extends Controller {
     }
 
     /**
-     * Create the admin user for the installation.*
+     * Create the admin user for the installation.
+     *
+     * @param  string $password - The admin password to create
      */
-    private function makeAdmin() {
+    private function makeAdmin($password) {
         $newuser = User::create([
             'username' => 'admin',
             'email' => 'root@localhost.com',
-            'password' => bcrypt('password'),
+            'password' => bcrypt($password),
             'regtoken' => ''
         ]);
 
@@ -312,7 +399,6 @@ class InstallController extends Controller {
             fwrite($envfile, $layout);
 
             fclose($envfile);
-            chmod(base_path(".env"),0660);
             Log::info("Ending ENV Write");
         } catch(\Exception $e) { //Most likely if the file is owned by another user or PHP doesn't have permission
             Log::info($e);

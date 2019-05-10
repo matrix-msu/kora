@@ -88,6 +88,19 @@ class WelcomeController extends Controller {
 	}
 
     /**
+     * Gets the view for successful installation.
+     *
+     * @return View
+     */
+    public function installSuccess() {
+        if(!isInstalled())
+            return redirect('/helloworld');
+        else {
+            return view('install.success');
+        }
+    }
+
+    /**
      * Allows guest users to switch language.
      *
      * @return string - Success response

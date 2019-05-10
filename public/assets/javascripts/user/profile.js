@@ -205,7 +205,6 @@ Kora.User.Profile = function() {
       e.preventDefault();
 
       var $this = $(this);
-      var sec = getURLParameter('sec');
       var toPage = $this.attr('href').replace('#', '');
 
       window.location = windowLocation('page', toPage);

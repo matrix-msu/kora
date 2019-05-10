@@ -1,0 +1,15 @@
+.install-form {
+  margin: #{map-get($spacing, xxxl)} auto;
+  max-width: calc(#{ $max-site-width } - 600px);
+  width: $max-site-width;
+
+  .section-title {
+    font-size: 24px;
+    line-height: 28px;
+  }
+
+  .section-desc {
+    font-size: 14px;
+    line-height: 16px;
+  }
+}

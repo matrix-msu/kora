@@ -1,6 +1,4 @@
-<?php
-
-namespace App\Http\Requests;
+<?php namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
@@ -35,8 +33,9 @@ class UserRequest extends FormRequest
                 ];
             case 'PATCH':
                 return [
-                    'username' => 'required|max:60|unique:users',
-                    'password' => 'required|max:60|confirmed|min:6',
+                    'username' => 'required|max:60|unique:users,id,'.$this->uid,
+                    'email' => 'required|email|max:60|unique:users,id,'.$this->uid,
+                    'password' => 'max:60|confirmed|min:6',
                     'language'=> 'required|alpha|max:2',
                     'first_name'=> 'required',
                     'last_name'=> 'required',

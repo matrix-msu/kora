@@ -52,14 +52,18 @@ class InstallKora extends Command
 
         $this->info("Beginning Installation Process...");
 
-        $result = $request->install();
+        $password = uniqid();
+
+        $result = $request->install($password);
 
         if($result) {
-            $this->info("Installation complete! Please make sure all files are readable by the web user.");
-            $this->info("The web user also needs write permissions to the following directories and their subdirectories:");
-            $this->info("Kora3/bootstrap/cache/");
-            $this->info("Kora3/storage/");
-            $this->info("Kora3/public/assets/javascripts/production/");
+            $this->info("Kora 3 has finished initialization. Please review the following:");
+            $this->info("Give READ access to the web user for Kora3 and ALL sub-folders");
+            $this->info("Give WRITE access to the web user for the following directories and ALL their sub-folders");
+            $this->info("    Kora3/bootstrap/cache/");
+            $this->info("    Kora3/storage/");
+            $this->info("    Kora3/public/assets/javascripts/production/");
+            $this->info("Your password for user `admin` is $password");
         }
     }
 }

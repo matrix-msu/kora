@@ -1,12 +1,13 @@
-<?php
-    $exists = \App\Http\Controllers\RecordController::exists($revision->rid);
+@php
+    $exists = \App\Http\Controllers\RecordController::exists($revision->kid);
     $data = \App\Http\Controllers\RevisionController::formatRevision($revision->id);
-    $type = ucfirst($revision->type === "edit" ? 'edited' : ($revision->type === 'rollback' ? 'rollback' : $revision->type.'d'));
-?>
-<div class="record card {{ $index == 0 ? 'active' : '' }}" id="{{$revision->rid}}">
+    $form = \App\Http\Controllers\FormController::getForm($revision->form_id);
+    $type = ucfirst($revision->revision['type'] === "edit" ? 'edited' : ($revision->revision['type'] === 'rollback' ? 'rollback' : $revision->revision['type'].'d'));
+@endphp
+<div class="record card {{ $index == 0 ? 'active' : '' }}" id="{{$revision->kid}}">
     <div class="header {{ $index == 0 ? 'active' : '' }}">
         <div class="left pl-m">
-            <a class="title underline-middle-hover" href="{{ action("RevisionController@show",["pid" => $revision['pid'], "fid" => $revision['fid'], "rid" => $revision['rid']]) }}">
+            <a class="title underline-middle-hover" href="{{ action("RevisionController@show",["pid" => $revision->project_id, "fid" => $revision->form_id, "rid" => $revision->record_kid]) }}">
                 <span class="name">{{$revision->kid}}</span>
             </a>
 
@@ -17,7 +18,7 @@
                 <span class="sub-title">{{$type}}</span>
                 <span class="sub-title">{{date_format($revision->created_at, "g:i")}}</span>
                 <span class="sub-title">{{date_format($revision->created_at, "n.j.Y")}}</span>
-                <span class="sub-title">{{$revision->ownerUsername}}</span>
+                <span class="sub-title">{{$revision->owner}}</span>
             </div>
             <a href="#" class="card-toggle card-toggle-js">
                 <i class="icon icon-chevron {{ $index == 0 ? 'active' : '' }}"></i>
@@ -35,13 +36,13 @@
                     to its previous state that is listed below.
                 </p>
             @endif
-            @if ($revision->type === 'edit' && isset($data['current']))
+            @if ($type === 'Edited' | $type === 'Rollback')
                 <span>Edits Made</span>
                 <div class="edit-section">
                     @foreach ($data["current"] as $id => $field)
                         <div class="field">
-                            <div class="field-title">{{$field["name"]}}</div>
-                            <div class="field-data">{!! $field["data"] !!}</div>
+                            <div class="field-title">{{$form->layout['fields'][$id]['name']}}</div>
+                            <div class="field-data">{!! $field !!}</div>
                         </div>
                     @endforeach
                 </div>
@@ -49,16 +50,16 @@
                 <div class="edit-section">
                     @foreach ($data["old"] as $id => $field)
                         <div class="field">
-                            <div class="field-title">{{$field["name"]}}</div>
-                            <div class="field-data">{!! $field["data"] !!}</div>
+                            <div class="field-title">{{$form->layout['fields'][$id]['name']}}</div>
+                            <div class="field-data">{!! $field !!}</div>
                         </div>
                     @endforeach
                 </div>
             @else
                 @foreach ($data as $id => $field)
                     <div class="field">
-                        <div class="field-title">{{$field["name"]}}</div>
-                        <div class="field-data">{!! $field["data"] !!}</div>
+                        <div class="field-title">{{$form->layout['fields'][$id]['name']}}</div>
+                        <div class="field-data">{!! $field !!}</div>
                     </div>
                 @endforeach
             @endif
@@ -66,7 +67,7 @@
 
         <div class="footer">
             @if (!isset($rid))
-                <a class="quick-action underline-middle-hover left" href="{{action("RevisionController@show", ["pid" => $revision->pid, "fid" => $revision->fid, "rid" => $revision->rid])}}">
+                <a class="quick-action underline-middle-hover left" href="{{action("RevisionController@show", ["pid" => $revision->project_id, "fid" => $revision->form_id, "rid" => $revision->record_kid])}}">
                     <span>See Revisions for this Record Only</span>
                 </a>
             @endif
