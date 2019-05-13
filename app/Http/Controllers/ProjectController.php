@@ -1,5 +1,6 @@
 <?php namespace App\Http\Controllers;
 
+use App\Commands\ProjectEmails;
 use App\User;
 use App\Project;
 use App\ProjectGroup;
@@ -164,7 +165,6 @@ class ProjectController extends Controller {
 
             foreach($projects as $project) {
                 $admins = $this->getProjectAdminNames($project);
-                $admin_selected = false;
 
                 //remove install admin for bcc
                 foreach($admins as $index => $admin_data) {
@@ -178,16 +178,8 @@ class ProjectController extends Controller {
 
                 $bccEmails = $admins->pluck('email')->toArray();
 
-                try {
-                    Mail::send('emails.request.access', compact('project'), function ($message) use($installAdmin, $bccEmails) {
-                        $message->from(config('mail.from.address'));
-                        $message->to($installAdmin->email);
-                        $message->bcc($bccEmails);
-                        $message->subject('Kora Project Request');
-                    });
-                } catch(\Swift_TransportException $e) {
-                    return response()->json(["status"=>false, "message"=>"project_access_failed", 500]);
-                }
+                $job = new ProjectEmails('RequestProjectPermissions', ['installAdmin' => $installAdmin, 'bccEmails' => $bccEmails, 'project' => $project]);
+                $job->handle();
             }
 			
             // only occurs on form submit, not on AJAX call

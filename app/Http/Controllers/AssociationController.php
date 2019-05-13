@@ -1,6 +1,7 @@
 <?php namespace App\Http\Controllers;
 
 use App\Association;
+use App\Commands\FormEmails;
 use App\Form;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -222,27 +223,20 @@ class AssociationController extends Controller {
 
         $myForm = FormController::getForm($fid);
         $myProj = ProjectController::getProject($myForm->project_id);
-        $theirForm = FormController::getForm($request->rfid);
-        $theirProj = ProjectController::getProject($theirForm->project_id);
+        $thierForm = FormController::getForm($request->rfid);
+        $thierProj = ProjectController::getProject($thierForm->project_id);
 
         //form admins only
         if(!(\Auth::user()->isFormAdmin($myForm)))
             return response()->json(['k3_global_error' => 'not_form_admin']);
 
-        $group = $theirForm->adminGroup()->first();
+        $group = $thierForm->adminGroup()->first();
         $users = $group->users()->get();
 
         foreach($users as $user) {
-            try {
-                Mail::send('emails.request.assoc', compact('myForm', 'myProj', 'theirForm', 'theirProj'), function ($message) use ($user) {
-                    $message->from(config('mail.from.address'));
-                    $message->to($user->email);
-                    $message->subject('Kora Form Association Request');
-                });
-            } catch(\Swift_TransportException $e) {
-                //Log for now
-                Log::info('Request access email failed');
-            }
+            $job = new FormEmails('FormAssociationRequest', ['myForm' => $myForm, 'myProj' => $myProj,
+                'thierForm' => $thierForm, 'thierProj' => $thierProj, 'user' => $user]);
+            $job->handle();
         }
 
         return response()->json(['k3_global_success' => 'assoc_access_requested']);

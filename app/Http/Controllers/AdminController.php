@@ -1,5 +1,6 @@
 <?php namespace App\Http\Controllers;
 
+use App\Commands\UserEmails;
 use App\Form;
 use App\FormGroup;
 use App\Http\Controllers\Auth\RegisterController;
@@ -367,21 +368,13 @@ class AdminController extends Controller {
                         //
                         // Send a confirmation email.
                         //
-                        try {
-                            $sender = Auth::User();
-                            Mail::send('emails.batch-activation', compact('token', 'password', 'username', 'personal_message', 'sender', 'project', 'projectGroup'), function ($message) use ($email) {
-                                $message->from(config('mail.from.address'));
-                                $message->to($email);
-                                $message->subject('Kora Account Activation');
-                            });
-                        } catch(\Swift_TransportException $e) {
-                            $notification['warning'] = true;
-                            $notification['static'] = true;
-                            $notification['message'] = 'Emails failed to send!';
-                            $notification['description'] = 'Please check your mailing configuration and try again.';
-                            //Log for now
-                            Log::info('Batch invite email failed');
-                        }
+                        $emailOptions = [
+                            'token' => $token, 'password' => $password, 'username' => $username,
+                            'personal_message' => $personal_message, 'sender' => Auth::User(), 'project' => $project,
+                            'projectGroup' => $projectGroup, 'email' => $email
+                        ];
+                        $job = new UserEmails('BatchUserInvite', $emailOptions);
+                        $job->handle();
                         $created++;
                     } else {
                         if (isset($request->return_user_ids)) { // return user id of existing user

@@ -1,5 +1,6 @@
 <?php namespace App\Http\Controllers\Auth;
 
+use App\Commands\UserEmails;
 use App\Form;
 use App\Http\Requests\UserRequest;
 use App\Project;
@@ -352,17 +353,8 @@ class UserController extends Controller {
       }
 
       // Send email
-      try {
-        Mail::send('emails.activation', compact('token'), function($message) {
-          $message->from(env('MAIL_FROM_ADDRESS'));
-          $message->to(\Auth::user()->email);
-          $message->subject('Kora Account Activation');
-        });
-      } catch(\Swift_TransportException $e) {
-        //Log for now
-        Log::info('Resend activation email failed');
-        return redirect('/')->with('status', 'activation_email_failed');
-      }
+        $job = new UserEmails('UserActivationRequest', ['token' => null, 'email' => \Auth::user()->email]);
+        $job->handle();
 
       return redirect('user/'.Auth::user()->id)->with('k3_global_success', 'user_updated')->with('user_changes', $message);
     }
@@ -573,18 +565,8 @@ class UserController extends Controller {
         $token = \Auth::user()->token;
 
         //Send email
-        try {
-            Mail::send('emails.activation', compact('token'), function($message)
-            {
-                $message->from(env('MAIL_FROM_ADDRESS'));
-                $message->to(\Auth::user()->email);
-                $message->subject('Kora Account Activation');
-            });
-        } catch(\Swift_TransportException $e) {
-            //Log for now
-            Log::info('Resend activation email failed');
-            return redirect('/')->with('status', 'activation_email_failed');
-        }
+        $job = new UserEmails('UserActivationRequest', ['token' => $token, 'email' => \Auth::user()->email]);
+        $job->handle();
 
         return redirect('/')->with('status', 'user_activate_resent');
     }

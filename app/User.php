@@ -1,5 +1,6 @@
 <?php namespace App;
 
+use App\Commands\UserEmails;
 use App\Http\Controllers\FormController;
 use App\Http\Controllers\ProjectController;
 use Carbon\Carbon;
@@ -133,19 +134,10 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
         $user->save();
 
         //Send email
-        try {
-            Mail::send('emails.activation', compact('token'), function($message) use ($user) {
-                $message->from(env('MAIL_FROM_ADDRESS'));
-                $message->to($user->email);
-                $message->subject('Kora Account Activation');
-            });
+        $job = new UserEmails('UserActivationRequest', ['token' => $token, 'email' => $user->email]);
+        $job->handle();
 
-            return true;
-        } catch(\Swift_TransportException $e) {
-            //Log for now
-            Log::info('Activation email failed');
-            return false;
-        }
+        return true;
 
         //NOTE::When you re-implement this function in the laravel Register system, use this fail state:
 //        if(\App\User::finishRegistration($request))
@@ -165,20 +157,11 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
      * @param  string $token - The reset token
      */
     public function sendPasswordResetNotification($token) {
-        $email = 'emails.password';
         $userMail = $this->email;
 
         //Send email
-        try {
-            Mail::send($email, compact('token'), function ($message) use ($userMail) {
-                $message->from(config('mail.from.address'));
-                $message->to($userMail);
-                $message->subject('Kora Password Reset');
-            });
-        } catch(\Swift_TransportException $e) {
-            //Log for now
-            Log::info('Password reset email failed');
-        }
+        $job = new UserEmails('PasswordReset', ['token' => $token, 'userMail' => $userMail]);
+        $job->handle();
     }
 
     /** LOGIN

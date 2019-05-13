@@ -6,12 +6,12 @@
 
 @section('project-text')
 <div class="project-text">
-    {{$theirProj->name}} | {{$theirForm->name}}
+    {{$thierProj->name}} | {{$thierForm->name}}
 </div>
 @endsection
 
 @section('button-link')
-    {{action('AssociationController@index', ['pid'=>$theirForm->id,'fid'=>$theirForm->id])}}
+    {{action('AssociationController@index', ['pid'=>$thierForm->id,'fid'=>$thierForm->id])}}
 @endsection
 
 @section('button-text')
@@ -19,5 +19,5 @@
 @endsection
 
 @section('post-action-text')
-    Visit the Form Associations page for “{{$theirProj->name}} | {{$theirForm->name}}” and Create a new Form Association to the “{{$myProj->name}} | {{$myForm->name}}” form.
+    Visit the Form Associations page for “{{$thierProj->name}} | {{$thierForm->name}}” and Create a new Form Association to the “{{$myProj->name}} | {{$myForm->name}}” form.
 @endsection

@@ -1,5 +1,6 @@
 <?php namespace App;
 
+use App\Commands\ProjectEmails;
 use App\Http\Controllers\ProjectController;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -131,18 +132,9 @@ class ProjectGroup extends Model {
 
         $group = ProjectGroup::where('id', '=', $pgid)->first();
         $project = ProjectController::getProject($group->project_id);
-        $email = 'emails.project.added';
 
-        try {
-            Mail::send($email, compact('project', 'name', 'group'), function ($message) use ($userMail) {
-                $message->from(config('mail.from.address'));
-                $message->to($userMail);
-                $message->subject('Kora Project Permissions');
-            });
-        } catch(\Swift_TransportException $e) {
-            //Log for now
-            Log::info('Project admin email failed');
-        }
+        $job = new ProjectEmails('NewProjectUser', ['userMail' => $userMail, 'name' => $name, 'group' => $group, 'project' => $project]);
+        $job->handle();
     }
 
     /**

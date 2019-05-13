@@ -1,5 +1,6 @@
 <?php namespace App\Http\Controllers;
 
+use App\Commands\ProjectEmails;
 use App\Form;
 use App\FormGroup;
 use App\Project;
@@ -378,16 +379,9 @@ class ProjectGroupController extends Controller {
         $project = ProjectController::getProject($group->project_id);
         $email = "emails.project.$type";
 
-        try {
-            Mail::send($email, compact('project', 'name', 'group'), function ($message) use ($userMail) {
-                $message->from(config('mail.from.address'));
-                $message->to($userMail);
-                $message->subject('Kora Project Permissions');
-            });
-        } catch(\Swift_TransportException $e) {
-            //Log for now
-            Log::info('Access change email failed');
-        }
+        $job = new ProjectEmails('ProjectPermissionsUpdated', ['email' => $email, 'userMail' => $userMail,
+            'name' => $name, 'group' => $group, 'project' => $project]);
+        $job->handle();
     }
 
     /**
