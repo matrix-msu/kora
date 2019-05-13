@@ -4,12 +4,11 @@
     } else {
         $seq = '';
     }
+    $assocLayout = [];
+    $associations = \App\Http\Controllers\AssociationController::getAvailableAssociations($form->id);
 @endphp
 <div class="form-group mt-xxxl">Association Search Configuration</div>
 
-@php
-    $associations = \App\Http\Controllers\AssociationController::getAvailableAssociations($field->fid);
-@endphp
 <div class="associator-section {{count($associations) == 0 ? 'search-config-empty-state' : ''}}">
     @foreach($associations as $a)
         @php

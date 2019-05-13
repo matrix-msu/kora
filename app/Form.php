@@ -943,8 +943,12 @@ class Form extends Model {
                 $valids[] = $f;
         }
 
-        //TODO::CASTLE implement reverse association counts
-        //$rAssocOccurrences = "select s.`flid`, r.`kid`, r.`rid` from ".$prefix."associator_support as s left join kora3_records as r on s.`rid`=r.`rid` where s.$wherePiece and s.`flid` in ($flidString)";
+        //Get filters for reverse associations
+        $revFilterQuery = "SELECT `source_flid`, `source_kid`, COUNT(`associated_kid`) as count FROM `kora3_reverse_associator_cache` WHERE `associated_form_id`=$this->id AND `source_kid` IS NOT NULL GROUP BY `source_flid`, `source_kid`";
+        $results = $con->query($revFilterQuery);
+        while($row = $results->fetch_assoc()) {
+            $filters['reverseAssociations'][$row['source_flid']][$row['source_kid']] = (int)$row['count'];
+        }
 
         foreach($valids as $f) {
             $filterQuery = "SELECT `$f`, COUNT(*) as count FROM $table WHERE `$f` $subset GROUP BY `$f`";
