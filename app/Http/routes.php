@@ -170,6 +170,7 @@ Route::group(['middleware' => 'web'], function () {
     Route::post('/projects/{pid}/forms/{fid}/records/validate', 'RecordController@validateRecord');
     Route::post('/projects/{pid}/forms/{fid}/records/validateMass', 'RecordController@validateMassRecord');
     Route::post('/projects/{pid}/forms/{fid}/records/importRecord', 'ImportController@importRecord');
+    Route::post('/projects/{pid}/forms/{fid}/records/connectRecords', 'ImportController@connectRecords');
     Route::post('/projects/{pid}/forms/{fid}/records/importRecordFailed', 'ImportController@downloadFailedRecords');
     Route::post('/projects/{pid}/forms/{fid}/records/importReasonsFailed', 'ImportController@downloadFailedReasons');
     Route::get('/projects/{pid}/forms/{fid}/importExample/{type}', 'ImportController@exportSample');
@@ -272,7 +273,7 @@ Route::group(['middleware' => 'web'], function () {
 	Route::post("/reset/email/validate", "Auth\ResetPasswordController@preValidateEmail");
 
 //user auth
-    Auth::routes(); // generates user authentication routes 
+    Auth::routes(); // generates user authentication routes
 
     Route::post("/user/projectCustom", "Auth\UserController@saveProjectCustomOrder");
     Route::post("/user/formCustom/{pid}", "Auth\UserController@saveFormCustomOrder");

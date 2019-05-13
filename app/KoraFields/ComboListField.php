@@ -572,7 +572,9 @@ class ComboListField extends BaseField {
      * @return mixed - The example
      */
     public function getExportSample($slug,$type) {
-        $field = Field::where('slug','=',$slug)->first();
+        $fid = explode('_', $slug)[2];
+        $form = FormController::getForm($fid);
+        $field = $form->layout['fields'][$slug];
 
         $typeone = $field['one']['type'];
         $typetwo = $field['two']['type'];
@@ -651,8 +653,6 @@ class ComboListField extends BaseField {
      * Updates the request for an API search to mimic the advanced search structure.
      *
      * @param  array $data - Data from the search
-     * @param  int $flid - Field ID
-     * @param  Request $request
      * @return Request - The update request
      */
     public function setRestfulAdvSearch($data) {

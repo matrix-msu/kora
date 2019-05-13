@@ -219,7 +219,7 @@ class FloatField extends BaseField {
      *
      * @return Request - Processed data
      */
-    public function processImportDataXML($flid, $field, $value, $request, $simple = false) {
+    public function processImportDataXML($flid, $field, $value, $request) {
         $request[$flid] = (float)$value;
 
         return $request;

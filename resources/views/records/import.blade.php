@@ -18,9 +18,9 @@
                 <i class="icon icon-record-import"></i>
                 <span class="header-text-js">Import Records</span>
             </h1>
-            <p class="description desc-text-js">You can import records via XML or JSON File. You may
+            <p class="description desc-text-js">You can import records via XML, CSV, or JSON File. You may
                 <a href="{{ action('ImportController@exportSample',['pid' => $form->project_id, 'fid' => $form->id, 'type' => 'XML']) }}">download our sample XML file here</a>,
-                and
+                or
                 <a href="{{ action('ImportController@exportSample',['pid' => $form->project_id, 'fid' => $form->id, 'type' => 'JSON']) }}">our sample JSON file here</a>
                 to get an idea on how to organize your record data. </p>
             <div class="content-sections sections-remove-js">
@@ -37,14 +37,14 @@
 @section('body')
     <section class="recordfile-section">
         <div class="form-group">
-            <label>Drag & Drop or Select the XML / JSON File Below</label>
-            <input type="file" accept=".xml,.json" name="records" id="records" class="record-input profile-input record-input-js" />
+            <label>Drag & Drop or Select the XML / JSON / CSV File Below</label>
+            <input type="file" accept=".xml,.json,.csv" name="records" id="records" class="record-input profile-input record-input-js" />
             <label for="records" class="record-label profile-label extend">
-                <p class="record-filename filename">Drag & Drop the XML / JSON File Here</p>
+                <p class="record-filename filename">Drag & Drop the XML / JSON / CSV File Here</p>
                 <p class="record-instruction instruction mb-0">
-                    <span class="dd">Or Select the XML / JSON File here</span>
-                    <span class="no-dd">Select a XML / JSON File here</span>
-                    <span class="select-new">Select a Different XML / JSON File?</span>
+                    <span class="dd">Or Select the XML / JSON / CSV File here</span>
+                    <span class="no-dd">Select a XML / JSON / CSV File here</span>
+                    <span class="select-new">Select a Different XML / JSON / CSV File?</span>
                 </p>
             </label>
         </div>
@@ -55,7 +55,7 @@
 
         <section class="record-import-section-2 hidden">
             <div class="form-group mt-xxxl">
-                <div class="record-file-title">If you have files that correlate to the XML / JSON File above, upload
+                <div class="record-file-title">If you have files that correlate to the XML / JSON / CSV File above, upload
                     them below in a zipped file. If the zipped file is too large, extract the files manually to
                     'storage/app/tmpFiles/impU{{\Auth::user()->id}}/'</div>
             </div>
@@ -125,6 +125,7 @@
         var fidForFormData = '{{$form->id}}';
         var matchUpFieldsUrl = '{{ action('ImportController@matchupFields',['pid'=>$form->project_id,'fid'=>$form->id])}}';
         var importRecordUrl = '{{ action('ImportController@importRecord',['pid'=>$form->project_id,'fid'=>$form->id]) }}';
+        var connectRecordsUrl = '{{ action('ImportController@connectRecords',['pid'=>$form->project_id,'fid'=>$form->id]) }}';
         var viewRecordsUrl = '{{ action('RecordController@index',['pid' => $form->project_id, 'fid' => $form->id]) }}';
         var downloadFailedUrl = '{{ action('ImportController@downloadFailedRecords',['pid'=>$form->project_id,'fid'=>$form->id]) }}';
         var downloadReasonsUrl = '{{ action('ImportController@downloadFailedReasons',['pid'=>$form->project_id,'fid'=>$form->id]) }}';

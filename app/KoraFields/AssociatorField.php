@@ -157,8 +157,12 @@ class AssociatorField extends BaseField {
      * @return mixed - Processed data
      */
     public function processRecordData($field, $value, $request) {
-        if(empty($value))
+        if(empty($value)) {
             $value = null;
+        } elseif(is_string($value)) {
+            $value = explode(' | ', $value);
+        }
+
         return json_encode($value);
     }
 
@@ -193,6 +197,9 @@ class AssociatorField extends BaseField {
     public function processImportData($flid, $field, $value, $request) {
         $request[$flid] = $value;
 
+        if (is_string($value))
+            $request[$flid] = explode(' | ', $value);
+
         return $request;
     }
 
@@ -203,11 +210,10 @@ class AssociatorField extends BaseField {
      * @param  array $field - The field to represent record data
      * @param  \SimpleXMLElement $value - Data to add
      * @param  Request $request
-     * @param  bool $simple - Is this a simple xml field value
      *
      * @return Request - Processed data
      */
-    public function processImportDataXML($flid, $field, $value, $request, $simple = false) {
+    public function processImportDataXML($flid, $field, $value, $request) {
         $request[$flid] = (array)$value->Record;
 
         return $request;

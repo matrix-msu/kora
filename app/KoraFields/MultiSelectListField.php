@@ -172,7 +172,7 @@ class MultiSelectListField extends BaseField {
      * @return Request - Processed data
      */
     public function processImportData($flid, $field, $value, $request) {
-        $request[$flid] = $value;
+        $request[$flid] = explode(' | ', $value);
 
         return $request;
     }
@@ -184,11 +184,10 @@ class MultiSelectListField extends BaseField {
      * @param  array $field - The field to represent record data
      * @param  \SimpleXMLElement $value - Data to add
      * @param  Request $request
-     * @param  bool $simple - Is this a simple xml field value
      *
      * @return Request - Processed data
      */
-    public function processImportDataXML($flid, $field, $value, $request, $simple = false) {
+    public function processImportDataXML($flid, $field, $value, $request) {
         $request[$flid] = (array)$value;
 
         return $request;

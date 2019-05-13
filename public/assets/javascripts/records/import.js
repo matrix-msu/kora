@@ -53,14 +53,7 @@ Kora.Records.Import = function () {
                 fd.append("fid", fidForFormData);
                 fd.append('_token', CSRFToken);
 
-                for ( var pair of fd.entries() ) {
-                    console.log(pair[0] + ', ' + pair[1]);
-                    // console.log(typeof pair[1]);
-                    if (typeof pair[1] === 'object') {
-                        console.log(pair[1]);
-                    }
-                }
-
+                // todo::after this call function to do connections
                 $.ajax({
                     url: matchUpFieldsUrl,
                     type: 'POST',
@@ -68,8 +61,6 @@ Kora.Records.Import = function () {
                     contentType: false,
                     processData: false,
                     success: function (data) {
-                        console.log('success');
-
                         recordFileLink.removeClass('active');
                         recordMatchLink.addClass('active');
                         recordMatchLink.addClass('underline-middle');
@@ -111,9 +102,9 @@ Kora.Records.Import = function () {
                             recordResultsSection.removeClass('hidden');
 
                             //initialize matchup
+                            table = {};
                             tags = [];
                             slugs = [];
-                            table = {};
                             $('.get-tag-js').each(function () {
                                 tags.push($(this).val());
                             });
@@ -124,6 +115,9 @@ Kora.Records.Import = function () {
                                 table[tags[j]] = slugs[j];
                             }
 
+                            //build for potential connections
+                            var kids = [];
+                            var connections = {};
                             //foreach record in the dataset
                             for (var kid in importRecs) {
                                 // skip loop if the property is from prototype
@@ -143,6 +137,10 @@ Kora.Records.Import = function () {
                                     local_kid: kid,
                                     impType: importType,
                                     success: function (data) {
+                                        //building connections
+                                        kids.push(data['kid']);
+                                        if (data['connection'].length != 0) connections[data['connection']] = data['kid'];
+
                                         succ++;
                                         progressText.text(succ + ' of ' + total + ' Records Submitted');
 
@@ -154,9 +152,20 @@ Kora.Records.Import = function () {
                                         progressFill.attr('style', 'width:' + percent + '%');
                                         progressText.text(succ + ' of ' + total + ' Records Submitted');
 
-                                        //if done = total
-                                        if(done == total)
+                                        if(done == total) {
+                                            if (connections && kids) {
+                                                $.ajax({
+                                                    url: connectRecordsUrl,
+                                                    type: 'POST',
+                                                    data: {
+                                                        "_token": CSRFToken,
+                                                        "connections": connections,
+                                                        "kids": kids
+                                                    }
+                                                });
+                                            }
                                             completeImport(succ, total, this.impType);
+                                        }
                                     },
                                     error: function (data) {
                                         failedRecords.push([this.local_kid, importRecs[this.local_kid], data]);
@@ -169,17 +178,12 @@ Kora.Records.Import = function () {
                                         progressFill.attr('style', 'width:' + percent + '%');
                                         progressText.text(succ + ' of ' + total + ' Records Submitted');
 
-                                        //if done = total
                                         if(done == total)
                                             completeImport(succ, total, this.impType);
                                     }
                                 });
                             }
                         });
-                    },
-                    error: function (err) {
-                        console.log('error!');
-                        console.log(err);
                     }
                 });
             }
@@ -424,7 +428,6 @@ Kora.Records.Import = function () {
                     };
                     reader.readAsDataURL(fileDroppedFile);
                     droppedFile = fileDroppedFile;
-                    // console.log(fileDroppedFile);
 
                     $('.record-input-js').trigger('change');
                 });

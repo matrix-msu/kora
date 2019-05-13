@@ -148,6 +148,8 @@ class GeolocatorField extends BaseField {
     public function processRecordData($field, $value, $request) {
         if(empty($value))
             $value = null;
+        elseif(is_array($value))
+            return json_encode($value);
         return '['.implode(',',$value).']';
     }
 
@@ -182,6 +184,40 @@ class GeolocatorField extends BaseField {
     public function processImportData($flid, $field, $value, $request) {
         $request[$flid] = $value;
 
+        if (is_string($value)) {
+            $geo = array();
+            $values = explode(' | ', $value);
+
+            foreach ($values as $value) {
+                $blob = explode(' [DESCRIPTION] ', $value);
+                $loc = $description = '';
+                $geoReq = new Request();
+
+                if (count($blob) == 2) {
+                    list($loc, $description) = $blob;
+                } else {
+                    $loc = $blob[0];
+                }
+
+                list($lat, $lon) = array_merge(explode(',', $loc), array(''));
+
+                if (is_numeric($lat) && is_numeric($lon)) {
+                    $geoReq->type = 'latlon';
+                    $geoReq->lat = $lat;
+                    $geoReq->lon = $lon;
+                } else {
+                    $geoReq->type = 'geo';
+                    $geoReq->addr = $loc;
+                }
+
+                $loc = GeolocatorField::geoConvert($geoReq);
+                $loc['description'] = $description;
+                array_push($geo, $loc);
+            }
+
+            $request[$flid] = $geo;
+        }
+
         return $request;
     }
 
@@ -192,11 +228,10 @@ class GeolocatorField extends BaseField {
      * @param  array $field - The field to represent record data
      * @param  \SimpleXMLElement $value - Data to add
      * @param  Request $request
-     * @param  bool $simple - Is this a simple xml field value
      *
      * @return Request - Processed data
      */
-    public function processImportDataXML($flid, $field, $value, $request, $simple = false) {
+    public function processImportDataXML($flid, $field, $value, $request) {
         $geo = array();
 
         foreach($value->Location as $loc) {
@@ -425,7 +460,7 @@ class GeolocatorField extends BaseField {
                 DECLARE result BOOL DEFAULT false;
                 DECLARE providedLat DOUBLE;
                 DECLARE providedLng DOUBLE;
-                
+
                 WHILE i < JSON_LENGTH(`lats`) DO
                     SELECT JSON_EXTRACT(`lats`,CONCAT('$[',i,']')) INTO providedLat;
                     SELECT JSON_EXTRACT(`lngs`,CONCAT('$[',i,']')) INTO providedLng;
@@ -433,7 +468,7 @@ class GeolocatorField extends BaseField {
                     END IF;
                     SET i = i+1;
                 END WHILE;
-                
+
                 RETURN result;
             END;");
 

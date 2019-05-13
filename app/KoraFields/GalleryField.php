@@ -1,5 +1,6 @@
 <?php namespace App\KoraFields;
 
+use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 
 class GalleryField extends FileTypeField {
@@ -82,7 +83,7 @@ class GalleryField extends FileTypeField {
      * @return array - The default options
      */
     public function getDefaultOptions($type = null) {
-        return ['FieldSize' => '', 'MaxFiles' => '', 'FileTypes' => self::SUPPORTED_TYPES];
+        return ['FieldSize' => null, 'MaxFiles' => null, 'FileTypes' => self::SUPPORTED_TYPES];
     }
 
     /**
@@ -143,8 +144,43 @@ class GalleryField extends FileTypeField {
      *
      * @return Request - Processed data
      */
-    public function processImportData($flid, $field, $value, $request) { //TODO::CASTLE
-        //Same as parent but with captions
+    public function processImportData($flid, $field, $value, $request) {
+        $files = $captions = array();
+        $originRid = $request->originRid;
+
+        //See where we are looking first
+        if(is_null($originRid))
+            $currDir = storage_path('app/tmpFiles/impU' . \Auth::user()->id);
+        else
+            $currDir = storage_path('app/tmpFiles/impU' . \Auth::user()->id . '/' . $originRid);
+
+        //Make destination directory
+        $newDir = storage_path('app/tmpFiles/recordU' . \Auth::user()->id);
+        if(!file_exists($newDir))
+            mkdir($newDir, 0775, true);
+
+        $value = explode(' | ', $value);
+
+        foreach($value as $file) {
+            list($file, $caption) = array_merge(
+                explode(' [CAPTION] ', $file), array('')
+            );
+
+            //move file from imp temp to tmp files
+            if (!copy($currDir . '/' . $file, $newDir . '/' . $file)) {
+                return response()->json(["status"=>false,"message"=>"json_validation_error",
+                    "record_validation_error"=>[$request->kid => "$flid is missing name for a file"]],500);
+            } else {
+                //add input for this file
+                array_push($files, $file);
+                array_push($captions, $caption);
+            }
+        }
+
+        $request['file_captions' . $flid] = $captions;
+        $request[$flid] = $files;
+
+        return $request;
     }
 
     /**
@@ -154,12 +190,57 @@ class GalleryField extends FileTypeField {
      * @param  array $field - The field to represent record data
      * @param  \SimpleXMLElement $value - Data to add
      * @param  Request $request
-     * @param  bool $simple - Is this a simple xml field value
      *
      * @return Request - Processed data
      */
-    public function processImportDataXML($flid, $field, $value, $request, $simple = false) { //TODO::CASTLE
-        //Same as parent but with captions
+    public function processImportDataXML($flid, $field, $value, $request) {
+        $files = $captions = array();
+        $originRid = $request->originRid;
+
+        //See where we are looking first
+        if(is_null($originRid))
+            $currDir = storage_path( 'app/tmpFiles/impU' . \Auth::user()->id);
+        else
+            $currDir = storage_path('app/tmpFiles/impU' . \Auth::user()->id . '/' . $originRid);
+
+        //Make destination directory
+        $newDir = storage_path('app/tmpFiles/recordU' . \Auth::user()->id);
+        if(file_exists($newDir)) {
+            foreach(new \DirectoryIterator($newDir) as $file) {
+                if($file->isFile())
+                    unlink($newDir . '/' . $file->getFilename());
+            }
+        } else {
+            mkdir($newDir, 0775, true);
+        }
+
+        if(empty($value->File))
+            return response()->json(["status"=>false,"message"=>"xml_validation_error",
+                "record_validation_error"=>[$request->kid => "$flid format is incorrect for a File Type Field"]],500);
+        foreach ($value->File as $file) {
+            $name = (string)$file;
+            //move file from imp temp to tmp files
+            if(!file_exists($currDir . '/' . $name)) {
+                //Before we fail, let's see first if it's just failing because the originRid was specified
+                // and not because the file doesn't actually exist. We will now force look into the ZIPs root folder
+                $currDir = storage_path( 'app/tmpFiles/impU' . \Auth::user()->id);
+                if(!file_exists($currDir . '/' . $name))
+                    return response()->json(["status" => false, "message" => "xml_validation_error",
+                        "record_validation_error" => [$request->kid => "$flid: trouble finding file $name"]], 500);
+            }
+            copy($currDir . '/' . $name, $newDir . '/' . $name);
+            //add input for this file
+            array_push($files, $file);
+        }
+
+        foreach ($value->Caption as $caption) {
+            array_push($captions, (string)$caption);
+        }
+
+        $request['file_captions' . $flid] = $captions;
+        $request[$flid] = $files;
+
+        return $request;
     }
 
     /**
