@@ -91,11 +91,11 @@ class FieldController extends Controller {
                     $form->id
                 );
                 $options[$seq] = [
-                    'type' => $request->{'cftype' . $num},
+                    'type' => $request->{'type' . $seq},
                     'name' => $slug
                 ];
                 $field[$seq] = [
-                    'type' => $request->{'cftype' . $num},
+                    'type' => $request->{'type' . $seq},
                     'name' => $request->{'cfname' . $num},
                     'flid' => $slug,
                     'default' => null
