@@ -483,27 +483,52 @@ class Form extends Model {
         } else
             $flids = $filters['fields'];
 
+        //Before assigning fields, prep merge if it exists
+        $mergeMappings = [];
+        if(!is_null($filters['merge'])){
+            foreach($filters['merge'] as $newName => $mergeFlids) {
+                foreach($mergeFlids as $mergeFlid) {
+                    $mergeMappings[$mergeFlid] = $newName;
+                }
+            }
+        }
         //Get the real names of fields
         //Also check for json types
         if($filters['realnames']) {
             $realNames = [];
             foreach($flids as $flid) {
-                $name = $flid.' as `'.$this->layout['fields'][$flid]['name'].'`';
+                if(!empty($mergeMappings) && isset($mergeMappings[$flid])) {
+                    $tmp = $mergeMappings[$flid];
+                    $name = $flid . ' as `' . $tmp . '`';
+                } else {
+                    $tmp = $this->layout['fields'][$flid]['name'];
+                    $name = $flid . ' as `' . $tmp . '`';
+                }
                 //We do this in realnames because the flid gets us the type to check if its JSON, but it will be compared against the DB result which will have real names instead of flid
                 if(in_array($this->layout['fields'][$flid]['type'], self::$jsonFields))
-                    $jsonFields[$this->layout['fields'][$flid]['name']] = 1;
+                    $jsonFields[$tmp] = 1;
                 if($this->layout['fields'][$flid]['type'] == self::_ASSOCIATOR)
-                    $assocFields[$this->layout['fields'][$flid]['name']] = 1;
+                    $assocFields[$tmp] = 1;
                 array_push($realNames,$name);
             }
             $flids = $realNames;
         } else {
+            $realFlids = [];
             foreach($flids as $flid) {
+                if(!empty($mergeMappings) && isset($mergeMappings[$flid])) {
+                    $tmp = $mergeMappings[$flid];
+                    $name = $flid . ' as `' . $tmp . '`';
+                } else {
+                    $tmp = $flid;
+                    $name = $tmp;
+                }
                 if(in_array($this->layout['fields'][$flid]['type'], self::$jsonFields))
-                    $jsonFields[$flid] = 1;
+                    $jsonFields[$tmp] = 1;
                 if($this->layout['fields'][$flid]['type'] == self::_ASSOCIATOR)
-                    $assocFields[$flid] = 1;
+                    $assocFields[$tmp] = 1;
+                array_push($realFlids,$name);
             }
+            $flids = $realFlids;
         }
 
         //Determine whether to return data
@@ -996,11 +1021,12 @@ class Form extends Model {
      * Sorts RIDs by fields.
      *
      * @param  array $fids - The FIDs to sort in
-     * @param  array $kids - The KIDs to sort //TODO::CASTLE
+     * @param  array $kids - The KIDs to sort
      * @param  array $sortFields - The field arrays to sort by
+     * @param  array $mergeFields - The mappings of form fields to a single field name representation
      * @return array - The new array with sorted KIDs
      */
-    public static function sortGlobalKids($fids, $kids, $sortFields) { //TODO::CASTLE
+    public static function sortGlobalKids($fids, $kids, $sortFields, $mergeFields = null) {
         //get field
         $newOrderArray = array();
         $formSelects = array();
@@ -1022,21 +1048,25 @@ class Form extends Model {
 
         //First we build the selects and unionize them
         foreach($fids as $index => $fid) {
-            $renameIndex = 1;
-
             $pieces = 'kid';
+            $orderBy = ' ORDER BY ';
             foreach($sortFields as $sf) {
-                if(is_array($sf->field)) {
-                    $subField = $sf->field[$index];
-                    //Used to protect SQL
-                    $subField = preg_replace("/[^A-Za-z0-9_]/", '', $subField);
-                    $pieces .= ", `$subField` as `field$renameIndex`";
-                    $renameIndex++;
-                } else {
-                    $subField = $sf->field;
-                    //Used to protect SQL
-                    $subField = preg_replace("/[^A-Za-z0-9_]/", '', $subField);
-                    $pieces .= ", `$subField`";
+                foreach($sf as $key => $dir) {
+                    if(!is_null($mergeFields) && isset($mergeFields->{$key})) { // AND in that merge array
+                        $subField = $key;
+                        $ogField = $mergeFields->{$key}[$index];
+                        //Used to protect SQL
+                        $subField = preg_replace("/[^A-Za-z0-9_]/", '', $subField);
+                        $ogField = preg_replace("/[^A-Za-z0-9_]/", '', $ogField);
+                        $pieces .= ", `$ogField` as `$subField`";
+                    } else {
+                        $subField = $key;
+                        //Used to protect SQL
+                        $subField = preg_replace("/[^A-Za-z0-9_]/", '', $subField);
+                        $pieces .= ", `$subField`";
+                    }
+
+                    $orderBy .= "`$subField` IS NULL, `$subField` $dir,";
                 }
             }
 
@@ -1044,29 +1074,13 @@ class Form extends Model {
             $formSelects[] = $select;
         }
 
-        $masterSelect = implode(' UNION ALL ', $formSelects);
-
-        //Now add the sort piece
-        $orderBy = ' ORDER BY ';
-        $renameIndex = 1;
-        foreach($sortFields as $sf) {
-            if(is_array($sf->field)) {
-                $subField = "field$renameIndex";
-                $renameIndex++;
-            } else {
-                $subField = $sf->field;
-                //Used to protect SQL
-                $subField = preg_replace("/[^A-Za-z0-9_]/", '', $subField);
-            }
-
-            $order = $sf->direction;
-            $orderBy .= "`$subField` IS NULL, `$subField` $order,";
-        }
         $orderBy = substr($orderBy, 0, -1); //Trim the last comma
+        $masterSelect = implode(' UNION ALL ', $formSelects);
 
         $results = $con->query($masterSelect.$orderBy);
         while($row = $results->fetch_assoc()) {
-            $newOrderArray[] = $row['kid'];
+            if(in_array($row['kid'],$kids))
+                $newOrderArray[] = $row['kid'];
         }
         $results->free();
 

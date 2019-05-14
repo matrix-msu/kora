@@ -196,8 +196,16 @@ class RestfulController extends Controller {
         //check for global
         $globalRecords = array();
         $globalForms = array();
-        if(isset($request->global_sort)) {
-            $globalSortArray = json_decode($request->global_sort);
+        //Merge will combine the results and let you maps field names together.
+        if(isset($request->merge)) {
+            $globalMergeArray = json_decode($request->merge);
+            $globalMerge = true;
+        } else {
+            $globalMergeArray = null;
+            $globalMerge = false;
+        }
+        if(isset($request->sort)) {
+            $globalSortArray = json_decode($request->sort);
             $globalSort = true;
         } else {
             $globalSort = false;
@@ -256,10 +264,17 @@ class RestfulController extends Controller {
             $filters['index'] = isset($f->index) && is_numeric($f->index) ? $f->index : null; //where the array of results should start [MUST USE 'count' FOR THIS TO WORK]
             $filters['count'] = isset($f->count) && is_numeric($f->count) ? $f->count : null; //how many records we should grab from that index
 
+            //If merge was provided, pass it along in the filters
+            $filters['merge'] = $globalMerge ? $globalMergeArray : null;
+
             //Index and count become irrelevant to a single form in global sort, because we want to return count after all forms are sorted.
             if($globalSort) {
-                $filters['index'] = null;
-                $filters['count'] = null;
+                if(!is_null($filters['index']))
+                    return response()->json(["status"=>false,"error"=>"'index' is not allowed in a form search query when using the global sort variable. Use the global 'index'"],500);
+                if(!is_null($filters['count']))
+                    return response()->json(["status"=>false,"error"=>"'count' is not allowed in a form search query when using the global sort variable. Use the global 'count'"],500);
+                if(!is_null($filters['sort']))
+                    return response()->json(["status"=>false,"error"=>"'sort' is not allowed in a form search query when using the global sort variable."],500);
             }
 
             //parse the query
@@ -335,32 +350,44 @@ class RestfulController extends Controller {
             }
         }
 
+        if($globalMerge) {
+            $final = [];
+            foreach($resultsGlobal as $result) {
+                $final = array_merge($final,$result);
+            }
+
+            //Add to final result array
+            $resultsGlobal = $final;
+        }
+
         //Handle any global sorting
         if($globalSort) {
             $globalSortedResults = array();
 
             //Build and run the query to get the KIDs in proper order
-            $globalSorted = Form::sortGlobalKids($globalForms, $globalRecords, $globalSortArray);
+            $globalSorted = Form::sortGlobalKids($globalForms, $globalRecords, $globalSortArray, $globalMergeArray);
 
-            //Apply $flags if necessary
-            if(isset($request->global_flags))
-                $flags = json_decode($request->global_flags);
-            else
-                $flags = array();
+            //Apply global sort flags if necessary
+            if(isset($request->index) && !is_null($request->index) && is_numeric($request->index))
+                $globalSorted = array_slice($globalSorted,$request->index);
 
-            if(isset($flags->index) && !is_null($flags->index) && is_numeric($flags->index))
-                $globalSorted = array_slice($globalSorted,$flags->index);
-
-            if(isset($flags->count) && !is_null($flags->count) && is_numeric($flags->count))
-                $globalSorted = array_slice($globalSorted,0,$flags->count);
+            if(isset($request->count) && !is_null($request->count) && is_numeric($request->count))
+                $globalSorted = array_slice($globalSorted,0,$request->count);
 
             //for each record in that new KID array
             foreach($globalSorted as $kid) {
-                //Peak into the form results to find the record
-                foreach($resultsGlobal as $formRecordSet) {
+                //If we merged results already, we can peak into the top level instead of looking at each form record set
+                if($globalMerge) {
                     //Move said record to the new Results array
-                    if(isset($formRecordSet[$kid]))
-                        $globalSortedResults[$kid] = $formRecordSet[$kid];
+                    if(isset($resultsGlobal[$kid]))
+                        $globalSortedResults[$kid] = $resultsGlobal[$kid];
+                } else {
+                    //Peak into the form results to find the record
+                    foreach ($resultsGlobal as $formRecordSet) {
+                        //Move said record to the new Results array
+                        if(isset($formRecordSet[$kid]))
+                            $globalSortedResults[$kid] = $formRecordSet[$kid];
+                    }
                 }
             }
 
