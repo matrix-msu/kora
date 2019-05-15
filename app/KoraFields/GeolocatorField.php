@@ -332,8 +332,8 @@ class GeolocatorField extends BaseField {
     public function getTestData($url = null) {
         $locArray = [];
         $locArray['description'] = 'Matrix';
-        $locArray['geometry']['location']['lat'] = '42.7314094';
-        $locArray['geometry']['location']['lng'] = '-84.476258';
+        $locArray['geometry']['location']['lat'] = 42.7314094;
+        $locArray['geometry']['location']['lng'] = -84.476258;
         $locArray['formatted_address'] = '288 Farm Ln, East Lansing, MI 48823';
         return json_encode(array($locArray));
     }
@@ -365,8 +365,8 @@ class GeolocatorField extends BaseField {
                 $locArray = array();
 
                 $locArray['description'] = 'Matrix';
-                $locArray['geometry']['location']['lat'] = '42.7314094';
-                $locArray['geometry']['location']['lng'] = '-84.476258';
+                $locArray['geometry']['location']['lat'] = 42.7314094;
+                $locArray['geometry']['location']['lng'] = -84.476258;
                 $locArray['formatted_address'] = '288 Farm Ln, East Lansing, MI 48823';
                 $fieldArray[$slug] = array($locArray);
 

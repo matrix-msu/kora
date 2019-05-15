@@ -1,7 +1,7 @@
 var Kora = Kora || {};
-Kora.OptionPresets = Kora.OptionPresets || {};
+Kora.FieldValuePresets = Kora.FieldValuePresets || {};
 
-Kora.OptionPresets.Create = function() {
+Kora.FieldValuePresets.Create = function() {
     
     var currentPreset = -1;
 
@@ -13,7 +13,7 @@ Kora.OptionPresets.Create = function() {
         width: '100%',
     });
 
-    function initializeOptionPresetSwitcher() {
+    function initializeFieldValuePresetSwitcher() {
         $('.preset-type-js').change(function() {
             var fieldType = $(this).val();
             var submitButton = $('.submit-button-js');
@@ -445,7 +445,7 @@ Kora.OptionPresets.Create = function() {
         initializeListOptionDelete();
     }
 
-    initializeOptionPresetSwitcher();
+    initializeFieldValuePresetSwitcher();
     intializeGeolocatorOptions();
     initializeList();
     initializeDeletePresetModal();

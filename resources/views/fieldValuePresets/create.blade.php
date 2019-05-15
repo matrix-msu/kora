@@ -30,7 +30,7 @@
     @include("partials.fields.input-modals")
 
     <section class="option-preset-selection center">
-        <form method="POST" action="{{ action('OptionPresetController@create', ['pid' => $project->pid]) }}" class="preset-form">
+        <form method="POST" action="{{ action('FieldValuePresetController@create', ['pid' => $project->pid]) }}" class="preset-form">
             <input type="hidden" name="_token" value="{{csrf_token()}}">
 
             <div class="form-group mt-xl">
@@ -128,13 +128,13 @@
 @stop
 
 @section('javascripts')
-    @include('partials.optionPresets.javascripts')
+    @include('partials.fieldValuePresets.javascripts')
 
     <script type="text/javascript">
         var CSRFToken = '{{ csrf_token() }}';
         var geoConvertUrl = '{{ action('FieldAjaxController@geoConvert',['pid' => $project->pid, 'fid' => 0, 'flid' => 0]) }}';
-        var validationUrl = "{{ action('OptionPresetController@validatePresetFormFields',['pid' => $project->pid]) }}";
+        var validationUrl = "{{ action('FieldValuePresetController@validatePresetFormFields',['pid' => $project->pid]) }}";
 
-        Kora.OptionPresets.Create();
+        Kora.FieldValuePresets.Create();
     </script>
 @stop

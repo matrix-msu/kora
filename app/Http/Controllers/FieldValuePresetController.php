@@ -1,20 +1,18 @@
 <?php namespace App\Http\Controllers;
 
-use App\Field;
+use App\FieldValuePreset;
 use App\Project;
-Use App\ComboListField;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use App\OptionPreset;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
 
-class OptionPresetController extends Controller { //TODO::CASTLE
+class FieldValuePresetController extends Controller {
 
     /*
     |--------------------------------------------------------------------------
-    | Option Preset Controller
+    | Field Value Preset Controller
     |--------------------------------------------------------------------------
     |
     | This controller handle preset values that can be used in various field options
@@ -41,7 +39,7 @@ class OptionPresetController extends Controller { //TODO::CASTLE
         if(!\Auth::user()->isProjectAdmin($project))
             return redirect('projects')->with('k3_global_error', 'not_project_admin');
 
-        $all_presets = $this->getPresetsIndex($pid);
+        $all_presets = $project->fieldValuePresets();
 
         $notification = array(
           'message' => '',
@@ -49,6 +47,7 @@ class OptionPresetController extends Controller { //TODO::CASTLE
           'warning' => false,
           'static' => false
         );
+
         $prevUrlArray = $request->session()->get('_previous');
         $prevUrl = reset($prevUrlArray);
         if($prevUrl !== url()->current()) {
@@ -60,7 +59,7 @@ class OptionPresetController extends Controller { //TODO::CASTLE
             $notification['message'] = 'Field Value Preset Updated!';
         }
 
-        return view('optionPresets/index', compact('project', 'all_presets', 'notification'));
+        return view('fieldValuePresets/index', compact('project', 'all_presets', 'notification'));
     }
 
     /**
@@ -69,13 +68,13 @@ class OptionPresetController extends Controller { //TODO::CASTLE
      * @param  int $pid - Project ID
      * @return View
      */
-    public function newPreset($pid) {
+    public function newPreset($pid) { //TODO::CASTLE
         $project = ProjectController::getProject($pid);
 
         if(!\Auth::user()->isProjectAdmin($project))
             return redirect('projects')->with('k3_global_error', 'not_project_admin');
 
-        return view('optionPresets.create',compact('project'));
+        return view('fieldValuePresets.create',compact('project'));
     }
 
     /**
@@ -85,7 +84,7 @@ class OptionPresetController extends Controller { //TODO::CASTLE
      * @param  Request $request
      * @return JsonResponse
      */
-    public function create($pid, Request $request) {
+    public function create($pid, Request $request) { //TODO::CASTLE
         $this->validate($request, [
             'preset' => 'required',
             'type' => 'required|in:Text,List,Schedule,Geolocator',
@@ -126,7 +125,7 @@ class OptionPresetController extends Controller { //TODO::CASTLE
      * @param  Request $request
      * @return JsonResponse
      */
-    public function createApi($pid, Request $request) {
+    public function createApi($pid, Request $request) { //TODO::CASTLE
         if(Project::find($pid) != null) {
             $presets_project = Project::find($pid);
             $user = Auth::user();
@@ -159,7 +158,7 @@ class OptionPresetController extends Controller { //TODO::CASTLE
      * @param  int $id - ID of the preset
      * @return View
      */
-    public function edit($pid, $id) {
+    public function edit($pid, $id) { //TODO::CASTLE
         $project = ProjectController::getProject($pid);
 
         if(!\Auth::user()->isProjectAdmin($project))
@@ -168,7 +167,7 @@ class OptionPresetController extends Controller { //TODO::CASTLE
         $preset = OptionPreset::find($id);
 
         if(!is_null($preset) && !is_null($project))
-            return view('optionPresets.edit', compact('preset', 'project'));
+            return view('fieldValuePresets.edit', compact('preset', 'project'));
         else
             return redirect()->back()->with('k3_global_error', 'cant_edit_preset');
     }
@@ -181,7 +180,7 @@ class OptionPresetController extends Controller { //TODO::CASTLE
      * @param  Request $request
      * @return JsonResponse
      */
-    public function update($pid, $id, Request $request) {
+    public function update($pid, $id, Request $request) { //TODO::CASTLE
         $this->validate($request, [
             'preset' => 'required',
             'name' => 'required'
@@ -221,7 +220,7 @@ class OptionPresetController extends Controller { //TODO::CASTLE
      * @param  Request $request
      * @return JsonResponse
      */
-    public function delete(Request $request) {
+    public function delete(Request $request) { //TODO::CASTLE
         $id = $request->presetId;
         $preset = OptionPreset::find($id);
 
@@ -245,33 +244,12 @@ class OptionPresetController extends Controller { //TODO::CASTLE
         }
     }
 
-    public function validatePresetFormFields($pid, Request $request) {
+    public function validatePresetFormFields($pid, Request $request) { //TODO::CASTLE
         $this->validate($request, [
             'preset' => 'required',
             'name' => 'required'
         ]);
         return response()->json(["status"=>true, "message"=>"Form Valid", 200]);
-    }
-
-    /**
-     * Gets a list of all presets for a project.
-     *
-     * @param  int $pid - Project ID
-     * @return array - The presets
-     */
-    public static function getPresetsIndex($pid) {
-        $project_presets = OptionPreset::where('pid', '=', $pid)->orderBy('id','asc')->get();
-        $stock_presets = OptionPreset::where('pid', '=', null)->orderBy('id','asc')->get();
-        $shared_presets = OptionPreset::where('shared', '=', 1)->orderBy('id','asc')->get();
-
-        foreach($shared_presets as $key => $sp) {
-            if($sp->pid == $pid || $sp->pid == null)
-                $shared_presets->forget($key);
-        }
-
-        $all_presets = ["Project" => $project_presets, "Shared" => $shared_presets, "Stock" => $stock_presets];
-
-        return $all_presets;
     }
 
     /**
@@ -281,19 +259,20 @@ class OptionPresetController extends Controller { //TODO::CASTLE
      * @param  Field $field - Field to check
      * @return mixed - List of compatible presets for field
      */
-    public static function getPresetsSupported($pid,$field) {
+    public static function getPresetsSupported($pid,$field) { //TODO::CASTLE
         //You need to update this if a new field with presets gets added!
         //Note that combolist is different
         $comboPresets = new Collection();
+        $project = ProjectController::getProject($pid);
 
         $preset_field_compatibility = collect(['Text'=>'Text','List'=>'List','Multi-Select List'=>'List',
-            'Generated List'=>'List','Geolocator'=>'Geolocator','Schedule'=>'Schedule']);
+            'Generated List'=>'List','Geolocator'=>'Geolocator']);
 
         if($field->type == "Combo List") {
             $oneType = $field['one']['type'];
             $twoType = $field['two']['type'];
             //ComboList field one
-            $onePresets = self::getPresetsIndex($pid);
+            $onePresets = $project->fieldValuePresets();
             foreach($onePresets as $subset) {
                 foreach($subset as $key => $preset) {
                     if($preset->type != $preset_field_compatibility->get($oneType))
@@ -302,7 +281,7 @@ class OptionPresetController extends Controller { //TODO::CASTLE
             }
             $comboPresets->put("one",$onePresets);
             //ComboList field two
-            $twoPresets = self::getPresetsIndex($pid);
+            $twoPresets = $project->fieldValuePresets();
             foreach($twoPresets as $subset) {
                 foreach($subset as $key => $preset) {
                     if($preset->type != $preset_field_compatibility->get($twoType))
@@ -313,7 +292,7 @@ class OptionPresetController extends Controller { //TODO::CASTLE
 
             return $comboPresets;
         } else {
-            $all_presets = self::getPresetsIndex($pid);
+            $all_presets = $project->fieldValuePresets();
             foreach($all_presets as $subset) {
                 foreach($subset as $key => $preset) {
                     if($preset->type != $preset_field_compatibility->get($field->type))

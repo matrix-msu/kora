@@ -46,7 +46,7 @@
 
     <script type="text/javascript">
         var validationUrl = "{{ action('FieldController@validateFieldFields', ["pid" => $form->project_id, "fid" =>$form->id, "flid" =>$flid]) }}";
-        var createFieldValuePresetURL = "{{action("OptionPresetController@createApi", ['pid'=>$form->project_id])}}";
+        var createFieldValuePresetURL = "{{action("FieldValuePresetController@createApi", ['pid'=>$form->project_id])}}";
         var currFieldType = '{{$field['type']}}';
         CSRFToken = "{{csrf_token()}}";
 

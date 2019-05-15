@@ -69,7 +69,7 @@
       </li>
 
       <li class="link">
-        <a href="{{ action('OptionPresetController@index',['pid' => $pid]) }}">Field Value Presets</a>
+        <a href="{{ action('FieldValuePresetController@index',['pid' => $pid]) }}">Field Value Presets</a>
       </li>
 
       <li class="link">

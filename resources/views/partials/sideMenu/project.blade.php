@@ -1,4 +1,6 @@
-<?php $project = \App\Http\Controllers\ProjectController::getProject($pid) ?>
+@php
+  $project = \App\Http\Controllers\ProjectController::getProject($pid);
+@endphp
 @include('partials.sideMenu.dashboard')
 <div class="drawer-element drawer-element-js">
   <a href="#" class="drawer-toggle drawer-toggle-js" data-drawer="{{ $openDrawer or '0' }}">
@@ -68,7 +70,7 @@
       </li>
 
       <li class="content-link content-link-js" data-page="option-presets">
-        <a href="{{ action('OptionPresetController@index',['pid' => $pid]) }}">Field Value Presets</a>
+        <a href="{{ action('FieldValuePresetController@index',['pid' => $pid]) }}">Field Value Presets</a>
       </li>
 
       <li class="content-link content-link-js" data-page="multi-import-setup">

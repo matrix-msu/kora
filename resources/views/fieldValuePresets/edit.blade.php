@@ -28,10 +28,10 @@
 
 @section('body')
     @include("partials.fields.input-modals")
-    @include('partials.optionPresets.deletePresetModal')
+    @include('partials.fieldValuePresets.deletePresetModal')
 
     <section class="option-preset-selection center">
-        <form method="POST" action="{{ action('OptionPresetController@edit', ['pid' => $project->pid, 'id' => $preset->id]) }}" class="preset-form">
+        <form method="POST" action="{{ action('FieldValuePresetController@edit', ['pid' => $project->pid, 'id' => $preset->id]) }}" class="preset-form">
             <input type="hidden" name="_token" value="{{csrf_token()}}">
 
             <div class="form-group mt-xl">
@@ -166,14 +166,14 @@
 @stop
 
 @section('javascripts')
-    @include('partials.optionPresets.javascripts')
+    @include('partials.fieldValuePresets.javascripts')
 
     <script type="text/javascript">
         var CSRFToken = '{{ csrf_token() }}';
         var geoConvertUrl = '{{ action('FieldAjaxController@geoConvert',['pid' => $project->pid, 'fid' => 0, 'flid' => 0]) }}';
-        var deletePresetURL = '{{ action('OptionPresetController@delete', ['pid' => $project->pid])}}';
-        var deleteRedirect = '{{ action('OptionPresetController@index', ['pid' => $project->pid])}}';
-        var validationUrl = "{{ action('OptionPresetController@validatePresetFormFields',['pid' => $project->pid]) }}";
-        Kora.OptionPresets.Create();
+        var deletePresetURL = '{{ action('FieldValuePresetController@delete', ['pid' => $project->pid])}}';
+        var deleteRedirect = '{{ action('FieldValuePresetController@index', ['pid' => $project->pid])}}';
+        var validationUrl = "{{ action('FieldValuePresetController@validatePresetFormFields',['pid' => $project->pid]) }}";
+        Kora.FieldValuePresets.Create();
     </script>
 @stop

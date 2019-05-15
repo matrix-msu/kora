@@ -62,12 +62,23 @@ class Project extends Model {
     }
 
     /**
-     * Returns the option presets associated with a project.
+     * Returns the field value presets associated with a project.
      *
-     * @return HasMany
+     * @return array - The presets belonging to the project
      */
-    public function optionPresets() {
-        return $this->hasMany('App\OptionPreset','project_id');
+    public function fieldValuePresets() {
+        $project_presets = FieldValuePreset::where('project_id', '=', $this->id)->orderBy('id','asc')->get();
+        $stock_presets = FieldValuePreset::where('project_id', '=', null)->orderBy('id','asc')->get();
+        $shared_presets = FieldValuePreset::where('shared', '=', 1)->orderBy('id','asc')->get();
+
+        foreach($shared_presets as $key => $sp) {
+            if($sp->project_id == $this->id || $sp->project_id == null)
+                $shared_presets->forget($key);
+        }
+
+        $all_presets = ["Project" => $project_presets, "Shared" => $shared_presets, "Stock" => $stock_presets];
+
+        return $all_presets;
     }
 
     /**
