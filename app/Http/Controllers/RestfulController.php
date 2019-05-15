@@ -31,6 +31,11 @@ class RestfulController extends Controller {
     const VALID_FORMATS = [ self::JSON, self::KORA, self::XML];
 
     /**
+     * @var array - Minor errors in api search. Since they happen in nested functions, it's easier to store globally.
+     */
+    public $minorErrors = array();
+
+    /**
      * Gets the current version of Kora3.
      *
      * @return mixed - Kora version
@@ -229,7 +234,6 @@ class RestfulController extends Controller {
         $fidsGlobal = [];
         $countArray = array();
         $countGlobal = 0;
-        $minorErrors = array(); //Some errors we may not want to error out on //TODO::CASTLE especially with new private functions
 
         foreach($forms as $f) {
             //initialize form
@@ -400,7 +404,7 @@ class RestfulController extends Controller {
             'counts' => $countArray,
             'filters' => $filtersGlobal,
             'records' => $resultsGlobal,
-            'warnings' => $minorErrors
+            'warnings' => $this->minorErrors
         ];
     }
 
@@ -421,10 +425,18 @@ class RestfulController extends Controller {
             foreach($logic->{$operand} as $val) {
                 if(is_numeric($val) and isset($queries[$val])) {
                     //run query and store
-                    $ridSets[] = $this->processQuery($queries[$val], $form, $recMod);
+                    $queryRes = $this->processQuery($queries[$val], $form, $recMod);
+                    //Check for error
+                    if($queryRes instanceof JsonResponse)
+                        return $queryRes;
+                    $ridSets[] = $queryRes;
                 } else if(is_object($val)) {
                     //New sub-operand, run recursive
-                    $ridSets[] = $this->logicRecursive($val, $queries, $form, $recMod);
+                    $logicRes = $this->logicRecursive($val, $queries, $form, $recMod);
+                    //Check for errorw
+                    if($logicRes instanceof JsonResponse)
+                        return $logicRes;
+                    $ridSets[] = $logicRes;
                 } else {
                     return response()->json(["status"=>false,"error"=>"Invalid logic array for form: ". $form->name],500);
                 }
@@ -484,14 +496,14 @@ class RestfulController extends Controller {
                 $processed = [];
                 foreach($fields as $flid => $data) {
                     if(!isset($form->layout['fields'][$flid])) {
-                        array_push($minorErrors, "The following field in keyword search is not apart of the requested form: " . $this->cleanseOutput($flid));
+                        array_push($this->minorErrors, "The following field in keyword search is not apart of the requested form: " . $this->cleanseOutput($flid));
                         continue;
                     }
                     $fieldModel = $form->layout['fields'][$flid];
 
                     //Check permission to search externally
                     if(!$fieldModel['external_search']) {
-                        array_push($minorErrors, "The following field in advanced search is not externally searchable: " . $fieldModel['name']);
+                        array_push($this->minorErrors, "The following field in advanced search is not externally searchable: " . $fieldModel['name']);
                         continue;
                     }
 
@@ -521,13 +533,13 @@ class RestfulController extends Controller {
                     //takes care of converting slugs to flids
                     foreach($query->key_fields as $qfield) {
                         if(!isset($form->layout['fields'][$qfield])) {
-                            array_push($minorErrors, "The following field in keyword search is not apart of the requested form: " . $this->cleanseOutput($qfield));
+                            array_push($this->minorErrors, "The following field in keyword search is not apart of the requested form: " . $this->cleanseOutput($qfield));
                             continue;
                         }
                         $fieldMod = $form->layout['fields'][$qfield];
 
                         if(!$fieldMod['external_search']) {
-                            array_push($minorErrors, "The following field in keyword search is not externally searchable: " . $fieldMod['name']);
+                            array_push($this->minorErrors, "The following field in keyword search is not externally searchable: " . $fieldMod['name']);
                             continue;
                         }
                         $searchFields[$qfield] = $fieldMod;
@@ -569,7 +581,7 @@ class RestfulController extends Controller {
                 $kids = $query->kids;
                 for($i=0; $i < sizeof($kids); $i++) {
                     if(!Record::isKIDPattern($kids[$i])) {
-                        array_push($minorErrors,"Illegal KID (".$this->cleanseOutput($kids[$i]).") in a KID search for form: ". $form->name);
+                        array_push($this->minorErrors,"Illegal KID (".$this->cleanseOutput($kids[$i]).") in a KID search for form: ". $form->name);
                         continue;
                     }
                 }
