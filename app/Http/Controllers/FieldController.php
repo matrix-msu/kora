@@ -149,8 +149,7 @@ class FieldController extends Controller {
         $form = FormController::getForm($fid);
         $proj = ProjectController::getProject($pid);
 
-        //$presets = FieldValuePresetController::getPresetsSupported($pid,$field); //TODO::CASTLE
-        $presets = [];
+        $presets = FieldValuePresetController::getPresetsSupported($pid,$field);
 
         return view($form->getFieldModel($field['type'])->getFieldOptionsView(), compact('flid', 'field', 'form', 'proj', 'presets'));
 

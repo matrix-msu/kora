@@ -76,17 +76,12 @@
 
                         <div class="content {{ $index == 0 ? 'active' : '' }}">
                             <div class="id">
-                                @if($preset->preset['type'] == "Text")
+                                @if($preset->preset['type'] == "Regex")
                                     <span class="attribute">Regex: </span>
                                     <span>{{$preset->preset['preset']}}</span>
                                 @elseif($preset->preset['type'] == "List")
                                     <span class="attribute">Options: </span>
                                     <span>{{implode(', ',$preset->preset['preset'])}}</span>
-                                @elseif($preset->preset['type'] == "Geolocator")
-                                    <span class="attribute">Locations: </span>
-                                    @foreach($preset->preset['preset'] as $event)
-                                        <span class="field-preset-list">{{$event['description']}}: {{$event['geometry']['location']['lat'].', '.$event['geometry']['location']['lng']}}</span>
-                                    @endforeach
                                 @endif
                             </div>
                             <div class="footer">

@@ -5,11 +5,11 @@
 @stop
 
 @section('aside-content')
-    @include('partials.sideMenu.project', ['pid' => $project->pid, 'openDrawer' => true])
+    @include('partials.sideMenu.project', ['pid' => $project->id, 'openDrawer' => true])
 @stop
 
 @section('leftNavLinks')
-    @include('partials.menu.project', ['pid' => $project->pid])
+    @include('partials.menu.project', ['pid' => $project->id])
     @include('partials.menu.fieldValPresets')
 @stop
 
@@ -30,7 +30,7 @@
     @include("partials.fields.input-modals")
 
     <section class="option-preset-selection center">
-        <form method="POST" action="{{ action('FieldValuePresetController@create', ['pid' => $project->pid]) }}" class="preset-form">
+        <form method="POST" action="{{ action('FieldValuePresetController@create', ['pid' => $project->id]) }}" class="preset-form">
             <input type="hidden" name="_token" value="{{csrf_token()}}">
 
             <div class="form-group mt-xl">
@@ -42,12 +42,11 @@
             <div class="form-group mt-xl">
                 <span class="error-message">{{array_key_exists("type", $errors->messages()) ? $errors->messages()["type"][0] : ''}}</span>
                 {!! Form::label('type', 'Field Value Preset Type') !!}
-                {!! Form::select('type',
-                    [''=>'','Text'=>'Text','List'=>'List','Schedule'=>'Schedule','Geolocator'=>'Geolocator'],
+                {!! Form::select('type', [''=>'','Regex'=>'Regex','List'=>'List'],
                     null, ['class' => 'single-select preset-type-js','data-placeholder' => "Select the type field value preset here"]) !!}
             </div>
 
-            <section class="open-text-js hidden">
+            <section class="open-regex-js hidden">
                 <div class="form-group mt-xl">
                     <label>Regex: </label>
                     <span class="error-message">{{array_key_exists("preset", $errors->messages()) ? $errors->messages()["preset"][0] : ''}}</span>
@@ -82,33 +81,6 @@
                 </div>
             </section>
 
-            <section class="open-schedule-js hidden">
-                <div class="form-group mt-xl">
-                    <label>Events: </label>
-                    <span class="error-message">{{array_key_exists("preset", $errors->messages()) ? $errors->messages()["preset"][0] : ''}}</span>
-                    {!! Form::select('preset[]', [], null,['class' => 'multi-select schedule-event-js', 'disabled',
-                        'multiple', 'data-placeholder' => "Add Events Below"]) !!}
-                </div>
-
-                <section class="new-object-button form-group">
-                    <input type="button" class="add-new-default-event-js" value="Create New Event">
-                </section>
-            </section>
-
-            <section class="open-geolocator-js hidden">
-                <div class="form-group mt-xl">
-                    <label>Locations: </label>
-                    <span class="error-message">{{array_key_exists("preset", $errors->messages()) ? $errors->messages()["preset"][0] : ''}}</span>
-                    {!! Form::select('preset[]', [], null,['class' => 'multi-select geolocator-location-js', 'disabled',
-                        'multiple', 'data-placeholder' => "Add Locations Below"]) !!}
-                </div>
-
-                <section class="new-object-button form-group">
-                    <input type="button" class="add-new-default-location-js" value="Create New Location">
-                </section>
-            </section>
-
-
             <div class="form-group mt-xl">
                 <label for="required">Share With All Projects?</label>
                 <div class="check-box">
@@ -131,9 +103,8 @@
     @include('partials.fieldValuePresets.javascripts')
 
     <script type="text/javascript">
-        var CSRFToken = '{{ csrf_token() }}';
-        var geoConvertUrl = '{{ action('FieldAjaxController@geoConvert',['pid' => $project->pid, 'fid' => 0, 'flid' => 0]) }}';
-        var validationUrl = "{{ action('FieldValuePresetController@validatePresetFormFields',['pid' => $project->pid]) }}";
+        var csrfToken = '{{ csrf_token() }}';
+        var validationUrl = "{{ action('FieldValuePresetController@validatePresetFormFields',['pid' => $project->id]) }}";
 
         Kora.FieldValuePresets.Create();
     </script>

@@ -1,10 +1,5 @@
 @extends('fields.show')
 
-@section('presetModal')
-    @include('partials.fields.fieldValuePresetModals.addLocationPresetModal', ['presets' => $presets])
-    @include('partials.fields.fieldValuePresetModals.createLocationPresetModal')
-@stop
-
 @section('fieldOptions')
     <div class="form-group geolocator-form-group geolocator-form-group-js geolocator-{{$flid}}-js mt-xxxl">
         {!! Form::label('default','Default Locations') !!}

@@ -21,17 +21,13 @@ Kora.FieldValuePresets.Create = function() {
             submitButton.removeClass('disabled');
 
             switch(fieldType) {
-                case 'Text':
+                case 'Regex':
                     openOptionPreset(['show','hide','hide','hide']);
                     enableOptionInput([null,'disabled','disabled','disabled']);
                     break;
                 case 'List':
                     openOptionPreset(['hide','show','hide','hide']);
                     enableOptionInput(['disabled',null,'disabled','disabled']);
-                    break;
-                case 'Geolocator':
-                    openOptionPreset(['hide','hide','hide','show']);
-                    enableOptionInput(['disabled','disabled','disabled',null]);
                     break;
                 default:
                     submitButton.addClass('disabled');
@@ -40,7 +36,7 @@ Kora.FieldValuePresets.Create = function() {
         });
 
         function openOptionPreset(order) {
-            $('.open-text-js').effect('slide', {
+            $('.open-regex-js').effect('slide', {
                 direction: 'up',
                 mode: order[0],
                 duration: 240
@@ -50,162 +46,14 @@ Kora.FieldValuePresets.Create = function() {
                 mode: order[1],
                 duration: 240
             });
-            $('.open-geolocator-js').effect('slide', {
-                direction: 'up',
-                mode: order[3],
-                duration: 240
-            });
         }
 
         function enableOptionInput(order) {
-            var textInput = $('.open-text-js').find('.text-input').first();
+            var textInput = $('.open-regex-js').find('.text-input').first();
             textInput.attr('disabled',order[0]);
 
             $(".list-option-js").each(function() {
                 $(this).attr('disabled',order[1]);
-            });
-
-            var geoInput = $('.open-geolocator-js').find('.geolocator-location-js').first();
-            geoInput.attr('disabled',order[3]);
-            geoInput.trigger("chosen:updated");
-        }
-    }
-
-    function intializeGeolocatorOptions() {
-        Kora.Modal.initialize();
-
-        $('.add-new-default-location-js').click(function(e) {
-            e.preventDefault();
-
-            Kora.Modal.open($('.geolocator-add-location-modal-js'));
-        });
-
-        $('.location-type-js').on('change', function(e) {
-            newType = $(this).val();
-            if(newType=='LatLon') {
-                $('.lat-lon-switch-js').removeClass('hidden');
-                $('.utm-switch-js').addClass('hidden');
-                $('.address-switch-js').addClass('hidden');
-            } else if(newType=='UTM') {
-                $('.lat-lon-switch-js').addClass('hidden');
-                $('.utm-switch-js').removeClass('hidden');
-                $('.address-switch-js').addClass('hidden');
-            } else if(newType=='Address') {
-                $('.lat-lon-switch-js').addClass('hidden');
-                $('.utm-switch-js').addClass('hidden');
-                $('.address-switch-js').removeClass('hidden');
-            }
-        });
-
-        $('.add-new-location-js').click(function(e) {
-            e.preventDefault();
-
-            $('.error-message').text('');
-            $('.text-input, .text-area, .cke, .chosen-container').removeClass('error');
-
-            //check to see if description provided
-            var desc = $('.location-desc-js').val();
-            if(desc=='') {
-                geoError = $('.location-desc-js');
-                geoError.addClass('error');
-                geoError.siblings('.error-message').text('Location description required');
-            } else {
-                var type = $('.location-type-js').val();
-
-                //determine if info is good for that type
-                var valid = true;
-                if(type == 'LatLon') {
-                    var lat = $('.location-lat-js').val();
-                    var lon = $('.location-lon-js').val();
-
-                    if(lat == '') {
-                        geoError = $('.location-lat-js');
-                        geoError.addClass('error');
-                        geoError.siblings('.error-message').text('Latitude value required');
-                        valid = false;
-                    }
-
-                    if(lon == '') {
-                        geoError = $('.location-lon-js');
-                        geoError.addClass('error');
-                        geoError.siblings('.error-message').text('Longitude value required');
-                        valid = false;
-                    }
-                } else if(type == 'UTM') {
-                    var zone = $('.location-zone-js').val();
-                    var east = $('.location-east-js').val();
-                    var north = $('.location-north-js').val();
-
-                    if(zone == '') {
-                        geoError = $('.location-zone-js');
-                        geoError.addClass('error');
-                        geoError.siblings('.error-message').text('UTM Zone is required');
-                        valid = false;
-                    }
-
-                    if(east == '') {
-                        geoError = $('.location-east-js');
-                        geoError.addClass('error');
-                        geoError.siblings('.error-message').text('UTM Easting required');
-                        valid = false;
-                    }
-
-                    if(north == '') {
-                        geoError = $('.location-north-js');
-                        geoError.addClass('error');
-                        geoError.siblings('.error-message').text('UTM Northing required');
-                        valid = false;
-                    }
-                } else if(type == 'Address') {
-                    var addr = $('.location-addr-js').val();
-
-                    if(addr == '') {
-                        geoError = $('.location-addr-js');
-                        geoError.addClass('error');
-                        geoError.siblings('.error-message').text('Location address required');
-                        valid = false;
-                    }
-                }
-
-                //if still valid
-                if(valid) {
-                    //find info for other loc types
-                    if(type == 'LatLon')
-                        coordinateConvert({"_token": CSRFToken,type:'latlon',lat:lat,lon:lon});
-                    else if(type == 'UTM')
-                        coordinateConvert({"_token": CSRFToken,type:'utm',zone:zone,east:east,north:north});
-                    else if(type == 'Address')
-                        coordinateConvert({"_token": CSRFToken,type:'geo',addr:addr});
-
-                    $('.location-lat-js').val(''); $('.location-lon-js').val('');
-                    $('.location-zone-js').val(''); $('.location-east-js').val(''); $('.location-north-js').val('');
-                    $('.location-addr-js').val('');
-                }
-            }
-        });
-
-        function coordinateConvert(data) {
-            $.ajax({
-                url: geoConvertUrl,
-                type: 'POST',
-                data: data,
-                success:function(result) {
-                    var desc = $('.location-desc-js').val();
-                    var fullresult = '[Desc]'+desc+'[Desc]'+result;
-                    var latlon = result.split('[LatLon]');
-                    var utm = result.split('[UTM]');
-                    var addr = result.split('[Address]');
-                    var fulltext = 'Description: '+desc+' | LatLon: '+latlon[1]+' | UTM: '+utm[1]+' | Address: '+addr[1];
-                    var option = $("<option/>", { value: fullresult, text: fulltext });
-
-                    var select = $('.geolocator-location-js');
-                    select.append(option);
-                    select.find(option).prop('selected', true);
-                    select.trigger("chosen:updated");
-
-                    $('.location-desc-js').val('');
-                    Kora.Modal.close($('.geolocator-add-location-modal-js'));
-                }
             });
         }
     }
@@ -225,7 +73,7 @@ Kora.FieldValuePresets.Create = function() {
                 url: deletePresetURL,
                 type: 'POST',
                 data: {
-                    "_token": CSRFToken,
+                    "_token": csrfToken,
                     "_method": 'delete',
                     "presetId": currentPreset
                 },
@@ -271,7 +119,7 @@ Kora.FieldValuePresets.Create = function() {
             var field = this.id;
             var values = {};
             values[field] = this.value;
-            values['_token'] = CSRFToken;
+            values['_token'] = csrfToken;
 
             $.ajax({
                 url: validationUrl,
@@ -446,7 +294,6 @@ Kora.FieldValuePresets.Create = function() {
     }
 
     initializeFieldValuePresetSwitcher();
-    intializeGeolocatorOptions();
     initializeList();
     initializeDeletePresetModal();
     initializeValidation();

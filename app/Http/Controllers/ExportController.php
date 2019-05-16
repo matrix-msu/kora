@@ -1,5 +1,6 @@
 <?php namespace App\Http\Controllers;
 
+use App\FieldValuePreset;
 use App\Form;
 use App\RecordPreset;
 use Carbon\Carbon;
@@ -331,18 +332,19 @@ class ExportController extends Controller {
         $projArray['internal_name'] = $proj->internal_name;
         $projArray['description'] = $proj->description;
 
-        //preset stuff //TODO::CASTLE
-//        $optPresets = OptionPreset::where('pid','=',$pid)->get();
-//        $projArray['optPresets'] = array();
-//        foreach($optPresets as $pre) {
-//            $opt = array();
-//            $opt['type'] = $pre->type;
-//            $opt['name'] = $pre->name;
-//            $opt['preset'] = $pre->preset;
-//            $opt['shared'] = $pre->shared;
-//
-//            array_push($projArray['optPresets'],$opt);
-//        }
+        //preset stuff
+        $optPresets = FieldValuePreset::where('project_id','=',$pid)->get();
+        $projArray['fieldValuePresets'] = array();
+        foreach($optPresets as $pre) {
+            $data = $pre->preset;
+            $opt = array();
+            $opt['type'] = $data['type'];
+            $opt['name'] = $data['name'];
+            $opt['preset'] = $data['preset'];
+            $opt['shared'] = $pre->shared;
+
+            array_push($projArray['fieldValuePresets'],$opt);
+        }
 
         $forms = Form::where('project_id','=',$pid)->get();
         $projArray['forms'] = array();

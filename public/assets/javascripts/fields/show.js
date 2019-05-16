@@ -54,10 +54,10 @@ Kora.Fields.Show = function() {
         $('.create-regex-preset-js').click(function(e) {
             e.preventDefault();
 
-            var name = $('[name="preset_title"]').val();
-            var type = 'Text';
+            var name = $('[name="preset_title_regex"]').val();
+            var type = 'Regex';
             var preset = newRegex;
-            var shared = $('[name="preset_shared"]').is(':checked');
+            var shared = $('[name="preset_shared_regex"]').is(':checked') ? 1 : 0;
 
             $.ajax({
                 url: createFieldValuePresetURL,
@@ -263,10 +263,10 @@ Kora.Fields.Show = function() {
         $('.create-list-preset-js').click(function(e) {
             e.preventDefault();
 
-            var name = $('[name="preset_title"]').val();
+            var name = $('[name="preset_title_list"]').val();
             var type = 'List';
             var preset = newList;
-            var shared = $('[name="preset_shared"]').is(':checked');
+            var shared = $('[name="preset_shared_list"]').is(':checked') ? 1 : 0;
 
             $.ajax({
                 url: createFieldValuePresetURL,
@@ -285,150 +285,7 @@ Kora.Fields.Show = function() {
         });
     }
 
-    function initializeLocationPresetModals() {
-        Kora.Modal.initialize();
-
-        var locationModal = $('.add-location-preset-modal-js');
-        var createLocationModal = $('.create-location-preset-modal-js');
-        var newLocation = [];
-
-        $('.open-location-modal-js').click(function(e) {
-            e.preventDefault();
-
-            Kora.Modal.open(locationModal);
-        });
-
-        $('.add-location-preset-js').click(function(e) {
-            e.preventDefault();
-
-            var locationVal = $('[name="location_preset"]').val();
-            locationValArray = locationVal.split('[!]');
-
-            //clear old values
-            var optDiv = $('[name="default\[\]"]');
-            optDiv.html('');
-
-            //Loop through results to
-            for(var i = 0; i < locationValArray.length; i++) {
-                var option = $("<option>").val(locationValArray[i]).text(locationValArray[i]);
-
-                optDiv.append(option.clone());
-            }
-
-            //refresh chosen
-            optDiv.find($('option')).prop('selected', true);
-            optDiv.trigger("chosen:updated");
-
-            Kora.Modal.close(locationModal);
-        });
-
-        $('.open-create-location-modal-js').click(function(e) {
-            e.preventDefault();
-
-            newLocation = $('[name="default[]"]').val();
-
-            if(newLocation!=[])
-                Kora.Modal.open(createLocationModal);
-        });
-
-        $('.create-location-preset-js').click(function(e) {
-            e.preventDefault();
-
-            var name = $('[name="preset_title"]').val();
-            var type = 'Geolocator';
-            var preset = newLocation;
-            var shared = $('[name="preset_shared"]').is(':checked');
-
-            $.ajax({
-                url: createFieldValuePresetURL,
-                type: 'POST',
-                data: {
-                    "_token": CSRFToken,
-                    "name": name,
-                    "type": type,
-                    "preset": preset,
-                    "shared": shared
-                },
-                success: function(result) {
-                    Kora.Modal.close(createLocationModal);
-                }
-            });
-        });
-    }
-
-    function initializeEventPresetModals() {
-        Kora.Modal.initialize();
-
-        var eventModal = $('.add-event-preset-modal-js');
-        var createEventModal = $('.create-event-preset-modal-js');
-        var newEvent = [];
-
-        $('.open-event-modal-js').click(function(e) {
-            e.preventDefault();
-
-            Kora.Modal.open(eventModal);
-        });
-
-        $('.add-event-preset-js').click(function(e) {
-            e.preventDefault();
-
-            var eventVal = $('[name="event_preset"]').val();
-            eventValArray = eventVal.split('[!]');
-
-            //clear old values
-            var optDiv = $('[name="default\[\]"]');
-            optDiv.html('');
-
-            //Loop through results to
-            for(var i = 0; i < eventValArray.length; i++) {
-                var option = $("<option>").val(eventValArray[i]).text(eventValArray[i]);
-
-                optDiv.append(option.clone());
-            }
-
-            //refresh chosen
-            optDiv.find($('option')).prop('selected', true);
-            optDiv.trigger("chosen:updated");
-
-            Kora.Modal.close(eventModal);
-        });
-
-        $('.open-create-event-modal-js').click(function(e) {
-            e.preventDefault();
-
-            newEvent = $('[name="default[]"]').val();
-
-            if(newEvent!=[])
-                Kora.Modal.open(createEventModal);
-        });
-
-        $('.create-event-preset-js').click(function(e) {
-            e.preventDefault();
-
-            var name = $('[name="preset_title"]').val();
-            var type = 'Schedule';
-            var preset = newEvent;
-		  console.log(select[0].value);
-            var shared = $('[name="preset_shared"]').is(':checked');
-
-            $.ajax({
-                url: createFieldValuePresetURL,
-                type: 'POST',
-                data: {
-                    "_token": CSRFToken,
-                    "name": name,
-                    "type": type,
-                    "preset": preset,
-                    "shared": shared
-                },
-                success: function(result) {
-                    Kora.Modal.close(createEventModal);
-                }
-            });
-        });
-    }
-
-    function initializeComboPresetModals() {
+    function initializeComboPresetModals() { //TODO::CASTLE
         let option = '';
 
         $('.open-regex-modal-js').click(function (e) {
@@ -702,8 +559,6 @@ Kora.Fields.Show = function() {
     initializeCleanUpModals();
     initializeRegexPresetModals();
     initializeListPresetModals();
-    initializeLocationPresetModals();
-    initializeEventPresetModals();
     initializeComboPresetModals();
     initializeValidation();
 }
