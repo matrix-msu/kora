@@ -148,9 +148,17 @@ class GeolocatorField extends BaseField {
     public function processRecordData($field, $value, $request) {
         if(empty($value))
             $value = null;
-        elseif(is_array($value))
-            return json_encode($value);
-        return '['.implode(',',$value).']';
+
+        $toSave = array();
+        foreach($value as $loc) {
+            //If coming from import or api the inner location arrays are not encoded like record create
+            if(is_array($loc))
+                array_push($toSave, json_encode($loc));
+            else
+                array_push($toSave, $loc);
+        }
+
+        return '['.implode(',',$toSave).']';
     }
 
     /**
@@ -393,12 +401,12 @@ class GeolocatorField extends BaseField {
         $dbQuery = $recordMod->newQuery()
             ->select("id");
 
-        if($negative) { //TODO::This may have to be rethought later
-            $dbQuery->where($flid, $param, "%\"formatted_address\": \"$arg\"%");
-            $dbQuery->where($flid, $param, "%\"description\": \"$arg\"%");
+        if($negative) {
+            $dbQuery->whereRaw("`$flid`->\"$[*].formatted_address\" $param \"$arg\"");
+            $dbQuery->whereRaw("`$flid`->\"$[*].description\" $param \"$arg\"");
         } else {
-            $dbQuery->orWhere($flid, $param, "%\"formatted_address\": \"$arg\"%");
-            $dbQuery->orWhere($flid, $param, "%\"description\": \"$arg\"%");
+            $dbQuery->orWhereRaw("`$flid`->\"$[*].formatted_address\" $param \"$arg\"");
+            $dbQuery->orWhereRaw("`$flid`->\"$[*].description\" $param \"$arg\"");
         }
 
         return $dbQuery->pluck('id')
