@@ -24,8 +24,8 @@
 
 <section class="hidden mt-xl combo-list-form-js">
     <div class="form-group half pr-m">
-        {!! Form::label('cftype1','Combo List Field Type 1') !!}
-        {!! Form::select('cftype1', $validComboListFieldTypes, null,['class' => 'single-select']) !!}
+        {!! Form::label('typeone','Combo List Field Type 1') !!}
+        {!! Form::select('typeone', $validComboListFieldTypes, null,['class' => 'single-select']) !!}
     </div>
 
     <div class="form-group half pl-m">
@@ -36,8 +36,8 @@
 
     <section class="mt-xl">
         <div class="form-group half pr-m">
-            {!! Form::label('cftype2','Combo List Field Type 2') !!}
-            {!! Form::select('cftype2', $validComboListFieldTypes, null,['class' => 'single-select']) !!}
+            {!! Form::label('typetwo','Combo List Field Type 2') !!}
+            {!! Form::select('typetwo', $validComboListFieldTypes, null,['class' => 'single-select']) !!}
         </div>
         <div class="form-group half pl-m">
             {!! Form::label('cfname2','Combo List Field Name 2') !!}

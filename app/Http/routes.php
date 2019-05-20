@@ -147,14 +147,14 @@ Route::group(['middleware' => 'web'], function () {
     Route::post('/moveFilesToTemp', 'RecordPresetController@moveFilesToTemp');
 
 //option preset routes
-    Route::get('/projects/{pid}/presets', 'OptionPresetController@index');
-    Route::get('/projects/{pid}/presets/create', 'OptionPresetController@newPreset');
-    Route::post('/projects/{pid}/presets/create', 'OptionPresetController@create');
-    Route::post('/projects/{pid}/presets/createApi', 'OptionPresetController@createApi');
-    Route::post('projects/{pid}/presets/validate', 'OptionPresetController@validatePresetFormFields');
-    Route::delete('/projects/{pid}/presets/delete', 'OptionPresetController@delete');
-    Route::get('/projects/{pid}/presets/{id}/edit', 'OptionPresetController@edit');
-    Route::post('/projects/{pid}/presets/{id}/edit', 'OptionPresetController@update');
+    Route::get('/projects/{pid}/presets', 'FieldValuePresetController@index');
+    Route::get('/projects/{pid}/presets/create', 'FieldValuePresetController@newPreset');
+    Route::post('/projects/{pid}/presets/create', 'FieldValuePresetController@create');
+    Route::post('/projects/{pid}/presets/createApi', 'FieldValuePresetController@createApi');
+    Route::post('projects/{pid}/presets/validate', 'FieldValuePresetController@validatePresetFormFields');
+    Route::delete('/projects/{pid}/presets/delete', 'FieldValuePresetController@delete');
+    Route::get('/projects/{pid}/presets/{id}/edit', 'FieldValuePresetController@edit');
+    Route::post('/projects/{pid}/presets/{id}/edit', 'FieldValuePresetController@update');
 
 //record routes
     Route::get('/projects/{pid}/forms/{fid}/records', 'RecordController@index');

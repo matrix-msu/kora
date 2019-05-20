@@ -5,11 +5,11 @@
 @stop
 
 @section('aside-content')
-    @include('partials.sideMenu.project', ['pid' => $project->pid, 'openDrawer' => true])
+    @include('partials.sideMenu.project', ['pid' => $project->id, 'openDrawer' => true])
 @stop
 
 @section('leftNavLinks')
-    @include('partials.menu.project', ['pid' => $project->pid])
+    @include('partials.menu.project', ['pid' => $project->id])
     @include('partials.menu.fieldValPresets')
 @stop
 
@@ -19,7 +19,7 @@
         <div class="inner-wrap center">
             <h1 class="title">
                 <i class="icon icon-preset"></i>
-                <span>{{$preset->name}}</span>
+                <span>{{$preset->preset['name']}}</span>
             </h1>
             <p class="description">Edit the preset using the form below.</p>
         </div>
@@ -28,25 +28,25 @@
 
 @section('body')
     @include("partials.fields.input-modals")
-    @include('partials.optionPresets.deletePresetModal')
+    @include('partials.fieldValuePresets.deletePresetModal')
 
     <section class="option-preset-selection center">
-        <form method="POST" action="{{ action('OptionPresetController@edit', ['pid' => $project->pid, 'id' => $preset->id]) }}" class="preset-form">
+        <form method="POST" action="{{ action('FieldValuePresetController@edit', ['pid' => $project->id, 'id' => $preset->id]) }}" class="preset-form">
             <input type="hidden" name="_token" value="{{csrf_token()}}">
 
             <div class="form-group mt-xl">
                 {!! Form::label('name', 'Field Value Preset Name') !!}
                 <span class="error-message">{{array_key_exists("name", $errors->messages()) ? $errors->messages()["name"][0] : ''}}</span>
-                {!! Form::text('name', $preset->name, ['class' => 'text-input', 'placeholder' => "Enter the name for the new field value preset here"]) !!}
+                {!! Form::text('name', $preset->preset['name'], ['class' => 'text-input', 'placeholder' => "Enter the name for the new field value preset here"]) !!}
             </div>
 
-            @if($preset->type == 'Text')
+            @if($preset->preset['type'] == 'Regex')
                 <div class="form-group mt-xl">
                     <label>Regex: </label>
                     <span class="error-message">{{array_key_exists("preset", $errors->messages()) ? $errors->messages()["preset"][0] : ''}}</span>
-                    {!! Form::text('preset', $preset->preset, ['class' => 'text-input', 'placeholder' => 'Enter text value']) !!}
+                    {!! Form::text('preset', $preset->preset['preset'], ['class' => 'text-input', 'placeholder' => 'Enter text value']) !!}
                 </div>
-            @elseif($preset->type == 'List')
+            @elseif($preset->preset['type'] == 'List')
                 <div class="form-group specialty-field-group list-input-form-group mt-xxxl">
                     {!! Form::label('options','List Options') !!}
                     <span class="error-message">{{array_key_exists("preset", $errors->messages()) ? $errors->messages()["preset"][0] : ''}}</span>
@@ -56,9 +56,9 @@
 
                         <!-- Cards of list options -->
                         <div class="list-option-card-container list-option-card-container-js">
-                            <?php
-                                $values = explode("[!]", $preset->preset);
-                            ?>
+                            @php
+                                $values = $preset->preset['preset'];
+                            @endphp
                             @foreach($values as $value)
                                 <div class="card list-option-card list-option-card-js" data-list-value="{{ $value }}">
                                     <input type="hidden" class="list-option-js" name="preset[]" value="{{ $value }}">
@@ -100,42 +100,6 @@
                         </div>
                     </div>
                 </div>
-            @elseif($preset->type == 'Schedule')
-                <?php
-                    $values = explode("[!]", $preset->preset);
-                    $valuesArray = array();
-                    foreach($values as $value) {
-                        $valuesArray[$value] = $value;
-                    }
-                    ?>
-                <div class="form-group mt-xl">
-                    <label>Locations: </label>
-                    <span class="error-message">{{array_key_exists("preset", $errors->messages()) ? $errors->messages()["preset"][0] : ''}}</span>
-                    {!! Form::select('preset[]', $valuesArray, $values, ['class' => 'multi-select schedule-event-js',
-                        'multiple', 'data-placeholder' => "Add Events Below"]) !!}
-                </div>
-
-                <section class="new-object-button form-group mt-sm">
-                    <input type="button" class="add-new-default-event-js" value="Create New Event">
-                </section>
-            @elseif($preset->type == 'Geolocator')
-                <?php
-                    $values = explode("[!]", $preset->preset);
-                    $valuesArray = array();
-                    foreach($values as $value) {
-                        $valuesArray[$value] = $value;
-                    }
-                ?>
-                <div class="form-group mt-xl">
-                    <label>Events: </label>
-                    <span class="error-message">{{array_key_exists("preset", $errors->messages()) ? $errors->messages()["preset"][0] : ''}}</span>
-                    {!! Form::select('preset[]', $valuesArray, $values, ['class' => 'multi-select geolocator-location-js',
-                        'multiple', 'data-placeholder' => "Add Locations Below"]) !!}
-                </div>
-
-                <section class="new-object-button form-group mt-xl">
-                    <input type="button" class="add-new-default-location-js" value="Create New Location">
-                </section>
             @endif
 
 
@@ -166,14 +130,13 @@
 @stop
 
 @section('javascripts')
-    @include('partials.optionPresets.javascripts')
+    @include('partials.fieldValuePresets.javascripts')
 
     <script type="text/javascript">
-        var CSRFToken = '{{ csrf_token() }}';
-        var geoConvertUrl = '{{ action('FieldAjaxController@geoConvert',['pid' => $project->pid, 'fid' => 0, 'flid' => 0]) }}';
-        var deletePresetURL = '{{ action('OptionPresetController@delete', ['pid' => $project->pid])}}';
-        var deleteRedirect = '{{ action('OptionPresetController@index', ['pid' => $project->pid])}}';
-        var validationUrl = "{{ action('OptionPresetController@validatePresetFormFields',['pid' => $project->pid]) }}";
-        Kora.OptionPresets.Create();
+        var csrfToken = '{{ csrf_token() }}';
+        var deletePresetURL = '{{ action('FieldValuePresetController@delete', ['pid' => $project->id])}}';
+        var deleteRedirect = '{{ action('FieldValuePresetController@index', ['pid' => $project->id])}}';
+        var validationUrl = "{{ action('FieldValuePresetController@validatePresetFormFields',['pid' => $project->id]) }}";
+        Kora.FieldValuePresets.Create();
     </script>
 @stop

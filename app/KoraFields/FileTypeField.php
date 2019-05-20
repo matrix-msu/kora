@@ -3,6 +3,7 @@
 use App\FieldHelpers\UploadHandler;
 use App\Form;
 use App\Http\Controllers\RecordController;
+use App\Record;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
@@ -43,7 +44,6 @@ abstract class FileTypeField extends BaseField {
      * @return array - The updated field array
      */
     public function updateOptions($field, Request $request, $slug = null, $prefix = 'records_') {
-        dd($request->filesize);
         if($request->filesize==0 | $request->filesize=='')
             $request->filesize = null;
         if($request->maxfiles==0 | $request->maxfiles=='')
@@ -393,18 +393,19 @@ abstract class FileTypeField extends BaseField {
      * @param  boolean $negative - Get opposite results of the search
      * @return array - The RIDs that match search
      */
-    public function keywordSearchTyped($flid, $arg, $recordMod, $negative = false) { //TODO::CASTLE
+    public function keywordSearchTyped($flid, $arg, $recordMod, $negative = false) {
         if($negative)
             $param = 'NOT LIKE';
         else
             $param = 'LIKE';
 
-        $value = $recordMod->newQuery()
-            ->select("id")
-            ->whereJsonContains($flid, $arg)
-            ->pluck('id')
+        $dbQuery = $recordMod->newQuery()
+            ->select("id");
+
+        $dbQuery->whereRaw("`$flid`->\"$[*].original_name\" $param \"$arg\"");
+
+        return $dbQuery->pluck('id')
             ->toArray();
-        dd($value);
     }
 
     /**

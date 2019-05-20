@@ -8,12 +8,12 @@
         </div>
         <div class="body">
             <div class="form-group">
-                {!! Form::label('preset_title','Regex Field Value Preset Name') !!}
-                {!! Form::text('preset_title', null, ['class' => 'text-input', 'placeholder' => 'Enter the name of the new regex field value preset here']) !!}
+                {!! Form::label('preset_title_regex','Regex Field Value Preset Name') !!}
+                {!! Form::text('preset_title_regex', null, ['class' => 'text-input', 'placeholder' => 'Enter the name of the new regex field value preset here']) !!}
             </div>
             <div class="form-group mt-xl">
                 <div class="check-box-half">
-                    <input type="checkbox" value="1" id="active" class="check-box-input" name="preset_shared" />
+                    <input type="checkbox" value="1" id="active" class="check-box-input" name="preset_shared_regex" />
                     <span class="check"></span>
                     <span class="placeholder">Shared Regex Field Value Preset with All Projects</span>
                 </div>

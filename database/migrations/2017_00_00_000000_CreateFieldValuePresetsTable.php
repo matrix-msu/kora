@@ -16,6 +16,7 @@ class CreateFieldValuePresetsTable extends Migration {
         {
 			$table->increments('id');
             $table->integer('project_id')->unsigned()->nullable();
+            $table->boolean('shared');
             $table->jsonb('preset');
             $table->timestamps();
 

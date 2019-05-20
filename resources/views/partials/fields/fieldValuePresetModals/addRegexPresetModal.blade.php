@@ -1,21 +1,20 @@
-<?php
+@php
     $presetFormatted = array(''=>'');
     foreach($presets as $index => $sets) {
-        if($index=="Stock") {
-            foreach($sets as $preset) {
-                $presetFormatted[$preset->preset] = $preset->name." [Stock]";
-            }
-        } else if($index=="Project") {
-            foreach($sets as $preset) {
-                $presetFormatted[$preset->preset] = $preset->name;
-            }
-        } else if($index=="Shared") {
-            foreach($sets as $preset) {
-                $presetFormatted[$preset->preset] = $preset->name." [PID:".$preset->pid."]";
-            }
+        foreach($sets as $preset) {
+            //Need this to support multiple types for one field type
+            if($preset->preset['type'] != 'Regex')
+                continue;
+
+            if($index=="Stock")
+                $presetFormatted[$preset->preset['preset']] = $preset->preset['name']." [Stock]";
+            else if($index=="Project")
+                $presetFormatted[$preset->preset['preset']] = $preset->preset['name'];
+            else if($index=="Shared")
+                $presetFormatted[$preset->preset['preset']] = $preset->preset['name']." [PID:".$preset->project_id."]";
         }
     }
-?>
+@endphp
 
 <div class="modal modal-js modal-mask add-regex-preset-modal-js">
     <div class="content">

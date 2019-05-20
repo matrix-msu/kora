@@ -1,7 +1,7 @@
 var Kora = Kora || {};
-Kora.OptionPresets = Kora.OptionPresets || {};
+Kora.FieldValuePresets = Kora.FieldValuePresets || {};
 
-Kora.OptionPresets.Index = function() {
+Kora.FieldValuePresets.Index = function() {
 
     var currentPreset = -1;
 

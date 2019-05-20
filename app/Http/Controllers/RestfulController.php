@@ -31,6 +31,11 @@ class RestfulController extends Controller {
     const VALID_FORMATS = [ self::JSON, self::KORA, self::XML];
 
     /**
+     * @var array - Minor errors in api search. Since they happen in nested functions, it's easier to store globally.
+     */
+    public $minorErrors = array();
+
+    /**
      * Gets the current version of Kora3.
      *
      * @return mixed - Kora version
@@ -196,8 +201,16 @@ class RestfulController extends Controller {
         //check for global
         $globalRecords = array();
         $globalForms = array();
-        if(isset($request->global_sort)) {
-            $globalSortArray = json_decode($request->global_sort);
+        //Merge will combine the results and let you maps field names together.
+        if(isset($request->merge)) {
+            $globalMergeArray = json_decode($request->merge);
+            $globalMerge = true;
+        } else {
+            $globalMergeArray = null;
+            $globalMerge = false;
+        }
+        if(isset($request->sort)) {
+            $globalSortArray = json_decode($request->sort);
             $globalSort = true;
         } else {
             $globalSort = false;
@@ -221,7 +234,6 @@ class RestfulController extends Controller {
         $fidsGlobal = [];
         $countArray = array();
         $countGlobal = 0;
-        $minorErrors = array(); //Some errors we may not want to error out on //TODO::CASTLE especially with new private functions
 
         foreach($forms as $f) {
             //initialize form
@@ -256,10 +268,17 @@ class RestfulController extends Controller {
             $filters['index'] = isset($f->index) && is_numeric($f->index) ? $f->index : null; //where the array of results should start [MUST USE 'count' FOR THIS TO WORK]
             $filters['count'] = isset($f->count) && is_numeric($f->count) ? $f->count : null; //how many records we should grab from that index
 
+            //If merge was provided, pass it along in the filters
+            $filters['merge'] = $globalMerge ? $globalMergeArray : null;
+
             //Index and count become irrelevant to a single form in global sort, because we want to return count after all forms are sorted.
             if($globalSort) {
-                $filters['index'] = null;
-                $filters['count'] = null;
+                if(!is_null($filters['index']))
+                    return response()->json(["status"=>false,"error"=>"'index' is not allowed in a form search query when using the global sort variable. Use the global 'index'"],500);
+                if(!is_null($filters['count']))
+                    return response()->json(["status"=>false,"error"=>"'count' is not allowed in a form search query when using the global sort variable. Use the global 'count'"],500);
+                if(!is_null($filters['sort']))
+                    return response()->json(["status"=>false,"error"=>"'sort' is not allowed in a form search query when using the global sort variable."],500);
             }
 
             //parse the query
@@ -335,32 +354,44 @@ class RestfulController extends Controller {
             }
         }
 
+        if($globalMerge) {
+            $final = [];
+            foreach($resultsGlobal as $result) {
+                $final = array_merge($final,$result);
+            }
+
+            //Add to final result array
+            $resultsGlobal = $final;
+        }
+
         //Handle any global sorting
         if($globalSort) {
             $globalSortedResults = array();
 
             //Build and run the query to get the KIDs in proper order
-            $globalSorted = Form::sortGlobalKids($globalForms, $globalRecords, $globalSortArray);
+            $globalSorted = Form::sortGlobalKids($globalForms, $globalRecords, $globalSortArray, $globalMergeArray);
 
-            //Apply $flags if necessary
-            if(isset($request->global_flags))
-                $flags = json_decode($request->global_flags);
-            else
-                $flags = array();
+            //Apply global sort flags if necessary
+            if(isset($request->index) && !is_null($request->index) && is_numeric($request->index))
+                $globalSorted = array_slice($globalSorted,$request->index);
 
-            if(isset($flags->index) && !is_null($flags->index) && is_numeric($flags->index))
-                $globalSorted = array_slice($globalSorted,$flags->index);
-
-            if(isset($flags->count) && !is_null($flags->count) && is_numeric($flags->count))
-                $globalSorted = array_slice($globalSorted,0,$flags->count);
+            if(isset($request->count) && !is_null($request->count) && is_numeric($request->count))
+                $globalSorted = array_slice($globalSorted,0,$request->count);
 
             //for each record in that new KID array
             foreach($globalSorted as $kid) {
-                //Peak into the form results to find the record
-                foreach($resultsGlobal as $formRecordSet) {
+                //If we merged results already, we can peak into the top level instead of looking at each form record set
+                if($globalMerge) {
                     //Move said record to the new Results array
-                    if(isset($formRecordSet[$kid]))
-                        $globalSortedResults[$kid] = $formRecordSet[$kid];
+                    if(isset($resultsGlobal[$kid]))
+                        $globalSortedResults[$kid] = $resultsGlobal[$kid];
+                } else {
+                    //Peak into the form results to find the record
+                    foreach ($resultsGlobal as $formRecordSet) {
+                        //Move said record to the new Results array
+                        if(isset($formRecordSet[$kid]))
+                            $globalSortedResults[$kid] = $formRecordSet[$kid];
+                    }
                 }
             }
 
@@ -373,7 +404,7 @@ class RestfulController extends Controller {
             'counts' => $countArray,
             'filters' => $filtersGlobal,
             'records' => $resultsGlobal,
-            'warnings' => $minorErrors
+            'warnings' => $this->minorErrors
         ];
     }
 
@@ -394,10 +425,18 @@ class RestfulController extends Controller {
             foreach($logic->{$operand} as $val) {
                 if(is_numeric($val) and isset($queries[$val])) {
                     //run query and store
-                    $ridSets[] = $this->processQuery($queries[$val], $form, $recMod);
+                    $queryRes = $this->processQuery($queries[$val], $form, $recMod);
+                    //Check for error
+                    if($queryRes instanceof JsonResponse)
+                        return $queryRes;
+                    $ridSets[] = $queryRes;
                 } else if(is_object($val)) {
                     //New sub-operand, run recursive
-                    $ridSets[] = $this->logicRecursive($val, $queries, $form, $recMod);
+                    $logicRes = $this->logicRecursive($val, $queries, $form, $recMod);
+                    //Check for errorw
+                    if($logicRes instanceof JsonResponse)
+                        return $logicRes;
+                    $ridSets[] = $logicRes;
                 } else {
                     return response()->json(["status"=>false,"error"=>"Invalid logic array for form: ". $form->name],500);
                 }
@@ -457,14 +496,14 @@ class RestfulController extends Controller {
                 $processed = [];
                 foreach($fields as $flid => $data) {
                     if(!isset($form->layout['fields'][$flid])) {
-                        array_push($minorErrors, "The following field in keyword search is not apart of the requested form: " . $this->cleanseOutput($flid));
+                        array_push($this->minorErrors, "The following field in keyword search is not apart of the requested form: " . $this->cleanseOutput($flid));
                         continue;
                     }
                     $fieldModel = $form->layout['fields'][$flid];
 
                     //Check permission to search externally
                     if(!$fieldModel['external_search']) {
-                        array_push($minorErrors, "The following field in advanced search is not externally searchable: " . $fieldModel['name']);
+                        array_push($this->minorErrors, "The following field in advanced search is not externally searchable: " . $fieldModel['name']);
                         continue;
                     }
 
@@ -494,13 +533,13 @@ class RestfulController extends Controller {
                     //takes care of converting slugs to flids
                     foreach($query->key_fields as $qfield) {
                         if(!isset($form->layout['fields'][$qfield])) {
-                            array_push($minorErrors, "The following field in keyword search is not apart of the requested form: " . $this->cleanseOutput($qfield));
+                            array_push($this->minorErrors, "The following field in keyword search is not apart of the requested form: " . $this->cleanseOutput($qfield));
                             continue;
                         }
                         $fieldMod = $form->layout['fields'][$qfield];
 
                         if(!$fieldMod['external_search']) {
-                            array_push($minorErrors, "The following field in keyword search is not externally searchable: " . $fieldMod['name']);
+                            array_push($this->minorErrors, "The following field in keyword search is not externally searchable: " . $fieldMod['name']);
                             continue;
                         }
                         $searchFields[$qfield] = $fieldMod;
@@ -542,7 +581,7 @@ class RestfulController extends Controller {
                 $kids = $query->kids;
                 for($i=0; $i < sizeof($kids); $i++) {
                     if(!Record::isKIDPattern($kids[$i])) {
-                        array_push($minorErrors,"Illegal KID (".$this->cleanseOutput($kids[$i]).") in a KID search for form: ". $form->name);
+                        array_push($this->minorErrors,"Illegal KID (".$this->cleanseOutput($kids[$i]).") in a KID search for form: ". $form->name);
                         continue;
                     }
                 }

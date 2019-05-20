@@ -1,21 +1,21 @@
-<?php
-$presetFormatted = array(''=>'');
-foreach($presets as $index => $sets) {
-    if($index=="Stock") {
+@php
+    $presetFormatted = array(''=>'');
+    foreach($presets as $index => $sets) {
         foreach($sets as $preset) {
-            $presetFormatted[$preset->preset] = $preset->name." [Stock]";
-        }
-    } else if($index=="Project") {
-        foreach($sets as $preset) {
-            $presetFormatted[$preset->preset] = $preset->name;
-        }
-    } else if($index=="Shared") {
-        foreach($sets as $preset) {
-            $presetFormatted[$preset->preset] = $preset->name." [PID:".$preset->pid."]";
+            //Need this to support multiple types for one field type
+            if($preset->preset['type'] != 'List')
+                continue;
+            $preVal = implode('[!]',$preset->preset['preset']);
+
+            if($index=="Stock")
+                $presetFormatted[$preVal] = $preset->preset['name']." [Stock]";
+            else if($index=="Project")
+                $presetFormatted[$preVal] = $preset->preset['name'];
+            else if($index=="Shared")
+                $presetFormatted[$preVal] = $preset->preset['name']." [PID:".$preset->project_id."]";
         }
     }
-}
-?>
+@endphp
 
 <div class="modal modal-js modal-mask add-list-preset-modal-js">
     <div class="content">

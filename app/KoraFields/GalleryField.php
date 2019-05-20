@@ -1,5 +1,6 @@
 <?php namespace App\KoraFields;
 
+use App\Record;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 
@@ -347,6 +348,36 @@ class GalleryField extends FileTypeField {
                 return $fieldArray;
                 break;
         }
+    }
+
+    /**
+     * Performs a keyword search on this field and returns any results.
+     *
+     * @param  string $flid - Field ID
+     * @param  string $arg - The keywords
+     * @param  Record $recordMod - Model to search through
+     * @param  boolean $negative - Get opposite results of the search
+     * @return array - The RIDs that match search
+     */
+    public function keywordSearchTyped($flid, $arg, $recordMod, $negative = false) {
+        if($negative)
+            $param = 'NOT LIKE';
+        else
+            $param = 'LIKE';
+
+        $dbQuery = $recordMod->newQuery()
+            ->select("id");
+
+        if($negative) {
+            $dbQuery->whereRaw("`$flid`->\"$[*].original_name\" $param \"$arg\"");
+            $dbQuery->whereRaw("`$flid`->\"$[*].caption\" $param \"$arg\"");
+        } else {
+            $dbQuery->orWhereRaw("`$flid`->\"$[*].original_name\" $param \"$arg\"");
+            $dbQuery->orWhereRaw("`$flid`->\"$[*].caption\" $param \"$arg\"");
+        }
+
+        return $dbQuery->pluck('id')
+            ->toArray();
     }
 
     ///////////////////////////////////////////////END ABSTRACT FUNCTIONS///////////////////////////////////////////////

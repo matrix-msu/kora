@@ -1,5 +1,6 @@
 <?php namespace App\Http\Controllers;
 
+use App\FieldValuePreset;
 use App\Form;
 use App\FormGroup;
 use App\Project;
@@ -1176,18 +1177,11 @@ class ImportController extends Controller {
 
         $project->save();
 
-//        $optPresets = $fileArray->optPresets; //TODO::CASTLE
-//        foreach($optPresets as $opt) {
-//            $pre = new OptionPreset();
-//
-//            $pre->pid = $project->pid;
-//            $pre->type = $opt->type;
-//            $pre->name = $opt->name;
-//            $pre->preset = $opt->preset;
-//            $pre->shared = $opt->shared;
-//
-//            $pre->save();
-//        }
+        $fieldValuePresets = $fileArray->fieldValuePresets;
+        foreach($fieldValuePresets as $opt) {
+            $preset = ["name" => $opt->name,"type"=>$opt->type,"preset"=>$opt->preset];
+            FieldValuePreset::create(['project_id' => $project->id, 'preset' => $preset, 'shared' => $opt->shared]);
+        }
 
         $forms = $fileArray['forms'];
         foreach($forms as $form) {

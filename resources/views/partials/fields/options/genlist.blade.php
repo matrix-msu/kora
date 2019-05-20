@@ -3,6 +3,8 @@
 @section('presetModal')
     @include('partials.fields.fieldValuePresetModals.addListPresetModal', ['presets' => $presets])
     @include('partials.fields.fieldValuePresetModals.createListPresetModal')
+    @include('partials.fields.fieldValuePresetModals.addRegexPresetModal', ['presets' => $presets])
+    @include('partials.fields.fieldValuePresetModals.createRegexPresetModal')
 @stop
 
 @section('fieldOptions')

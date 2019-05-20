@@ -582,33 +582,36 @@ function KORA_Search($token,$pid,$sid,$koraClause,$fields,$order=array(),$start=
  * @param  bool $underScores - Determines if a search should return the field names with underscores or spaces
  * @return array - The records to return from the search
  */
-function MPF_Search($token,$pidList,$sidList,$koraClause,$fields,$order=array(),$start=0,$number=0,$userInfo = array(),$underScores=false) { //TODO::CASTLE
+function MPF_Search($token,$pidList,$sidList,$koraClause,$fields,$order=array(),$start=0,$number=0,$userInfo = array(),$underScores=false) {
     if(!$koraClause instanceof KORA_Clause) {
         die("The query clause you provided must be an object of class KORA_Clause");
     }
+
     //Format sort array and map controls to fields
     $newOrder = array();
-    $orderFields = array();
+    $mergeRules = array();
     foreach($order as $o) {
-        $tmpOrder = array();
-        foreach ($pidList as $i => $pid) {
-            $sid = $sidList[$i];
-            if($o["field"]=="systimestamp")
-                $orderFields = "updated_at";
-            else
-                array_push($orderFields,fieldMapper($o["field"],$pid,$sid));
+        if($o["field"]=="systimestamp") {
+            $sortField = "updated_at";
+        } else {
+            $sortField = $o["field"];
+            $mergeFields = array();
+            foreach ($pidList as $i => $pid) {
+                $sid = $sidList[$i];
+                array_push($mergeFields, fieldMapper($o["field"], $pid, $sid));
+            }
+            $mergeRules[$o["field"]] = $mergeFields;
         }
-        $tmpOrder['field'] = $orderFields;
 
         $dir = $o["direction"];
         if($dir==SORT_DESC)
             $newDir = "DESC";
         else
             $newDir = "ASC";
-        $tmpOrder['direction'] = $newDir;
 
-        array_push($newOrder,$tmpOrder);
+        array_push($newOrder,[$sortField => $newDir]);
     }
+
     // Build forms information for each project to be searched
     $output = array();
     foreach ($pidList as $i => $pid) {
@@ -640,10 +643,11 @@ function MPF_Search($token,$pidList,$sidList,$koraClause,$fields,$order=array(),
             array_push($queries, $q);
         }
 
-        $tool = new kora3ApiExternalTool();
         $flag = ["data", "meta"];
         if($underScores)
             $flag[] = "under";
+
+        $tool = new kora3ApiExternalTool();
         $fsArray = $tool->formSearchBuilder(
             $sid,
             $token,
@@ -659,8 +663,10 @@ function MPF_Search($token,$pidList,$sidList,$koraClause,$fields,$order=array(),
     }
     $data = array();
     $data["forms"] = json_encode($output);
-    $data["global_sort"] = json_encode($newOrder);
-    $data["global_flags"] = json_encode(["index"=>$start, "count"=>$number]);
+    $data["merge"] = json_encode($mergeRules);
+    $data["sort"] = json_encode($newOrder);
+    $data["index"] = $start;
+    $data["count"] = $number;
     $data["format"] = "KORA_OLD";
 
     $curl = curl_init();

@@ -91,11 +91,11 @@ class FieldController extends Controller {
                     $form->id
                 );
                 $options[$seq] = [
-                    'type' => $request->{'cftype' . $num},
+                    'type' => $request->{'type' . $seq},
                     'name' => $slug
                 ];
                 $field[$seq] = [
-                    'type' => $request->{'cftype' . $num},
+                    'type' => $request->{'type' . $seq},
                     'name' => $request->{'cfname' . $num},
                     'flid' => $slug,
                     'default' => null
@@ -149,8 +149,7 @@ class FieldController extends Controller {
         $form = FormController::getForm($fid);
         $proj = ProjectController::getProject($pid);
 
-        //$presets = OptionPresetController::getPresetsSupported($pid,$field); //TODO::CASTLE
-        $presets = [];
+        $presets = FieldValuePresetController::getPresetsSupported($pid,$field);
 
         return view($form->getFieldModel($field['type'])->getFieldOptionsView(), compact('flid', 'field', 'form', 'proj', 'presets'));
 

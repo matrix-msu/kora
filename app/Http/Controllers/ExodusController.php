@@ -1,6 +1,7 @@
 <?php namespace App\Http\Controllers;
 
 use App\Association;
+use App\FieldValuePreset;
 use App\Form;
 use App\FormGroup;
 use App\Http\Controllers\Auth\RegisterController;
@@ -11,12 +12,8 @@ use App\User;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Http\Request;
-use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Validator;
-use Illuminate\View\View;
-
 
 class ExodusController extends Controller {
 
@@ -256,51 +253,48 @@ class ExodusController extends Controller {
             }
         }
 
-        //Option Presets //TODO::CASTLE
+        //Option Presets
         echo "Building field value presets...\n";
 
-//        $optPresets = $con->query("select * from controlPreset");
-//        while($o = $optPresets->fetch_assoc()) {
-//            if($o['project']==0 | !isset($projectArray[$o['project']]))
-//                continue; //this is either an old global preset, or doesn't belong to a migrated project
-//
-//            $optionPID = $projectArray[$o['project']];
-//
-//            switch($o['class']) {
-//                case 'TextControl':
-//                    if($o['value']!='') {
-//                        $preset = OptionPreset::create(['pid' => $optionPID, 'type' => 'Text', 'name' => $o['name'], 'preset' => $o['value']]);
-//                        $preset->save();
-//                        if($o['global']) {
-//                            $preset->shared = 1;
-//                        } else {
-//                            $preset->shared = 0;
-//                        }
-//                        $preset->save();
-//                    }
-//                    break;
-//                case 'ListControl':
-//                    $xml = simplexml_load_string(utf8_encode($o['value']));
-//                    $options = array();
-//                    if(!is_null($xml->option)) {
-//                        foreach((array)$xml->option as $opt) {
-//                            if($opt!=''){array_push($options,$opt);}
-//                        }
-//                    }
-//                    if(sizeof($options)>0) {
-//                        $optString = implode('[!]',$options);
-//                        $preset = OptionPreset::create(['pid' => $optionPID, 'type' => 'List', 'name' => $o['name'], 'preset' => $optString]);
-//                        $preset->save();
-//                        if($o['global']) {
-//                            $preset->shared = 1;
-//                        } else {
-//                            $preset->shared = 0;
-//                        }
-//                        $preset->save();
-//                    }
-//                    break;
-//            }
-//        }
+        $optPresets = $con->query("select * from controlPreset");
+        while($o = $optPresets->fetch_assoc()) {
+            if($o['project']==0 | !isset($projectArray[$o['project']]))
+                continue; //this is either an old global preset, or doesn't belong to a migrated project
+
+            $optionPID = $projectArray[$o['project']];
+
+            switch($o['class']) {
+                case 'TextControl':
+                    if($o['value']!='') {
+                        if($o['global'])
+                            $shared = 1;
+                        else
+                            $shared = 0;
+
+                        $preset = ["name" => $o['name'],"type"=>"Regex","preset"=>$o['value']];
+                        FieldValuePreset::create(['project_id' => $optionPID, 'preset' => $preset, 'shared' => $shared]);
+                    }
+                    break;
+                case 'ListControl':
+                    $xml = simplexml_load_string(utf8_encode($o['value']));
+                    $options = array();
+                    if(!is_null($xml->option)) {
+                        foreach((array)$xml->option as $opt) {
+                            if($opt!=''){array_push($options,$opt);}
+                        }
+                    }
+                    if(sizeof($options)>0) {
+                        if($o['global'])
+                            $shared = 1;
+                        else
+                            $shared = 0;
+
+                        $preset = ["name" => $o['name'],"type"=>"Regex","preset"=>$options];
+                        FieldValuePreset::create(['project_id' => $optionPID, 'preset' => $preset, 'shared' => $shared]);
+                    }
+                    break;
+            }
+        }
 
         //Forms
         echo "Building forms...\n";

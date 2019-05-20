@@ -111,7 +111,7 @@ function getDashboardProjectBlockLink($block, $link_type) {
           return [
             'tooltip' => 'Field Value Presets',
             'icon-class' => 'icon-preset-Little',
-            'href' => action('OptionPresetController@index', ['pid'=>$options['pid']]),
+            'href' => action('FieldValuePresetController@index', ['pid'=>$options['pid']]),
 			'type' => 'presets'
           ];
           break;
