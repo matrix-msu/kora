@@ -74,7 +74,7 @@
                     <div class="form-group records-title mt-xxxl">
                         Showing {{sizeof($records)}} of {{$total}} Records
                     </div>
-                    @include('partials.records.pagination')
+                    @include('partials.projectSearch.pagination', ['totalCount' => $total])
 
                     <section class="filters">
                         <div class="pagination-options pagination-options-js">
@@ -96,11 +96,18 @@
                         </div>
                     </section>
 
-                    @foreach($records as $index => $record)
-                        @include('partials.records.card')
+                    @foreach($records as $index => $recData)
+                        @php
+                            $record = \App\Http\Controllers\RecordController::getRecord($recData);
+                            $form = \App\Http\Controllers\FormController::getForm($record->form_id);
+                        @endphp
+                        @include('partials.records.card', [
+                            'record' => $record,
+                            'form' => $form
+                        ])
                     @endforeach
 
-                    @include('partials.records.pagination')
+                    @include('partials.projectSearch.pagination', ['totalCount' => $total])
                 @else
                     @include('partials.records.no-records')
                 @endif
@@ -116,11 +123,13 @@
 @section('javascripts')
     @include('partials.records.javascripts')
 
+    <script src="{{ url('assets/javascripts/projectSearch/results.js') }}"></script>
     <script src="{{ url('assets/javascripts/vendor/leaflet/leaflet.js') }}"></script>
 
     <script type="text/javascript">
         var deleteRecordURL = "";
 
         Kora.Records.Index();
+        Kora.ProjectSearch.Results();
     </script>
 @stop

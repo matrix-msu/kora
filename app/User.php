@@ -13,8 +13,6 @@ use Illuminate\Database\Query\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Mail;
 use ReCaptcha\ReCaptcha;
 
 class User extends Model implements AuthenticatableContract, CanResetPasswordContract {
@@ -57,7 +55,7 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
      * @return Builder
      */
     public function gsCaches() {
-        return DB::table("global_cache")->where("user_id", "=", $this->id)->first();
+        return DB::table("global_cache")->where("user_id", "=", $this->id);
     }
 
     ////THESE FUNCTIONS WILL HANDLE MODIFICATIONS TO AUTHENTICATION IN LARAVEL//////////////////////////////////////////

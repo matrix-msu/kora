@@ -723,7 +723,8 @@ class ComboListField extends BaseField {
      * @param  boolean $negative - Get opposite results of the search
      * @return array - The RIDs that match search
      */
-    public function keywordSearchTyped($flid, $arg, $recordMod, $negative = false) {
+    public function keywordSearchTyped($flid, $arg, $recordMod, $negative = false) { //TODO::CASTLE
+        return [];
         return DB::table(self::SUPPORT_NAME)
             ->select("rid")
             ->where("flid", "=", $flid)
