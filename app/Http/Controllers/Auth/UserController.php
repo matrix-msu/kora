@@ -168,14 +168,16 @@ class UserController extends Controller {
 
                         $first = false;
                     } else {
-                        $userRevisions = Revision::leftJoin("records_$fid", "revisions.record_kid", "=", "records_$fid.kid")
-                            ->select("revisions.*", "records_$fid.kid", "records_$fid.project_id")
-                            ->where("revisions.owner", "=", $user->username)
-                            ->whereNotNull("kid")
-                            ->union($userRevisions);
+                        $userRevisions = $userRevisions->union(
+                            Revision::leftJoin("records_$fid", "revisions.record_kid", "=", "records_$fid.kid")
+                                ->select("revisions.*", "records_$fid.kid", "records_$fid.project_id")
+                                ->where("revisions.owner", "=", $user->username)
+                                ->whereNotNull("kid")
+                        );
 
-                        $userCreatedRecords = $recMod->newQuery()->select('kid','created_at')->where('owner', '=', $user->id)
-                            ->union($userCreatedRecords);
+                        $userCreatedRecords = $userCreatedRecords->union(
+                            $recMod->newQuery()->select('kid','created_at')->where('owner', '=', $user->id)
+                        );
                     }
                 }
             }

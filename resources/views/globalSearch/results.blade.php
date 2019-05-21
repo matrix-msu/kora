@@ -77,8 +77,8 @@
 	            </div>
 
                 <div class="display-keywords mt-xxl"><ul class="keywords"></ul></div>
-            
-                @include('partials.records.pagination')
+
+                @include('partials.projectSearch.pagination', ['totalCount' => $total])
 
                 <section class="filters">
                     <div class="pagination-options pagination-options-js">
@@ -99,12 +99,19 @@
                         <span><a href="#" class="collapse-fields-js tooltip" title="Collapse all Records" tooltip="Collapse all Records"><i class="icon icon-condense icon-condense-js"></i></a></span>
                     </div>
                 </section>
-                
-                @foreach($records as $index => $record)
-                    @include('partials.records.card')
+
+                @foreach($records as $index => $recData)
+                    @php
+                        $record = \App\Http\Controllers\RecordController::getRecord($recData);
+                        $form = \App\Http\Controllers\FormController::getForm($record->form_id);
+                    @endphp
+                    @include('partials.records.card', [
+                        'record' => $record,
+                        'form' => $form
+                    ])
                 @endforeach
 
-                @include('partials.records.pagination')
+                @include('partials.projectSearch.pagination', ['totalCount' => $total])
 
                 <div class="form-group search-button-container mt-xxxl">
                   <a class="btn half-sub-btn to-top">Try Another Search</a>
@@ -121,7 +128,7 @@
             @if(count($formArray) > 0)
                 @php $isCustom = false; @endphp
                 @foreach($formArray as $index => $form)
-                    @php $project = \App\Http\Controllers\ProjectController::getProject($form->pid) @endphp
+                    @php $project = \App\Http\Controllers\ProjectController::getProject($form->project_id) @endphp
                     @include('partials.projects.show.form')
                 @endforeach
             @else
@@ -135,10 +142,15 @@
             @if(count($fieldArray) > 0)
                 @foreach($fieldArray as $index => $field)
                     @php
-                        $form = \App\Http\Controllers\FormController::getForm($field->fid);
+                        $form = $field['formModel'];
                         $onFormPage = false;
                     @endphp
-                    @include('forms.layout.field')
+                    @include('forms.layout.field', [
+                        'flid' => $index,
+                        'pid' => $form->project_id,
+                        'fid' => $form->id,
+                        'form' => $form,
+                    ])
                 @endforeach
             @else
                 @include('partials.records.no-records')
@@ -167,11 +179,13 @@
 @section('javascripts')
     @include('partials.records.javascripts')
 
+    <script src="{{ url('assets/javascripts/projectSearch/results.js') }}"></script>
     <script src="{{ url('assets/javascripts/vendor/leaflet/leaflet.js') }}"></script>
 
     <script type="text/javascript">
         var deleteRecordURL = "";
 
         Kora.Records.Index();
+        Kora.ProjectSearch.Results();
     </script>
 @stop

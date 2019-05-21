@@ -21,26 +21,24 @@
         </button>
       </form>
     </li>
-    {{--TODO::CASTLE--}}
-{{--@if (\Auth::user()->gsCaches()->orderby("id","desc")->count() > 0 )--}}
-    {{--<li class="recent-search-results-container">--}}
-      {{--<ul class="recent-search-results recent-search-results-js">--}}
-        {{--@foreach(\Auth::user()->gsCaches()->orderby("id","desc")->get() as $cache)--}}
-          {{--{!! $cache->html !!}--}}
-        {{--@endforeach--}}
-      {{--</ul>--}}
-    {{--</li>--}}
-{{--@endif--}}
+@if (\Auth::user()->gsCaches()->orderby("id","desc")->count() > 0 )
+    <li class="recent-search-results-container">
+      <ul class="recent-search-results recent-search-results-js">
+        @foreach(\Auth::user()->gsCaches()->orderby("id","desc")->get() as $cache)
+          {!! $cache->html !!}
+        @endforeach
+      </ul>
+    </li>
+@endif
     <li class="search-results-container">
       <ul class="search-results search-results-js"></ul>
     </li>
-    {{--TODO::CASTLE--}}
-{{--@if (\Auth::user()->gsCaches()->orderby("id","desc")->count() >0 )--}}
-    {{--<li class="clear-search-results-container ">--}}
-      {{--<button class="clear-search-results clear-search-results-js">--}}
-        {{--<span>Clear Recent Search History</span>--}}
-      {{--</button>--}}
-    {{--</li>--}}
-{{--@endif--}}
+@if (\Auth::user()->gsCaches()->orderby("id","desc")->count() >0 )
+    <li class="clear-search-results-container ">
+      <button class="clear-search-results clear-search-results-js">
+        <span>Clear Recent Search History</span>
+      </button>
+    </li>
+@endif
   </ul>
 </li>

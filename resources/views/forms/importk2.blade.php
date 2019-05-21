@@ -1,12 +1,12 @@
 @extends('app', ['page_title' => "K2 Scheme Importer", 'page_class' => 'scheme-import-setup'])
 
 @section('leftNavLinks')
-    @include('partials.menu.project', ['pid' => $proj->pid])
+    @include('partials.menu.project', ['pid' => $proj->id])
     @include('partials.menu.static', ['name' => 'K2 Scheme Importer'])
 @stop
 
 @section('aside-content')
-  @include('partials.sideMenu.project', ['pid' => $proj->pid, 'openDrawer' => true])
+  @include('partials.sideMenu.project', ['pid' => $proj->id, 'openDrawer' => true])
 @stop
 
 @section('header')
@@ -34,7 +34,7 @@
 @stop
 
 @section('body')
-    {!! Form::open(['url' => action('ImportController@importFormK2', ['pid' => $proj->pid]),'enctype' => 'multipart/form-data', 'id' => 'k2_form']) !!}
+    {!! Form::open(['url' => action('ImportController@importFormK2', ['pid' => $proj->id]),'enctype' => 'multipart/form-data', 'id' => 'k2_form']) !!}
 
     <section class="formfile-section">
         <div class="form-group">
@@ -96,12 +96,6 @@
             {!! Form::label('name', 'Form Name') !!}
             {!! Form::text('name', null, ['class' => 'text-input name', 'placeholder' => 'Enter the form name here', 'autofocus']) !!}
             <p class="sub-text mt-xs">Leave blank to use name from file</p>
-        </div>
-
-        <div class="form-group mt-xl">
-            {!! Form::label('slug', 'Unique Form Identifier') !!}
-            {!! Form::text('slug', null, ['class' => 'text-input slug', 'placeholder' => "Enter the form's unique ID here (no spaces, alpha-numeric values only)"]) !!}
-            <p class="sub-text mt-xs">Leave blank to use identifier from file</p>
         </div>
 
         <div class="form-group mt-xl">

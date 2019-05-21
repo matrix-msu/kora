@@ -16,7 +16,7 @@ class CreateGlobalCacheTable extends Migration
         {
             $table->increments('id');
             $table->integer('user_id')->unsigned();
-            $table->jsonb("searches");
+            $table->string("html");
             $table->timestamps();
 
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');

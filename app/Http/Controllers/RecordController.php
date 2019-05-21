@@ -629,6 +629,9 @@ class RecordController extends Controller {
      * @return Record - Requested record
      */
     public static function getRecord($kid) {
+        if(!Record::isKIDPattern($kid))
+            return null;
+
         $parts = explode('-',$kid);
         $recordMod = new Record(array(),$parts[1]);
         $record = $recordMod->newQuery()->where('kid', '=', $kid)->first();

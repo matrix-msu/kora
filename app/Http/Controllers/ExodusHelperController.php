@@ -230,7 +230,6 @@ class ExodusHelperController extends Controller {
                             'era' => 'CE'
                         ];
                         $newType = 'Historical Date';
-                        $skip = true;
                         break;
                     case 'MultiDateControl': //We convert multi date to a generated list with a date regex
                         $def = array();
@@ -375,6 +374,11 @@ class ExodusHelperController extends Controller {
                 $fieldMod = $newForm->getFieldModel($field['type']);
                 $fieldMod->addDatabaseColumn($newForm->id, $newFlid, $newOpts);
 
+                if(in_array($field['type'],Form::$enumFields)) {
+                    $crt = new \CreateRecordsTable();
+                    $crt->updateEnum($newForm->id,$newFlid,$field['options']['Options']);
+                }
+
                 //Used to format later things that reference old control ID
                 $oldControlInfo[$c['cid']] = $newFlid;
             }
@@ -480,7 +484,7 @@ class ExodusHelperController extends Controller {
                         if((string)$dateXML->prefix == 'circa')
                             $circa=1;
                         $era = 'CE';
-                        if(FieldController::getFieldOption($field,'Era')=='Yes')
+                        if($field['options']['ShowEra'])
                             $era = (string)$dateXML->era;
 
                         $monthData = (int)$dateXML->month;
@@ -541,14 +545,8 @@ class ExodusHelperController extends Controller {
                             //Make folder
                             $dataPath = $newForm->project_id . '/' . $newForm->id . '/' . $recordDataToSave[$r['id']]['id'].'/';
                             $newPath = storage_path('app/files/' . $dataPath);
-                            $newPathM = $newPath.'medium/';
-                            $newPathT = $newPath.'thumbnail/';
                             if(!file_exists($newPath))
                                 mkdir($newPath, 0775, true);
-                            if(!file_exists($newPathM))
-                                mkdir($newPathM, 0775, true);
-                            if(!file_exists($newPathT))
-                                mkdir($newPathT, 0775, true);
 
                             $oldDir = $filePath.'/'.$oldPid.'/'.$ogSid.'/';
 
@@ -559,45 +557,6 @@ class ExodusHelperController extends Controller {
 
                             //Move files
                             copy($oldDir.$localname,$newPath.$realname);
-
-                            //Create thumbs
-                            $smallParts = explode('x',$field['options']['ThumbSmall']);
-                            $largeParts = explode('x',$field['options']['ThumbLarge']);
-                            $thumb = true;
-                            $medium = true;
-                            try {
-                                $tImage = new \Imagick($newPath . $realname);
-                            } catch(\ImagickException $e) {
-                                $thumb = false;
-                                Log::info('Issue creating thumbnail for record '.$recordDataToSave[$r['id']]['kid'].'.');
-                                echo "Issue creating thumbnail for record ".$recordDataToSave[$r['id']]['kid']."\n";
-                            }
-                            try {
-                                $mImage = new \Imagick($newPath . $realname);
-                            } catch(\ImagickException $e) {
-                                $medium = false;
-                                Log::info('Issue creating medium thumbnail for record '.$recordDataToSave[$r['id']]['kid'].'.');
-                                echo "Issue creating thumbnail for record ".$recordDataToSave[$r['id']]['kid']."\n";
-                            }
-
-                            //Size check
-                            if($smallParts[0]==0 | $smallParts[1]==0) {
-                                $smallParts[0] = 150;
-                                $smallParts[1] = 150;
-                            }
-                            if($largeParts[0]==0 | $largeParts[1]==0) {
-                                $largeParts[0] = 300;
-                                $largeParts[1] = 300;
-                            }
-
-                            if($thumb) {
-                                $tImage->thumbnailImage($smallParts[0],$smallParts[1],true);
-                                $tImage->writeImage($newPathT.$realname);
-                            }
-                            if($medium) {
-                                $mImage->thumbnailImage($largeParts[0],$largeParts[1],true);
-                                $mImage->writeImage($newPathM.$realname);
-                            }
 
                             //Get file info
                             $mimes = FileTypeField::getMimeTypes();

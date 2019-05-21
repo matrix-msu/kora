@@ -3,9 +3,6 @@ Kora.User = Kora.User || {};
 
 Kora.User.Profile = function() {
   function windowLocation(key, value) {
-    var sec = (key == 'sec' ? value : getURLParameter('sec'));
-    var rmOrder = (key == 'rm-order' ? value : getURLParameter('rm-order'));
-    var mcrOrder = (key == 'mcr-order' ? value : getURLParameter('mcr-order'));
     var pageCount = (key == 'page-count' ? value : getURLParameter('page-count'));
     var page = '';
     if (key != 'sec') {
