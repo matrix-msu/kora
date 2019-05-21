@@ -280,7 +280,6 @@ Kora.Forms.ImportK2 = function() {
                       processData: false,
                       contentType: false,
                       success: function(response) {
-                          // Will never reach this point because laravel redirecting is actually an error
                           window.location = successUrl;
                       },
                       error: function(error) {
@@ -326,7 +325,6 @@ Kora.Forms.ImportK2 = function() {
                       processData: false,
                       contentType: false,
                       success: function(response) {
-                          // Will never reach this point because laravel redirecting is actually an error
                           window.location = successUrl;
                       },
                       error: function(error) {
