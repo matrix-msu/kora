@@ -30,6 +30,7 @@ Route::group(['middleware' => 'web'], function () {
     Route::post('/projects/{pid}/importMFRecord', 'ImportMultiFormController@importRecord');
     Route::post('/projects/{pid}/importMFAssoc', 'ImportMultiFormController@crossFormAssociations');
     Route::post('/saveTmpFileMF', 'ImportMultiFormController@saveTmpFile');
+    Route::patch('/saveTmpFileMF', 'ImportMultiFormController@saveTmpFile');
     Route::delete('/deleteTmpFileMF/{filename}', 'ImportMultiFormController@delTmpFile');
     Route::post('projects/validate', 'ProjectController@validateProjectFields');
     Route::patch('projects/validate/{projects}', 'ProjectController@validateProjectFields');

@@ -2,12 +2,11 @@ var Kora = Kora || {};
 Kora.Records = Kora.Records || {};
 
 Kora.Records.ImportMF = function () {
+
     var failedRecords = [];
     var assocTagConvert = {};
     var crossFormAssoc = {};
     var comboCrossAssoc = {};
-    var droppedRecord;
-    var droppedFile;
 
     function initializeSelects() {
         $('.multi-select').chosen({
@@ -39,7 +38,7 @@ Kora.Records.ImportMF = function () {
 
             recordsArray = [];
             typesArray = [];
-            $(".kora-file-upload-js").each(function() {
+            $(".kora-record-input-js").each(function() {
                 val = $(this).val();
                 type = val.replace(/^.*\./, '');
                 recordsArray.push(val);
@@ -55,7 +54,6 @@ Kora.Records.ImportMF = function () {
                 contentType: false,
                 processData: false,
                 success: function (data) {
-                    console.log(data)
                     $('.recordfile-section').addClass('hidden');
                     $('.recordresults-section').removeClass('hidden');
 
@@ -103,7 +101,6 @@ Kora.Records.ImportMF = function () {
                                 },
                                 local_kid: kid,
                                 success: function (data) {
-                                    console.log(data)
                                     succ++;
                                     progressText.text(succ + ' of ' + total + ' Records Submitted');
 
@@ -123,7 +120,6 @@ Kora.Records.ImportMF = function () {
                                         finishImport(succ, total);
                                 },
                                 error: function (data) {
-                                    console.log(data)
                                     failedRecords.push([this.local_kid, importRecs[this.local_kid], data]);
 
                                     done++;
@@ -178,184 +174,103 @@ Kora.Records.ImportMF = function () {
         }
     }
 
-    // For field functionatily
-    var recordInput = $(".record-input");
-    var fileInput = $(".file-input");
+    function intializeFileUploaderOptions() {
 
-    var recordButton = $(".record-label");
-    var fileButton = $(".file-label");
+        $('.kora-file-button-js').click(function(e){
+            e.preventDefault();
+            fileUploader = $(this).next().trigger('click');
+        });
 
-    var recordFilename = $(".record-filename");
-    var fileFilename = $(".file-filename");
+        $('.kora-file-upload-js').fileupload({
+            dataType: 'json',
+            singleFileUploads: false,
+            done: function (e, data) {
+                inputName = 'record0';
+                fileDiv = ".filenames-js";
 
-    var recordInstruction = $(".record-instruction");
-    var fileInstruction = $(".file-instruction");
-
-    var recordDroppedFile = false;
-    var fileDroppedFile = false;
-
-    //Resets file input
-    function resetFileInput(type) {
-        switch (type) {
-            case "record":
-                recordInput.replaceWith(recordInput.val('').clone(true));
-                recordFilename.html("Drag & Drop the XML / JSON / CSV Files Here");
-                recordInstruction.removeClass("photo-selected");
-                recordDroppedFile = false;
-                break;
-            case "file":
-                fileInput.replaceWith(fileInput.val('').clone(true));
-                fileFilename.html("Drag & Drop the XML / JSON / CSV Files Here");
-                fileInstruction.removeClass("photo-selected");
-                fileDroppedFile = false;
-                break;
-            default:
-                break;
-        }
-    }
-
-    //Simulating just for fun
-    function newProfilePic(type, pic, name) {
-        switch (type) {
-            case "record":
-                recordFilename.html(name + "<span class='remove-record remove ml-xs'><i class='icon icon-cancel'></i></span>");
-                recordInstruction.addClass("photo-selected");
-                recordDroppedFile = pic;
-                $(".remove-record").click(function (event) {
-                    event.preventDefault();
-                    resetFileInput(type);
+                var $errorDiv = $('.error-message');
+                $errorDiv.text('');
+                console.log(data.result)
+                $.each(data.result[inputName], function (index, file) {
+                    if(file.error == "" || !file.hasOwnProperty('error')) {
+                        var del = '<div class="form-group mt-xxs uploaded-file">';
+                        del += '<input type="hidden" class="record-input-js" name="' + inputName + '[]" value ="' + file.name + '">';
+                        del += '<a href="#" class="upload-fileup-js">';
+                        del += '<i class="icon icon-arrow-up"></i></a>';
+                        del += '<a href="#" class="upload-filedown-js">';
+                        del += '<i class="icon icon-arrow-down"></i></a>';
+                        del += '<span class="ml-sm">' + file.name + '</span>';
+                        del += '<a href="#" class="upload-filedelete-js ml-sm" data-url="' + deleteFileUrl + encodeURI(file.name) + '">';
+                        del += '<i class="icon icon-trash danger"></i></a></div>';
+                        $(fileDiv).append(del);
+                    } else {
+                        $errorDiv.text(file.error);
+                        return false;
+                    }
                 });
-                break;
-            case "file":
-                fileFilename.html(name + "<span class='remove-file remove ml-xs'><i class='icon icon-cancel'></i></span>");
-                fileInstruction.addClass("photo-selected");
-                fileDroppedFile = pic;
-                $(".remove-file").click(function (event) {
-                    event.preventDefault();
-                    resetFileInput(type);
-                });
-                break;
-            default:
-                break;
-        }
-    }
 
-    // Check for Drag and Drop Support on the browser
-    var isAdvancedUpload = function () {
-        var div = document.createElement('div');
-        return (('draggable' in div) || ('ondragstart' in div && 'ondrop' in div)) && 'FormData' in window && 'FileReader' in window;
-    }();
+                //Reset progress bar
+                var progressBar = '.progress-bar-js';
+                $(progressBar).css(
+                    {"width": 0, "height": 0, "margin-top": 0}
+                );
+            },
+            progressall: function (e, data) {
+                var progressBar = '.progress-bar-js';
+                var progress = parseInt(data.loaded / data.total * 100, 10);
 
-    function initializeFileUpload() {
-        console.log('hmm')
-        // When hovering over input, hitting enter or space opens the menu
-        recordButton.keydown(function (event) {
-            console.log('woasdjkfajsdkf');
-            if (event.keyCode == 13 || event.keyCode == 32)
-                recordInput.focus();
-        });
-        fileButton.keydown(function (event) {
-            console.log('woasdjkfajsdkf');
-            if (event.keyCode == 13 || event.keyCode == 32)
-                fileInput.focus();
-        });
-
-        // Clicking input opens menu
-        recordButton.click(function (event) {
-            recordInput.focus();
-        });
-        fileButton.click(function (event) {
-            fileInput.focus();
-        });
-
-        // For clicking on input to select an image
-        recordInput.change(function (event) {
-            event.preventDefault();
-
-            if (this.files && this.files[0]) {
-                var name = this.value.substring(this.value.lastIndexOf('\\') + 1);
-                var reader = new FileReader();
-                reader.onload = function (e) {
-                    newProfilePic("record", e.target.result, name);
-                };
-                reader.readAsDataURL(this.files[0]);
-            }
-        });
-        fileInput.change(function (event) {
-            event.preventDefault();
-
-            if (this.files && this.files[0]) {
-                var name = this.value.substring(this.value.lastIndexOf('\\') + 1);
-                var reader = new FileReader();
-                reader.onload = function (e) {
-                    newProfilePic("file", e.target.result, name);
-                };
-                reader.readAsDataURL(this.files[0]);
+                $(progressBar).css(
+                    {"width": progress + '%', "height": '18px', "margin-top": '10px'}
+                );
             }
         });
 
-        // Drag and Drop
-        // detect and disable if we are on Safari
-        if (isAdvancedUpload && window.safari == undefined && navigator.vendor != 'Apple Computer, Inc.') {
-            recordButton.addClass('has-advanced-upload');
-            fileButton.addClass('has-advanced-upload');
+        $('.filenames').on('click', '.upload-filedelete-js', function(e) {
+            e.preventDefault();
+            console.log('click upload file dete')
 
-            recordButton.on('drag dragstart dragend dragover dragenter dragleave drop', function (e) {
-                e.preventDefault();
-                e.stopPropagation();
-            })
-                .on('dragover dragenter', function () {
-                    recordButton.addClass('is-dragover');
-                })
-                .on('dragleave dragend drop', function () {
-                    recordButton.removeClass('is-dragover');
-                })
-                .on('drop', function (e) {
-                    e.stopPropagation();
-                    e.preventDefault();
+            var div = $(this).parent('.uploaded-file');
+            $.ajax({
+                url: $(this).attr('data-url'),
+                type: 'POST',
+                dataType: 'json',
+                data: {
+                    "_token": CSRFToken,
+                    "_method": 'delete'
+                },
+                success: function (data) {
+                    div.remove();
+                }
+            });
+        });
 
-                    recordDroppedFile = e.originalEvent.dataTransfer.files[0];
-                    var reader = new FileReader();
-                    reader.onload = function (e) {
-                        newProfilePic('record', e.target.result, recordDroppedFile.name);
-                        recordDroppedFile = e.target.result;
-                    };
-                    reader.readAsDataURL(recordDroppedFile);
-                    droppedRecord = recordDroppedFile;
+        $('.filenames').on('click', '.upload-fileup-js', function(e) {
+            e.preventDefault();
 
-                    $('.record-input-js').trigger('change');
-                });
-            fileButton.on('drag dragstart dragend dragover dragenter dragleave drop', function (e) {
-                e.preventDefault();
-                e.stopPropagation();
-            })
-                .on('dragover dragenter', function () {
-                    fileButton.addClass('is-dragover');
-                })
-                .on('dragleave dragend drop', function () {
-                    fileButton.removeClass('is-dragover');
-                })
-                .on('drop', function (e) {
-                    e.stopPropagation();
-                    e.preventDefault();
+            fileDiv = $(this).parent('.uploaded-file');
 
-                    fileDroppedFile = e.originalEvent.dataTransfer.files[0];
-                    var reader = new FileReader();
-                    reader.onload = function (e) {
-                        newProfilePic('file', e.target.result, fileDroppedFile.name);
-                        fileDroppedFile = e.target.result;
-                    };
-                    reader.readAsDataURL(fileDroppedFile);
-                    droppedFile = fileDroppedFile;
+            if(fileDiv.prev('.uploaded-file').length==1){
+                prevDiv = fileDiv.prev('.uploaded-file');
 
-                    $('.record-input-js').trigger('change');
-                });
-        }
+                fileDiv.insertBefore(prevDiv);
+            }
+        });
 
+        $('.filenames').on('click', '.upload-filedown-js', function(e) {
+            e.preventDefault();
+
+            fileDiv = $(this).parent('.uploaded-file');
+
+            if(fileDiv.next('.uploaded-file').length==1){
+                nextDiv = fileDiv.next('.uploaded-file');
+
+                fileDiv.insertAfter(nextDiv);
+            }
+        });
     }
 
     initializeSelects();
     initializeImportRecords();
-    initializeFileUpload();
+    intializeFileUploaderOptions();
 
 }

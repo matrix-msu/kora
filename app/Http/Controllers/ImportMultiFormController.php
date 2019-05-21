@@ -84,11 +84,11 @@ class ImportMultiFormController extends Controller { //TODO::CASTLE
      * @param  Request $request
      */
     public function saveTmpFile() {
-        return response()->json(["status"=>false,"message"=>"oops"],500);
         $uid = \Auth::user()->id;
 
         $options = array();
         $options['flid'] = 'MFf0u'.$uid;
+        $options['folder'] = 'recordU'.$uid;
 
         $upload_handler = new UploadHandler($options);
     }
@@ -105,6 +105,7 @@ class ImportMultiFormController extends Controller { //TODO::CASTLE
         $options = array();
         $options['flid'] = 'MFf0u'.$uid;
         $options['filename'] = $filename;
+        $options['folder'] = 'MFf0u'.$uid;
         $options['deleteThat'] = true;
 
         $upload_handler = new UploadHandler($options);
