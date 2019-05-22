@@ -1,12 +1,12 @@
 @extends('app', ['page_title' => "Import Multi Form Records", 'page_class' => 'multi-import-setup'])
 
 @section('leftNavLinks')
-    @include('partials.menu.project', ['pid' => $project->pid])
+    @include('partials.menu.project', ['pid' => $project->id])
     @include('partials.menu.static', ['name' => 'Import Multi Form Records'])
 @stop
 
 @section('aside-content')
-    @include('partials.sideMenu.project', ['pid' => $project->pid, 'openDrawer' => true])
+    @include('partials.sideMenu.project', ['pid' => $project->id, 'openDrawer' => true])
 @stop
 
 @section('header')
@@ -45,7 +45,7 @@
             @csrf
             <div class="form-group new-object-button low-margin">
                 <input type="button" class="kora-file-button-js" value="Add New File">
-                <input type="file" name="record0[]" id="records" class="kora-file-upload-js hidden"
+                <input type="file" name="file0[]" id="records" class="kora-file-upload-js hidden"
                        data-url="{{ url('saveTmpFileMF') }}"
                        multiple accept=".xml,.json,.csv">
             </div>
@@ -98,9 +98,9 @@
     <script type="text/javascript">
         var CSRFToken = '{{ csrf_token() }}';
         var deleteFileUrl = '{{ url('deleteTmpFileMF') }}/';
-        var mfrInputURL = '{{ url('projects/'.$project->pid.'/importMF') }}';
-        var importRecordUrl = '{{ url('projects/'.$project->pid.'/importMFRecord') }}';
-        var crossAssocURL = '{{ url('projects/'.$project->pid.'/importMFAssoc') }}';
+        var mfrInputURL = '{{ url('projects/'.$project->id.'/importMF') }}';
+        var importRecordUrl = '{{ url('projects/'.$project->id.'/importMFRecord') }}';
+        var crossAssocURL = '{{ url('projects/'.$project->id.'/importMFAssoc') }}';
 
         Kora.Records.ImportMF();
     </script>

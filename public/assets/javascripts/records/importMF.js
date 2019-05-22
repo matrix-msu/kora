@@ -27,23 +27,24 @@ Kora.Records.ImportMF = function () {
             fd.append('_token', CSRFToken);
             if(zipInput.val() != '')
                 fd.append("files", zipInput[0].files[0]);
-
             fd.append('importForms', JSON.stringify(msInput.val()));
             formOrder = [];
             $(".search-choice-close").each(function() {
                 val = $(this).attr('data-option-array-index');
+                // TODO, need to order by this
                 formOrder.push(val);
             });
             fd.append('formOrder', JSON.stringify(formOrder));
 
             recordsArray = [];
             typesArray = [];
-            $(".kora-record-input-js").each(function() {
+            $(".record-input-js").each(function() {
                 val = $(this).val();
                 type = val.replace(/^.*\./, '');
                 recordsArray.push(val);
                 typesArray.push(type);
             });
+
             fd.append('records', JSON.stringify(recordsArray));
             fd.append('types', JSON.stringify(typesArray));
 
@@ -175,7 +176,6 @@ Kora.Records.ImportMF = function () {
     }
 
     function intializeFileUploaderOptions() {
-
         $('.kora-file-button-js').click(function(e){
             e.preventDefault();
             fileUploader = $(this).next().trigger('click');
@@ -185,12 +185,11 @@ Kora.Records.ImportMF = function () {
             dataType: 'json',
             singleFileUploads: false,
             done: function (e, data) {
-                inputName = 'record0';
+                inputName = 'file0';
                 fileDiv = ".filenames-js";
 
                 var $errorDiv = $('.error-message');
                 $errorDiv.text('');
-                console.log(data.result)
                 $.each(data.result[inputName], function (index, file) {
                     if(file.error == "" || !file.hasOwnProperty('error')) {
                         var del = '<div class="form-group mt-xxs uploaded-file">';

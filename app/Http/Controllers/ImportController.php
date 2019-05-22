@@ -121,6 +121,7 @@ class ImportController extends Controller {
      * @return array - Contains html for table as well as list of record objects
      */
     public function matchupFields($pid, $fid, Request $request) {
+        // CASTLE::this step needs to delete contents of recordU
         $form = FormController::getForm($fid);
 
         if(!(\Auth::user()->isFormAdmin($form)))

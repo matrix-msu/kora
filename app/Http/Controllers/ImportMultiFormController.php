@@ -72,7 +72,7 @@ class ImportMultiFormController extends Controller { //TODO::CASTLE
         $formObjs = $project->forms()->get();
         $forms = [];
         foreach($formObjs as $obj) {
-            $forms[$obj->fid] = $obj->name;
+            $forms[$obj->id] = $obj->name;
         }
 
         return view('projects.importMF',compact('project','forms'));
@@ -87,8 +87,9 @@ class ImportMultiFormController extends Controller { //TODO::CASTLE
         $uid = \Auth::user()->id;
 
         $options = array();
-        $options['flid'] = 'MFf0u'.$uid;
-        $options['folder'] = 'recordU'.$uid;
+        $options['fid'] = 0;
+        $options['flid'] = 0;
+        $options['folder'] = 'MFf0u'.$uid;
 
         $upload_handler = new UploadHandler($options);
     }
@@ -103,7 +104,8 @@ class ImportMultiFormController extends Controller { //TODO::CASTLE
         $uid = \Auth::user()->id;
 
         $options = array();
-        $options['flid'] = 'MFf0u'.$uid;
+        $options['fid'] = 0;
+        $options['flid'] = 0;
         $options['filename'] = $filename;
         $options['folder'] = 'MFf0u'.$uid;
         $options['deleteThat'] = true;
@@ -155,6 +157,7 @@ class ImportMultiFormController extends Controller { //TODO::CASTLE
         $fileTypes = json_decode($request->types);
 
         $response = [];
+        print_r($order);
         print_r($fids);
         print_r($recordSets);
         if(sizeof($fids) != sizeof($recordSets))
@@ -187,7 +190,7 @@ class ImportMultiFormController extends Controller { //TODO::CASTLE
 
                     break;
                 case self::CSV:
-                    $csv = parseCSV(file_get_contents($records));
+                    $csv = parseCSV($records);
 
                     foreach($csv as $kid => $record) {
                         $recordObjs[$kid] = $record;
