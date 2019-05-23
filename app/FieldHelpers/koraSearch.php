@@ -97,58 +97,6 @@ class kora3ApiExternalTool {
         $qadv["search"] = "advanced";
 
         $qadv["adv_fields"] = $advData;
-        //TODO::CASTLE Update this after search redone
-        //Lets talk about the structure of $advData
-        //First off we have the index of the array values
-        //Each field is represented in the index
-        //The index will be a field's slug of flid
-        //$advData[FIELD_SLUG] = SEARCH_DATA_ARRAY
-
-        //So what about that SEARCH_DATA_ARRAY
-        //That is going to be an array of info which is different per field type
-        //Foreach field type, I will list out the index and the expected value of that index
-        //SEARCH_DATA_ARRAY[PARAMETER_NAME] = PARAMETER_VALUE
-
-        //Text | Rich Text
-        //SDA[input] = string of text to search
-
-        //Number
-        //SDA[left] = number of left bound to search (blank for -infinite)
-        //SDA[right] = number of right bound to search (blank for infinite)
-        //SDA[invert] = bitwise where 1 will search outside of bound
-
-        //List
-        //SDA[input] = string option to search
-
-        //Multi-Select List | Generated List
-        //SDA[input] = array of string options to search
-
-        //Date | Schedule
-        //SDA[begin_month] = number representation of month to search
-        //SDA[begin_day] = number representation of day to search
-        //SDA[begin_year] = number representation of year to search
-        //SDA[end_month] = number representation of month to search
-        //SDA[end_day] = number representation of day to search
-        //SDA[end_year] = number representation of year to search
-
-        //Documents | Gallery | Playlist | Video | 3-D Model
-        //SDA[input] = string of filename to search
-
-        //Geolocator
-        //SDA[type] = string of location type to search (LatLon, UTM, or Address)
-        //Only if LatLon
-        ////SDA[lat] = number of latitude to search
-        ////SDA[lon] = number of longitude to search
-        //Only if UTM
-        ////SDA[zone] = string of UTM zone to search
-        ////SDA[east] = number of easting to search
-        ////SDA[north] = number of northing to search
-        //Only if Address
-        ////SDA[address] = string of text to search
-        ////SDA[range] = number of radius from location center to search
-
-        //Associator
-        //SDA[input] = array of RIDs to search
 
         if($not)
             $qadv["not"] = $not;
@@ -165,7 +113,7 @@ class kora3ApiExternalTool {
      * @return array - Logic array
      */
     static function queryLogicBuilder($queryObj1,$operator,$queryObj2) {
-        return array($queryObj1,$operator,$queryObj2);
+        return [$operator => [$queryObj1,$queryObj2]];
     }
 
     /**
