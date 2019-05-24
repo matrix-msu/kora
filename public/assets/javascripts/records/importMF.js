@@ -30,11 +30,28 @@ Kora.Records.ImportMF = function () {
             fd.append('importForms', JSON.stringify(msInput.val()));
             formOrder = [];
             $(".search-choice-close").each(function() {
-                val = $(this).attr('data-option-array-index');
-                // TODO, need to order by this
-                formOrder.push(val);
+                formOrder.push($(this).attr('data-option-array-index'));
             });
             fd.append('formOrder', JSON.stringify(formOrder));
+
+            // from https://stackoverflow.com/a/3730579
+            // this normalizes the order array to be readable on the backend
+            function sortWithIndeces(toSort) {
+              for (var i = 0; i < toSort.length; i++) {
+                toSort[i] = [toSort[i], i];
+              }
+              toSort.sort(function(left, right) {
+                return left[0] < right[0] ? -1 : 1;
+              });
+              toSort.sortIndices = [];
+              for (var j = 0; j < toSort.length; j++) {
+                toSort.sortIndices.push(toSort[j][1]);
+                toSort[j] = toSort[j][0];
+              }
+              return toSort.sortIndices;
+            }
+
+            fd.append('formOrder', JSON.stringify(sortWithIndeces(formOrder)));
 
             recordsArray = [];
             typesArray = [];

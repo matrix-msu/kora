@@ -157,9 +157,6 @@ class ImportMultiFormController extends Controller { //TODO::CASTLE
         $fileTypes = json_decode($request->types);
 
         $response = [];
-        print_r($order);
-        print_r($fids);
-        print_r($recordSets);
         if(sizeof($fids) != sizeof($recordSets))
             return response()->json(["status"=>false,"message"=>"file_form_mismatch"],500);
 
@@ -284,8 +281,8 @@ class ImportMultiFormController extends Controller { //TODO::CASTLE
             }
 
             foreach($record as $slug => $field) {
-                //If value is not set, we assume no value so move on
-                if(!isset($field['value']))
+                //If value is not set, move on
+                if(!$field | is_null($field))
                     continue;
 
                 //Deal with reverse associations and move on
@@ -294,17 +291,14 @@ class ImportMultiFormController extends Controller { //TODO::CASTLE
                     continue;
                 }
 
-                //Kora id connection for associator
-                if($matchup[$flid] == 'connection') {
-                    $recRequest['connection'] = $field;
-                    continue;
-                }
+                $flid = $slug;
 
-                $flid = Field::where('slug', '=', $slug)->get()->first()->flid;
+                // TODO::Matchup field support
 
                 if(!isset($form->layout['fields'][$flid]))
-                    return response()->json(["status"=>false,"message"=>"xml_validation_error",
-                        "record_validation_error"=>[$request->kid => "Invalid provided field, $flid"]],500);
+                    continue;
+                    // return response()->json(["status"=>false,"message"=>"xml_validation_error",
+                    //     "record_validation_error"=>[$request->kid => "Invalid provided field, $flid"]],500);
 
                 $fieldMod = $form->layout['fields'][$flid];
                 $typedField = $form->getFieldModel($fieldMod['type']);
