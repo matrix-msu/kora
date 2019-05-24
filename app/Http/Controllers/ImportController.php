@@ -403,19 +403,19 @@ class ImportController extends Controller {
         $failedRecords = json_decode($request->failures);
         $form = FormController::getForm($fid);
 
-        if($request->type=='JSON')
+        if($request->type=='JSON' | $request->type=='CSV')
             $records = [];
         else if($request->type=='XML')
             $records = '<?xml version="1.0" encoding="utf-8"?><Records>';
 
         foreach($failedRecords as $element) {
-            if($request->type=='JSON')
+            if($request->type=='JSON' | $request->type=='CSV')
                 $records[$element[0]] = $element[1];
             else if($request->type=='XML')
                 $records .= $element[1];
         }
 
-        if($request->type=='JSON') {
+        if($request->type=='JSON'  | $request->type=='CSV') {
             header("Content-Disposition: attachment; filename=" . $form->name . '_failedImports.json');
             header("Content-Type: application/octet-stream; ");
 

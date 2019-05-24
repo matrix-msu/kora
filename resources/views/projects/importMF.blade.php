@@ -88,6 +88,22 @@
             </div>
 
             <p class="progress-bar-text progress-text-js">0 of 1000 Records Submitted</p>
+
+            <div class="form-group mt-xxl">
+                <div class="form-quick-options">
+                    <div class="button-container button-container-js">
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group records-imported-text2-js"></div>
+
+            <div class="form-group mt-xxl">
+                <div class="form-quick-options">
+                    <div class="button-container button-container2-js">
+                    </div>
+                </div>
+            </div>
         </div>
     </section>
 @stop
@@ -101,6 +117,8 @@
         var mfrInputURL = '{{ url('projects/'.$project->id.'/importMF') }}';
         var importRecordUrl = '{{ url('projects/'.$project->id.'/importMFRecord') }}';
         var crossAssocURL = '{{ url('projects/'.$project->id.'/importMFAssoc') }}';
+        var downloadFailedUrl = '{{ action('ImportMultiFormController@downloadFailedRecords',['pid'=>$project->id]) }}';
+        var downloadReasonsUrl = '{{ action('ImportMultiFormController@downloadFailedReasons',['pid'=>$project->id]) }}';
 
         Kora.Records.ImportMF();
     </script>

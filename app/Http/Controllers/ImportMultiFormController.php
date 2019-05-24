@@ -295,8 +295,8 @@ class ImportMultiFormController extends Controller { //TODO::CASTLE
 
                 // TODO::Matchup field support
 
-                if(!isset($form->layout['fields'][$flid]))
-                    continue;
+                // if(!isset($form->layout['fields'][$flid]))
+                //     continue;
                     // return response()->json(["status"=>false,"message"=>"xml_validation_error",
                     //     "record_validation_error"=>[$request->kid => "Invalid provided field, $flid"]],500);
 
@@ -389,4 +389,77 @@ class ImportMultiFormController extends Controller { //TODO::CASTLE
             }
         }
     }
+
+    /**
+     * Downloads the file with all the failed records.
+     *
+     * @param  int $pid - Project ID
+     * @param  Request $request
+     */
+    public function downloadFailedRecords($pid, Request $request) {
+        $failedRecords = json_decode($request->failures);
+        $project = ProjectController::getProject($pid);
+
+        if($request->type=='JSON' | $request->type=='CSV')
+            $records = [];
+        else if($request->type=='XML')
+            $records = '<?xml version="1.0" encoding="utf-8"?><Records>';
+
+        foreach($failedRecords as $element) {
+            if($request->type=='JSON' | $request->type=='CSV')
+                $records[$element[0]] = $element[1];
+            else if($request->type=='XML')
+                $records .= $element[1];
+        }
+
+        if($request->type=='JSON'  | $request->type=='CSV') {
+            header("Content-Disposition: attachment; filename=" . $project->name . '_failedImports.json');
+            header("Content-Type: application/octet-stream; ");
+
+            echo json_encode($records);
+            exit;
+        }
+        else if($request->type=='XML') {
+            $records .= '</Records>';
+
+            header("Content-Disposition: attachment; filename=" . $project->name . '_failedImports.xml');
+            header("Content-Type: application/octet-stream; ");
+
+            echo $records;
+            exit;
+        }
+    }
+
+    /**
+     * Downloads the file with the reasons why records failed.
+     *
+     * @param  int $pid - Project ID
+     * @param  Request $request
+     */
+    public function downloadFailedReasons($pid, Request $request) {
+        $failedRecords = json_decode($request->failures);
+        $project = ProjectController::getProject($pid);
+
+        $messages = [];
+
+        foreach($failedRecords as $element) {
+            $id = $element[0];
+            if(isset($element[2]->responseJSON->record_validation_error)) {
+                $messageArray = $element[2]->responseJSON->record_validation_error;
+                foreach($messageArray as $message) {
+                    if($message != '' && $message != ' ')
+                        $messages[$id] = $message;
+                }
+            } else {
+                $messages[$id] = "Unable to determine error. This is usually caused by a structure issue in your XML/JSON, or an unexpected bug in Kora3.";
+            }
+        }
+
+        header("Content-Disposition: attachment; filename=" . $project->name . '_importExplain.json');
+        header("Content-Type: application/octet-stream; ");
+
+        echo json_encode($messages);
+        exit;
+    }
+
 }
