@@ -1,11 +1,10 @@
 @foreach($typedField->processDisplayData($field, $value) as $opt)
     @php
-        $ogName = $opt['original_name'];
-        $locName = $opt['local_name'];
-        $parts = explode('.', $locName);
+        $name = $opt['name'];
+        $parts = explode('.', $name);
         $type = array_pop($parts);
         if(in_array($type, array('stl','obj')))
-            $model_link = action('FieldAjaxController@getFileDownload',['kid' => $record->kid, 'filename' => $locName]);
+            $model_link = action('FieldAjaxController@getFileDownload',['kid' => $record->kid, 'filename' => $name]);
     @endphp
 @endforeach
 <div class="record-data-card">

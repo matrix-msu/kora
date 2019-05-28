@@ -989,26 +989,39 @@ class ImportController extends Controller {
                                 if(isset($value->attributes()["originalName"]))
                                     $realname = $value->attributes()["originalName"];
                                 $localname = (string)$value;
+                                //URL for accessing file publically
+                                $dataURL = url('files').'/'.$form->project_id . '-' . $form->id . '-' . $recModel->id.'/';
 
                                 if($localname!='') {
-                                    //Make folder
-                                    $dataPath = $form->project_id . '/f' . $form->id . '/r' . $recModel->id .'/';
-                                    $newPath = storage_path('app/files/' . $dataPath);
-                                    if(!file_exists($newPath))
-                                        mkdir($newPath, 0775, true);
+                                    $storageType = 'LaravelStorage'; //TODO:: make this a config once we actually support other storage types
+                                    switch($storageType) {
+                                        case 'LaravelStorage':
+                                            //Make folder
+                                            $dataPath = $form->project_id . '/f' . $form->id . '/r' . $recModel->id .'/';
+                                            $newPath = storage_path('app/files/' . $dataPath);
+                                            if(!file_exists($newPath))
+                                                mkdir($newPath, 0775, true);
 
-                                    //Move file
-                                    rename($zipDir.$localname,$newPath.$realname);
+                                            //Hash the file
+                                            $checksum = hash_file('sha256', $zipDir.$localname);
+                                            //Move file
+                                            rename($zipDir.$localname,$newPath.$realname);
 
-                                    //Get file info
-                                    $mimes = FileTypeField::getMimeTypes();
-                                    $ext = pathinfo($newPath.$realname,PATHINFO_EXTENSION);
-                                    if(!array_key_exists($ext, $mimes))
-                                        $type = 'application/octet-stream';
-                                    else
-                                        $type = $mimes[$ext];
+                                            //Get file info
+                                            $mimes = FileTypeField::getMimeTypes();
+                                            $ext = pathinfo($newPath.$realname,PATHINFO_EXTENSION);
+                                            if(!array_key_exists($ext, $mimes))
+                                                $type = 'application/octet-stream';
+                                            else
+                                                $type = $mimes[$ext];
 
-                                    $info = ['name' => $realname, 'size' => filesize($newPath.$realname), 'type' => $type, 'url' => $dataPath.urlencode($realname)];
+                                            $info = ['name' => $realname, 'size' => filesize($newPath.$realname), 'type' => $type,
+                                                'url' => $dataURL.urlencode($realname), 'checksum' => $checksum];
+                                            break;
+                                        default:
+                                            break;
+                                    }
+
                                     $recModel->{$flid} = json_encode([$info]);
                                 }
                                 break;
@@ -1021,26 +1034,39 @@ class ImportController extends Controller {
                                 if(isset($value->attributes()["originalName"]))
                                     $realname = $value->attributes()["originalName"];
                                 $localname = (string)$value;
+                                //URL for accessing file publically
+                                $dataURL = url('files').'/'.$form->project_id . '-' . $form->id . '-' . $recModel->id.'/';
 
                                 if($localname!='') {
-                                    //Make folder
-                                    $dataPath = $form->project_id . '/f' . $form->id . '/r' . $recModel->id .'/';
-                                    $newPath = storage_path('app/files/' . $dataPath);
-                                    if(!file_exists($newPath))
-                                        mkdir($newPath, 0775, true);
+                                    $storageType = 'LaravelStorage'; //TODO:: make this a config once we actually support other storage types
+                                    switch($storageType) {
+                                        case 'LaravelStorage':
+                                            //Make folder
+                                            $dataPath = $form->project_id . '/f' . $form->id . '/r' . $recModel->id .'/';
+                                            $newPath = storage_path('app/files/' . $dataPath);
+                                            if(!file_exists($newPath))
+                                                mkdir($newPath, 0775, true);
 
-                                    //Move file
-                                    rename($zipDir.$localname,$newPath.$realname);
+                                            //Hash the file
+                                            $checksum = hash_file('sha256', $zipDir.$localname);
+                                            //Move file
+                                            rename($zipDir.$localname,$newPath.$realname);
 
-                                    //Get file info
-                                    $mimes = FileTypeField::getMimeTypes();
-                                    $ext = pathinfo($newPath.$realname,PATHINFO_EXTENSION);
-                                    if(!array_key_exists($ext, $mimes))
-                                        $type = 'application/octet-stream';
-                                    else
-                                        $type = $mimes[$ext];
+                                            //Get file info
+                                            $mimes = FileTypeField::getMimeTypes();
+                                            $ext = pathinfo($newPath.$realname,PATHINFO_EXTENSION);
+                                            if(!array_key_exists($ext, $mimes))
+                                                $type = 'application/octet-stream';
+                                            else
+                                                $type = $mimes[$ext];
 
-                                    $info = ['name' => $realname, 'size' => filesize($newPath.$realname), 'type' => $type, 'url' => $dataPath.urlencode($realname), 'caption' => ''];
+                                            $info = ['name' => $realname, 'size' => filesize($newPath.$realname), 'type' => $type,
+                                                'url' => $dataURL.urlencode($realname), 'checksum' => $checksum, 'caption' => ''];
+                                            break;
+                                        default:
+                                            break;
+                                    }
+
                                     $recModel->{$flid} = json_encode([$info]);
                                 }
                                 break;

@@ -73,9 +73,18 @@ abstract class FileTypeField extends BaseField {
         else
             $value = 'recordU'.Auth::user()->id;
 
+        $tmpPath = 'app/tmpFiles/' . $value;
+
         if($req==1 | $forceReq) {
-            if(glob(storage_path('app/tmpFiles/' . $value . '/*.*')) == false)
+            if(glob(storage_path($tmpPath . '/*.*')) == false)
                 return [$flid => $field['name'].' is required'];
+        }
+
+        foreach(new \DirectoryIterator(storage_path($tmpPath)) as $file) {
+            if($file->isFile()) {
+                if(!self::validateRecordFileName($file->getFilename()))
+                    return [$flid => $field['name'].' has file with illegal filename'];
+            }
         }
 
         return array();
@@ -103,7 +112,7 @@ abstract class FileTypeField extends BaseField {
             $files = [];
             $infoArray = array();
             //URL for accessing file publically
-            $dataURL = url('files').'/';
+            $dataURL = url('files').'/'.$request->pid . '-' . $request->fid . '-' . $request->rid.'/';
             $fileIDString = $field['flid'] . $request->rid . '_';
             $types = self::getMimeTypes();
 
@@ -122,16 +131,14 @@ abstract class FileTypeField extends BaseField {
 
                     foreach(new \DirectoryIterator(storage_path($tmpPath)) as $file) {
                         if($file->isFile()) {
-                            //We have a file, so let's grab its name minus the extension
-                            $dots = explode('.',$file->getFilename());
-                            $ext = array_pop($dots);
-                            $providedName = implode('.',$dots);
+                            $fileName = $file->getFilename();
 
-                            //Build the stored name
-                            $newlySavedName = strtolower($fileIDString.preg_replace('/[^a-zA-Z0-9]/', '', $providedName)).'.'.$ext;
+                            //last validation check protector
+                            if(!self::validateRecordFileName($fileName))
+                                continue;
 
                             //Hash the file
-                            $checksum = hash_file('sha256', $tmpPath . '/' . $file->getFilename());
+                            $checksum = hash_file('sha256', $tmpPath . '/' . $fileName);
 
                             //Get the actual MEME type
                             if(!array_key_exists($file->getExtension(), $types))
@@ -140,13 +147,12 @@ abstract class FileTypeField extends BaseField {
                                 $type = $types[$file->getExtension()];
 
                             //Store the info array
-                            $info = ['original_name' => $file->getFilename(), 'local_name' => $newlySavedName, 'size' => $file->getSize(), 'type' => $type,
-                                'url' => $dataURL.urlencode($newlySavedName), 'checksum' => $checksum];
-                            $infoArray[$file->getFilename()] = $info;
+                            $info = ['name' => $fileName, 'size' => $file->getSize(), 'type' => $type,
+                                'url' => $dataURL.urlencode($fileName), 'checksum' => $checksum];
+                            $infoArray[$fileName] = $info;
 
                             //Move the file to its new home
-                            copy(storage_path($tmpPath . '/' . $file->getFilename()),
-                                    $newPath . '/' . $newlySavedName);
+                            copy(storage_path($tmpPath . '/' . $fileName), $newPath . '/' . $fileName);
                         }
                     }
                     break;
@@ -176,7 +182,7 @@ abstract class FileTypeField extends BaseField {
         $data = json_decode($data,true);
         $return = '';
         foreach($data as $file) {
-            $return .= "<div>".$file['original_name']."</div>";
+            $return .= "<div>".$file['name']."</div>";
         }
 
         return $return;
@@ -213,6 +219,9 @@ abstract class FileTypeField extends BaseField {
             if(!$file)
                 return response()->json(["status"=>false,"message"=>"json_validation_error",
                     "record_validation_error"=>[$request->kid => "$flid is missing name for a file"]],500);
+            if(!self::validateRecordFileName($file))
+                return response()->json(["status"=>false,"message"=>"json_validation_error",
+                    "record_validation_error"=>[$request->kid => "$flid has file with illegal filename"]],500);
             $name = $file;
             //move file from imp temp to tmp files
             copy($currDir . '/' . $name, $newDir . '/' . $name);
@@ -263,6 +272,9 @@ abstract class FileTypeField extends BaseField {
                     return response()->json(["status" => false, "message" => "xml_validation_error",
                         "record_validation_error" => [$request->kid => "$flid: trouble finding file $name"]], 500);
             }
+            if(!self::validateRecordFileName($name))
+                return response()->json(["status"=>false,"message"=>"json_validation_error",
+                    "record_validation_error"=>[$request->kid => "$flid has file with illegal filename"]],500);
             copy($currDir . '/' . $name, $newDir . '/' . $name);
             //add input for this file
             array_push($files, $name);
@@ -316,7 +328,7 @@ abstract class FileTypeField extends BaseField {
         $file = json_decode($value,true)[0];
 
         return [
-            'originalName' => $file['original_name'],
+            'originalName' => $file['name'],
             'size' => $file['size'],
             'type' => $file['type'],
             'localName' => $file['url']
@@ -402,7 +414,7 @@ abstract class FileTypeField extends BaseField {
         $dbQuery = $recordMod->newQuery()
             ->select("id");
 
-        $dbQuery->whereRaw("`$flid`->\"$[*].original_name\" $param \"$arg\"");
+        $dbQuery->whereRaw("`$flid`->\"$[*].name\" $param \"$arg\"");
 
         return $dbQuery->pluck('id')
             ->toArray();
@@ -441,16 +453,6 @@ abstract class FileTypeField extends BaseField {
      */
     public abstract function getDefaultMIMEList();
 
-    public function formatBytes($bytes) { //TODO::CASTLE
-        $units = ['b', 'kb', 'mb', 'gb', 'tb'];
-
-        for($i = 0; $bytes > 1024; $i++) {
-            $bytes /= 1024;
-        }
-
-        return round($bytes, 1) . ' ' . $units[$i];
-    }
-
     /**
      * Saves a temporary version of an uploaded file.
      *
@@ -463,6 +465,13 @@ abstract class FileTypeField extends BaseField {
         $uid = \Auth::user()->id;
         //We are going to store in the tmp directory in a user unique folder
         $dir = storage_path('recordU'.$uid);
+
+        //Validate file names
+        $validNames = true;
+        foreach($_FILES['file'.$flid]['name'] as $name) {
+            if(!self::validateRecordFileName($name))
+                $validNames = false;
+        }
 
         //Prep comparing of allowed number files, vs files already in tmp folder
         $maxFileNum = !is_null($field['options']['MaxFiles']) ? $field['options']['MaxFiles'] : 0;
@@ -510,7 +519,9 @@ abstract class FileTypeField extends BaseField {
         $options['flid'] = $flid;
         $options['folder'] = 'recordU'.$uid;
 
-        if(!$validTypes) {
+        if(!$validNames) {
+            echo "InvalidFileNames";
+        } else if(!$validTypes) {
             echo 'InvalidType';
         } else if($maxFileNum !=0 && $fileNumRequest+$fileNumDisk>$maxFileNum) {
             echo 'TooManyFiles';
@@ -540,27 +551,81 @@ abstract class FileTypeField extends BaseField {
     }
 
     /**
+     * Checks the name of an incoming record file for valid characters.
+     *
+     * @param  string $name - Name of the file to validate
+     * @param  Request $request
+     */
+    public static function validateRecordFileName($name) {
+        //Make sure characters are legal
+        //First character must be alphanumeric
+        //Rest may include . _ and -
+        if(!preg_match("/^[a-zA-Z0-9][a-zA-Z0-9\.\-\_]+$/", $name))
+            return false;
+
+        //Make sure there are no double periods
+        if(strpos($name, '..') !== false)
+            return false;
+
+        return true;
+    }
+
+    /**
      * Public access link for a file. NOTE: Mirrors file download, but is publically accessible doesn't force download
      *
+     * @param  string $kid - Kora record that holds the file
      * @param  string $filename - Name of the file
      * @return mixed - the file
      */
-    public static function publicRecordFile($filename) {
+    public static function publicRecordFile($kid, $filename) {
+        $record = RecordController::getRecord($kid);
         $storageType = 'LaravelStorage'; //TODO:: make this a config once we actually support other storage types
-        $parts = explode('_',$filename);
-        $namePiece = array_pop($parts); //Don't use variable but need to pop it off
-        $rid = array_pop($parts);
-        $fid = array_pop($parts);
-        $pid = array_pop($parts);
+
+        $thumb = \request('thumb');
+        $createThumb = false;
+        $thumbParts = null;
+        if(!is_null($thumb)) {
+            $createThumb = true;
+
+            if(!preg_match("/^[0-9]+[x][0-9]+$/", $thumb))
+                return response()->json(["status" => false, "message" => "bad_thumb_format"], 500);
+
+            $thumbParts = explode('x',$thumb);
+
+            //Define the name of the thumb
+            $fileParts = explode('.',$filename);
+            $ext = array_pop($fileParts);
+            $thumbFilename = implode('.',$fileParts)."_$thumb.".$ext;
+        }
+
 
         switch($storageType) {
             case 'LaravelStorage':
                 // Check if file exists in app/storage/file folder
-                $file_path = storage_path('app/files/'.$pid.'/'.$fid.'/'.$rid.'/'.$filename);
-                if(file_exists($file_path)) {
+                $filePath = storage_path('app/files/'.$record->project_id.'/'.$record->form_id.'/'.$record->id.'/'.$filename);
+                if(file_exists($filePath)) {
+                    if($createThumb) {
+                        $thumbPath = storage_path('app/files/'.$record->project_id.'/'.$record->form_id.'/'.$record->id.'/'.$thumbFilename);
+
+                        //Check if we already made the thumb
+                        if(!file_exists($thumbPath)) {
+                            $tImage = new \Imagick($filePath);
+                            $tImage->thumbnailImage($thumbParts[0], $thumbParts[1], true);
+                            $tImage->writeImage($thumbPath);
+                        }
+
+                        //rename the file we are serving
+                        $filePath = $thumbPath;
+                    }
+
+                    //This allows the thumbs to display properly
+                    while (ob_get_level()) {
+                        ob_end_clean();
+                    }
+
                     // Send file, but define type for browsers sake
-                    header('Content-Type: '. mime_content_type($file_path));
-                    readfile($file_path);
+                    header('Content-Type: '. mime_content_type($filePath));
+                    readfile($filePath);
                 }
                 break;
             default:
@@ -584,11 +649,11 @@ abstract class FileTypeField extends BaseField {
         switch($storageType) {
             case 'LaravelStorage':
                 // Check if file exists in app/storage/file folder
-                $file_path = storage_path('app/files/'.$record->project_id.'/'.$record->form_id.'/'.$record->id.'/'.$filename);
-                if(file_exists($file_path)) {
+                $filePath = storage_path('app/files/'.$record->project_id.'/'.$record->form_id.'/'.$record->id.'/'.$filename);
+                if(file_exists($filePath)) {
                     // Send Download, dont define type so it guarantees a download
-                    return response()->download($file_path, $filename, [
-                        'Content-Length: '. filesize($file_path)
+                    return response()->download($filePath, $filename, [
+                        'Content-Length: '. filesize($filePath)
                     ]);
                 }
                 break;

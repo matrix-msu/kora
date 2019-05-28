@@ -1,12 +1,11 @@
 @foreach($typedField->processDisplayData($field, $value) as $aud)
     @php
-        $ogName = $aud['original_name'];
-        $locName = $aud['local_name'];
-        $link = action('FieldAjaxController@publicRecordFile',['filename' => $locName]);
+        $name = $aud['name'];
+        $link = action('FieldAjaxController@publicRecordFile',['kid' => $record->kid, 'filename' => $name]);
     @endphp
     <div class="record-data-card">
         <div class="field-display audio-field-display">
-            <p class="audio-filename">{{$ogName}}</p>
+            <p class="audio-filename">{{$name}}</p>
 
             <div class="audio-container">
                 <i class="icon icon-play audio-button audio-button-js play-button-js active"></i>
@@ -35,7 +34,7 @@
                     <i class="icon icon-external-link"></i>
                 </a>
 
-                <a href="{{ action('FieldAjaxController@getFileDownload', ['kid' => $record->kid, 'filename' => $locName]) }}" class="field-btn">
+                <a href="{{ action('FieldAjaxController@getFileDownload', ['kid' => $record->kid, 'filename' => $name]) }}" class="field-btn">
                     <i class="icon icon-download"></i>
                 </a>
             </div>

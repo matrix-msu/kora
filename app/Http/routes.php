@@ -134,7 +134,7 @@ Route::group(['middleware' => 'web'], function () {
     Route::delete('/deleteTmpFile/{fid}/{flid}/{filename}', 'FieldAjaxController@delTmpFile');
     Route::get('/download/{kid}/zip', 'FieldAjaxController@getZipDownload');
     Route::get('/download/{kid}/{filename}', 'FieldAjaxController@getFileDownload');
-    Route::get('/files/{filename}', 'FieldAjaxController@publicRecordFile');
+    Route::get('/files/{kid}/{filename}', 'FieldAjaxController@publicRecordFile');
     Route::get("/validateAddress", "FieldAjaxController@validateAddress");
 
 //record preset routes
