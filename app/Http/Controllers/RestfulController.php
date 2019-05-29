@@ -140,7 +140,8 @@ class RestfulController extends Controller {
 
         //For types that use enum
         $table = new \CreateRecordsTable();
-        foreach($toModify as $flid => $options) {
+        foreach($toModify as $fieldName => $options) {
+            $flid = fieldMapper($fieldName,$pid,$fid);
             foreach($options as $opt => $value) {
                 if(isset($layout['fields'][$flid]['options'][$opt]))
                     $layout['fields'][$flid]['options'][$opt] = $value;
@@ -247,7 +248,7 @@ class RestfulController extends Controller {
             $filters['data'] = isset($f->data) && is_bool($f->data) ? $f->data : true; //do we want data, or just info about the records theme selves
             $filters['meta'] = isset($f->meta) && is_bool($f->meta) ? $f->meta : true; //get meta data about record
             $filters['size'] = isset($f->size) && is_bool($f->size) ? $f->size : false; //do we want the number of records in the search result returned instead of data
-            $filters['realnames'] = isset($f->real_names) && is_bool($f->real_names) ? $f->real_names : false; //do we want records indexed by titles rather than flids
+            $filters['realnames'] = isset($f->real_names) && is_bool($f->real_names) ? $f->real_names : true; //do we want records indexed by titles rather than flids
             $filters['fields'] = isset($f->return_fields) && is_array($f->return_fields) ? $f->return_fields : 'ALL'; //which fields do we want data for
             $filters['assoc'] = isset($f->assoc) && is_bool($f->assoc) ? $f->assoc : false; //do we want information back about associated records
             $filters['assocFlids'] = isset($f->assoc_fields) && is_array($f->assoc_fields) ? $f->assoc_fields : 'ALL'; //What fields should associated records return? Should be array
@@ -302,7 +303,7 @@ class RestfulController extends Controller {
                     $filtersGlobal[$form->internal_name] = $form->getDataFilters($filters['filterCount'], $filters['filterFlids']);
 
                 if($globalSort) {
-                    $globalForms[] = $form->id;
+                    $globalForms[] = $form;
                     $kids = array_keys($records);
                     $this->imitateMerge($globalRecords, $kids);
                 }
@@ -343,7 +344,7 @@ class RestfulController extends Controller {
                     $filtersGlobal[$form->internal_name] = $form->getDataFilters($filters['filterCount'], $filters['filterFlids'], $returnRIDS);
 
                 if($globalSort) {
-                    $globalForms[] = $form->id;
+                    $globalForms[] = $form;
                     $kids = array_keys($records);
                     $this->imitateMerge($globalRecords, $kids);
                 }
@@ -527,7 +528,9 @@ class RestfulController extends Controller {
                         return response()->json(["status"=>false,"error"=>"Invalid fields array in keyword search for form: ". $form->name],500);
 
                     //takes care of converting slugs to flids
-                    foreach($query->key_fields as $qfield) {
+                    foreach($query->key_fields as $qfieldName) {
+                        $qfield = fieldMapper($qfieldName,$form->project_id,$form->id);
+
                         if(!isset($form->layout['fields'][$qfield])) {
                             array_push($this->minorErrors, "The following field in keyword search is not apart of the requested form: " . $this->cleanseOutput($qfield));
                             continue;

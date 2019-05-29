@@ -66,6 +66,18 @@ function formatBytes($bytes) {
 }
 
 /**
+ * Maps a field name to its internal FLID.
+ *
+ * @param  string $name - Name of field
+ * @param  int $pid - Project ID
+ * @param  int $fid - Form ID
+ * @return string - The FLID
+ */
+function fieldMapper($name, $pid, $fid) {
+    return str_replace(' ','_',$name).'_'.$pid.'_'.$fid.'_';
+}
+
+/**
  * Returns string in slug format
  *
  * @return string - slug
