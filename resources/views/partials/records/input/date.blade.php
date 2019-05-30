@@ -1,19 +1,11 @@
 @php
-    if($editRecord) {
+    if($editRecord && !is_null($record->{$flid})) {
         $stuff = explode('-',$record->{$flid});
-        if (count($stuff) >= 3) {
-            $dateObj = [
-                'month' => $stuff[1],
-                'day' => $stuff[2],
-                'year' => $stuff[0]
-            ];
-        } else {
-            $dateObj = [
-                'month' => null,
-                'day' => null,
-                'year' => null
-            ];
-        }
+        $dateObj = [
+            'month' => $stuff[1],
+            'day' => $stuff[2],
+            'year' => $stuff[0]
+        ];
     } else {
         $dateObj = $field['default'];
     }
