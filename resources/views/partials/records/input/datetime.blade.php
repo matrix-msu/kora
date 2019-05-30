@@ -1,5 +1,5 @@
 @php
-    if($editRecord) {
+    if($editRecord && !is_null($record->{$flid})) {
         $stuff = explode(' ',$record->{$flid});
         $dateParts = explode('-',$stuff[0]);
         $timeParts = explode(':',$stuff[1]);
@@ -12,14 +12,7 @@
             'second' => $timeParts[2]
         ];
     } else {
-        $dateObj = [
-            'month' => null,
-            'day' => null,
-            'year' => null,
-            'hour' => null,
-            'minute' => null,
-            'second' => null
-        ];
+        $dateObj = $field['default'];
     }
 
     if(is_null($dateObj)) {
