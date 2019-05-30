@@ -12,7 +12,14 @@
             'second' => $timeParts[2]
         ];
     } else {
-        $dateObj = $field['default'];
+        $dateObj = [
+            'month' => null,
+            'day' => null,
+            'year' => null,
+            'hour' => null,
+            'minute' => null,
+            'second' => null
+        ];
     }
 
     if(is_null($dateObj)) {
