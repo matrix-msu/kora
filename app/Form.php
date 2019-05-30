@@ -396,7 +396,10 @@ class Form extends Model {
         //Some prep to make assoc searching faster
         if($filters['assoc']) {
             $useAssoc = true;
-            $allowedAssocFields = $filters['assocFlids'];
+            $allowedAssocFields = [];
+            foreach($filters['assocFlids'] as $fieldName) {
+                $allowedAssocFields[] = fieldMapper($fieldName,$this->project_id,$this->id);
+            }
             $assocSelect = "SELECT distinct(f.`id`), f.`layout` from ".$prefix."associations as a left join ".$prefix."forms as f on f.id=a.data_form where a.`assoc_form`=".$this->id;
             $theForms = $con->query($assocSelect);
             while($row = $theForms->fetch_assoc()) {
@@ -480,14 +483,19 @@ class Form extends Model {
             foreach($this->layout['pages'] as $page) {
                 $flids = array_merge($flids, $page['flids']);
             }
-        } else
-            $flids = $filters['fields'];
+        } else {
+            $flids = array();
+            foreach($filters['fields'] as $fieldName) {
+                $flids[] = fieldMapper($fieldName,$this->project_id,$this->id);
+            }
+        }
 
         //Before assigning fields, prep merge if it exists
         $mergeMappings = [];
         if(!is_null($filters['merge'])){
-            foreach($filters['merge'] as $newName => $mergeFlids) {
-                foreach($mergeFlids as $mergeFlid) {
+            foreach($filters['merge'] as $newName => $mergeFields) {
+                foreach($mergeFields as $mergeField) {
+                    $mergeFlid = fieldMapper($mergeField,$this->project_id,$this->id);
                     $mergeMappings[$mergeFlid] = $newName;
                 }
             }
@@ -550,8 +558,9 @@ class Form extends Model {
         if(!is_null($filters['sort'])) {
             $orderBy = ' ORDER BY ';
             foreach($filters['sort'] as $sortRule) {
-                foreach($sortRule as $field => $order) {
+                foreach($sortRule as $flid => $order) {
                     //Used to protect SQL
+                    $field = fieldMapper($flid,$this->project_id,$this->id);
                     $field = preg_replace("/[^A-Za-z0-9_]/", '', $field);
                     $orderBy .= "$field IS NULL, $field $order,";
                 }
@@ -675,8 +684,12 @@ class Form extends Model {
             foreach($this->layout['pages'] as $page) {
                 $flids = array_merge($flids, $page['flids']);
             }
-        } else
-            $flids = $filters['fields'];
+        } else {
+            $flids = array();
+            foreach($filters['fields'] as $fieldName) {
+                $flids[] = fieldMapper($fieldName,$this->project_id,$this->id);
+            }
+        }
 
         $fields = array_merge($flids,$fields);
         $fieldString = implode(',',$fields);
@@ -706,8 +719,9 @@ class Form extends Model {
         if(!is_null($filters['sort'])) {
             $orderBy = ' ORDER BY ';
             foreach($filters['sort'] as $sortRule) {
-                foreach($sortRule as $field => $order) {
+                foreach($sortRule as $flid => $order) {
                     //Used to protect SQL
+                    $field = fieldMapper($flid,$this->project_id,$this->id);
                     $field = preg_replace("/[^A-Za-z0-9_]/", '', $field);
                     $orderBy .= "$field IS NULL, $field $order,";
                 }
@@ -800,8 +814,12 @@ class Form extends Model {
             foreach($this->layout['pages'] as $page) {
                 $flids = array_merge($flids, $page['flids']);
             }
-        } else
-            $flids = $filters['fields'];
+        } else {
+            $flids = array();
+            foreach($filters['fields'] as $fieldName) {
+                $flids[] = fieldMapper($fieldName,$this->project_id,$this->id);
+            }
+        }
 
         $fields = array_merge($flids,$fields);
         $fieldString = implode(',',$fields);
@@ -826,8 +844,9 @@ class Form extends Model {
         if(!is_null($filters['sort'])) {
             $orderBy = ' ORDER BY ';
             foreach($filters['sort'] as $sortRule) {
-                foreach($sortRule as $field => $order) {
+                foreach($sortRule as $flid => $order) {
                     //Used to protect SQL
+                    $field = fieldMapper($flid,$this->project_id,$this->id);
                     $field = preg_replace("/[^A-Za-z0-9_]/", '', $field);
                     $orderBy .= "$field IS NULL, $field $order,";
                 }
@@ -924,11 +943,11 @@ class Form extends Model {
      * Scan tables to build out filters list
      *
      * @param  int $count - Minimum occurances required for a filter to return (Maybe reimplement later?)
-     * @param  array $flids - Specifies the fields we need filters from
+     * @param  array $fields - Specifies the fields we need filters from
      * @param  array $rids - Record IDs to search for
      * @return array - The array of filters
      */
-    public function getDataFilters($count, $flids, $rids=null) {
+    public function getDataFilters($count, $fields, $rids=null) {
         //Doing this for pretty much the same reason as keyword search above
         $con = mysqli_connect(
             config('database.connections.mysql.host'),
@@ -957,15 +976,21 @@ class Form extends Model {
             $subset .= " AND `id` IN ($ridString)";
         }
 
-        if($flids == 'ALL')
-            $flids = array_keys($layout);
-
         //Validate the fields
         $valids = [];
-        foreach($flids as $f) {
-            $type = $layout[$f]['type'];
-            if(in_array($type,self::$validFilterFields))
-                $valids[] = $f;
+        if($fields == 'ALL') {
+            foreach(array_keys($layout) as $f) {
+                $type = $layout[$f]['type'];
+                if(in_array($type,self::$validFilterFields))
+                    $valids[] = $f;
+            }
+        } else {
+            foreach($fields as $fieldName) {
+                $f = fieldMapper($fieldName,$this->project_id,$this->id);
+                $type = $layout[$f]['type'];
+                if(in_array($type,self::$validFilterFields))
+                    $valids[] = $f;
+            }
         }
 
         //Get filters for reverse associations
@@ -1020,13 +1045,13 @@ class Form extends Model {
     /**
      * Sorts RIDs by fields.
      *
-     * @param  array $fids - The FIDs to sort in
+     * @param  array $forms - The Forms to sort in
      * @param  array $kids - The KIDs to sort
      * @param  array $sortFields - The field arrays to sort by
      * @param  array $mergeFields - The mappings of form fields to a single field name representation
      * @return array - The new array with sorted KIDs
      */
-    public static function sortGlobalKids($fids, $kids, $sortFields, $mergeFields = null) {
+    public static function sortGlobalKids($forms, $kids, $sortFields, $mergeFields = null) {
         //get field
         $newOrderArray = array();
         $formSelects = array();
@@ -1047,7 +1072,7 @@ class Form extends Model {
         }
 
         //First we build the selects and unionize them
-        foreach($fids as $index => $fid) {
+        foreach($forms as $index => $form) {
             $pieces = 'kid';
             $orderBy = ' ORDER BY ';
             foreach($sortFields as $sf) {
@@ -1055,10 +1080,11 @@ class Form extends Model {
                     if(!is_null($mergeFields) && isset($mergeFields->{$key})) { // AND in that merge array
                         $subField = $key;
                         $ogField = $mergeFields->{$key}[$index];
+                        $ogFLID = fieldMapper($ogField,$form->project_id,$form->id);
                         //Used to protect SQL
                         $subField = preg_replace("/[^A-Za-z0-9_]/", '', $subField);
-                        $ogField = preg_replace("/[^A-Za-z0-9_]/", '', $ogField);
-                        $pieces .= ", `$ogField` as `$subField`";
+                        $ogFLID = preg_replace("/[^A-Za-z0-9_]/", '', $ogFLID);
+                        $pieces .= ", `$ogFLID` as `$subField`";
                     } else {
                         $subField = $key;
                         //Used to protect SQL
@@ -1070,7 +1096,7 @@ class Form extends Model {
                 }
             }
 
-            $select = "SELECT $pieces from ".$prefix."records_$fid";
+            $select = "SELECT $pieces from ".$prefix."records_$form->id";
             $formSelects[] = $select;
         }
 
