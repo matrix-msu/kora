@@ -4,6 +4,7 @@ use App\KoraFields\BaseField;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Facades\Schema;
 
 class Form extends Model {
 
@@ -347,8 +348,16 @@ class Form extends Model {
         //Revisions. Presets?
         //TODO::CASTLE
 
-        //Drop the records table
         $rTable = new \CreateRecordsTable();
+
+        //Determine and delete combolist tables
+        $fields = $this->layout['fields'];
+        foreach($fields as $flid => $field) {
+            if($field['type'] == self::_COMBO_LIST)
+                $rTable->deleteComboListTable($flid.$this->id);
+        }
+
+        //Drop the records table
         $rTable->removeFormRecordsTable($this->id);
 
         parent::delete();

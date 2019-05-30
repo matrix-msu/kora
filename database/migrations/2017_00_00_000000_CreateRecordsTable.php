@@ -49,6 +49,10 @@ class CreateRecordsTable extends Migration {
         });
     }
 
+    public function removeFormRecordsTable($fid) {
+        Schema::drop($this->tablePrefix . $fid);
+    }
+
     public function createComboListTable($fid) {
         Schema::create($this->tablePrefix . $fid, function(Blueprint $table) use ($fid)
         {
@@ -58,8 +62,8 @@ class CreateRecordsTable extends Migration {
         });
     }
 
-    public function removeFormRecordsTable($fid) {
-        Schema::drop($this->tablePrefix . $fid);
+    public function deleteComboListTable($tableName) {
+        Schema::drop($tableName);
     }
 
     public function renameTable($fid, $newSlug) {
