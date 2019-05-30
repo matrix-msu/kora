@@ -8,7 +8,11 @@
                 'year' => $stuff[0]
             ];
         } else {
-            $dateObj = $field['default'];
+            $dateObj = [
+                'month' => null,
+                'day' => null,
+                'year' => null
+            ];
         }
     } else {
         $dateObj = $field['default'];
