@@ -254,10 +254,11 @@ Kora.Fields.TypedFieldDisplays.Initialize = function() {
             });
 
             // Zoom map to fit all locations
-            console.log(markers);
             var group = new L.featureGroup(markers);
             mapRecord.fitBounds(group.getBounds());
+            mapRecord.zoomOut();
             modalMapRecord.fitBounds(group.getBounds());
+            modalMapRecord.zoomOut();
 
             // External Button Clicked
             $geolocator.find('.external-button-js').click(function() {

@@ -39,9 +39,17 @@
         mapRecord.scrollWheelZoom.disable();
         L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png?{foo}', {foo: 'bar'}).addTo(mapRecord);
 
+        var markers = [];
         $geolocator.children('.geolocator-location-js').each(function() {
             var marker = L.marker([$(this).attr('loc-x'), $(this).attr('loc-y')]).addTo(mapRecord);
             marker.bindPopup($(this).attr('loc-desc'));
+            // Add marker to array to set zoom
+            markers.push(marker);
         });
+
+        // Zoom map to fit all locations
+        var group = new L.featureGroup(markers);
+        mapRecord.fitBounds(group.getBounds());
+        mapRecord.zoomOut();
     </script>
 @stop
