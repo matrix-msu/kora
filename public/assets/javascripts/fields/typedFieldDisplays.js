@@ -242,12 +242,22 @@ Kora.Fields.TypedFieldDisplays.Initialize = function() {
             modalMapRecord.scrollWheelZoom.disable();
             L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png?{foo}', {foo: 'bar'}).addTo(modalMapRecord);
 
+            var markers = [];
             $(this).children('.geolocator-location-js').each(function() {
                 var marker = L.marker([$(this).attr('loc-x'), $(this).attr('loc-y')]).addTo(mapRecord);
                 var modalmarker = L.marker([$(this).attr('loc-x'), $(this).attr('loc-y')]).addTo(modalMapRecord);
                 marker.bindPopup($(this).attr('loc-desc'));
                 modalmarker.bindPopup($(this).attr('loc-desc'));
+
+                // Add marker to array to set zoom
+                markers.push(marker);
             });
+
+            // Zoom map to fit all locations
+            console.log(markers);
+            var group = new L.featureGroup(markers);
+            mapRecord.fitBounds(group.getBounds());
+            modalMapRecord.fitBounds(group.getBounds());
 
             // External Button Clicked
             $geolocator.find('.external-button-js').click(function() {
