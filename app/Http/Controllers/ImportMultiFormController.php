@@ -196,8 +196,63 @@ class ImportMultiFormController extends Controller { //TODO::CASTLE
                     break;
             }
 
+            $form = FormController::getForm($fid);
+
+            $fields = $form->layout['fields'];
+            //Build the Labels first
+            $table = '';
+            $table .= '<div class="form-group mt-xl half">';
+            $table .= '<label>Form Field Names</label>';
+            $table .= '</div>';
+            $table .= '<div class="form-group mt-xl half">';
+            $table .= '<label>Select Uploaded Field to Match</label>';
+            $table .= '</div>';
+            $table .= '<div class="form-group"></div>';
+
+            //Then build the field matchups
+            foreach($fields as $flid => $field) {
+                $table .= '<div class="form-group mt-xl half">';
+                $table .= '<div class="solid-box get-slug-js" slug="'.$flid.'">';
+                $table .= $field['name'].' ('.$flid.')';
+                $table .= '</div></div>';
+                $table .= '<div class="form-group mt-xl half">';
+                $table .= '<select class="single-select get-tag-js" data-placeholder="Select field if applicable">';
+                $table .= '<option></option>';
+                foreach($tagNames as $name) {
+                    if($flid==$name)
+                        $table .= '<option val="'.$name.'" selected>' . $name . '</option>';
+                    else
+                        $table .= '<option val="'.$name.'">'.$name.'</option>';
+                }
+                $table .= '</select>';
+                $table .= '</div>';
+                $table .= '<div class="form-group"></div>';
+            }
+
+            //For reverse associations
+            $table .= '<div class="form-group mt-xl half">';
+            $table .= '<div class="solid-box get-slug-js" slug="reverseAssociations">reverseAssociations</div></div>';
+            $table .= '<div class="form-group mt-xl half">';
+            $table .= '<select class="single-select get-tag-js" data-placeholder="Select field if applicable">';
+            $table .= '<option></option>';
+            foreach($tagNames as $name) {
+                if($name == "reverseAssociations")
+                    $table .= '<option val="'.$name.'" selected>' . $name . '</option>';
+                else
+                    $table .= '<option val="'.$name.'">'.$name.'</option>';
+            }
+            $table .= '</select>';
+            $table .= '</div>';
+            $table .= '<div class="form-group"></div>';
+
+            //Finish off the table
+            $table .= '<div class="form-group mt-xxxl">';
+            $table .= '<input type="button" class="btn final-import-btn-js" value="Upload Records">';
+            $table .= '</div>';
+
             $data['records'] = $recordObjs;
             $data['type'] = $type;
+            $date['matchup'] = $table;
 
             $response[$fid] = $data;
         }
@@ -293,12 +348,15 @@ class ImportMultiFormController extends Controller { //TODO::CASTLE
 
                 $flid = $slug;
 
-                // TODO::Matchup field support
+                // TODO::Matchup field support in this block
+                // if(isset($form->layout['fields'][$slug]) | isset($form->layout['fields'][$flid]) | )
 
-                // if(!isset($form->layout['fields'][$flid]))
-                //     continue;
+                if(!isset($form->layout['fields'][$flid]))
+                    continue;
                     // return response()->json(["status"=>false,"message"=>"xml_validation_error",
                     //     "record_validation_error"=>[$request->kid => "Invalid provided field, $flid"]],500);
+
+                $flid = $slug;
 
                 $fieldMod = $form->layout['fields'][$flid];
                 $typedField = $form->getFieldModel($fieldMod['type']);

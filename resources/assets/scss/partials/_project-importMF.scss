@@ -5,16 +5,10 @@
 }
 
 .multi-import-setup {
+  @import 'import.scss';
+
   margin: $navigation-height auto 0;
   width: 100%;
-
-  .description {
-    a {
-      color: palette('green', accent);
-      font-family: $ubuntu-medium;
-      text-decoration: none;
-    }
-  }
 
   .recordfile-section,
   .recordresults-section {
@@ -23,5 +17,58 @@
     padding: 0 20px;
 
     @import 'project-importMF/file-field';
+  }
+
+  // TODO::extend this from _record-index.scss
+  .content-sections {
+    margin: 60px auto 0;
+    position: relative;
+
+    .content-sections-scroll {
+      display: flex;
+      flex-wrap: nowrap;
+      overflow-x: auto;
+      overflow-y: hidden;
+      &::-webkit-scrollbar {
+        display: none;
+      }
+
+      a {
+        color: palette('gray', text, .8);
+        display: inline-block;
+        font-family: $ubuntu;
+        font-size: 16px;
+        line-height: 1;
+        margin: 0 7.5px;
+        padding: 0 0 13px;
+        text-decoration: none;
+        white-space: nowrap;
+
+        &:first-child {
+          margin-left: 0;
+          padding-left: 0;
+        }
+
+        &:last-child {
+          margin-right: 0;
+          padding-right: 0;
+        }
+
+        &:hover {
+          color: palette('green', accent);
+        }
+
+        &.selected {
+          border-bottom: 2px solid palette('green', accent);
+          color: palette('green', accent);
+          font-family: $ubuntu-medium;
+
+          &.underline-middle-hover:hover::before,
+          &.underline-middle-hover:hover::after {
+            opacity: 0;
+          }
+        }
+      }
+    }
   }
 }

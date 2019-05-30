@@ -14,6 +14,13 @@ Kora.Records.ImportMF = function () {
         });
     }
 
+    function initializeFormProgression() {
+        $('.record-input-js').change(function () {
+            $('.spacer-fade-js').fadeIn(1000);
+            $('.record-import-section-2').removeClass('hidden');
+        });
+    }
+
     function initializeImportRecords() {
         $('.upload-record-btn-js').click(function (e) {
             e.preventDefault();
@@ -22,6 +29,12 @@ Kora.Records.ImportMF = function () {
 
             var zipInput = $('.file-input-js');
             var msInput = $('.import-form-js');
+
+            var recordFileLink = $('.recordfile-link');
+            var recordFileSection = $('.recordfile-section');
+            var recordMatchLink = $('.recordmatch-link');
+            var recordMatchSection = $('.recordmatch-section');
+            var recordResultsSection = $('.recordresults-section');
 
             fd = new FormData();
             fd.append('_token', CSRFToken);
@@ -327,6 +340,7 @@ Kora.Records.ImportMF = function () {
     }
 
     initializeSelects();
+    initializeFormProgression();
     initializeImportRecords();
     intializeFileUploaderOptions();
 
