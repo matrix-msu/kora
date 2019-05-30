@@ -1,5 +1,5 @@
 @php
-    if($editRecord) {
+    if($editRecord && !is_null($record->{$flid})) {
         $stuff = explode('-',$record->{$flid});
         $dateObj = [
             'month' => $stuff[1],

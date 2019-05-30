@@ -1,5 +1,5 @@
 @php
-    if($editRecord) {
+    if($editRecord && !is_null($record->{$flid})) {
         $stuff = explode(' ',$record->{$flid});
         $dateParts = explode('-',$stuff[0]);
         $timeParts = explode(':',$stuff[1]);
