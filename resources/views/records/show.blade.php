@@ -94,7 +94,7 @@
         </section>
 
         @if(sizeof($record->getAssociatedRecords())>0)
-            <div class="meta-title mt-m">Associated Records</div>
+            <div class="meta-title mt-m">Associated Records ({{ sizeof($record->getAssociatedRecords()) }})</div>
             <section class="meta-data">
                 @foreach($record->getAssociatedRecords() as $aRecord)
                     <div><a class="meta-link underline-middle-hover"
