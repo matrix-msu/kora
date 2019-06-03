@@ -14,12 +14,10 @@
         <div class="file-cards-container file-cards-container-js filenames-{{$flid}}-js preset-clear-file-js">
             @foreach($value as $file)
                 @php
-                    //Strip the identifier tag
-                    $nameParts = explode('_',$file['local_name']);
-                    $editTmpName = array_pop($nameParts);
+                    $name = $file['name'];
                 @endphp
                 <div class="card file-card file-card-js">
-                    <input type="hidden" name="{{$flid}}[]" value="{{$editTmpName}}">
+                    <input type="hidden" name="{{$flid}}[]" value="{{$name}}">
                     <div class="header">
                         <div class="left">
                             <div class="move-actions">
@@ -30,11 +28,11 @@
                                     <i class="icon icon-arrow-down"></i>
                                 </a>
                             </div>
-                            <span class="title">{{$file['original_name']}}</span>
+                            <span class="title">{{$name}}</span>
                         </div>
 
                         <div class="card-toggle-wrap">
-                            <a href="#" class="file-delete upload-filedelete-js ml-sm tooltip" tooltip="Remove Image" data-url="{{ url("deleteTmpFile/$form->id/$flid/".urlencode($editTmpName)) }}">
+                            <a href="#" class="file-delete upload-filedelete-js ml-sm tooltip" tooltip="Remove Image" data-url="{{ url("deleteTmpFile/$form->id/$flid/".urlencode($name)) }}">
                                 <i class="icon icon-trash danger"></i>
                             </a>
                         </div>

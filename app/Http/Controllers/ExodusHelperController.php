@@ -504,35 +504,48 @@ class ExodusHelperController extends Controller {
                         $fileXML = simplexml_load_string($value);
                         $realname = (string)$fileXML->originalName;
                         $localname = (string)$fileXML->localName;
+                        //URL for accessing file publically
+                        $dataURL = url('files').'/'.$newForm->project_id . '-' . $newForm->id . '-' . $recordDataToSave[$r['id']]['id'].'/';
 
                         if($localname!='') {
-                            //Make folder
-                            $dataPath = $newForm->project_id . '/' . $newForm->id . '/' . $recordDataToSave[$r['id']]['id'].'/';
-                            $newPath = storage_path('app/files/' . $dataPath);
-                            if(!file_exists($newPath))
-                                mkdir($newPath, 0775, true);
+                            $storageType = 'LaravelStorage'; //TODO:: make this a config once we actually support other storage types
+                            switch($storageType) {
+                                case 'LaravelStorage':
+                                    //Make folder
+                                    $dataPath = $newForm->project_id . '/' . $newForm->id . '/' . $recordDataToSave[$r['id']]['id'].'/';
+                                    $newPath = storage_path('app/files/' . $dataPath);
+                                    if(!file_exists($newPath))
+                                        mkdir($newPath, 0775, true);
 
-                            $oldDir = $filePath.'/'.$oldPid.'/'.$ogSid.'/';
+                                    $oldDir = $filePath.'/'.$oldPid.'/'.$ogSid.'/';
 
-                            if(!file_exists($oldDir.$localname)) {
-                                //OLD FILE DOESNT EXIST SO BALE
-                                Log::info('File not found: '.$oldDir.$localname);
-                                echo 'File not found: '.$oldDir.$localname,"\n";
-                                continue;
+                                    if(!file_exists($oldDir.$localname)) {
+                                        //OLD FILE DOESNT EXIST SO BALE
+                                        Log::info('File not found: '.$oldDir.$localname);
+                                        echo 'File not found: '.$oldDir.$localname,"\n";
+                                        continue;
+                                    }
+
+                                    //Move files
+                                    copy($oldDir.$localname,$newPath.$realname);
+                                    //Hash the file
+                                    $checksum = hash_file('sha256', $oldDir.$localname);
+
+                                    //Get file info
+                                    $mimes = FileTypeField::getMimeTypes();
+                                    $ext = pathinfo($newPath.$realname,PATHINFO_EXTENSION);
+                                    if(!array_key_exists($ext, $mimes))
+                                        $type = 'application/octet-stream';
+                                    else
+                                        $type = $mimes[$ext];
+
+                                    $info = ['name' => $realname, 'size' => filesize($newPath.$realname), 'type' => $type,
+                                        'url' => $dataURL.urlencode($realname), 'checksum' => $checksum];
+                                    break;
+                                default:
+                                    break;
                             }
 
-                            //Move files
-                            copy($oldDir.$localname,$newPath.$realname);
-
-                            //Get file info
-                            $mimes = FileTypeField::getMimeTypes();
-                            $ext = pathinfo($newPath.$realname,PATHINFO_EXTENSION);
-                            if(!array_key_exists($ext, $mimes))
-                                $type = 'application/octet-stream';
-                            else
-                                $type = $mimes[$ext];
-
-                            $info = ['name' => $realname, 'size' => filesize($newPath.$realname), 'type' => $type, 'url' => $dataPath.urlencode($realname)];
                             $recordDataToSave[$r['id']][$flid] = json_encode([$info]);
                         }
                         break;
@@ -540,33 +553,48 @@ class ExodusHelperController extends Controller {
                         $fileXML = simplexml_load_string($value);
                         $realname = (string)$fileXML->originalName;
                         $localname = (string)$fileXML->localName;
+                        //URL for accessing file publically
+                        $dataURL = url('files').'/'.$newForm->project_id . '-' . $newForm->id . '-' . $recordDataToSave[$r['id']]['id'].'/';
 
                         if($localname!='') {
-                            //Make folder
-                            $dataPath = $newForm->project_id . '/' . $newForm->id . '/' . $recordDataToSave[$r['id']]['id'].'/';
-                            $newPath = storage_path('app/files/' . $dataPath);
-                            if(!file_exists($newPath))
-                                mkdir($newPath, 0775, true);
+                            $storageType = 'LaravelStorage'; //TODO:: make this a config once we actually support other storage types
+                            switch($storageType) {
+                                case 'LaravelStorage':
+                                    //Make folder
+                                    $dataPath = $newForm->project_id . '/' . $newForm->id . '/' . $recordDataToSave[$r['id']]['id'].'/';
+                                    $newPath = storage_path('app/files/' . $dataPath);
+                                    if(!file_exists($newPath))
+                                        mkdir($newPath, 0775, true);
 
-                            $oldDir = $filePath.'/'.$oldPid.'/'.$ogSid.'/';
+                                    $oldDir = $filePath.'/'.$oldPid.'/'.$ogSid.'/';
 
-                            if(!file_exists($oldDir.$localname)) {
-                                //OLD FILE DOESNT EXIST SO BALE
-                                continue;
+                                    if(!file_exists($oldDir.$localname)) {
+                                        //OLD FILE DOESNT EXIST SO BALE
+                                        Log::info('File not found: '.$oldDir.$localname);
+                                        echo 'File not found: '.$oldDir.$localname,"\n";
+                                        continue;
+                                    }
+
+                                    //Move files
+                                    copy($oldDir.$localname,$newPath.$realname);
+                                    //Hash the file
+                                    $checksum = hash_file('sha256', $oldDir.$localname);
+
+                                    //Get file info
+                                    $mimes = FileTypeField::getMimeTypes();
+                                    $ext = pathinfo($newPath.$realname,PATHINFO_EXTENSION);
+                                    if(!array_key_exists($ext, $mimes))
+                                        $type = 'application/octet-stream';
+                                    else
+                                        $type = $mimes[$ext];
+
+                                    $info = ['name' => $realname, 'size' => filesize($newPath.$realname), 'type' => $type,
+                                        'url' => $dataURL.urlencode($realname), 'checksum' => $checksum, 'caption' => ''];
+                                    break;
+                                default:
+                                    break;
                             }
 
-                            //Move files
-                            copy($oldDir.$localname,$newPath.$realname);
-
-                            //Get file info
-                            $mimes = FileTypeField::getMimeTypes();
-                            $ext = pathinfo($newPath.$realname,PATHINFO_EXTENSION);
-                            if(!array_key_exists($ext, $mimes))
-                                $type = 'application/octet-stream';
-                            else
-                                $type = $mimes[$ext];
-
-                            $info = ['name' => $realname, 'size' => filesize($newPath.$realname), 'type' => $type, 'url' => $dataPath.urlencode($realname), 'caption' => ''];
                             $recordDataToSave[$r['id']][$flid] = json_encode([$info]);
                         }
                         break;

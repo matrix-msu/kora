@@ -1,16 +1,20 @@
 @php
     if($editRecord) {
-        $stuff = explode(' ',$record->{$flid});
-        $dateParts = explode('-',$stuff[0]);
-        $timeParts = explode(':',$stuff[1]);
-        $dateObj = [
-            'month' => $dateParts[1],
-            'day' => $dateParts[2],
-            'year' => $dateParts[0],
-            'hour' => $timeParts[0],
-            'minute' => $timeParts[1],
-            'second' => $timeParts[2]
-        ];
+        if(!is_null($record->{$flid})) {
+            $stuff = explode(' ',$record->{$flid});
+            $dateParts = explode('-',$stuff[0]);
+            $timeParts = explode(':',$stuff[1]);
+            $dateObj = [
+                'month' => $dateParts[1],
+                'day' => $dateParts[2],
+                'year' => $dateParts[0],
+                'hour' => $timeParts[0],
+                'minute' => $timeParts[1],
+                'second' => $timeParts[2]
+            ];
+        } else {
+            $dateObj = null;
+        }
     } else {
         $dateObj = $field['default'];
     }

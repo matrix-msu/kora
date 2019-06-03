@@ -339,6 +339,11 @@
   border-radius: 5px;
   box-shadow: 0 3px 5px 0 rgba(57,67,89,0.05);
   height: 270px;
+  overflow: hidden;
+
+  .leaflet-bar {
+      box-shadow: 0 3px 5px 0 palette('box-shadow', base, .05);
+  }
 
   .lower-right-corner {
     bottom: 0;
@@ -364,11 +369,11 @@
   .content {
     max-width: none;
     padding: 0;
-    height: 100vh;
+    height: 90vh;
     width: 100vw;
 
     .body {
-      height: 100vh;
+      height: 100%;
       padding: 0;
     }
   }
@@ -381,7 +386,7 @@
     background: palette('white', base);
     border: 1px solid palette('gray', slate, .1);
     border-radius: 5px;
-    box-shadow: 0 3px 5px 0 palette('gray', slate);
+    box-shadow: 0 3px 5px 0 palette('box-shadow', base, .05);
     cursor: pointer;
     display: flex;
     height: 32px;
@@ -522,7 +527,7 @@
 // Rich text
 .richtext-field-display {
   width: 100%;
-  
+
   .richtext {
     box-sizing: border-box;
     margin: 0;

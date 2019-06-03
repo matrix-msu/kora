@@ -7,12 +7,11 @@
     <div class="gallery-field-display gallery-field-display-js {{ ($single ? 'single' : '') }}">
         @foreach($images as $img)
             @php
-                $ogName = $img['original_name'];
-                $locName = $img['local_name'];
-                $link = action('FieldAjaxController@publicRecordFile',['filename' => $locName]);
+                $name = $img['name'];
+                $link = action('FieldAjaxController@publicRecordFile',['kid' => $record->kid, 'filename' => $name]);
             @endphp
             <div class="slide slide-js">
-                <img class="slide-img slide-img-js" src="{{$link}}" alt="{{$ogName}}" resLink="{{$link}}">
+                <img class="slide-img slide-img-js" src="{{$link}}" alt="{{$name}}" resLink="{{$link}}">
             </div>
         @endforeach
     </div>
@@ -36,8 +35,8 @@
             <div class="caption caption-js {{ ($index == 0 ? 'active' : '') }}">
                 {{ $img['caption'] }}
                 @php
-                    $locName = $img['local_name'];
-                    $link = action('FieldAjaxController@publicRecordFile',['filename' => $locName]);
+                    $name = $img['name'];
+                    $link = action('FieldAjaxController@publicRecordFile',['kid' => $record->kid, 'filename' => $name]);
                 @endphp
                 <div>Public URL: {{ $link }}</div>
             </div>
@@ -51,7 +50,7 @@
                 <i class="icon icon-external-link"></i>
             </div>
 
-            <a href="{{ ($single ? action('FieldAjaxController@getFileDownload', ['kid' => $record->kid, 'filename' => $images[0]['local_name']]) : action('FieldAjaxController@getZipDownload', ['kid' => $record->kid])) }}"
+            <a href="{{ ($single ? action('FieldAjaxController@getFileDownload', ['kid' => $record->kid, 'filename' => $images[0]['name']]) : action('FieldAjaxController@getZipDownload', ['kid' => $record->kid])) }}"
                class="field-btn">
                 <i class="icon icon-download"></i>
             </a>
@@ -75,10 +74,11 @@
             <div class="gallery-field-display gallery-field-display-js {{($single && $images[0]['caption'] == "") ? 'full-height' : ''}}">
                 @foreach($images as $img)
                     @php
-                        $link = action('FieldAjaxController@publicRecordFile',['filename' => $locName]);
+                        $name = $img['name'];
+                        $link = action('FieldAjaxController@publicRecordFile',['kid' => $record->kid, 'filename' => $name]);
                     @endphp
                     <div class="slide slide-js">
-                        <img class="slide-img slide-img-js" src="{{$link}}" alt="{{$img['original_name']}}">
+                        <img class="slide-img slide-img-js" src="{{$link}}" alt="{{$name}}">
                     </div>
                 @endforeach
             </div>
@@ -104,8 +104,8 @@
                     <div class="caption caption-js modal-caption-js {{ ($index == 0 ? 'active' : '') }}">
                         {{ $img['caption'] }}
                         @php
-                            $locName = $img['local_name'];
-                            $link = action('FieldAjaxController@publicRecordFile',['filename' => $locName]);
+                            $name = $img['name'];
+                            $link = action('FieldAjaxController@publicRecordFile',['kid' => $record->kid, 'filename' => $name]);
                         @endphp
                         <div>Public URL: {{ $link }}</div>
                     </div>

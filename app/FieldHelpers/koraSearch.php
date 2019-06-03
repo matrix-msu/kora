@@ -7,12 +7,9 @@
 //Step 2
 ////Replace your token, pid, and sid with a new search token, a K3 pid, and fid
 //Step 3
-////You do not need to update field names, unless you manually changed the Unique ID in Kora3 or you want KID clause to search for the "legacy_kid"
-////Leave the original control names in your koraSearch, but the K3 Unique ID should be {K2 control name with underscores not spaces}_{pid}_{fid}_
-//Step 4
 ////If you are pointing to a K3 installation that needs http auth, as the 9th variable of KORA_Search, place an
 ////array in the format ["user"=>"{your_username}", "pass"=>"{your_password}"]
-//Step 5
+//Step 4
 ////You may need to modify URLs for file and image fields to properly point at their new Kora3 locations
 
 //This class has a bunch of functions that can help build the json required for a form to search with the API. NOTE: This
@@ -43,19 +40,19 @@ class kora3ApiExternalTool {
      * @param  string $keyString - Keywords for the search
      * @param  string $method - Defines if search is AND, OR, or EXACT
      * @param  bool $not - Get the negative results of the search
-     * @param  array $flids - Specific fields to search in
+     * @param  array $fields - Specific fields to search in
      * @param  bool $customWildCards - Is the user providing wildcards
      * @return array - The query array
      */
-    static function keywordQueryBuilder($keys,$method,$not=false,$flids=array(),$customWildCards=false) {
+    static function keywordQueryBuilder($keys,$method,$not=false,$fields=array(),$customWildCards=false) {
         $qkey = array();
         $qkey["search"] = "keyword";
         $qkey["key_words"] = $keys;
         $qkey["key_method"] = $method;
         if($not)
             $qkey["not"] = $not;
-        if(!empty($flids))
-            $qkey["key_fields"] = $flids;
+        if(!empty($fields))
+            $qkey["key_fields"] = $fields;
         if($customWildCards)
             $qkey["custom_wildcards"] = $customWildCards;
 
@@ -88,7 +85,7 @@ class kora3ApiExternalTool {
     /**
      * Builds the query string for an advanced search.
      *
-     * @param  array $advData - Array with search parameters for advanced search (SEE BELOW)
+     * @param  array $advData - Array with search parameters for advanced search (SEE API DOCUMENTATION FOR ADVANCED STRUCTURE)
      * @param  bool $not - Get the negative results of the search
      * @return array - The query array
      */
@@ -97,58 +94,6 @@ class kora3ApiExternalTool {
         $qadv["search"] = "advanced";
 
         $qadv["adv_fields"] = $advData;
-        //TODO::CASTLE Update this after search redone
-        //Lets talk about the structure of $advData
-        //First off we have the index of the array values
-        //Each field is represented in the index
-        //The index will be a field's slug of flid
-        //$advData[FIELD_SLUG] = SEARCH_DATA_ARRAY
-
-        //So what about that SEARCH_DATA_ARRAY
-        //That is going to be an array of info which is different per field type
-        //Foreach field type, I will list out the index and the expected value of that index
-        //SEARCH_DATA_ARRAY[PARAMETER_NAME] = PARAMETER_VALUE
-
-        //Text | Rich Text
-        //SDA[input] = string of text to search
-
-        //Number
-        //SDA[left] = number of left bound to search (blank for -infinite)
-        //SDA[right] = number of right bound to search (blank for infinite)
-        //SDA[invert] = bitwise where 1 will search outside of bound
-
-        //List
-        //SDA[input] = string option to search
-
-        //Multi-Select List | Generated List
-        //SDA[input] = array of string options to search
-
-        //Date | Schedule
-        //SDA[begin_month] = number representation of month to search
-        //SDA[begin_day] = number representation of day to search
-        //SDA[begin_year] = number representation of year to search
-        //SDA[end_month] = number representation of month to search
-        //SDA[end_day] = number representation of day to search
-        //SDA[end_year] = number representation of year to search
-
-        //Documents | Gallery | Playlist | Video | 3-D Model
-        //SDA[input] = string of filename to search
-
-        //Geolocator
-        //SDA[type] = string of location type to search (LatLon, UTM, or Address)
-        //Only if LatLon
-        ////SDA[lat] = number of latitude to search
-        ////SDA[lon] = number of longitude to search
-        //Only if UTM
-        ////SDA[zone] = string of UTM zone to search
-        ////SDA[east] = number of easting to search
-        ////SDA[north] = number of northing to search
-        //Only if Address
-        ////SDA[address] = string of text to search
-        ////SDA[range] = number of radius from location center to search
-
-        //Associator
-        //SDA[input] = array of RIDs to search
 
         if($not)
             $qadv["not"] = $not;
@@ -165,7 +110,7 @@ class kora3ApiExternalTool {
      * @return array - Logic array
      */
     static function queryLogicBuilder($queryObj1,$operator,$queryObj2) {
-        return array($queryObj1,$operator,$queryObj2);
+        return [$operator => [$queryObj1,$queryObj2]];
     }
 
     /**
@@ -181,11 +126,11 @@ class kora3ApiExternalTool {
      * @param  int $index - In final result set, what record should we start at
      * @param  int $count - Determines, starting from $index, how many records to return
      * @param  int $filterCount - Determines what the minimum threshold us for a filter to appear
-     * @param  array $fitlerFlids - Determines what fields are processed for filters
-     * @param  array $assocFlids - Determines what fields are returned for associated records
+     * @param  array $fitlerFields - Determines what fields are processed for filters
+     * @param  array $assocFields - Determines what fields are returned for associated records
      * @return array - Array representation of the form search for the API
      */
-    static function formSearchBuilder($fid,$token,$flags,$fields,$sort,$queries,$qLogic,$index=null,$count=null,$filterCount=null,$fitlerFlids=null,$assocFlids=null) {
+    static function formSearchBuilder($fid,$token,$flags,$fields,$sort,$queries,$qLogic,$index=null,$count=null,$filterCount=null,$fitlerFields=null,$assocFields=null) {
         $form = array();
         $form["form"] = $fid;
         $form["bearer_token"] = $token;
@@ -197,16 +142,16 @@ class kora3ApiExternalTool {
         $form["filters"] = in_array("filters",$flags) ? in_array("filters",$flags) : false;
         if(!is_null($filterCount))
             $form["filter_count"] = $filterCount;
-        if(is_array($fitlerFlids) && empty($fitlerFlids))
+        if(is_array($fitlerFields) && empty($fitlerFields))
             $form["filter_fields"] = "ALL";
         else
-            $form["filter_fields"] = $fitlerFlids;
+            $form["filter_fields"] = $fitlerFields;
 
         $form["assoc"] = in_array("assoc",$flags) ? in_array("assoc",$flags) : false;
-        if(is_array($assocFlids) && empty($assocFlids))
+        if(is_array($assocFields) && empty($assocFields))
             $form["assoc_fields"] = "ALL";
         else
-            $form["assoc_fields"] = $assocFlids;
+            $form["assoc_fields"] = $assocFields;
         $form["reverse_assoc"] = in_array("reverse_assoc",$flags) ? in_array("reverse_assoc",$flags) : false;
 
         $form["real_names"] = in_array("real_names",$flags) ? in_array("real_names",$flags) : false;
@@ -462,9 +407,8 @@ class KORA_Clause {
  * @return array - The records to return from the search
  */
 function KORA_Search($token,$pid,$sid,$koraClause,$fields,$order=array(),$start=0,$number=0,$userInfo = array(),$underScores=false) {
-    if(!$koraClause instanceof KORA_Clause) {
+    if(!$koraClause instanceof KORA_Clause)
         die("The query clause you provided must be an object of class KORA_Clause");
-    }
 
     //Format sort array and map controls to fields
     $newOrder = array();
@@ -472,7 +416,7 @@ function KORA_Search($token,$pid,$sid,$koraClause,$fields,$order=array(),$start=
         if($o["field"]=="systimestamp")
             $sortField = "updated_at";
         else
-            $sortField = fieldMapper($o["field"],$pid,$sid);
+            $sortField = $o["field"];
 
         $dir = $o["direction"];
         if($dir==SORT_DESC)
@@ -482,33 +426,11 @@ function KORA_Search($token,$pid,$sid,$koraClause,$fields,$order=array(),$start=
         array_push($newOrder,[$sortField => $newDir]);
     }
 
-    //Map return controls to fields if not ALL or KID
-    //KID is a k3 custom for the legacy koraSearch that gets you a list of records
+    //Covers the case that ALL is in the fields array
     if(is_array($fields)) {
         if(empty($fields) | $fields[0]=="ALL") {
             $fields = "ALL";
-        } else {
-            $fieldsMapped = array();
-            foreach ($fields as $field) {
-                $f = fieldMapper($field, $pid, $sid);
-                array_push($fieldsMapped, $f);
-            }
-            $fields = $fieldsMapped;
         }
-    }
-
-    //Map controls to fields in keyword searches
-    $queries = array();
-    foreach($koraClause->getQueries() as $q) {
-        if($q['search']=='keyword') {
-            $mapped = array();
-            foreach($q["key_fields"] as $f) {
-                array_push($mapped, fieldMapper($f, $pid, $sid));
-            }
-            $q["key_fields"] = $mapped;
-        }
-
-        array_push($queries, $q);
     }
 
     //Format the start/number for legacy.
@@ -532,7 +454,7 @@ function KORA_Search($token,$pid,$sid,$koraClause,$fields,$order=array(),$start=
         $filters,
         $fields,
         $newOrder,
-        $queries,
+        $koraClause->getQueries(),
         $koraClause->getLogic(),
         $start,
         $number
@@ -583,9 +505,8 @@ function KORA_Search($token,$pid,$sid,$koraClause,$fields,$order=array(),$start=
  * @return array - The records to return from the search
  */
 function MPF_Search($token,$pidList,$sidList,$koraClause,$fields,$order=array(),$start=0,$number=0,$userInfo = array(),$underScores=false) {
-    if(!$koraClause instanceof KORA_Clause) {
+    if(!$koraClause instanceof KORA_Clause)
         die("The query clause you provided must be an object of class KORA_Clause");
-    }
 
     //Format sort array and map controls to fields
     $newOrder = array();
@@ -597,8 +518,7 @@ function MPF_Search($token,$pidList,$sidList,$koraClause,$fields,$order=array(),
             $sortField = $o["field"];
             $mergeFields = array();
             foreach ($pidList as $i => $pid) {
-                $sid = $sidList[$i];
-                array_push($mergeFields, fieldMapper($o["field"], $pid, $sid));
+                array_push($mergeFields, $o["field"]);
             }
             $mergeRules[$o["field"]] = $mergeFields;
         }
@@ -616,31 +536,12 @@ function MPF_Search($token,$pidList,$sidList,$koraClause,$fields,$order=array(),
     $output = array();
     foreach ($pidList as $i => $pid) {
         $sid = $sidList[$i];
-        //Map return controls to fields if not ALL or KID
-        //KID is a k3 custom for the legacy koraSearch that gets you a list of records
-        // $fields = $fieldsList[$i];
+
+        //Covers the case that ALL is in the fields array
         if(is_array($fields)) {
             if(empty($fields) | $fields[0]=="ALL") {
                 $fields = "ALL";
-            } else {
-                $fieldsMapped = array();
-                foreach ($fields as $field) {
-                    $f = fieldMapper($field, $pid, $sid);
-                    array_push($fieldsMapped, $f);
-                }
             }
-        }
-        //Map controls to fields in keyword searches
-        $queries = array();
-        foreach($koraClause->getQueries() as $q) {
-            if($q['search']=='keyword') {
-                $mapped = array();
-                foreach($q["key_fields"] as $f) {
-                    array_push($mapped, fieldMapper($f, $pid, $sid));
-                }
-                $q["key_fields"] = $mapped;
-            }
-            array_push($queries, $q);
         }
 
         $flag = ["data", "meta"];
@@ -652,9 +553,9 @@ function MPF_Search($token,$pidList,$sidList,$koraClause,$fields,$order=array(),
             $sid,
             $token,
             $flag,
-            $fieldsMapped,
+            $fields,
             null,
-            $queries,
+            $koraClause->getQueries(),
             $koraClause->getLogic(),
             null,
             null
@@ -690,10 +591,6 @@ function MPF_Search($token,$pidList,$sidList,$koraClause,$fields,$order=array(),
         return $result['records'];
     else
         return $result;
-}
-
-function fieldMapper($name, $pid, $fid) {
-    return str_replace(' ','_',$name).'_'.$pid.'_'.$fid.'_';
 }
 
 ?>

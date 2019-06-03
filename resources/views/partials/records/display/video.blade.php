@@ -1,13 +1,12 @@
 @foreach($typedField->processDisplayData($field, $value) as $vid)
     @php
-        $ogName = $vid['original_name'];
-        $locName = $vid['local_name'];
-        $link = action('FieldAjaxController@publicRecordFile',['filename' => $locName]);
+        $name = $vid['name'];
+        $link = action('FieldAjaxController@publicRecordFile',['kid' => $record->kid, 'filename' => $name]);
     @endphp
     <div class="record-data-card">
       <div class="field-display video-field-display video-field-display-js">
         <video height="300" width="auto" controls>
-          <source data-filename="{{$ogName}}" src="{{$link}}" type="{{$vid['type']}}">
+          <source data-filename="{{$name}}" src="{{$link}}" type="{{$vid['type']}}">
 
           Your browser does not support the video tag.
         </video>
@@ -19,7 +18,7 @@
                   <i class="icon icon-external-link"></i>
               </a>
 
-              <a href="{{ action('FieldAjaxController@getFileDownload', ['kid' => $record->kid, 'filename' => $locName]) }}" class="field-btn">
+              <a href="{{ action('FieldAjaxController@getFileDownload', ['kid' => $record->kid, 'filename' => $name]) }}" class="field-btn">
                   <i class="icon icon-download"></i>
               </a>
           </div>

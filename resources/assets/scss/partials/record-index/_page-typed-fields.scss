@@ -288,6 +288,11 @@
   border-radius: 5px;
   box-shadow: 0 3px 5px 0 rgba(57,67,89,0.05);
   height: 270px;
+  overflow: hidden;
+
+  .leaflet-bar {
+      box-shadow: 0 3px 5px 0 palette('box-shadow', base, .05);
+  }
 
   .lower-right-corner {
     bottom: 0;
@@ -313,11 +318,11 @@
   .content {
     max-width: none;
     padding: 0;
-    height: 100vh;
+    height: 90vh;
     width: 100vw;
 
     .body {
-      height: 100vh;
+      height: 100%;
       padding: 0;
     }
   }

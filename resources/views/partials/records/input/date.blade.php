@@ -1,11 +1,15 @@
 @php
     if($editRecord) {
-        $stuff = explode('-',$record->{$flid});
-        $dateObj = [
-            'month' => $stuff[1],
-            'day' => $stuff[2],
-            'year' => $stuff[0]
-        ];
+        if(!is_null($record->{$flid})) {
+            $stuff = explode('-',$record->{$flid});
+            $dateObj = [
+                'month' => $stuff[1],
+                'day' => $stuff[2],
+                'year' => $stuff[0]
+            ];
+        } else {
+            $dateObj = null;
+        }
     } else {
         $dateObj = $field['default'];
     }

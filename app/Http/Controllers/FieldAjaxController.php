@@ -91,7 +91,7 @@ class FieldAjaxController extends Controller {
      * Saves a temporary version of an uploaded file.
      *
      * @param  int $fid - Form ID
-     * @param  int $flid - File field that record file will be loaded to
+     * @param  string $flid - File field that record file will be loaded to
      * @param  Request $request
      */
     public function saveTmpFile($fid, $flid) {
@@ -104,7 +104,7 @@ class FieldAjaxController extends Controller {
      * Removes a temporary file for a particular field.
      *
      * @param  int $fid - Form ID
-     * @param  int $flid - File field to clear temp files for
+     * @param  string $flid - File field to clear temp files for
      * @param  string $name - Name of the file to delete
      * @param  Request $request
      */
@@ -117,11 +117,12 @@ class FieldAjaxController extends Controller {
     /**
      * Public access link for a file.
      *
+     * @param  string $kid - Kora record that holds the file
      * @param  string $filename - Name of the file
      * @return string - the file
      */
-    public function publicRecordFile($filename) {
-        return FileTypeField::publicRecordFile($filename);
+    public function publicRecordFile($kid, $filename) {
+        return FileTypeField::publicRecordFile($kid,$filename);
     }
 
     /**

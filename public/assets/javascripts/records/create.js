@@ -644,7 +644,10 @@ Kora.Records.Create = function() {
 
                     $field.removeClass('error');
                     $field.siblings('.error-message').text('');
-                    if(error=='InvalidType'){
+                    if(error=='InvalidFileNames'){
+                        $field.addClass('error');
+                        $errorMessage.text('Invalid file with illegal characters provided');
+                    } else if(error=='InvalidType'){
                         $field.addClass('error');
                         $errorMessage.text('Invalid file type provided');
                     } else if(error=='TooManyFiles'){

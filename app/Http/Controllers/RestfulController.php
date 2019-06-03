@@ -88,10 +88,10 @@ class RestfulController extends Controller {
             return response()->json(["status"=>false,"error"=>"Invalid create token provided"],500);
 
         //Gather form data to insert
-        if(!isset($request->k3Form))
+        if(!isset($request->form))
             return response()->json(["status"=>false,"error"=>"No form data supplied to insert into: ".$proj->name],500);
 
-        $formData = json_decode($request->k3Form);
+        $formData = json_decode($request->form);
 
         $ic = new ImportController();
         $ic->importFormNoFile($proj->id,$formData);
@@ -126,10 +126,10 @@ class RestfulController extends Controller {
         if(!FormController::validProjForm($pid,$fid))
             return response()->json(["status"=>false,"error"=>"Invalid Project/Form Pair"],500);
 
-        $validated = $this->validateToken($pid,$request->bearer_token,"create");
+        $validated = $this->validateToken($pid,$request->bearer_token,"edit");
         //Authentication failed
         if(!$validated)
-            return response()->json(["status"=>false,"error"=>"Invalid create token provided"],500);
+            return response()->json(["status"=>false,"error"=>"Invalid edit token provided"],500);
 
         $form = FormController::getForm($fid);
         $layout = $form->layout;
@@ -140,7 +140,8 @@ class RestfulController extends Controller {
 
         //For types that use enum
         $table = new \CreateRecordsTable();
-        foreach($toModify as $flid => $options) {
+        foreach($toModify as $fieldName => $options) {
+            $flid = fieldMapper($fieldName,$pid,$fid);
             foreach($options as $opt => $value) {
                 if(isset($layout['fields'][$flid]['options'][$opt]))
                     $layout['fields'][$flid]['options'][$opt] = $value;
@@ -247,27 +248,23 @@ class RestfulController extends Controller {
             $filters['data'] = isset($f->data) && is_bool($f->data) ? $f->data : true; //do we want data, or just info about the records theme selves
             $filters['meta'] = isset($f->meta) && is_bool($f->meta) ? $f->meta : true; //get meta data about record
             $filters['size'] = isset($f->size) && is_bool($f->size) ? $f->size : false; //do we want the number of records in the search result returned instead of data
+            $filters['realnames'] = isset($f->real_names) && is_bool($f->real_names) ? $f->real_names : true; //do we want records indexed by titles rather than flids
+            $filters['fields'] = isset($f->return_fields) && is_array($f->return_fields) ? $f->return_fields : 'ALL'; //which fields do we want data for
+            $filters['assoc'] = isset($f->assoc) && is_bool($f->assoc) ? $f->assoc : false; //do we want information back about associated records
+            $filters['assocFlids'] = isset($f->assoc_fields) && is_array($f->assoc_fields) ? $f->assoc_fields : 'ALL'; //What fields should associated records return? Should be array
+            $filters['revAssoc'] = isset($f->reverse_assoc) && is_bool($f->reverse_assoc) ? $f->reverse_assoc : true; //do we want information back about reverse associations for XML OUTPUT
+
+            $filters['sort'] = isset($f->sort) && is_array($f->sort) ? $f->sort : null; //how should the data be sorted
+            $filters['index'] = isset($f->index) && is_numeric($f->index) ? $f->index : null; //where the array of results should start [MUST USE 'count' FOR THIS TO WORK]
+            $filters['count'] = isset($f->count) && is_numeric($f->count) ? $f->count : null; //how many records we should grab from that index
 
             //Note: Filters only captures values from certain fields, see Form::$validFilterFields to see which ones use it
             $filters['filters'] = isset($f->filters) && is_bool($f->filters) ? $f->filters : false; //do we want information back about result filters [i.e. Field 'First Name', has value 'Tom', '12' times]
             $filters['filterCount'] = isset($f->filter_count) && is_numeric($f->filter_count) ? $f->filter_count : 1; //What is the minimum threshold for a filter to return?
             $filters['filterFlids'] = isset($f->filter_fields) && is_array($f->filter_fields) ? $f->filter_fields : 'ALL'; //What fields should filters return for? Should be array
 
-            $filters['assoc'] = isset($f->assoc) && is_bool($f->assoc) ? $f->assoc : false; //do we want information back about associated records
-            $filters['assocFlids'] = isset($f->assoc_fields) && is_array($f->assoc_fields) ? $f->assoc_fields : 'ALL'; //What fields should associated records return? Should be array
-            $filters['revAssoc'] = isset($f->reverse_assoc) && is_bool($f->reverse_assoc) ? $f->reverse_assoc : true; //do we want information back about reverse associations for XML OUTPUT
-
-            //WARNING::IF FIELD NAMES SHARE A TITLE WITHIN THE SAME FIELD, THIS WOULD IN THEORY BREAK
-            $filters['realnames'] = isset($f->real_names) && is_bool($f->real_names) ? $f->real_names : false; //do we want records indexed by titles rather than slugs
             //THIS SOLELY SERVES LEGACY. YOU PROBABLY WILL NEVER USE THIS. DON'T THINK ABOUT IT
             $filters['under'] = isset($f->under) && is_bool($f->under) ? $f->under : false; //Replace field spaces with underscores
-
-            $filters['fields'] = isset($f->return_fields) && is_array($f->return_fields) ? $f->return_fields : 'ALL'; //which fields do we want data for
-            $filters['sort'] = isset($f->sort) && is_array($f->sort) ? $f->sort : null; //how should the data be sorted
-
-            $filters['index'] = isset($f->index) && is_numeric($f->index) ? $f->index : null; //where the array of results should start [MUST USE 'count' FOR THIS TO WORK]
-            $filters['count'] = isset($f->count) && is_numeric($f->count) ? $f->count : null; //how many records we should grab from that index
-
             //If merge was provided, pass it along in the filters
             $filters['merge'] = $globalMerge ? $globalMergeArray : null;
 
@@ -306,7 +303,7 @@ class RestfulController extends Controller {
                     $filtersGlobal[$form->internal_name] = $form->getDataFilters($filters['filterCount'], $filters['filterFlids']);
 
                 if($globalSort) {
-                    $globalForms[] = $form->id;
+                    $globalForms[] = $form;
                     $kids = array_keys($records);
                     $this->imitateMerge($globalRecords, $kids);
                 }
@@ -347,7 +344,7 @@ class RestfulController extends Controller {
                     $filtersGlobal[$form->internal_name] = $form->getDataFilters($filters['filterCount'], $filters['filterFlids'], $returnRIDS);
 
                 if($globalSort) {
-                    $globalForms[] = $form->id;
+                    $globalForms[] = $form;
                     $kids = array_keys($records);
                     $this->imitateMerge($globalRecords, $kids);
                 }
@@ -531,7 +528,9 @@ class RestfulController extends Controller {
                         return response()->json(["status"=>false,"error"=>"Invalid fields array in keyword search for form: ". $form->name],500);
 
                     //takes care of converting slugs to flids
-                    foreach($query->key_fields as $qfield) {
+                    foreach($query->key_fields as $qfieldName) {
+                        $qfield = fieldMapper($qfieldName,$form->project_id,$form->id);
+
                         if(!isset($form->layout['fields'][$qfield])) {
                             array_push($this->minorErrors, "The following field in keyword search is not apart of the requested form: " . $this->cleanseOutput($qfield));
                             continue;
@@ -639,8 +638,8 @@ class RestfulController extends Controller {
 
         $uToken = uniqid(); //need a temp user id to interact, specifically for files
         $recRequest['userId'] = $uToken; //the new record will ultimately be owned by the root/sytem
-        if(!is_null($request->file("zipFile")) ) {
-            $file = $request->file("zipFile");
+        if(!is_null($request->file("zip_file")) ) {
+            $file = $request->file("zip_file");
             $zipPath = $file->move(storage_path('app/tmpFiles/recordU' . $uToken));
             $zip = new \ZipArchive();
             $res = $zip->open($zipPath);
@@ -706,8 +705,8 @@ class RestfulController extends Controller {
         $uToken = uniqid(); //need a temp user id to interact, specifically for files
 
         $recRequest['userId'] = $uToken; //the new record will ultimately be owned by the root/sytem
-        if( !is_null($request->file("zipFile")) ) {
-            $file = $request->file("zipFile");
+        if( !is_null($request->file("zip_file")) ) {
+            $file = $request->file("zip_file");
             $zipPath = $file->move(storage_path('app/tmpFiles/recordU' . $uToken));
             $zip = new \ZipArchive();
             $res = $zip->open($zipPath);

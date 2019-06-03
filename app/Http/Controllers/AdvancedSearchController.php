@@ -187,7 +187,8 @@ class AdvancedSearchController extends Controller {
         $recModel = new Record(array(),$fid);
 
         //Process data
-        foreach($data as $flid => $query) {
+        foreach($data as $fieldName => $query) {
+            $flid = fieldMapper($fieldName,$pid,$fid);
             $field = $form->layout['fields'][$flid];
             $result = $form->getFieldModel($field['type'])->advancedSearchTyped($flid, $query, $recModel, $negative);
 
