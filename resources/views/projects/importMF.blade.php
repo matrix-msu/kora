@@ -63,6 +63,10 @@
                 {!! Form::select('importForms[]',$forms, null, ['class' => 'multi-select modify-select import-form-js', 'multiple']) !!}
             </div>
 
+            <div class="form-group mt-xxxl spacer-fade-js hidden" id="scroll-here">
+                <div class="spacer"></div>
+            </div>
+
             <div class="form-group mt-xxxl">
                 <div class="record-file-title">If you have files that correlate to the XML / JSON File above, upload
                     them below in a zipped file. If the zipped file is too large, extract the files manually to
@@ -83,9 +87,13 @@
             </div>
 
             <div class="form-group record-import-button sections-remove-js mt-xxxl">
-                <input type="button" class="btn upload-record-btn-js recordfile-link" value="Upload Record Import Files">
+                <input type="button" class="btn upload-record-btn-js" value="Upload Record Import Files">
             </div>
         </form>
+    </section>
+
+    <section class="recordmatch-section hidden">
+
     </section>
 
     <section class="recordresults-section hidden">

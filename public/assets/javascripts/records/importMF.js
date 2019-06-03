@@ -14,12 +14,12 @@ Kora.Records.ImportMF = function () {
         });
     }
 
-    function initializeFormProgression() {
-        $('.record-input-js').change(function () {
-            $('.spacer-fade-js').fadeIn(1000);
-            $('.record-import-section-2').removeClass('hidden');
-        });
-    }
+    // function initializeFormProgression() {
+    //     $('.kora-file-upload-js').change(function () {
+    //         $('.spacer-fade-js').fadeIn(1000);
+    //         $('.record-import-section-2').removeClass('hidden');
+    //     });
+    // }
 
     function initializeImportRecords() {
         $('.upload-record-btn-js').click(function (e) {
@@ -85,6 +85,27 @@ Kora.Records.ImportMF = function () {
                 contentType: false,
                 processData: false,
                 success: function (data) {
+                    console.log(data['matchup'])
+                    recordFileLink.removeClass('active');
+                    recordMatchLink.addClass('active');
+                    recordMatchLink.addClass('underline-middle');
+
+                    recordFileSection.addClass('hidden');
+                    recordMatchSection.removeClass('hidden');
+
+                    var matchup;
+
+                    for(var fid in data) {
+                        matchup += data[fid]['matchup'];
+                    }
+
+                    recordMatchSection.html(matchup);
+
+                    $('.single-select').chosen({
+                        allow_single_deselect: true,
+                        width: '100%',
+                    });
+
                     $('.recordfile-section').addClass('hidden');
                     $('.recordresults-section').removeClass('hidden');
 
@@ -100,73 +121,95 @@ Kora.Records.ImportMF = function () {
                     var progressFill = $('.progress-fill-js');
                     progressText.text(succ + ' of ' + total + ' Records Submitted');
 
-                    $('.header-text-js').text('Importing Records');
-                    $('.desc-text-js').text(
-                        'The import has started, depending on the number of records, it may take several ' +
-                        'minutes to complete. Do not leave this page or close your browser until completion. ' +
-                        'When the import is complete, you can see a summary of all the data that was saved. '
-                    );
+                    //Click to start actually importing records
+                    recordMatchSection.on('click', '.final-import-btn-js', function () {
+                        //Remove the links and change header info
+                        $('.sections-remove-js').remove();
+                        $('.header-text-js').text('Importing Records');
+                        $('.desc-text-js').text(
+                            'The import has started, depending on the number of records, it may take several ' +
+                            'minutes to complete. Do not leave this page or close your browser until completion. ' +
+                            'When the import is complete, you can see a summary of all the data that was saved. '
+                        );
 
-                    for(var fid in data) {
-                        // skip loop if the property is from prototype
-                        if (!data.hasOwnProperty(fid)) continue;
+                        recordMatchSection.addClass('hidden');
+                        recordResultsSection.removeClass('hidden');
 
-                        var importRecs = data[fid]['records'];
-                        var importType = data[fid]['type'];
-
-                        //foreach record in the dataset
-                        for (var kid in importRecs) {
-                            // skip loop if the property is from prototype
-                            if (!importRecs.hasOwnProperty(kid)) continue;
-
-                            //ajax to store record
-                            $.ajax({
-                                url: importRecordUrl,
-                                type: 'POST',
-                                data: {
-                                    "_token": CSRFToken,
-                                    "fid": fid,
-                                    "record": importRecs[kid],
-                                    "kid": kid,
-                                    "type": importType
-                                },
-                                local_kid: kid,
-                                success: function (data) {
-                                    succ++;
-                                    progressText.text(succ + ' of ' + total + ' Records Submitted');
-
-                                    done++;
-                                    //update progress bar
-                                    percent = (done / total) * 100;
-                                    if(percent < 7)
-                                        percent = 7;
-                                    progressFill.attr('style', 'width:' + percent + '%');
-                                    progressText.text(succ + ' of ' + total + ' Records Submitted');
-                                    if(data['assocTag']!=null)
-                                        assocTagConvert[data['assocTag']] = data['kid'];
-                                    crossFormAssoc[data['kid']] = data['assocArray'];
-                                    comboCrossAssoc[data['kid']] = data['comboAssocArray'];
-
-                                    if(done == total)
-                                        finishImport(succ, total, importType);
-                                },
-                                error: function (data) {
-                                    failedRecords.push([this.local_kid, importRecs[this.local_kid], data]);
-
-                                    done++;
-                                    //update progress bar
-                                    percent = (done / total) * 100;
-                                    if (percent < 7)
-                                        percent = 7;
-                                    progressFill.attr('style', 'width:' + percent + '%');
-                                    progressText.text(succ + ' of ' + total + ' Records Submitted');
-
-                                    if(done == total)
-                                        finishImport(succ, total, importType);
-                                }
-                            });
+                        //initialize matchup
+                        table = {};
+                        tags = [];
+                        slugs = [];
+                        $('.get-tag-js').each(function () {
+                            tags.push($(this).val());
+                        });
+                        $('.get-slug-js').each(function () {
+                            slugs.push($(this).attr('slug'));
+                        });
+                        for (j = 0; j < slugs.length; j++) {
+                            table[tags[j]] = slugs[j];
                         }
-                    }
+
+                        for(var fid in data) {
+                            // skip loop if the property is from prototype
+                            if (!data.hasOwnProperty(fid)) continue;
+
+                            var importRecs = data[fid]['records'];
+                            var importType = data[fid]['type'];
+
+                            //foreach record in the dataset
+                            for (var kid in importRecs) {
+                                // skip loop if the property is from prototype
+                                if (!importRecs.hasOwnProperty(kid)) continue;
+
+                                //ajax to store record
+                                $.ajax({
+                                    url: importRecordUrl,
+                                    type: 'POST',
+                                    data: {
+                                        "_token": CSRFToken,
+                                        "fid": fid,
+                                        "record": importRecs[kid],
+                                        "kid": kid,
+                                        "type": importType
+                                    },
+                                    local_kid: kid,
+                                    success: function (data) {
+                                        succ++;
+                                        progressText.text(succ + ' of ' + total + ' Records Submitted');
+
+                                        done++;
+                                        //update progress bar
+                                        percent = (done / total) * 100;
+                                        if(percent < 7)
+                                            percent = 7;
+                                        progressFill.attr('style', 'width:' + percent + '%');
+                                        progressText.text(succ + ' of ' + total + ' Records Submitted');
+                                        if(data['assocTag']!=null)
+                                            assocTagConvert[data['assocTag']] = data['kid'];
+                                        crossFormAssoc[data['kid']] = data['assocArray'];
+                                        comboCrossAssoc[data['kid']] = data['comboAssocArray'];
+
+                                        if(done == total)
+                                            finishImport(succ, total, importType);
+                                    },
+                                    error: function (data) {
+                                        failedRecords.push([this.local_kid, importRecs[this.local_kid], data]);
+
+                                        done++;
+                                        //update progress bar
+                                        percent = (done / total) * 100;
+                                        if (percent < 7)
+                                            percent = 7;
+                                        progressFill.attr('style', 'width:' + percent + '%');
+                                        progressText.text(succ + ' of ' + total + ' Records Submitted');
+
+                                        if(done == total)
+                                            finishImport(succ, total, importType);
+                                    }
+                                });
+                            }
+                        }
+                    });
                 }, error: function (error) {
                     console.log(error);
                 }
@@ -340,7 +383,7 @@ Kora.Records.ImportMF = function () {
     }
 
     initializeSelects();
-    initializeFormProgression();
+    // initializeFormProgression();
     initializeImportRecords();
     intializeFileUploaderOptions();
 

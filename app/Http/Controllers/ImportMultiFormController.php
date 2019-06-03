@@ -167,7 +167,7 @@ class ImportMultiFormController extends Controller { //TODO::CASTLE
             $records = storage_path('app/tmpFiles/MFf0u'.\Auth::user()->id.'/'.$recordSets[$i]);
             $type = strtoupper($fileTypes[$i]);
 
-            $recordObjs = array();
+            $tagNames = $recordObjs = array();
 
             switch($type) {
                 case self::XML:
@@ -175,6 +175,9 @@ class ImportMultiFormController extends Controller { //TODO::CASTLE
 
                     foreach($xml->children() as $record) {
                         array_push($recordObjs, $record->asXML());
+                        foreach($record->children() as $fields) {
+                            array_push($tagNames, $fields->getName());
+                        }
                     }
 
                     break;
@@ -183,6 +186,9 @@ class ImportMultiFormController extends Controller { //TODO::CASTLE
 
                     foreach($json as $kid => $record) {
                         $recordObjs[$kid] = $record;
+                        foreach(array_keys($record) as $field) {
+                            array_push($tagNames, $field);
+                        }
                     }
 
                     break;
@@ -191,12 +197,16 @@ class ImportMultiFormController extends Controller { //TODO::CASTLE
 
                     foreach($csv as $kid => $record) {
                         $recordObjs[$kid] = $record;
+                        foreach(array_keys($record) as $field) {
+                            array_push($tagNames, $field);
+                        }
                     }
 
                     break;
             }
 
             $form = FormController::getForm($fid);
+            $tagNames = array_unique($tagNames);
 
             $fields = $form->layout['fields'];
             //Build the Labels first
@@ -219,7 +229,11 @@ class ImportMultiFormController extends Controller { //TODO::CASTLE
                 $table .= '<select class="single-select get-tag-js" data-placeholder="Select field if applicable">';
                 $table .= '<option></option>';
                 foreach($tagNames as $name) {
-                    if($flid==$name)
+                    if(
+                        $flid==$name |
+                        $flid==str_replace(' ', '_', $name) |
+                        $flid==$field['name']
+                    )
                         $table .= '<option val="'.$name.'" selected>' . $name . '</option>';
                     else
                         $table .= '<option val="'.$name.'">'.$name.'</option>';
@@ -252,7 +266,7 @@ class ImportMultiFormController extends Controller { //TODO::CASTLE
 
             $data['records'] = $recordObjs;
             $data['type'] = $type;
-            $date['matchup'] = $table;
+            $data['matchup'] = $table;
 
             $response[$fid] = $data;
         }

@@ -166,7 +166,6 @@ class ImportController extends Controller {
                     }
                 }
 
-                $tagNames = array_unique($tagNames);
                 break;
             case self::JSON:
                 $json = json_decode(file_get_contents($request->file('records')), true);
@@ -178,7 +177,6 @@ class ImportController extends Controller {
                     }
                 }
 
-                $tagNames = array_unique($tagNames);
                 break;
             case self::CSV:
                 $csv = parseCSV($request->file('records'));
@@ -190,9 +188,10 @@ class ImportController extends Controller {
                     }
                 }
 
-                $tagNames = array_unique($tagNames);
                 break;
         }
+
+        $tagNames = array_unique($tagNames);
 
         $fields = $form->layout['fields'];
         //Build the Labels first
@@ -215,7 +214,11 @@ class ImportController extends Controller {
             $table .= '<select class="single-select get-tag-js" data-placeholder="Select field if applicable">';
             $table .= '<option></option>';
             foreach($tagNames as $name) {
-                if($flid==$name)
+                if(
+                    $flid==$name |
+                    $flid==str_replace(' ', '_', $name) |
+                    $flid==$field['name']
+                )
                     $table .= '<option val="'.$name.'" selected>' . $name . '</option>';
                 else
                     $table .= '<option val="'.$name.'">'.$name.'</option>';
