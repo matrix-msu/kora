@@ -209,15 +209,7 @@ class ImportMultiFormController extends Controller { //TODO::CASTLE
             $tagNames = array_unique($tagNames);
 
             $fields = $form->layout['fields'];
-            //Build the Labels first
-            $table = '';
-            $table .= '<div class="form-group mt-xl half">';
-            $table .= '<label>Form Field Names</label>';
-            $table .= '</div>';
-            $table .= '<div class="form-group mt-xl half">';
-            $table .= '<label>Select Uploaded Field to Match</label>';
-            $table .= '</div>';
-            $table .= '<div class="form-group"></div>';
+            $table = '<div class="get-fid-js" fid="'.$fid.'">';
 
             //Then build the field matchups
             foreach($fields as $flid => $field) {
@@ -229,6 +221,7 @@ class ImportMultiFormController extends Controller { //TODO::CASTLE
                 $table .= '<select class="single-select get-tag-js" data-placeholder="Select field if applicable">';
                 $table .= '<option></option>';
                 foreach($tagNames as $name) {
+                    // Matching three different naming conventions
                     if(
                         $flid==$name |
                         $flid==str_replace(' ', '_', $name) |
@@ -258,10 +251,6 @@ class ImportMultiFormController extends Controller { //TODO::CASTLE
             $table .= '</select>';
             $table .= '</div>';
             $table .= '<div class="form-group"></div>';
-
-            //Finish off the table
-            $table .= '<div class="form-group mt-xxxl">';
-            $table .= '<input type="button" class="btn final-import-btn-js" value="Upload Records">';
             $table .= '</div>';
 
             $data['records'] = $recordObjs;
@@ -293,6 +282,8 @@ class ImportMultiFormController extends Controller { //TODO::CASTLE
         $recRequest = new Request();
         $recRequest['userId'] = \Auth::user()->id;
         $recRequest['api'] = true;
+
+        $matchup = $request->table;
 
         $assocTag = null;
         $assocArray = [];

@@ -214,6 +214,7 @@ class ImportController extends Controller {
             $table .= '<select class="single-select get-tag-js" data-placeholder="Select field if applicable">';
             $table .= '<option></option>';
             foreach($tagNames as $name) {
+                // Matching three different naming conventions
                 if(
                     $flid==$name |
                     $flid==str_replace(' ', '_', $name) |

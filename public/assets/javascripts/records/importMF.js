@@ -85,7 +85,6 @@ Kora.Records.ImportMF = function () {
                 contentType: false,
                 processData: false,
                 success: function (data) {
-                    console.log(data['matchup'])
                     recordFileLink.removeClass('active');
                     recordMatchLink.addClass('active');
                     recordMatchLink.addClass('underline-middle');
@@ -93,11 +92,28 @@ Kora.Records.ImportMF = function () {
                     recordFileSection.addClass('hidden');
                     recordMatchSection.removeClass('hidden');
 
-                    var matchup;
+                    //Build the Labels first
+                    var matchup = `
+                        <div class="form-group mt-xl half">
+                            <label>Form Field Names</label>
+                        </div>
+                        <div class="form-group mt-xl half">
+                            <label>Select Uploaded Field to Match</label>
+                        </div>
+                        <div class="form-group"></div>
+                    `;
 
+                    // Fill the body
                     for(var fid in data) {
                         matchup += data[fid]['matchup'];
                     }
+
+                    //Finish off the table
+                    matchup += `
+                        <div class="form-group mt-xxxl">
+                            <input type="button" class="btn final-import-btn-js" value="Upload Records">
+                        </div>
+                    `;
 
                     recordMatchSection.html(matchup);
 
@@ -137,17 +153,24 @@ Kora.Records.ImportMF = function () {
 
                         //initialize matchup
                         table = {};
-                        tags = [];
-                        slugs = [];
-                        $('.get-tag-js').each(function () {
-                            tags.push($(this).val());
+
+                        $('.get-fid-js').each(function () {
+                            let fid = $(this).attr('fid');
+
+                            table[fid] = {};
+                            tags = [];
+                            slugs = [];
+
+                            $(this).find('.get-tag-js').each(function () {
+                                tags.push($(this).val());
+                            });
+                            $(this).find('.get-slug-js').each(function () {
+                                slugs.push($(this).attr('slug'));
+                            });
+                            for (j = 0; j < slugs.length; j++) {
+                                table[fid][tags[j]] = slugs[j];
+                            }
                         });
-                        $('.get-slug-js').each(function () {
-                            slugs.push($(this).attr('slug'));
-                        });
-                        for (j = 0; j < slugs.length; j++) {
-                            table[tags[j]] = slugs[j];
-                        }
 
                         for(var fid in data) {
                             // skip loop if the property is from prototype
@@ -170,10 +193,12 @@ Kora.Records.ImportMF = function () {
                                         "fid": fid,
                                         "record": importRecs[kid],
                                         "kid": kid,
+                                        "table": table,
                                         "type": importType
                                     },
                                     local_kid: kid,
                                     success: function (data) {
+                                        console.log(data)
                                         succ++;
                                         progressText.text(succ + ' of ' + total + ' Records Submitted');
 
