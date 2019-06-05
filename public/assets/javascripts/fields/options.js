@@ -696,7 +696,6 @@ Kora.Fields.Options = function(fieldType) {
     }
 
     function initializeAssociatorOptions() {
-        console.log('assoc');
         //Sets up association configurations
         $('.association-check-js').click(function() {
             var assocDiv = $(this).closest('.form-group').next();
