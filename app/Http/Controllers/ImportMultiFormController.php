@@ -283,7 +283,8 @@ class ImportMultiFormController extends Controller { //TODO::CASTLE
         $recRequest['userId'] = \Auth::user()->id;
         $recRequest['api'] = true;
 
-        $matchup = $request->table;
+        $matchup = $request->table[$fid];
+        $matchup['KORA ID CONNECTION'] = 'connection';
 
         $assocTag = null;
         $assocArray = [];
@@ -341,6 +342,10 @@ class ImportMultiFormController extends Controller { //TODO::CASTLE
             }
 
             foreach($record as $slug => $field) {
+                //Just in case there are extra/unused fields in the JSON
+                if(!array_key_exists($slug,$matchup))
+                    continue;
+
                 //If value is not set, move on
                 if(!$field | is_null($field))
                     continue;
@@ -351,17 +356,19 @@ class ImportMultiFormController extends Controller { //TODO::CASTLE
                     continue;
                 }
 
-                $flid = $slug;
-
-                // TODO::Matchup field support in this block
-                // if(isset($form->layout['fields'][$slug]) | isset($form->layout['fields'][$flid]) | )
-
-                if(!isset($form->layout['fields'][$flid]))
+                 //Deal with reverse associations and move on
+                if($matchup[$slug] == 'reverseAssociations') {
+                    $recRequest['newRecRevAssoc'] = $field;
                     continue;
-                    // return response()->json(["status"=>false,"message"=>"xml_validation_error",
-                    //     "record_validation_error"=>[$request->kid => "Invalid provided field, $flid"]],500);
+                }
 
-                $flid = $slug;
+                //Kora id connection for associator
+                if($matchup[$slug] == 'connection') {
+                    $recRequest['connection'] = $field;
+                    continue;
+                }
+
+                $flid = $matchup[$slug];
 
                 $fieldMod = $form->layout['fields'][$flid];
                 $typedField = $form->getFieldModel($fieldMod['type']);
