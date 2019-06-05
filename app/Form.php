@@ -501,7 +501,7 @@ class Form extends Model {
 
         //Before assigning fields, prep merge if it exists
         $mergeMappings = [];
-        if(!is_null($filters['merge'])){
+        if(array_key_exists('merge', $filters) && !is_null($filters['merge'])){
             foreach($filters['merge'] as $newName => $mergeFields) {
                 foreach($mergeFields as $mergeField) {
                     $mergeFlid = fieldMapper($mergeField,$this->project_id,$this->id);
