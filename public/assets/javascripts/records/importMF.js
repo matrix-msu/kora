@@ -122,9 +122,6 @@ Kora.Records.ImportMF = function () {
                         width: '100%',
                     });
 
-                    $('.recordfile-section').addClass('hidden');
-                    $('.recordresults-section').removeClass('hidden');
-
                     //initialize counter
                     done = 0;
                     succ = 0;
