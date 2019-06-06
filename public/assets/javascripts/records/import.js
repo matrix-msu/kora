@@ -118,6 +118,7 @@ Kora.Records.Import = function () {
                             //build for potential connections
                             var kids = [];
                             var connections = {};
+
                             //foreach record in the dataset
                             for (var kid in importRecs) {
                                 // skip loop if the property is from prototype

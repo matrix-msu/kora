@@ -288,7 +288,6 @@ class ImportMultiFormController extends Controller { //TODO::CASTLE
 
         $assocTag = null;
         $assocArray = [];
-        $comboAssocArray = [];
 
         if($request->type==self::XML) {
             $record = simplexml_load_string($record);
@@ -308,11 +307,10 @@ class ImportMultiFormController extends Controller { //TODO::CASTLE
                     continue;
 
                 //Deal with reverse associations and move on
-                if($key == 'reverseAssociations') {
+                if($matchup[$key] == 'reverseAssociations') {
                     if(empty($field->Record))
                         return response()->json(["status"=>false,"message"=>"xml_validation_error",
                             "record_validation_error"=>[$request->kid => "$key format is incorrect for applying reverse associations"]],500);
-                    $rAssoc = (array)$field->Record;
                     $rFinal = [];
                     foreach($field->Record as $rAssoc) {
                         $rFinal[(string)$rAssoc['flid']][] = (string)$rAssoc;
@@ -321,8 +319,13 @@ class ImportMultiFormController extends Controller { //TODO::CASTLE
                     continue;
                 }
 
-                $flid = Field::where('slug', '=', $key)->get()->first()->flid;
+                // TODO::this has to be tested still
+                if($matchup[$flid] == 'connection') {
+                    $recRequest['connection'] = (string)$field;
+                    continue;
+                }
 
+                $flid = $matchup[$key];
                 if(!isset($form->layout['fields'][$flid]))
                     return response()->json(["status"=>false,"message"=>"xml_validation_error",
                         "record_validation_error"=>[$request->kid => "Invalid provided field, $flid"]],500);
@@ -398,63 +401,39 @@ class ImportMultiFormController extends Controller { //TODO::CASTLE
         if(!\Auth::user()->isProjectAdmin($project))
             return redirect('projects')->with('k3_global_error', 'not_project_admin');
 
-        $assocTagConvert = json_decode($request->assocTagConvert); //Conversion of record tag identifiers to KIDs
-        $crossFormAssoc = json_decode($request->crossFormAssoc); //Actual associator field data to convert
-        $comboCrossAssoc = json_decode($request->comboCrossAssoc); //Combo lists with assoc values we need to check
+        foreach(json_decode($request->fids) as $fid) {
 
-        foreach($crossFormAssoc as $kid => $data) {
-            $record = Record::where('kid','=',$kid)->first();
+            //Conversion of record tag identifiers to KIDs
+            $assocTagConvert = $request->assocTagConvert[$fid];
 
-            foreach($data as $flid => $akids) {
-                $field = FieldController::getField($flid);
+            //Actual associator field data to convert
+            $crossFormAssoc = $request->crossFormAssoc[$fid];
 
-                //Get values
-                $values = array();
-                foreach($akids as $tag) {
-                    array_push($values,$assocTagConvert->{$tag});
-                }
+            //Single form assoc to new record
+            $kids = $request->kids[$fid];
+            $connections = $request->connections[$fid];
 
-                $typedField = $field->getTypedFieldFromRID($record->rid);
-                if(!is_null($typedField)) {
-                    //add records to existing assoc
-                    $typedField->addRecords($values);
-                } else {
-                    //create a new one for this record
-                    $typedField = $field->getTypedField();
-                    $typedField->createNewRecordField($field, $record, $values, $request);
-                }
-            }
-        }
+            foreach($crossFormAssoc as $kid => $data) {
+                $record = RecordController::getRecord($kid);
 
-        foreach($comboCrossAssoc as $kid => $data) {
-            $record = Record::where('kid','=',$kid)->first();
+                foreach($data as $flid => $akids) {
+                    $field = FieldController::getField($flid);
 
-            $filtered = array_unique($data);
-
-            foreach($filtered as $cca) {
-                $parts = explode(' ', $cca);
-                $flid = $parts[0];
-                $subfield = $parts[1];
-
-                $rows = DB::table(ComboListField::SUPPORT_NAME)
-                    ->where('rid','=',$record->rid)
-                    ->where('flid','=',$flid)
-                    ->where('field_num','=',$subfield)->get()->all();
-
-                foreach($rows as $row) {
-                    $newVals = array();
-                    $vals = explode('[!]',$row->data);
-
-                    foreach($vals as $val) {
-                        if(Record::isKIDPattern($val))
-                            array_push($newVals,$val);
-                        else
-                            array_push($newVals,$assocTagConvert->{$val});
+                    //Get values
+                    $values = array();
+                    foreach($akids as $tag) {
+                        array_push($values,$assocTagConvert->{$tag});
                     }
 
-                    DB::table(ComboListField::SUPPORT_NAME)
-                        ->where('id','=',$row->id)
-                        ->update(['data' => implode('[!]',$newVals)]);
+                    $typedField = $field->getTypedFieldFromRID($record->rid);
+                    if(!is_null($typedField)) {
+                        //add records to existing assoc
+                        $typedField->addRecords($values);
+                    } else {
+                        //create a new one for this record
+                        $typedField = $field->getTypedField();
+                        $typedField->createNewRecordField($field, $record, $values, $request);
+                    }
                 }
             }
         }
