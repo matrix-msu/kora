@@ -1,4 +1,4 @@
-&.geolocator-form-group {
+&.schedule-form-group {
   .form-input-container {
     padding: 25px 30px 30px;
 
@@ -7,7 +7,7 @@
     }
   }
 
-  .geolocator-card {
+  .schedule-card {
     cursor: pointer;
     margin: 0 0 15px;
 
@@ -15,7 +15,7 @@
       overflow: visible;
       text-align: right;
 
-      .geolocator-delete {
+      .schedule-delete {
         i {
           color: palette('red', base);
           display: inline-block;
@@ -25,7 +25,7 @@
         }
 
         &.tooltip:hover::after {
-          left: -47px;
+          left: -38px;
         }
 
         &:hover {
@@ -40,15 +40,10 @@
       display: block;
       padding: 0 70px 16px;
 
-      .location {
+      .event-time {
         color: palette('gray', text, .6);
         font-size: 14px;
         margin: 0;
-
-        .bold {
-          color: palette('gray', text, .8);
-          font-family: $ubuntu-medium;
-        }
       }
     }
 
@@ -86,15 +81,5 @@
     box-sizing: border-box;
     max-width: none;
     padding: 0;
-  }
-
-  @media screen and (max-width: $max-mobile-l-width) {
-    .content {
-      .location {
-        .bold {
-          display: block;
-        }
-      }
-    }
   }
 }
