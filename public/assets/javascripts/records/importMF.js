@@ -164,7 +164,7 @@ Kora.Records.ImportMF = function () {
                         var assocTagConvert = {};
                         var crossFormAssoc = {};
                         var kids = {};
-                        var fids = {};
+                        var fids = [];
                         var connections = {};
 
                         for(var fid in data) {
@@ -250,8 +250,6 @@ Kora.Records.ImportMF = function () {
                             }
                         }
                     });
-                }, error: function (error) {
-                    console.log(error);
                 }
             });
         });
@@ -367,7 +365,6 @@ Kora.Records.ImportMF = function () {
 
         $('.filenames').on('click', '.upload-filedelete-js', function(e) {
             e.preventDefault();
-            console.log('click upload file dete')
 
             var div = $(this).parent('.uploaded-file');
             $.ajax({

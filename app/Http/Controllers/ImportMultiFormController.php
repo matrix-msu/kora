@@ -402,6 +402,7 @@ class ImportMultiFormController extends Controller { //TODO::CASTLE
             return redirect('projects')->with('k3_global_error', 'not_project_admin');
 
         foreach(json_decode($request->fids) as $fid) {
+            $form = FormController::getForm($fid);
 
             //Conversion of record tag identifiers to KIDs
             $assocTagConvert = $request->assocTagConvert[$fid];
@@ -416,26 +417,47 @@ class ImportMultiFormController extends Controller { //TODO::CASTLE
             foreach($crossFormAssoc as $kid => $data) {
                 $record = RecordController::getRecord($kid);
 
-                foreach($data as $flid => $akids) {
-                    $field = FieldController::getField($flid);
+                if ($record) {
+                    foreach($data as $flid => $akids) {
+                        //Get values
+                        $values = array();
+                        foreach($akids as $tag) {
+                            array_push($values,$assocTagConvert->{$tag});
+                        }
 
-                    //Get values
-                    $values = array();
-                    foreach($akids as $tag) {
-                        array_push($values,$assocTagConvert->{$tag});
-                    }
-
-                    $typedField = $field->getTypedFieldFromRID($record->rid);
-                    if(!is_null($typedField)) {
-                        //add records to existing assoc
-                        $typedField->addRecords($values);
-                    } else {
-                        //create a new one for this record
-                        $typedField = $field->getTypedField();
-                        $typedField->createNewRecordField($field, $record, $values, $request);
+                        $record->{$flid} = json_encode($values);
                     }
                 }
             }
+
+            $fieldsArray = $form->layout['fields'];
+
+            $assocField = array();
+            foreach ($fieldsArray as $flid => $field) {
+                if($field['type'] == \App\Form::_ASSOCIATOR)
+                    $assocField[$flid] = $field;
+            }
+
+            if($assocField) {
+                foreach($kids as $kid) {
+                    $record = RecordController::getRecord($kid);
+                    $key = key($assocField);
+                    $assoc = json_decode($record->{$key});
+                    if($assoc) {
+                        foreach ($connections as $connection => $kid) {
+                            for($i=0;$i<count($assoc);$i++) {
+                                if($assoc[$i] == $connection) {
+                                    $assoc[$i] = $kid;
+                                }
+                            }
+                        }
+                        $record->{$key} = json_encode($assoc);
+                        $record->save();
+                    }
+                }
+            }
+
+
         }
     }
 
