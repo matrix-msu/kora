@@ -175,9 +175,9 @@ Kora.Records.ImportMF = function () {
                             var importType = data[fid]['type'];
 
                             // cross assoc requires fid
-                            kids[fid] = [];
                             assocTagConvert[fid] = {};
                             crossFormAssoc[fid] = {};
+                            kids[fid] = [];
                             connections[fid] = {};
 
                             fids.push(fid);
