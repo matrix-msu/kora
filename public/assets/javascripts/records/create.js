@@ -129,13 +129,15 @@ Kora.Records.Create = function() {
                     type: 'POST',
                     data: data,
                     success: function (result) {
+                        var opts = '';
                         for(var kid in result) {
                             var preview = result[kid];
-                            var opt = "<option value='"+kid+"'>"+kid+": "+preview+"</option>";
-
-                            resultsBox.append(opt);
-                            resultsBox.trigger("chosen:updated");
+                            opts += "<option value='"+kid+"'>"+kid+": "+preview+"</option>";
                         }
+
+                        // Wait until all options are added to html string until we update chosen
+                        resultsBox.append(opts);
+                        resultsBox.trigger("chosen:updated");
 
                         resultInput = resultsBox.next().find('.chosen-search-input').first();
                         resultInput.val('');

@@ -711,7 +711,7 @@ Kora.Fields.Options = function(fieldType) {
 
         $('.assoc-search-records-js').on('keypress', function(e) {
             var keyCode = e.keyCode || e.which;
-            if(keyCode === 13) {
+            if (keyCode === 13) {
                 e.preventDefault();
 
                 var keyword = $(this).val();
@@ -728,14 +728,15 @@ Kora.Fields.Options = function(fieldType) {
                         "keyword": keyword
                     },
                     success: function (result) {
-                        //TODO::CASTLE Can we make this faster for associator edit and record create?
+                        var opts = '';
                         for(var kid in result) {
                             var preview = result[kid];
-                            var opt = "<option value='"+kid+"'>"+kid+": "+preview+"</option>";
-
-                            resultsBox.append(opt);
-                            resultsBox.trigger("chosen:updated");
+                            opts += "<option value='"+kid+"'>"+kid+": "+preview+"</option>";
                         }
+
+                        // Wait until all options are added to html string until we update chosen
+                        resultsBox.append(opts);
+                        resultsBox.trigger("chosen:updated");
 
                         resultInput = resultsBox.next().find('.chosen-search-input').first();
                         resultInput.val('');
