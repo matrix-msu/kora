@@ -11,13 +11,13 @@
                 Export <span class="count"></span> form records in the formats of JSON or XML. You may also export <span class="count"></span> record files as a zip.
             </div>
             <div class="form-group mt-m">
-                <a href="{{ action('ExportController@exportRecordFiles',['pid' => $form->pid, 'fid' => $form->fid]) }}" class="btn secondary">Export Record Files</a>
+                <a href="{{ action('ExportController@exportRecordFiles',['pid' => $form->project_id, 'fid' => $form->id]) }}" class="btn secondary">Export Record Files</a>
             </div>
             <div class="form-group mt-m">
-                <a href="{{ action('ExportController@exportSelectedRecords', ['pid' => $form->pid, 'fid' => $form->fid, 'type' => 'JSON', 'rid' => '']) }}" class="btn export-multiple-js">Export JSON</a>
+                <a href="{{ action('ExportController@exportSelectedRecords', ['pid' => $form->project_id, 'fid' => $form->id, 'type' => 'JSON', 'rid' => '']) }}" class="btn export-multiple-js">Export JSON</a>
             </div>
             <div class="form-group mt-m">
-                <a href="{{ action('ExportController@exportSelectedRecords', ['pid' => $form->pid, 'fid' => $form->fid, 'type' => 'XML', 'rid' => '']) }}" class="btn export-multiple-js">Export XML</a>
+                <a href="{{ action('ExportController@exportSelectedRecords', ['pid' => $form->project_id, 'fid' => $form->id, 'type' => 'XML', 'rid' => '']) }}" class="btn export-multiple-js">Export XML</a>
             </div>
         </div>
     </div>

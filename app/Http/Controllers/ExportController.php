@@ -102,8 +102,7 @@ class ExportController extends Controller {
             return redirect('projects/'.$pid.'/forms/'.$fid);
 
         //Get the data
-        $rids = $request->rid;
-        $rids = array_map('intval', explode(',', $rids));
+        $rids = array_map('intval', explode(',', $request->rid));
         $filters = ["revAssoc" => true, "meta" => false, "fields" => 'ALL', "realnames" => false, "assoc" => false,
             "data" => true, "sort" => null, "count" => null, "index" => null];
         if($type==self::JSON) {
