@@ -10,12 +10,12 @@
             @if(!is_null($record))
                 {!! Form::open([
                   'method' => 'DELETE',
-                  'action' => ['RecordController@deleteMultipleRecords', 'pid' => $form->pid, 'fid' => $form->fid]
+                  'action' => ['RecordController@deleteMultipleRecords', 'pid' => $form->project_id, 'fid' => $form->id]
                 ]) !!}
             @else
                 {!! Form::open([
                   'method' => 'DELETE',
-                  'action' => ['RecordController@deleteMultipleRecords', 'pid' => $form->pid, 'fid' => $form->fid],
+                  'action' => ['RecordController@deleteMultipleRecords', 'pid' => $form->project_id, 'fid' => $form->id],
                   'class' => 'delete-multiple-records-form-js'
                 ]) !!}
             @endif

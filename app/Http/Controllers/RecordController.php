@@ -516,22 +516,22 @@ class RecordController extends Controller {
      * @return Redirect
      */
     public function deleteMultipleRecords($pid, $fid, Request $request) {
-      $form = FormController::getForm($fid);
-      $rid = $request->rid;
-      $rids = explode(',', $rid);
+        if(!FormController::validProjForm($pid, $fid))
+            return redirect('projects/'.$pid)->with('k3_global_error', 'form_invalid');
 
-      if(!\Auth::user()->isFormAdmin($form)) {
-        return redirect('projects')->with('k3_global_error', 'not_form_admin');
-      } else {
-          $recordMod = new Record(array(),$fid);
-          $records = $recordMod->newQuery()->whereIn("id", $rids);
+        if(!self::checkPermissions($fid, 'destroy'))
+            return redirect('projects/'.$pid.'/forms/'.$fid)->with('k3_global_error', 'cant_delete_records');
 
-          foreach($records as $record) {
-              $record->delete();
-          }
+        $rids = explode(',', $request->rid);
+
+        $recordMod = new Record(array(),$fid);
+        $records = $recordMod->newQuery()->whereIn("id", $rids)->get();
+
+        foreach($records as $record) {
+            $record->delete();
+        }
 
         return redirect('projects/' . $pid . '/forms/' . $fid . '/records')->with('k3_global_success', 'multiple_records_deleted');
-      }
     }
 
     /**
