@@ -24,9 +24,7 @@
         </li>
 
         <li class="link">
-            {{--TODO::CASTLE--}}
-{{--            <a href="{{action("RevisionController@show", ['pid'=>$pid, 'fid'=>$fid, 'rid'=>$rid])}}">View Revisions ({{\App\Http\Controllers\RevisionController::getRevisionCount($rid)}})</a>--}}
-            <a href="{{action("RevisionController@show", ['pid'=>$pid, 'fid'=>$fid, 'rid'=>$rid])}}">View Revisions (0)</a>
+            <a href="{{action("RevisionController@show", ['pid'=>$pid, 'fid'=>$fid, 'rid'=>$rid])}}">View Revisions ({{\App\Http\Controllers\RevisionController::getRevisionCount($pid . '-' . $fid . '-' . $rid)}})</a>
         </li>
 
         <li class="link">

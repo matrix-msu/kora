@@ -1,6 +1,5 @@
 <?php namespace App\Http\Controllers;
 
-use App\Form;
 use App\Record;
 use App\Revision;
 use Illuminate\Http\JsonResponse;
@@ -121,9 +120,10 @@ class RevisionController extends Controller {
      * @param  Record $record - Record model
      * @param  string $type - Revision type
      * @param  Record $oldRecord - Old data to save for edits
+     * @param  Record $oldFiles - Old file data to save for edits
      * @return Revision - The new revision model
      */
-    public static function storeRevision($record, $type, $oldRecord = null) {
+    public static function storeRevision($record, $type, $oldRecord = null, $oldFiles = null) {
         $revision = new Revision();
 
         $fid = $record->form_id;
@@ -140,16 +140,22 @@ class RevisionController extends Controller {
         switch($type) {
             case Revision::CREATE:
                 $revArray['data'] = self::buildDataArray($record);
+                $revArray['data_files'] = self::getFileHashForRevisions($record);
                 $revArray['oldData'] = null;
+                $revArray['oldData_files'] = null;
                 break;
             case Revision::EDIT:
             case Revision::ROLLBACK:
                 $revArray['data'] = self::buildDataArray($record);
+                $revArray['data_files'] = self::getFileHashForRevisions($record);
                 $revArray['oldData'] = self::buildDataArray($oldRecord);
+                $revArray['oldData_files'] = $oldFiles;
                 break;
             case Revision::DELETE:
                 $revArray['data'] = null;
-                $revArray['oldData'] = self::buildDataArray($record);;
+                $revArray['data_files'] = null;
+                $revArray['oldData'] = self::buildDataArray($record);
+                $revArray['oldData_files'] = self::getFileHashForRevisions($record);
                 break;
         }
 
@@ -268,7 +274,7 @@ class RevisionController extends Controller {
                     $record->kid = $revision->record_kid;
                     $record->save();
 
-                    self::rollback_routine($record, $revision, false);
+                    $this->rollback_routine($record, $revision, false);
                     self::storeRevision($record, Revision::CREATE);
 
                     return response()->json(["status"=>true,"message"=>"record_created","created_kid"=>$record->kid],200);
@@ -277,7 +283,7 @@ class RevisionController extends Controller {
             case Revision::EDIT:
             case Revision::ROLLBACK:
                 $record = RecordController::getRecord($revision->record_kid);
-                self::rollback_routine($record, $revision);
+                $this->rollback_routine($record, $revision);
 
                 return response()->json(["status"=>true,"message"=>"record_modified","modified_kid"=>$record->kid],200);
                 break;
@@ -291,9 +297,11 @@ class RevisionController extends Controller {
      * @param  Revision $revision - Revision to pull data from
      * @param  bool $is_rollback - Basically is this revision type Edit or Rollback, or are we reversing a Delete revision
      */
-    public static function rollback_routine(Record $record, Revision $revision, $is_rollback = true) {
-        if($is_rollback)
+    public function rollback_routine(Record $record, Revision $revision, $is_rollback = true) {
+        if($is_rollback) {
             $oldRecordCopy = $record->replicate();
+            $oldRecordFileCopy = self::getFileHashForRevisions($record);
+        }
 
         foreach($revision->revision['oldData'] as $flid => $data) {
             $record->{$flid} = $data;
@@ -301,8 +309,44 @@ class RevisionController extends Controller {
 
         $record->save();
 
+        $this->rollback_files($record, $revision->revision['oldData_files']);
+
         if($is_rollback)
-            self::storeRevision($record, Revision::ROLLBACK, $oldRecordCopy);
+            self::storeRevision($record, Revision::ROLLBACK, $oldRecordCopy, $oldRecordFileCopy);
+    }
+
+    /**
+     * Performs the actual rollback for files.
+     *
+     * @param  Record $record - Record to rollback
+     * @param  array $fileData - File data to restore
+     */
+    private function rollback_files($record, $fileData) {
+        $storageType = 'LaravelStorage'; //TODO:: make this a config once we actually support other storage types
+        switch($storageType) {
+            case 'LaravelStorage':
+                //Clear the current directory
+                $dir = storage_path('app/files/'.$record->project_id.'/'.$record->form_id.'/'.$record->id);
+                if(file_exists($dir)) {
+                    foreach(new \DirectoryIterator($dir) as $file) {
+                        if($file->isFile())
+                            unlink($dir.'/'.$file->getFilename());
+                    }
+                } else {
+                    mkdir($dir,0775,true); //Make it!
+                }
+
+                //Restore old files
+                if(!is_null($fileData)) {
+                    foreach ($fileData as $name => $hash) {
+                        $data = base64_decode($hash);
+                        file_put_contents("$dir/$name", $data);
+                    }
+                }
+                break;
+            default:
+                break;
+        }
     }
 
     /**
@@ -322,5 +366,35 @@ class RevisionController extends Controller {
      */
     public static function getRevisionCount($kid) {
        return Revision::where('record_kid', $kid)->count();
+    }
+
+    /**
+     * Builds the file data array for the revision.
+     *
+     * @param  Record $record - Record to pull data from
+     * @return array - The file data for DB storage
+     */
+    public static function getFileHashForRevisions($record) {
+        $hashArray = [];
+
+        $storageType = 'LaravelStorage'; //TODO:: make this a config once we actually support other storage types
+        switch($storageType) {
+            case 'LaravelStorage':
+                $dir = storage_path('app/files/'.$record->project_id.'/'.$record->form_id.'/'.$record->id);
+                if(file_exists($dir)) {
+                    foreach(new \DirectoryIterator($dir) as $file) {
+                        if($file->isFile()) {
+                            $name = $file->getFilename();
+                            $data = file_get_contents("$dir/$name");
+                            $hashArray[$name] = base64_encode($data);
+                        }
+                    }
+                }
+                break;
+            default:
+                break;
+        }
+
+        return $hashArray;
     }
 }

@@ -403,16 +403,24 @@ class RecordController extends Controller {
         $kid = "$pid-$fid-$rid";
         $record = self::getRecord($kid);
         $oldRecordCopy = $record->replicate();
+        $oldRecordFileCopy = RevisionController::getFileHashForRevisions($record);
 
         //Before we move files back over from edit, clear the record folder
-        $dir = storage_path('app/files/'.$record->project_id.'/'.$record->form_id.'/'.$record->id);
-        if(file_exists($dir)) {
-            foreach(new \DirectoryIterator($dir) as $file) {
-                if($file->isFile())
-                    unlink($dir.'/'.$file->getFilename());
-            }
-        } else {
-            mkdir($dir,0775,true); //Make it!
+        $storageType = 'LaravelStorage'; //TODO:: make this a config once we actually support other storage types
+        switch($storageType) {
+            case 'LaravelStorage':
+                $dir = storage_path('app/files/'.$record->project_id.'/'.$record->form_id.'/'.$record->id);
+                if(file_exists($dir)) {
+                    foreach(new \DirectoryIterator($dir) as $file) {
+                        if($file->isFile())
+                            unlink($dir.'/'.$file->getFilename());
+                    }
+                } else {
+                    mkdir($dir,0775,true); //Make it!
+                }
+                break;
+            default:
+                break;
         }
 
         foreach($request->all() as $key => $value) {
@@ -432,7 +440,7 @@ class RecordController extends Controller {
         $record->save();
 
         //Store the edit
-        RevisionController::storeRevision($record,Revision::EDIT,$oldRecordCopy);
+        RevisionController::storeRevision($record,Revision::EDIT,$oldRecordCopy,$oldRecordFileCopy);
 
         //Make new preset
         if($makePreset) {
