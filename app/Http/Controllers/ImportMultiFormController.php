@@ -26,6 +26,7 @@ class ImportMultiFormController extends Controller { //TODO::CASTLE
      */
     const JSON = "JSON";
     const XML = "XML";
+    const CSV = "CSV";
 
     /**
      * Constructs controller and makes sure user is authenticated.
@@ -71,7 +72,7 @@ class ImportMultiFormController extends Controller { //TODO::CASTLE
         $formObjs = $project->forms()->get();
         $forms = [];
         foreach($formObjs as $obj) {
-            $forms[$obj->fid] = $obj->name;
+            $forms[$obj->id] = $obj->name;
         }
 
         return view('projects.importMF',compact('project','forms'));
@@ -86,7 +87,9 @@ class ImportMultiFormController extends Controller { //TODO::CASTLE
         $uid = \Auth::user()->id;
 
         $options = array();
-        $options['flid'] = 'MFf0u'.$uid;
+        $options['fid'] = 0;
+        $options['flid'] = 0;
+        $options['folder'] = 'MFf0u'.$uid;
 
         $upload_handler = new UploadHandler($options);
     }
@@ -101,8 +104,10 @@ class ImportMultiFormController extends Controller { //TODO::CASTLE
         $uid = \Auth::user()->id;
 
         $options = array();
-        $options['flid'] = 'MFf0u'.$uid;
+        $options['fid'] = 0;
+        $options['flid'] = 0;
         $options['filename'] = $filename;
+        $options['folder'] = 'MFf0u'.$uid;
         $options['deleteThat'] = true;
 
         $upload_handler = new UploadHandler($options);
@@ -152,7 +157,6 @@ class ImportMultiFormController extends Controller { //TODO::CASTLE
         $fileTypes = json_decode($request->types);
 
         $response = [];
-
         if(sizeof($fids) != sizeof($recordSets))
             return response()->json(["status"=>false,"message"=>"file_form_mismatch"],500);
 
@@ -163,7 +167,7 @@ class ImportMultiFormController extends Controller { //TODO::CASTLE
             $records = storage_path('app/tmpFiles/MFf0u'.\Auth::user()->id.'/'.$recordSets[$i]);
             $type = strtoupper($fileTypes[$i]);
 
-            $recordObjs = array();
+            $tagNames = $recordObjs = array();
 
             switch($type) {
                 case self::XML:
@@ -171,6 +175,9 @@ class ImportMultiFormController extends Controller { //TODO::CASTLE
 
                     foreach($xml->children() as $record) {
                         array_push($recordObjs, $record->asXML());
+                        foreach($record->children() as $fields) {
+                            array_push($tagNames, $fields->getName());
+                        }
                     }
 
                     break;
@@ -179,13 +186,76 @@ class ImportMultiFormController extends Controller { //TODO::CASTLE
 
                     foreach($json as $kid => $record) {
                         $recordObjs[$kid] = $record;
+                        foreach(array_keys($record) as $field) {
+                            array_push($tagNames, $field);
+                        }
+                    }
+
+                    break;
+                case self::CSV:
+                    $csv = parseCSV($records);
+
+                    foreach($csv as $kid => $record) {
+                        $recordObjs[$kid] = $record;
+                        foreach(array_keys($record) as $field) {
+                            array_push($tagNames, $field);
+                        }
                     }
 
                     break;
             }
 
+            $form = FormController::getForm($fid);
+            $tagNames = array_unique($tagNames);
+
+            $fields = $form->layout['fields'];
+            $table = '<div class="get-fid-js" fid="'.$fid.'">';
+
+            //Then build the field matchups
+            foreach($fields as $flid => $field) {
+                $table .= '<div class="form-group mt-xl half">';
+                $table .= '<div class="solid-box get-slug-js" slug="'.$flid.'">';
+                $table .= $field['name'].' ('.$flid.')';
+                $table .= '</div></div>';
+                $table .= '<div class="form-group mt-xl half">';
+                $table .= '<select class="single-select get-tag-js" data-placeholder="Select field if applicable">';
+                $table .= '<option></option>';
+                foreach($tagNames as $name) {
+                    // Matching three different naming conventions
+                    if(
+                        $flid==$name |
+                        $flid==str_replace(' ', '_', $name) |
+                        $flid==$field['name']
+                    )
+                        $table .= '<option val="'.$name.'" selected>' . $name . '</option>';
+                    else
+                        $table .= '<option val="'.$name.'">'.$name.'</option>';
+                }
+                $table .= '</select>';
+                $table .= '</div>';
+                $table .= '<div class="form-group"></div>';
+            }
+
+            //For reverse associations
+            $table .= '<div class="form-group mt-xl half">';
+            $table .= '<div class="solid-box get-slug-js" slug="reverseAssociations">reverseAssociations</div></div>';
+            $table .= '<div class="form-group mt-xl half">';
+            $table .= '<select class="single-select get-tag-js" data-placeholder="Select field if applicable">';
+            $table .= '<option></option>';
+            foreach($tagNames as $name) {
+                if($name == "reverseAssociations")
+                    $table .= '<option val="'.$name.'" selected>' . $name . '</option>';
+                else
+                    $table .= '<option val="'.$name.'">'.$name.'</option>';
+            }
+            $table .= '</select>';
+            $table .= '</div>';
+            $table .= '<div class="form-group"></div>';
+            $table .= '</div>';
+
             $data['records'] = $recordObjs;
             $data['type'] = $type;
+            $data['matchup'] = $table;
 
             $response[$fid] = $data;
         }
@@ -213,9 +283,11 @@ class ImportMultiFormController extends Controller { //TODO::CASTLE
         $recRequest['userId'] = \Auth::user()->id;
         $recRequest['api'] = true;
 
+        $matchup = $request->table[$fid];
+        $matchup['KORA ID CONNECTION'] = 'connection';
+
         $assocTag = null;
         $assocArray = [];
-        $comboAssocArray = [];
 
         if($request->type==self::XML) {
             $record = simplexml_load_string($record);
@@ -235,11 +307,10 @@ class ImportMultiFormController extends Controller { //TODO::CASTLE
                     continue;
 
                 //Deal with reverse associations and move on
-                if($key == 'reverseAssociations') {
+                if($matchup[$key] == 'reverseAssociations') {
                     if(empty($field->Record))
                         return response()->json(["status"=>false,"message"=>"xml_validation_error",
                             "record_validation_error"=>[$request->kid => "$key format is incorrect for applying reverse associations"]],500);
-                    $rAssoc = (array)$field->Record;
                     $rFinal = [];
                     foreach($field->Record as $rAssoc) {
                         $rFinal[(string)$rAssoc['flid']][] = (string)$rAssoc;
@@ -248,310 +319,22 @@ class ImportMultiFormController extends Controller { //TODO::CASTLE
                     continue;
                 }
 
-                $fieldSlug = $key;
-                $fieldMod = Field::where('slug', '=', $fieldSlug)->get()->first();
-                if(is_null($fieldMod))
-                    return response()->json(["status"=>false,"message"=>"xml_validation_error",
-                        "record_validation_error"=>[$request->kid => "Invalid provided field, $fieldSlug"]],500);
-                $flid = $fieldMod->flid;
-                $type = $fieldMod->type;
-                $simple = !is_null($field->attributes()->simple);
-
-                //TODO::modular?
-
-                if($type == 'Text' | $type == 'Rich Text' | $type == 'Integer' | $type == 'Float' | $type == 'List')
-                    $recRequest[$flid] = (string)$field;
-                else if($type == 'Multi-Select List') {
-                    if(empty($field->value))
-                        return response()->json(["status"=>false,"message"=>"xml_validation_error",
-                            "record_validation_error"=>[$request->kid => "$fieldSlug format is incorrect for a Multi-Select List Field"]],500);
-                    $recRequest[$flid] = (array)$field->value;
-                } else if($type == 'Generated List') {
-                    if(empty($field->value))
-                        return response()->json(["status"=>false,"message"=>"xml_validation_error",
-                            "record_validation_error"=>[$request->kid => "$fieldSlug format is incorrect for a Generated List Field"]],500);
-                    $recRequest[$flid] = (array)$field->value;
-                } else if($type == 'Combo List') {
-                    if(empty($field->Value))
-                        return response()->json(["status"=>false,"message"=>"xml_validation_error",
-                            "record_validation_error"=>[$request->kid => "$fieldSlug format is incorrect for a Combo List Field"]],500);
-                    $oneVals = array();
-                    $twoVals = array();
-                    $cf = FieldController::getField($flid);
-                    $nameone = Field::xmlTagClear($cf['one']['name']);
-                    $nametwo = Field::xmlTagClear($cf['two']['name']);
-                    $typeone = $cf['one']['type'];
-                    $typetwo = $cf['two']['type'];
-                    if($typeone == "Associator")
-                        $comboAssocArray[] = $flid.' 1';
-                    if($typetwo == "Associator")
-                        $comboAssocArray[] = $flid.' 2';
-                    foreach($field->Value as $val) {
-                        if(empty($val->{$nameone}))
-                            return response()->json(["status"=>false,"message"=>"xml_validation_error",
-                                "record_validation_error"=>[$request->kid => "$fieldSlug field one format is incorrect for a Combo List Field"]],500);
-                        if((string)$val->{$nameone} != '')
-                            $fone = (string)$val->{$nameone};
-                        else if(sizeof($val->{$nameone}->value) == 1)
-                            $fone = (string)$val->{$nameone}->value;
-                        else
-                            $fone = implode("[!]",(array)$val->{$nameone}->value);
-
-                        if(empty($val->{$nametwo}))
-                            return response()->json(["status"=>false,"message"=>"xml_validation_error",
-                                "record_validation_error"=>[$request->kid => "$fieldSlug field two format is incorrect for a Combo List Field"]],500);
-                        if((string)$val->{$nametwo} != '')
-                            $ftwo = (string)$val->{$nametwo};
-                        else if(sizeof($val->{$nametwo}->value) == 1)
-                            $ftwo = (string)$val->{$nametwo}->value;
-                        else
-                            $ftwo = implode("[!]",(array)$val->{$nametwo}->value);
-
-                        array_push($oneVals, $fone);
-                        array_push($twoVals, $ftwo);
-                    }
-                    $recRequest[$flid] = '';
-                    $recRequest[$flid . '_combo_one'] = $oneVals;
-                    $recRequest[$flid . '_combo_two'] = $twoVals;
-                } else if($type == 'Date') {
-                    if($simple) {
-                        $dateParts = explode('/',(string)$field);
-                        $recRequest['circa_' . $flid] = 0;
-                        $recRequest['month_' . $flid] = $dateParts[0];
-                        $recRequest['day_' . $flid] = $dateParts[1];
-                        $recRequest['year_' . $flid] = $dateParts[2];
-                        $recRequest['era_' . $flid] = 'CE';
-                        $recRequest[$flid] = '';
-                    } else {
-                        if(empty($field->Month) && empty($field->Day) && empty($field->Year))
-                            return response()->json(["status"=>false,"message"=>"xml_validation_error",
-                                "record_validation_error"=>[$request->kid => "$fieldSlug format is incorrect for a Date Field"]],500);
-                        $recRequest['circa_' . $flid] = (string)$field->Circa;
-                        $recRequest['month_' . $flid] = (string)$field->Month;
-                        $recRequest['day_' . $flid] = (string)$field->Day;
-                        $recRequest['year_' . $flid] = (string)$field->Year;
-                        $recRequest['era_' . $flid] = (string)$field->Era;
-                        $recRequest[$flid] = '';
-                    }
-                } else if($type == 'Schedule') {
-                    $events = array();
-                    if(empty($field->Event))
-                        return response()->json(["status"=>false,"message"=>"xml_validation_error",
-                            "record_validation_error"=>[$request->kid => "$fieldSlug format is incorrect for a Schedule Field"]],500);
-                    foreach($field->Event as $event) {
-                        if(empty($event->Title) | empty($event->Begin) | empty($event->End))
-                            return response()->json(["status"=>false,"message"=>"xml_validation_error",
-                                "record_validation_error"=>[$request->kid => "$fieldSlug event format is incorrect for a Schedule Field"]],500);
-                        $string = $event->Title . ': ' . $event->Begin . ' - ' . $event->End;
-                        array_push($events, $string);
-                    }
-                    $recRequest[$flid] = $events;
-                } else if($type == 'Geolocator') {
-                    $geo = array();
-                    if(empty($field->Location))
-                        return response()->json(["status"=>false,"message"=>"xml_validation_error",
-                            "record_validation_error"=>[$request->kid => "$fieldSlug format is incorrect for a Geolocator Field"]],500);
-                    foreach($field->Location as $loc) {
-                        $geoReq = new Request();
-
-                        if(!is_null($loc->Lat)) {
-                            $geoReq->type = 'latlon';
-                            $geoReq->lat = (float)$loc->Lat;
-                            $geoReq->lon = (float)$loc->Lon;
-                        } else if(!is_null($loc->Zone)) {
-                            $geoReq->type = 'utm';
-                            $geoReq->zone = (string)$loc->Zone;
-                            $geoReq->east = (float)$loc->East;
-                            $geoReq->north = (float)$loc->North;
-                        } else if(!is_null($loc->Address)) {
-                            $geoReq->type = 'geo';
-                            $geoReq->addr = (string)$loc->Address;
-                        }
-
-                        if(empty($loc->Desc))
-                            return response()->json(["status"=>false,"message"=>"xml_validation_error",
-                                "record_validation_error"=>[$request->kid => "$fieldSlug description format is incorrect for a Geolocator Field"]],500);
-                        $string = '[Desc]' . $loc->Desc . '[Desc]';
-                        $string .= GeolocatorField::geoConvert($geoReq);
-                        array_push($geo, $string);
-                    }
-                    $recRequest[$flid] = $geo;
-                } else if($type == 'Documents' | $type == 'Playlist' | $type == 'Video' | $type == '3D-Model') {
-                    $files = array();
-                    if(is_null($originRid))
-                        $currDir = storage_path('app/tmpFiles/impU' . \Auth::user()->id);
-                    else
-                        $currDir = storage_path('app/tmpFiles/impU' . \Auth::user()->id . '/r' . $originRid . '/fl' . $flid);
-                    $newDir = storage_path('app/tmpFiles/f' . $flid . 'u' . \Auth::user()->id . '/r' . $request->kid);
-                    if(file_exists($newDir)) {
-                        foreach(new \DirectoryIterator($newDir) as $file) {
-                            if($file->isFile()) {
-                                unlink($newDir . '/' . $file->getFilename());
-                            }
-                        }
-                    } else {
-                        mkdir($newDir, 0775, true);
-                    }
-                    if($simple) {
-                        $name = (string)$field;
-                        //move file from imp temp to tmp files
-                        if(!file_exists($currDir . '/' . $name)) {
-                            //Before we fail, let's see first if it's just failing because the originRid was specified
-                            // and not because the file doesn't actually exist. We will now force look into the ZIPs root folder
-                            $currDir = storage_path('app/tmpFiles/impU' . \Auth::user()->id);
-                            if(!file_exists($currDir . '/' . $name))
-                                return response()->json(["status" => false, "message" => "xml_validation_error",
-                                    "record_validation_error" => [$request->kid => "$fieldSlug: trouble finding file $name"]], 500);
-                        }
-                        copy($currDir . '/' . $name, $newDir . '/' . $name);
-                        //add input for this file
-                        array_push($files, $name);
-                    } else {
-                        if(empty($field->File))
-                            return response()->json(["status"=>false,"message"=>"xml_validation_error",
-                                "record_validation_error"=>[$request->kid => "$fieldSlug format is incorrect for a File Type Field"]],500);
-                        foreach ($field->File as $file) {
-                            $name = (string)$file->Name;
-                            //move file from imp temp to tmp files
-                            if(!file_exists($currDir . '/' . $name)) {
-                                //Before we fail, let's see first if it's just failing because the originRid was specified
-                                // and not because the file doesn't actually exist. We will now force look into the ZIPs root folder
-                                $currDir = storage_path('app/tmpFiles/impU' . \Auth::user()->id);
-                                if(!file_exists($currDir . '/' . $name))
-                                    return response()->json(["status" => false, "message" => "xml_validation_error",
-                                        "record_validation_error" => [$request->kid => "$fieldSlug: trouble finding file $name"]], 500);
-                            }
-                            copy($currDir . '/' . $name, $newDir . '/' . $name);
-                            //add input for this file
-                            array_push($files, $name);
-                        }
-                    }
-                    $recRequest['file' . $flid] = $files;
-                    $recRequest[$flid] = 'f' . $flid . 'u' . \Auth::user()->id . '/r' . $request->kid;
-                } else if($type == 'Gallery') {
-                    $files = array();
-                    $captions = array();
-                    if(is_null($originRid))
-                        $currDir = storage_path('app/tmpFiles/impU' . \Auth::user()->id);
-                    else
-                        $currDir = storage_path('app/tmpFiles/impU' . \Auth::user()->id . '/r' . $originRid . '/fl' . $flid);
-                    $newDir = storage_path('app/tmpFiles/f' . $flid . 'u' . \Auth::user()->id . '/r' . $request->kid);
-                    if(file_exists($newDir)) {
-                        foreach(new \DirectoryIterator($newDir) as $file) {
-                            if($file->isFile())
-                                unlink($newDir . '/' . $file->getFilename());
-                        }
-                        if(file_exists($newDir . '/thumbnail')) {
-                            foreach(new \DirectoryIterator($newDir . '/thumbnail') as $file) {
-                                if($file->isFile())
-                                    unlink($newDir . '/thumbnail/' . $file->getFilename());
-                            }
-                        }
-                        if(file_exists($newDir . '/medium')) {
-                            foreach(new \DirectoryIterator($newDir . '/medium') as $file) {
-                                if($file->isFile())
-                                    unlink($newDir . '/medium/' . $file->getFilename());
-                            }
-                        }
-                    } else {
-                        mkdir($newDir, 0775, true);
-                        mkdir($newDir . '/thumbnail', 0775, true);
-                        mkdir($newDir . '/medium', 0775, true);
-                    }
-                    if($simple) {
-                        $name = (string)$field;
-                        //move file from imp temp to tmp files
-                        if(!file_exists($currDir . '/' . $name)) {
-                            //Before we fail, let's see first if it's just failing because the originRid was specified
-                            // and not because the file doesn't actually exist. We will now force look into the ZIPs root folder
-                            $currDir = storage_path('app/tmpFiles/impU' . \Auth::user()->id);
-                            if(!file_exists($currDir . '/' . $name))
-                                return response()->json(["status" => false, "message" => "xml_validation_error",
-                                    "record_validation_error" => [$request->kid => "$fieldSlug: trouble finding file $name"]], 500);
-                        }
-                        copy($currDir . '/' . $name, $newDir . '/' . $name);
-                        if(file_exists($currDir . '/thumbnail'))
-                            copy($currDir . '/thumbnail/' . $name, $newDir . '/thumbnail/' . $name);
-                        else {
-                            $smallParts = explode('x', FieldController::getFieldOption($field, 'ThumbSmall'));
-                            $tImage = new \Imagick($newDir . '/' . $name);
-                            $tImage->thumbnailImage($smallParts[0], $smallParts[1], true);
-                            $tImage->writeImage($newDir . '/thumbnail/' . $name);
-                        }
-                        if(file_exists($currDir . '/medium'))
-                            copy($currDir . '/medium/' . $name, $newDir . '/medium/' . $name);
-                        else {
-                            $largeParts = explode('x', FieldController::getFieldOption($field, 'ThumbLarge'));
-                            $mImage = new \Imagick($newDir . '/' . $name);
-                            $mImage->thumbnailImage($largeParts[0], $largeParts[1], true);
-                            $mImage->writeImage($newDir . '/medium/' . $name);
-                        }
-                        //add input for this file
-                        array_push($files, $name);
-                        array_push($captions, '');
-                    } else {
-                        if(empty($field->File))
-                            return response()->json(["status"=>false,"message"=>"xml_validation_error",
-                                "record_validation_error"=>[$request->kid => "$fieldSlug format is incorrect for a File Type Field"]],500);
-                        foreach($field->File as $file) {
-                            $name = (string)$file->Name;
-                            $caption = isset($file->Caption) ? (string)$file->Caption : '';
-                            //move file from imp temp to tmp files
-                            if(!file_exists($currDir . '/' . $name)) {
-                                //Before we fail, let's see first if it's just failing because the originRid was specified
-                                // and not because the file doesn't actually exist. We will now force look into the ZIPs root folder
-                                $currDir = storage_path('app/tmpFiles/impU' . \Auth::user()->id);
-                                if(!file_exists($currDir . '/' . $name))
-                                    return response()->json(["status" => false, "message" => "xml_validation_error",
-                                        "record_validation_error" => [$request->kid => "$fieldSlug: trouble finding file $name"]], 500);
-                            }
-                            copy($currDir . '/' . $name, $newDir . '/' . $name);
-                            if(file_exists($currDir . '/thumbnail'))
-                                copy($currDir . '/thumbnail/' . $name, $newDir . '/thumbnail/' . $name);
-                            else {
-                                $smallParts = explode('x', FieldController::getFieldOption($field, 'ThumbSmall'));
-                                $tImage = new \Imagick($newDir . '/' . $name);
-                                $tImage->thumbnailImage($smallParts[0], $smallParts[1], true);
-                                $tImage->writeImage($newDir . '/thumbnail/' . $name);
-                            }
-                            if(file_exists($currDir . '/medium'))
-                                copy($currDir . '/medium/' . $name, $newDir . '/medium/' . $name);
-                            else {
-                                $largeParts = explode('x', FieldController::getFieldOption($field, 'ThumbLarge'));
-                                $mImage = new \Imagick($newDir . '/' . $name);
-                                $mImage->thumbnailImage($largeParts[0], $largeParts[1], true);
-                                $mImage->writeImage($newDir . '/medium/' . $name);
-                            }
-                            //add input for this file
-                            array_push($files, $name);
-                            array_push($captions, $caption);
-                        }
-                    }
-                    $recRequest['file' . $flid] = $files;
-                    $recRequest['file_captions' . $flid] = $captions;
-                    $recRequest[$flid] = 'f' . $flid . 'u' . \Auth::user()->id . '/r' . $request->kid;
-                } else if($type == 'Associator') {
-                    if(empty($field->Record))
-                        return response()->json(["status"=>false,"message"=>"xml_validation_error",
-                            "record_validation_error"=>[$request->kid => "$fieldSlug format is incorrect for an Associator Field"]],500);
-                    //If KID format, treat value as normal, else we assume it will be built as a cross-Form association
-                    $aVals = (array)$field->Record;
-                    $aRes = array();
-                    $aTag = array();
-                    foreach($aVals as $aVal) {
-                        if(Record::isKIDPattern($aVal))
-                            array_push($aRes,$aVal);
-                        else
-                            array_push($aTag,$aVal);
-                    }
-
-                    if(sizeof($aRes)>0)
-                        $recRequest[$flid] = $aRes;
-                    if(sizeof($aTag)>0)
-                        $assocArray[$flid] = $aTag;
+                // TODO::this has to be tested still
+                if($matchup[$flid] == 'connection') {
+                    $recRequest['connection'] = (string)$field;
+                    continue;
                 }
+
+                $flid = $matchup[$key];
+                if(!isset($form->layout['fields'][$flid]))
+                    return response()->json(["status"=>false,"message"=>"xml_validation_error",
+                        "record_validation_error"=>[$request->kid => "Invalid provided field, $flid"]],500);
+
+                $fieldMod = $form->layout['fields'][$flid];
+                $typedField = $form->getFieldModel($fieldMod['type']);
+                $recRequest = $typedField->processImportDataXML($flid,$fieldMod,$field,$recRequest);
             }
-        } else if($request->type==self::JSON) {
+        } else if($request->type==self::JSON | $request->type==self::CSV) {
             $originKid = $request->kid;
             $originRid = null;
             if(!is_null($originKid)) {
@@ -562,8 +345,12 @@ class ImportMultiFormController extends Controller { //TODO::CASTLE
             }
 
             foreach($record as $slug => $field) {
-                //If value is not set, we assume no value so move on
-                if(!isset($field['value']))
+                //Just in case there are extra/unused fields in the JSON
+                if(!array_key_exists($slug,$matchup))
+                    continue;
+
+                //If value is not set, move on
+                if(!$field | is_null($field))
                     continue;
 
                 //Deal with reverse associations and move on
@@ -572,223 +359,23 @@ class ImportMultiFormController extends Controller { //TODO::CASTLE
                     continue;
                 }
 
-                $fieldSlug = $slug;
-                $flid = Field::where('slug', '=', $fieldSlug)->get()->first()->flid;
-                $type = $field['type'];
-
-                //Type wasnt provided so we have to hunt for it
-                if(is_null($type))
-                    $type = Field::where('slug', '=', $fieldSlug)->get()->first()->type;
-
-                if(!isset($field['value']))
-                    return response()->json(["status"=>false,"message"=>"json_validation_error",
-                        "record_validation_error"=>[$request->kid => "$fieldSlug is missing value index"]],500);
-
-                if($type == 'Text') {
-                    $recRequest[$flid] = $field['value'];
-                } else if($type == 'Rich Text') {
-                    $recRequest[$flid] = $field['value'];
-                } else if($type == 'Integer') {
-                    $recRequest[$flid] = $field['value'];
-                } else if($type == 'Float') {
-                    $recRequest[$flid] = $field['value'];
-                } else if($type == 'List') {
-                    $recRequest[$flid] = $field['value'];
-                } else if($type == 'Multi-Select List') {
-                    $recRequest[$flid] = $field['value'];
-                } else if($type == 'Generated List') {
-                    $recRequest[$flid] = $field['value'];
-                } else if($type == 'Combo List') {
-                    $oneVals = array();
-                    $twoVals = array();
-                    $cf = FieldController::getField($flid);
-                    $nameone = Field::xmlTagClear($cf['one']['name']);
-                    $nametwo = Field::xmlTagClear($cf['two']['name']);
-                    $typeone = $cf['one']['type'];
-                    $typetwo = $cf['two']['type'];
-                    if($typeone == "Associator")
-                        $comboAssocArray[] = $flid.' 1';
-                    if($typetwo == "Associator")
-                        $comboAssocArray[] = $flid.' 2';
-                    foreach($field['value'] as $val) {
-                        if(!isset($val[$nameone]))
-                            return response()->json(["status"=>false,"message"=>"json_validation_error",
-                                "record_validation_error"=>[$request->kid => "$fieldSlug is missing $nameone index for a value"]],500);
-                        if(!isset($val[$nametwo]))
-                            return response()->json(["status"=>false,"message"=>"json_validation_error",
-                                "record_validation_error"=>[$request->kid => "$fieldSlug is missing $nametwo index for a value"]],500);
-
-                        if(!is_array($val[$nameone]))
-                            $fone = $val[$nameone];
-                        else
-                            $fone = implode("[!]",$val[$nameone]);
-
-
-                        if(!is_array($val[$nametwo]))
-                            $ftwo = $val[$nametwo];
-                        else
-                            $ftwo = implode("[!]",$val[$nametwo]);
-
-                        array_push($oneVals, $fone);
-                        array_push($twoVals, $ftwo);
-                    }
-                    $recRequest[$flid] = '';
-                    $recRequest[$flid . '_combo_one'] = $oneVals;
-                    $recRequest[$flid . '_combo_two'] = $twoVals;
-                } else if($type == 'Date') {
-                    if(!isset($field['value']['month']) && !isset($field['value']['day']) && !isset($field['value']['year']))
-                        return response()->json(["status"=>false,"message"=>"json_validation_error",
-                            "record_validation_error"=>[$request->kid => "$fieldSlug is missing month, day, and year indices"]],500);
-                    $recRequest['circa_' . $flid] = $field['value']['circa'];
-                    $recRequest['month_' . $flid] = $field['value']['month'];
-                    $recRequest['day_' . $flid] = $field['value']['day'];
-                    $recRequest['year_' . $flid] = $field['value']['year'];
-                    $recRequest['era_' . $flid] = $field['value']['era'];
-                    $recRequest[$flid] = '';
-                } else if($type == 'Schedule') {
-                    $events = array();
-                    foreach($field['value'] as $event) {
-                        if(!isset($event['desc']) | !isset($event['begin']) | !isset($event['end']))
-                            return response()->json(["status"=>false,"message"=>"json_validation_error",
-                                "record_validation_error"=>[$request->kid => "$fieldSlug is missing desc, begin, or end indices for an event"]],500);
-
-                        $string = $event['desc'] . ': ' . $event['begin'] . ' - ' . $event['end'];
-                        array_push($events, $string);
-                    }
-                    $recRequest[$flid] = $events;
-                } else if($type == 'Geolocator') {
-                    $geo = array();
-                    foreach($field['value'] as $loc) {
-                        $geoReq = new Request();
-
-                        if(isset($loc['lat'])) {
-                            $geoReq->type = 'latlon';
-                            $geoReq->lat = $loc['lat'];
-                            $geoReq->lon = $loc['lon'];
-                        } else if(isset($loc['zone'])) {
-                            $geoReq->type = 'utm';
-                            $geoReq->zone = $loc['zone'];
-                            $geoReq->east = $loc['east'];
-                            $geoReq->north = $loc['north'];
-                        } else if(isset($loc['address'])) {
-                            $geoReq->type = 'geo';
-                            $geoReq->addr = $loc['address'];
-                        }
-
-                        if(!isset($loc['desc']))
-                            return response()->json(["status"=>false,"message"=>"json_validation_error",
-                                "record_validation_error"=>[$request->kid => "$fieldSlug is missing desc for a location"]],500);
-                        $string = '[Desc]' . $loc['desc'] . '[Desc]';
-                        $string .= GeolocatorField::geoConvert($geoReq);
-                        array_push($geo, $string);
-                    }
-                    $recRequest[$flid] = $geo;
-                } else if($type == 'Documents' | $type == 'Playlist' | $type == 'Video' | $type == '3D-Model') {
-                    $files = array();
-                    if(is_null($originRid))
-                        $currDir = storage_path('app/tmpFiles/impU' . \Auth::user()->id);
-                    else
-                        $currDir = storage_path('app/tmpFiles/impU' . \Auth::user()->id . '/r' . $originRid . '/fl' . $flid);
-                    $newDir = storage_path('app/tmpFiles/f' . $flid . 'u' . \Auth::user()->id . '/r' . $request->kid);
-                    if(file_exists($newDir)) {
-                        foreach(new \DirectoryIterator($newDir) as $file) {
-                            if($file->isFile()) {
-                                unlink($newDir . '/' . $file->getFilename());
-                            }
-                        }
-                    } else {
-                        mkdir($newDir, 0775, true);
-                    }
-                    foreach($field['value'] as $file) {
-                        if(!isset($file['name']))
-                            return response()->json(["status"=>false,"message"=>"json_validation_error",
-                                "record_validation_error"=>[$request->kid => "$fieldSlug is missing name for a file"]],500);
-                        $name = $file['name'];
-                        //move file from imp temp to tmp files
-                        copy($currDir . '/' . $name, $newDir . '/' . $name);
-                        //add input for this file
-                        array_push($files, $name);
-                    }
-                    $recRequest['file' . $flid] = $files;
-                    $recRequest[$flid] = 'f' . $flid . 'u' . \Auth::user()->id . '/r' . $request->kid;
-                } else if($type == 'Gallery') {
-                    $files = array();
-                    $captions = array();
-                    if(is_null($originRid))
-                        $currDir = storage_path('app/tmpFiles/impU' . \Auth::user()->id);
-                    else
-                        $currDir = storage_path('app/tmpFiles/impU' . \Auth::user()->id . '/r' . $originRid . '/fl' . $flid);
-                    $newDir = storage_path('app/tmpFiles/f' . $flid . 'u' . \Auth::user()->id . '/r' . $request->kid);
-                    if(file_exists($newDir)) {
-                        foreach(new \DirectoryIterator($newDir) as $file) {
-                            if($file->isFile())
-                                unlink($newDir . '/' . $file->getFilename());
-                        }
-                        if(file_exists($newDir . '/thumbnail')) {
-                            foreach(new \DirectoryIterator($newDir . '/thumbnail') as $file) {
-                                if($file->isFile())
-                                    unlink($newDir . '/thumbnail/' . $file->getFilename());
-                            }
-                        }
-                        if(file_exists($newDir . '/medium')) {
-                            foreach(new \DirectoryIterator($newDir . '/medium') as $file) {
-                                if($file->isFile())
-                                    unlink($newDir . '/medium/' . $file->getFilename());
-                            }
-                        }
-                    } else {
-                        mkdir($newDir, 0775, true);
-                        mkdir($newDir . '/thumbnail', 0775, true);
-                        mkdir($newDir . '/medium', 0775, true);
-                    }
-                    foreach($field['value'] as $file) {
-                        if(!isset($file['name']))
-                            return response()->json(["status"=>false,"message"=>"json_validation_error",
-                                "record_validation_error"=>[$request->kid => "$fieldSlug is missing name for a file"]],500);
-                        $name = $file['name'];
-                        $caption = isset($file['caption']) ? $file['caption'] : '';
-                        //move file from imp temp to tmp files
-                        copy($currDir . '/' . $name, $newDir . '/' . $name);
-                        if(file_exists($currDir . '/thumbnail'))
-                            copy($currDir . '/thumbnail/' . $name, $newDir . '/thumbnail/' . $name);
-                        else {
-                            $smallParts = explode('x',FieldController::getFieldOption($field,'ThumbSmall'));
-                            $tImage = new \Imagick($newDir . '/' . $name);
-                            $tImage->thumbnailImage($smallParts[0],$smallParts[1],true);
-                            $tImage->writeImage($newDir . '/thumbnail/' . $name);
-                        }
-                        if(file_exists($currDir . '/medium'))
-                            copy($currDir . '/medium/' . $name, $newDir . '/medium/' . $name);
-                        else {
-                            $largeParts = explode('x',FieldController::getFieldOption($field,'ThumbLarge'));
-                            $mImage = new \Imagick($newDir . '/' . $name);
-                            $mImage->thumbnailImage($largeParts[0],$largeParts[1],true);
-                            $mImage->writeImage($newDir . '/medium/' . $name);
-                        }
-                        //add input for this file
-                        array_push($files, $name);
-                        array_push($captions, $caption);
-                    }
-                    $recRequest['file' . $flid] = $files;
-                    $recRequest['file_captions' . $flid] = $captions;
-                    $recRequest[$flid] = 'f' . $flid . 'u' . \Auth::user()->id . '/r' . $request->kid;
-                } else if($type == 'Associator') {
-                    //If KID format, treat value as normal, else we assume it will be built as a cross-Form association
-                    $aVals = $field['value'];
-                    $aRes = array();
-                    $aTag = array();
-                    foreach($aVals as $aVal) {
-                        if(Record::isKIDPattern($aVal))
-                            array_push($aRes,$aVal);
-                        else
-                            array_push($aTag,$aVal);
-                    }
-
-                    if(sizeof($aRes)>0)
-                        $recRequest[$flid] = $aRes;
-                    if(sizeof($aTag)>0)
-                        $assocArray[$flid] = $aTag;
+                 //Deal with reverse associations and move on
+                if($matchup[$slug] == 'reverseAssociations') {
+                    $recRequest['newRecRevAssoc'] = $field;
+                    continue;
                 }
+
+                //Kora id connection for associator
+                if($matchup[$slug] == 'connection') {
+                    $recRequest['connection'] = $field;
+                    continue;
+                }
+
+                $flid = $matchup[$slug];
+
+                $fieldMod = $form->layout['fields'][$flid];
+                $typedField = $form->getFieldModel($fieldMod['type']);
+                $recRequest = $typedField->processImportData($flid,$fieldMod,$field,$recRequest);
             }
         }
 
@@ -796,9 +383,6 @@ class ImportMultiFormController extends Controller { //TODO::CASTLE
         $result = $recCon->store($pid,$fid,$recRequest);
 
         $resData = $result->getData(true);
-        $resData['assocTag'] = $assocTag;
-        $resData['assocArray'] = $assocArray;
-        $resData['comboAssocArray'] = $comboAssocArray;
         $result->setData($resData);
 
         return $result;
@@ -817,65 +401,146 @@ class ImportMultiFormController extends Controller { //TODO::CASTLE
         if(!\Auth::user()->isProjectAdmin($project))
             return redirect('projects')->with('k3_global_error', 'not_project_admin');
 
-        $assocTagConvert = json_decode($request->assocTagConvert); //Conversion of record tag identifiers to KIDs
-        $crossFormAssoc = json_decode($request->crossFormAssoc); //Actual associator field data to convert
-        $comboCrossAssoc = json_decode($request->comboCrossAssoc); //Combo lists with assoc values we need to check
+        foreach($request->fids as $fid) {
+            $form = FormController::getForm($fid);
+            if (
+                $request->has('assocTagConvert') &&
+                $request->has('crossFormAssoc') &&
+                array_key_exists($fid, $request->assocTagConvert) &&
+                array_key_exists($fid, $request->crossFormAssoc)
+            ) {
+                //Conversion of record tag identifiers to KIDs
+                $assocTagConvert = $request->assocTagConvert[$fid];
 
-        foreach($crossFormAssoc as $kid => $data) {
-            $record = Record::where('kid','=',$kid)->first();
+                //Actual associator field data to convert
+                $crossFormAssoc = $request->crossFormAssoc[$fid];
+                foreach($crossFormAssoc as $kid => $data) {
+                    $record = RecordController::getRecord($kid);
 
-            foreach($data as $flid => $akids) {
-                $field = FieldController::getField($flid);
+                    if ($record) {
+                        foreach($data as $flid => $akids) {
+                            //Get values
+                            $values = array();
+                            foreach($akids as $tag) {
+                                array_push($values,$assocTagConvert->{$tag});
+                            }
 
-                //Get values
-                $values = array();
-                foreach($akids as $tag) {
-                    array_push($values,$assocTagConvert->{$tag});
-                }
-
-                $typedField = $field->getTypedFieldFromRID($record->rid);
-                if(!is_null($typedField)) {
-                    //add records to existing assoc
-                    $typedField->addRecords($values);
-                } else {
-                    //create a new one for this record
-                    $typedField = $field->getTypedField();
-                    $typedField->createNewRecordField($field, $record, $values, $request);
+                            $record->{$flid} = json_encode($values);
+                        }
+                    }
                 }
             }
-        }
 
-        foreach($comboCrossAssoc as $kid => $data) {
-            $record = Record::where('kid','=',$kid)->first();
+            if (
+                $request->has('kids') &&
+                $request->has('connections') &&
+                array_key_exists($fid, $request->kids) &&
+                array_key_exists($fid, $request->connections)
+            ) {
+                    //Single form assoc to new record
+                $kids = $request->kids[$fid];
+                $connections = $request->connections[$fid];
 
-            $filtered = array_unique($data);
+                $fieldsArray = $form->layout['fields'];
 
-            foreach($filtered as $cca) {
-                $parts = explode(' ', $cca);
-                $flid = $parts[0];
-                $subfield = $parts[1];
+                $assocField = array();
+                foreach ($fieldsArray as $flid => $field) {
+                    if($field['type'] == \App\Form::_ASSOCIATOR)
+                        $assocField[$flid] = $field;
+                }
 
-                $rows = DB::table(ComboListField::SUPPORT_NAME)
-                    ->where('rid','=',$record->rid)
-                    ->where('flid','=',$flid)
-                    ->where('field_num','=',$subfield)->get()->all();
-
-                foreach($rows as $row) {
-                    $newVals = array();
-                    $vals = explode('[!]',$row->data);
-
-                    foreach($vals as $val) {
-                        if(Record::isKIDPattern($val))
-                            array_push($newVals,$val);
-                        else
-                            array_push($newVals,$assocTagConvert->{$val});
+                if($assocField) {
+                    foreach($kids as $kid) {
+                        $record = RecordController::getRecord($kid);
+                        $key = key($assocField);
+                        $assoc = json_decode($record->{$key});
+                        if($assoc) {
+                            foreach ($connections as $connection => $kid) {
+                                for($i=0;$i<count($assoc);$i++) {
+                                    if($assoc[$i] == $connection) {
+                                        $assoc[$i] = $kid;
+                                    }
+                                }
+                            }
+                            $record->{$key} = json_encode($assoc);
+                            $record->save();
+                        }
                     }
-
-                    DB::table(ComboListField::SUPPORT_NAME)
-                        ->where('id','=',$row->id)
-                        ->update(['data' => implode('[!]',$newVals)]);
                 }
             }
         }
     }
+
+    /**
+     * Downloads the file with all the failed records.
+     *
+     * @param  int $pid - Project ID
+     * @param  Request $request
+     */
+    public function downloadFailedRecords($pid, Request $request) {
+        $failedRecords = json_decode($request->failures);
+        $project = ProjectController::getProject($pid);
+
+        if($request->type=='JSON' | $request->type=='CSV')
+            $records = [];
+        else if($request->type=='XML')
+            $records = '<?xml version="1.0" encoding="utf-8"?><Records>';
+
+        foreach($failedRecords as $element) {
+            if($request->type=='JSON' | $request->type=='CSV')
+                $records[$element[0]] = $element[1];
+            else if($request->type=='XML')
+                $records .= $element[1];
+        }
+
+        if($request->type=='JSON'  | $request->type=='CSV') {
+            header("Content-Disposition: attachment; filename=" . $project->name . '_failedImports.json');
+            header("Content-Type: application/octet-stream; ");
+
+            echo json_encode($records);
+            exit;
+        }
+        else if($request->type=='XML') {
+            $records .= '</Records>';
+
+            header("Content-Disposition: attachment; filename=" . $project->name . '_failedImports.xml');
+            header("Content-Type: application/octet-stream; ");
+
+            echo $records;
+            exit;
+        }
+    }
+
+    /**
+     * Downloads the file with the reasons why records failed.
+     *
+     * @param  int $pid - Project ID
+     * @param  Request $request
+     */
+    public function downloadFailedReasons($pid, Request $request) {
+        $failedRecords = json_decode($request->failures);
+        $project = ProjectController::getProject($pid);
+
+        $messages = [];
+
+        foreach($failedRecords as $element) {
+            $id = $element[0];
+            if(isset($element[2]->responseJSON->record_validation_error)) {
+                $messageArray = $element[2]->responseJSON->record_validation_error;
+                foreach($messageArray as $message) {
+                    if($message != '' && $message != ' ')
+                        $messages[$id] = $message;
+                }
+            } else {
+                $messages[$id] = "Unable to determine error. This is usually caused by a structure issue in your XML/JSON, or an unexpected bug in Kora3.";
+            }
+        }
+
+        header("Content-Disposition: attachment; filename=" . $project->name . '_importExplain.json');
+        header("Content-Type: application/octet-stream; ");
+
+        echo json_encode($messages);
+        exit;
+    }
+
 }

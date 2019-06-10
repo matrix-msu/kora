@@ -121,6 +121,7 @@ class ImportController extends Controller {
      * @return array - Contains html for table as well as list of record objects
      */
     public function matchupFields($pid, $fid, Request $request) {
+        // CASTLE::this step needs to delete contents of recordU
         $form = FormController::getForm($fid);
 
         if(!(\Auth::user()->isFormAdmin($form)))
@@ -165,7 +166,6 @@ class ImportController extends Controller {
                     }
                 }
 
-                $tagNames = array_unique($tagNames);
                 break;
             case self::JSON:
                 $json = json_decode(file_get_contents($request->file('records')), true);
@@ -177,10 +177,9 @@ class ImportController extends Controller {
                     }
                 }
 
-                $tagNames = array_unique($tagNames);
                 break;
             case self::CSV:
-                $csv = self::parseCSV($request->file('records'));
+                $csv = parseCSV($request->file('records'));
 
                 foreach($csv as $kid => $record) {
                     $recordObjs[$kid] = $record;
@@ -189,9 +188,10 @@ class ImportController extends Controller {
                     }
                 }
 
-                $tagNames = array_unique($tagNames);
                 break;
         }
+
+        $tagNames = array_unique($tagNames);
 
         $fields = $form->layout['fields'];
         //Build the Labels first
@@ -214,7 +214,12 @@ class ImportController extends Controller {
             $table .= '<select class="single-select get-tag-js" data-placeholder="Select field if applicable">';
             $table .= '<option></option>';
             foreach($tagNames as $name) {
-                if($flid==$name)
+                // Matching three different naming conventions
+                if(
+                    $flid==$name |
+                    $flid==str_replace(' ', '_', $name) |
+                    $flid==$field['name']
+                )
                     $table .= '<option val="'.$name.'" selected>' . $name . '</option>';
                 else
                     $table .= '<option val="'.$name.'">'.$name.'</option>';
@@ -301,6 +306,12 @@ class ImportController extends Controller {
                         $rFinal[(string)$rAssoc['flid']][] = (string)$rAssoc;
                     }
                     $recRequest['newRecRevAssoc'] = $rFinal;
+                    continue;
+                }
+
+                // TODO::this has to be tested still
+                if($matchup[$flid] == 'connection') {
+                    $recRequest['connection'] = (string)$field;
                     continue;
                 }
 
@@ -396,19 +407,19 @@ class ImportController extends Controller {
         $failedRecords = json_decode($request->failures);
         $form = FormController::getForm($fid);
 
-        if($request->type=='JSON')
+        if($request->type=='JSON' | $request->type=='CSV')
             $records = [];
         else if($request->type=='XML')
             $records = '<?xml version="1.0" encoding="utf-8"?><Records>';
 
         foreach($failedRecords as $element) {
-            if($request->type=='JSON')
+            if($request->type=='JSON' | $request->type=='CSV')
                 $records[$element[0]] = $element[1];
             else if($request->type=='XML')
                 $records .= $element[1];
         }
 
-        if($request->type=='JSON') {
+        if($request->type=='JSON'  | $request->type=='CSV') {
             header("Content-Disposition: attachment; filename=" . $form->name . '_failedImports.json');
             header("Content-Type: application/octet-stream; ");
 
@@ -1218,45 +1229,5 @@ class ImportController extends Controller {
         }
 
         return redirect('projects')->with('k3_global_success', 'project_imported');
-    }
-
-    private function parseCSV($record) {
-        if (($handle = fopen($record, "r")) !== FALSE) {
-            $row = 0;
-            $result = $fields = $ids = $data = $records = array();
-            while (($data = fgetcsv($handle, 0, ",")) !== FALSE) {
-                $num = count($data);
-                for ($c=0; $c < $num; $c++) {
-                    if ($row == 0) {
-                        $result[$c] = [];
-                        array_push($fields, $data[$c]);
-                    } else {
-                        if($data[$c]) {
-                            if(!in_array($row, $ids))
-                                array_push($ids, $row);
-                            array_push($result[$c], array($row => $data[$c]));
-                        }
-                    }
-                }
-                $row++;
-            }
-            fclose($handle);
-            for ($i=0; $i < count($fields); $i++) {
-                if ($result[$i])
-                    $data[$fields[$i]] = $result[$i];
-            }
-            foreach ($ids as $id) {
-                $record = array();
-                foreach($data as $field => $pairs) {
-                    $value = '';
-                    foreach($pairs as $pair)
-                        if(array_key_exists($id, $pair))
-                            $value = $pair[$id];
-                    $record[$field] = $value;
-                }
-                array_push($records, $record);
-            }
-            return $records;
-        }
     }
 }
