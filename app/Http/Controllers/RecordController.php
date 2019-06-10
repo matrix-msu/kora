@@ -349,10 +349,7 @@ class RecordController extends Controller {
                 if(file_exists($file_path)) {
                     foreach(new \DirectoryIterator($file_path) as $file) {
                         if($file->isFile()) {
-                            //Strip the identifier tag
-                            $nameParts = explode('_',$file->getFilename());
-                            $editTmpName = array_pop($nameParts);
-                            copy($file_path . '/' . $file->getFilename(), $dirTmp . '/' . $editTmpName);
+                            copy($file_path . '/' . $file->getFilename(), $dirTmp . '/' . $file->getFilename());
                         }
                     }
                 }

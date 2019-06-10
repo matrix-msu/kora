@@ -670,6 +670,7 @@ class HistoricalDateField extends BaseField {
      */
     public function displayDate($date, $field) {
         $dateString = '';
+        $date['year'] = \DateTime::createFromFormat('y', $date['year'])->format('Y');
 
         if($date['circa'] && $field['options']['ShowCirca'])
             $dateString .= 'circa ';

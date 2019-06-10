@@ -37,31 +37,39 @@
 
     <div class="content {{ $index == 0 ? 'active' : '' }}">
         <div class="description">
-            @if (!$exists)
+            @if(!$exists && $revision->rollback)
                 <p class="deleted-description">
                     This record has been deleted, 
                     but you still have the option to 
                     <a class="underline-middle-hover reactivate-js" href="#" data-revision="{{$revision->id}}">re-activate the record</a> 
                     to its previous state that is listed below.
                 </p>
+            @elseif(!$exists)
+                <p class="deleted-description">
+                    This record has been deleted, however this particular version of the Record is not available for rollback.
+                </p>
             @endif
             @if ($type === 'Edited' | $type === 'Rollback')
                 <span>Edits Made</span>
                 <div class="edit-section">
                     @foreach ($data["current"] as $id => $field)
-                        <div class="field">
-                            <div class="field-title">{{$form->layout['fields'][$id]['name']}}</div>
-                            <div class="field-data">{!! $field !!}</div>
-                        </div>
+                        @if($field != $data["old"][$id])
+                            <div class="field">
+                                <div class="field-title">{{$form->layout['fields'][$id]['name']}}</div>
+                                <div class="field-data">{!! $field !!}</div>
+                            </div>
+                        @endif
                     @endforeach
                 </div>
                 <span>Before</span>
                 <div class="edit-section">
                     @foreach ($data["old"] as $id => $field)
-                        <div class="field">
-                            <div class="field-title">{{$form->layout['fields'][$id]['name']}}</div>
-                            <div class="field-data">{!! $field !!}</div>
-                        </div>
+                        @if($field != $data["current"][$id])
+                            <div class="field">
+                                <div class="field-title">{{$form->layout['fields'][$id]['name']}}</div>
+                                <div class="field-data">{!! $field !!}</div>
+                            </div>
+                        @endif
                     @endforeach
                 </div>
             @else
@@ -81,15 +89,19 @@
                 </a>
             @endif
 
-            @if ($exists)
+            @if($exists && $revision->rollback)
                 <a class="quick-action underline-middle-hover restore-js" href="#" data-revision="{{$revision->id}}">
                     <i class="icon icon-unarchive"></i>
                     <span>Restore Field(s) to Before</span>
                 </a>
-            @else
+            @elseif($revision->rollback)
                <a class="quick-action underline-middle-hover reactivate-js" href="#" data-revision="{{$revision->id}}">
                     <i class="icon icon-unarchive"></i>
                     <span>Re-Activate Record</span>
+               </a>
+            @else
+                <a class="quick-action disabled">
+                    <span>Rollback disabled</span>
                 </a>
             @endif
         </div>

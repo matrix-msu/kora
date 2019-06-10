@@ -116,7 +116,9 @@ class FieldController extends Controller {
             }
         }
 
-        $field = $form->getFieldModel($request->type)->updateOptions($field, $request);
+        if($request->advanced || in_array($request->type,Form::$enumFields)) {
+            $field = $form->getFieldModel($request->type)->updateOptions($field, $request);
+        }
 
         //Add to form
         $layout['fields'][$flid] = $field;

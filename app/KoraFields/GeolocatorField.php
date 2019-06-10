@@ -169,12 +169,14 @@ class GeolocatorField extends BaseField {
      *
      * @return mixed - Processed data
      */
-    public function processRevisionData($data) { //TODO::CASTLE
-        return '';
+    public function processRevisionData($data) {
         $data = json_decode($data,true);
         $return = '';
         foreach($data as $location) {
-            $return .= "<div>".$location."</div>";
+            $return .= '<div>';
+            $return .= $location['description']!='' ? $location['description'].': ' : '';
+            $return .= $location['geometry']['location']['lat'].', '.$location['geometry']['location']['lng'];
+            $return .= '</div>';
         }
 
         return $return;
