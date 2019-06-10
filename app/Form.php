@@ -344,8 +344,9 @@ class Form extends Model {
         }
 
         //Delete other record related stuff before dropping records table
-        //Revisions. Presets?
+        //Presets?
         //TODO::CASTLE
+        $this->revisions()->delete();
 
         $rTable = new \CreateRecordsTable();
 
