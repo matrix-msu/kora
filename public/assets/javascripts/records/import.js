@@ -118,6 +118,7 @@ Kora.Records.Import = function () {
                             //build for potential connections
                             var kids = [];
                             var connections = {};
+
                             //foreach record in the dataset
                             for (var kid in importRecs) {
                                 // skip loop if the property is from prototype
@@ -261,7 +262,7 @@ Kora.Records.Import = function () {
         });
     }
 
-    // For fiel functionatily
+    // For field functionatily
     var recordInput = $(".record-input");
     var fileInput = $(".file-input");
 
@@ -297,7 +298,7 @@ Kora.Records.Import = function () {
         }
     }
 
-    //SImulating just for fun
+    //Simulating just for fun
     function newProfilePic(type, pic, name) {
         switch (type) {
             case "record":

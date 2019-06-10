@@ -298,3 +298,43 @@ function getDashboardRecordBlockLink($record) {
         ]
     );
 }
+
+function parseCSV($record) {
+  if (($handle = fopen($record, "r")) !== FALSE) {
+      $row = 0;
+      $result = $fields = $ids = $data = $records = array();
+      while (($data = fgetcsv($handle, 0, ",")) !== FALSE) {
+          $num = count($data);
+          for ($c=0; $c < $num; $c++) {
+              if ($row == 0) {
+                  $result[$c] = [];
+                  array_push($fields, $data[$c]);
+              } else {
+                  if($data[$c]) {
+                      if(!in_array($row, $ids))
+                          array_push($ids, $row);
+                      array_push($result[$c], array($row => $data[$c]));
+                  }
+              }
+          }
+          $row++;
+      }
+      fclose($handle);
+      for ($i=0; $i < count($fields); $i++) {
+          if ($result[$i])
+              $data[$fields[$i]] = $result[$i];
+      }
+      foreach ($ids as $id) {
+          $record = array();
+          foreach($data as $field => $pairs) {
+              $value = '';
+              foreach($pairs as $pair)
+                  if(array_key_exists($id, $pair))
+                      $value = $pair[$id];
+              $record[$field] = $value;
+          }
+          array_push($records, $record);
+      }
+      return $records;
+  }
+}

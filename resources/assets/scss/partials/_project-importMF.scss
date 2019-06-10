@@ -5,16 +5,10 @@
 }
 
 .multi-import-setup {
+  @import 'import.scss';
+
   margin: $navigation-height auto 0;
   width: 100%;
-
-  .description {
-    a {
-      color: palette('green', accent);
-      font-family: $ubuntu-medium;
-      text-decoration: none;
-    }
-  }
 
   .recordfile-section,
   .recordresults-section {
@@ -23,5 +17,108 @@
     padding: 0 20px;
 
     @import 'project-importMF/file-field';
+  }
+
+  .recordmatch-section {
+    margin: #{map-get($spacing, xxxl)} auto;
+    max-width: calc(#{ $max-site-width } - 600px);
+    padding: 0 20px;
+
+    .record-file-title {
+      font-size: 14px;
+    }
+
+    .records-imported-label {
+      font-size: 24px;
+      line-height: 28px;
+    }
+
+    .record-import-button {
+      height: 65px;
+      margin: 100px auto 85px;
+      padding: 0;
+
+      // scss-lint:disable SelectorDepth
+      .record-import-submit {
+        margin: 0 auto 15px;
+      }
+    }
+
+    .import-thin-btn-text {
+      font-family: $ubuntu !important;
+      font-size: 16px !important;
+    }
+
+    .import-thick-btn-text {
+      font-size: 16px !important;
+    }
+
+    .solid-box {
+      background-color: palette('gray', text, .03);
+      border-radius: 5px;
+      font-size: 14px;
+      padding: 18px 0;
+      padding-left: 22px;
+      width: auto;
+    }
+
+    .success-link {
+      color: palette('green', accent);
+      font-family: $ubuntu-medium;
+      text-decoration: none;
+    }
+  }
+
+  // TODO::extend this from _record-index.scss
+  .content-sections {
+    margin: 60px auto 0;
+    position: relative;
+
+    .content-sections-scroll {
+      display: flex;
+      flex-wrap: nowrap;
+      overflow-x: auto;
+      overflow-y: hidden;
+      &::-webkit-scrollbar {
+        display: none;
+      }
+
+      a {
+        color: palette('gray', text, .8);
+        display: inline-block;
+        font-family: $ubuntu;
+        font-size: 16px;
+        line-height: 1;
+        margin: 0 7.5px;
+        padding: 0 0 13px;
+        text-decoration: none;
+        white-space: nowrap;
+
+        &:first-child {
+          margin-left: 0;
+          padding-left: 0;
+        }
+
+        &:last-child {
+          margin-right: 0;
+          padding-right: 0;
+        }
+
+        &:hover {
+          color: palette('green', accent);
+        }
+
+        &.selected {
+          border-bottom: 2px solid palette('green', accent);
+          color: palette('green', accent);
+          font-family: $ubuntu-medium;
+
+          &.underline-middle-hover:hover::before,
+          &.underline-middle-hover:hover::after {
+            opacity: 0;
+          }
+        }
+      }
+    }
   }
 }

@@ -1,0 +1,38 @@
+@import 'record-import/button-layout';
+
+.description {
+  a {
+    color: palette('green', accent);
+    font-family: $ubuntu-medium;
+    text-decoration: none;
+  }
+}
+
+.tab-wrap {
+  margin-right: 10px;
+  position: relative;
+  width: 14px;
+
+  .progression-tab {
+    border: 1px solid palette('gray', text);
+    box-sizing: border-box;
+    height: 1px;
+    opacity: .1;
+    position: absolute;
+    top: 50%;
+    width: 100%;
+  }
+}
+
+.recordfile-link,
+.recordmatch-link {
+  color: palette('gray', text, .6);
+  cursor: default;
+  margin-right: 10px;
+  padding: 20px 0;
+  text-decoration: none;
+
+  &.active {
+    color: palette('green', accent);
+  }
+}

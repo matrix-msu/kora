@@ -5,7 +5,7 @@
 <div class="drawer-element drawer-element-js">
   <a href="#" class="drawer-toggle drawer-toggle-js" data-drawer="{{ $openDrawer or '0' }}">
     <i class="icon icon-project"></i>
-    <span>{{ $project->name }}</span>
+    <span>{{ $project['name'] }}</span>
     <i class="icon icon-chevron"></i>
   </a>
   <ul class="drawer-content drawer-content-js">
@@ -32,16 +32,16 @@
             <span>Jump to Form</span>
             <i class="icon icon-plus"></i>
           </a>
-		  
+
 		  <?php
 		  // Sort forms by name
 		  $name_fid_forms = [];
-		  
+
 		  foreach ($allowed_forms as $form)
 		  {
 		    $name_fid_forms[$form->id] = $form->name;
 		  }
-		  
+
 		  asort($name_fid_forms, SORT_NATURAL | SORT_FLAG_CASE);
 		  ?>
 

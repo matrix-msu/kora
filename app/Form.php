@@ -4,7 +4,6 @@ use App\KoraFields\BaseField;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Support\Facades\Schema;
 
 class Form extends Model {
 
@@ -130,20 +129,20 @@ class Form extends Model {
         self::_RICH_TEXT => "RichTextField",
         self::_INTEGER => "IntegerField",
         self::_FLOAT => "FloatField",
-        self::_DOCUMENTS => "DocumentsField",
         self::_LIST => "ListField",
         self::_MULTI_SELECT_LIST => "MultiSelectListField",
         self::_GENERATED_LIST => "GeneratedListField",
         self::_COMBO_LIST => "ComboListField",
+        self::_DATE => "DateField",
+        self::_DATETIME => "DateTimeField",
+        self::_HISTORICAL_DATE => "HistoricalDateField",
+        self::_DOCUMENTS => "DocumentsField",
         self::_GALLERY => "GalleryField",
         self::_PLAYLIST => "PlaylistField",
         self::_VIDEO => "VideoField",
         self::_3D_MODEL => "ModelField",
         self::_GEOLOCATOR => "GeolocatorField",
-        self::_ASSOCIATOR => "AssociatorField",
-        self::_DATE => "DateField",
-        self::_DATETIME => "DateTimeField",
-        self::_HISTORICAL_DATE => "HistoricalDateField"
+        self::_ASSOCIATOR => "AssociatorField"
     ];
 
     /**

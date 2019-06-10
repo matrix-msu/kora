@@ -1,7 +1,7 @@
 <li class="navigation-item">
   <a href="#" class="menu-toggle navigation-toggle-js">
     <i class="icon icon-minus mr-sm"></i>
-    <span>{{ \App\Http\Controllers\ProjectController::getProject($pid)->name }}</span>
+    <span>{{ \App\Http\Controllers\ProjectController::getProject($pid)['name'] }}</span>
     <i class="icon icon-chevron"></i>
   </a>
   <ul class="navigation-sub-menu navigation-sub-menu-js">
