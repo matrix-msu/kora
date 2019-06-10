@@ -17,7 +17,7 @@ class CreateProjectsTable extends Migration {
 			$table->increments('id');
 			$table->string('name',60);
 			$table->string('internal_name',60)->unique();
-			$table->string('description',100);
+			$table->string('description',500);
             $table->boolean('active');
             $table->integer('adminGroup_id')->unsigned();
 			$table->timestamps();
