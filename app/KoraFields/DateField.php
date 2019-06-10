@@ -350,6 +350,29 @@ class DateField extends BaseField {
     }
 
     /**
+     * Takes data from a mass assignment operation and applies it to an individual field for a set of records.
+     *
+     * @param  Form $form - Form model
+     * @param  string $flid - Field ID
+     * @param  String $formFieldValue - The value to be assigned
+     * @param  Request $request
+     * @param  array $kids - The KIDs to update
+     */
+    public function massAssignSubsetRecordField($form, $flid, $formFieldValue, $request, $kids) {
+        $month = $request->input('month_'.$formFieldValue,'');
+        $day = $request->input('day_'.$formFieldValue,'');
+        $year = $request->input('year_'.$formFieldValue,'');
+
+        if(!self::validateDate($month,$day,$year))
+            $date = null;
+        else
+            $date = "$year-$month-$day";
+
+        $recModel = new Record(array(),$form->id);
+        $recModel->newQuery()->whereIn('kid',$kids)->update([$flid => $date]);
+    }
+
+    /**
      * For a test record, add test data to field.
      *
      * @param  string $url - Url for File Type Fields

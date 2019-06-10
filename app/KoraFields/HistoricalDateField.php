@@ -436,6 +436,30 @@ class HistoricalDateField extends BaseField {
     }
 
     /**
+     * Takes data from a mass assignment operation and applies it to an individual field for a set of records.
+     *
+     * @param  Form $form - Form model
+     * @param  string $flid - Field ID
+     * @param  String $formFieldValue - The value to be assigned
+     * @param  Request $request
+     * @param  array $kids - The KIDs to update
+     */
+    public function massAssignSubsetRecordField($form, $flid, $formFieldValue, $request, $kids) {
+        $date = [
+            'month' => $request->input('month_'.$formFieldValue,''),
+            'day' => $request->input('day_'.$formFieldValue,''),
+            'year' => $request->input('year_'.$formFieldValue,''),
+            'circa' => !is_null($request->{'circa_'.$formFieldValue}) ? $request->{'circa_'.$formFieldValue} : 0,
+            'era' => !is_null($request->{'era_'.$formFieldValue}) ? $request->{'era_'.$formFieldValue} : 'CE'
+        ];
+        if(!self::validateDate($date['month'],$date['day'],$date['year']))
+            $date = null;
+
+        $recModel = new Record(array(),$form->id);
+        $recModel->newQuery()->whereIn('kid',$kids)->update([$flid => $date]);
+    }
+
+    /**
      * For a test record, add test data to field.
      *
      * @param  string $url - Url for File Type Fields

@@ -259,6 +259,20 @@ class GeneratedListField extends BaseField {
     }
 
     /**
+     * Takes data from a mass assignment operation and applies it to an individual field for a set of records.
+     *
+     * @param  Form $form - Form model
+     * @param  string $flid - Field ID
+     * @param  String $formFieldValue - The value to be assigned
+     * @param  Request $request
+     * @param  array $kids - The KIDs to update
+     */
+    public function massAssignSubsetRecordField($form, $flid, $formFieldValue, $request, $kids) {
+        $recModel = new Record(array(),$form->id);
+        $recModel->newQuery()->whereIn('kid',$kids)->update([$flid => $formFieldValue]);
+    }
+
+    /**
      * For a test record, add test data to field.
      */
     public function getTestData($url = null) {

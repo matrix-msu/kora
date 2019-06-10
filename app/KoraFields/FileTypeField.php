@@ -349,6 +349,19 @@ abstract class FileTypeField extends BaseField {
     }
 
     /**
+     * Takes data from a mass assignment operation and applies it to an individual field for a set of records.
+     *
+     * @param  Form $form - Form model
+     * @param  string $flid - Field ID
+     * @param  String $formFieldValue - The value to be assigned
+     * @param  Request $request
+     * @param  array $kids - The KIDs to update
+     */
+    public function massAssignSubsetRecordField($form, $flid, $formFieldValue, $request, $kids) {
+        null;
+    }
+
+    /**
      * Provides an example of the field's structure in an export to help with importing records.
      *
      * @param  string $slug - Field nickname

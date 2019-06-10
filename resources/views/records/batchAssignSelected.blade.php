@@ -1,13 +1,13 @@
 @extends('app', ['page_title' => 'Batch Assignment', 'page_class' => 'batch-assign-selected'])
 
 @section('leftNavLinks')
-    @include('partials.menu.project', ['pid' => $form->pid])
-    @include('partials.menu.form', ['pid' => $form->pid, 'fid' => $form->fid])
+    @include('partials.menu.project', ['pid' => $form->project_id])
+    @include('partials.menu.form', ['pid' => $form->project_id, 'fid' => $form->id])
     @include('partials.menu.static', ['name' => 'Batch Assign Field Value Records'])
 @stop
 
 @section('aside-content')
-  @include('partials.sideMenu.form', ['pid' => $form->pid, 'fid' => $form->fid, 'openDrawer' => true])
+  @include('partials.sideMenu.form', ['pid' => $form->project_id, 'fid' => $form->id, 'openDrawer' => true])
 @stop
 
 @section('stylesheets')
@@ -38,19 +38,19 @@
                 <label for="field_selection">Select the Field to Batch Assign</label>
                 <select class="single-select field-to-batch-js" name="field_selection" data-placeholder="Search and Select a Field to Batch Assign">
                     <option value=""></option>
-                    @foreach($fields as $field)
-                        <option value="{{$field->flid}}">{{$field->name}}</option>
+                    @foreach($fields as $flid => $field)
+                        <option value="{{$flid}}">{{$field['name']}}</option>
                     @endforeach
                 </select>
             </div>
 
             @foreach($fields as $field)
-                <section id="batch_{{$field->flid}}" class="batch-field-section-js hidden">
-                    <?php $typedField = $field->getTypedField();  ?>
-                    @include($typedField::FIELD_INPUT_VIEW, ['field' => $field, 'hasData' => false, 'editRecord' => false])
+                <section id="batch_{{$flid}}" class="batch-field-section-js hidden">
+                    @php $typedField = $form->getFieldModel($field['type']); @endphp
+                    @include($typedField->getFieldInputView(), ['field' => $field, 'hasData' => false, 'editRecord' => false])
                     <div class="form-group mt-xs">
                         <p class="sub-text">
-                            {{$field->desc}}
+                            {{$field['description']}}
                         </p>
                     </div>
                 </section>
@@ -73,9 +73,9 @@
     <script src="{{ url('assets/javascripts/vendor/ckeditor/ckeditor.js') }}"></script>
 
     <script>
-        geoConvertUrl = '{{ action('FieldAjaxController@geoConvert',['pid' => $form->pid, 'fid' => $form->fid, 'flid' => 0]) }}';
+        geoConvertUrl = '{{ action('FieldAjaxController@geoConvert',['pid' => $form->project_id, 'fid' => $form->id, 'flid' => 0]) }}';
         csrfToken = "{{ csrf_token() }}";
-        var validationUrl = "{{action('RecordController@validateMassRecord',['pid' => $form->pid, 'fid' => $form->fid])}}";
+        var validationUrl = "{{action('RecordController@validateMassRecord',['pid' => $form->project_id, 'fid' => $form->id])}}";
 
         Kora.Records.BatchSelected();
     </script>

@@ -915,30 +915,33 @@ class RecordController extends Controller {
      * @param  Request $request
      * @return Redirect
      */
-    public function massAssignRecordSet($pid, $fid, Request $request) { //TODO::CASTLE
+    public function massAssignRecordSet($pid, $fid, Request $request) {
         if(!$this->checkPermissions($fid,'modify'))
             return redirect()->back();
 
-        $flid = $request->input("field_selection");
-        if(!is_numeric($flid))
-            return redirect()->back();
+        $form = FormController::getForm($fid);
+        $flid = $request->field_selection;
+        if(!array_key_exists($flid, $form->layout['fields']))
+            return redirect()->back()->with('k3_global_error', 'field_invalid');
 
-        if($request->has($flid))
-            $formFieldValue = $request->input($flid); //Note this only works when there is one form element being submitted, so if you have more, check Date
-        else
-            return redirect()->back();
+        $field = $form->layout['fields'][$flid];
+        $typedField = $form->getFieldModel($field['type']);
+        $formFieldValue = $request->{$flid};
 
         if($request->rids)
-            $rids = explode(',', $request->rids);
+            $kids = explode(',', $request->rids);
         else
-            $rids = array();
+            $kids = array();
 
-        $field = FieldController::getField($flid);
-        $typedField = $field->getTypedField();
+        //A field may not be required for a record but we want to force validation here so we use forceReq
+        $message = $typedField->validateField($flid, $field, $request, true);
+        if(empty($message)) {
+            $typedField->massAssignSubsetRecordField($form, $flid, $formFieldValue, $request, $kids);
 
-        $typedField->massAssignSubsetRecordField($field, $formFieldValue, $request, $rids);
-
-        return redirect()->action('RecordController@index',compact('pid','fid'));
+            return redirect()->action('RecordController@index', compact('pid', 'fid'))->with('k3_global_success', 'mass_records_updated');
+        } else {
+            return redirect()->back()->with('k3_global_error', 'mass_value_invalid');
+        }
     }
 
     /**
