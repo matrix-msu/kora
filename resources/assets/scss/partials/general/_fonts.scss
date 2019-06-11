@@ -103,9 +103,14 @@ i {
   text-transform: none;
 }
 
-.icon-formRecords-Empty-1 {
+.icon-profile-dark {
   &:before {
-    content: $icon-formRecords-Empty-1;
+    content: $icon-profile-dark;
+  }
+}
+.icon-formRecords-Empty {
+  &:before {
+    content: $icon-formRecords-Empty;
   }
 }
 .icon-project-empty-state {

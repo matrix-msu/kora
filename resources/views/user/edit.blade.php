@@ -13,7 +13,7 @@
           @if ($user->profile)
             <img class="profile-pic profile-pic-js" src="{{ $user->getProfilePicUrl() }}" alt="Profile Pic">
           @else
-            <i class="icon icon-user"></i>
+            <i class="icon icon-profile-dark"></i>
           @endif
         </div>
         <span>Editing {{ $user->preferences['first_name'] }} {{  $user->preferences['last_name'] }}</span>
