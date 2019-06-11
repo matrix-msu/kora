@@ -28,6 +28,13 @@ $items = $typedField->retrieve($flid, $form->id, $value);
             @endif
 
             @if($oneType=='Text' | $oneType=='Date' | $oneType=='List' | $oneType=='Boolean')
+                @php
+                    if($oneType=='Boolean')
+                        if($valueOne == 1)
+                            $valueOne = 'true';
+                        else if($valueOne == 0)
+                            $valueOne = 'false';
+                @endphp
                 <span class="combo-column">{{ $valueOne }}</span>
             @elseif($oneType=='Historical Date')
                 @php
@@ -54,6 +61,13 @@ $items = $typedField->retrieve($flid, $form->id, $value);
             @endif
 
             @if($twoType=='Text' | $twoType=='Date' | $twoType=='List' | $twoType=='Boolean')
+                @php
+                    if($twoType=='Boolean')
+                        if($valueTwo == 1)
+                            $valueTwo = 'true';
+                        else if($valueTwo == 0)
+                            $valueTwo = 'false';
+                @endphp
                 <span class="combo-column">{{ $valueTwo }}</span>
             @elseif($twoType=='Historical Date')
                 @php

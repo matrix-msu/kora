@@ -210,6 +210,12 @@ Kora.Records.Create = function() {
                 val1 = inputOne.val();
             }
 
+            if(type1=='Boolean') {
+                if (inputOne.prop('checked') != true) {
+                    val1 = 0;
+                }
+            }
+
             if(type2=='Date' | type2=='Historical Date') {
                 monthTwo = $('#default_month_two_'+flid);
                 dayTwo = $('#default_day_two_'+flid);
@@ -233,7 +239,13 @@ Kora.Records.Create = function() {
                 val2 = inputTwo.val();
             }
 
-            if(val1=='' | val2=='' | val1==null | val2==null | val1=='//'| val2=='//') {
+            if(type2=='Boolean') {
+                if (inputTwo.prop('checked') != true) {
+                    val2 = 0;
+                }
+            }
+
+            if(val1==null | val2==null | val1=='//'| val2=='//') {
                 $('.combo-error-'+flid+'-js').text('Both fields must be filled out');
             } else {
                 $('.combo-error-'+flid+'-js').text('');
@@ -246,6 +258,12 @@ Kora.Records.Create = function() {
 
                 if(type1=='Text' | type1=='List' | type1=='Integer' | type1=='Float' | type1=='Date' | type1=='Boolean') {
                     div += '<input type="hidden" name="'+flid+'_combo_one[]" value="'+val1+'">';
+                    if(type1=='Boolean') {
+                        if (val1 == 1) {
+                            val1 = 'true';
+                        } else if (val1 == 0)
+                            val1 = 'false';
+                    }
                     div += '<span class="combo-column">'+val1+'</span>';
                 } else if(type1=='Multi-Select List' | type1=='Generated List' | type1=='Associator') {
                     div += '<input type="hidden" name="'+flid+'_combo_one[]" value='+JSON.stringify(val1)+'>';
@@ -264,6 +282,12 @@ Kora.Records.Create = function() {
 
                 if(type2=='Text' | type2=='List' | type2=='Integer' | type2=='Float' | type2=='Date' | type2=='Boolean') {
                     div += '<input type="hidden" name="'+flid+'_combo_two[]" value="'+val2+'">';
+                    if(type2=='Boolean') {
+                        if (val2 == 1)
+                            val2 = 'true';
+                        if (val2 == 0)
+                            val2 = 'false';
+                    }
                     div += '<span class="combo-column">'+val2+'</span>';
                 } else if(type2=='Multi-Select List' | type2=='Generated List' | type2=='Associator') {
                     div += '<input type="hidden" name="'+flid+'_combo_two[]" value='+JSON.stringify(val2)+'>';
@@ -286,10 +310,7 @@ Kora.Records.Create = function() {
 
                 $comboValueDiv.find('.combo-value-item-container-js').append(div);
 
-                if(type1=='Multi-Select List' | type1=='Generated List' | type1=='List' | type1=='Associator') {
-                    inputOne.val('');
-                    inputOne.trigger("chosen:updated");
-                } else if(type1=='Date' | type1=='Historical Date') {
+                if(type1=='Date' | type1=='Historical Date') {
                     monthOne.trigger("chosen:updated"); dayOne.trigger("chosen:updated"); yearOne.trigger("chosen:updated");
                     if(type1=='Historical Date') {
                         eraOne.prop("checked", false);
@@ -299,14 +320,10 @@ Kora.Records.Create = function() {
                         });
                         circaOne.trigger("chosen:updated");
                     }
-                } else {
-                    inputOne.val('');
-                }
+                } else
+                    inputOne.val('').trigger("chosen:updated");
 
-                if(type2=='Multi-Select List' | type2=='Generated List' | type2=='List' | type2=='Associator') {
-                    inputTwo.val('');
-                    inputTwo.trigger("chosen:updated");
-                } else if(type2=='Date' | type2=='Historical Date') {
+                if(type2=='Date' | type2=='Historical Date') {
                     monthTwo.trigger("chosen:updated"); dayTwo.trigger("chosen:updated"); yearTwo.trigger("chosen:updated");
                     if(type2=='Historical Date') {
                         eraTwo.prop("checked", false);
@@ -316,9 +333,8 @@ Kora.Records.Create = function() {
                         });
                         circaTwo.trigger("chosen:updated");
                     }
-                } else {
-                    inputTwo.val('');
-                }
+                } else
+                    inputTwo.val('').trigger("chosen:updated");
 
                 Kora.Modal.close();
             }

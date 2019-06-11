@@ -69,7 +69,7 @@ class ComboListField extends BaseField {
         'Multi-Select List' => 'mslist',
         'Generated List' => 'genlist',
         'Associator' => 'associator',
-        // 'Boolean' => 'boolean' TODO::CASTLE
+        'Boolean' => 'boolean'
     ];
 
     private $fieldToDBFuncAssoc = [
@@ -982,22 +982,24 @@ class ComboListField extends BaseField {
         $table = $field['flid'] . $options['fid'];
         $rid = $options['rid'];
 
-        DB::transaction(function() use ($field, $rid, $values, $table) {
-            DB::table($table)->where('record_id', '=', $rid)->delete();
-            for($i=0; $i < count($values['one']); $i++) {
-                DB::table($table)->insert(
-                    [
-                        'record_id' => $rid,
-                        $field['one']['flid'] => $values['one'][$i],
-                        $field['two']['flid'] => $values['two'][$i]
-                    ]
-                );
-            }
-        });
+        if($values['one']) {
+            DB::transaction(function() use ($field, $rid, $values, $table) {
+                DB::table($table)->where('record_id', '=', $rid)->delete();
+                for($i=0; $i < count($values['one']); $i++) {
+                    DB::table($table)->insert(
+                        [
+                            'record_id' => $rid,
+                            $field['one']['flid'] => $values['one'][$i],
+                            $field['two']['flid'] => $values['two'][$i]
+                        ]
+                    );
+                }
+            });
 
-        $ids = DB::table($table)->where('record_id', $rid)->pluck('id');
+            $ids = DB::table($table)->where('record_id', $rid)->pluck('id');
 
-        return $ids->toJson();
+            return $ids->toJson();
+        }
     }
 
     public function retrieve($flid, $fid, $ids) {
