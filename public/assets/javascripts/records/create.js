@@ -825,10 +825,11 @@ Kora.Records.Create = function() {
         });
 
         function putArray(ary) {
-            console.log(ary);
             var data = ary['data'];
             var fields = ary['fields'];
             var presetID = $('.preset-record-js').val();
+
+            moveFiles(presetID);
 
             for(var flid in data) {
                 value = data[flid];
@@ -916,7 +917,7 @@ Kora.Records.Create = function() {
                             var locations = JSON.parse(value);
                             var geoDiv = $('.geolocator-' + flid + '-js').find('.geolocator-card-container-js');
                             var viewType = fields[flid]['options']['DataView'];
-                            
+
                             locations.forEach(function (location, index) {
                                 geoDiv.append(geoDivHTML(location,flid,viewType));
                             });
@@ -936,71 +937,68 @@ Kora.Records.Create = function() {
                                 })).trigger("chosen:updated");
                             }
                             break;
+                        case 'Documents':
+                            var files = JSON.parse(value);
+                            var fileDiv = $('.filenames-' + flid + '-js');
+
+                            files.forEach(function (file, index) {
+                                fileDiv.append(fileDivHTML(file, flid, 'Document'));
+                            });
+
+                            break;
+                        case 'Gallery':
+                            var files = JSON.parse(value);
+                            var fileDiv = $('.filenames-' + flid + '-js');
+
+                            files.forEach(function (file, index) {
+                                fileDiv.append(galDivHTML(file, flid, 'Image'));
+                            });
+
+                            break;
+                        case 'Playlist':
+                            var files = JSON.parse(value);
+                            var fileDiv = $('.filenames-' + flid + '-js');
+
+                            files.forEach(function (file, index) {
+                                fileDiv.append(fileDivHTML(file, flid, 'Audio'));
+                            });
+
+                            break;
+                        case 'Video':
+                            var files = JSON.parse(value);
+                            var fileDiv = $('.filenames-' + flid + '-js');
+
+                            files.forEach(function (file, index) {
+                                fileDiv.append(fileDivHTML(file, flid, 'Video'));
+                            });
+
+                            break;
+                        case '3D-Model':
+                            var files = JSON.parse(value);
+                            var fileDiv = $('.filenames-' + flid + '-js');
+
+                            files.forEach(function (file, index) {
+                                fileDiv.append(fileDivHTML(file, flid, 'Model File'));
+                            });
+
+                            break;
                         // case 'Combo List': //TODO::CASTLE
-                        //     var p, combos = field['combolists'];
-                        //     var selector = $('.combo-value-div-js-' + flid);
-                        //
-                        //     // Empty defaults, we need to do this as the preset may have done so.
-                        //     // However if it hasn't, the defaults will be in the preset so this is safe.
-                        //     selector.find('.combo-value-item-js').each(function () {
-                        //         $(this).remove();
-                        //     });
-                        //     selector.find('.combo-list-empty').each(function () {
-                        //         $(this).remove();
-                        //     });
-                        //
-                        //     for (p = 0; p < combos.length; p++) {
-                        //         var rawData = combos[p];
-                        //
-                        //         var field1RawData = rawData.split('[!f1!]')[1];
-                        //         var field2RawData = rawData.split('[!f2!]')[1];
-                        //
-                        //         var field1ToPrint = field1RawData.split('[!]');
-                        //         var field2ToPrint = field2RawData.split('[!]');
-                        //
-                        //         var html = '<div class="combo-value-item-js">';
-                        //
-                        //         if (field1ToPrint.length == 1) {
-                        //             html += '<input type="hidden" name="' + flid + '_combo_one[]" value="' + field1ToPrint + '">';
-                        //             html += '<span class="combo-column">' + field1ToPrint + '</span>';
-                        //         } else {
-                        //             html += '<input type="hidden" name="' + flid + '_combo_one[]" value="' + field1ToPrint.join('[!]') + '">';
-                        //             html += '<span class="combo-column">' + field1ToPrint.join(' | ') + '</span>';
-                        //         }
-                        //
-                        //         if (field2ToPrint.length == 1) {
-                        //             html += '<input type="hidden" name="' + flid + '_combo_two[]" value="' + field2ToPrint + '">';
-                        //             html += '<span class="combo-column">' + field2ToPrint + '</span>';
-                        //         } else {
-                        //             html += '<input type="hidden" name="' + flid + '_combo_two[]" value="' + field2ToPrint.join('[!]') + '">';
-                        //             html += '<span class="combo-column">' + field2ToPrint.join(' | ') + '</span>';
-                        //         }
-                        //
-                        //         html += '<span class="combo-delete delete-combo-value-js"><a class="underline-middle-hover">[X]</a></span>';
-                        //
-                        //         html += '</div>';
-                        //
-                        //         selector.children('.combo-list-display').first().append(html);
-                        //     }
-                        //     break;
-                        // case 'Documents': //TODO::CASTLE
-                        //     applyFilePreset(field['documents'], presetID, flid);
-                        //     break;
-                        // case 'Gallery':
-                        //     applyGalleryPreset(field, presetID, flid);
-                        //     break;
-                        // case 'Playlist':
-                        //     applyFilePreset(field['audio'], presetID, flid);
-                        //     break;
-                        // case 'Video':
-                        //     applyFilePreset(field['video'], presetID, flid);
-                        //     break;
-                        // case '3D-Model':
-                        //     applyFilePreset(field['model'], presetID, flid);
                         //     break;
                     }
                 }
             }
+        }
+
+        //Move files from preset to tmp directory
+        function moveFiles(presetID) {
+            $.ajax({
+                url: moveFilesUrl,
+                type: 'POST',
+                data: {
+                    '_token': csrfToken,
+                    'presetID': presetID
+                }
+            });
         }
 
         /**
@@ -1011,6 +1009,7 @@ Kora.Records.Create = function() {
             var latlon = location['geometry']['location']['lat']+', '+location['geometry']['location']['lng'];
             var address = location['formatted_address'];
             var finalResult = JSON.stringify(location);
+
             var HTML = '<div class="card geolocator-card geolocator-card-js">';
             HTML += '<input type="hidden" class="list-option-js" name="'+flid+'[]" value="'+finalResult+'">';
             HTML += '<div class="header">';
@@ -1035,62 +1034,29 @@ Kora.Records.Create = function() {
         }
 
         /**
-         * Applies the preset for a file type field
-         */
-        function applyFilePreset(typeIndex, presetID, flid) { //TODO::CASTLE
-            var filenames = $(".filenames-"+flid+"-js");
-            filenames.empty();
-
-            if (!typeIndex) { /* Do nothing. */ }
-            else {
-                moveFiles(presetID, flid, userID);
-
-                for (var z = 0; z < typeIndex.length; z++) {
-                    filename = typeIndex[z].split('[Name]')[1];
-                    filenames.append(fileDivHTML(filename, flid, userID));
-                }
-            }
-        }
-
-        /**
-         * Applies the preset for a file type field
-         */
-        function applyGalleryPreset(field, presetID, flid) { //TODO::CASTLE
-            var filenames = $(".filenames-"+flid+"-js");
-            filenames.empty();
-
-            var typeIndex = field["images"];
-            var captions = field["captions"];
-
-            if (!typeIndex) { /* Do nothing. */ }
-            else {
-                moveFiles(presetID, flid, userID);
-
-                for (var z = 0; z < typeIndex.length; z++) {
-                    filename = typeIndex[z].split('[Name]')[1];
-                    filenames.append(galDivHTML(filename, captions[z], flid, userID));
-                }
-            }
-        }
-
-        /**
          * Generates the HTML for an uploaded file's div.
          */
-        function fileDivHTML(filename, flid, userID) { //TODO::CASTLE
-            // Build the delete file url.
-            var deleteUrl = baseFileUrl;
-            deleteUrl += 'f' + flid + 'u' + userID + '/' + myUrlEncode(filename);
+        function fileDivHTML(file, flid, btnName) {
+            var name = file['name'];
+            deleteUrl = deleteFileUrl+flid+"/"+name;
 
             var HTML = '<div class="card file-card file-card-js">';
-            HTML += '<input type="hidden" name="file'+flid+'[]" value ="'+filename+'">';
-            HTML += '<div class="header"><div class="left"><div class="move-actions">';
+            HTML += '<input type="hidden" name="'+flid+'[]" value="'+name+'">';
+            HTML += '<div class="header">';
+            HTML += '<div class="left">';
+            HTML += '<div class="move-actions">';
             HTML += '<a class="action move-action-js up-js" href=""><i class="icon icon-arrow-up"></i></a>';
-            HTML += '<a class="action move-action-js down-js" href=""><i class="icon icon-arrow-down"></i></a></div>';
-            HTML += '<span class="title">'+filename+'</span></div>';
+            HTML += '<a class="action move-action-js down-js" href=""><i class="icon icon-arrow-down"></i></a>';
+            HTML += '</div>';
+            HTML += '<span class="title">'+name+'</span>';
+            HTML += '</div>';
             HTML += '<div class="card-toggle-wrap">';
-            HTML += '<a href="#" class="file-delete upload-filedelete-js ml-sm tooltip" tooltip="Remove Image" data-url="'+deleteUrl+'">';
-            HTML += '<i class="icon icon-trash danger"></i></a></div>';
-            HTML += '</div></div>';
+            HTML += '<a href="#" class="file-delete upload-filedelete-js ml-sm tooltip" tooltip="Remove '+btnName+'" data-url="'+deleteUrl+'">';
+            HTML += '<i class="icon icon-trash danger"></i>';
+            HTML += '</a>';
+            HTML += '</div>';
+            HTML += '</div>';
+            HTML += '</div>';
 
             return HTML;
         }
@@ -1098,61 +1064,31 @@ Kora.Records.Create = function() {
         /**
          * Generates the HTML for an uploaded file's div with the gallery captions.
          */
-        function galDivHTML(filename, caption, flid, userID) { //TODO::CASTLE
-            // Build the delete file url.
-            var deleteUrl = baseFileUrl;
-            deleteUrl += 'f' + flid + 'u' + userID + '/' + myUrlEncode(filename);
+        function galDivHTML(file, flid, btnName) {
+            var name = file['name'];
+            var caption = file['caption'];
+            deleteUrl = deleteFileUrl+flid+"/"+name;
 
             var HTML = '<div class="card file-card file-card-js">';
-            HTML += '<input type="hidden" name="file'+flid+'[]" value ="'+filename+'">';
-            HTML += '<div class="header"><div class="left"><div class="move-actions">';
+            HTML += '<input type="hidden" name="'+flid+'[]" value="'+name+'">';
+            HTML += '<div class="header">';
+            HTML += '<div class="left">';
+            HTML += '<div class="move-actions">';
             HTML += '<a class="action move-action-js up-js" href=""><i class="icon icon-arrow-up"></i></a>';
-            HTML += '<a class="action move-action-js down-js" href=""><i class="icon icon-arrow-down"></i></a></div>';
-            HTML += '<span class="title">'+filename+'</span></div>';
+            HTML += '<a class="action move-action-js down-js" href=""><i class="icon icon-arrow-down"></i></a>';
+            HTML += '</div>';
+            HTML += '<span class="title">'+name+'</span>';
+            HTML += '</div>';
             HTML += '<div class="card-toggle-wrap">';
-            HTML += '<a href="#" class="file-delete upload-filedelete-js ml-sm tooltip" tooltip="Remove Image" data-url="'+deleteUrl+'">';
-            HTML += '<i class="icon icon-trash danger"></i></a></div>';
+            HTML += '<a href="#" class="file-delete upload-filedelete-js ml-sm tooltip" tooltip="Remove '+btnName+'" data-url="'+deleteUrl+'">';
+            HTML += '<i class="icon icon-trash danger"></i>';
+            HTML += '</a>';
+            HTML += '</div>';
             HTML += '<textarea type="text" name="file_captions'+flid+'[]" class="caption autosize-js" placeholder="Enter caption here">'+caption+'</textarea>';
-            HTML += '</div></div>';
+            HTML += '</div>';
+            HTML += '</div>';
 
             return HTML;
-        }
-
-        /**
-         * Encodes a string for a url.
-         *
-         * Javascript's encode function wasn't playing nice with our system so I wrote this based off of
-         * a post on the PHP.net user contributions on the urlencode() page davis dot pexioto at gmail dot com
-         */
-        function myUrlEncode(to_encode) { //TODO::CASTLE
-            // Build array of characters that need to be replaced.
-            var replace = ['!', '*', "'", "(", ")", ";", ":", "@", "&", "=", "+", "$", ",", "/", "?",
-                "%", "#", "[", "]"];
-
-            // Build array of the replacements for the characters listed above.
-            var entities = ['%21', '%2A', '%27', '%28', '%29', '%3B', '%3A', '%40', '%26', '%3D', '%2B',
-                '%24', '%2C', '%2F', '%3F', '%25', '%23', '%5B', '%5D'];
-
-            // Replace them in the string!
-            for(var i = 0; i < entities.length; i++) {
-                to_encode = to_encode.replace(replace[i], entities[i]);
-            }
-
-            return to_encode;
-        }
-
-        //Move files from preset to tmp directory
-        function moveFiles(presetID, flid, userID) { //TODO::CASTLE
-            $.ajax({
-                url: moveFilesUrl,
-                type: 'POST',
-                data: {
-                    '_token': csrfToken,
-                    'presetID': presetID,
-                    'flid': flid,
-                    'userID': userID
-                }
-            });
         }
     }
 

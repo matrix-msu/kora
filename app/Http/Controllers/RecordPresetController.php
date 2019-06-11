@@ -1,15 +1,10 @@
 <?php namespace App\Http\Controllers;
 
-use App\Form;
-use App\KoraFields\FileTypeField;
 use App\Record;
 use App\RecordPreset;
-use App\Revision;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
-use RecursiveIteratorIterator;
-use Symfony\Component\Finder\Iterator\RecursiveDirectoryIterator;
 
 class RecordPresetController extends Controller {
 
@@ -171,60 +166,37 @@ class RecordPresetController extends Controller {
      *
      * @param  Request $request
      */
-    public function moveFilesToTemp(Request $request) { //TODO::CASTLE
+    public function moveFilesToTemp(Request $request) {
         $presetID = $request->presetID;
-        $flid = $request->flid;
-        $userID = $request->userID;
+        $userID = \Auth::user()->id;
 
-        $presetPath = storage_path('app/presetFiles/preset' . $presetID . '/fl' . $flid);
-        $tempPath = storage_path('app/tmpFiles/f'. $flid . 'u' . $userID);
+        $preset = RecordPreset::where('id',$presetID)->first();
+        $fileData = $preset->preset['files'];
 
-        //
-        // If the temp directory exists for the user, clear out the existing files.
-        // Else create the directory.
-        //
-        if(is_dir($tempPath)) {
-            $it = new RecursiveDirectoryIterator($tempPath, RecursiveDirectoryIterator::SKIP_DOTS);
-            $files = new RecursiveIteratorIterator($it,
-                RecursiveIteratorIterator::CHILD_FIRST);
-            foreach($files as $file) {
-                if ($file->isDir())
-                    rmdir($file->getRealPath());
-                else
-                    unlink($file->getRealPath());
-            }
-        } else {
-            mkdir($tempPath, 0775, true);
-        }
-
-        //
-        // Copy the preset directory to the temporary directory.
-        //
-        self::recurse_copy($presetPath, $tempPath);
-    }
-
-    /**
-     * Recursively copies a directory and its files to directory.
-     *
-     * @param  string $src - Directory to copy
-     * @param  string $dst - Directory to copy to
-     */
-    public static function recurse_copy($src, $dst) { //TODO::CASTLE
-        if(file_exists($src)) {
-            $dir = opendir($src);
-
-            if(!is_dir($dst) && !is_file($dst))
-                mkdir($dst, 0775, true);
-
-            while(false !== ($file = readdir($dir))) {
-                if(($file != '.') && ($file != '..')) {
-                    if(is_dir($src . '/' . $file))
-                        self::recurse_copy($src . '/' . $file, $dst . '/' . $file);
-                    else
-                        copy($src . '/' . $file, $dst . '/' . $file);
+        $storageType = 'LaravelStorage'; //TODO:: make this a config once we actually support other storage types
+        switch($storageType) {
+            case 'LaravelStorage':
+                //Clear the current directory
+                $dir = storage_path('app/tmpFiles/recordU'.$userID);
+                if(file_exists($dir)) {
+                    foreach(new \DirectoryIterator($dir) as $file) {
+                        if($file->isFile())
+                            unlink($dir.'/'.$file->getFilename());
+                    }
+                } else {
+                    mkdir($dir,0775,true); //Make it!
                 }
-            }
-            closedir($dir);
+
+                //Restore old files
+                if(!is_null($fileData)) {
+                    foreach ($fileData as $name => $hash) {
+                        $data = base64_decode($hash);
+                        file_put_contents("$dir/$name", $data);
+                    }
+                }
+                break;
+            default:
+                break;
         }
     }
 }
