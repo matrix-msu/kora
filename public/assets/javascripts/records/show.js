@@ -396,11 +396,37 @@ Kora.Records.Show = function() {
     });
   }
 
+  function adjustForTimezone () {
+      var writeTime = document.getElementsByClassName('time')
+
+      let dates = [];
+      dates.push( document.getElementById('created-at').innerText )
+      dates.push( document.getElementById('updated-at').innerText )
+
+      function adjustTime ( date ) {
+          let timezoneName = date.toLocaleTimeString('en-us', {timeZoneName:'short'}).split(' ')[2]
+
+          offset = date.getTimezoneOffset() * 60000 // convert to milliseconds because Date.getTime() gets time in milliseconds
+          adjustedDate = new Date( date.getTime() - offset ) // subtract offset because offset has opposite sign as needed (-/+)
+
+          let yearMonthDay = adjustedDate.toISOString().substr(0,10)
+          let time = adjustedDate.toString().substr(16,8)
+
+          let adjustedDate_Formatted = yearMonthDay + ' ' + time + ' ' + timezoneName
+          writeTime[i].innerText = adjustedDate_Formatted
+      }
+
+      for ( i = 0; i < dates.length; i++ ) {
+          adjustTime( new Date(dates[i]) )
+      }
+    }
+
     initializeToggle();
     initializeAssociatorCardToggle();
     initializeDeleteRecord();
     initializeTypedFieldDisplays();
     initializeCardTitleEllipsifying();
+    adjustForTimezone();
     Kora.Records.Modal();
     Kora.Fields.TypedFieldDisplays.Initialize();
 }
