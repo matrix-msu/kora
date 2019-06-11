@@ -796,7 +796,7 @@ Kora.Records.Create = function() {
         })
     }
 
-    function initializeRecordPresets() { //TODO::CASTLE
+    function initializeRecordPresets() {
         $('.preset-check-js').click(function() {
             var presetDiv = $('.preset-record-div-js');
             if(this.checked) {
@@ -826,10 +826,11 @@ Kora.Records.Create = function() {
 
         function putArray(ary) {
             var data = ary['data'];
-            var fields = ary['fields']
+            var fields = ary['fields'];
             var presetID = $('.preset-record-js').val();
 
-            var i;
+            moveFiles(presetID);
+
             for(var flid in data) {
                 value = data[flid];
                 type = fields[flid]['type'];
@@ -840,214 +841,222 @@ Kora.Records.Create = function() {
                         case 'Text':
                             $('[name=' + flid + ']').val(value);
                             break;
-                        // case 'Rich Text':
-                        //     CKEDITOR.instances[flid].setData(field['rawtext']);
-                        //     break;
-                        // case 'Number':
-                        //     $('[name=' + flid + ']').val(field['number']);
-                        //     break;
-                        // case 'List':
-                        //     $('[name=' + flid + ']').val(field['option']).trigger("chosen:updated");
-                        //     break;
-                        // case 'Multi-Select List':
-                        //     $('#list' + flid).val(field['options']).trigger("chosen:updated");
-                        //     break;
-                        // case 'Generated List':
-                        //     var options = field['options'];
-                        //     var valArray = [];
-                        //     var h = 0;
-                        //     var selector = $("#list" + flid);
-                        //     for (var k = 0; k < options.length; k++) {
-                        //         if ($("#list" + flid + " option[value='" + options[k] + "']").length > 0) {
-                        //             valArray[h] = options[k];
-                        //             h++;
-                        //         }
-                        //         else {
-                        //             selector.append($('<option/>', {
-                        //                 value: options[k],
-                        //                 text: options[k],
-                        //                 selected: 'selected'
-                        //             }));
-                        //             valArray[h] = options[k];
-                        //             h++;
-                        //         }
-                        //     }
-                        //     selector.val(valArray).trigger("chosen:updated");
-                        //     break;
-                        // case 'Date':
-                        //     var date = field['data'];
-                        //
-                        //     if (date['circa'])
-                        //         $('[name=circa_' + flid + ']').prop('checked', true);
-                        //     $('[name=month_' + flid + ']').val(date['month']).trigger("chosen:updated");
-                        //     $('[name=day_' + flid + ']').val(date['day']).trigger("chosen:updated");
-                        //     $('[name=year_' + flid + ']').val(date['year']).trigger("chosen:updated");
-                        //     $('[name=era_' + flid + ']').val(date['era']).trigger("chosen:updated");
-                        //     break;
-                        // case 'Schedule':
-                        //     var j, events = field['events'];
-                        //     var selector = $('.' + flid + '-event-js');
-                        //     $('.' + flid + '-event-js option[value!="0"]').remove();
-                        //
-                        //     for (j = 0; j < events.length; j++) {
-                        //         selector.append($('<option/>', {
-                        //             value: events[j],
-                        //             text: events[j],
-                        //             selected: 'selected'
-                        //         })).trigger("chosen:updated");
-                        //     }
-                        //     break;
-                        // case 'Geolocator':
-                        //     var l, locations = field['locations'];
-                        //     var selector = $('.' + flid + '-location-js');
-                        //     $('.' + flid + '-location-js option[value!="0"]').remove();
-                        //
-                        //     for (l = 0; l < locations.length; l++) {
-                        //         selector.append($('<option/>', {
-                        //             value: locations[l],
-                        //             text: locations[l],
-                        //             selected: 'selected'
-                        //         })).trigger("chosen:updated");
-                        //     }
-                        //     break;
-                        // case 'Combo List':
-                        //     var p, combos = field['combolists'];
-                        //     var selector = $('.combo-value-div-js-' + flid);
-                        //
-                        //     // Empty defaults, we need to do this as the preset may have done so.
-                        //     // However if it hasn't, the defaults will be in the preset so this is safe.
-                        //     selector.find('.combo-value-item-js').each(function () {
-                        //         $(this).remove();
-                        //     });
-                        //     selector.find('.combo-list-empty').each(function () {
-                        //         $(this).remove();
-                        //     });
-                        //
-                        //     for (p = 0; p < combos.length; p++) {
-                        //         var rawData = combos[p];
-                        //
-                        //         var field1RawData = rawData.split('[!f1!]')[1];
-                        //         var field2RawData = rawData.split('[!f2!]')[1];
-                        //
-                        //         var field1ToPrint = field1RawData.split('[!]');
-                        //         var field2ToPrint = field2RawData.split('[!]');
-                        //
-                        //         var html = '<div class="combo-value-item-js">';
-                        //
-                        //         if (field1ToPrint.length == 1) {
-                        //             html += '<input type="hidden" name="' + flid + '_combo_one[]" value="' + field1ToPrint + '">';
-                        //             html += '<span class="combo-column">' + field1ToPrint + '</span>';
-                        //         } else {
-                        //             html += '<input type="hidden" name="' + flid + '_combo_one[]" value="' + field1ToPrint.join('[!]') + '">';
-                        //             html += '<span class="combo-column">' + field1ToPrint.join(' | ') + '</span>';
-                        //         }
-                        //
-                        //         if (field2ToPrint.length == 1) {
-                        //             html += '<input type="hidden" name="' + flid + '_combo_two[]" value="' + field2ToPrint + '">';
-                        //             html += '<span class="combo-column">' + field2ToPrint + '</span>';
-                        //         } else {
-                        //             html += '<input type="hidden" name="' + flid + '_combo_two[]" value="' + field2ToPrint.join('[!]') + '">';
-                        //             html += '<span class="combo-column">' + field2ToPrint.join(' | ') + '</span>';
-                        //         }
-                        //
-                        //         html += '<span class="combo-delete delete-combo-value-js"><a class="underline-middle-hover">[X]</a></span>';
-                        //
-                        //         html += '</div>';
-                        //
-                        //         selector.children('.combo-list-display').first().append(html);
-                        //     }
-                        //     break;
-                        // case 'Documents':
-                        //     applyFilePreset(field['documents'], presetID, flid);
-                        //     break;
-                        // case 'Gallery':
-                        //     applyGalleryPreset(field, presetID, flid);
-                        //     break;
-                        // case 'Playlist':
-                        //     applyFilePreset(field['audio'], presetID, flid);
-                        //     break;
-                        // case 'Video':
-                        //     applyFilePreset(field['video'], presetID, flid);
-                        //     break;
-                        // case '3D-Model':
-                        //     applyFilePreset(field['model'], presetID, flid);
-                        //     break;
-                        // case 'Associator':
-                        //     var r, records = field['records'];
-                        //     console.log(field['records']);
-                        //     var selector = $('#' + flid);
-                        //     $('#' + flid + ' option[value!="0"]').remove();
-                        //
-                        //     for (r = 0; r < records.length; r++) {
-                        //         selector.append($('<option/>', {
-                        //             value: records[r],
-                        //             text: records[r],
-                        //             selected: 'selected'
-                        //         })).trigger("chosen:updated");
-                        //     }
+                        case 'Rich Text':
+                            CKEDITOR.instances[flid].setData(value);
+                            break;
+                        case 'Integer':
+                            $('[name=' + flid + ']').val(value);
+                            break;
+                        case 'Float':
+                            $('[name=' + flid + ']').val(value);
+                            break;
+                        case 'List':
+                            $('[name=' + flid + ']').val(value).trigger("chosen:updated");
+                            break;
+                        case 'Multi-Select List':
+                            $('#list' + flid).val(JSON.parse(value)).trigger("chosen:updated");
+                            break;
+                        case 'Generated List':
+                            var options = JSON.parse(value);
+                            var valArray = [];
+                            var h = 0;
+                            var selector = $("#list" + flid);
+
+                            $('#' + flid + ' option[value!="0"]').remove();
+                            for (var k = 0; k < options.length; k++) {
+                                if ($("#list" + flid + " option[value='" + options[k] + "']").length > 0) {
+                                    valArray[h] = options[k];
+                                    h++;
+                                }
+                                else {
+                                    selector.append($('<option/>', {
+                                        value: options[k],
+                                        text: options[k],
+                                        selected: 'selected'
+                                    }));
+                                    valArray[h] = options[k];
+                                    h++;
+                                }
+                            }
+                            selector.val(valArray).trigger("chosen:updated");
+                            break;
+                        case 'Date':
+                            var date = moment(value);
+                            var month = ("0" + (date.month()+1) ).slice(-2);
+
+                            $('[name=month_' + flid + ']').val(month).trigger("chosen:updated");
+                            $('[name=day_' + flid + ']').val(date.date()).trigger("chosen:updated");
+                            $('[name=year_' + flid + ']').val(date.year()).trigger("chosen:updated");
+                            break;
+                        case 'DateTime':
+                            var date = moment(value);
+                            var month = ("0" + (date.month()+1) ).slice(-2);
+
+                            $('[name=month_' + flid + ']').val(month).trigger("chosen:updated");
+                            $('[name=day_' + flid + ']').val(date.date()).trigger("chosen:updated");
+                            $('[name=year_' + flid + ']').val(date.year()).trigger("chosen:updated");
+                            $('[name=hour_' + flid + ']').val(date.hour()).trigger("chosen:updated");
+                            $('[name=minute_' + flid + ']').val(date.minute()).trigger("chosen:updated");
+                            $('[name=second_' + flid + ']').val(date.second()).trigger("chosen:updated");
+                            break;
+                        case 'Historical Date':
+                            var date = JSON.parse(value);
+
+                            if(date['circa'])
+                                $('[name=circa_' + flid + ']').prop('checked', true);
+                            $('[name=month_' + flid + ']').val(date['month']).trigger("chosen:updated");
+                            $('[name=day_' + flid + ']').val(date['day']).trigger("chosen:updated");
+                            $('[name=year_' + flid + ']').val(date['year']).trigger("chosen:updated");
+                            $('[name=era_' + flid + ']').val(date['era']).trigger("chosen:updated");
+                            break;
+                        case 'Boolean':
+                            if(value)
+                                $('[name=' + flid + ']').prop('checked', true);
+                            break;
+                        case 'Geolocator':
+                            var locations = JSON.parse(value);
+                            var geoDiv = $('.geolocator-' + flid + '-js').find('.geolocator-card-container-js');
+                            var viewType = fields[flid]['options']['DataView'];
+
+                            locations.forEach(function (location, index) {
+                                geoDiv.append(geoDivHTML(location,flid,viewType));
+                            });
+
+                            break;
+                        case 'Associator':
+                            var r, records = JSON.parse(value);
+
+                            var selector = $('#' + flid);
+                            $('#' + flid + ' option[value!="0"]').remove();
+
+                            for (r = 0; r < records.length; r++) {
+                                selector.append($('<option/>', {
+                                    value: records[r],
+                                    text: records[r],
+                                    selected: 'selected'
+                                })).trigger("chosen:updated");
+                            }
+                            break;
+                        case 'Documents':
+                            var files = JSON.parse(value);
+                            var fileDiv = $('.filenames-' + flid + '-js');
+
+                            files.forEach(function (file, index) {
+                                fileDiv.append(fileDivHTML(file, flid, 'Document'));
+                            });
+
+                            break;
+                        case 'Gallery':
+                            var files = JSON.parse(value);
+                            var fileDiv = $('.filenames-' + flid + '-js');
+
+                            files.forEach(function (file, index) {
+                                fileDiv.append(galDivHTML(file, flid, 'Image'));
+                            });
+
+                            break;
+                        case 'Playlist':
+                            var files = JSON.parse(value);
+                            var fileDiv = $('.filenames-' + flid + '-js');
+
+                            files.forEach(function (file, index) {
+                                fileDiv.append(fileDivHTML(file, flid, 'Audio'));
+                            });
+
+                            break;
+                        case 'Video':
+                            var files = JSON.parse(value);
+                            var fileDiv = $('.filenames-' + flid + '-js');
+
+                            files.forEach(function (file, index) {
+                                fileDiv.append(fileDivHTML(file, flid, 'Video'));
+                            });
+
+                            break;
+                        case '3D-Model':
+                            var files = JSON.parse(value);
+                            var fileDiv = $('.filenames-' + flid + '-js');
+
+                            files.forEach(function (file, index) {
+                                fileDiv.append(fileDivHTML(file, flid, 'Model File'));
+                            });
+
+                            break;
+                        // case 'Combo List': //TODO::CASTLE
                         //     break;
                     }
                 }
             }
         }
 
-        /**
-         * Applies the preset for a file type field
-         */
-        function applyFilePreset(typeIndex, presetID, flid) { //TODO::CASTLE
-            var filenames = $(".filenames-"+flid+"-js");
-            filenames.empty();
-
-            if (!typeIndex) { /* Do nothing. */ }
-            else {
-                moveFiles(presetID, flid, userID);
-
-                for (var z = 0; z < typeIndex.length; z++) {
-                    filename = typeIndex[z].split('[Name]')[1];
-                    filenames.append(fileDivHTML(filename, flid, userID));
+        //Move files from preset to tmp directory
+        function moveFiles(presetID) {
+            $.ajax({
+                url: moveFilesUrl,
+                type: 'POST',
+                data: {
+                    '_token': csrfToken,
+                    'presetID': presetID
                 }
-            }
+            });
         }
 
         /**
-         * Applies the preset for a file type field
+         * Generates the HTML for an geolocator's div.
          */
-        function applyGalleryPreset(field, presetID, flid) { //TODO::CASTLE
-            var filenames = $(".filenames-"+flid+"-js");
-            filenames.empty();
+        function geoDivHTML(location, flid, viewType) {
+            var desc = location['description'];
+            var latlon = location['geometry']['location']['lat']+', '+location['geometry']['location']['lng'];
+            var address = location['formatted_address'];
+            var finalResult = JSON.stringify(location);
 
-            var typeIndex = field["images"];
-            var captions = field["captions"];
+            var HTML = '<div class="card geolocator-card geolocator-card-js">';
+            HTML += '<input type="hidden" class="list-option-js" name="'+flid+'[]" value="'+finalResult+'">';
+            HTML += '<div class="header">';
+            HTML += '<div class="left">';
+            HTML += '<div class="move-actions">';
+            HTML += '<a class="action move-action-js up-js" href=""><i class="icon icon-arrow-up"></i></a>';
+            HTML += '<a class="action move-action-js down-js" href=""><i class="icon icon-arrow-down"></i></a>';
+            HTML += '</div>';
+            HTML += '<span class="title">'+desc+'</span>';
+            HTML += '</div>';
+            HTML += '<div class="card-toggle-wrap">';
+            HTML += '<a class="geolocator-delete geolocator-delete-js tooltip" tooltip="Delete Location" href=""><i class="icon icon-trash"></i></a>';
+            HTML += '</div>';
+            HTML += '</div>';
+            if(viewType == 'LatLon')
+                HTML += '<div class="content"><p class="location"><span class="bold">LatLon:</span> '+latlon+'</p></div>';
+            else if(viewType == 'Address')
+                HTML += '<div class="content"><p class="location"><span class="bold">Address:</span> '+address+'</p></div>';
+            HTML += '</div>';
 
-            if (!typeIndex) { /* Do nothing. */ }
-            else {
-                moveFiles(presetID, flid, userID);
-
-                for (var z = 0; z < typeIndex.length; z++) {
-                    filename = typeIndex[z].split('[Name]')[1];
-                    filenames.append(galDivHTML(filename, captions[z], flid, userID));
-                }
-            }
+            return HTML;
         }
 
         /**
          * Generates the HTML for an uploaded file's div.
          */
-        function fileDivHTML(filename, flid, userID) { //TODO::CASTLE
-            // Build the delete file url.
-            var deleteUrl = baseFileUrl;
-            deleteUrl += 'f' + flid + 'u' + userID + '/' + myUrlEncode(filename);
+        function fileDivHTML(file, flid, btnName) {
+            var name = file['name'];
+            deleteUrl = deleteFileUrl+flid+"/"+name;
 
             var HTML = '<div class="card file-card file-card-js">';
-            HTML += '<input type="hidden" name="file'+flid+'[]" value ="'+filename+'">';
-            HTML += '<div class="header"><div class="left"><div class="move-actions">';
+            HTML += '<input type="hidden" name="'+flid+'[]" value="'+name+'">';
+            HTML += '<div class="header">';
+            HTML += '<div class="left">';
+            HTML += '<div class="move-actions">';
             HTML += '<a class="action move-action-js up-js" href=""><i class="icon icon-arrow-up"></i></a>';
-            HTML += '<a class="action move-action-js down-js" href=""><i class="icon icon-arrow-down"></i></a></div>';
-            HTML += '<span class="title">'+filename+'</span></div>';
+            HTML += '<a class="action move-action-js down-js" href=""><i class="icon icon-arrow-down"></i></a>';
+            HTML += '</div>';
+            HTML += '<span class="title">'+name+'</span>';
+            HTML += '</div>';
             HTML += '<div class="card-toggle-wrap">';
-            HTML += '<a href="#" class="file-delete upload-filedelete-js ml-sm tooltip" tooltip="Remove Image" data-url="'+deleteUrl+'">';
-            HTML += '<i class="icon icon-trash danger"></i></a></div>';
-            HTML += '</div></div>';
+            HTML += '<a href="#" class="file-delete upload-filedelete-js ml-sm tooltip" tooltip="Remove '+btnName+'" data-url="'+deleteUrl+'">';
+            HTML += '<i class="icon icon-trash danger"></i>';
+            HTML += '</a>';
+            HTML += '</div>';
+            HTML += '</div>';
+            HTML += '</div>';
 
             return HTML;
         }
@@ -1055,61 +1064,31 @@ Kora.Records.Create = function() {
         /**
          * Generates the HTML for an uploaded file's div with the gallery captions.
          */
-        function galDivHTML(filename, caption, flid, userID) { //TODO::CASTLE
-            // Build the delete file url.
-            var deleteUrl = baseFileUrl;
-            deleteUrl += 'f' + flid + 'u' + userID + '/' + myUrlEncode(filename);
+        function galDivHTML(file, flid, btnName) {
+            var name = file['name'];
+            var caption = file['caption'];
+            deleteUrl = deleteFileUrl+flid+"/"+name;
 
             var HTML = '<div class="card file-card file-card-js">';
-            HTML += '<input type="hidden" name="file'+flid+'[]" value ="'+filename+'">';
-            HTML += '<div class="header"><div class="left"><div class="move-actions">';
+            HTML += '<input type="hidden" name="'+flid+'[]" value="'+name+'">';
+            HTML += '<div class="header">';
+            HTML += '<div class="left">';
+            HTML += '<div class="move-actions">';
             HTML += '<a class="action move-action-js up-js" href=""><i class="icon icon-arrow-up"></i></a>';
-            HTML += '<a class="action move-action-js down-js" href=""><i class="icon icon-arrow-down"></i></a></div>';
-            HTML += '<span class="title">'+filename+'</span></div>';
+            HTML += '<a class="action move-action-js down-js" href=""><i class="icon icon-arrow-down"></i></a>';
+            HTML += '</div>';
+            HTML += '<span class="title">'+name+'</span>';
+            HTML += '</div>';
             HTML += '<div class="card-toggle-wrap">';
-            HTML += '<a href="#" class="file-delete upload-filedelete-js ml-sm tooltip" tooltip="Remove Image" data-url="'+deleteUrl+'">';
-            HTML += '<i class="icon icon-trash danger"></i></a></div>';
+            HTML += '<a href="#" class="file-delete upload-filedelete-js ml-sm tooltip" tooltip="Remove '+btnName+'" data-url="'+deleteUrl+'">';
+            HTML += '<i class="icon icon-trash danger"></i>';
+            HTML += '</a>';
+            HTML += '</div>';
             HTML += '<textarea type="text" name="file_captions'+flid+'[]" class="caption autosize-js" placeholder="Enter caption here">'+caption+'</textarea>';
-            HTML += '</div></div>';
+            HTML += '</div>';
+            HTML += '</div>';
 
             return HTML;
-        }
-
-        /**
-         * Encodes a string for a url.
-         *
-         * Javascript's encode function wasn't playing nice with our system so I wrote this based off of
-         * a post on the PHP.net user contributions on the urlencode() page davis dot pexioto at gmail dot com
-         */
-        function myUrlEncode(to_encode) { //TODO::CASTLE
-            // Build array of characters that need to be replaced.
-            var replace = ['!', '*', "'", "(", ")", ";", ":", "@", "&", "=", "+", "$", ",", "/", "?",
-                "%", "#", "[", "]"];
-
-            // Build array of the replacements for the characters listed above.
-            var entities = ['%21', '%2A', '%27', '%28', '%29', '%3B', '%3A', '%40', '%26', '%3D', '%2B',
-                '%24', '%2C', '%2F', '%3F', '%25', '%23', '%5B', '%5D'];
-
-            // Replace them in the string!
-            for(var i = 0; i < entities.length; i++) {
-                to_encode = to_encode.replace(replace[i], entities[i]);
-            }
-
-            return to_encode;
-        }
-
-        //Move files from preset directory to tmp directory
-        function moveFiles(presetID, flid, userID) { //TODO::CASTLE
-            $.ajax({
-                url: moveFilesUrl,
-                type: 'POST',
-                data: {
-                    '_token': csrfToken,
-                    'presetID': presetID,
-                    'flid': flid,
-                    'userID': userID
-                }
-            });
         }
     }
 

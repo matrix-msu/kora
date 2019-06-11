@@ -2,6 +2,7 @@
   '/assets/javascripts/vendor/jquery/jquery.js',
   '/assets/javascripts/vendor/jquery/jquery-ui.js',
   '/assets/javascripts/vendor/chosen.js',
+  '/assets/javascripts/vendor/moment.js',
   '/assets/javascripts/vendor/fileUpload/vendor/jquery.ui.widget.js',
   '/assets/javascripts/vendor/fileUpload/jquery.iframe-transport.js',
   '/assets/javascripts/vendor/fileUpload/jquery.fileupload.js',

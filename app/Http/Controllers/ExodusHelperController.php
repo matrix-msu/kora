@@ -3,6 +3,7 @@
 use App\Form;
 use App\KoraFields\FileTypeField;
 use App\Record;
+use App\RecordPreset;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -660,19 +661,18 @@ class ExodusHelperController extends Controller {
 
         unset($ridChunks);
 
-        //Last but not least, record presets!!!!!!!!! //TODO::CASTLE
-//        $recordPresets = $records = $con->query('select * from recordPreset where schemeid='.$ogSid);
-//        while($rp = $recordPresets->fetch_assoc()) {
-//            $preset = new RecordPreset();
-//            $preset->rid = $oldKidToNewRid[$rp['kid']];
-//            $preset->fid = $newForm->fid;
-//            $preset->name = $rp['name'];
-//
-//            $preset->save();
-//
-//            $preset->preset = json_encode($this->getRecordArray($preset->rid, $preset->id));
-//            $preset->save();
-//        }
+        //Last but not least, record presets!!!!!!!!!
+        $recordPresets = $records = $con->query('select * from recordPreset where schemeid='.$ogSid);
+        $pc = new RecordPresetController();
+        while($rp = $recordPresets->fetch_assoc()) {
+            $record = RecordController::getRecord($oldKidToNewKid[$rp['kid']]);
+            $preset = new RecordPreset();
+            $preset->form_id = $record->form_id;
+            $preset->record_kid = $record->kid;
+
+            $preset->preset = $pc->getRecordArray($record, $rp['name']);
+            $preset->save();
+        }
 
         //End Record stuff//////////////////////////////////////
 
@@ -682,84 +682,5 @@ class ExodusHelperController extends Controller {
         DB::table('exodus_overall')->where('id', $exodus_id)->increment('progress',1,['updated_at'=>Carbon::now()]);
 
         mysqli_close($con);
-    }
-
-    /**
-     * Gets an array representation of a record for saving in preset.
-     *
-     * @param  int $pid - Project ID
-     * @param  int $id - Preset ID
-     * @return array - The record data
-     */
-    public function getRecordArray($rid, $id) { //TODO::CASTLE
-        $record = Record::where('rid', '=', $rid)->first();
-        $form = Form::where('fid', '=', $record->fid)->first();
-
-        $field_collect = $form->fields()->get();
-        $field_array = array();
-        $flid_array = array();
-
-        $fileFields = false; // Does the record have any file fields?
-
-        foreach($field_collect as $field) {
-            $data = array();
-            $data['flid'] = $field->flid;
-            $data['type'] = $field->type;
-
-            //Get the typed field so we can store it in proper record preset form
-            $typedField = $field->getTypedFieldFromRID($record->rid);
-            $exists = true;
-            if(is_null($typedField)) {
-	            $typedField = $field->getTypedField();
-                $exists = false;
-            }
-
-            $data = $typedField->getRecordPresetArray($data,$exists);
-            $flid_array[] = $field->flid;
-
-            if($typedField instanceof FileTypeField)
-                $fileFields = true;
-
-            $field_array[$field->flid] = $data;
-        }
-
-        // A file field was in use, so we need to move the record files to a preset directory.
-        if($fileFields)
-            $this->moveFilesToPreset($record->rid, $id);
-
-        $response['data'] = $field_array;
-        $response['flids'] = $flid_array;
-        return $response;
-    }
-
-    /**
-     * Moves the record files to its preset directory.
-     *
-     * @param  int $pid - Project ID
-     * @param  int $id - Preset ID
-     */
-    public function moveFilesToPreset($rid, $id) { //TODO::CASTLE
-        $presets_path = storage_path('app/presetFiles');
-
-        //
-        // Create the presets file path if it does not exist.
-        //
-        if(!is_dir($presets_path))
-            mkdir($presets_path, 0775, true);
-
-        $path = $presets_path . '/preset' . $id; // Path for the new preset's directory.
-
-        if(!is_dir($path))
-            mkdir($path, 0775, true);
-
-        // Build the record's directory.
-        $record = RecordController::getRecord($rid);
-
-        $record_path = storage_path('app/files/p' . $record->pid . '/f' . $record->fid . '/r' . $record->rid);
-
-        //
-        // Recursively copy the record's file directory.
-        //
-        RecordPresetController::recurse_copy($record_path, $path);
     }
 }

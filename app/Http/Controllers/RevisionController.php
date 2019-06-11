@@ -140,14 +140,14 @@ class RevisionController extends Controller {
         switch($type) {
             case Revision::CREATE:
                 $revArray['data'] = self::buildDataArray($record);
-                $revArray['data_files'] = self::getFileHashForRevisions($record);
+                $revArray['data_files'] = $record->getHashedRecordFiles();
                 $revArray['oldData'] = null;
                 $revArray['oldData_files'] = null;
                 break;
             case Revision::EDIT:
             case Revision::ROLLBACK:
                 $revArray['data'] = self::buildDataArray($record);
-                $revArray['data_files'] = self::getFileHashForRevisions($record);
+                $revArray['data_files'] = $record->getHashedRecordFiles();
                 $revArray['oldData'] = self::buildDataArray($oldRecord);
                 $revArray['oldData_files'] = $oldFiles;
                 break;
@@ -155,7 +155,7 @@ class RevisionController extends Controller {
                 $revArray['data'] = null;
                 $revArray['data_files'] = null;
                 $revArray['oldData'] = self::buildDataArray($record);
-                $revArray['oldData_files'] = self::getFileHashForRevisions($record);
+                $revArray['oldData_files'] = $record->getHashedRecordFiles();
                 break;
         }
 
@@ -300,7 +300,7 @@ class RevisionController extends Controller {
     public function rollback_routine(Record $record, Revision $revision, $is_rollback = true) {
         if($is_rollback) {
             $oldRecordCopy = $record->replicate();
-            $oldRecordFileCopy = self::getFileHashForRevisions($record);
+            $oldRecordFileCopy = $record->getHashedRecordFiles();
         }
 
         foreach($revision->revision['oldData'] as $flid => $data) {
@@ -366,35 +366,5 @@ class RevisionController extends Controller {
      */
     public static function getRevisionCount($kid) {
        return Revision::where('record_kid', $kid)->count();
-    }
-
-    /**
-     * Builds the file data array for the revision.
-     *
-     * @param  Record $record - Record to pull data from
-     * @return array - The file data for DB storage
-     */
-    public static function getFileHashForRevisions($record) {
-        $hashArray = [];
-
-        $storageType = 'LaravelStorage'; //TODO:: make this a config once we actually support other storage types
-        switch($storageType) {
-            case 'LaravelStorage':
-                $dir = storage_path('app/files/'.$record->project_id.'/'.$record->form_id.'/'.$record->id);
-                if(file_exists($dir)) {
-                    foreach(new \DirectoryIterator($dir) as $file) {
-                        if($file->isFile()) {
-                            $name = $file->getFilename();
-                            $data = file_get_contents("$dir/$name");
-                            $hashArray[$name] = base64_encode($data);
-                        }
-                    }
-                }
-                break;
-            default:
-                break;
-        }
-
-        return $hashArray;
     }
 }

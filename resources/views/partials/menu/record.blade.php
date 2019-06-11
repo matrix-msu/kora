@@ -29,11 +29,9 @@
 
         <li class="link">
           @if(\Auth::user()->admin || \Auth::user()->isFormAdmin($form))
-                {{--TODO::CASTLE--}}
-            <?php
-                $alreadyPreset = false;
-                //$alreadyPreset = (\App\RecordPreset::where('rid',$rid)->count() > 0);
-            ?>
+            @php
+                $alreadyPreset = (\App\RecordPreset::where('record_kid',$pid.'-'.$fid.'-'.$rid)->count() > 0);
+            @endphp
             @if($alreadyPreset)
               <a class="already-preset-js" href="#">Designated as Preset</a>
             @else
