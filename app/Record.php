@@ -98,9 +98,8 @@ class Record extends Model {
      *
      * @return bool - Is a preset
      */
-    public function isPreset() { //TODO::CASTLE
-        return false;
-        //return (RecordPreset::where('rid',$this->rid)->count()>0);
+    public function isPreset() {
+        return (RecordPreset::where('record_kid',$this->kid)->count()>0);
     }
 
     /**

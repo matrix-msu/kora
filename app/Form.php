@@ -213,6 +213,15 @@ class Form extends Model {
     }
 
     /**
+     * Returns the record revisions associated with a form.
+     *
+     * @return HasMany
+     */
+    public function recordPresets() {
+        return $this->hasMany('App\RecordPreset','form_id');
+    }
+
+    /**
      * Determines if a form has any fields.
      *
      * @return bool - has fields
@@ -295,7 +304,7 @@ class Form extends Model {
     }
 
     /**
-     * Updates a field within a form.
+     * Deletes a field within a form.
      */
     public function deleteField($flid) {
         $layout = $this->layout;
@@ -344,9 +353,8 @@ class Form extends Model {
         }
 
         //Delete other record related stuff before dropping records table
-        //Presets?
-        //TODO::CASTLE
         $this->revisions()->delete();
+        $this->recordPresets()->delete();
 
         $rTable = new \CreateRecordsTable();
 
