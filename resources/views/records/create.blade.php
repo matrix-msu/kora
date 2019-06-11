@@ -127,7 +127,6 @@
 
     <script src="{{ url('assets/javascripts/vendor/ckeditor/ckeditor.js') }}"></script>
 
-
     <script type="text/javascript">
         var getPresetDataUrl = "{{action('RecordPresetController@getData')}}";
         var moveFilesUrl = '{{action('RecordPresetController@moveFilesToTemp')}}';

@@ -37,7 +37,6 @@ class InstallController extends Controller {
         "app/exodusAssoc/data",
         "app/exports",
         "app/files",
-        "app/presetFiles",
         "app/profiles",
 		"app/tmpFiles",
 	];

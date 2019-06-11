@@ -796,7 +796,7 @@ Kora.Records.Create = function() {
         })
     }
 
-    function initializeRecordPresets() { //TODO::CASTLE
+    function initializeRecordPresets() {
         $('.preset-check-js').click(function() {
             var presetDiv = $('.preset-record-div-js');
             if(this.checked) {
@@ -825,11 +825,11 @@ Kora.Records.Create = function() {
         });
 
         function putArray(ary) {
+            console.log(ary);
             var data = ary['data'];
-            var fields = ary['fields']
+            var fields = ary['fields'];
             var presetID = $('.preset-record-js').val();
 
-            var i;
             for(var flid in data) {
                 value = data[flid];
                 type = fields[flid]['type'];
@@ -840,77 +840,103 @@ Kora.Records.Create = function() {
                         case 'Text':
                             $('[name=' + flid + ']').val(value);
                             break;
-                        // case 'Rich Text':
-                        //     CKEDITOR.instances[flid].setData(field['rawtext']);
-                        //     break;
-                        // case 'Number':
-                        //     $('[name=' + flid + ']').val(field['number']);
-                        //     break;
-                        // case 'List':
-                        //     $('[name=' + flid + ']').val(field['option']).trigger("chosen:updated");
-                        //     break;
-                        // case 'Multi-Select List':
-                        //     $('#list' + flid).val(field['options']).trigger("chosen:updated");
-                        //     break;
-                        // case 'Generated List':
-                        //     var options = field['options'];
-                        //     var valArray = [];
-                        //     var h = 0;
-                        //     var selector = $("#list" + flid);
-                        //     for (var k = 0; k < options.length; k++) {
-                        //         if ($("#list" + flid + " option[value='" + options[k] + "']").length > 0) {
-                        //             valArray[h] = options[k];
-                        //             h++;
-                        //         }
-                        //         else {
-                        //             selector.append($('<option/>', {
-                        //                 value: options[k],
-                        //                 text: options[k],
-                        //                 selected: 'selected'
-                        //             }));
-                        //             valArray[h] = options[k];
-                        //             h++;
-                        //         }
-                        //     }
-                        //     selector.val(valArray).trigger("chosen:updated");
-                        //     break;
-                        // case 'Date':
-                        //     var date = field['data'];
-                        //
-                        //     if (date['circa'])
-                        //         $('[name=circa_' + flid + ']').prop('checked', true);
-                        //     $('[name=month_' + flid + ']').val(date['month']).trigger("chosen:updated");
-                        //     $('[name=day_' + flid + ']').val(date['day']).trigger("chosen:updated");
-                        //     $('[name=year_' + flid + ']').val(date['year']).trigger("chosen:updated");
-                        //     $('[name=era_' + flid + ']').val(date['era']).trigger("chosen:updated");
-                        //     break;
-                        // case 'Schedule':
-                        //     var j, events = field['events'];
-                        //     var selector = $('.' + flid + '-event-js');
-                        //     $('.' + flid + '-event-js option[value!="0"]').remove();
-                        //
-                        //     for (j = 0; j < events.length; j++) {
-                        //         selector.append($('<option/>', {
-                        //             value: events[j],
-                        //             text: events[j],
-                        //             selected: 'selected'
-                        //         })).trigger("chosen:updated");
-                        //     }
-                        //     break;
-                        // case 'Geolocator':
-                        //     var l, locations = field['locations'];
-                        //     var selector = $('.' + flid + '-location-js');
-                        //     $('.' + flid + '-location-js option[value!="0"]').remove();
-                        //
-                        //     for (l = 0; l < locations.length; l++) {
-                        //         selector.append($('<option/>', {
-                        //             value: locations[l],
-                        //             text: locations[l],
-                        //             selected: 'selected'
-                        //         })).trigger("chosen:updated");
-                        //     }
-                        //     break;
-                        // case 'Combo List':
+                        case 'Rich Text':
+                            CKEDITOR.instances[flid].setData(value);
+                            break;
+                        case 'Integer':
+                            $('[name=' + flid + ']').val(value);
+                            break;
+                        case 'Float':
+                            $('[name=' + flid + ']').val(value);
+                            break;
+                        case 'List':
+                            $('[name=' + flid + ']').val(value).trigger("chosen:updated");
+                            break;
+                        case 'Multi-Select List':
+                            $('#list' + flid).val(JSON.parse(value)).trigger("chosen:updated");
+                            break;
+                        case 'Generated List':
+                            var options = JSON.parse(value);
+                            var valArray = [];
+                            var h = 0;
+                            var selector = $("#list" + flid);
+
+                            $('#' + flid + ' option[value!="0"]').remove();
+                            for (var k = 0; k < options.length; k++) {
+                                if ($("#list" + flid + " option[value='" + options[k] + "']").length > 0) {
+                                    valArray[h] = options[k];
+                                    h++;
+                                }
+                                else {
+                                    selector.append($('<option/>', {
+                                        value: options[k],
+                                        text: options[k],
+                                        selected: 'selected'
+                                    }));
+                                    valArray[h] = options[k];
+                                    h++;
+                                }
+                            }
+                            selector.val(valArray).trigger("chosen:updated");
+                            break;
+                        case 'Date':
+                            var date = moment(value);
+                            var month = ("0" + (date.month()+1) ).slice(-2);
+
+                            $('[name=month_' + flid + ']').val(month).trigger("chosen:updated");
+                            $('[name=day_' + flid + ']').val(date.date()).trigger("chosen:updated");
+                            $('[name=year_' + flid + ']').val(date.year()).trigger("chosen:updated");
+                            break;
+                        case 'DateTime':
+                            var date = moment(value);
+                            var month = ("0" + (date.month()+1) ).slice(-2);
+
+                            $('[name=month_' + flid + ']').val(month).trigger("chosen:updated");
+                            $('[name=day_' + flid + ']').val(date.date()).trigger("chosen:updated");
+                            $('[name=year_' + flid + ']').val(date.year()).trigger("chosen:updated");
+                            $('[name=hour_' + flid + ']').val(date.hour()).trigger("chosen:updated");
+                            $('[name=minute_' + flid + ']').val(date.minute()).trigger("chosen:updated");
+                            $('[name=second_' + flid + ']').val(date.second()).trigger("chosen:updated");
+                            break;
+                        case 'Historical Date':
+                            var date = JSON.parse(value);
+
+                            if(date['circa'])
+                                $('[name=circa_' + flid + ']').prop('checked', true);
+                            $('[name=month_' + flid + ']').val(date['month']).trigger("chosen:updated");
+                            $('[name=day_' + flid + ']').val(date['day']).trigger("chosen:updated");
+                            $('[name=year_' + flid + ']').val(date['year']).trigger("chosen:updated");
+                            $('[name=era_' + flid + ']').val(date['era']).trigger("chosen:updated");
+                            break;
+                        case 'Boolean':
+                            if(value)
+                                $('[name=' + flid + ']').prop('checked', true);
+                            break;
+                        case 'Geolocator':
+                            var locations = JSON.parse(value);
+                            var geoDiv = $('.geolocator-' + flid + '-js').find('.geolocator-card-container-js');
+                            var viewType = fields[flid]['options']['DataView'];
+                            
+                            locations.forEach(function (location, index) {
+                                geoDiv.append(geoDivHTML(location,flid,viewType));
+                            });
+
+                            break;
+                        case 'Associator':
+                            var r, records = JSON.parse(value);
+
+                            var selector = $('#' + flid);
+                            $('#' + flid + ' option[value!="0"]').remove();
+
+                            for (r = 0; r < records.length; r++) {
+                                selector.append($('<option/>', {
+                                    value: records[r],
+                                    text: records[r],
+                                    selected: 'selected'
+                                })).trigger("chosen:updated");
+                            }
+                            break;
+                        // case 'Combo List': //TODO::CASTLE
                         //     var p, combos = field['combolists'];
                         //     var selector = $('.combo-value-div-js-' + flid);
                         //
@@ -957,7 +983,7 @@ Kora.Records.Create = function() {
                         //         selector.children('.combo-list-display').first().append(html);
                         //     }
                         //     break;
-                        // case 'Documents':
+                        // case 'Documents': //TODO::CASTLE
                         //     applyFilePreset(field['documents'], presetID, flid);
                         //     break;
                         // case 'Gallery':
@@ -972,23 +998,40 @@ Kora.Records.Create = function() {
                         // case '3D-Model':
                         //     applyFilePreset(field['model'], presetID, flid);
                         //     break;
-                        // case 'Associator':
-                        //     var r, records = field['records'];
-                        //     console.log(field['records']);
-                        //     var selector = $('#' + flid);
-                        //     $('#' + flid + ' option[value!="0"]').remove();
-                        //
-                        //     for (r = 0; r < records.length; r++) {
-                        //         selector.append($('<option/>', {
-                        //             value: records[r],
-                        //             text: records[r],
-                        //             selected: 'selected'
-                        //         })).trigger("chosen:updated");
-                        //     }
-                        //     break;
                     }
                 }
             }
+        }
+
+        /**
+         * Generates the HTML for an geolocator's div.
+         */
+        function geoDivHTML(location, flid, viewType) {
+            var desc = location['description'];
+            var latlon = location['geometry']['location']['lat']+', '+location['geometry']['location']['lng'];
+            var address = location['formatted_address'];
+            var finalResult = JSON.stringify(location);
+            var HTML = '<div class="card geolocator-card geolocator-card-js">';
+            HTML += '<input type="hidden" class="list-option-js" name="'+flid+'[]" value="'+finalResult+'">';
+            HTML += '<div class="header">';
+            HTML += '<div class="left">';
+            HTML += '<div class="move-actions">';
+            HTML += '<a class="action move-action-js up-js" href=""><i class="icon icon-arrow-up"></i></a>';
+            HTML += '<a class="action move-action-js down-js" href=""><i class="icon icon-arrow-down"></i></a>';
+            HTML += '</div>';
+            HTML += '<span class="title">'+desc+'</span>';
+            HTML += '</div>';
+            HTML += '<div class="card-toggle-wrap">';
+            HTML += '<a class="geolocator-delete geolocator-delete-js tooltip" tooltip="Delete Location" href=""><i class="icon icon-trash"></i></a>';
+            HTML += '</div>';
+            HTML += '</div>';
+            if(viewType == 'LatLon')
+                HTML += '<div class="content"><p class="location"><span class="bold">LatLon:</span> '+latlon+'</p></div>';
+            else if(viewType == 'Address')
+                HTML += '<div class="content"><p class="location"><span class="bold">Address:</span> '+address+'</p></div>';
+            HTML += '</div>';
+
+            return HTML;
         }
 
         /**
@@ -1098,7 +1141,7 @@ Kora.Records.Create = function() {
             return to_encode;
         }
 
-        //Move files from preset directory to tmp directory
+        //Move files from preset to tmp directory
         function moveFiles(presetID, flid, userID) { //TODO::CASTLE
             $.ajax({
                 url: moveFilesUrl,

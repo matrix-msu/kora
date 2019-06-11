@@ -403,7 +403,7 @@ class RecordController extends Controller {
         $kid = "$pid-$fid-$rid";
         $record = self::getRecord($kid);
         $oldRecordCopy = $record->replicate();
-        $oldRecordFileCopy = RevisionController::getFileHashForRevisions($record);
+        $oldRecordFileCopy = $record->getHashedRecordFiles();
 
         //Before we move files back over from edit, clear the record folder
         $storageType = 'LaravelStorage'; //TODO:: make this a config once we actually support other storage types

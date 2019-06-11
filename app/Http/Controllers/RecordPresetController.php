@@ -1,7 +1,10 @@
 <?php namespace App\Http\Controllers;
 
+use App\Form;
+use App\KoraFields\FileTypeField;
 use App\Record;
 use App\RecordPreset;
+use App\Revision;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -83,24 +86,17 @@ class RecordPresetController extends Controller {
     public function getRecordArray($record, $name) {
         $form = FormController::getForm($record->form_id);
 
-        $field_collect = $form->layout["fields"];
-        $field_array = array();
+        $fields = $form->layout["fields"];
+        $dataArray = array();
 
-        $fileFields = false; // Does the record have any file fields? //TODO::CASTLE
-
-        foreach($field_collect as $flid => $field) {
-            //We hit a file type field //TODO::CASTLE
-//            if($typedField instanceof FileTypeField)
-//                $fileFields = true;
-
-            $field_array[$flid] = $record->{$flid};
+        foreach($fields as $flid => $field) {
+            $dataArray[$flid] = $record->{$flid};
         }
 
-        // A file field was in use, so we need to move the record files to a preset directory. //TODO::CASTLE
-//        if($fileFields and !is_null($preID))
-//            $this->moveFilesToPreset($record->rid, $preID);
+        //Move any record files
+        $response['files'] = $record->getHashedRecordFiles();
 
-        $response['data'] = $field_array;
+        $response['data'] = $dataArray;
         $response['name'] = $name;
 
         return $response;
@@ -162,61 +158,12 @@ class RecordPresetController extends Controller {
      * @param  Request $request
      * @return JsonResponse
      */
-    public function deletePreset(Request $request) { //TODO::CASTLE
+    public function deletePreset(Request $request) {
         $id = $request->id;
         $preset = RecordPreset::where('id', $id)->first();
         $preset->delete();
 
-        //
-        // Delete the preset's file directory. //TODO::CASTLE
-        //
-//        $path = storage_path('app/presetFiles/preset'. $id);
-//
-//        if(is_dir($path)) {
-//            $it = new RecursiveDirectoryIterator($path, RecursiveDirectoryIterator::SKIP_DOTS);
-//            $files = new RecursiveIteratorIterator($it,
-//                RecursiveIteratorIterator::CHILD_FIRST);
-//            foreach($files as $file) {
-//                if ($file->isDir())
-//                    rmdir($file->getRealPath());
-//                else
-//                    unlink($file->getRealPath());
-//            }
-//            rmdir($path);
-//        }
-
         return response()->json(["status"=>true,"message"=>"record_preset_deleted"],200);
-    }
-
-    /**
-     * Moves a records files into the folder for the preset.
-     *
-     * @param  int $rid - Record ID
-     * @param  int $preID - Preset ID
-     */
-    public function moveFilesToPreset($rid, $preID) { //TODO::CASTLE
-        $presets_path = storage_path('app/presetFiles');
-
-        //
-        // Create the presets file path if it does not exist.
-        //
-        if(!is_dir($presets_path))
-            mkdir($presets_path, 0775, true);
-
-        $path = $presets_path . '/preset' . $preID; // Path for the new preset's directory.
-
-        if(!is_dir($path))
-            mkdir($path, 0775, true);
-
-        // Build the record's directory.
-        $record = RecordController::getRecord($rid);
-
-        $record_path = storage_path('app/files/p' . $record->pid . '/f' . $record->fid . '/r' . $record->rid);
-
-        //
-        // Recursively copy the record's file directory.
-        //
-        self::recurse_copy($record_path, $path);
     }
 
     /**
