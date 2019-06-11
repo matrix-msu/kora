@@ -32,6 +32,8 @@ Kora.Records.Show = function() {
                     direction: 'up',
                     mode: 'show',
                     duration: 240
+                }, function () {
+                  $token.css('height', '');
                 });
             } else {
                 $token.animate({
@@ -360,11 +362,11 @@ Kora.Records.Show = function() {
             // document.addEventListener('MSFullscreenChange', exitFullscreen);
         });
     }
-  
+
   function initializeCardTitleEllipsifying() {
     function adjustProjectCardTitle() {
       var cards = $($(".view-record").find(".page.card"));
-      
+
       for (i = 0; i < cards.length; i++) {
         var card = $(cards[i]);
         var name_span = $(card.find($(".name")));
@@ -384,11 +386,11 @@ Kora.Records.Show = function() {
         name_span.css("max-width", title_width + "px");
       }
     }
-  	
+
     $(window).resize(function() {
       adjustProjectCardTitle();
     });
-	
+
     $(document).ready(function() {
       adjustProjectCardTitle();
     });

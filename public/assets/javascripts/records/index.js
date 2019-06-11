@@ -87,7 +87,7 @@ Kora.Records.Index = function() {
     function initializePaginationShortcut() {
         $('.page-link.active').click(function(e) {
             e.preventDefault();
-            
+
             var placeholder = parseInt($('.page-link.active').next('.page-link').html()) - 1
             if (isNaN(placeholder)) {
               placeholder = parseInt($('.page-link.active').prev('.page-link').html()) + 1
@@ -180,6 +180,8 @@ Kora.Records.Index = function() {
                     direction: 'up',
                     mode: 'show',
                     duration: 240
+                }, function () {
+                  $token.css('height', '');
                 });
             } else {
                 $token.animate({
