@@ -43,39 +43,61 @@
             </div>
         </section>
 
-        <section class="display-records">
-            <div class="form-group records-title mt-xxxl">
-                Showing {{sizeof($records)}} of {{$total}} Records
-            </div>
+        <div class="display-keywords mt-xxl"><ul class="keywords">
+            @php $keywords = explode(' ', $keywords); @endphp
+            <!-- 2/3 search pages use js for this, and this page also uses the same script that holds said js
+            but this page is not set up to work with this script.  So it exists but we can't use it.
+            I've decided to use php for this specifically to avoid cluttered js and conflicts with the other system -->
+            @for ($i = 0; $i < count($keywords); $i++)
+                <li class="keyword"><span>{{ $keywords[$i] }}</span><a class="keyword-close"></a></li>
+            @endfor
 
-            @include('partials.records.pagination')
+            @if (count($keywords) > 0)
+                <li class="back-to-search"><span>Back to Search</span><i class="icon icon-arrow-up"></i></li>
+            @endif
+        </ul></div>
 
-            <section class="filters center">
-                <div class="pagination-options pagination-options-js">
-                    <select class="page-count option-dropdown-js" id="page-count-dropdown">
-                        <option value="10">10 per page</option>
-                        <option value="20" {{app('request')->input('page-count') === '20' ? 'selected' : ''}}>20 per page</option>
-                        <option value="30" {{app('request')->input('page-count') === '30' ? 'selected' : ''}}>30 per page</option>
-                    </select>
-                    <select class="order option-dropdown-js" id="order-dropdown">
-                        <option value="lmd">Last Modified Descending</option>
-                        <option value="lma" {{app('request')->input('order') === 'lma' ? 'selected' : ''}}>Last Modified Ascending</option>
-                        <option value="idd" {{app('request')->input('order') === 'idd' ? 'selected' : ''}}>ID Descending</option>
-                        <option value="ida" {{app('request')->input('order') === 'ida' ? 'selected' : ''}}>ID Ascending</option>
-                    </select>
-                </div>
-                <div class="show-options show-options-js">
-                    <a href="#" class="expand-fields-js" title="Expand all fields"><i class="icon icon-expand icon-expand-js"></i></a>
-                    <a href="#" class="collapse-fields-js" title="Collapse all fields"><i class="icon icon-condense icon-condense-js"></i></a>
-                </div>
-            </section>
+        @if(sizeof($records) > 0)
+          <section class="display-records">
+              <div class="form-group records-title mt-xxxl">
+                  Showing {{sizeof($records)}} of {{$total}} Records
+              </div>
 
-            @foreach($records as $index => $record)
-                @include('partials.records.card')
-            @endforeach
+              @include('partials.records.pagination')
 
-            @include('partials.records.pagination')
-        </section>
+              <section class="filters center">
+                  <div class="pagination-options pagination-options-js">
+                      <select class="page-count option-dropdown-js" id="page-count-dropdown">
+                          <option value="10">10 per page</option>
+                          <option value="20" {{app('request')->input('page-count') === '20' ? 'selected' : ''}}>20 per page</option>
+                          <option value="30" {{app('request')->input('page-count') === '30' ? 'selected' : ''}}>30 per page</option>
+                      </select>
+                      <select class="order option-dropdown-js" id="order-dropdown">
+                          <option value="lmd">Last Modified Descending</option>
+                          <option value="lma" {{app('request')->input('order') === 'lma' ? 'selected' : ''}}>Last Modified Ascending</option>
+                          <option value="idd" {{app('request')->input('order') === 'idd' ? 'selected' : ''}}>ID Descending</option>
+                          <option value="ida" {{app('request')->input('order') === 'ida' ? 'selected' : ''}}>ID Ascending</option>
+                      </select>
+                  </div>
+                  <div class="show-options show-options-js">
+                      <a href="#" class="expand-fields-js" title="Expand all fields"><i class="icon icon-expand icon-expand-js"></i></a>
+                      <a href="#" class="collapse-fields-js" title="Collapse all fields"><i class="icon icon-condense icon-condense-js"></i></a>
+                  </div>
+              </section>
+
+              @foreach($records as $index => $record)
+                  @include('partials.records.card')
+              @endforeach
+
+              @include('partials.records.pagination')
+
+              <div class="form-group search-button-container mt-xxxl">
+                  <a class="btn half-sub-btn to-top">Try Another Search</a>
+              </div>
+          </section>
+        @else
+            @include('partials.records.no-records')
+        @endif
     </section>
 @stop
 
