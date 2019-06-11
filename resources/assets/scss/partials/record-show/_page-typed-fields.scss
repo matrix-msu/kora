@@ -14,10 +14,16 @@
 
   .icon {
     margin: auto;
+    opacity: .6;
+    @include transition();
   }
 
   &:hover {
     background: #f4f4f4;
+
+    .icon {
+      opacity: .8;
+    }
   }
 
   &-circle {
@@ -237,19 +243,27 @@
 
   .field-btn {
     .icon {
-      font-size: 7px;
+      font-size: 6px;
     }
   }
 
   .next-button {
     .icon {
-      transform: rotate(270deg);
+      left: 48%;
+      margin: 0;
+      position: absolute;
+      top: 50%;
+      transform: translate(-38%, -50%) rotate(270deg);
     }
   }
 
   .prev-button {
     .icon {
-      transform: rotate(90deg);
+      left: 52%;
+      margin: 0;
+      position: absolute;
+      top: 50%;
+      transform: translate(-60%, -50%) rotate(90deg);
     }
   }
 }
