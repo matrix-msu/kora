@@ -169,12 +169,14 @@ class GeolocatorField extends BaseField {
      *
      * @return mixed - Processed data
      */
-    public function processRevisionData($data) { //TODO::CASTLE
-        return '';
+    public function processRevisionData($data) {
         $data = json_decode($data,true);
         $return = '';
         foreach($data as $location) {
-            $return .= "<div>".$location."</div>";
+            $return .= '<div>';
+            $return .= $location['description']!='' ? $location['description'].': ' : '';
+            $return .= $location['geometry']['location']['lat'].', '.$location['geometry']['location']['lng'];
+            $return .= '</div>';
         }
 
         return $return;
@@ -330,6 +332,21 @@ class GeolocatorField extends BaseField {
             $recModel->newQuery()->update([$flid => $locsValue]);
         else
             $recModel->newQuery()->whereNull($flid)->update([$flid => $locsValue]);
+    }
+
+    /**
+     * Takes data from a mass assignment operation and applies it to an individual field for a set of records.
+     *
+     * @param  Form $form - Form model
+     * @param  string $flid - Field ID
+     * @param  String $formFieldValue - The value to be assigned
+     * @param  Request $request
+     * @param  array $kids - The KIDs to update
+     */
+    public function massAssignSubsetRecordField($form, $flid, $formFieldValue, $request, $kids) {
+        $locsValue = '['.implode(',',$formFieldValue).']';
+        $recModel = new Record(array(),$form->id);
+        $recModel->newQuery()->whereIn('kid',$kids)->update([$flid => $locsValue]);
     }
 
     /**

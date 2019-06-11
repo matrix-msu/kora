@@ -5,7 +5,7 @@
   </div>
   <div class="line"></div>
   <div class="middle">
-    <span><a class="batch-assign" href="{{ action('RecordController@showSelectedAssignmentView',['pid' => $form->pid, 'fid' => $form->fid]) }}"><i class="icon icon-zap-toolbar mr-xxs"></i>Batch Assign<span class="count ml-xxs"></span></a></span>
+    <span><a class="batch-assign" href="{{ action('RecordController@showSelectedAssignmentView',['pid' => $form->project_id, 'fid' => $form->id]) }}"><i class="icon icon-zap-toolbar mr-xxs"></i>Batch Assign<span class="count ml-xxs"></span></a></span>
     <span class="export-mult-records-js ml-sm"><i class="icon icon-download mr-xxs"></i>Export<span class="count ml-xxs"></span></span>
   </div>
   <div class="line"></div>

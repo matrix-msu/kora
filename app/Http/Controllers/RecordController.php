@@ -349,10 +349,7 @@ class RecordController extends Controller {
                 if(file_exists($file_path)) {
                     foreach(new \DirectoryIterator($file_path) as $file) {
                         if($file->isFile()) {
-                            //Strip the identifier tag
-                            $nameParts = explode('_',$file->getFilename());
-                            $editTmpName = array_pop($nameParts);
-                            copy($file_path . '/' . $file->getFilename(), $dirTmp . '/' . $editTmpName);
+                            copy($file_path . '/' . $file->getFilename(), $dirTmp . '/' . $file->getFilename());
                         }
                     }
                 }
@@ -406,16 +403,24 @@ class RecordController extends Controller {
         $kid = "$pid-$fid-$rid";
         $record = self::getRecord($kid);
         $oldRecordCopy = $record->replicate();
+        $oldRecordFileCopy = RevisionController::getFileHashForRevisions($record);
 
         //Before we move files back over from edit, clear the record folder
-        $dir = storage_path('app/files/'.$record->project_id.'/'.$record->form_id.'/'.$record->id);
-        if(file_exists($dir)) {
-            foreach(new \DirectoryIterator($dir) as $file) {
-                if($file->isFile())
-                    unlink($dir.'/'.$file->getFilename());
-            }
-        } else {
-            mkdir($dir,0775,true); //Make it!
+        $storageType = 'LaravelStorage'; //TODO:: make this a config once we actually support other storage types
+        switch($storageType) {
+            case 'LaravelStorage':
+                $dir = storage_path('app/files/'.$record->project_id.'/'.$record->form_id.'/'.$record->id);
+                if(file_exists($dir)) {
+                    foreach(new \DirectoryIterator($dir) as $file) {
+                        if($file->isFile())
+                            unlink($dir.'/'.$file->getFilename());
+                    }
+                } else {
+                    mkdir($dir,0775,true); //Make it!
+                }
+                break;
+            default:
+                break;
         }
 
         foreach($request->all() as $key => $value) {
@@ -435,7 +440,7 @@ class RecordController extends Controller {
         $record->save();
 
         //Store the edit
-        RevisionController::storeRevision($record,Revision::EDIT,$oldRecordCopy);
+        RevisionController::storeRevision($record,Revision::EDIT,$oldRecordCopy,$oldRecordFileCopy);
 
         //Make new preset
         if($makePreset) {
@@ -511,22 +516,22 @@ class RecordController extends Controller {
      * @return Redirect
      */
     public function deleteMultipleRecords($pid, $fid, Request $request) {
-      $form = FormController::getForm($fid);
-      $rid = $request->rid;
-      $rids = explode(',', $rid);
+        if(!FormController::validProjForm($pid, $fid))
+            return redirect('projects/'.$pid)->with('k3_global_error', 'form_invalid');
 
-      if(!\Auth::user()->isFormAdmin($form)) {
-        return redirect('projects')->with('k3_global_error', 'not_form_admin');
-      } else {
-          $recordMod = new Record(array(),$fid);
-          $records = $recordMod->newQuery()->whereIn("id", $rids);
+        if(!self::checkPermissions($fid, 'destroy'))
+            return redirect('projects/'.$pid.'/forms/'.$fid)->with('k3_global_error', 'cant_delete_records');
 
-          foreach($records as $record) {
-              $record->delete();
-          }
+        $rids = explode(',', $request->rid);
+
+        $recordMod = new Record(array(),$fid);
+        $records = $recordMod->newQuery()->whereIn("id", $rids)->get();
+
+        foreach($records as $record) {
+            $record->delete();
+        }
 
         return redirect('projects/' . $pid . '/forms/' . $fid . '/records')->with('k3_global_success', 'multiple_records_deleted');
-      }
     }
 
     /**
@@ -910,30 +915,33 @@ class RecordController extends Controller {
      * @param  Request $request
      * @return Redirect
      */
-    public function massAssignRecordSet($pid, $fid, Request $request) { //TODO::CASTLE
+    public function massAssignRecordSet($pid, $fid, Request $request) {
         if(!$this->checkPermissions($fid,'modify'))
             return redirect()->back();
 
-        $flid = $request->input("field_selection");
-        if(!is_numeric($flid))
-            return redirect()->back();
+        $form = FormController::getForm($fid);
+        $flid = $request->field_selection;
+        if(!array_key_exists($flid, $form->layout['fields']))
+            return redirect()->back()->with('k3_global_error', 'field_invalid');
 
-        if($request->has($flid))
-            $formFieldValue = $request->input($flid); //Note this only works when there is one form element being submitted, so if you have more, check Date
-        else
-            return redirect()->back();
+        $field = $form->layout['fields'][$flid];
+        $typedField = $form->getFieldModel($field['type']);
+        $formFieldValue = $request->{$flid};
 
         if($request->rids)
-            $rids = explode(',', $request->rids);
+            $kids = explode(',', $request->rids);
         else
-            $rids = array();
+            $kids = array();
 
-        $field = FieldController::getField($flid);
-        $typedField = $field->getTypedField();
+        //A field may not be required for a record but we want to force validation here so we use forceReq
+        $message = $typedField->validateField($flid, $field, $request, true);
+        if(empty($message)) {
+            $typedField->massAssignSubsetRecordField($form, $flid, $formFieldValue, $request, $kids);
 
-        $typedField->massAssignSubsetRecordField($field, $formFieldValue, $request, $rids);
-
-        return redirect()->action('RecordController@index',compact('pid','fid'));
+            return redirect()->action('RecordController@index', compact('pid', 'fid'))->with('k3_global_success', 'mass_records_updated');
+        } else {
+            return redirect()->back()->with('k3_global_error', 'mass_value_invalid');
+        }
     }
 
     /**

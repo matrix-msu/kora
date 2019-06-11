@@ -128,7 +128,7 @@ class GalleryField extends FileTypeField {
         $data = json_decode($data,true);
         $return = '';
         foreach($data as $file) {
-            $return .= "<div>".$file['original_name']."</div>";
+            $return .= "<div>".$file['name']."</div>";
             $return .= "<div>".$file['caption']."</div>";
         }
 
