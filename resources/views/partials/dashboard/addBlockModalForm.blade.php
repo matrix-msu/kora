@@ -44,10 +44,7 @@
     <div class="form-group mt-xl">
         <label for="block_record">Select Record</label>
         <span class="error-message"></span>
-        <select class="single-select" id="block_record" name="block_record" data-placeholder="Select a Record">
-            <option></option>
-            {{--TODO::CASTLE--}}
-        </select>
+        <input class="text-input" placeholder="Enter Record KID" type="text" id="block_record" name="block_record" value="" maxlength="20">
     </div>
 </section>
 

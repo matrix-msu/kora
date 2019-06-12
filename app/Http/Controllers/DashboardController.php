@@ -1,6 +1,6 @@
 <?php namespace App\Http\Controllers;
 
-use App\KoraFields\AssociatorField;
+use App\Form;
 use Carbon\Carbon;
 use App\Http\Requests\BlockRequest;
 use Illuminate\Foundation\Inspiring;
@@ -147,6 +147,9 @@ class DashboardController extends Controller {
 
                         if(!is_object($record)) {
                             $this->deleteBlock($blk->id, $blk->section_id);
+                            $notification['message'] = 'One or more Record blocks were invalid!';
+                            $notification['description'] = 'Either KID was invalid, or record no longer exists';
+                            $notification['warning'] = 'True';
                             break;
                         }
 
@@ -172,7 +175,7 @@ class DashboardController extends Controller {
                         $b['projName'] = $project->name;
                         $b['formName'] = $form->name;
                         $b['fieldName'] = $foundField ? $previewField['name'] : "No Record Fields Found!";
-                        $b['fieldData'] = $foundField ? AssociatorField::getPreviewValues($previewField,$kid) : "No Record Fields Found!";
+                        $b['fieldData'] = $foundField ? $this->getPreviewValues($previewFlid,$previewField,$kid) : "No Record Fields Found!";
                         $b['displayedOpts'] = getDashboardRecordBlockLink($record);
                         break;
                     case 'Quote':
@@ -338,7 +341,7 @@ class DashboardController extends Controller {
                 break;
             case 'Record':
                 $kid = $request->block_record;
-                $optString = '{"kid": ' . $kid . '}';
+                $optString = '{"kid": "' . $kid . '"}';
                 break;
             case 'Quote':
                 break;
@@ -624,6 +627,31 @@ class DashboardController extends Controller {
         foreach($sections as $section) {
             DB::table('dashboard_sections')->where('id', $section->id)->update(['order' => $int]);
             $int++;
+        }
+    }
+
+    /**
+     * For a record, grab the data of the field that was assigned as a preview
+     * for this record.
+     *
+     * @param  string $flid - Field IDs
+     * @param  array $field - Field info array
+     * @param  int $kid - Record Kora ID
+     * @return string - Html structure of the preview field's value
+     */
+    private function getPreviewValues($flid,$field,$kid) {
+        $record = RecordController::getRecord($kid);
+        if(is_null($record))
+            return '';
+
+        if(!in_array($field['type'],Form::$validAssocFields)) {
+            return "Invalid Preview Field";
+        } else {
+            $value = $record->{$flid};
+            if(is_null($value))
+                return "Preview Field Empty";
+            else
+                return $value;
         }
     }
 }
