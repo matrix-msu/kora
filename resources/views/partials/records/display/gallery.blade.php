@@ -3,7 +3,7 @@
     $single = (sizeof($images) <= 1);
 @endphp
 
-<div class="record-data-card">
+<div class="record-data-card gallery-card">
     <div class="gallery-field-display gallery-field-display-js {{ ($single ? 'single' : '') }}">
         @foreach($images as $img)
             @php

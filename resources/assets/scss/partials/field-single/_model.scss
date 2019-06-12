@@ -1,0 +1,28 @@
+&.field-single-model {
+    height: 100vh;
+    padding: 0;
+    width: 100%;
+
+    .record-data-card {
+        border: none;
+        box-shadow: none;
+        height: 100vh;
+        margin: 0;
+        padding: 0;
+
+        .model-wrapper,
+        .model-player-div {
+            height: 100vh;
+        }
+
+        canvas {
+            height: auto;
+            object-fit: cover;
+            width: 100%;
+        }
+
+        .model-player-div {
+            display: flex;
+        }
+    }
+}

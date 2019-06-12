@@ -314,6 +314,12 @@ Kora.Records.Show = function() {
             var modelID = $(this).attr('model-id');
             var modelLink = $(this).attr('model-link');
 
+            // Without manually setting WIDTHxHEIGHT here, it defaults to 300x150
+            // This small 300x150 canvas is then blown up to fit the parent, causing a very blurry
+            // picture as a result.
+            document.getElementById('cv'+modelID).height = $(this).height();
+            document.getElementById('cv'+modelID).width = $(this).width();
+
             var modelColor = $(this).attr('model-color');
             var bg1Color = $(this).attr('bg1-color');
             var bg2Color = $(this).attr('bg2-color');

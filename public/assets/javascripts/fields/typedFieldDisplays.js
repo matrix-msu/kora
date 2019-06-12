@@ -528,6 +528,12 @@ Kora.Fields.TypedFieldDisplays.Initialize = function() {
             var bg1Color = $(this).attr('bg1-color');
             var bg2Color = $(this).attr('bg2-color');
 
+            // Without manually setting WIDTHxHEIGHT here, it defaults to 300x150
+            // This small 300x150 canvas is then blown up to fit the parent, causing a very blurry
+            // picture as a result.
+            document.getElementById('cv'+modelID).height = $(this).height();
+            document.getElementById('cv'+modelID).width = $(this).width();
+
             var viewer = new JSC3D.Viewer(document.getElementById('cv'+modelID));
             viewer.setParameter('SceneUrl', modelLink);
             viewer.setParameter('InitRotationX', 0);
@@ -542,7 +548,34 @@ Kora.Fields.TypedFieldDisplays.Initialize = function() {
             viewer.init();
             viewer.update();
 
-            var canvas = document.getElementById('cvfs'+modelID);
+            //var canvas = document.getElementById('cvfs'+modelID);
+            var canvas = document.getElementById('cv'+modelID);
+            var canvasModal = $(this).parent().parent().find('.model-modal-js');
+
+            // view fullscreen modal
+            $(this).parent().parent().find('.model-sidebar-js .full-screen-button-js').click(function (e) {
+                e.preventDefault();
+
+                document.getElementById('cv'+modelID+'-modal-js').height = window.innerHeight
+                document.getElementById('cv'+modelID+'-modal-js').width = window.innerWidth
+
+	            var modalViewer = new JSC3D.Viewer(document.getElementById('cv'+modelID+'-modal-js'));
+                modalViewer.setParameter('SceneUrl', modelLink);
+                modalViewer.setParameter('InitRotationX', 0);
+                modalViewer.setParameter('InitRotationY', 0);
+                modalViewer.setParameter('InitRotationZ', 0);
+                modalViewer.setParameter('ModelColor', modelColor);
+                modalViewer.setParameter('BackgroundColor1', bg1Color);
+                modalViewer.setParameter('BackgroundColor2', bg2Color);
+                modalViewer.setParameter('RenderMode', 'texturesmooth');
+                modalViewer.setParameter('MipMapping', 'on');
+                modalViewer.setParameter('Renderer', 'webgl');
+
+                modalViewer.init();
+	            modalViewer.update();
+
+	            Kora.Modal.open(canvasModal);
+            });
 
             // function fullscreen() {
             //     var el = document.getElementById('cv'+modelID);

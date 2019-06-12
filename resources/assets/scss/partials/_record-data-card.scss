@@ -1,8 +1,22 @@
-.record-data-card {
+.record-data-card { /*this section is for advanced-search page cards*/
   border: 1px solid palette('gray', text, .1);
   border-radius: 5px;
   box-shadow: 0 3px 5px 0 palette('gray', text, .05);
   margin-top: 10px;
   padding: 10px;
   position: relative;
+
+  .field-data & {/*this is for cards on all-records page*/
+    background: unset;
+    margin-top: 10px;
+    padding: 10px;
+
+    &.model-card {
+      padding: 0;
+    }
+
+    &.gallery-card {
+      background: palette('gray', page, 1);
+    }
+  }
 }
