@@ -918,21 +918,24 @@ class RecordController extends Controller {
     public function massAssignRecordSet($pid, $fid, Request $request) {
         if(!$this->checkPermissions($fid,'modify'))
             return redirect()->back();
-
         $form = FormController::getForm($fid);
         $flid = $request->field_selection;
         if(!array_key_exists($flid, $form->layout['fields']))
             return redirect()->back()->with('k3_global_error', 'field_invalid');
-
         $field = $form->layout['fields'][$flid];
         $typedField = $form->getFieldModel($field['type']);
         $formFieldValue = $request->{$flid};
-
         if($request->rids)
             $kids = explode(',', $request->rids);
         else
             $kids = array();
-
-        return redirect()->action('RecordController@index',compact('pid','fid'));
+        //A field may not be required for a record but we want to force validation here so we use forceReq
+        $message = $typedField->validateField($flid, $field, $request, true);
+        if(empty($message)) {
+            $typedField->massAssignSubsetRecordField($form, $flid, $formFieldValue, $request, $kids);
+            return redirect()->action('RecordController@index', compact('pid', 'fid'))->with('k3_global_success', 'mass_records_updated');
+        } else {
+            return redirect()->back()->with('k3_global_error', 'mass_value_invalid');
+        }
     }
 }
