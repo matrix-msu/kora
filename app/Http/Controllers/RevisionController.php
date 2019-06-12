@@ -1,6 +1,5 @@
 <?php namespace App\Http\Controllers;
 
-use App\Form;
 use App\Record;
 use App\Revision;
 use Illuminate\Http\JsonResponse;
@@ -121,9 +120,10 @@ class RevisionController extends Controller {
      * @param  Record $record - Record model
      * @param  string $type - Revision type
      * @param  Record $oldRecord - Old data to save for edits
+     * @param  Record $oldFiles - Old file data to save for edits
      * @return Revision - The new revision model
      */
-    public static function storeRevision($record, $type, $oldRecord = null) {
+    public static function storeRevision($record, $type, $oldRecord = null, $oldFiles = null) {
         $revision = new Revision();
 
         $fid = $record->form_id;
@@ -140,20 +140,23 @@ class RevisionController extends Controller {
         switch($type) {
             case Revision::CREATE:
                 $revArray['data'] = self::buildDataArray($record);
+                $revArray['data_files'] = $record->getHashedRecordFiles();
                 $revArray['oldData'] = null;
+                $revArray['oldData_files'] = null;
                 break;
             case Revision::EDIT:
-                //TODO::CASTLE
+            case Revision::ROLLBACK:
                 $revArray['data'] = self::buildDataArray($record);
+                $revArray['data_files'] = $record->getHashedRecordFiles();
                 $revArray['oldData'] = self::buildDataArray($oldRecord);
+                $revArray['oldData_files'] = $oldFiles;
                 break;
             case Revision::DELETE:
                 $revArray['data'] = null;
-                $revArray['oldData'] = self::buildDataArray($record);;
+                $revArray['data_files'] = null;
+                $revArray['oldData'] = self::buildDataArray($record);
+                $revArray['oldData_files'] = $record->getHashedRecordFiles();
                 break;
-//            case Revision::ROLLBACK: //For this, we take what the record is and put it in the new Revisions oldData
-//                $revision->oldData = self::buildDataArray($record);
-//                break;
         }
 
         $revision->revision = $revArray;
@@ -203,6 +206,7 @@ class RevisionController extends Controller {
                 }
                 break;
             case Revision::EDIT:
+            case Revision::ROLLBACK:
                 foreach($form->layout['fields'] as $flid => $field) {
                     $fieldMod = $form->getFieldModel($field['type']);
                     if(is_null($revData['data'][$flid]))
@@ -224,16 +228,6 @@ class RevisionController extends Controller {
                         $formatted[$flid] = $fieldMod->processRevisionData($revData['oldData'][$flid]);
                 }
                 break;
-//            case Revision::ROLLBACK:
-//                foreach ($data as $type => $fields) {
-//                    foreach ($fields as $id => $field) {
-//                        if ($oldData[$type][$id]['data'] !== $field['data']) {
-//                            $formatted["old"][$id] = RevisionController::formatData($type, $oldData[$type][$id]);
-//                            $formatted["current"][$id] = RevisionController::formatData($type, $field);
-//                        }
-//                    }
-//                }
-//                break;
         }
 
         return $formatted;
@@ -245,42 +239,54 @@ class RevisionController extends Controller {
      * @param  Request $request [revision]
      * @return JsonResponse
      */
-    public function rollback(Request $request) { //TODO::CASTLE
+    public function rollback(Request $request) {
         $revision = Revision::where('id', '=', $request->revision)->first();
-        $form = FormController::getForm($revision->fid);
+        $form = FormController::getForm($revision->form_id);
+
+        if(is_null($revision))
+            return response()->json(["status"=>false,"message"=>"revision_doesnt_exist"],500);
 
         //Keep in mind that the rollback is the reverse of the revision type (i.e. executing a rollback on revision of
         // type CREATE, will delete the created record).
-        if($revision->type == Revision::CREATE) {
-            $record = Record::where('rid', '=', $revision->rid)->first();
-            self::storeRevision($record->rid, Revision::DELETE);
-            $record->delete();
+        switch($revision->revision['type']) {
+            case Revision::CREATE:
+                $record = RecordController::getRecord($revision->record_kid);
 
-            return response()->json(["status"=>true,"message"=>"record_deleted","deleted_kid"=>$record->kid],200);
-        } else if($revision->type == Revision::DELETE) {
-            if(RecordController::exists($revision->rid)) {
-                return response()->json(["status"=>false,"message"=>"record_already_exists"],500);
-            } else {
-                // We must create a new record
-                $record = new Record();
-                $record->rid = $revision->rid;
-                $record->fid = $revision->fid;
-                $record->pid = $form->pid;
-                $record->owner = $revision->owner;
-                $record->save();
-                $record->kid = $record->pid . '-' . $record->fid . '-' . $record->rid;
-                $record->save();
+                if(is_null($record))
+                    return response()->json(["status"=>false,"message"=>"record_doesnt_exist"],500);
 
-                self::rollback_routine($record, $form, $revision, false);
-                self::storeRevision($record->rid, Revision::CREATE);
+                self::storeRevision($record, Revision::DELETE);
 
-                return response()->json(["status"=>true,"message"=>"record_created","created_kid"=>$record->kid],200);
-            }
-        } else {
-            $record = RecordController::getRecord($revision->rid);
-            self::rollback_routine($record, $form, $revision, true);
+                $record->delete();
 
-            return response()->json(["status"=>true,"message"=>"record_modified","modified_kid"=>$record->kid],200);
+                return response()->json(["status"=>true,"message"=>"record_deleted","deleted_kid"=>$record->kid],200);
+                break;
+            case Revision::DELETE:
+                if(RecordController::exists($revision->record_kid)) {
+                    return response()->json(["status"=>false,"message"=>"record_already_exists"],500);
+                } else {
+                    // We must create a new record
+                    $record = new Record(array(),$form->id);
+                    $record->id = explode('-',$revision->record_kid)[2];
+                    $record->project_id = $form->project_id;
+                    $record->form_id = $form->id;
+                    $record->owner = \Auth::user()->id;
+                    $record->kid = $revision->record_kid;
+                    $record->save();
+
+                    $this->rollback_routine($record, $revision, false);
+                    self::storeRevision($record, Revision::CREATE);
+
+                    return response()->json(["status"=>true,"message"=>"record_created","created_kid"=>$record->kid],200);
+                }
+                break;
+            case Revision::EDIT:
+            case Revision::ROLLBACK:
+                $record = RecordController::getRecord($revision->record_kid);
+                $this->rollback_routine($record, $revision);
+
+                return response()->json(["status"=>true,"message"=>"record_modified","modified_kid"=>$record->kid],200);
+                break;
         }
     }
 
@@ -288,30 +294,58 @@ class RevisionController extends Controller {
      * Performs the actual rollback.
      *
      * @param  Record $record - Record to rollback
-     * @param  Form $form - Form that owns record
      * @param  Revision $revision - Revision to pull data from
-     * @param  bool $is_rollback - Basically is this revision type Edit or Rollback
+     * @param  bool $is_rollback - Basically is this revision type Edit or Rollback, or are we reversing a Delete revision
      */
-    public static function rollback_routine(Record $record, Form $form, Revision $revision, $is_rollback) { //TODO::CASTLE
+    public function rollback_routine(Record $record, Revision $revision, $is_rollback = true) {
         if($is_rollback) {
-            $new_revision = self::storeRevision($record->rid, Revision::ROLLBACK);
-            $new_revision->data = $revision->oldData;
-            $new_revision->save();
+            $oldRecordCopy = $record->replicate();
+            $oldRecordFileCopy = $record->getHashedRecordFiles();
         }
 
-        // Since we'll be passing around the revision object, we decode its data now.
-        // This won't be saved and is done for efficiency.
-        $revision->oldData = json_decode($revision->oldData, true);
+        foreach($revision->revision['oldData'] as $flid => $data) {
+            $record->{$flid} = $data;
+        }
 
-        foreach($form->fields()->get() as $field) {
-            $typedField = $field->getTypedFieldFromRID($record->rid);
-            if(!is_null($typedField)) {
-                //Field exists in record already
-                $typedField->rollbackField($field, $revision, true);
-            } else {
-                //Most likely restoring from a deleted field
-                $field->getTypedField()->rollbackField($field, $revision, false);
-            }
+        $record->save();
+
+        $this->rollback_files($record, $revision->revision['oldData_files']);
+
+        if($is_rollback)
+            self::storeRevision($record, Revision::ROLLBACK, $oldRecordCopy, $oldRecordFileCopy);
+    }
+
+    /**
+     * Performs the actual rollback for files.
+     *
+     * @param  Record $record - Record to rollback
+     * @param  array $fileData - File data to restore
+     */
+    private function rollback_files($record, $fileData) {
+        $storageType = 'LaravelStorage'; //TODO:: make this a config once we actually support other storage types
+        switch($storageType) {
+            case 'LaravelStorage':
+                //Clear the current directory
+                $dir = storage_path('app/files/'.$record->project_id.'/'.$record->form_id.'/'.$record->id);
+                if(file_exists($dir)) {
+                    foreach(new \DirectoryIterator($dir) as $file) {
+                        if($file->isFile())
+                            unlink($dir.'/'.$file->getFilename());
+                    }
+                } else {
+                    mkdir($dir,0775,true); //Make it!
+                }
+
+                //Restore old files
+                if(!is_null($fileData)) {
+                    foreach ($fileData as $name => $hash) {
+                        $data = base64_decode($hash);
+                        file_put_contents("$dir/$name", $data);
+                    }
+                }
+                break;
+            default:
+                break;
         }
     }
 

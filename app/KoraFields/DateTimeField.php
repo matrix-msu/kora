@@ -370,13 +370,29 @@ class DateTimeField extends BaseField {
     }
 
     /**
-     * For a test record, add test data to field.
+     * Takes data from a mass assignment operation and applies it to an individual field for a set of records.
      *
-     * @param  string $url - Url for File Type Fields
-     * @return mixed - The data
+     * @param  Form $form - Form model
+     * @param  string $flid - Field ID
+     * @param  String $formFieldValue - The value to be assigned
+     * @param  Request $request
+     * @param  array $kids - The KIDs to update
      */
-    public function getTestData($url = null) {
-        return "2003-03-03 03:03:03";
+    public function massAssignSubsetRecordField($form, $flid, $formFieldValue, $request, $kids) {
+        $month = $request->input('month_'.$formFieldValue,'');
+        $day = $request->input('day_'.$formFieldValue,'');
+        $year = $request->input('year_'.$formFieldValue,'');
+        $hour = $request->input('hour_'.$formFieldValue,0);
+        $minute = $request->input('minute_'.$formFieldValue,0);
+        $second = $request->input('second_'.$formFieldValue,0);
+
+        if(!self::validateDate($month,$day,$year))
+            $date = null;
+        else
+            $date = "$year-$month-$day $hour:$minute:$second";
+
+        $recModel = new Record(array(),$form->id);
+        $recModel->newQuery()->whereIn('kid',$kids)->update([$flid => $date]);
     }
 
     /**

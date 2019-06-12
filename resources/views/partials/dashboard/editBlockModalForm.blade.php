@@ -23,7 +23,7 @@
         <select class="single-select edit-block-project-js" id="block_project" name="block_project">
             <option></option>
             @foreach($userProjects as $proj)
-                <option value="{{$proj->pid}}">{{$proj->name}}</option>
+                <option value="{{$proj->id}}">{{$proj->name}}</option>
             @endforeach
         </select>
     </div>
@@ -36,7 +36,7 @@
         <select class="single-select edit-block-form-js" id="block_form" name="block_form">
             <option></option>
             @foreach($userForms as $form)
-                <option value="{{$form->fid}}">{{$form->name}}</option>
+                <option value="{{$form->id}}">{{$form->name}}</option>
             @endforeach
         </select>
     </div>
@@ -46,12 +46,7 @@
     <div class="form-group mt-xl">
         <label for="block_record">Select Record</label>
         <span class="error-message"></span>
-        <select class="single-select edit-block-record-js" id="block_record" name="block_record">
-            <option></option>
-            @foreach($userRecords as $rec)
-                <option value="{{$rec}}">{{$rec}}</option>
-            @endforeach
-        </select>
+        <input class="text-input edit-block-record-js" placeholder="Enter Record KID" type="text" id="block_record" name="block_record" value="" maxlength="20">
     </div>
 </section>
 

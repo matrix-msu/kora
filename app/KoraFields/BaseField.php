@@ -179,12 +179,15 @@ abstract class BaseField extends Model {
     abstract public function massAssignRecordField($form, $flid, $formFieldValue, $request, $overwrite=0);
 
     /**
-     * For a test record, add test data to field.
+     * Takes data from a mass assignment operation and applies it to an individual field for a set of records.
      *
-     * @param  string $url - Url for File Type Fields
-     * @return mixed - The data
+     * @param  Form $form - Form model
+     * @param  string $flid - Field ID
+     * @param  String $formFieldValue - The value to be assigned
+     * @param  Request $request
+     * @param  array $kids - The KIDs to update
      */
-    abstract public function getTestData($url = null);
+    abstract public function massAssignSubsetRecordField($form, $flid, $formFieldValue, $request, $kids);
 
     /**
      * Provides an example of the field's structure in an export to help with importing records.

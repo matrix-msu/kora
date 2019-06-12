@@ -80,33 +80,15 @@
     <div class="form-permissions">
       <span class="question">Need to Edit Form Permissions?</span>
 
-      <a class="action underline-middle-hover" href="{{action('FormGroupController@index', ['pid'=>$form->pid,'fid'=>$form->fid])}}">
+      <a class="action underline-middle-hover" href="{{action('FormGroupController@index', ['pid'=>$form->project_id,'fid'=>$form->id])}}">
         <span>Go to Form Permissions Page</span>
         <i class="icon icon-arrow-right"></i>
       </a>
     </div>
-
-    <div class="spacer"></div>
   </div>
 
 @if (\Auth::user()->admin || \Auth::user()->isFormAdmin($form))
   <div class="form-group no-padding">
-
-    <div class="form-record-management">
-      <p class="title">Test Record Management</p>
-      <div class="button-container">
-        <a href="#" class="btn half-sub-btn create-test-js">Create Test Record(s)</a>
-          @if($form->getTestRecordCount()==0)
-            <a href="#" class="btn half-sub-btn warning delete-test-js disabled">Delete All Test Records?</a>
-          @else
-            <a href="#" class="btn half-sub-btn warning delete-test-js">Delete All Test Records?</a>
-          @endif
-      </div>
-    </div>
-
-  </div>
-
-  <div class="form-group">
     <div class="spacer"></div>
 
     <div class="form-file-size">

@@ -155,6 +155,7 @@ class Form extends Model {
         self::_VIDEO,
         self::_3D_MODEL,
         self::_ASSOCIATOR,
+        self::_MULTI_SELECT_LIST,
         self::_GENERATED_LIST,
         self::_GEOLOCATOR,
         self::_HISTORICAL_DATE
@@ -210,6 +211,15 @@ class Form extends Model {
      */
     public function revisions() {
         return $this->hasMany('App\Revision','form_id');
+    }
+
+    /**
+     * Returns the record revisions associated with a form.
+     *
+     * @return HasMany
+     */
+    public function recordPresets() {
+        return $this->hasMany('App\RecordPreset','form_id');
     }
 
     /**
@@ -295,7 +305,7 @@ class Form extends Model {
     }
 
     /**
-     * Updates a field within a form.
+     * Deletes a field within a form.
      */
     public function deleteField($flid) {
         $layout = $this->layout;
@@ -344,8 +354,8 @@ class Form extends Model {
         }
 
         //Delete other record related stuff before dropping records table
-        //Revisions. Presets?
-        //TODO::CASTLE
+        $this->revisions()->delete();
+        $this->recordPresets()->delete();
 
         $rTable = new \CreateRecordsTable();
 
@@ -941,10 +951,6 @@ class Form extends Model {
     public function getRecordCount() {
         $recordMod = new Record(array(),$this->id);
         return $recordMod->newQuery()->count();
-    }
-    public function getTestRecordCount() {
-        $recordMod = new Record(array(),$this->id);
-        return $recordMod->newQuery()->where('is_test','=',1)->count();
     }
 
     /**

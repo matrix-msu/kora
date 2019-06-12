@@ -128,7 +128,7 @@ class GalleryField extends FileTypeField {
         $data = json_decode($data,true);
         $return = '';
         foreach($data as $file) {
-            $return .= "<div>".$file['original_name']."</div>";
+            $return .= "<div>".$file['name']."</div>";
             $return .= "<div>".$file['caption']."</div>";
         }
 
@@ -252,52 +252,21 @@ class GalleryField extends FileTypeField {
      *
      * @return mixed - Processed data
      */
-    public function processXMLData($field, $value) { //TODO::CASTLE
-        //Same as parent but with captions
-    }
-
-    /**
-     * For a test record, add test data to field.
-     *
-     * @param  string $url - Url for File Type Fields
-     * @return mixed - The data
-     */
-    public function getTestData($url = null) {
-        $types = self::getMimeTypes();
-        if(!array_key_exists('jpeg', $types))
-            $type = 'application/octet-stream';
-        else
-            $type = $types['jpeg'];
-
-        $fileIDString = $url['flid'] . $url['rid'] . '_';
-        $newName = $fileIDString.'image.jpeg';
-
-        //Hash the file
-        $checksum = hash_file('sha256', public_path('assets/testFiles/image.jpeg'));
-
-        $file = [
-            'original_name' => 'image.jpeg',
-            'local_name' => $newName,
-            'caption' => 'Mountain peaking through the clouds.',
-            'url' => url('files').'/'.$newName,
-            'size' => 154491,
-            'type' => $type,
-            'checksum' => $checksum //TODO:: eventually hardcode this
-        ];
-
-        $storageType = 'LaravelStorage'; //TODO:: make this a config once we actually support other storage types
-        switch($storageType) {
-            case 'LaravelStorage':
-                $newPath = storage_path('app/files/' . $url['pid'] . '/' . $url['fid'] . '/' . $url['rid']);
-                mkdir($newPath, 0775, true);
-                copy(public_path('assets/testFiles/image.jpeg'),
-                    $newPath . '/'.$newName);
-                break;
-            default:
-                break;
+    public function processXMLData($field, $value) {
+        $files = json_decode($value,true);
+        $xml = "<$field>";
+        foreach($files as $file) {
+            $xml .= '<File>';
+            $xml .= '<Name>'.$file['name'].'</Name>';
+            $xml .= '<Caption>'.$file['caption'].'</Caption>';
+            $xml .= '<Size>'.$file['size'].'</Size>';
+            $xml .= '<Type>'.$file['type'].'</Type>';
+            $xml .= '<Url>'.$file['url'].'</Url>';
+            $xml .= '</File>';
         }
+        $xml .= "</$field>";
 
-        return json_encode([$file]);
+        return $xml;
     }
 
     /**
@@ -307,7 +276,7 @@ class GalleryField extends FileTypeField {
      * @param  string $expType - Type of export
      * @return mixed - The example
      */
-    public function getExportSample($slug, $type) { //TODO::CASTLE
+    public function getExportSample($slug, $type) {
         switch($type) {
             case "XML":
                 $xml = '<'.$slug.'>';
@@ -321,10 +290,6 @@ class GalleryField extends FileTypeField {
                 $xml .= '<File>';
                 $xml .= '<Name>' . utf8_encode('so on...') . '</Name>';
                 $xml .= '</File>';
-                $xml .= '</' . $slug . '>';
-
-                $xml .= '<' . $slug . ' simple="simple">';
-                $xml .= utf8_encode('FILENAME');
                 $xml .= '</' . $slug . '>';
 
                 return $xml;

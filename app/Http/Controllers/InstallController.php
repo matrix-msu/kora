@@ -26,7 +26,7 @@ class InstallController extends Controller {
     /**
      * @var string - The version that will be assigned when you install Kora.
      */
-	const INSTALLED_VERSION = '3.1';
+	const INSTALLED_VERSION = '3.0.0';
 
     /**
      * @var array - Directories that will be created upon installation.
@@ -37,7 +37,6 @@ class InstallController extends Controller {
         "app/exodusAssoc/data",
         "app/exports",
         "app/files",
-        "app/presetFiles",
         "app/profiles",
 		"app/tmpFiles",
 	];

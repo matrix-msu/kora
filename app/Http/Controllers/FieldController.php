@@ -1,7 +1,6 @@
 <?php namespace App\Http\Controllers;
 
 use App\Form;
-use App\Helpers;
 use App\Http\Requests\FieldRequest;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
@@ -116,7 +115,9 @@ class FieldController extends Controller {
             }
         }
 
-        $field = $form->getFieldModel($request->type)->updateOptions($field, $request);
+        if($request->advanced || in_array($request->type,Form::$enumFields)) {
+            $field = $form->getFieldModel($request->type)->updateOptions($field, $request);
+        }
 
         //Add to form
         $layout['fields'][$flid] = $field;

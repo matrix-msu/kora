@@ -279,13 +279,17 @@ class FloatField extends BaseField {
     }
 
     /**
-     * For a test record, add test data to field.
+     * Takes data from a mass assignment operation and applies it to an individual field for a set of records.
      *
-     * @param  string $url - Url for File Type Fields
-     * @return mixed - The data
+     * @param  Form $form - Form model
+     * @param  string $flid - Field ID
+     * @param  String $formFieldValue - The value to be assigned
+     * @param  Request $request
+     * @param  array $kids - The KIDs to update
      */
-    public function getTestData($url = null) {
-        return '';
+    public function massAssignSubsetRecordField($form, $flid, $formFieldValue, $request, $kids) {
+        $recModel = new Record(array(),$form->id);
+        $recModel->newQuery()->whereIn('kid',$kids)->update([$flid => $formFieldValue]);
     }
 
     /**
@@ -299,13 +303,13 @@ class FloatField extends BaseField {
         switch($type) {
             case "XML":
                 $xml = '<' . $slug . '>';
-                $xml .= utf8_encode('3');
+                $xml .= utf8_encode('3.3');
                 $xml .= '</' . $slug . '>';
 
                 return $xml;
                 break;
             case "JSON":
-                $fieldArray[$slug] = 3;
+                $fieldArray[$slug] = 3.3;
 
                 return $fieldArray;
                 break;

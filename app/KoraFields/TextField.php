@@ -254,13 +254,17 @@ class TextField extends BaseField {
     }
 
     /**
-     * For a test record, add test data to field.
+     * Takes data from a mass assignment operation and applies it to an individual field for a set of records.
      *
-     * @param  string $url - Url for File Type Fields
-     * @return mixed - The data
+     * @param  Form $form - Form model
+     * @param  string $flid - Field ID
+     * @param  String $formFieldValue - The value to be assigned
+     * @param  Request $request
+     * @param  array $kids - The KIDs to update
      */
-    public function getTestData($url = null) {
-        return 'This is sample text for this text field.';
+    public function massAssignSubsetRecordField($form, $flid, $formFieldValue, $request, $kids) {
+        $recModel = new Record(array(),$form->id);
+        $recModel->newQuery()->whereIn('kid',$kids)->update([$flid => $formFieldValue]);
     }
 
     /**

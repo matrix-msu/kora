@@ -1,5 +1,3 @@
 @include("partials.forms.edit.formDeleteFormModal")
 @include("partials.forms.edit.formDeleteAllRecords")
 @include("partials.forms.edit.formDeleteRecordFiles")
-@include("partials.forms.edit.formCreateTestRecords")
-@include("partials.forms.edit.formDeleteTestRecords")

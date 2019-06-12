@@ -169,12 +169,14 @@ class GeolocatorField extends BaseField {
      *
      * @return mixed - Processed data
      */
-    public function processRevisionData($data) { //TODO::CASTLE
-        return '';
+    public function processRevisionData($data) {
         $data = json_decode($data,true);
         $return = '';
         foreach($data as $location) {
-            $return .= "<div>".$location."</div>";
+            $return .= '<div>';
+            $return .= $location['description']!='' ? $location['description'].': ' : '';
+            $return .= $location['geometry']['location']['lat'].', '.$location['geometry']['location']['lng'];
+            $return .= '</div>';
         }
 
         return $return;
@@ -333,18 +335,18 @@ class GeolocatorField extends BaseField {
     }
 
     /**
-     * For a test record, add test data to field.
+     * Takes data from a mass assignment operation and applies it to an individual field for a set of records.
      *
-     * @param  string $url - Url for File Type Fields
-     * @return mixed - The data
+     * @param  Form $form - Form model
+     * @param  string $flid - Field ID
+     * @param  String $formFieldValue - The value to be assigned
+     * @param  Request $request
+     * @param  array $kids - The KIDs to update
      */
-    public function getTestData($url = null) {
-        $locArray = [];
-        $locArray['description'] = 'Matrix';
-        $locArray['geometry']['location']['lat'] = 42.7314094;
-        $locArray['geometry']['location']['lng'] = -84.476258;
-        $locArray['formatted_address'] = '288 Farm Ln, East Lansing, MI 48823';
-        return json_encode(array($locArray));
+    public function massAssignSubsetRecordField($form, $flid, $formFieldValue, $request, $kids) {
+        $locsValue = '['.implode(',',$formFieldValue).']';
+        $recModel = new Record(array(),$form->id);
+        $recModel->newQuery()->whereIn('kid',$kids)->update([$flid => $locsValue]);
     }
 
     /**

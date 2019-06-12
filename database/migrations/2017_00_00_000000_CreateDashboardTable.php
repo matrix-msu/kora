@@ -12,14 +12,27 @@ class CreateDashboardTable extends Migration
      */
     public function up()
     {
-        Schema::create('dashboard', function(Blueprint $table)
+        Schema::create('dashboard_sections', function(Blueprint $table)
         {
             $table->increments('id');
             $table->integer('user_id')->unsigned();
-            $table->jsonb('organization');
+            $table->integer('order')->unsigned();
+            $table->string('title');
             $table->timestamps();
 
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+        });
+
+        Schema::create('dashboard_blocks', function(Blueprint $table)
+        {
+            $table->increments('id');
+            $table->integer('section_id')->unsigned();
+            $table->string('type');
+            $table->integer('order')->unsigned();
+            $table->text('options');
+            $table->timestamps();
+
+            $table->foreign('section_id')->references('id')->on('dashboard_sections')->onDelete('cascade');
         });
     }
 

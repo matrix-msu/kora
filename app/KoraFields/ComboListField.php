@@ -344,105 +344,20 @@ class ComboListField extends BaseField {
      * @param  bool $overwrite - Overwrite if data exists
      */
     public function massAssignRecordField($form, $flid, $formFieldValue, $request, $overwrite=0) {
-        //Get array of all RIDs in form
-        $rids = Record::where('fid','=',$field->fid)->pluck('rid')->toArray();
-        //Get list of RIDs that have the value for that field
-        $ridsValue = ComboListField::where('flid','=',$field->flid)->pluck('rid')->toArray();
-        //Subtract to get RIDs with no value
-        $ridsNoVal = array_diff($rids, $ridsValue);
+        //TODO::CASTLE
+    }
 
-        //Modify Data
-        $newData = array();
-        foreach($request->input($field->flid.'_val') as $entry) {
-            $newEntry = array(
-                explode('[!f1!]', $entry)[1],
-                explode('[!f2!]', $entry)[1]
-            );
-
-            array_push($newData, $newEntry);
-        }
-
-        foreach(array_chunk($ridsNoVal,1000) as $chunk) {
-            //Create data array and store values for no value RIDs
-            $fieldArray = [];
-            $dataArray = [];
-            $now = date("Y-m-d H:i:s");
-            $one_is_num = $field['one']['type'] == 'Number';
-            $two_is_num = $field['two']['type'] == 'Number';
-            foreach($chunk as $rid) {
-                $fieldArray[] = [
-                    'rid' => $rid,
-                    'fid' => $field->fid,
-                    'flid' => $field->flid
-                ];
-                $i = 0;
-                foreach($newData as $entry) {
-                    $dataArray[] = [
-                        'rid' => $rid,
-                        'fid' => $field->fid,
-                        'flid' => $field->flid,
-                        'field_num' => 1,
-                        'list_index' => $i,
-                        'data' => (!$one_is_num) ? $entry[0] : null,
-                        'number' => ($one_is_num) ? $entry[0] : null,
-                        'created_at' => $now,
-                        'updated_at' => $now
-                    ];
-                    $dataArray[] = [
-                        'rid' => $rid,
-                        'fid' => $field->fid,
-                        'flid' => $field->flid,
-                        'field_num' => 2,
-                        'list_index' => $i,
-                        'data' => (!$two_is_num) ? $entry[1] : null,
-                        'number' => ($two_is_num) ? $entry[1] : null,
-                        'created_at' => $now,
-                        'updated_at' => $now
-                    ];
-                    $i++;
-                }
-            }
-            ComboListField::insert($fieldArray);
-            DB::table(self::SUPPORT_NAME)->insert($dataArray);
-        }
-
-        if($overwrite) {
-            foreach(array_chunk($ridsValue,1000) as $chunk) {
-                DB::table(self::SUPPORT_NAME)->where('flid', '=', $field->flid)->whereIn('rid', 'in', $ridsValue)->delete();
-
-                $dataArray = [];
-                foreach($chunk as $rid) {
-                    $i = 0;
-                    foreach($newData as $entry) {
-                        $dataArray[] = [
-                            'rid' => $rid,
-                            'fid' => $field->fid,
-                            'flid' => $field->flid,
-                            'field_num' => 1,
-                            'list_index' => $i,
-                            'data' => (!$one_is_num) ? $entry[0] : null,
-                            'number' => ($one_is_num) ? $entry[0] : null,
-                            'created_at' => $now,
-                            'updated_at' => $now
-                        ];
-                        $dataArray[] = [
-                            'rid' => $rid,
-                            'fid' => $field->fid,
-                            'flid' => $field->flid,
-                            'field_num' => 2,
-                            'list_index' => $i,
-                            'data' => (!$two_is_num) ? $entry[1] : null,
-                            'number' => ($two_is_num) ? $entry[1] : null,
-                            'created_at' => $now,
-                            'updated_at' => $now
-                        ];
-                        $i++;
-                    }
-                }
-
-                DB::table(self::SUPPORT_NAME)->insert($dataArray);
-            }
-        }
+    /**
+     * Takes data from a mass assignment operation and applies it to an individual field for a set of records.
+     *
+     * @param  Form $form - Form model
+     * @param  string $flid - Field ID
+     * @param  String $formFieldValue - The value to be assigned
+     * @param  Request $request
+     * @param  array $kids - The KIDs to update
+     */
+    public function massAssignSubsetRecordField($form, $flid, $formFieldValue, $request, $kids) {
+        //TODO::CASTLE
     }
 
     /**
@@ -641,24 +556,6 @@ class ComboListField extends BaseField {
                 return $fieldArray;
                 break;
         }
-    }
-
-    /**
-     * For a test record, add test data to field.
-     *
-     * @param  string $url - Url for File Type Fields
-     * @return mixed - The data
-     */
-    public function getTestData($url = null) {
-        $values = array();
-
-        foreach (['one', 'two'] as $seq) {
-            $className = $this->fieldModel[$url[$seq]];
-            $object = new $className;
-            $values[$seq] = [$object->getTestData()];
-        }
-
-        return $values;
     }
 
     /**

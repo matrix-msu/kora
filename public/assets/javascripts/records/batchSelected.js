@@ -19,10 +19,6 @@ Kora.Records.BatchSelected = function() {
 
       if (rids) {
           rids = rids.split(',');
-
-          for (let i = 0; i < rids.length; i++) {
-            rids[i] = rids[i].substr(rids[i].length - 4);
-          }
           $form.append('<input type="hidden" name="rids" value="' + rids + '">');
       }
 

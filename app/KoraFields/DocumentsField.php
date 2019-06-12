@@ -77,49 +77,6 @@ class DocumentsField extends FileTypeField {
         return ['FieldSize' => null, 'MaxFiles' => null, 'FileTypes' => []];
     }
 
-    /**
-     * For a test record, add test data to field.
-     *
-     * @param  string $url - Url for File Type Fields
-     * @return mixed - The data
-     */
-    public function getTestData($url = null) {
-        $types = self::getMimeTypes();
-        if(!array_key_exists('txt', $types))
-            $type = 'application/octet-stream';
-        else
-            $type = $types['txt'];
-
-        $fileIDString = $url['flid'] . $url['rid'] . '_';
-        $newName = $fileIDString.'documents.txt';
-
-        //Hash the file
-        $checksum = hash_file('sha256', public_path('assets/testFiles/documents.txt'));
-
-        $file = [
-            'original_name' => 'documents.txt',
-            'local_name' => $newName,
-            'url' => url('files').'/'.$newName,
-            'size' => 24,
-            'type' => $type,
-            'checksum' => $checksum //TODO:: eventually hardcode this
-        ];
-
-        $storageType = 'LaravelStorage'; //TODO:: make this a config once we actually support other storage types
-        switch($storageType) {
-            case 'LaravelStorage':
-                $newPath = storage_path('app/files/' . $url['pid'] . '/' . $url['fid'] . '/' . $url['rid']);
-                mkdir($newPath, 0775, true);
-                copy(public_path('assets/testFiles/documents.txt'),
-                    $newPath . '/'.$newName);
-                break;
-            default:
-                break;
-        }
-
-        return json_encode([$file]);
-    }
-
     ///////////////////////////////////////////////END ABSTRACT FUNCTIONS///////////////////////////////////////////////
 
     /**

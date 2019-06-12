@@ -5,8 +5,6 @@ use App\RecordPreset;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
-use RecursiveIteratorIterator;
-use Symfony\Component\Finder\Iterator\RecursiveDirectoryIterator;
 
 class RecordPresetController extends Controller {
 
@@ -83,24 +81,17 @@ class RecordPresetController extends Controller {
     public function getRecordArray($record, $name) {
         $form = FormController::getForm($record->form_id);
 
-        $field_collect = $form->layout["fields"];
-        $field_array = array();
+        $fields = $form->layout["fields"];
+        $dataArray = array();
 
-        $fileFields = false; // Does the record have any file fields? //TODO::CASTLE
-
-        foreach($field_collect as $flid => $field) {
-            //We hit a file type field //TODO::CASTLE
-//            if($typedField instanceof FileTypeField)
-//                $fileFields = true;
-
-            $field_array[$flid] = $record->{$flid};
+        foreach($fields as $flid => $field) {
+            $dataArray[$flid] = $record->{$flid};
         }
 
-        // A file field was in use, so we need to move the record files to a preset directory. //TODO::CASTLE
-//        if($fileFields and !is_null($preID))
-//            $this->moveFilesToPreset($record->rid, $preID);
+        //Move any record files
+        $response['files'] = $record->getHashedRecordFiles();
 
-        $response['data'] = $field_array;
+        $response['data'] = $dataArray;
         $response['name'] = $name;
 
         return $response;
@@ -162,61 +153,12 @@ class RecordPresetController extends Controller {
      * @param  Request $request
      * @return JsonResponse
      */
-    public function deletePreset(Request $request) { //TODO::CASTLE
+    public function deletePreset(Request $request) {
         $id = $request->id;
         $preset = RecordPreset::where('id', $id)->first();
         $preset->delete();
 
-        //
-        // Delete the preset's file directory. //TODO::CASTLE
-        //
-//        $path = storage_path('app/presetFiles/preset'. $id);
-//
-//        if(is_dir($path)) {
-//            $it = new RecursiveDirectoryIterator($path, RecursiveDirectoryIterator::SKIP_DOTS);
-//            $files = new RecursiveIteratorIterator($it,
-//                RecursiveIteratorIterator::CHILD_FIRST);
-//            foreach($files as $file) {
-//                if ($file->isDir())
-//                    rmdir($file->getRealPath());
-//                else
-//                    unlink($file->getRealPath());
-//            }
-//            rmdir($path);
-//        }
-
         return response()->json(["status"=>true,"message"=>"record_preset_deleted"],200);
-    }
-
-    /**
-     * Moves a records files into the folder for the preset.
-     *
-     * @param  int $rid - Record ID
-     * @param  int $preID - Preset ID
-     */
-    public function moveFilesToPreset($rid, $preID) { //TODO::CASTLE
-        $presets_path = storage_path('app/presetFiles');
-
-        //
-        // Create the presets file path if it does not exist.
-        //
-        if(!is_dir($presets_path))
-            mkdir($presets_path, 0775, true);
-
-        $path = $presets_path . '/preset' . $preID; // Path for the new preset's directory.
-
-        if(!is_dir($path))
-            mkdir($path, 0775, true);
-
-        // Build the record's directory.
-        $record = RecordController::getRecord($rid);
-
-        $record_path = storage_path('app/files/p' . $record->pid . '/f' . $record->fid . '/r' . $record->rid);
-
-        //
-        // Recursively copy the record's file directory.
-        //
-        self::recurse_copy($record_path, $path);
     }
 
     /**
@@ -224,60 +166,37 @@ class RecordPresetController extends Controller {
      *
      * @param  Request $request
      */
-    public function moveFilesToTemp(Request $request) { //TODO::CASTLE
+    public function moveFilesToTemp(Request $request) {
         $presetID = $request->presetID;
-        $flid = $request->flid;
-        $userID = $request->userID;
+        $userID = \Auth::user()->id;
 
-        $presetPath = storage_path('app/presetFiles/preset' . $presetID . '/fl' . $flid);
-        $tempPath = storage_path('app/tmpFiles/f'. $flid . 'u' . $userID);
+        $preset = RecordPreset::where('id',$presetID)->first();
+        $fileData = $preset->preset['files'];
 
-        //
-        // If the temp directory exists for the user, clear out the existing files.
-        // Else create the directory.
-        //
-        if(is_dir($tempPath)) {
-            $it = new RecursiveDirectoryIterator($tempPath, RecursiveDirectoryIterator::SKIP_DOTS);
-            $files = new RecursiveIteratorIterator($it,
-                RecursiveIteratorIterator::CHILD_FIRST);
-            foreach($files as $file) {
-                if ($file->isDir())
-                    rmdir($file->getRealPath());
-                else
-                    unlink($file->getRealPath());
-            }
-        } else {
-            mkdir($tempPath, 0775, true);
-        }
-
-        //
-        // Copy the preset directory to the temporary directory.
-        //
-        self::recurse_copy($presetPath, $tempPath);
-    }
-
-    /**
-     * Recursively copies a directory and its files to directory.
-     *
-     * @param  string $src - Directory to copy
-     * @param  string $dst - Directory to copy to
-     */
-    public static function recurse_copy($src, $dst) { //TODO::CASTLE
-        if(file_exists($src)) {
-            $dir = opendir($src);
-
-            if(!is_dir($dst) && !is_file($dst))
-                mkdir($dst, 0775, true);
-
-            while(false !== ($file = readdir($dir))) {
-                if(($file != '.') && ($file != '..')) {
-                    if(is_dir($src . '/' . $file))
-                        self::recurse_copy($src . '/' . $file, $dst . '/' . $file);
-                    else
-                        copy($src . '/' . $file, $dst . '/' . $file);
+        $storageType = 'LaravelStorage'; //TODO:: make this a config once we actually support other storage types
+        switch($storageType) {
+            case 'LaravelStorage':
+                //Clear the current directory
+                $dir = storage_path('app/tmpFiles/recordU'.$userID);
+                if(file_exists($dir)) {
+                    foreach(new \DirectoryIterator($dir) as $file) {
+                        if($file->isFile())
+                            unlink($dir.'/'.$file->getFilename());
+                    }
+                } else {
+                    mkdir($dir,0775,true); //Make it!
                 }
-            }
-            closedir($dir);
+
+                //Restore old files
+                if(!is_null($fileData)) {
+                    foreach ($fileData as $name => $hash) {
+                        $data = base64_decode($hash);
+                        file_put_contents("$dir/$name", $data);
+                    }
+                }
+                break;
+            default:
+                break;
         }
     }
 }

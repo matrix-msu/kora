@@ -21,18 +21,14 @@
         </li>
 
         <li class="content-link content-link-js" data-page="record-revisions">
-            {{--TODO::CASTLE--}}
-            {{--<a href="{{action("RevisionController@show", ['pid'=>$pid, 'fid'=>$fid, 'rid'=>$rid])}}">View Revisions ({{\App\Http\Controllers\RevisionController::getRevisionCount($rid)}})</a>--}}
-            <a href="{{action("RevisionController@show", ['pid'=>$pid, 'fid'=>$fid, 'rid'=>$rid])}}">View Revisions (0)</a>
+            <a href="{{action("RevisionController@show", ['pid'=>$pid, 'fid'=>$fid, 'rid'=>$rid])}}">View Revisions ({{\App\Http\Controllers\RevisionController::getRevisionCount($pid . '-' . $fid . '-' . $rid)}})</a>
         </li>
 
         <li class="content-link content-link-js">
           @if(\Auth::user()->admin || \Auth::user()->isFormAdmin($form))
-                {{--TODO::CASTLE--}}
-            <?php
-                $alreadyPreset = false;
-                //$alreadyPreset = (\App\RecordPreset::where('rid',$rid)->count() > 0);
-            ?>
+            @php
+                $alreadyPreset = (\App\RecordPreset::where('record_kid',$pid.'-'.$fid.'-'.$rid)->count() > 0);
+            @endphp
             @if($alreadyPreset)
               <a class="already-preset-js" href="#">Designated as Preset</a>
             @else
