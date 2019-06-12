@@ -933,9 +933,6 @@ class RecordController extends Controller {
         else
             $kids = array();
 
-            return redirect()->action('RecordController@index', compact('pid', 'fid'))->with('k3_global_success', 'mass_records_updated');
-        } else {
-            return redirect()->back()->with('k3_global_error', 'mass_value_invalid');
-        }
+        return redirect()->action('RecordController@index',compact('pid','fid'));
     }
 }
