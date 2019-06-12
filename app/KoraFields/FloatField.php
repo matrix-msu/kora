@@ -293,16 +293,6 @@ class FloatField extends BaseField {
     }
 
     /**
-     * For a test record, add test data to field.
-     *
-     * @param  string $url - Url for File Type Fields
-     * @return mixed - The data
-     */
-    public function getTestData($url = null) {
-        return '';
-    }
-
-    /**
      * Provides an example of the field's structure in an export to help with importing records.
      *
      * @param  string $slug - Field nickname
@@ -313,13 +303,13 @@ class FloatField extends BaseField {
         switch($type) {
             case "XML":
                 $xml = '<' . $slug . '>';
-                $xml .= utf8_encode('3');
+                $xml .= utf8_encode('3.3');
                 $xml .= '</' . $slug . '>';
 
                 return $xml;
                 break;
             case "JSON":
-                $fieldArray[$slug] = 3;
+                $fieldArray[$slug] = 3.3;
 
                 return $fieldArray;
                 break;

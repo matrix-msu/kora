@@ -305,11 +305,16 @@ abstract class FileTypeField extends BaseField {
      *
      * @return mixed - Processed data
      */
-    public function processXMLData($field, $value) { //TODO::CASTLE
+    public function processXMLData($field, $value) {
         $files = json_decode($value,true);
         $xml = "<$field>";
         foreach($files as $file) {
-            $xml .= '<File>'.$file['name'].'</File>';
+            $xml .= '<File>';
+            $xml .= '<Name>'.$file['name'].'</Name>';
+            $xml .= '<Size>'.$file['size'].'</Size>';
+            $xml .= '<Type>'.$file['type'].'</Type>';
+            $xml .= '<Url>'.$file['url'].'</Url>';
+            $xml .= '</File>';
         }
         $xml .= "</$field>";
 
@@ -368,23 +373,19 @@ abstract class FileTypeField extends BaseField {
      * @param  string $expType - Type of export
      * @return mixed - The example
      */
-    public function getExportSample($slug, $type) { //TODO::CASTLE
+    public function getExportSample($slug, $type) {
         switch($type) {
             case "XML":
                 $xml = '<' . $slug . '>';
-                $xml .= '<File>';
+                $xml .= '<File><Name>';
                 $xml .= utf8_encode('FILENAME 1');
-                $xml .= '</File>';
-                $xml .= '<File>';
+                $xml .= '</Name></File>';
+                $xml .= '<File><Name>';
                 $xml .= utf8_encode('FILENAME 2');
-                $xml .= '</File>';
-                $xml .= '<File>';
+                $xml .= '</Name></File>';
+                $xml .= '<File><Name>';
                 $xml .= utf8_encode('so on...');
-                $xml .= '</File>';
-                $xml .= '</' . $slug . '>';
-
-                $xml .= '<' . $slug . ' simple="simple">';
-                $xml .= utf8_encode('FILENAME');
+                $xml .= '</Name></File>';
                 $xml .= '</' . $slug . '>';
 
                 return $xml;

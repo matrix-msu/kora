@@ -249,16 +249,6 @@ class BooleanField extends BaseField {
     }
 
     /**
-     * For a test record, add test data to field.
-     *
-     * @param  string $url - Url for File Type Fields
-     * @return mixed - The data
-     */
-    public function getTestData($url = null) {
-        return true;
-    }
-
-    /**
      * Provides an example of the field's structure in an export to help with importing records.
      *
      * @param  string $slug - Field nickname

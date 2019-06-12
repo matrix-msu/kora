@@ -273,17 +273,6 @@ class GeneratedListField extends BaseField {
     }
 
     /**
-     * For a test record, add test data to field.
-     */
-    public function getTestData($url = null) {
-        return [
-            'This is one of the list options that was selected.',
-            'This is another list option that was selected.',
-            'This is a list option that user created when creating this record'
-        ];
-    }
-
-    /**
      * Provides an example of the field's structure in an export to help with importing records.
      *
      * @param  string $slug - Field nickname
