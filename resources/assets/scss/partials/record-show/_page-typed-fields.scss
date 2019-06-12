@@ -294,7 +294,10 @@
   }
 
   .slide-img {
+    display: block;
     margin: auto;
+    max-height: 100%;
+    max-width: 100%;
   }
 }
 
@@ -332,6 +335,24 @@
 
       &.full-height {
         height: 100%;
+      }
+
+      .slide {
+        max-height: 75vh;
+      }
+
+      .currentSlide {
+        display: block;
+        position: static;
+
+        &.small {
+          display: flex;
+          position: absolute;
+
+          .slide-img {
+            height: 100%;
+          }
+        }
       }
     }
   }

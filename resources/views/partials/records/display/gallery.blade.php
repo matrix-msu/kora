@@ -8,7 +8,7 @@
         @foreach($images as $img)
             @php
                 $name = $img['name'];
-                $link = action('FieldAjaxController@publicRecordFile',['kid' => $record->kid, 'filename' => $name]);
+                $link = action('FieldAjaxController@publicRecordFile',['kid' => $record->kid, 'filename' => $name, 'type' => 'medium']);
             @endphp
             <div class="slide slide-js">
                 <img class="slide-img slide-img-js" src="{{$link}}" alt="{{$name}}" resLink="{{$link}}">
@@ -75,7 +75,7 @@
                 @foreach($images as $img)
                     @php
                         $name = $img['name'];
-                        $link = action('FieldAjaxController@publicRecordFile',['kid' => $record->kid, 'filename' => $name]);
+                        $link = action('FieldAjaxController@publicRecordFile',['kid' => $record->kid, 'filename' => $name, 'type' => 'medium']);
                     @endphp
                     <div class="slide slide-js">
                         <img class="slide-img slide-img-js" src="{{$link}}" alt="{{$name}}">
