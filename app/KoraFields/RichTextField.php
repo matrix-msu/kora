@@ -250,15 +250,6 @@ class RichTextField extends BaseField {
         $recModel->newQuery()->whereIn('kid',$kids)->update([$flid => $formFieldValue]);
     }
 
-    /* For a test record, add test data to field.
-     *
-     * @param  string $url - Url for File Type Fields
-     * @return mixed - The data
-     */
-    public function getTestData($url = null) {
-        return '<i>This</i> <u>sample text</u> is <b>Rich!</b>';
-    }
-
     /**
      * Provides an example of the field's structure in an export to help with importing records.
      *

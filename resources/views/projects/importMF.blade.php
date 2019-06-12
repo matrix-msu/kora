@@ -21,7 +21,7 @@
                 one file for each Form, and then enter the forms in order in the list below. Compared to the records
                 import page, there is no matchup sequence so file field names must match the expected Unique Field
                 Identifiers. This systems also allows records to be associated between the uploaded forms. Please see
-                the Kora 3 Documentation for references on how to define cross-Form associations.</p>
+                the Kora Documentation for references on how to define cross-Form associations.</p>
             <div class="content-sections sections-remove-js">
               <div class="content-sections-scroll">
                 <a href="#recordfile" class="recordfile-link underline-middle active">Upload Record Files</a>

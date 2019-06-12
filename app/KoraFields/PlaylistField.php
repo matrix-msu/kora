@@ -82,49 +82,6 @@ class PlaylistField extends FileTypeField {
         return ['FieldSize' => null, 'MaxFiles' => null, 'FileTypes' => self::SUPPORTED_TYPES];
     }
 
-    /**
-     * For a test record, add test data to field.
-     *
-     * @param  string $url - Url for File Type Fields
-     * @return mixed - The data
-     */
-    public function getTestData($url = null) {
-        $types = self::getMimeTypes();
-        if(!array_key_exists('mp3', $types))
-            $type = 'application/octet-stream';
-        else
-            $type = $types['mp3'];
-
-        $fileIDString = $url['flid'] . $url['rid'] . '_';
-        $newName = $fileIDString.'kora.mp3';
-
-        //Hash the file
-        $checksum = hash_file('sha256', public_path('assets/testFiles/kora.mp3'));
-
-        $file = [
-            'original_name' => 'kora.mp3',
-            'local_name' => $newName,
-            'url' => url('files').'/'.$newName,
-            'size' => 372001,
-            'type' => $type,
-            'checksum' => $checksum //TODO:: eventually hardcode this
-        ];
-
-        $storageType = 'LaravelStorage'; //TODO:: make this a config once we actually support other storage types
-        switch($storageType) {
-            case 'LaravelStorage':
-                $newPath = storage_path('app/files/' . $url['pid'] . '/' . $url['fid'] . '/' . $url['rid']);
-                mkdir($newPath, 0775, true);
-                copy(public_path('assets/testFiles/kora.mp3'),
-                    $newPath . '/'.$newName);
-                break;
-            default:
-                break;
-        }
-
-        return json_encode([$file]);
-    }
-
     ///////////////////////////////////////////////END ABSTRACT FUNCTIONS///////////////////////////////////////////////
 
     /**

@@ -1,20 +1,18 @@
 <?php namespace App\Http\Controllers;
 
+use App\Form;
 use Carbon\Carbon;
-use App\AssociatorField;
-use App\Field;
 use App\Http\Requests\BlockRequest;
-use App\Page;
-use App\Record;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\View\View;
 
-class DashboardController extends Controller { //TODO::CASTLE
+class DashboardController extends Controller {
 
     /*
     |--------------------------------------------------------------------------
@@ -59,7 +57,7 @@ class DashboardController extends Controller { //TODO::CASTLE
         //gather all sections for the dashboard and their blocks
         $sections = array();
 
-        $results = DB::table('dashboard_sections')->where('uid','=',Auth::user()->id)->orderBy('order')->get();
+        $results = DB::table('dashboard_sections')->where('user_id','=',Auth::user()->id)->orderBy('order')->get();
 
         if(count($results) == 0) { // if we have no sections, then we have no blocks
             $this->addSection('No Section');
@@ -74,7 +72,7 @@ class DashboardController extends Controller { //TODO::CASTLE
 
         foreach($results as $sec) {
             $blocks = array();
-            $blkResults = DB::table('dashboard_blocks')->where('sec_id','=',$sec->id)->orderBy('order')->get();
+            $blkResults = DB::table('dashboard_blocks')->where('section_id','=',$sec->id)->orderBy('order')->get();
 
             foreach($blkResults as $blk) {
                 $b = array();
@@ -89,7 +87,7 @@ class DashboardController extends Controller { //TODO::CASTLE
                         $project = ProjectController::getProject($pid);
 
                         if(!is_object($project)) {
-                            $this->deleteBlock($blk->id, $blk->sec_id);
+                            $this->deleteBlock($blk->id, $blk->section_id);
                             break;
                         }
 
@@ -118,14 +116,14 @@ class DashboardController extends Controller { //TODO::CASTLE
                         $form = FormController::getForm($fid);
 
                         if(!is_object($form)) {
-                            $this->deleteBlock($blk->id, $blk->sec_id);
+                            $this->deleteBlock($blk->id, $blk->section_id);
                             break;
                         }
 
-                        $b['projName'] = ProjectController::getProject($form->pid)->name;
+                        $b['projName'] = ProjectController::getProject($form->project_id)->name;
 
                         $b['fid'] = $fid;
-                        $b['pid'] = $form->pid;
+                        $b['pid'] = $form->project_id;
                         $b['name'] = $form->name;
                         if (strlen($form->description) > 206) {
                           $b['description'] = substr($form->description, 0, 206) . "..." ;
@@ -143,29 +141,41 @@ class DashboardController extends Controller { //TODO::CASTLE
                         }
                         break;
                     case 'Record':
-                        $rid = $options['rid'];
+                        $kid = $options['kid'];
 
-                        $record = RecordController::getRecord($rid);
+                        $record = RecordController::getRecord($kid);
 
                         if(!is_object($record)) {
-                            $this->deleteBlock($blk->id, $blk->sec_id);
+                            $this->deleteBlock($blk->id, $blk->section_id);
+                            $notification['message'] = 'One or more Record blocks were invalid!';
+                            $notification['description'] = 'Either KID was invalid, or record no longer exists';
+                            $notification['warning'] = 'True';
                             break;
                         }
 
-                        $project = ProjectController::getProject($record->pid);
-                        $form = FormController::getForm($record->fid);
+                        $project = ProjectController::getProject($record->project_id);
+                        $form = FormController::getForm($record->form_id);
 
-                        $firstPage = Page::where("fid","=",$record->fid)->where("sequence","=",0)->first();
-                        $firstField = Field::where("page_id","=",$firstPage->id)->where("sequence","=",0)->first();
+                        //Get first field in record for preview
+                        $layout = $form->layout;
+                        $foundField = false;
+                        foreach($layout['pages'] as $page) {
+                            if(!empty($page['flids'])) {
+                                $previewFlid = $page['flids'][0];
+                                $previewField = $layout['fields'][$previewFlid];
+                                $foundField = true;
+                                break;
+                            }
+                        }
 
                         $b['kid'] = $record->kid;
-                        $b['rid'] = $rid;
-                        $b['fid'] = $record->fid;
-                        $b['pid'] = $record->pid;
+                        $b['rid'] = $record->id;
+                        $b['fid'] = $record->form_id;
+                        $b['pid'] = $record->project_id;
                         $b['projName'] = $project->name;
                         $b['formName'] = $form->name;
-                        $b['fieldName'] = $firstField->name;
-                        $b['fieldData'] = AssociatorField::previewData($firstField->flid,$rid,$firstField->type);
+                        $b['fieldName'] = $foundField ? $previewField['name'] : "No Record Fields Found!";
+                        $b['fieldData'] = $foundField ? $this->getPreviewValues($previewFlid,$previewField,$kid) : "No Record Fields Found!";
                         $b['displayedOpts'] = getDashboardRecordBlockLink($record);
                         break;
                     case 'Quote':
@@ -210,28 +220,22 @@ class DashboardController extends Controller { //TODO::CASTLE
 
         $userProjects = Auth::user()->allowedProjects();
         $userForms = array();
-        $userRecords = array();
         foreach($userProjects as $p) {
-            $userForms = array_merge($userForms, Auth::user()->allowedForms($p->pid));
-            $projRecs = Record::where('pid','=',$p->pid)->pluck('kid')->toArray();
-            $userRecords = array_merge($userRecords, $projRecs);
+            $userForms = array_merge($userForms, Auth::user()->allowedForms($p->id));
         }
 
 		// Sort proj and forms alphabetically by name
 		usort($userProjects, function($a, $b){ return strcmp(strtolower($a["name"]), strtolower($b["name"])); });
 		usort($userForms, function ($a, $b) { return strcmp(strtolower($a['name']), strtolower($b['name'])); });
-		// Sort records numerically
-		asort($userRecords);
 
         //Check if were using a special menu link
         $state = isset($request->state) ? $request->state: 0;
 
-        return view('dashboard', compact('sections', 'userProjects', 'userForms', 'userRecords', 'notification', 'state'));
+        return view('dashboard', compact('sections', 'userProjects', 'userForms', 'notification', 'state'));
     }
 
     /**
-     * Create a section and add a block to it
-     * This is to populate a new users' empty dashboard
+     * Create a section and add a block to it. This is to populate a new users' empty dashboard.
      *
      * @param  string $type - Type of default block to make
      * @return array - Array with the new block
@@ -239,46 +243,72 @@ class DashboardController extends Controller { //TODO::CASTLE
     private function makeDefaultBlock($type) {
         switch($type) {
             case "Project":
-                $sec_id = DB::table('dashboard_sections')->insertGetId(
-                    ['uid' => Auth::User()->id, 'title' => 'Projects', 'order' => 1]
+                $section_id = DB::table('dashboard_sections')->insertGetId(
+                    ['user_id' => Auth::User()->id, 'title' => 'Projects', 'order' => 1]
                 );
 
-                $proj_id = Auth::User()->allowedProjects()[0]->pid;
+                $proj_id = Auth::User()->allowedProjects()[0]->id;
                 $options_string = '{"pid": ' . $proj_id .
                     ', "displayed": ["edit", "search", "form-new", "form-import", "permissions", "presets"]' .
                     ', "hidden": ["import", "import2k", "export"]}';
 
                 DB::table('dashboard_blocks')->insert([
-                    'sec_id' => $sec_id,
+                    'section_id' => $section_id,
                     'type' => 'Project',
                     'order' => 0,
                     'options' => $options_string
                 ]);
 
-                //$this->addSection('No Section');
-                return DB::table('dashboard_sections')->where('uid','=',Auth::user()->id)->orderBy('order')->get();
-                //return redirect('dashboard')->with('k3_global_success', 'block_modified');
+                return DB::table('dashboard_sections')->where('user_id','=',Auth::user()->id)->orderBy('order')->get();
                 break;
             case "Fun":
-                $sec_id = DB::table('dashboard_sections')->insertGetId(
-                    ['uid' => Auth::User()->id, 'title' => 'Example', 'order' => 1]
+                $section_id = DB::table('dashboard_sections')->insertGetId(
+                    ['user_id' => Auth::User()->id, 'title' => 'Example', 'order' => 1]
                 );
 
                 $options_string = '{}';
 
                 DB::table('dashboard_blocks')->insert([
-                    'sec_id' => $sec_id,
+                    'section_id' => $section_id,
                     'type' => 'Quote',
                     'order' => 0,
                     'options' => $options_string
                 ]);
 
                 $this->addSection('No Section');
-                return DB::table('dashboard_sections')->where('uid','=',Auth::user()->id)->orderBy('order')->get();
+                return DB::table('dashboard_sections')->where('user_id','=',Auth::user()->id)->orderBy('order')->get();
                 break;
         }
 
         return array();
+    }
+
+    /**
+     * Add a new section to dashboard.
+     *
+     * @param  string $sectionTitle - Title of new section
+     * @return JsonResponse
+     */
+    public function addSection($sectionTitle) {
+        $order = 0;
+        $lastSec = DB::table('dashboard_sections')->where('user_id','=',Auth::user()->id)->orderBy('order','desc')->first();
+        if(!is_null($lastSec))
+            $order = $lastSec->order + 1;
+
+        DB::table('dashboard_sections')->insert([
+            'user_id' => Auth::user()->id,
+            'order' => $order,
+            'title' => $sectionTitle,
+            'created_at' => Carbon::now()->toDateTimeString()
+        ]);
+
+        $section_id = DB::table('dashboard_sections')
+            ->where('user_id','=',Auth::user()->id)
+            ->where('title','=',$sectionTitle)
+            ->first()->id;
+
+        $this->makeNonSectionFirst();
+        return response()->json(["status"=>true, "message"=>"Section created", "sec_title"=>$sectionTitle, "section_id"=>$section_id, 200]);
     }
 
     /**
@@ -292,7 +322,7 @@ class DashboardController extends Controller { //TODO::CASTLE
         $type = $request->block_type;
         $optString = '{}';
         $order = 0;
-        $lastBlkInSec = DB::table('dashboard_blocks')->where('sec_id','=',$secID)->orderBy('order','desc')->first();
+        $lastBlkInSec = DB::table('dashboard_blocks')->where('section_id','=',$secID)->orderBy('order','desc')->first();
         if(!is_null($lastBlkInSec))
             $order = $lastBlkInSec->order + 1;
 
@@ -311,9 +341,7 @@ class DashboardController extends Controller { //TODO::CASTLE
                 break;
             case 'Record':
                 $kid = $request->block_record;
-                $rids = explode('-',$kid);
-                $rid = end($rids);
-                $optString = '{"rid": ' . $rid . '}';
+                $optString = '{"kid": "' . $kid . '"}';
                 break;
             case 'Quote':
                 break;
@@ -330,13 +358,23 @@ class DashboardController extends Controller { //TODO::CASTLE
         }
 
         DB::table('dashboard_blocks')->insert([
-            'sec_id' => $secID,
+            'section_id' => $secID,
             'type' => $type,
             'order' => $order,
             'options' => $optString
         ]);
 
         return redirect('dashboard')->with('k3_global_success', 'block_added');
+    }
+
+    /**
+     * Validates a block request.
+     *
+     * @param  BlockRequest $request
+     * @return JsonResponse
+     */
+    public function validateBlockFields(BlockRequest $request) {
+        return response()->json(["status"=>true, "message"=>"Block Valid", 200]);
     }
 
     /**
@@ -351,7 +389,7 @@ class DashboardController extends Controller { //TODO::CASTLE
             foreach ($sections as $section) {
                 $section = explode('-', $section);
                 DB::table('dashboard_sections')
-                    ->where('uid','=',Auth::user()->id)
+                    ->where('user_id','=',Auth::user()->id)
                     ->where('id','=',$section[0])
                     ->update(['title' => $section[1]]);
             }
@@ -370,9 +408,10 @@ class DashboardController extends Controller { //TODO::CASTLE
     }
 
     /**
-     * Edits an existing block type and content.  NOT including quick-action
+     * Edits an existing block type and content. NOT including quick-action.
      *
      * @param  BlockRequest $request
+     * @return Redirect
      */
     public function editBlock (BlockRequest $request) {
         $secID = $request->section_to_add;
@@ -394,9 +433,7 @@ class DashboardController extends Controller { //TODO::CASTLE
                 break;
             case 'Record':
                 $kid = $request->block_record;
-                $rids = explode('-',$kid);
-                $rid = end($rids);
-                $optString = '{"rid": ' . $rid . '}';
+                $optString = '{"kid": ' . $kid . '}';
                 break;
             case 'Quote':
                 break;
@@ -412,7 +449,7 @@ class DashboardController extends Controller { //TODO::CASTLE
         }
 
         DB::table('dashboard_blocks')->where('id','=',$request->selected_id)->update([
-            'sec_id' => $secID,
+            'section_id' => $secID,
             'type' => $type,
             'options' => $optString
         ]);
@@ -421,12 +458,12 @@ class DashboardController extends Controller { //TODO::CASTLE
     }
 
     /**
-     * Edits an existing block's quick action ordering
+     * Edits an existing block's quick action ordering.
      *
-     * @param  BlockRequest $request
+     * @param  Request $request
+     * @return Response
      */
-    public function editBlockQuickActions (Request $request) {
-
+    public function editBlockQuickActions(Request $request) {
 		$newOpts = explode(',', $request->options);
 		$newHiddenOpts = explode(',', $request->hiddenOpts);
 
@@ -446,9 +483,11 @@ class DashboardController extends Controller { //TODO::CASTLE
     }
 
     /**
-    * Edit note block title and content.
-    */
-    public function editNoteBlock (Request $request) {
+     * Edit note block title and content.
+     *
+     * @param  Request $request
+     */
+    public function editNoteBlock(Request $request) {
         $noteArray = [];
         $noteArray['title'] = $request->block_note_title;
         $noteArray['content'] = $request->block_note_content;
@@ -459,13 +498,19 @@ class DashboardController extends Controller { //TODO::CASTLE
         ]);
     }
 
-    public function editBlockOrder (Request $request) {
+    /**
+     * Edits the order of blocks in a section from a JS request.
+     *
+     * @param  Request $request
+     * @return JsonResponse
+     */
+    public function editBlockOrder(Request $request) {
         $int = 0;
         foreach($request->blocks as $block) {
             DB::table('dashboard_blocks')
                 ->where('id','=',$block)
                 ->update([
-					'sec_id' => $request->section,
+					'section_id' => $request->section,
 					'order' => $int
 				]);
 
@@ -476,53 +521,21 @@ class DashboardController extends Controller { //TODO::CASTLE
     }
 
     /**
-     * Validates a block request.
+     * Deletes a dashboard section, moves section's blocks to the section above (unless the top section is deleted, in which case the blocks move down a section).
      *
-     * @param  BlockRequest $request
-     * @return JsonResponse
-     */
-    public function validateBlockFields(BlockRequest $request) {
-        return response()->json(["status"=>true, "message"=>"Block Valid", 200]);
-    }
-
-    public function addSection($sectionTitle) {
-        $order = 0;
-        $lastSec = DB::table('dashboard_sections')->where('uid','=',Auth::user()->id)->orderBy('order','desc')->first();
-        if(!is_null($lastSec))
-            $order = $lastSec->order + 1;
-
-        DB::table('dashboard_sections')->insert([
-            'uid' => Auth::user()->id,
-            'order' => $order,
-            'title' => $sectionTitle,
-            'created_at' => Carbon::now()->toDateTimeString()
-        ]);
-
-        $sec_id = DB::table('dashboard_sections')
-            ->where('uid','=',Auth::user()->id)
-            ->where('title','=',$sectionTitle)
-            ->first()->id;
-
-        $this->makeNonSectionFirst();
-        return response()->json(["status"=>true, "message"=>"Section created", "sec_title"=>$sectionTitle, "sec_id"=>$sec_id, 200]);
-    }
-
-    /**
-     * Deletes a dashboard section, moves section's blocks to the section above (unless the top section is deleted, in which case the blocks move down a section)
-     *
-     * @param  int $secID - Section ID
+     * @param  int $sectionID - Section ID
      * @return JsonResponse
      */
     public function deleteSection($sectionID) {
         $validCnt = DB::table("dashboard_sections")
             ->where("id", "=", $sectionID)
-            ->where("uid", "=", Auth::user()->id)
+            ->where("user_id", "=", Auth::user()->id)
             ->count();
         if($validCnt == 0)
             return redirect('projects')->with('k3_global_error', 'not_dashboard_owner');
 
         // find the index of the selected section
-        $allSections = DB::table('dashboard_sections')->where('uid','=',Auth::user()->id)->orderBy('order')->get();
+        $allSections = DB::table('dashboard_sections')->where('user_id','=',Auth::user()->id)->orderBy('order')->get();
         foreach ($allSections as $key => $section) {
             if ($section->id == $sectionID) {
                 $index = $key;
@@ -531,21 +544,21 @@ class DashboardController extends Controller { //TODO::CASTLE
         }
 
         // get ID of desired section with key from selected section
-        if (isset($allSections[$key - 1])) { // blocks normally move up (previous sect)
-            $newID = $allSections[$key - 1]->id;
-        } elseif (isset($allSections[$key + 1])) { // if prev section doesn't exist, move blocks down
-            $newID = $allSections[$key + 1]->id;
+        if (isset($allSections[$index - 1])) { // blocks normally move up (previous sect)
+            $newID = $allSections[$index - 1]->id;
+        } elseif (isset($allSections[$index + 1])) { // if prev section doesn't exist, move blocks down
+            $newID = $allSections[$index + 1]->id;
         } else { // otherwise we create new unique invisible section to add the blocks to
             $this->addSection('No Section'); // we shouldn't reach this line since this section should always exist
-            $newID = $key + 1;
+            $newID = $index + 1;
         }
 
         // assign new ID to blocks from old section
-        DB::table("dashboard_blocks")->where("sec_id", "=", $sectionID)->update(['sec_id' => $newID]);
+        DB::table("dashboard_blocks")->where("section_id", "=", $sectionID)->update(['section_id' => $newID]);
         $this->reorderBlocks($newID);
 
         // delete section
-        DB::table("dashboard_sections")->where('uid','=',Auth::user()->id)->where("id", "=", $sectionID)->delete();
+        DB::table("dashboard_sections")->where('user_id','=',Auth::user()->id)->where("id", "=", $sectionID)->delete();
         $this->reorderSections();
 
         return response()->json(["status"=>true, "message"=>"Section destroyed", 'section'=>$newID, 200]);
@@ -555,19 +568,20 @@ class DashboardController extends Controller { //TODO::CASTLE
      * Deletes a dashboard block.
      *
      * @param  int $blkID - Block ID
+     * @param  int $secID - Section ID
      * @return JsonResponse
      */
     public function deleteBlock($blkID, $secID) {
         $validCnt = DB::table("dashboard_sections")
             ->where("id", "=", $secID)
-            ->where("uid", "=", Auth::user()->id)
+            ->where("user_id", "=", Auth::user()->id)
             ->count();
         if($validCnt == 0)
             return redirect('projects')->with('k3_global_error', 'not_dashboard_owner');
 
         DB::table("dashboard_blocks")
             ->where("id", "=", $blkID)
-            ->where("sec_id", "=", $secID)
+            ->where("section_id", "=", $secID)
             ->delete();
 
         //reorder remaining blocks in section
@@ -576,8 +590,13 @@ class DashboardController extends Controller { //TODO::CASTLE
         return redirect('dashboard')->with('k3_global_success', 'block_destroyed');
     }
 
+    /**
+     * Reorders blocks within a section.
+     *
+     * @param  int $secID - Section ID
+     */
     private function reorderBlocks($secID) {
-        $blocks = DB::table("dashboard_blocks")->where("sec_id", "=", $secID)->orderBy('order','asc')->get();
+        $blocks = DB::table("dashboard_blocks")->where("section_id", "=", $secID)->orderBy('order','asc')->get();
         $int = 0;
         foreach($blocks as $block) {
             DB::table('dashboard_blocks')->where('id', $block->id)->update(['order' => $int]);
@@ -585,23 +604,54 @@ class DashboardController extends Controller { //TODO::CASTLE
         }
     }
 
+    /**
+     * Makes sure No Section is the first section always.
+     */
     private function makeNonSectionFirst () {
-        $firstSection = DB::table("dashboard_sections")->where('uid','=',Auth::user()->id)->orderBy('order','asc')->first()->order - 1;
+        $firstSection = DB::table("dashboard_sections")->where('user_id','=',Auth::user()->id)->orderBy('order','asc')->first()->order - 1;
 
         DB::table('dashboard_sections')
-            ->where('uid','=',Auth::user()->id)
+            ->where('user_id','=',Auth::user()->id)
             ->where('title','=','No Section')
             ->update(['order' => $firstSection]);
 
         $this->reorderSections();
     }
 
+    /**
+     * Reorders sections within the dashboard.
+     */
     private function reorderSections() {
-        $sections = DB::table("dashboard_sections")->where('uid','=',Auth::user()->id)->orderBy('order','asc')->get();
+        $sections = DB::table("dashboard_sections")->where('user_id','=',Auth::user()->id)->orderBy('order','asc')->get();
         $int = 0;
-        foreach ($sections as $section) {
+        foreach($sections as $section) {
             DB::table('dashboard_sections')->where('id', $section->id)->update(['order' => $int]);
             $int++;
+        }
+    }
+
+    /**
+     * For a record, grab the data of the field that was assigned as a preview
+     * for this record.
+     *
+     * @param  string $flid - Field IDs
+     * @param  array $field - Field info array
+     * @param  int $kid - Record Kora ID
+     * @return string - Html structure of the preview field's value
+     */
+    private function getPreviewValues($flid,$field,$kid) {
+        $record = RecordController::getRecord($kid);
+        if(is_null($record))
+            return '';
+
+        if(!in_array($field['type'],Form::$validAssocFields)) {
+            return "Invalid Preview Field";
+        } else {
+            $value = $record->{$flid};
+            if(is_null($value))
+                return "Preview Field Empty";
+            else
+                return $value;
         }
     }
 }

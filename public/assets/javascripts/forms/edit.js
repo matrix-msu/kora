@@ -40,22 +40,6 @@ Kora.Forms.Edit = function() {
 			console.log("dislaying loader");
 			display_loader();
         });
-
-		$('.create-test-js').click(function(e) {
-			e.preventDefault();
-
-			var $cleanupModal = $('.create-test-records-js');
-
-			Kora.Modal.open($cleanupModal);
-        });
-
-        $('.delete-test-js').click(function(e) {
-			e.preventDefault();
-
-			var $cleanupModal = $('.delete-test-records-js');
-
-			Kora.Modal.open($cleanupModal);
-        });
   }
 
   function scrollTop (allScrolls) {

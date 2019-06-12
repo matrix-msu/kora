@@ -161,7 +161,6 @@ Route::group(['middleware' => 'web'], function () {
 
 //record routes
     Route::get('/projects/{pid}/forms/{fid}/records', 'RecordController@index');
-    Route::post('/projects/{pid}/forms/{fid}/records/createTest', 'RecordController@createTest');
     Route::get('projects/{pid}/forms/{fid}/records/massAssignRecords', 'RecordController@showMassAssignmentView');
     Route::get('projects/{pid}/forms/{fid}/records/showSelectedAssignmentView', 'RecordController@showSelectedAssignmentView');//this
     Route::post('projects/{pid}/forms/{fid}/records/massAssignRecords', 'RecordController@massAssignRecords');
@@ -180,7 +179,6 @@ Route::group(['middleware' => 'web'], function () {
     Route::get('/projects/{pid}/forms/{fid}/records/{rid}', 'RecordController@show');
     Route::get('/projects/{pid}/forms/{fid}/records/{rid}/edit', 'RecordController@edit');
     Route::post('/projects/{pid}/forms/{fid}/records', 'RecordController@store');
-    Route::delete('projects/{pid}/forms/{fid}/deleteTestRecords', 'RecordController@deleteTestRecords');
     Route::delete('projects/{pid}/forms/{fid}/records/deleteMultipleRecords', 'RecordController@deleteMultipleRecords');
     Route::delete('projects/{pid}/forms/{fid}/records/{rid}', 'RecordController@destroy');
     Route::delete('projects/{pid}/forms/{fid}/deleteAllRecords', 'RecordController@deleteAllRecords');

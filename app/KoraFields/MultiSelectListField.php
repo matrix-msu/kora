@@ -260,16 +260,6 @@ class MultiSelectListField extends BaseField {
     }
 
     /**
-     * For a test record, add test data to field.
-     */
-    public function getTestData($url = null) {
-        return [
-            'This is one of the list options that was selected.',
-            'This is another list option that was selected.'
-        ];
-    }
-
-    /**
      * Provides an example of the field's structure in an export to help with importing records.
      *
      * @param  string $slug - Field nickname

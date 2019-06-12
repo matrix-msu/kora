@@ -190,14 +190,6 @@ abstract class BaseField extends Model {
     abstract public function massAssignSubsetRecordField($form, $flid, $formFieldValue, $request, $kids);
 
     /**
-     * For a test record, add test data to field.
-     *
-     * @param  string $url - Url for File Type Fields
-     * @return mixed - The data
-     */
-    abstract public function getTestData($url = null);
-
-    /**
      * Provides an example of the field's structure in an export to help with importing records.
      *
      * @param  string $slug - Field nickname

@@ -155,6 +155,7 @@ class Form extends Model {
         self::_VIDEO,
         self::_3D_MODEL,
         self::_ASSOCIATOR,
+        self::_MULTI_SELECT_LIST,
         self::_GENERATED_LIST,
         self::_GEOLOCATOR,
         self::_HISTORICAL_DATE
@@ -950,10 +951,6 @@ class Form extends Model {
     public function getRecordCount() {
         $recordMod = new Record(array(),$this->id);
         return $recordMod->newQuery()->count();
-    }
-    public function getTestRecordCount() {
-        $recordMod = new Record(array(),$this->id);
-        return $recordMod->newQuery()->where('is_test','=',1)->count();
     }
 
     /**

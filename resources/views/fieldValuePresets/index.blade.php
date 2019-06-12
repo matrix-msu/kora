@@ -21,7 +21,9 @@
                 <i class="icon icon-preset"></i>
                 <span>Field Value Presets</span>
             </h1>
-            <p class="description">Field Value Presets allow you to create predefined field options to be used repeatedly across all projects and forms. For more information on Field Value Presets, refer to the <a href="#">Field Value Presets - Kora Documentation.</a> You may Create a New Preset, or edit an existing preset here.</p>
+            <p class="description">Field Value Presets allow you to create predefined field options to be used repeatedly
+                across all projects and forms. For more information on Field Value Presets, refer to the Kora Documentation.
+                You may Create a New Preset, or edit an existing preset here.</p>
         </div>
     </section>
 @stop

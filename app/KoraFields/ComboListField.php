@@ -555,16 +555,6 @@ class ComboListField extends BaseField {
     }
 
     /**
-     * For a test record, add test data to field.
-     *
-     * @param  string $url - Url for File Type Fields
-     * @return mixed - The data
-     */
-    public function getTestData($url = null) { // TODO::CASTLE
-        return '';
-    }
-
-    /**
      * Updates the request for an API search to mimic the advanced search structure.
      *
      * @param  array $data - Data from the search

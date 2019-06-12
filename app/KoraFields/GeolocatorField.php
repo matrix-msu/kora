@@ -350,21 +350,6 @@ class GeolocatorField extends BaseField {
     }
 
     /**
-     * For a test record, add test data to field.
-     *
-     * @param  string $url - Url for File Type Fields
-     * @return mixed - The data
-     */
-    public function getTestData($url = null) {
-        $locArray = [];
-        $locArray['description'] = 'Matrix';
-        $locArray['geometry']['location']['lat'] = 42.7314094;
-        $locArray['geometry']['location']['lng'] = -84.476258;
-        $locArray['formatted_address'] = '288 Farm Ln, East Lansing, MI 48823';
-        return json_encode(array($locArray));
-    }
-
-    /**
      * Provides an example of the field's structure in an export to help with importing records.
      *
      * @param  string $slug - Field nickname
