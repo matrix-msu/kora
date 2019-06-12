@@ -473,6 +473,10 @@ class ComboListField extends BaseField {
      * @return mixed - Processed data
      */
     public function processRecordData($field, $value, $request) {
+        // Assume formatted values
+        if (is_array($value))
+            return $value;
+
         $values = array();
         foreach(['_combo_one' => 'one', '_combo_two' => 'two'] as $affix => $seq) {
             $value = $request->{$field['flid'] . $affix};
@@ -645,8 +649,16 @@ class ComboListField extends BaseField {
      * @param  string $url - Url for File Type Fields
      * @return mixed - The data
      */
-    public function getTestData($url = null) { // TODO::CASTLE
-        return '';
+    public function getTestData($url = null) {
+        $values = array();
+
+        foreach (['one', 'two'] as $seq) {
+            $className = $this->fieldModel[$url[$seq]];
+            $object = new $className;
+            $values[$seq] = [$object->getTestData()];
+        }
+
+        return $values;
     }
 
     /**

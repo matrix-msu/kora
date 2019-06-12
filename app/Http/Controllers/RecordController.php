@@ -1,6 +1,7 @@
 <?php namespace App\Http\Controllers;
 
 use App\KoraFields\FileTypeField;
+use App\KoraFields\ComboListField;
 use App\RecordPreset;
 use App\Revision;
 use App\User;
@@ -967,8 +968,23 @@ class RecordController extends Controller {
                     $url['flid'] = $flid;
                     $url['rid'] = $record->id;
                     $record->{$flid} = $model->getTestData($url);
-                } else
+                } else if($model instanceof ComboListField) {
+                    foreach (['one', 'two'] as $seq) {
+                        $url[$seq] = $form->layout['fields'][$flid][$seq]['type'];
+                    }
+                    $field['flid'] = $flid;
+                    $values = $model->getTestData($url);
+                    $record->{$flid} = $form->getFieldModel($field['type'])->save(
+                        array(
+                            'fid' => $fid,
+                            'rid' => $record->id,
+                            'field' => $field,
+                            'values' => $values
+                        )
+                    );
+                } else {
                     $record->{$flid} = $model->getTestData();
+                }
             }
 
             $record->save();
