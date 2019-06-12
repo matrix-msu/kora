@@ -250,7 +250,8 @@ function getDashboardFormBlockLink($block, $link_type) {
             'tooltip' => 'Export All Records',
             'icon-class' => 'icon-exportRecords-Little',
             'href' => '#',
-            'type' => 'export-records'
+            'type' => 'export-records',
+            'class' => 'export-record-js'
           ];
           break;
       case 'assoc-permissions':

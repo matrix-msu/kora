@@ -132,6 +132,10 @@
 							</div>
 						</div>
 					@elseif($block["type"]=="Form")
+						@php
+							$blockForm = \App\Http\Controllers\FormController::getForm($block['fid']);
+						@endphp
+						@include('partials.dashboard.exportFormRecordsModal',['form' => $blockForm])
 						<div class="element" id="{{ $block['id'] }}">
 							<div class="title-container">
 								<i class="icon icon-form"></i>
@@ -148,9 +152,9 @@
 								{{ $block['description'] }}
 							</p>
 							<div class="element-link-container">
-							@if (\Auth::user()->admin || \Auth::user()->isFormAdmin(\App\Http\Controllers\FormController::getForm($block['fid'])))
+							@if(\Auth::user()->admin || \Auth::user()->isFormAdmin($blockForm))
 								@foreach($block['displayedOpts'] as $link)
-									<a href="{{ $link['href'] }}" class="element-link tooltip {{ $link['type'] }}"
+									<a href="{{ $link['href'] }}" fid="{{$block['fid']}}" class="element-link tooltip {{ $link['type'] }} {{ isset($link['class']) ? $link['class'] : '' }}"
 									tooltip="{{ $link['tooltip'] }}" quickAction="{{ $link['type'] }}">
 										<i class="icon {{ $link['icon-class']}}"></i>
 									</a>
@@ -160,7 +164,7 @@
 								</a>
 								<div class="element-link-right-tooltips"><ul>
 									@foreach($block['hiddenOpts'] as $opt)
-										<li><a quickaction="{{ $opt['type'] }}" href="{{ $opt['href'] }}">{{ $opt['tooltip'] }}</a></li>
+										<li><a quickaction="{{ $opt['type'] }}" fid="{{$block['fid']}}" href="{{ $opt['href'] }}" class="{{ isset($opt['class']) ? $opt['class'] : '' }}">{{ $opt['tooltip'] }}</a></li>
 									@endforeach
 								</ul></div>
 							@endif
