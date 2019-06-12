@@ -184,7 +184,7 @@ function getDashboardFormBlockLink($block, $link_type) {
           return [
             'tooltip' => 'Edit Form',
             'icon-class' => 'icon-edit-little',
-            'href' => action('FormController@edit', ['pid' => $form->pid, 'fid' => $form->fid]),
+            'href' => action('FormController@edit', ['pid' => $form->project_id, 'fid' => $form->id]),
 			'type' => 'edit'
           ];
           break;
@@ -192,7 +192,7 @@ function getDashboardFormBlockLink($block, $link_type) {
           return [
             'tooltip' => 'Search Form Records',
             'icon-class' => 'icon-search',
-            'href' => action('RecordController@index', ['pid' => $form->pid, 'fid' => $form->fid]),
+            'href' => action('RecordController@index', ['pid' => $form->project_id, 'fid' => $form->id]),
 			'type' => 'search'
           ];
           break;
@@ -200,16 +200,16 @@ function getDashboardFormBlockLink($block, $link_type) {
           return [
             'tooltip' => 'Create New Record',
             'icon-class' => 'icon-record-new-little',
-            'href' => action('RecordController@create',['pid' => $form->pid, 'fid' => $form->fid]),
+            'href' => action('RecordController@create',['pid' => $form->project_id, 'fid' => $form->id]),
 			'type' => 'record-new'
           ];
           break;
       case 'field-new':
-          $lastPage = \App\Page::where('fid','=',$form->fid)->orderBy('sequence','desc')->first();
+          $lastPage = sizeof($form->layout["pages"])-1;
           return [
             'tooltip' => 'Create New Field',
             'icon-class' => 'icon-form-new-little',
-            'href' => action('FieldController@create', ['pid'=>$form->pid, 'fid' => $form->fid, 'rootPage' => $lastPage['id']]),
+            'href' => action('FieldController@create', ['pid'=>$form->project_id, 'fid' => $form->id, 'rootPage' => $lastPage]),
 			'type' => 'field-new'
           ];
           break;
@@ -217,7 +217,7 @@ function getDashboardFormBlockLink($block, $link_type) {
           return [
             'tooltip' => 'Form Permissions',
             'icon-class' => 'icon-star',
-            'href' => action('FormGroupController@index', ['pid' => $form->pid, 'fid' => $form->fid]),
+            'href' => action('FormGroupController@index', ['pid' => $form->project_id, 'fid' => $form->id]),
 			'type' => 'form-permissions'
           ];
           break;
@@ -225,7 +225,7 @@ function getDashboardFormBlockLink($block, $link_type) {
           return [
             'tooltip' => 'Manage Record Revisions',
             'icon-class' => 'icon-preset-Little',
-            'href' => action('RevisionController@index', ['pid'=>$form->pid, 'fid'=>$form->fid]),
+            'href' => action('RevisionController@index', ['pid'=>$form->project_id, 'fid'=>$form->id]),
 			'type' => 'revisions'
           ];
           break;
@@ -233,7 +233,7 @@ function getDashboardFormBlockLink($block, $link_type) {
 	      return [
             'tooltip' => 'Import Records',
             'icon-class' => 'icon-importrecords-little',
-		    'href' => action('RecordController@importRecordsView', ['pid' => $form->pid, 'fid' => $form->fid]),
+		    'href' => action('RecordController@importRecordsView', ['pid' => $form->project_id, 'fid' => $form->id]),
 		    'type' => 'import'
 		  ];
           break;
@@ -241,7 +241,7 @@ function getDashboardFormBlockLink($block, $link_type) {
           return [
             'tooltip' => 'Batch Assign Field Values',
             'icon-class' => 'icon-batchAssign-little',
-            'href' => action('RecordController@showMassAssignmentView',['pid' => $form->pid, 'fid' => $form->fid]),
+            'href' => action('RecordController@showMassAssignmentView',['pid' => $form->project_id, 'fid' => $form->id]),
             'type' => 'batch'
           ];
           break;
@@ -257,7 +257,7 @@ function getDashboardFormBlockLink($block, $link_type) {
           return [
             'tooltip' => 'Association Permissions',
             'icon-class' => 'icon-associationPermissions-little',
-            'href' => action('AssociationController@index', ['fid' => $form->fid, 'pid' => $form->pid]),
+            'href' => action('AssociationController@index', ['fid' => $form->id, 'pid' => $form->project_id]),
             'type' => 'assoc-permissions'
           ];
           break;
@@ -265,7 +265,7 @@ function getDashboardFormBlockLink($block, $link_type) {
           return [
             'tooltip' => 'Export Form',
             'icon-class' => 'icon-exportForm-Little',
-            'href' => action('ExportController@exportForm',['fid'=>$form->fid, 'pid' => $form->pid]),
+            'href' => action('ExportController@exportForm',['fid'=>$form->id, 'pid' => $form->project_id]),
             'type' => 'export-form'
           ];
           break;
@@ -284,17 +284,17 @@ function getDashboardRecordBlockLink($record) {
         [
             'tooltip' => 'Edit Record',
             'icon-class' => 'icon-edit-little',
-            'href' => action('RecordController@edit', ['pid' => $record->pid, 'fid' => $record->fid, 'rid' => $record->rid])
+            'href' => action('RecordController@edit', ['pid' => $record->project_id, 'fid' => $record->form_id, 'rid' => $record->id])
         ],
         [
             'tooltip' => 'Duplicate Record',
             'icon-class' => 'icon-duplicate-little',
-            'href' => action('RecordController@cloneRecord', ['pid' => $record->pid, 'fid' => $record->fid, 'rid' => $record->rid])
+            'href' => action('RecordController@cloneRecord', ['pid' => $record->project_id, 'fid' => $record->form_id, 'rid' => $record->id])
         ],
         [
             'tooltip' => 'View Revisions',
             'icon-class' => 'icon-clock-little',
-            'href' => action('RevisionController@show', ['pid' => $record->pid, 'fid' => $record->fid, 'rid' => $record->rid])
+            'href' => action('RevisionController@show', ['pid' => $record->project_id, 'fid' => $record->form_id, 'rid' => $record->id])
         ]
     );
 }

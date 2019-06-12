@@ -148,7 +148,7 @@
 								{{ $block['description'] }}
 							</p>
 							<div class="element-link-container">
-							@if (\Auth::user()->admin || \Auth::user()->isFormAdmin(\App\Http\Controllers\FormController::getForm($form->fid)))
+							@if (\Auth::user()->admin || \Auth::user()->isFormAdmin(\App\Http\Controllers\FormController::getForm($block['fid'])))
 								@foreach($block['displayedOpts'] as $link)
 									<a href="{{ $link['href'] }}" class="element-link tooltip {{ $link['type'] }}"
 									tooltip="{{ $link['tooltip'] }}" quickAction="{{ $link['type'] }}">

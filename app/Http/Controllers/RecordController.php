@@ -7,7 +7,6 @@ use App\User;
 use App\Record;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\View\View;
 use RecursiveIteratorIterator;

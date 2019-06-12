@@ -21,7 +21,7 @@
         <select class="single-select" id="block_project" name="block_project" data-placeholder="Select a Project">
             <option></option>
             @foreach($userProjects as $proj)
-                <option value="{{$proj->pid}}">{{$proj->name}}</option>
+                <option value="{{$proj->id}}">{{$proj->name}}</option>
             @endforeach
         </select>
     </div>
@@ -34,7 +34,7 @@
         <select class="single-select" id="block_form" name="block_form" data-placeholder="Select a Form">
             <option></option>
             @foreach($userForms as $form)
-                <option value="{{$form->fid}}">{{$form->name}}</option>
+                <option value="{{$form->id}}">{{$form->name}}</option>
             @endforeach
         </select>
     </div>
@@ -46,9 +46,7 @@
         <span class="error-message"></span>
         <select class="single-select" id="block_record" name="block_record" data-placeholder="Select a Record">
             <option></option>
-            @foreach($userRecords as $rec)
-                <option value="{{$rec}}">{{$rec}}</option>
-            @endforeach
+            {{--TODO::CASTLE--}}
         </select>
     </div>
 </section>
