@@ -112,7 +112,7 @@
             </div>
 
             <div class="form-group mt-xxxl">
-                {!! Form::submit('Create New Record',['class' => 'btn record-validate-js']) !!}
+                {!! Form::button('Create New Record',['class' => 'btn record-validate-js']) !!}
             </div>
         {!! Form::close() !!}
     </section>
