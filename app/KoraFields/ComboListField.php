@@ -632,19 +632,31 @@ class ComboListField extends BaseField {
      * @param  boolean $negative - Get opposite results of the search
      * @return array - The RIDs that match search
      */
-    public function keywordSearchTyped($flid, $arg, $recordMod, $negative = false) { //TODO::CASTLE
-        return [];
-        return DB::table(self::SUPPORT_NAME)
-            ->select("rid")
-            ->where("flid", "=", $flid)
-            ->where(function($query) use ($arg) {
-                $num = floatval($arg);
+    public function keywordSearchTyped($flid, $arg, $recordMod, $form, $negative = false) {
+        if($negative)
+            $param = 'NOT LIKE';
+        else
+            $param = 'LIKE';
 
-                $query->where('data','LIKE',"%$arg%")
-                    ->orWhereBetween("number", [$num - NumberField::EPSILON, $num + NumberField::EPSILON]);
+        $layout = $form->layout['fields'][$flid];
+
+        return DB::table($flid . $form->id)
+            ->select("record_id")
+            ->where(function($query) use ($arg, $layout, $param, $negative) {
+                foreach(['one', 'two'] as $seq) {
+                    $tmpArg = str_replace("%","",$arg);
+                    if(is_numeric($tmpArg)) {
+                        $tmpArg = [$tmpArg - self::EPSILON, $tmpArg + self::EPSILON];
+                        if ($negative)
+                            $query->whereNotBetween($flid, $tmpArg);
+                        else
+                            $query->whereBetween($flid, $tmpArg);
+                    } else {
+                        $query->orWhere($layout[$seq]['flid'], $param,"$arg");
+                    }
+                }
             })
-            ->distinct()
-            ->pluck('rid')
+            ->pluck('record_id')
             ->toArray();
     }
 

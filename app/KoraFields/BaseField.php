@@ -207,7 +207,7 @@ abstract class BaseField extends Model {
      * @param  boolean $negative - Get opposite results of the search
      * @return array - The RIDs that match search
      */
-    abstract public function keywordSearchTyped($flid, $arg, $recordMod, $negative = false);
+    abstract public function keywordSearchTyped($flid, $arg, $recordMod, $form, $negative = false);
 
     /**
      * Updates the request for an API search to mimic the advanced search structure.
