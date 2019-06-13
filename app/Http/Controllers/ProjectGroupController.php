@@ -39,7 +39,7 @@ class ProjectGroupController extends Controller {
      * @param $pid - Project ID
      * @return View
      */
-    public function index($pid, $active = 0) {
+    public function index($pid, $active = 0, Request $request) {
         $project = ProjectController::getProject($pid);
 
         if(!\Auth::user()->isProjectAdmin($project))
@@ -56,6 +56,13 @@ class ProjectGroupController extends Controller {
           'static' => false
         );
 
+        $prevUrlArray = $request->session()->get('_previous');
+        $prevUrl = reset($prevUrlArray);
+        $session = $request->session()->get('k3_global_success');
+        if ($prevUrl == url()->current() && $session == 'project_group_created') {
+            $notification['message'] = 'Project Permissions Group Successfully Created';
+        }
+
         return view('projectGroups.index', compact('project', 'projectGroups', 'users', 'all_users', 'active', 'notification'));
     }
 
@@ -69,17 +76,17 @@ class ProjectGroupController extends Controller {
     public function create($pid, Request $request) {
         if($request->name == "")
             return redirect('projects/'.$pid.'/manage/projectgroups')->with('k3_global_error', 'group_name_missing');
-		
+
 		// send invite emails & create new users
 	    if(is_string($request->emails) && $request->emails !== '') {
 		  $request->return_user_ids = true;
 		  $user_ids = (new AdminController())->batch($request); // this action creates the new users in db and sends invite emails
-		  
+
 		  if(is_array($request->users))
 		    $request->users = array_merge($request->users, $user_ids);
 		  else
 		    $request->users = $user_ids;
-		
+
 		  // $request->users is the ids of newly created invited users, and existing users
 	    }
 
@@ -106,14 +113,14 @@ class ProjectGroupController extends Controller {
 
                 DB::table('project_group_user')->where('user_id', $uid)->where('project_group_id', $idOld)->delete();
 
-                if($newUser) {
+                if ($newUser) {
                     //add to all forms
                     $forms = Form::where('project_id', '=', $group->project_id)->get();
                     foreach($forms as $form) {
                         $defGroup = FormGroup::where('name', '=', $form->name . ' Default Group')->where('form_id', '=', $form->id)->get()->first();
                         $FGC = new FormGroupController();
                         $request->formGroup = $defGroup->id;
-						$request->userIDs = array($uid);
+			                  $request->userIDs = array($uid);
                         $FGC->addUser($request);
                     }
 
@@ -122,14 +129,14 @@ class ProjectGroupController extends Controller {
                     $this->emailUserProject("changed", $uid, $group->id);
                 }
             }
-			
-			// add the users to the custom project
-			$project = Project::where('id', '=', $pid)->first();
-			$project->batchAddUsersAsCustom($request->users);
+
+            // add the users to the custom project
+            $project = Project::where('id', '=', $pid)->first();
+            $project->batchAddUsersAsCustom($request->users);
 
             $group->users()->attach($request->users);
         }
-		
+
         return redirect('projects/'.$pid.'/manage/projectgroups')->with('k3_global_success', 'project_group_created');
     }
 
@@ -152,8 +159,8 @@ class ProjectGroupController extends Controller {
 
         $user = User::where("id",(int)$request->userId)->first();
         $user->removeCustomProject($instance->project_id);
-		
-		
+
+
         $instance->users()->detach($request->userId);
         $this->emailUserProject("removed",$request->userId,$instance->id);
     }
@@ -299,7 +306,7 @@ class ProjectGroupController extends Controller {
             $instance->delete = 0;
 
         $instance->save();
-		
+
         $users = $instance->users()->get();
         foreach($users as $user) {
             $this->emailUserProject("changed", $user->id, $instance->id);
