@@ -683,3 +683,34 @@ i {
     content: $icon-edit;
   }
 }
+
+/* DO NOT OVERWRITE */
+.icon-arrow-right {
+  &:before {
+    @extend .icon-arrow:before;
+  }
+}
+
+.icon-arrow-down {
+  transform: rotate(90deg);
+
+  &:before {
+    @extend .icon-arrow:before;
+  }
+}
+
+.icon-arrow-left {
+  transform: rotate(180deg);
+
+  &:before {
+    @extend .icon-arrow:before;
+  }
+}
+
+.icon-arrow-up {
+  transform: rotate(-90deg);
+
+  &:before {
+    @extend .icon-arrow:before;
+  }
+}
