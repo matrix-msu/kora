@@ -6,10 +6,9 @@ use App\FieldHelpers\UploadHandler;
 use App\GeolocatorField;
 use App\Record;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 
-class ImportMultiFormController extends Controller { //TODO::CASTLE
+class ImportMultiFormController extends Controller {
 
     /*
     |--------------------------------------------------------------------------

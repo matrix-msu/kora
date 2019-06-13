@@ -157,7 +157,7 @@ class ExportController extends Controller {
 
         if(file_exists($path)) {
             ini_set('max_execution_time',0);
-            ini_set('memory_limit', "6G");
+            ini_set('memory_limit', "2G");
 
             //add files
             $files = new \RecursiveIteratorIterator(
@@ -166,7 +166,7 @@ class ExportController extends Controller {
             );
 
             foreach ($files as $name => $file) {
-                if($fileSizeCount > 5)
+                if($fileSizeCount > 1)
                     return response()->json(["status"=>false,"message"=>"zip_too_big"],500);
 
                 // Skip directories (they would be added automatically)
