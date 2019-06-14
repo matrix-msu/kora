@@ -1,5 +1,5 @@
 <div class="modal modal-js modal-mask request-permission-modal request-permission-modal-js">
-  <div class="content">
+  <div class="content overflow-yes">
     <div class="header">
       <span class="title">Request Form Association</span>
       <a href="#" class="modal-toggle modal-toggle-js">
@@ -14,9 +14,26 @@
           <select class="single-select" id="request-form" name="assocfid"
             data-placeholder="Select a form here">
             <option></option>
-            @foreach ($requestable_associations as $association)
-              <option value="{{$association->id}}">{{$association->project()->get()->first()->name}} - {{$association->name}}</option>
-            @endforeach
+
+            @php
+        			$fids_req = array();
+        			$sorted_requestable_forms = array();
+        			foreach ($requestable_associations as $association) {
+        				$display_str = $association->project()->get()->first()->name . ' - ' . $association->name;
+
+        				while (in_array($display_str, $sorted_requestable_forms)) {
+        					$display_str = $display_str . ' ';
+        				}
+
+        				array_push($sorted_requestable_forms, $display_str);
+        				$fids_req[$display_str] = $association->id;
+        			}
+        			sort($sorted_requestable_forms, SORT_FLAG_CASE | SORT_NATURAL);
+      			@endphp
+
+      			@foreach ($sorted_requestable_forms as $association_display_text) {
+      				<option value="{{$fids_req[$association_display_text]}}">{{$association_display_text}}</option>
+      			@endforeach
           </select>
         </div>
 

@@ -103,7 +103,8 @@ Kora.Records.Validate = function() {
                               errorList.push($page);
                             }
                         });
-                    initializeValidationModal();
+                        
+                        initializeValidationModal();
                     }
                 },
                 error: function(err) {

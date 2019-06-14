@@ -3,8 +3,8 @@
   min-height: 50px;
 
   .trash-container {
+    margin-top: 13px;
     padding-right: 15px;
-    padding-top: 15px;
 
     .icon-trash {
       color: palette('red', base);
@@ -22,16 +22,18 @@
   .icon-user-add {
     font-size: 16px;
   }
-}
 
-@media screen and (max-width: $max-mobile-med-width) {
-  .footer {
-    margin-top: 30px;
+  .tooltip:hover::after {
+    left: -63px;
+    top: -35px;
   }
 }
 
-@media screen and (max-width: $max-mobile-xs-width) {
+@media screen and (max-width: 769px) {
   .footer {
-    margin-top: 15px;
+    .tooltip:hover::after {
+      left: -63px;
+  		top: -5px;
+  	}
   }
 }

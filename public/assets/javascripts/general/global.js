@@ -81,15 +81,15 @@ function isScrolledIntoView($elem) {
 
 function setFixedElement(load = false) {
   var fixed_elements = $('.pre-fixed-js');
-  
+
   if (fixed_elements.length > 0) {
     for (var i = 0; i < fixed_elements.length; i++) {
-      
+
       var $elementToFix = $(fixed_elements[i]);
       var $elementFixWrapper = $elementToFix.parent();
-      
+
       if ($elementFixWrapper.height() == 0) {continue;} // ignore if parent height is zero
-      
+
       if (!isScrolledIntoView($elementFixWrapper)) {
       	if (load) {
       		$elementToFix.addClass('fixed-bottom fixed-bottom-slide');
@@ -237,10 +237,17 @@ $(document).ready(function() {
 
   setTimeout(function(){
     if ($note.text() != '') {
-	  console.log($note.text())
+      console.log("note text: " + $note.text());
       if ($note.text() === 'Update Available!') {
         $('.view-updates-js').removeClass('hidden');
       }
+
+  	  if ($note.text() === "Form Associations Requested") {
+    		$("a[href='#create']").removeClass('active');
+    		$("a[href='#request']").addClass('active');
+    		$('.request-section').removeClass('hidden');
+        $('.create-section').addClass('hidden');
+  	  }
 
       if ($noteDesc.text() != '') {
         $noteDesc.addClass('note-description');
@@ -255,7 +262,7 @@ $(document).ready(function() {
       var welcome_notification = $('.welcome-body').find(".notification");
       if (welcome_notification.length > 0) {
         welcome_notification.addClass('welcome-align');
-        
+
         var welcome_note = welcome_notification.find('.container').find('.note');
         if (welcome_note.length > 0) {
           welcome_note.addClass('welcome-stack-note');
@@ -348,16 +355,16 @@ function resizeend() {
 function multiselect_placeholder_injection()
 {
 	var inputs = $(".chosen-search-input");
-	
+
 	for (i = 0; i < inputs.length; i++)
 	{
 		var jq_input = $(inputs[i]);
-		
+
 		if (!jq_input.attr("placeholder-injected"))
 		{
 			jq_input.attr("placeholder-injected", 1);
 			jq_input.attr("placeholder", jq_input.attr("value"));
-			
+
 		}
 	}
 }
