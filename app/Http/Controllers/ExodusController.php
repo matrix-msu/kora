@@ -402,7 +402,8 @@ class ExodusController extends Controller {
         echo "Connecting forms for associators...\n\n";
 
         foreach($masterAssoc as $fid => $asids) {
-            foreach($asids as $asid) {
+            $asidsUnique = array_unique($asids);
+            foreach($asidsUnique as $asid) {
                 //Make sure the scheme it's looking for actually was transfered
                 if(isset($formArray[$asid])) {
                     $assoc = new Association();
