@@ -646,6 +646,7 @@ class ComboListField extends BaseField {
                 foreach(['one', 'two'] as $seq) {
                     $tmpArg = str_replace("%","",$arg);
                     if(is_numeric($tmpArg)) {
+                        // Dealing with numbers
                         $tmpArg = [$tmpArg - self::EPSILON, $tmpArg + self::EPSILON];
                         if ($negative)
                             $query->whereNotBetween($flid, $tmpArg);
@@ -794,95 +795,6 @@ class ComboListField extends BaseField {
             $options[$option] = $option;
         }
         return $options;
-    }
-
-    /**
-     * Validates record data for a Combo List Field.
-     *
-     * @param  int $flid - Field ID
-     * @param  Request $request
-     * @return JsonResponse - Returns success/error message
-     */
-    public static function validateComboListOpt($flid, $request) {
-        $field = FieldController::getField($flid);
-
-        $valone = $request->valone;
-        $valtwo = $request->valtwo;
-        $typeone = $request->typeone;
-        $typetwo = $request->typetwo;
-
-        if($valone=="" | $valtwo=="")
-            return response()->json(["status"=>false,"message"=>"combo_value_missing"],500);
-
-        $validateOne = self::validateComboListField($field,$typeone,$valone);
-        if($validateOne!="sub_field_validated") {
-            $name = $field['one']['name'];
-            return response()->json(["status"=>false,"message"=>$validateOne,"sub_field_name"=>$name],500);
-        }
-
-        $validateTwo = self::validateComboListField($field,$typetwo,$valtwo);
-        if($validateTwo!="sub_field_validated") {
-            $name = $field['two']['name'];
-            return response()->json(["status"=>false,"message"=>$validateTwo,"sub_field_name"=>$name],500);
-        }
-
-        return response()->json(["status"=>true,"message"=>"combo_field_validated"],200);
-    }
-
-    /**
-     * Validates record data for a specific Combo List sub-field.
-     *
-     * @param  Field $field - Field model for the combo list
-     * @param  Field $type - Sub field type
-     * @param  Field $val - Sub field value to validate
-     * @return string - Returns success/error message
-     */
-    private static function validateComboListField($field, $type, $val) {
-        switch($type) {
-            case "Text":
-                $regex = self::getComboFieldOption($field, 'Regex', 'one');
-                if(($regex!=null | $regex!="") && !preg_match($regex, $val))
-                    return "regex_value_mismatch";
-                break;
-            case "Integer":
-            case "Float":
-                $max = self::getComboFieldOption($field, 'Max', 'one');
-                $min = self::getComboFieldOption($field, 'Min', 'one');
-                $inc = self::getComboFieldOption($field, 'Increment', 'one');
-
-                if($val < $min | $val > $max)
-                    return "number_range_error";
-
-                if(fmod(floatval($val), floatval($inc)) != 0)
-                    return "number_increment_error";
-                break;
-            case "List":
-                $opts = explode('[!]', self::getComboFieldOption($field, 'Options', 'one'));
-
-                if(!in_array($val, $opts))
-                    return "invalid_list_option";
-                break;
-            case "Multi-Select List":
-                $opts = explode('[!]', self::getComboFieldOption($field, 'Options', 'one'));
-
-                if(sizeof(array_diff($val, $opts)) > 0)
-                    return "invalid_list_option";
-                break;
-            case "Generated List":
-                $regex = self::getComboFieldOption($field, 'Regex', 'one');
-
-                if($regex != null | $regex != "") {
-                    foreach ($val as $val) {
-                        if(!preg_match($regex, $val))
-                            return "regex_values_mismatch.";
-                    }
-                }
-                break;
-            default:
-                return "combo_type_error";
-        }
-
-        return "sub_field_validated";
     }
 
     /**
