@@ -89,6 +89,7 @@ class ExodusHelperController extends Controller {
         $collToPage = array();
         $oldControlInfo = array();
         $assocControlCheck = array();
+        $listOptsEnumArray = array();
         $assocFile = array();
         $numRecords = $con->query('select distinct id from p'.$oldPid.'Data where schemeid='.$ogSid)->num_rows;
 
@@ -178,6 +179,8 @@ class ExodusHelperController extends Controller {
                                 array_push($def, (string)$xmlopt);
                             }
                         }
+
+                        $def = $this->cleanOpts($def);
 
                         if(!$blankOpts)
                             $regex = $optXML->regex->__toString();
@@ -304,10 +307,15 @@ class ExodusHelperController extends Controller {
                             }
                         }
 
+                        $opts = $this->cleanOpts($opts);
+
                         if(!$blankOpts)
                             $def = $optXML->defaultValue->__toString();
                         else
                             $def = null;
+
+                        //Store for later
+                        $listOptsEnumArray[$c['cid']] = $opts;
 
                         $newOpts = ['Options' => $opts];
                         $newDef = $def;
@@ -320,6 +328,8 @@ class ExodusHelperController extends Controller {
                                 array_push($opts, (string)$xmlopt);
                             }
                         }
+
+                        $opts = $this->cleanOpts($opts);
 
                         $def = array();
                         if(!$blankOpts && !is_null($optXML->defaultValue->option)) {
@@ -350,7 +360,7 @@ class ExodusHelperController extends Controller {
                 //Create field array
                 $field = array();
                 $field['type'] = $newType;
-                $field['name'] = preg_replace("/[^A-Za-z0-9 ]/", ' ', $c['name']);
+                $field['name'] = $this->renameFields($c['name']);
                 $newFlid = str_replace(" ","_", $field['name']).'_'.$newForm->project_id.'_'.$newForm->id.'_';
 
                 //Add it to the appropriate page
@@ -375,6 +385,12 @@ class ExodusHelperController extends Controller {
                 $fieldMod = $newForm->getFieldModel($field['type']);
                 $fieldMod->addDatabaseColumn($newForm->id, $newFlid, $newOpts);
 
+                //Makes legacy file field for
+                if($fieldMod instanceof FileTypeField) {
+                    $fieldMod->addDatabaseColumn($newForm->id, "legacy_$newFlid", $newOpts);
+                }
+
+                //Builds out the opts for enum field
                 if(in_array($field['type'],Form::$enumFields)) {
                     $crt = new \CreateRecordsTable();
                     $crt->updateEnum($newForm->id,$newFlid,$field['options']['Options']);
@@ -406,6 +422,27 @@ class ExodusHelperController extends Controller {
             }
 
             $tmpLayout['fields'][$flid]['options'] = $opts;
+        }
+        $newForm->layout = $tmpLayout;
+        $newForm->save();
+
+        //We need to make sure there are not missing items in list fields, and that they get added to the enum
+        Log::info("Gathering ENUM List Control Data...\n");
+        echo "Gathering ENUM List Control Data...\n";
+
+        $tmpLayout = $newForm->layout;
+        foreach($listOptsEnumArray as $cid => $opts) {
+            $flid = $oldControlInfo[$cid];
+
+            $listRows = $con->query('select * from p'.$oldPid.'Data where cid='.$cid.' AND schemeid='.$ogSid);
+
+            while($lf = $listRows->fetch_assoc()) {
+                $val = $lf['value'];
+                if(!in_array($val,$opts))
+                    $opts[] = $val;
+            }
+
+            $tmpLayout['fields'][$flid]['options']['Options'] = $opts;
         }
         $newForm->layout = $tmpLayout;
         $newForm->save();
@@ -504,6 +541,7 @@ class ExodusHelperController extends Controller {
                     case 'Documents':
                         $fileXML = simplexml_load_string($value);
                         $realname = (string)$fileXML->originalName;
+                        $newname = $this->renameFiles($realname);
                         $localname = (string)$fileXML->localName;
                         //URL for accessing file publically
                         $dataURL = url('files').'/'.$newForm->project_id . '-' . $newForm->id . '-' . $recordDataToSave[$r['id']]['id'].'/';
@@ -528,31 +566,33 @@ class ExodusHelperController extends Controller {
                                     }
 
                                     //Move files
-                                    copy($oldDir.$localname,$newPath.$realname);
+                                    copy($oldDir.$localname,$newPath.$newname);
                                     //Hash the file
                                     $checksum = hash_file('sha256', $oldDir.$localname);
 
                                     //Get file info
                                     $mimes = FileTypeField::getMimeTypes();
-                                    $ext = pathinfo($newPath.$realname,PATHINFO_EXTENSION);
+                                    $ext = pathinfo($newPath.$newname,PATHINFO_EXTENSION);
                                     if(!array_key_exists($ext, $mimes))
                                         $type = 'application/octet-stream';
                                     else
                                         $type = $mimes[$ext];
 
-                                    $info = ['name' => $realname, 'size' => filesize($newPath.$realname), 'type' => $type,
-                                        'url' => $dataURL.urlencode($realname), 'checksum' => $checksum];
+                                    $info = ['name' => $newname, 'size' => filesize($newPath.$newname), 'type' => $type,
+                                        'url' => $dataURL.urlencode($newname), 'checksum' => $checksum];
                                     break;
                                 default:
                                     break;
                             }
 
                             $recordDataToSave[$r['id']][$flid] = json_encode([$info]);
+                            $recordDataToSave[$r['id']]["legacy_$flid"] = json_encode([$realname]);
                         }
                         break;
                     case 'Gallery':
                         $fileXML = simplexml_load_string($value);
                         $realname = (string)$fileXML->originalName;
+                        $newname = $this->renameFiles($realname);
                         $localname = (string)$fileXML->localName;
                         //URL for accessing file publically
                         $dataURL = url('files').'/'.$newForm->project_id . '-' . $newForm->id . '-' . $recordDataToSave[$r['id']]['id'].'/';
@@ -577,26 +617,27 @@ class ExodusHelperController extends Controller {
                                     }
 
                                     //Move files
-                                    copy($oldDir.$localname,$newPath.$realname);
+                                    copy($oldDir.$localname,$newPath.$newname);
                                     //Hash the file
                                     $checksum = hash_file('sha256', $oldDir.$localname);
 
                                     //Get file info
                                     $mimes = FileTypeField::getMimeTypes();
-                                    $ext = pathinfo($newPath.$realname,PATHINFO_EXTENSION);
+                                    $ext = pathinfo($newPath.$newname,PATHINFO_EXTENSION);
                                     if(!array_key_exists($ext, $mimes))
                                         $type = 'application/octet-stream';
                                     else
                                         $type = $mimes[$ext];
 
-                                    $info = ['name' => $realname, 'size' => filesize($newPath.$realname), 'type' => $type,
-                                        'url' => $dataURL.urlencode($realname), 'checksum' => $checksum, 'caption' => ''];
+                                    $info = ['name' => $newname, 'size' => filesize($newPath.$newname), 'type' => $type,
+                                        'url' => $dataURL.urlencode($newname), 'checksum' => $checksum, 'caption' => ''];
                                     break;
                                 default:
                                     break;
                             }
 
                             $recordDataToSave[$r['id']][$flid] = json_encode([$info]);
+                            $recordDataToSave[$r['id']]["legacy_$flid"] = json_encode([$realname]);
                         }
                         break;
                     case 'List':
@@ -682,5 +723,28 @@ class ExodusHelperController extends Controller {
         DB::table('exodus_overall')->where('id', $exodus_id)->increment('progress',1,['updated_at'=>Carbon::now()]);
 
         mysqli_close($con);
+    }
+
+    private function renameFields($fieldName) {
+        //Remove illegal characters
+        $newNameSpaced = preg_replace("/[^A-Za-z0-9 ]/", ' ', $fieldName);
+        //Remove multi spaces
+        $newName = preg_replace('!\s+!', ' ', $newNameSpaced);
+        //Trim and return
+        return trim($newName);
+    }
+
+    private function renameFiles($fileName) {
+        return preg_replace("/[^A-Za-z0-9\_\-\.]/", '', $fileName);
+    }
+
+    private function cleanOpts($opts) {
+        $filtered = [];
+        foreach($opts as $opt) {
+            if($opt!='')
+                $filtered[] = $opt;
+        }
+
+        return $filtered;
     }
 }
