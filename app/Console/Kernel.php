@@ -11,8 +11,9 @@ class Kernel extends ConsoleKernel {
 	 * @var array
 	 */
 	protected $commands = [
-		'App\Console\Commands\Inspire',
 		'App\Console\Commands\ExodusScript',
+        'App\Console\Commands\GenerateThumbs',
+        'App\Console\Commands\Inspire',
 		'App\Console\Commands\InstallKora',
 		'App\Console\Commands\RecordFileZipExport',
 		'App\Console\Commands\ReverseAssocCache',
