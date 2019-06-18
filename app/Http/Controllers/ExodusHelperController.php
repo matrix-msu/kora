@@ -83,6 +83,7 @@ class ExodusHelperController extends Controller {
     public function migrateControlsAndRecords($ogSid, $fid, $formArray, $pairArray, $dbInfo, $filePath, $exodus_id, $userNameArray) {
         //connect to db and set up variables
         $con = mysqli_connect($dbInfo['host'],$dbInfo['user'],$dbInfo['pass'],$dbInfo['name']);
+        $con->set_charset("utf8");
         $form = FormController::getForm($fid);
         $newForm = $form;
         $oldPid = $pairArray[$ogSid];
@@ -427,10 +428,11 @@ class ExodusHelperController extends Controller {
         $newForm->save();
 
         //We need to make sure there are not missing items in list fields, and that they get added to the enum
-        Log::info("Gathering ENUM List Control Data...\n");
+        Log::info("Gathering ENUM List Control Data...");
         echo "Gathering ENUM List Control Data...\n";
 
         $tmpLayout = $newForm->layout;
+        $crt = new \CreateRecordsTable();
         foreach($listOptsEnumArray as $cid => $opts) {
             $flid = $oldControlInfo[$cid];
 
@@ -439,10 +441,11 @@ class ExodusHelperController extends Controller {
             while($lf = $listRows->fetch_assoc()) {
                 $val = $lf['value'];
                 if(!in_array($val,$opts))
-                    $opts[] = $val;
+                    $opts[] = (string)$val;
             }
 
             $tmpLayout['fields'][$flid]['options']['Options'] = $opts;
+            $crt->updateEnum($newForm->id,$flid,$opts);
         }
         $newForm->layout = $tmpLayout;
         $newForm->save();
@@ -562,13 +565,13 @@ class ExodusHelperController extends Controller {
                                         //OLD FILE DOESNT EXIST SO BALE
                                         Log::info('File not found: '.$oldDir.$localname);
                                         echo 'File not found: '.$oldDir.$localname,"\n";
-                                        continue;
+                                        continue(2);
                                     }
 
-                                    //Move files
-                                    copy($oldDir.$localname,$newPath.$newname);
                                     //Hash the file
                                     $checksum = hash_file('sha256', $oldDir.$localname);
+                                    //Move files
+                                    copy($oldDir.$localname,$newPath.$newname);
 
                                     //Get file info
                                     $mimes = FileTypeField::getMimeTypes();
@@ -613,13 +616,13 @@ class ExodusHelperController extends Controller {
                                         //OLD FILE DOESNT EXIST SO BALE
                                         Log::info('File not found: '.$oldDir.$localname);
                                         echo 'File not found: '.$oldDir.$localname,"\n";
-                                        continue;
+                                        continue(2);
                                     }
 
-                                    //Move files
-                                    copy($oldDir.$localname,$newPath.$newname);
                                     //Hash the file
                                     $checksum = hash_file('sha256', $oldDir.$localname);
+                                    //Move files
+                                    copy($oldDir.$localname,$newPath.$newname);
 
                                     //Get file info
                                     $mimes = FileTypeField::getMimeTypes();
