@@ -609,7 +609,7 @@ Kora.Records.Create = function() {
 
         $fileUploads.each(function() {
             var $fileUpload = $(this);
-            console.log($('#'+$fileUpload.attr('id')));
+            console.log("file upload: "+$fileUpload);
             $('#'+$fileUpload.attr('id')).fileupload({
                 dataType: 'json',
                 dropZone: $('#'+$fileUpload.attr('id')).parent(),

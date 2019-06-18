@@ -27,9 +27,9 @@
   }
 
   &-circle {
-    border-radius: 18px;
-    height: 36px;
-    width: 36px;
+    border-radius: 50%;
+    min-height: 36px;
+    min-width: 36px;
   }
 
   &.modal-toggle {
@@ -151,6 +151,11 @@
     &.active {
       background: palette('gray', slate);
     }
+  }
+
+  .dots {
+  	padding-left: 10px;
+  	padding-right: 10px;
   }
 
   .field-btn {
