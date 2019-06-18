@@ -32,9 +32,9 @@ class InstallController extends Controller {
      * @var array - Directories that will be created upon installation.
      */
     public $DIRECTORIES = [
-        "app/exodusAssoc",
-        "app/exodusAssoc/conversions",
-        "app/exodusAssoc/data",
+        "app/exodus",
+        "app/exodus/assocData/",
+        "app/exodus/kidConversions",
         "app/exports",
         "app/files",
         "app/profiles",
