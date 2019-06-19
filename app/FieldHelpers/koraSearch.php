@@ -158,9 +158,9 @@ class kora3ApiExternalTool {
         $form["under"] = in_array("under",$flags) ? in_array("under",$flags) : false;
 
         if(is_array($fields) && empty($fields))
-            $form["fields"] = "ALL";
+            $form["return_fields"] = "ALL";
         else
-            $form["fields"] = $fields;
+            $form["return_fields"] = $fields;
         if(!empty($sort))
             $form["sort"] = $sort;
 
