@@ -411,6 +411,10 @@ class Form extends Model {
             exit();
         }
 
+        //BETA LINE
+        if(!isset($filters['beta']))
+            $filters['beta'] = false;
+
         //Some prep to make assoc searching faster
         if($filters['assoc']) {
             $useAssoc = true;

@@ -83,6 +83,76 @@ class ReverseAssocCache extends Command
                             DB::table(AssociatorField::Reverse_Cache_Table)->insert($inserts);
                         }
                     }
+                } else if($field['type'] == Form::_COMBO_LIST && $field['one']['type'] == Form::_ASSOCIATOR) {
+                    $subFieldName = $field['one']['flid'];
+                    $assocData = $recModel->newQuery()->select('kid',$flid)->get();
+                    foreach($assocData as $row) {
+                        $inserts = [];
+
+                        $values = json_decode($row->{$flid},true);
+                        if(is_null($values))
+                            continue;
+
+                        //Need to pull values from combo table
+                        $subvalues = DB::table($flid.$form->id)->whereIn('id',$values)->select($subFieldName)->get();
+
+                        foreach($subvalues as $subval) {
+                            $vals = json_decode($subval->{$subFieldName},true);
+
+                            foreach($vals as $val) {
+                                $inserts[] = [
+                                    'associated_kid' => $val,
+                                    'associated_form_id' => explode('-', $val)[1],
+                                    'source_kid' => $row->kid,
+                                    'source_flid' => $flid,
+                                    'source_form_id' => $form->id
+                                ];
+                            }
+                        }
+
+                        if(!empty($inserts)) {
+                            //Break up the inserts into chuncks
+                            if($first_message)
+                                $this->info('Storing values for Form ' . $form->internal_name . '...');
+                            $first_message = false;
+                            DB::table(AssociatorField::Reverse_Cache_Table)->insert($inserts);
+                        }
+                    }
+                } else if($field['type'] == Form::_COMBO_LIST && $field['two']['type'] == Form::_ASSOCIATOR) {
+                    $subFieldName = $field['two']['flid'];
+                    $assocData = $recModel->newQuery()->select('kid',$flid)->get();
+                    foreach($assocData as $row) {
+                        $inserts = [];
+
+                        $values = json_decode($row->{$flid},true);
+                        if(is_null($values))
+                            continue;
+
+                        //Need to pull values from combo table
+                        $subvalues = DB::table($flid.$form->id)->whereIn('id',$values)->select($subFieldName)->get();
+
+                        foreach($subvalues as $subval) {
+                            $vals = json_decode($subval->{$subFieldName},true);
+
+                            foreach($vals as $val) {
+                                $inserts[] = [
+                                    'associated_kid' => $val,
+                                    'associated_form_id' => explode('-', $val)[1],
+                                    'source_kid' => $row->kid,
+                                    'source_flid' => $flid,
+                                    'source_form_id' => $form->id
+                                ];
+                            }
+                        }
+
+                        if(!empty($inserts)) {
+                            //Break up the inserts into chuncks
+                            if($first_message)
+                                $this->info('Storing values for Form ' . $form->internal_name . '...');
+                            $first_message = false;
+                            DB::table(AssociatorField::Reverse_Cache_Table)->insert($inserts);
+                        }
+                    }
                 }
             }
         }
