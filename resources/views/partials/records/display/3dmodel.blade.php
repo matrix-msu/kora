@@ -19,13 +19,19 @@
           </div>
       </div>
       <div class="field-sidebar model-sidebar-js">
-          <div class="top">
-              <a href="{{ action('FieldController@singleModel', ['pid' => $form->project_id, 'fid' => $form->id, 'rid' => $record->id, 'flid' => $flid]) }}" target="_blank" class="field-btn"><i class="icon icon-external-link"></i></a>
-              <a href="{{$model_link}}" class="field-btn"><i class="icon icon-download"></i></a>
+        <div class="top">
+            <a href="{{ action('FieldController@singleModel', ['pid' => $form->project_id, 'fid' => $form->id, 'rid' => $record->rid, 'flid' => $flid]) }}" target="_blank" class="field-btn tooltip" tooltip="Open in New Tab">
+                <i class="icon icon-external-link"></i>
+            </a>
+            <a href="{{$model_link}}" class="field-btn tooltip" tooltip="Download Model">
+                <i class="icon icon-download"></i>
+            </a>
   	    </div>
   	    <div class="bottom">
-              <div class="field-btn full-screen-button-js"><i class="icon icon-maximize"></i></div>
-          </div>
+            <div class="field-btn full-screen-button-js tooltip" tooltip="View Fullscreen">
+                <i class="icon icon-maximize"></i>
+            </div>
+        </div>
       </div>
       <div class="full-screen-modal modal modal-js modal-mask model-modal model-modal-js">
           <div class="content">

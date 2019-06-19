@@ -30,15 +30,14 @@
 
         <div class="field-sidebar audio-sidebar audio-sidebar-js">
             <div class="top">
-                <a href="{{$link}}" class="field-btn" target="_blank">
+                <a href="{{$link}}" class="field-btn tooltip" tooltip="Open in New Tab" target="_blank">
                     <i class="icon icon-external-link"></i>
                 </a>
 
-                <a href="{{ action('FieldAjaxController@getFileDownload', ['kid' => $record->kid, 'filename' => $name]) }}" class="field-btn">
+                <a href="{{ action('FieldAjaxController@getFileDownload', ['kid' => $record->kid, 'filename' => $name]) }}" class="field-btn tooltip" tooltip="Download Audio">
                     <i class="icon icon-download"></i>
                 </a>
             </div>
         </div>
     </div>
 @endforeach
-
