@@ -607,7 +607,7 @@ class RestfulBetaController extends Controller {
             $field = $form->layout['fields'][$fieldName];
             $typedField = $form->getFieldModel($field['type']);
 
-            $recRequest = $typedField->processImportData($fieldName, $field, $jsonField, $recRequest);
+            $recRequest = $typedField->processImportData($fieldName, $field, $jsonField->value, $recRequest);
         }
 
         $recRequest['api'] = true;
@@ -674,7 +674,7 @@ class RestfulBetaController extends Controller {
             $field = $form->layout['fields'][$fieldName];
             $typedField = $form->getFieldModel($field['type']);
 
-            $recRequest = $typedField->processImportData($fieldName, $field, $jsonField, $recRequest);
+            $recRequest = $typedField->processImportData($fieldName, $field, $jsonField->value, $recRequest);
         }
 
         $recRequest['api'] = true;
