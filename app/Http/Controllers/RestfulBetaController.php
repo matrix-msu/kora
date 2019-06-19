@@ -177,7 +177,7 @@ class RestfulBetaController extends Controller {
             $filters['assocFlids'] = isset($f->assoc_fields) && is_array($f->assoc_fields) ? $f->assoc_fields : 'ALL'; //What fields should associated records return? Should be array
             $filters['revAssoc'] = isset($f->revAssoc) && is_bool($f->revAssoc) ? $f->revAssoc : true; //do we want information back about reverse associations for XML OUTPUT
 
-            $filters['sort'] = isset($f->sort) && is_array($f->sort) ? $f->sort : null; //how should the data be sorted
+            $filters['sort'] = isset($f->sort) && is_array($f->sort) ? $this->convertSortForBeta($f->sort) : null; //how should the data be sorted
             $filters['index'] = isset($f->index) && is_numeric($f->index) ? $f->index : null; //where the array of results should start [MUST USE 'count' FOR THIS TO WORK]
             $filters['count'] = isset($f->count) && is_numeric($f->count) ? $f->count : null; //how many records we should grab from that index
 
@@ -243,7 +243,7 @@ class RestfulBetaController extends Controller {
                     $qCnt = sizeof($queries);
                     $logic = (object)['or' => range(0, $qCnt - 1)];
                 } else {
-                    $logic = $f->logic; //TODO::CASTLE Convert from old to new structure
+                    $logic = $this->convertLogicForBeta($f->logic);
                 }
 
                 //go through the logic array
@@ -532,6 +532,29 @@ class RestfulBetaController extends Controller {
                 return response()->json(["status"=>false,"error"=>"Invalid search query type supplied for form: ". $form->name],500);
                 break;
         }
+    }
+
+    private function convertSortForBeta($sortArray) {
+        $newSort = [];
+
+        for($i=0; $i<count($sortArray); $i=$i+2) {
+            $newSort[] = [ $sortArray[$i] => $sortArray[$i+1] ];
+        }
+
+        return $newSort;
+    }
+
+    private function convertLogicForBeta($logic) {
+        $arg1 = $logic[0];
+        $op = $logic[1];
+        $arg2 = $logic[2];
+
+        if(!is_numeric($arg1))
+            $arg1 = $this->convertLogicForBeta($arg1);
+        if(!is_numeric($arg2))
+            $arg2 = $this->convertLogicForBeta($arg2);
+
+        return [$op => [$arg1,$arg2]];
     }
 
     /**
