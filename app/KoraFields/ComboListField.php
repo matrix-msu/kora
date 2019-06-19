@@ -565,6 +565,7 @@ class ComboListField extends BaseField {
      * @return Request - The update request
      */
     public function setRestfulAdvSearch($data) {
+        dd('setRestfulAdvSearch');
         $return = [];
 
         $flid = $data->$flid;
@@ -671,6 +672,7 @@ class ComboListField extends BaseField {
      * @return array - The RIDs that match search
      */
     public function advancedSearchTyped($flid, $query, $recordMod, $negative = false) {
+        dd('asdofkkasdjf');
         $field = Field::where("flid", "=", $flid)->first();
         $type_1 = $field['one']['type'];
         $type_2 = $field['two']['type'];
@@ -741,14 +743,15 @@ class ComboListField extends BaseField {
         $db_prefix = config('database.connections.mysql.prefix');
 
         switch($type){
-            case Field::_NUMBER:
+            case Form::_INTEGER:
+            case Form::_FLOAT:
                 NumberField::buildAdvancedNumberQuery($db_query,
                     $query[$flid . "_" . $field_num . "_left"],
                     $query[$flid . "_" . $field_num . "_right"],
                     isset($query[$flid . "_" . $field_num . "_invert"]),
                     $db_prefix. $prefix);
                 break;
-            case Field::_DATE:
+            case Form::_DATE:
                 $input = $query[$flid . "_" . $field_num . "_month"].'/'
                     .$query[$flid . "_" . $field_num . "_day"].'/'
                     .$query[$flid . "_" . $field_num . "_year"];
@@ -757,9 +760,9 @@ class ComboListField extends BaseField {
                 $input = Search::prepare($input);
                 $db_query->orWhereRaw("`" . $db_prefix . $prefix . "`.`data` LIKE %?%", [$input]);
                 break;
-            case Field::_MULTI_SELECT_LIST:
-            case Field::_GENERATED_LIST:
-            case Field::_ASSOCIATOR:
+            case Form::_MULTI_SELECT_LIST:
+            case Form::_GENERATED_LIST:
+            case Form::_ASSOCIATOR:
                 $inputs = $query[$flid . "_" . $field_num . "_input[]"];
 
                 $prefix = ($prefix == "") ? self::SUPPORT_NAME : substr($prefix, 0, -1);
