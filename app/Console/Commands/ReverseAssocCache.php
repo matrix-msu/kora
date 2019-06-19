@@ -56,7 +56,7 @@ class ReverseAssocCache extends Command
             $first_message = true;
 
             foreach($fields as $flid => $field) {
-                if($field['type'] == 'Associator') {
+                if($field['type'] == Form::_ASSOCIATOR) {
                     $assocData = $recModel->newQuery()->select('kid',$flid)->get();
                     foreach($assocData as $row) {
                         $inserts = [];
