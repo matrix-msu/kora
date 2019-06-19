@@ -171,7 +171,7 @@ class RestfulBetaController extends Controller {
             $filters['data'] = isset($f->data) && is_bool($f->data) ? $f->data : true; //do we want data, or just info about the records theme selves
             $filters['meta'] = isset($f->meta) && is_bool($f->meta) ? $f->meta : true; //get meta data about record
             $filters['size'] = isset($f->size) && is_bool($f->size) ? $f->size : false; //do we want the number of records in the search result returned instead of data
-            $filters['realnames'] = isset($f->realnames) && is_bool($f->realnames) ? $f->realnames : true; //do we want records indexed by titles rather than flids
+            $filters['realnames'] = isset($f->realnames) && is_bool($f->realnames) ? $f->realnames : false; //do we want records indexed by titles rather than flids
             $filters['fields'] = isset($f->fields) && is_array($f->fields) ? $f->fields : 'ALL'; //which fields do we want data for
             $filters['assoc'] = isset($f->assoc) && is_bool($f->assoc) ? $f->assoc : false; //do we want information back about associated records
             $filters['assocFlids'] = isset($f->assoc_fields) && is_array($f->assoc_fields) ? $f->assoc_fields : 'ALL'; //What fields should associated records return? Should be array
@@ -554,7 +554,9 @@ class RestfulBetaController extends Controller {
         if(!is_numeric($arg2))
             $arg2 = $this->convertLogicForBeta($arg2);
 
-        return [$op => [$arg1,$arg2]];
+        $res = new \stdClass();
+        $res->{$op} = [$arg1,$arg2];
+        return $res;
     }
 
     /**
