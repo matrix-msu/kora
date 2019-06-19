@@ -26,7 +26,7 @@ class FieldAjaxController extends Controller {
      * Constructs controller and makes sure user is authenticated.
      */
     public function __construct() {
-        $this->middleware('auth');
+        $this->middleware('auth', ['except' => ['publicRecordFile']]);
         $this->middleware('active', ['except' => ['publicRecordFile']]);
     }
 

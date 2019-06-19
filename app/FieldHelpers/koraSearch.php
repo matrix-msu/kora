@@ -158,9 +158,9 @@ class kora3ApiExternalTool {
         $form["under"] = in_array("under",$flags) ? in_array("under",$flags) : false;
 
         if(is_array($fields) && empty($fields))
-            $form["fields"] = "ALL";
+            $form["return_fields"] = "ALL";
         else
-            $form["fields"] = $fields;
+            $form["return_fields"] = $fields;
         if(!empty($sort))
             $form["sort"] = $sort;
 
@@ -258,9 +258,9 @@ class KORA_Clause {
                 else if(!is_array($arg2))
                     $arg2 = array($arg2);
 
-                if($op=="="|$op=="=="|$op=="IN")
+                if($op=="="|$op=="=="|strtoupper($op)=="IN")
                     $not = false;
-                else if($op=="NOT IN"|$op=="!="|$op=="!==")
+                else if(strtoupper($op)=="NOT IN"|$op=="!="|$op=="!==")
                     $not = true;
                 else
                     die("Illegal KID operator provided: ".$op);
@@ -273,9 +273,9 @@ class KORA_Clause {
                 else if(!is_array($arg2))
                     $arg2 = array($arg2);
 
-                if($op=="="|$op=="=="|$op=="IN")
+                if($op=="="|$op=="=="|strtoupper($op)=="IN")
                     $not = false;
-                else if($op=="NOT IN"|$op=="!="|$op=="!==")
+                else if(strtoupper($op)=="NOT IN"|$op=="!="|$op=="!==")
                     $not = true;
                 else
                     die("Illegal KID operator provided: ".$op);
@@ -283,15 +283,15 @@ class KORA_Clause {
                 $query = $tool::kidQueryBuilder($arg2, $not, true);
                 array_push($this->queries,$query);
             } else {
-                if($op=="="|$op=="=="|$op=="LIKE") {
+                if($op=="="|$op=="=="|strtoupper($op)=="LIKE") {
                     $not = false;
                     $arg2 = [$this->dateCleaner($arg2)];
-                } else if($op=="!="|$op=="!=="|$op=="NOT LIKE") {
+                } else if($op=="!="|$op=="!=="|strtoupper($op)=="NOT LIKE") {
                     $not = true;
                     $arg2 = [$this->dateCleaner($arg2)];
-                } else if($op=="IN") {
+                } else if(strtoupper($op)=="IN") {
                     $not = false;
-                } else if($op=="NOT IN") {
+                } else if(strtoupper($op)=="NOT IN") {
                     $not = true;
                 } else
                     die("Illegal keyword operator provided: ".$op);

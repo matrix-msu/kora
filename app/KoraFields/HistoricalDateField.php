@@ -398,12 +398,13 @@ class HistoricalDateField extends BaseField {
      * @return mixed - Processed data
      */
     public function processLegacyData($value) {
+        $date = json_decode($value,true);
         return [
-            'prefix' => $value['circa'],
-            'month' => $value['month'],
-            'day' => $value['day'],
-            'year' => $value['year'],
-            'era' => $value['era'],
+            'prefix' => $date['circa'],
+            'month' => $date['month'],
+            'day' => $date['day'],
+            'year' => $date['year'],
+            'era' => $date['era'],
             'suffix' => ''
         ];
     }
