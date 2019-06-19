@@ -8,6 +8,7 @@ Kora.Fields.TypedFieldDisplays.Initialize = function() {
             var $this = $(this);
             var $slides = $this.find('.slide-js');
             var $galleryModal = $this.parent().siblings('.modal-js');
+            var $galleryWithinModal = $galleryModal.find('.gallery-field-display-js');
             var $dotsContainer = $this.next().find('.dots-js');
             var slideCount = $slides.length;
             var currentSlide = 0;
@@ -39,6 +40,9 @@ Kora.Fields.TypedFieldDisplays.Initialize = function() {
                     var $dot = $(this);
                     currentSlide = $dot.data('slide-num');
 
+                    // Trigger dot click on modal gallery
+                    $($galleryWithinModal.next().find('.dot-js')[currentSlide]).click();
+
                     $dots.removeClass('active');
                     $dot.addClass('active');
 
@@ -60,6 +64,7 @@ Kora.Fields.TypedFieldDisplays.Initialize = function() {
                 // Size and Position slides based on gallery aspect ratio
                 setGalAspectRatio();
 
+                $slides.removeClass('currentSlide');
                 for (var i = 0; i < slideCount; i++) {
                     var $slide = $($slides[i]);
                     var $caption = $($captions[i]);
@@ -98,6 +103,9 @@ Kora.Fields.TypedFieldDisplays.Initialize = function() {
                         currentSlide = 0;
                     }
 
+                    // Trigger dot click on modal gallery
+                    $($galleryWithinModal.next().find('.dot-js')[currentSlide]).click();
+
                     setImagePositions();
                 });
 
@@ -107,6 +115,9 @@ Kora.Fields.TypedFieldDisplays.Initialize = function() {
                     if (currentSlide < 0) {
                         currentSlide = slideCount - 1;
                     }
+
+                    // Trigger dot click on modal gallery
+                    $($galleryWithinModal.next().find('.dot-js')[currentSlide]).click();
 
                     setImagePositions();
                 });
@@ -147,6 +158,8 @@ Kora.Fields.TypedFieldDisplays.Initialize = function() {
             $this.parent().find('.gallery-sidebar-js .full-screen-button-js').click(function(e) {
                 e.preventDefault();
                 var $galleryModal = $(this).parent().parent().parent().next();
+                var $currentSlide = $($slides[currentSlide]).find('.slide-img-js');
+
                 Kora.Modal.close();
                 Kora.Modal.open($galleryModal);
             });
