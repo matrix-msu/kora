@@ -17,7 +17,7 @@
                 <i class="icon icon-form-import"></i>
                 <span>Import Form Setup</span>
             </h1>
-            <p class="description">Upload your .k3form form file below in order to import it into this kora
+            <p class="description">Upload your .kForm form file below in order to import it into this kora
                 intstallation. After uploading, you will supply the according form information on the next page.
                 For more information and help with this process, refer to the kora Documentation.</p>
             <div class="content-sections">
@@ -37,7 +37,7 @@
     <section class="formfile-section">
         <div class="form-group">
             <label>Drag & Drop or Select the Form File Below</label>
-            <input type="file" accept=".k3Form" name="form" id="form" class="profile-input file-input-js" />
+            <input type="file" accept=".kForm" name="form" id="form" class="profile-input file-input-js" />
             <label for="form" class="profile-label extend">
                 <p class="filename">Drag & Drop the Form File Here</p>
                 <p class="instruction mb-0">

@@ -300,7 +300,7 @@ class ExportController extends Controller {
         }
 
         if($download) {
-            header('Content-Disposition: attachment; filename="' . $form->name . '_Layout_' . Carbon::now() . '.k3Form"');
+            header('Content-Disposition: attachment; filename="' . $form->name . '_Layout_' . Carbon::now() . '.kForm"');
             header('Content-Type: application/octet-stream; ');
 
             echo json_encode($formArray);
@@ -351,7 +351,7 @@ class ExportController extends Controller {
             array_push($projArray['forms'],$this->exportForm($pid,$form->id,false));
         }
 
-        header('Content-Disposition: attachment; filename="' . $proj->name . '_Layout_' . Carbon::now() . '.k3Proj"');
+        header('Content-Disposition: attachment; filename="' . $proj->name . '_Layout_' . Carbon::now() . '.kProj"');
         header('Content-Type: application/octet-stream; ');
 
         echo json_encode($projArray);
