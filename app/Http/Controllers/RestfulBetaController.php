@@ -15,6 +15,8 @@ class RestfulBetaController extends Controller {
     |
     | This controller handles API requests to Kora3 for projects developed during the kora 3.0.0 BETA.
     |
+    | NOTE: You will have to fix file URLs on a per application base.
+    |
     */
 
     /**

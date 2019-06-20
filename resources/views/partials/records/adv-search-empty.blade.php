@@ -6,7 +6,7 @@
   </div>
   <div class="bottom">
 	<p>There are currently no fields that are "Advanced Searchable"</p>
-    <p>You can mark fields as "Advanced Searchable" from the <a class="underline-middle-hover pb-xxs kora-green">Form Page</a>, <br>
+    <p>You can mark fields as "Advanced Searchable" from the <a class="underline-middle-hover pb-xxs kora-green" href="{{ url('/projects/'.$form->project_id).'/forms/'.$form->id}}">Form Page</a>, <br>
     or the individual field page.</p>
   </div>
 </div>

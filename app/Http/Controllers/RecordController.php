@@ -73,7 +73,6 @@ class RecordController extends Controller {
             $notification['message'] = 'Record Successfully Duplicated!';
           else if ($session == 'mass_records_updated')
             $notification['message'] = 'Batch Assign Successful!';
-          }
         }
 
         return view('records.index', compact('form', 'records', 'total', 'notification'));
