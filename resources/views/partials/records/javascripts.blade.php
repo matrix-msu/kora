@@ -16,6 +16,7 @@
   '/assets/javascripts/inputs/number.js',
   '/assets/javascripts/inputs/textarea.js',
   '/assets/javascripts/navigation/navigation.js',
+  '/assets/javascripts/fields/options.js',
   '/assets/javascripts/fields/typedFieldDisplays.js',
   '/assets/javascripts/fields/typedFieldInputs.js',
   '/assets/javascripts/general/modal.js',

@@ -423,4 +423,24 @@ class FieldController extends Controller {
 
         return true;
     }
+
+    /**
+     * View single image/video/audio/document from a record.
+     *
+     * @param  int $pid - Project ID
+     * @param  int $fid - Form ID
+     * @param  int $rid - Record ID
+     * @param  int $flid - Field ID
+     * @param  string $filename - Image filename
+     * @return Redirect
+     */
+    public function singleModel($pid, $fid, $rid, $flid) {
+        $form = FormController::getForm($fid);
+        $field = self::getField($flid, $fid);
+        $record = RecordController::getRecord($pid.'-'.$fid.'-'.$rid);
+        $value = $record->{$flid};
+        $typedField = $form->getFieldModel($field['type']);
+
+        return view('fields.singleModel', compact('field', 'value', 'record', 'typedField', 'flid', 'rid'));
+    }
 }

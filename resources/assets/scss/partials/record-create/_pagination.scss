@@ -27,6 +27,14 @@
         line-height: 40px;
         text-align: center;
         width: 40px;
+
+        &.left {
+          transform: rotate(90deg);
+        }
+
+        &.right {
+          transform: rotate(270deg);
+        }
       }
 
       span {
@@ -135,14 +143,14 @@
     display: block;
     height: 100px;
     position: relative;
-    
+
     .pages {
       display: flex;
       justify-content: center;
       text-align: center;
       width: 100%;
     }
-    
+
     .page {
       bottom: 0;
       position: absolute;
@@ -151,7 +159,7 @@
         font-size: 10px;
       }
     }
-    
+
     .page.next {
       right: 0;
     }

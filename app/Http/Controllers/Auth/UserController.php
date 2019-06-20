@@ -232,13 +232,18 @@ class UserController extends Controller {
       $newOrganization = $request->organization;
       $newPass = $request->password;
       $confirm = $request->password_confirmation;
-	  
+
 	  $userPrefs = $user->preferences; // doesn't access property directly, uses __get
 
       $user->username = $newUsername;
       $user->email = $newEmail;
 
       // Look for changes, update what was changed
+      if(!empty($newEmail) && $newEmail != $user->email) {
+          $user->email = $newEmail;
+          array_push($message, 'email');
+      }
+      
       if(!empty($newFirstName) && $newFirstName != $user->preferences['first_name']) {
         $userPrefs['first_name'] = $newFirstName;
         array_push($message, "first_name");
@@ -288,7 +293,7 @@ class UserController extends Controller {
      * Create account from email invite
      * Since we 'create' the account when we invite the user, we are updating their things rather than creating them
      * Can't use the 'Update' function above since we need this function to send the activation email
-     * 
+     *
      * What to return here?
      */
     public function updateFromEmail(Request $request) {
@@ -397,7 +402,7 @@ class UserController extends Controller {
         $logoTargetOptions = self::logoTargetOptions();
         $projPageTabSelOptions = self::projPageTabSelOptions();
         $singleProjTabSelOptions = self::singleProjTabSelOptions();
-		
+
         $notification = array(
             'message' => '',
             'description' => '',
@@ -443,12 +448,12 @@ class UserController extends Controller {
 
         return view('user.preferences', compact('user', 'logoTargetOptions', 'projPageTabSelOptions', 'singleProjTabSelOptions', 'sideMenuOptions', 'notification'));
     }
-	
+
 	 // triggered from onboarding.js and from 'replay kora intro' button on user preferences page
     public function toggleOnboarding () {
 		$user = \Auth::user();
 		$userPrefs = $user->preferences;
-		
+
         if ($userPrefs['onboarding'] == 1) {
             $userPrefs['onboarding'] = 0;
             $user->preferences = $userPrefs;
@@ -483,7 +488,7 @@ class UserController extends Controller {
             return $preferences[$pref];
         }
     }
-	
+
 	public static function getOnboardingProjects (User $user) {
         $all_projects = Project::all()->sortBy("name", SORT_NATURAL|SORT_FLAG_CASE);
         $projects = array();

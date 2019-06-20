@@ -24,7 +24,7 @@
 @section('body')
   @include('partials.projects.notification')
   @php $empty_state = (count($projects) == 0); @endphp
-  
+
   @if (\App\Http\Controllers\Auth\UserController::returnUserPrefs('onboarding'))
     @include('partials.onboarding.onboardingModal')
   @endif
@@ -46,13 +46,13 @@
   </section>
   @endif
 
-  <section class="new-object-button center padding-top-medium">
-    <form action="{{ action('ProjectController@create') }}">
-      @if(Auth::user()->admin)
+  @if(Auth::user()->admin)
+    <section class="new-object-button center padding-top-medium">
+      <form action="{{ action('ProjectController@create') }}">
         <input type="submit" value="Create a New Project">
-      @endif
-    </form>
-  </section>
+      </form>
+    </section>
+  @endif
 
   <section class="project-selection center project-js project-selection-js">
     @if (!$empty_state)
@@ -93,7 +93,7 @@
 	var updateURL = '{{ action('UpdateController@index') }}';
     Kora.Projects.Index();
   </script>
-  
+
     @if (\App\Http\Controllers\Auth\UserController::returnUserPrefs('onboarding'))
 		<script> var toggleOnboardingUrl = '{{ action('Auth\UserController@toggleOnboarding') }}'; </script>
 		<script src="{{ url('/assets/javascripts/general/onboarding.js') }}"></script>

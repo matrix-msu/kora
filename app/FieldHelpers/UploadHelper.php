@@ -449,12 +449,12 @@ class UploadHandler
     protected function upcount_name_callback($matches) {
         $index = isset($matches[1]) ? ((int)$matches[1]) + 1 : 1;
         $ext = isset($matches[2]) ? $matches[2] : '';
-        return ' ('.$index.')'.$ext;
+        return '_'.$index.$ext;
     }
 
     protected function upcount_name($name) {
         return preg_replace_callback(
-            '/(?:(?: \(([\d]+)\))?(\.[^.]+))?$/',
+            '/(?:(?:_([\d]+))?(\.[^.]+))?$/',
             array($this, 'upcount_name_callback'),
             $name,
             1

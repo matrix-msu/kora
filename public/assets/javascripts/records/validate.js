@@ -3,7 +3,7 @@ Kora.Records = Kora.Records || {};
 
 Kora.Records.Validate = function() {
   var errorList = [];
-  
+
     function initializeValidationModal() {
         Kora.Modal.initialize();
 
@@ -83,7 +83,9 @@ Kora.Records.Validate = function() {
                 success: function(err) {
                     $('.error-message').text('');
                     $('.text-input, .text-area, .cke, .chosen-container').removeClass('error');
-console.log(err);
+
+                    console.warn(err);
+
                     if(err.errors.length==0) {
                         $('.record-form').submit();
                     } else {
@@ -98,10 +100,11 @@ console.log(err);
                               $page = $('[name="' + fieldName + '"]').parents('section').attr('id');
                               errorList.push($page);
                             } else {
-                              errorList.push($page); 
+                              errorList.push($page);
                             }
                         });
-                    initializeValidationModal();
+                        
+                        initializeValidationModal();
                     }
                 },
                 error: function(err) {

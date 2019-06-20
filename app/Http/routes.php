@@ -185,6 +185,7 @@ Route::group(['middleware' => 'web'], function () {
     Route::post('/projects/{pid}/forms/{fid}/cleanUp', 'RecordController@cleanUp');
     Route::get('/projects/{pid}/forms/{fid}/clone/{rid}', 'RecordController@cloneRecord');
     Route::get('/projects/{pid}/forms/{fid}/records/{rid}/geolocator/{flid}', 'FieldAjaxController@singleGeolocator');
+    Route::get('/projects/{pid}/forms/{fid}/records/{rid}/fields/{flid}/model', 'FieldController@singleModel');
 
 //revision routes
     Route::get('/projects/{pid}/forms/{fid}/records/revisions/recent', 'RevisionController@index');

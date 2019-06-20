@@ -8,6 +8,7 @@ Kora.Fields.TypedFieldDisplays.Initialize = function() {
             var $this = $(this);
             var $slides = $this.find('.slide-js');
             var $galleryModal = $this.parent().siblings('.modal-js');
+            var $galleryWithinModal = $galleryModal.find('.gallery-field-display-js');
             var $dotsContainer = $this.next().find('.dots-js');
             var slideCount = $slides.length;
             var currentSlide = 0;
@@ -39,6 +40,9 @@ Kora.Fields.TypedFieldDisplays.Initialize = function() {
                     var $dot = $(this);
                     currentSlide = $dot.data('slide-num');
 
+                    // Trigger dot click on modal gallery
+                    $($galleryWithinModal.next().find('.dot-js')[currentSlide]).click();
+
                     $dots.removeClass('active');
                     $dot.addClass('active');
 
@@ -60,6 +64,7 @@ Kora.Fields.TypedFieldDisplays.Initialize = function() {
                 // Size and Position slides based on gallery aspect ratio
                 setGalAspectRatio();
 
+                $slides.removeClass('currentSlide');
                 for (var i = 0; i < slideCount; i++) {
                     var $slide = $($slides[i]);
                     var $caption = $($captions[i]);
@@ -98,6 +103,9 @@ Kora.Fields.TypedFieldDisplays.Initialize = function() {
                         currentSlide = 0;
                     }
 
+                    // Trigger dot click on modal gallery
+                    $($galleryWithinModal.next().find('.dot-js')[currentSlide]).click();
+
                     setImagePositions();
                 });
 
@@ -108,6 +116,9 @@ Kora.Fields.TypedFieldDisplays.Initialize = function() {
                         currentSlide = slideCount - 1;
                     }
 
+                    // Trigger dot click on modal gallery
+                    $($galleryWithinModal.next().find('.dot-js')[currentSlide]).click();
+
                     setImagePositions();
                 });
 
@@ -117,15 +128,28 @@ Kora.Fields.TypedFieldDisplays.Initialize = function() {
                     galAspectRatio = galWidth / galHeight;
                 }
 
+                // this works for the thumbnail display but not for the fullscreen modal
                 function setImageSize($slideImg, imgAspectRatio) {
-                    if (imgAspectRatio > galAspectRatio) {
-                        // Image is wider than gallery container
-                        $slideImg.css('height', 'auto');
-                        $slideImg.css('width', '100%');
+                    if (!$this.hasClass('full-height')) {
+                        if (imgAspectRatio > galAspectRatio) {
+                            // Image is wider than gallery container
+                            $slideImg.css('height', 'auto');
+                            $slideImg.css('width', '100%');
+                        } else {
+                            // Image is tall or same aspect ratio as gallery container
+                            $slideImg.css('height', '100%');
+                            $slideImg.css('width', 'auto');
+                        }
                     } else {
-                        // Image is tall or same aspect ratio as gallery container
-                        $slideImg.css('height', '100%');
-                        $slideImg.css('width', 'auto');
+                        if (imgAspectRatio > 1 ) {
+                            // Image is wider than gallery container
+                            $slideImg.addClass('wideImage');
+                            $slideImg.removeClass('tallImage');
+                        } else {
+                            // Image is tall or same aspect ratio as gallery container
+                            $slideImg.removeClass('wideImage');
+                            $slideImg.addClass('tallImage');
+                        }
                     }
                 }
             });
@@ -134,6 +158,8 @@ Kora.Fields.TypedFieldDisplays.Initialize = function() {
             $this.parent().find('.gallery-sidebar-js .full-screen-button-js').click(function(e) {
                 e.preventDefault();
                 var $galleryModal = $(this).parent().parent().parent().next();
+                var $currentSlide = $($slides[currentSlide]).find('.slide-img-js');
+
                 Kora.Modal.close();
                 Kora.Modal.open($galleryModal);
             });
@@ -154,7 +180,15 @@ Kora.Fields.TypedFieldDisplays.Initialize = function() {
 
                 // Slide slides
                 var pos = ((index - currentSlide) * galWidth) + "px";
-                $slide.animate({left: pos}, 100, 'swing');
+                $slide.animate({left: pos}, 100, 'swing', function () {
+                    if ( pos === '0px' ) {
+                        $slide.addClass('currentSlide');
+                        if ( $slide.height() < 400 )
+                            $slide.addClass('small');
+                        else if ( $slide.height() < $slide.children().height() ) // if img height > height of container
+                            $slide.css('height', $slide.height());
+                    }
+                });
 
                 // Slide captions
                 var capPos = ((index - currentSlide) * captionWidth) + "px";
@@ -168,6 +202,7 @@ Kora.Fields.TypedFieldDisplays.Initialize = function() {
 
             // Set horizontal positioning for all slides
             function setImagePositions() {
+                $slides.removeClass('currentSlide');
                 for (var i = 0; i < slideCount; i++) {
                     var $slide = $($slides[i]);
                     var $caption = $($captions[i]);
@@ -528,6 +563,12 @@ Kora.Fields.TypedFieldDisplays.Initialize = function() {
             var bg1Color = $(this).attr('bg1-color');
             var bg2Color = $(this).attr('bg2-color');
 
+            // Without manually setting WIDTHxHEIGHT here, it defaults to 300x150
+            // This small 300x150 canvas is then blown up to fit the parent, causing a very blurry
+            // picture as a result.
+            document.getElementById('cv'+modelID).height = $(this).height();
+            document.getElementById('cv'+modelID).width = $(this).width();
+
             var viewer = new JSC3D.Viewer(document.getElementById('cv'+modelID));
             viewer.setParameter('SceneUrl', modelLink);
             viewer.setParameter('InitRotationX', 0);
@@ -542,7 +583,34 @@ Kora.Fields.TypedFieldDisplays.Initialize = function() {
             viewer.init();
             viewer.update();
 
-            var canvas = document.getElementById('cvfs'+modelID);
+            //var canvas = document.getElementById('cvfs'+modelID);
+            var canvas = document.getElementById('cv'+modelID);
+            var canvasModal = $(this).parent().parent().find('.model-modal-js');
+
+            // view fullscreen modal
+            $(this).parent().parent().find('.model-sidebar-js .full-screen-button-js').click(function (e) {
+                e.preventDefault();
+
+                document.getElementById('cv'+modelID+'-modal-js').height = window.innerHeight
+                document.getElementById('cv'+modelID+'-modal-js').width = window.innerWidth
+
+	            var modalViewer = new JSC3D.Viewer(document.getElementById('cv'+modelID+'-modal-js'));
+                modalViewer.setParameter('SceneUrl', modelLink);
+                modalViewer.setParameter('InitRotationX', 0);
+                modalViewer.setParameter('InitRotationY', 0);
+                modalViewer.setParameter('InitRotationZ', 0);
+                modalViewer.setParameter('ModelColor', modelColor);
+                modalViewer.setParameter('BackgroundColor1', bg1Color);
+                modalViewer.setParameter('BackgroundColor2', bg2Color);
+                modalViewer.setParameter('RenderMode', 'texturesmooth');
+                modalViewer.setParameter('MipMapping', 'on');
+                modalViewer.setParameter('Renderer', 'webgl');
+
+                modalViewer.init();
+	            modalViewer.update();
+
+	            Kora.Modal.open(canvasModal);
+            });
 
             // function fullscreen() {
             //     var el = document.getElementById('cv'+modelID);

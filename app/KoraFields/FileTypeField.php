@@ -5,6 +5,7 @@ use App\Form;
 use App\Http\Controllers\RecordController;
 use App\Record;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
 use ZipArchive;
@@ -495,8 +496,12 @@ abstract class FileTypeField extends BaseField {
         else
             $fileNumDisk = 0;
 
-        //Prep comparing of field file size limit, vs files already in tmp folder
-        $maxFieldSize = !is_null($field['options']['FieldSize']) ? $field['options']['FieldSize']*1024 : 0; //conversion of kb to bytes
+        $maxFieldSize = $field['options']['FieldSize'];
+    		if (trim($maxFieldSize) === '') {
+    			$maxFieldSize = '0';
+    		}
+    		$maxFieldSize = $maxFieldSize * 1024;
+
         $fileSizeRequest = 0;
         foreach($_FILES['file'.$flid]['size'] as $size) {
             $fileSizeRequest += $size;

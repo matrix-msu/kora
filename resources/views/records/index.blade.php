@@ -51,11 +51,7 @@
                 </div>
 
                 <div class="form-group mt-xxxl search-button-container">
-                    @if($form->hasAdvancedSearchFields())
-                        <a href="{{action('AdvancedSearchController@index', ['pid' => $form->project_id, 'fid' => $form->id])}}" class="btn half-sub-btn" data-unsp-sanitized="clean">Go to Advanced Search</a>
-                    @else
-                        <a href="#" class="btn half-sub-btn disabled" data-unsp-sanitized="clean">No Advanced Search Available</a>
-                    @endif
+                    <a href="{{action('AdvancedSearchController@index', ['pid' => $form->project_id, 'fid' => $form->id])}}" class="btn half-sub-btn" data-unsp-sanitized="clean">Go to Advanced Search</a>
                     <a href="#" class="btn half-btn submit-search-js right" data-unsp-sanitized="clean">Search</a>
                 </div>
             </form>
@@ -100,7 +96,7 @@
                       <span><a href="#" class="collapse-fields-js tooltip" title="Collapse all Records" tooltip="Collapse all Records"><i class="icon icon-condense icon-condense-js"></i></a></span>
                   </div>
               </section>
-                
+
               @foreach($records as $index => $record)
                   @include('partials.records.card')
               @endforeach

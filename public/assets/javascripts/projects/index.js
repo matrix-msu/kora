@@ -236,12 +236,13 @@ Kora.Projects.Index = function() {
       $this = $(this);
       // Check if profile picture exists
       $modal.find('.profile-js').html("").css("top", "-63px");
+
       $.get($this.data('profile'))
           .done(function() {
             $modal.find('.profile-js').html('<img src="' + $this.data('profile') + '" alt="Profile Pic">');
           })
           .fail(function() {
-            $modal.find('.profile-js').html('<i class="icon icon-user">').css("top", "-23px");;
+            $modal.find('.profile-js').html('<i class="icon icon-profile-dark">').css("top", "-23px");
           });
       $modal.find('.name-attr-js').html($this.data('name'));
       $modal.find('.username-attr-js').html($this.data('username'));
@@ -252,7 +253,7 @@ Kora.Projects.Index = function() {
       Kora.Modal.open();
     });
   }
-  
+
   function initializeUnarchive()
   {
     $(".unarchive-js").click(function() {
@@ -260,7 +261,7 @@ Kora.Projects.Index = function() {
 	  var a = 2;
       var active_cards = $(".project.card.active"); // unarchive button only shows on active cards
       var pid = -1;
-      
+
       for (i = 0; i < active_cards.length; i++)
       {
         if ($.contains(active_cards[i], this)) // find which project card contains the link
@@ -271,33 +272,33 @@ Kora.Projects.Index = function() {
         }
       }
     });
-    
+
     function changeArchiveStatus(pid, archive)
     {
       var url = archiveURL.substring(0, archiveURL.length - 8) + pid.toString() + "/archive"; // get rid of /archive (last part of URL), add pid, add /archive again
-      
+
       var myForm = document.createElement('form');
       myForm.setAttribute('action', url);
       myForm.setAttribute('method', 'post');
       myForm.setAttribute('hidden', 'true');
-      
+
       var myInput = document.createElement('input');
       myInput.setAttribute('type', 'number');
       myInput.setAttribute('name', 'archive');
       myInput.setAttribute('value', archive ? 0 : 1); // send 0 to archive, send 1 to restore
-      
+
       var myInput2 = document.createElement('input');
       myInput2.setAttribute('type', 'text');
       myInput2.setAttribute('name', '_token');
       myInput2.setAttribute('value', CSRFToken);
-      
+
       myForm.appendChild(myInput);
       myForm.appendChild(myInput2);
       document.body.appendChild(myForm);
       myForm.submit();
     }
   }
-  
+
   function initializeProjectCardEllipsifying()
   {
     function adjustProjectCardTitle()
@@ -305,7 +306,7 @@ Kora.Projects.Index = function() {
 	  var alphabetical = false;
 	  var custom = false;
 	  var archived = false;
-	  
+
 	  if ($(".active-projects").hasClass("active"))
 	  {
 		alphabetical = true;
@@ -321,18 +322,18 @@ Kora.Projects.Index = function() {
 		archived = true;
 		var cards = $($(".inactive-projects").find(".project.card"));
 	  }
-	  
+
 	  if (cards === undefined || cards.length === null) return;
-      
+
       for (i = 0; i < cards.length; i++)
-      {	
+      {
         var card = $(cards[i]);
         var name_span = $(card.find($(".name")));
         var arrow = $(card.find($(".icon-arrow-right")));
         var chevron = $(card.find($(".icon-chevron")));
         var up_arrow = $(card.find($(".move-action-js.up-js")));
         var down_arrow = $(card.find($(".move-action-js.down-js")));
-        
+
         var card_width = card.width();
         var arrow_width = arrow.length ? arrow.outerWidth() : 0; // if arrow is valid jquery object
         var up_arrow_width = up_arrow.length ? up_arrow.outerWidth() : 0;
@@ -340,27 +341,27 @@ Kora.Projects.Index = function() {
         var chevron_width = chevron.outerWidth(); // all types of project cards have chevrons
         var left_padding = custom ? 0 : 20; // custom projects provide padding from element other than name_span
         var extra_padding = 10;
-        
+
         var title_width = (card_width - left_padding) - (arrow_width + up_arrow_width + down_arrow_width + chevron_width + extra_padding);
         if (title_width < 0) {title_width = 0;}
-        
+
         name_span.css("text-overflow", "ellipsis");
         name_span.css("white-space", "nowrap");
         name_span.css("overflow", "hidden");
         name_span.css("max-width", title_width + "px");
       }
     }
-  	
+
     $(window).resize(function()
     {
       adjustProjectCardTitle();
     });
-	
+
     $(document).ready(function()
     {
       adjustProjectCardTitle();
     });
-	
+
 	// Recalculate ellipses when switching project types
 	$("[href='#custom'], [href='#active'], [href='#inactive']").click(function() { adjustProjectCardTitle(); });
   }

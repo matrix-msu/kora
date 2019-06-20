@@ -17,12 +17,12 @@
 
         <div class="field-sidebar document-sidebar document-sidebar-js">
             <div class="top">
-                <a class="field-btn external-button-js" target="_blank" href="{{$pubLink}}">
+                <a class="field-btn external-button-js tooltip" tooltip="Open in New Tab" target="_blank" href="{{$pubLink}}">
                     <i class="icon icon-external-link"></i>
                 </a>
 
                 <a href="{{action('FieldAjaxController@getFileDownload', ['kid' => $record->kid, 'filename' => $name])}}"
-                   class="field-btn">
+                   class="field-btn tooltip" tooltip="Download Document">
                     <i class="icon icon-download"></i>
                 </a>
             </div>

@@ -70,7 +70,7 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
     public static function verifyRegisterRecaptcha($request) {
         $recaptcha = new ReCaptcha(config('auth.recap_private'));
         $resp = $recaptcha->verify($request['g-recaptcha-response'], $_SERVER['REMOTE_ADDR']);
-        
+
         if($resp->isSuccess())
             return true;
         else
@@ -786,7 +786,7 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
         if($this->preferences['profile_pic'] != '')
             return url('app/profiles/'.$this->id.'/'.$this->preferences['profile_pic']);
         else
-            return url('assets/images/blank_profile.jpg');
+            return '<i class="icon icon-profile-dark">';
     }
 
     /**

@@ -32,21 +32,25 @@
 
 @section('body')
     <section class="view-records center">
-        <section class="search-records">
-            <section class="advanced-search-drawer">
-                @include('partials.records.adv-form')
+        @if($form->hasAdvancedSearchFields())
+            <section class="search-records">
+                <section class="advanced-search-drawer">
+                    @include('partials.records.adv-form')
+                </section>
+
+                <div class="form-group mt-xxxl">
+                    <div class="spacer"></div>
+                </div>
             </section>
 
-            <div class="form-group mt-xxxl">
-                <div class="spacer"></div>
-            </div>
-        </section>
-
-        <section class="display-records">
-            <div class="form-group results-here-text mt-xxxl">
-                Search results will appear here after a search has been inputted.
-            </div>
-        </section>
+            <section class="display-records">
+                <div class="form-group results-here-text mt-xxxl">
+                    Search results will appear here after a search has been inputted.
+                </div>
+            </section>
+        @else
+            @include('partials.records.adv-search-empty')
+        @endif
     </section>
 @stop
 
