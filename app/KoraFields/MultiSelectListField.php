@@ -13,7 +13,7 @@ class MultiSelectListField extends BaseField {
     | Multi-Select List Field
     |--------------------------------------------------------------------------
     |
-    | This model represents the multi-select list field in Kora3
+    | This model represents the multi-select list field in kora
     |
     */
 

@@ -693,7 +693,7 @@ class ExodusHelperController extends Controller {
         $filename = storage_path(ExodusController::EXODUS_DATA_PATH.'assoc_'.$ogSid.'_'.$filePartNum.'.json');
         file_put_contents($filename,$dataToWrite);
 
-        //We want to save the conversion array of Kora 2 KIDs to Kora 3 RIDs for this scheme
+        //We want to save the conversion array of kora 2 KIDs to kora v3 RIDs for this scheme
         $ridChunks = array_chunk($oldKidToNewKid, 500, true);
         $partIndex = 0;
         foreach($ridChunks as $ridc) {

@@ -13,7 +13,7 @@ class HistoricalDateField extends BaseField {
     | Historical Date Field
     |--------------------------------------------------------------------------
     |
-    | This model represents the historical date field in Kora3
+    | This model represents the historical date field in kora
     |
     */
 

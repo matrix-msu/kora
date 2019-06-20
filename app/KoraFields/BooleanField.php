@@ -12,7 +12,7 @@ class BooleanField extends BaseField {
     | Boolean Field
     |--------------------------------------------------------------------------
     |
-    | This model represents the boolean field in Kora3
+    | This model represents the boolean field in kora
     |
     */
 

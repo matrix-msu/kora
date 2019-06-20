@@ -14,7 +14,7 @@ class AssociatorField extends BaseField {
     | Associator Field
     |--------------------------------------------------------------------------
     |
-    | This model represents the text field in Kora3
+    | This model represents the text field in kora
     |
     */
 
@@ -391,7 +391,7 @@ class AssociatorField extends BaseField {
      * for this record.
      *
      * @param  array $field - Field info array
-     * @param  int $kid - Record Kora ID
+     * @param  int $kid - Record kora ID
      * @return string - Html structure of the preview field's value
      */
     public static function getPreviewValues($field,$kid) {

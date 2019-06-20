@@ -12,7 +12,7 @@ class GeneratedListField extends BaseField {
     | Generated List Field
     |--------------------------------------------------------------------------
     |
-    | This model represents the generated list field in Kora3
+    | This model represents the generated list field in kora
     |
     */
 

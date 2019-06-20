@@ -11,7 +11,7 @@ class GalleryField extends FileTypeField {
     | Gallery Field
     |--------------------------------------------------------------------------
     |
-    | This model represents the gallery field in Kora3
+    | This model represents the gallery field in kora
     |
     | NOTE: Because of caption data associated with the gallery field, some
     | parent functions are overwritten.

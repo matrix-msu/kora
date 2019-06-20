@@ -15,14 +15,14 @@ class UpdateController extends Controller {
     | Update Controller
     |--------------------------------------------------------------------------
     |
-    | This controller handles version management of Kora3
+    | This controller handles version management of kora
     |
     */
 
     /**
-     * @var string - The URL for checking for new versions of Kora3
+     * @var string - The URL for checking for new versions of kora
      */
-    const UPDATE_PAGE = 'http://matrix-msu.github.io/Kora3/';
+    const UPDATE_PAGE = 'http://matrix-msu.github.io/kora/';
 
     /**
      * Constructs controller and makes sure user is authenticated and is a system admin.
@@ -48,10 +48,10 @@ class UpdateController extends Controller {
      * @return View
      */
     public function index() {
-        //Determine if the user installed Kora 3 using Git (.git directory exists)
+        //Determine if the user installed kora using Git (.git directory exists)
         $git = is_dir( base_path('.git'));
 
-        //Determine if an update is needed (this is determined independent of how Kora was acquired).
+        //Determine if an update is needed (this is determined independent of how kora was acquired).
         $update = self::checkVersion();
         $ready = self::hasPulled();
         $info = self::processUpdate();
@@ -65,10 +65,10 @@ class UpdateController extends Controller {
      * @return bool - Is out of date
      */
     public function checkVersion() {
-        //Version of this Kora 3
+        //Version of this kora
         $thisVersion = DB::table('versions')->orderBy('created_at', 'desc')->first()->version;
 
-        //Current version of Kora 3
+        //Current version of kora
         $currentVersion = self::processUpdate()['version'];
 
         return version_compare($currentVersion, $thisVersion, ">");
@@ -89,7 +89,7 @@ class UpdateController extends Controller {
     }
 
     /**
-     * Runs an update script to update Kora3.
+     * Runs an update script to update kora.
      *
      * @return Redirect
      */

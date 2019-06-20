@@ -121,7 +121,7 @@ class RecordController extends Controller {
 	}
 
     /**
-     * Saves a new record in Kora.
+     * Saves a new record in kora.
      *
      * @param  int $pid - Project ID
      * @param  int $fid - Form ID
@@ -476,7 +476,7 @@ class RecordController extends Controller {
     }
 
     /**
-     * Delete a record from Kora3.
+     * Delete a record from kora.
      *
      * @param  int $pid - Project ID
      * @param  int $fid - Form ID
@@ -503,7 +503,7 @@ class RecordController extends Controller {
     }
 
     /**
-     * Delete multiple records from Kora3.
+     * Delete multiple records from kora.
      *
      * @param  int $pid - Project ID
      * @param  int $fid - Form ID
@@ -625,7 +625,7 @@ class RecordController extends Controller {
     /**
      * Get a record back by KID.
      *
-     * @param  int $kid - Record Kora ID
+     * @param  int $kid - Record kora ID
      * @return Record - Requested record
      */
     public static function getRecord($kid) {

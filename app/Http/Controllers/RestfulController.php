@@ -14,7 +14,7 @@ class RestfulController extends Controller {
     | Restful Controller
     |--------------------------------------------------------------------------
     |
-    | This controller handles API requests to Kora3.
+    | This controller handles API requests to kora.
     |
     */
 
@@ -36,14 +36,14 @@ class RestfulController extends Controller {
     public $minorErrors = array();
 
     /**
-     * Gets the current version of Kora3.
+     * Gets the current version of kora.
      *
-     * @return mixed - Kora version
+     * @return mixed - kora version
      */
     public function getKoraVersion() {
         $instInfo = DB::table("versions")->first();
         if(is_null($instInfo))
-            return response()->json(["status"=>false,"error"=>"Failed to retrieve Kora installation version"],500);
+            return response()->json(["status"=>false,"error"=>"Failed to retrieve kora installation version"],500);
         else
             return $instInfo->version;
     }
@@ -180,7 +180,7 @@ class RestfulController extends Controller {
     }
 
     /**
-     * Performs an API search on Kora3.
+     * Performs an API search on kora.
      *
      * @param  Request $request
      * @return mixed - The records
@@ -741,7 +741,7 @@ class RestfulController extends Controller {
     }
 
     /**
-     * Delete a set of records from Kora3
+     * Delete a set of records from kora
      *
      * @param  Request $request
      * @return mixed - Status of record deletion

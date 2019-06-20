@@ -2,7 +2,6 @@
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Illuminate\Support\Facades\DB;
 
 class Token extends Model {
 
@@ -12,7 +11,7 @@ class Token extends Model {
     |--------------------------------------------------------------------------
     |
     | This model represents an authentication token for interacting with projects
-    |  from outside Kora3
+    |  from outside kora
     |
     */
 

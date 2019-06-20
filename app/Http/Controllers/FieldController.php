@@ -14,7 +14,7 @@ class FieldController extends Controller {
     | Field Controller
     |--------------------------------------------------------------------------
     |
-    | This controller handles the creation and management of fields in Kora3
+    | This controller handles the creation and management of fields in kora
     |
     */
 

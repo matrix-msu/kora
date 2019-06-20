@@ -104,7 +104,7 @@ class ProjectSearchController extends Controller {
     }
 
     /**
-     * Executes and displays results for a global multi-project search in Kora3.
+     * Executes and displays results for a global multi-project search in kora.
      *
      * @param  Request
      * @return View

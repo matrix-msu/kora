@@ -137,7 +137,7 @@ class TokenController extends Controller {
     }
 
     /**
-     * Deletes a token from Kora3.
+     * Deletes a token from kora.
      *
      * @param  Request $request
      * @return Redirect

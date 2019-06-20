@@ -1,8 +1,6 @@
 <?php namespace App\Console\Commands;
 
 use App\Http\Controllers\InstallController;
-use App\Http\Controllers\UpdateController;
-use App\Http\Requests\InstallRequest;
 use Illuminate\Console\Command;
 
 class InstallKora extends Command
@@ -12,7 +10,7 @@ class InstallKora extends Command
     | Finish Install Script
     |--------------------------------------------------------------------------
     |
-    | This script finishes the Kora 3 install process by building the config
+    | This script finishes the kora install process by building the config
     | file, database, and default values
     |
     */
@@ -22,7 +20,7 @@ class InstallKora extends Command
      *
      * @var string
      */
-    protected $signature = 'kora3:install';
+    protected $signature = 'kora:install';
 
     /**
      * The console command description.
@@ -57,12 +55,12 @@ class InstallKora extends Command
         $result = $request->install($password);
 
         if($result) {
-            $this->info("Kora 3 has finished initialization. Please review the following:");
-            $this->info("Give READ access to the web user for Kora3 and ALL sub-folders");
+            $this->info("kora has finished initialization. Please review the following:");
+            $this->info("Give READ access to the web user for your kora directory and ALL sub-folders");
             $this->info("Give WRITE access to the web user for the following directories and ALL their sub-folders");
-            $this->info("    Kora3/bootstrap/cache/");
-            $this->info("    Kora3/storage/");
-            $this->info("    Kora3/public/assets/javascripts/production/");
+            $this->info("    kora/bootstrap/cache/");
+            $this->info("    kora/storage/");
+            $this->info("    kora/public/assets/javascripts/production/");
             $this->info("Your password for user `admin` is $password");
         }
     }

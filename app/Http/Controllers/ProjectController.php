@@ -8,7 +8,6 @@ use App\Http\Requests\ProjectRequest;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\View\View;
 
@@ -19,7 +18,7 @@ class ProjectController extends Controller {
     | Project Controller
     |--------------------------------------------------------------------------
     |
-    | This controller handles projects within Kora3
+    | This controller handles projects within kora
     |
     */
 

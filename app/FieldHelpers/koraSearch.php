@@ -5,32 +5,32 @@
 //Step 1
 ////Copy this file into your local site, and change your php includes of koraSearch.php from K2 to point at this file
 //Step 2
-////Replace your token, pid, and sid with a new search token, a K3 pid, and fid
+////Replace your token, pid, and sid with a new search token, a kora project id, and form id
 //Step 3
-////If you are pointing to a K3 installation that needs http auth, as the 9th variable of KORA_Search, place an
+////If you are pointing to a kora installation that needs http auth, as the 9th variable of KORA_Search, place an
 ////array in the format ["user"=>"{your_username}", "pass"=>"{your_password}"]
 //Step 4
-////You may need to modify URLs for file and image fields to properly point at their new Kora3 locations
+////You may need to modify URLs for file and image fields to properly point at their new kora locations
 
 //This class has a bunch of functions that can help build the json required for a form to search with the API. NOTE: This
 //can be used separately from it's use in the koraSearch conversion.
 
 /**
  * SITE VARIABLES - Fill these out to use remotely
- * @var string - Kora3 API URL
+ * @var string - koraApiURL - The version api url
  */
 
-define("kora3ApiURL","FILL_THIS"); //"http://www.myKora3Install.com/api/search"
+define("koraApiURL","FILL_THIS"); //"http://www.myKoraInstall.com/api/search"
 
-class kora3ApiExternalTool {
+class koraApiExternalTool {
 
     /*
     |--------------------------------------------------------------------------
-    | Kora 3 Api External Tool
+    | kora Api External Tool
     |--------------------------------------------------------------------------
     |
     | This class helps generate the query string for the forms variable in the
-    | RESTful API for Kora3
+    | RESTful API for kora v3
     |
     */
 
@@ -184,7 +184,7 @@ class KORA_Clause {
     | Kora Clause
     |--------------------------------------------------------------------------
     |
-    | Replication class of KORA_Clause from Kora 2
+    | Replication class of KORA_Clause from kora 2
     |
     */
 
@@ -251,7 +251,7 @@ class KORA_Clause {
             $this->logic = $newLogic;
         }
         else {
-            $tool = new kora3ApiExternalTool();
+            $tool = new koraApiExternalTool();
             if(strtoupper($arg1)=="KID") {
                 if($arg2 == "")
                     $arg2 = array();
@@ -392,14 +392,14 @@ class KORA_Clause {
 }
 
 /**
- * Converts an old KORA_Search from Kora 2 into a Kora3 search, provided steps at top of page were completed properly.
+ * Converts an old KORA_Search from kora 2 into a kora v3 search, provided steps at top of page were completed properly.
  *
- * @param  string $token - Kora3 token to authenticate the search
- * @param  int $pid - Kora3 project ID
- * @param  int $sid - Kora3 form ID relative to old scheme ID
+ * @param  string $token - kora token to authenticate the search
+ * @param  int $pid - kora project ID
+ * @param  int $sid - kora form ID relative to old scheme ID
  * @param  KORA_Clause $koraClause - The new represented Kora Clause
  * @param  array $fields - Array of new flids relative to their old control names
- * @param  array $order - Old Kora 2 sort array that will be converted by this function
+ * @param  array $order - Old kora 2 sort array that will be converted by this function
  * @param  int $start - In final result set, what record should we start at
  * @param  int $number - Determines, starting from $index, how many records to return
  * @param  array $userInfo - Server authentication for connecting to private servers
@@ -446,7 +446,7 @@ function KORA_Search($token,$pid,$sid,$koraClause,$fields,$order=array(),$start=
         $filters = array("data","meta");
 
     $output = array();
-    $tool = new kora3ApiExternalTool();
+    $tool = new koraApiExternalTool();
 
     $fsArray = $tool->formSearchBuilder(
         $sid,
@@ -467,7 +467,7 @@ function KORA_Search($token,$pid,$sid,$koraClause,$fields,$order=array(),$start=
     $data["format"] = "KORA_OLD";
 
     $curl = curl_init();
-    curl_setopt($curl, CURLOPT_URL, kora3ApiURL);
+    curl_setopt($curl, CURLOPT_URL, koraApiURL);
     if(!empty($userInfo)) {
         curl_setopt($curl, CURLOPT_USERPWD, $userInfo["user"].":".$userInfo["pass"]);
         curl_setopt($curl, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
@@ -490,14 +490,14 @@ function KORA_Search($token,$pid,$sid,$koraClause,$fields,$order=array(),$start=
 }
 
 /**
- * Converts an old KORA_Search from Kora 2 into a Kora3 search, provided steps at top of page were completed properly.
+ * Converts an old MPF_Search from kora 2 into a kora v3, provided steps at top of page were completed properly.
  *
- * @param  string $token - Kora3 token to authenticate the search
- * @param  array $pidList - Array of Kora3 project IDs
- * @param  array $sidList - Array of Kora3 form IDs relative to old scheme IDs
+ * @param  string $token - kora token to authenticate the search
+ * @param  array $pidList - Array of kora project IDs
+ * @param  array $sidList - Array of kora form IDs relative to old scheme IDs
  * @param  KORA_Clause $koraClause - The new represented Kora Clause
  * @param  array $fields - Array of new flids relative to their old control names
- * @param  array $order - Old Kora 2 sort array that will be converted by this function
+ * @param  array $order - Old kora 2 sort array that will be converted by this function
  * @param  int $start - In final result set, what record should we start at
  * @param  int $number - Determines, starting from $index, how many records to return
  * @param  array $userInfo - Server authentication for connecting to private servers
@@ -548,7 +548,7 @@ function MPF_Search($token,$pidList,$sidList,$koraClause,$fields,$order=array(),
         if($underScores)
             $flag[] = "under";
 
-        $tool = new kora3ApiExternalTool();
+        $tool = new koraApiExternalTool();
         $fsArray = $tool->formSearchBuilder(
             $sid,
             $token,
@@ -571,7 +571,7 @@ function MPF_Search($token,$pidList,$sidList,$koraClause,$fields,$order=array(),
     $data["format"] = "KORA_OLD";
 
     $curl = curl_init();
-    curl_setopt($curl, CURLOPT_URL, kora3ApiURL);
+    curl_setopt($curl, CURLOPT_URL, koraApiURL);
     if(!empty($userInfo)) {
         curl_setopt($curl, CURLOPT_USERPWD, $userInfo["user"].":".$userInfo["pass"]);
         curl_setopt($curl, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);

@@ -12,7 +12,7 @@ class GeolocatorField extends BaseField {
     | Associator Field
     |--------------------------------------------------------------------------
     |
-    | This model represents the text field in Kora3
+    | This model represents the text field in kora
     |
     */
 

@@ -10,7 +10,7 @@ class Search {
     | Search
     |--------------------------------------------------------------------------
     |
-    | This class contains core search functionality in Kora3
+    | This class contains core search functionality in kora
     |
     */
 
@@ -172,7 +172,7 @@ class Search {
     }
 
     /**
-     * Prepares a statement for mysql search. Based on things we found in Kora.
+     * Prepares a statement for mysql search. Based on things we found in kora.
      *
      * @param  array $keys - Statements to prepare
      * @return array - The cleaned array

@@ -9,7 +9,7 @@ class Version extends Model {
     | Version
     |--------------------------------------------------------------------------
     |
-    | This model represents the current version of Kora3
+    | This model represents the current version of kora
     |
     */
 

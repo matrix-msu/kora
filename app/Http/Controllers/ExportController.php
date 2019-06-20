@@ -14,7 +14,7 @@ class ExportController extends Controller {
     | Export Controller
     |--------------------------------------------------------------------------
     |
-    | This controller handles the export process of Kora 3 structure and data
+    | This controller handles the export process of kora structure and data
     |
     */
 

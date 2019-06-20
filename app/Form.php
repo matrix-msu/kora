@@ -707,12 +707,12 @@ class Form extends Model {
     }
 
     /**
-     * Gets the data out of the DB in Kora 2 format.
+     * Gets the data out of the DB in kora 2 format.
      *
      * @param  $filters - The filters to modify the returned results
      * @param  $rids - The subset of rids we would like back
      *
-     * @return array - The Kora 2 formatted records
+     * @return array - The kora 2 formatted records
      */
     public function getRecordsForExportLegacy($filters, $rids = null) {
         $results = [];
@@ -1051,7 +1051,7 @@ class Form extends Model {
         }
 
         //Get filters for reverse associations
-        $revFilterQuery = "SELECT `source_flid`, `source_kid`, COUNT(`associated_kid`) as count FROM `kora3_reverse_associator_cache` WHERE `associated_form_id`=$this->id AND `source_kid` IS NOT NULL GROUP BY `source_flid`, `source_kid`";
+        $revFilterQuery = "SELECT `source_flid`, `source_kid`, COUNT(`associated_kid`) as count FROM `".$prefix."reverse_associator_cache` WHERE `associated_form_id`=$this->id AND `source_kid` IS NOT NULL GROUP BY `source_flid`, `source_kid`";
         $results = $con->query($revFilterQuery);
         while($row = $results->fetch_assoc()) {
             $filters['reverseAssociations'][$row['source_flid']][$row['source_kid']] = (int)$row['count'];
@@ -1144,7 +1144,7 @@ class Form extends Model {
         }
 
         //Get filters for reverse associations
-        $revFilterQuery = "SELECT `source_flid`, `source_kid`, COUNT(`associated_kid`) as count FROM `kora3_reverse_associator_cache` WHERE `associated_form_id`=$this->id AND `source_kid` IS NOT NULL GROUP BY `source_flid`, `source_kid`";
+        $revFilterQuery = "SELECT `source_flid`, `source_kid`, COUNT(`associated_kid`) as count FROM `".$prefix."reverse_associator_cache` WHERE `associated_form_id`=$this->id AND `source_kid` IS NOT NULL GROUP BY `source_flid`, `source_kid`";
         $results = $con->query($revFilterQuery);
         while($row = $results->fetch_assoc()) {
             $filters['reverseAssociations'][$row['source_flid']][$row['source_kid']] = (int)$row['count'];

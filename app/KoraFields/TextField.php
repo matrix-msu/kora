@@ -12,7 +12,7 @@ class TextField extends BaseField {
     | Text Field
     |--------------------------------------------------------------------------
     |
-    | This model represents the text field in Kora3
+    | This model represents the text field in kora
     |
     */
 

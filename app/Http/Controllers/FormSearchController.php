@@ -13,7 +13,7 @@ class FormSearchController extends Controller {
     | Form Search Controller
     |--------------------------------------------------------------------------
     |
-    | This controller handles form searches in Kora3
+    | This controller handles form searches in kora
     |
     */
 

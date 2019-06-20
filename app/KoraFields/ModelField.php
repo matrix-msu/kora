@@ -9,7 +9,7 @@ class ModelField extends FileTypeField {
     | Model Field
     |--------------------------------------------------------------------------
     |
-    | This model represents the 3d-model field in Kora3
+    | This model represents the 3d-model field in kora
     |
     */
 
