@@ -490,7 +490,7 @@ class DateTimeField extends BaseField {
      * @param  boolean $negative - Get opposite results of the search
      * @return array - The RIDs that match search
      */
-    public function advancedSearchTyped($flid, $query, $recordMod, $negative = false) {
+    public function advancedSearchTyped($flid, $query, $recordMod, $form, $negative = false) {
         $from = date($query['begin_year'].'-'.$query['begin_month'].'-'.$query['begin_day'].' '.$query['begin_hour'].':'.$query['begin_minute'].':'.$query['begin_second']);
         $to = date($query['end_year'].'-'.$query['end_month'].'-'.$query['end_day'].' '.$query['end_hour'].':'.$query['end_minute'].':'.$query['end_second']);
 

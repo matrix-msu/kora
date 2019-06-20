@@ -66,7 +66,7 @@ class AdvancedSearchController extends Controller {
             if(array_diff(array_keys($query),array('negative','empty')) == [])
                 $result = [];
             else
-                $result = $form->getFieldModel($field['type'])->advancedSearchTyped($flid, $query, $recModel);
+                $result = $form->getFieldModel($field['type'])->advancedSearchTyped($flid, $query, $recModel, $form);
 
             //This is a negative search so we want the opposite results of what the search would produce
             if(isset($query['negative']))
@@ -191,7 +191,7 @@ class AdvancedSearchController extends Controller {
         foreach($data as $fieldName => $query) {
             $flid = fieldMapper($fieldName,$pid,$fid);
             $field = $form->layout['fields'][$flid];
-            $result = $form->getFieldModel($field['type'])->advancedSearchTyped($flid, $query, $recModel, $negative);
+            $result = $form->getFieldModel($field['type'])->advancedSearchTyped($flid, $query, $recModel, $form, $negative);
 
             $results[] = $result;
         }

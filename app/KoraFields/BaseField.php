@@ -226,7 +226,7 @@ abstract class BaseField extends Model {
      * @param  boolean $negative - Get opposite results of the search
      * @return array - The RIDs that match search
      */
-    abstract public function advancedSearchTyped($flid, $query, $recordMod, $negative = false);
+    abstract public function advancedSearchTyped($flid, $query, $recordMod, $form, $negative = false);
 
     /**
      * Find every record that does not have data for this field.

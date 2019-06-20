@@ -1,6 +1,7 @@
 <?php namespace App\KoraFields;
 
 use App\Form;
+use App\Search;
 use App\Http\Controllers\AssociationController;
 use App\Http\Controllers\FieldController;
 use App\Http\Controllers\FormController;
@@ -565,61 +566,17 @@ class ComboListField extends BaseField {
      * @return Request - The update request
      */
     public function setRestfulAdvSearch($data) {
-        dd('setRestfulAdvSearch');
         $return = [];
 
         $flid = $data->$flid;
 
-        $field = FieldController::getField($flid);
-        $type1 = $field['one']['type'];
-        switch($type1) {
-            case Field::_INTEGER:
-            case Field::_FLOAT:
-                if(isset($data->left_one))
-                    $leftNum = $data->left_one;
-                else
-                    $leftNum = '';
-                $return[$flid.'_1_left'] = $leftNum;
-                if(isset($data->right_one))
-                    $rightNum = $data->right_one;
-                else
-                    $rightNum = '';
-                $return[$flid.'_1_right'] = $rightNum;
-                if(isset($data->invert_one))
-                    $invert = $data->invert_one;
-                else
-                    $invert = 0;
-                $return[$flid.'_1_invert'] = $invert;
-                break;
-            default:
-                $return[$flid.'_1_input'] = $data->input_one;
-                break;
+        $field = FieldController::getField($data->$flid, $data->$fid);
+
+        foreach (['one', 'two'] as $seq) {
+            $className = $this->fieldModel[$type];
+            $object = new $className;
+            $return[$seq] = $object->setRestfulAdvSearch($data->{$seq});
         }
-        $type2 = $field['two']['type'];
-        switch($type2) {
-            case Field::_INTEGER:
-            case Field::_FLOAT:
-                if(isset($data->left_two))
-                    $leftNum = $data->left_two;
-                else
-                    $leftNum = '';
-                $return[$flid.'_2_left'] = $leftNum;
-                if(isset($data->right_two))
-                    $rightNum = $data->right_two;
-                else
-                    $rightNum = '';
-                $return[$flid.'_2_right'] = $rightNum;
-                if(isset($data->invert_two))
-                    $invert = $data->invert_two;
-                else
-                    $invert = 0;
-                $return[$flid.'_2_invert'] = $invert;
-                break;
-            default:
-                $return[$flid.'_2_input'] = $data->input_two;
-                break;
-        }
-        $return[$flid.'_operator'] = $data->operator;
 
         return $return;
     }
@@ -646,6 +603,7 @@ class ComboListField extends BaseField {
             ->where(function($query) use ($arg, $layout, $param, $negative) {
                 foreach(['one', 'two'] as $seq) {
                     $tmpArg = str_replace("%","",$arg);
+                    $flid = $layout[$seq]['flid'];
                     if(is_numeric($tmpArg)) {
                         // Dealing with numbers
                         $tmpArg = [$tmpArg - self::EPSILON, $tmpArg + self::EPSILON];
@@ -654,7 +612,7 @@ class ComboListField extends BaseField {
                         else
                             $query->whereBetween($flid, $tmpArg);
                     } else {
-                        $query->orWhere($layout[$seq]['flid'], $param,"$arg");
+                        $query->orWhere($flid, $param,"$arg");
                     }
                 }
             })
@@ -671,116 +629,65 @@ class ComboListField extends BaseField {
      * @param  boolean $negative - Get opposite results of the search
      * @return array - The RIDs that match search
      */
-    public function advancedSearchTyped($flid, $query, $recordMod, $negative = false) {
-        dd('asdofkkasdjf');
-        $field = Field::where("flid", "=", $flid)->first();
-        $type_1 = $field['one']['type'];
-        $type_2 = $field['two']['type'];
+    public function advancedSearchTyped($flid, $query, $recordMod, $form, $negative = false) {
+        $layout = $form->layout['fields'][$flid];
 
-        if($query[$flid . "_operator"] == "and") {
-            //
-            // We need to join combo_support with itself.
-            // Since each entry represents one sub-field in the combo list, an "and" operation
-            // on a combo list would be impossible without two copies of everything.
-            //
-            $first_prefix = "one.";
-            $second_prefix = "two.";
-
-            $db_query = DB::table(self::SUPPORT_NAME." AS " . substr($first_prefix, 0, -1))
-                ->select($first_prefix . "rid")
-                ->where($first_prefix . "flid", "=", $flid)
-                ->join(self::SUPPORT_NAME." AS " . substr($second_prefix, 0, -1),
-                    $first_prefix . "rid",
-                    "=",
-                    $second_prefix . "rid");
-
-            $db_query->where(function($db_query) use ($flid, $query, $type_1, $first_prefix) {
-                self::buildAdvancedQueryRoutine($db_query, "1", $flid, $query, $type_1, $first_prefix);
-            });
-            $db_query->where(function($db_query) use ($flid, $query, $type_2, $second_prefix) {
-                self::buildAdvancedQueryRoutine($db_query, "2", $flid, $query, $type_2, $second_prefix);
-            });
-
-        } else { // OR operation.
-            $db_query = self::makeAdvancedQueryRoutine($flid);
-            $db_query->where(function($db_query) use ($flid, $query, $type_1) {
-                self::buildAdvancedQueryRoutine($db_query, "1", $flid, $query, $type_1);
-            });
-            $db_query->orWhere(function($db_query) use ($flid, $query, $type_2) {
-                self::buildAdvancedQueryRoutine($db_query, "2", $flid, $query, $type_2);
-            });
-        }
-
-        return $db_query->distinct()
-            ->pluck('rid')
-            ->toArray();
-    }
-
-    /**
-     * Helper function to make the initial advanced DB query.
-     *
-     * @param  int $flid - Field ID
-     * @return Builder - Initial query
-     */
-    private static function makeAdvancedQueryRoutine($flid) {
-        return DB::table(self::SUPPORT_NAME)
-            ->select("rid")
-            ->where("flid", "=", $flid);
-    }
-
-    /**
-     * Helper function with logic to build up an advanced query.
-     *
-     * @param  Builder $db_query - Pointer reference to the current query
-     * @param  mixed $field_num - First or second field in the combo list
-     * @param  int $flid - Field ID
-     * @param  array $query - Query array from the form
-     * @param  string $type - The type of the combo field
-     * @param  string $prefix - To deal with joined tables
-     */
-    private static function buildAdvancedQueryRoutine(Builder &$db_query, $field_num, $flid, $query, $type, $prefix = "") {
-        $db_query->where($prefix . "field_num", "=", $field_num);
-        $db_prefix = config('database.connections.mysql.prefix');
-
-        switch($type){
-            case Form::_INTEGER:
-            case Form::_FLOAT:
-                NumberField::buildAdvancedNumberQuery($db_query,
-                    $query[$flid . "_" . $field_num . "_left"],
-                    $query[$flid . "_" . $field_num . "_right"],
-                    isset($query[$flid . "_" . $field_num . "_invert"]),
-                    $db_prefix. $prefix);
-                break;
-            case Form::_DATE:
-                $input = $query[$flid . "_" . $field_num . "_month"].'/'
-                    .$query[$flid . "_" . $field_num . "_day"].'/'
-                    .$query[$flid . "_" . $field_num . "_year"];
-
-                $prefix = ($prefix == "") ? self::SUPPORT_NAME : substr($prefix, 0, -1);
-                $input = Search::prepare($input);
-                $db_query->orWhereRaw("`" . $db_prefix . $prefix . "`.`data` LIKE %?%", [$input]);
-                break;
-            case Form::_MULTI_SELECT_LIST:
-            case Form::_GENERATED_LIST:
-            case Form::_ASSOCIATOR:
-                $inputs = $query[$flid . "_" . $field_num . "_input[]"];
-
-                $prefix = ($prefix == "") ? self::SUPPORT_NAME : substr($prefix, 0, -1);
-                $db_query->where(function($db_query) use ($inputs, $prefix, $db_prefix) {
-                    foreach($inputs as $input) {
-                        $input = Search::prepare($input);
-                        $db_query->orWhereRaw("`" . $db_prefix . $prefix . "`.`data` LIKE %?%", [$input]);
+        return DB::table($flid . $form->id)
+            ->select("record_id")
+            ->where(function($db_query) use ($query, $layout, $negative) {
+                foreach(['one', 'two'] as $field_num) {
+                    $flid = $layout[$field_num]['flid'];
+                    if (!array_key_exists($flid . "_" . $field_num, $query)) {
+                        continue;
                     }
-                });
-                break;
-            default: //Text and List
-                $input = $query[$flid . "_" . $field_num . "_input"];
+                    $type = $layout[$field_num]['type'];
+                    $values = $query[$flid . "_" . $field_num];
+                    switch($type){
+                        case Form::_INTEGER:
+                        case Form::_FLOAT:
+                            IntegerField::buildAdvancedNumberQuery(
+                                $db_query,
+                                $values['left'],
+                                $values['right'],
+                                isset($values['invert'])
+                            );
+                            break;
+                        case Form::_DATE:
+                            $from = date($values['begin_year'].'-'.$values['begin_month'].'-'.$values['begin_day']);
+                            $to = date($values['end_year'].'-'.$values['end_month'].'-'.$values['end_day']);
 
-                $prefix = ($prefix == "") ? self::SUPPORT_NAME : substr($prefix, 0, -1);
-                $input = Search::prepare($input);
-                $db_query->orWhereRaw("`" . $db_prefix . $prefix . "`.`data` LIKE %?%", [$input]);
-                break;
-        }
+                            if($negative)
+                                $db_query->whereNotBetween($flid, [$from, $to]);
+                            else
+                                $db_query->whereBetween($flid, [$from, $to]);
+                            break;
+                        case Form::_MULTI_SELECT_LIST:
+                        case Form::_GENERATED_LIST:
+                        case Form::_ASSOCIATOR:
+                            $inputs = $values['input'];
+                            if($negative) {
+                                foreach($inputs as $a)
+                                    $db_query->orWhereRaw("JSON_SEARCH(`$flid`,'one','$a') IS NULL");
+                            } else {
+                                foreach($inputs as $a)
+                                    $db_query->whereRaw("JSON_SEARCH(`$flid`,'one','$a') IS NOT NULL");
+                            }
+                            break;
+                        default: //Text, List, and Bool
+                            if($negative)
+                                $param = '!=';
+                            else
+                                $param = '=';
+
+                            $input = $values['input'];
+                            $input = Search::prepare([$input])[0];
+                            $db_query->orWhere($flid, $param, "$input");
+                            break;
+                    }
+                }
+            })
+            ->pluck('record_id')
+            ->toArray();
     }
 
     ///////////////////////////////////////////////END ABSTRACT FUNCTIONS///////////////////////////////////////////////

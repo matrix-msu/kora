@@ -325,7 +325,7 @@ class BooleanField extends BaseField {
      * @param  boolean $negative - Get opposite results of the search
      * @return array - The RIDs that match search
      */
-    public function advancedSearchTyped($flid, $query, $recordMod, $negative = false) {
+    public function advancedSearchTyped($flid, $query, $recordMod, $form, $negative = false) {
         $arg = is_bool($query['input']) && $query['input'] ? 1 : 0;
 
         if($negative)
