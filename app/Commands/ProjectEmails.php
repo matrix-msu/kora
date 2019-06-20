@@ -35,7 +35,7 @@ class ProjectEmails extends MailCommand implements ShouldQueue {
                         $message->from(config('mail.from.address'));
                         $message->to($installAdmin->email);
                         $message->bcc($bccEmails);
-                        $message->subject('Kora Project Request');
+                        $message->subject('kora Project Request');
                     });
                 } catch(\Exception $e) {
                     Log::error("Request Project Permissions Email Failed!!!");
@@ -51,7 +51,7 @@ class ProjectEmails extends MailCommand implements ShouldQueue {
                     Mail::send('emails.project.added', compact('project', 'name', 'group'), function ($message) use ($userMail) {
                         $message->from(config('mail.from.address'));
                         $message->to($userMail);
-                        $message->subject('Kora Project Permissions');
+                        $message->subject('kora Project Permissions');
                     });
                 } catch(\Exception $e) {
                     Log::error("New Project User Email Failed!!!");
@@ -68,7 +68,7 @@ class ProjectEmails extends MailCommand implements ShouldQueue {
                     Mail::send($email, compact('project', 'name', 'group'), function ($message) use ($userMail) {
                         $message->from(config('mail.from.address'));
                         $message->to($userMail);
-                        $message->subject('Kora Project Permissions');
+                        $message->subject('kora Project Permissions');
                     });
                 } catch(\Exception $e) {
                     Log::error("Project Permissions Updated Email Failed!!!");

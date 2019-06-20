@@ -9,11 +9,11 @@
                     </a>
                 </span>
             </span>
-            <img src="{{ url('/assets/images/onboarding/basics.png') }}" alt="Kora onboarding animated 'basics' picture">
+            <img src="{{ url('/assets/images/onboarding/basics.png') }}" alt="kora onboarding animated 'basics' picture">
         </div>
         <div class="body onboarding">
             <h3>Let's go over the basics.</h3>
-            <p>Kora is an open-source, database-driven, online digital repository application for complex digital objects. These objects include: text, document files, images, audio, video, 3d models, or geolocations. <span class="bold">Kora allows you to store, manage, and publish these digital objects, each with corresponding metadata in a single record,</span> allowing them to be searchable, and viewable on a public facing website.</p>
+            <p>kora is an open-source, database-driven, online digital repository application for complex digital objects. These objects include: text, document files, images, audio, video, 3d models, or geolocations. <span class="bold">kora allows you to store, manage, and publish these digital objects, each with corresponding metadata in a single record,</span> allowing them to be searchable, and viewable on a public facing website.</p>
         </div>
     </section>
     <section class="hidden" id="Records">
@@ -26,11 +26,11 @@
                     </a>
                 </span>
             </span>
-            <img src="{{ url('/assets/images/onboarding/records.png') }}" alt="Kora onboarding animated picture of Kora records">
+            <img src="{{ url('/assets/images/onboarding/records.png') }}" alt="kora onboarding animated picture of kora records">
         </div>
         <div class="body onboarding">
             <h3>Digital Object + Metadata = A Record</h3>
-            <p>Kora allows you to upload your digital objects along with corresponding metadata into a single "record".  <span class="bold">This record contains the digital object itself, along with descriptive information about the object (metadata), such as its author, where it was found, and its current location.</span>  With according metadata, your objects become a digital repository that is searchable and publishable.</p>
+            <p>kora allows you to upload your digital objects along with corresponding metadata into a single "record".  <span class="bold">This record contains the digital object itself, along with descriptive information about the object (metadata), such as its author, where it was found, and its current location.</span>  With according metadata, your objects become a digital repository that is searchable and publishable.</p>
         </div>
     </section>
     <section class="hidden" id="Forms">
@@ -43,7 +43,7 @@
                     </a>
                 </span>
             </span>
-            <img src="{{ url('/assets/images/onboarding/forms.png') }}" alt="Kora onboarding animated picture of Forms">
+            <img src="{{ url('/assets/images/onboarding/forms.png') }}" alt="kora onboarding animated picture of Forms">
         </div>
         <div class="body onboarding">
             <h3>A record is created using a form.</h3>
@@ -60,11 +60,11 @@
                     </a>
                 </span>
             </span>
-            <img src="{{ url('/assets/images/onboarding/projects.png') }}" alt="Kora onboarding animated picture of Kora Projects">
+            <img src="{{ url('/assets/images/onboarding/projects.png') }}" alt="kora onboarding animated picture of kora Projects">
         </div>
         <div class="body onboarding">
             <h3>Projects organize forms and records.</h3>
-            <p>Projects are the biggest organizational structure in Kora.  <span class="bold">A project is a container for all the information related to your individual or institutional goals.</span>  Each project is its own database.  Within Kora you can have multiple projects that use several different forms or record types without having to worry about records getting placed in the wrong folders.</p>
+            <p>Projects are the biggest organizational structure in kora.  <span class="bold">A project is a container for all the information related to your individual or institutional goals.</span>  Each project is its own database.  Within kora you can have multiple projects that use several different forms or record types without having to worry about records getting placed in the wrong folders.</p>
         </div>
     </section>
     <section class="hidden" id="Dashboard">
@@ -77,11 +77,11 @@
                     </a>
                 </span>
             </span>
-            <img src="{{ url('/assets/images/onboarding/dashboard.png') }}" alt="Kora onboarding animated picture of Kora Dashboard">
+            <img src="{{ url('/assets/images/onboarding/dashboard.png') }}" alt="kora onboarding animated picture of kora Dashboard">
         </div>
         <div class="body onboarding">
-            <h3>Introducing the Kora Dashboard</h3>
-            <p>New in Kora 3, the Dashboard features ways to create customizable shortcuts to selected Projects, Forms, and Records.  This allows you to quickly jump into the Projects, Forms, or Records they are working with the most, as soon as you login to Kora.  Head to the Dashboard from the main navigation to get started!</p>
+            <h3>Introducing the kora Dashboard</h3>
+            <p>New in kora, the Dashboard features ways to create customizable shortcuts to selected Projects, Forms, and Records.  This allows you to quickly jump into the Projects, Forms, or Records they are working with the most, as soon as you login to kora.  Head to the Dashboard from the main navigation to get started!</p>
         </div>
     </section>
     <section class="hidden" id="Documentation">
@@ -94,11 +94,11 @@
                     </a>
                 </span>
             </span>
-            <img src="{{ url('/assets/images/onboarding/thatsIt.png') }}" alt="Kora onboarding animated picture of Kora on a computer">
+            <img src="{{ url('/assets/images/onboarding/thatsIt.png') }}" alt="kora onboarding animated picture of kora on a computer">
         </div>
         <div class="body onboarding">
             <h3>Thats it!  See, that wasn't too hard.</h3>
-            <p>Kora was designed to be simple and easy to use, but if at any point you're still not sure how things work or are structured, feel free to visit our <a href="#" class="green underline">Kora Documentation</a>, where we dive deeper into what Kora is, how it all works, and share examples of how people use Kora.  <span class="bold">You can always access the documentation at the bottom of Kora's side menu.</span></p>
+            <p>kora was designed to be simple and easy to use, but if at any point you're still not sure how things work or are structured, feel free to visit our <a href="#" class="green underline">kora Documentation</a>, where we dive deeper into what kora is, how it all works, and share examples of how people use kora.  <span class="bold">You can always access the documentation at the bottom of kora's side menu.</span></p>
         </div>
     </section>
     <section class="hidden" id="Sandbox">
@@ -111,11 +111,11 @@
                     </a>
                 </span>
             </span>
-            <img src="{{ url('/assets/images/onboarding/sandbox.png') }}" alt="Kora 3 onboarding animated picture of Kora 3 in sand on a beach">
+            <img src="{{ url('/assets/images/onboarding/sandbox.png') }}" alt="kora onboarding animated picture of kora in sand on a beach">
         </div>
         <div class="body onboarding">
             <h3>We've created a sandbox project to help you get started.</h3>
-            <p>Need a little help getting started?  We've created a sandbox project so that you can familiarize yourself with how Kora works.  This project is titled "Welcome to Kora" and only you can see it, so you can explore and make any changes to it that you'd like!  You're also welcome to delete this project at anytime!</p>
+            <p>Need a little help getting started?  We've created a sandbox project so that you can familiarize yourself with how kora works.  This project is titled "Welcome to kora" and only you can see it, so you can explore and make any changes to it that you'd like!  You're also welcome to delete this project at anytime!</p>
         </div>
     </section>
     <section class="hidden" id="Permissions">
@@ -128,7 +128,7 @@
                     </a>
                 </span>
             </span>
-            <img src="{{ url('/assets/images/onboarding/permissions.png') }}" alt="Kora onboarding animated permissions picture">
+            <img src="{{ url('/assets/images/onboarding/permissions.png') }}" alt="kora onboarding animated permissions picture">
         </div>
         <div class="body onboarding">
             <h3>Do you need project permissions?</h3>

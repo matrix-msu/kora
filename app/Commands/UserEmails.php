@@ -39,7 +39,7 @@ class UserEmails extends MailCommand implements ShouldQueue {
                     Mail::send('emails.batch-activation', compact('token', 'password', 'username', 'personal_message', 'sender', 'project', 'projectGroup'), function ($message) use ($email) {
                         $message->from(config('mail.from.address'));
                         $message->to($email);
-                        $message->subject('Kora Account Activation');
+                        $message->subject('kora Account Activation');
                     });
                 } catch(\Exception $e) {
                     Log::error("Batch User Invite Email Failed!!!");
@@ -53,7 +53,7 @@ class UserEmails extends MailCommand implements ShouldQueue {
                     Mail::send('emails.activation', compact('token', 'email'), function($message) use ($email) {
                         $message->from(config('mail.from.address'));
                         $message->to($email);
-                        $message->subject('Kora Account Activation');
+                        $message->subject('kora Account Activation');
                     });
                 } catch(\Exception $e) {
                     Log::error("User Activation Request Email Failed!!!");
@@ -67,7 +67,7 @@ class UserEmails extends MailCommand implements ShouldQueue {
                     Mail::send('emails.password', compact('token'), function ($message) use ($userMail) {
                         $message->from(config('mail.from.address'));
                         $message->to($userMail);
-                        $message->subject('Kora Password Reset');
+                        $message->subject('kora Password Reset');
                     });
                 } catch(\Exception $e) {
                     Log::error("Password Reset Email Failed!!!");

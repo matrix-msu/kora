@@ -1,4 +1,4 @@
-@extends('app', ['page_title' => 'Update Kora3', 'page_class' => 'update'])
+@extends('app', ['page_title' => 'Update kora', 'page_class' => 'update'])
 
 @section('aside-content')
     <?php $openManagement = true ?>
@@ -14,17 +14,17 @@
                 @if($update)
                     <span>New Update Available!</span>
                 @else
-                    <span>Kora3 is Up-to-date!</span>
+                    <span>kora is Up-to-date!</span>
                 @endif
             </h1>
             @if($update)
                 @if($ready)
-                    <p class="description">It looks like your file set is up to date. Please run the 'php artisan kora3:update' command to complete
+                    <p class="description">It looks like your file set is up to date. Please run the 'php artisan kora:update' command to complete
                         your installation update. The new update is detailed below.</p>
                 @else
                     <p class="description">Please update your installation via 'git pull'. If you manually
-                        installed Kora3, visit <a href="https://github.com/matrix-msu/Kora3">Github</a> to download and merge the latest release
-                        file set. Once this is done run the 'php artisan kora3:update' command to complete your installation update. The new update is detailed
+                        installed kora, visit <a href="https://github.com/matrix-msu/kora">Github</a> to download and merge the latest release
+                        file set. Once this is done run the 'php artisan kora:update' command to complete your installation update. The new update is detailed
                         below.</p>
                 @endif
             @else
@@ -36,7 +36,7 @@
 
 @section('body')
     <section class="update-text center">
-        <div class="update-version">KORA {{$info['version']}}</div>
+        <div class="update-version">kora {{$info['version']}}</div>
         <div class="update-notes mt-xl mb-100-xl">
             <div class="note-header">Update Notes:</div>
             <div class="mt-m">{{$info['notes']}}</div>
