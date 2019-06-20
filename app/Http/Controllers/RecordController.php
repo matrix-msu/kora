@@ -73,11 +73,6 @@ class RecordController extends Controller {
             $notification['message'] = 'Record Successfully Duplicated!';
           else if ($session == 'mass_records_updated')
             $notification['message'] = 'Batch Assign Successful!';
-          else if ($session == 'test_records_created') {
-            $numRecs = $request->session()->get('num_test_recs');
-            $notification['message'] = $numRecs.' Test Records Created!';
-          } else if ($session == 'test_records_deleted') {
-            $notification['message'] = 'Test Records Deleted!';
           }
         }
 
