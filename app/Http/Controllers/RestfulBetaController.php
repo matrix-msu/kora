@@ -34,7 +34,7 @@ class RestfulBetaController extends Controller {
     /**
      * @var array - Minor errors in api search. Since they happen in nested functions, it's easier to store globally.
      */
-    public $minorErrors = array();
+    public $minorErrors = array("USE OF THE BETA API IS DEPRECATED! DO NOT USE FOR NEW DEVELOPMENT!");
 
     /**
      * Gets the current version of Kora3.
