@@ -445,7 +445,7 @@ class RestfulBetaController extends Controller {
                 break;
             case 'keyword':
                 //do a keyword search
-                if(!isset($query->keys) || !is_array($query->keys))
+                if(!isset($query->keys))
                     return response()->json(["status"=>false,"error"=>"No keywords supplied in a keyword search for form: ". $form->name],500);
                 $keys = $query->keys;
 
@@ -479,9 +479,15 @@ class RestfulBetaController extends Controller {
                 $method = isset($query->method) && is_string($query->method) ? $query->method : 'OR';
                 switch($method) {
                     case 'OR':
+                        $keys = [explode(' ',$query->keys)];
                         $method = Search::SEARCH_OR;
                         break;
                     case 'AND':
+                        $keys = [explode(' ',$query->keys)];
+                        $method = Search::SEARCH_AND;
+                        break;
+                    case 'EXACT':
+                        $keys = [$query->keys];
                         $method = Search::SEARCH_AND;
                         break;
                     default:
