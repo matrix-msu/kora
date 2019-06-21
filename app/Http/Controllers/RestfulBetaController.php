@@ -479,11 +479,11 @@ class RestfulBetaController extends Controller {
                 $method = isset($query->method) && is_string($query->method) ? $query->method : 'OR';
                 switch($method) {
                     case 'OR':
-                        $keys = [explode(' ',$query->keys)];
+                        $keys = explode(' ',$query->keys);
                         $method = Search::SEARCH_OR;
                         break;
                     case 'AND':
-                        $keys = [explode(' ',$query->keys)];
+                        $keys = explode(' ',$query->keys);
                         $method = Search::SEARCH_AND;
                         break;
                     case 'EXACT':
@@ -554,7 +554,7 @@ class RestfulBetaController extends Controller {
 
     private function convertLogicForBeta($logic) {
         $arg1 = $logic[0];
-        $op = $logic[1];
+        $op = strtolower($logic[1]);
         $arg2 = $logic[2];
 
         if(!is_numeric($arg1))
