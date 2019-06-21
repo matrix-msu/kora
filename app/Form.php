@@ -731,6 +731,10 @@ class Form extends Model {
             exit();
         }
 
+        //BETA LINE
+        if(!isset($filters['beta']))
+            $filters['beta'] = false;
+
         $fields = ['kid','legacy_kid','updated_at','owner'];
         $fieldToModel = [];
         $fieldToRealName = [];
@@ -748,7 +752,10 @@ class Form extends Model {
         } else {
             $flids = array();
             foreach($filters['fields'] as $fieldName) {
-                $flids[] = fieldMapper($fieldName,$this->project_id,$this->id);
+                if($filters['beta'])
+                    $flids[] = $fieldName;
+                else
+                    $flids[] = fieldMapper($fieldName,$this->project_id,$this->id);
             }
         }
 
@@ -782,7 +789,10 @@ class Form extends Model {
             foreach($filters['sort'] as $sortRule) {
                 foreach($sortRule as $flid => $order) {
                     //Used to protect SQL
-                    $field = fieldMapper($flid,$this->project_id,$this->id);
+                    if($filters['beta'])
+                        $field = $flid;
+                    else
+                        $field = fieldMapper($flid,$this->project_id,$this->id);
                     $field = preg_replace("/[^A-Za-z0-9_]/", '', $field);
                     $orderBy .= "$field IS NULL, $field $order,";
                 }
