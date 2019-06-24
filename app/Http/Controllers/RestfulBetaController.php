@@ -420,6 +420,8 @@ class RestfulBetaController extends Controller {
                 $fields = $query->fields;
                 $processed = [];
                 foreach($fields as $flid => $data) {
+                    $flid = RestfulBetaController::removeIllegalFieldCharacters($flid);
+
                     if(!isset($form->layout['fields'][$flid])) {
                         array_push($this->minorErrors, "The following field in keyword search is not apart of the requested form: " . $this->cleanseOutput($flid));
                         continue;
@@ -461,6 +463,7 @@ class RestfulBetaController extends Controller {
                             array_push($this->minorErrors, "The following field in keyword search is not apart of the requested form: " . $this->cleanseOutput($qfield));
                             continue;
                         }
+                        $qfield = RestfulBetaController::removeIllegalFieldCharacters($qfield);
                         $fieldMod = $form->layout['fields'][$qfield];
 
                         if(!$fieldMod['external_search']) {
@@ -609,6 +612,8 @@ class RestfulBetaController extends Controller {
         }
 
         foreach($fields as $fieldName => $jsonField) {
+            $fieldName = RestfulBetaController::removeIllegalFieldCharacters($fieldName);
+
             if(!isset($form->layout['fields'][$fieldName]))
                 return response()->json(["status"=>false,"error"=>"The field, ".$this->cleanseOutput($fieldName).", does not exist"],500);
 
@@ -676,6 +681,8 @@ class RestfulBetaController extends Controller {
         }
 
         foreach($fields as $fieldName => $jsonField) {
+            $fieldName = RestfulBetaController::removeIllegalFieldCharacters($fieldName);
+
             if(!isset($form->layout['fields'][$fieldName]))
                 return response()->json(["status"=>false,"error"=>"The field, ".$this->cleanseOutput($fieldName).", does not exist"],500);
 
@@ -769,5 +776,14 @@ class RestfulBetaController extends Controller {
         }
 
         return $intersection;
+    }
+
+    public static function removeIllegalFieldCharacters($flid) {
+        //Remove illegal characters
+        $newNameSpaced = preg_replace("/[^A-Za-z0-9\_]/", '_', $flid);
+        //Remove multi spaces
+        $newName = preg_replace('!\_+!', '_', $newNameSpaced);
+        //Trim and return
+        return trim($newName);
     }
 }

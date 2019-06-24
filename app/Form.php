@@ -1,5 +1,6 @@
 <?php namespace App;
 
+use App\Http\Controllers\RestfulBetaController;
 use App\KoraFields\BaseField;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -421,7 +422,7 @@ class Form extends Model {
             $allowedAssocFields = [];
             foreach($filters['assocFlids'] as $fieldName) {
                 if($filters['beta'])
-                    $allowedAssocFields[] = $fieldName;
+                    $allowedAssocFields[] = RestfulBetaController::removeIllegalFieldCharacters($fieldName);
                 else
                     $allowedAssocFields[] = fieldMapper($fieldName,$this->project_id,$this->id);
             }
@@ -512,7 +513,7 @@ class Form extends Model {
             $flids = array();
             foreach($filters['fields'] as $fieldName) {
                 if($filters['beta'])
-                    $flids[] = $fieldName;
+                    $flids[] = RestfulBetaController::removeIllegalFieldCharacters($fieldName);
                 else
                     $flids[] = fieldMapper($fieldName,$this->project_id,$this->id);
             }
@@ -589,7 +590,7 @@ class Form extends Model {
                 foreach($sortRule as $flid => $order) {
                     //Used to protect SQL
                     if($filters['beta'])
-                        $field = $flid;
+                        $field = RestfulBetaController::removeIllegalFieldCharacters($flid);
                     else
                         $field = fieldMapper($flid,$this->project_id,$this->id);
                     $field = preg_replace("/[^A-Za-z0-9_]/", '', $field);
@@ -753,7 +754,7 @@ class Form extends Model {
             $flids = array();
             foreach($filters['fields'] as $fieldName) {
                 if($filters['beta'])
-                    $flids[] = $fieldName;
+                    $flids[] = RestfulBetaController::removeIllegalFieldCharacters($fieldName);
                 else
                     $flids[] = fieldMapper($fieldName,$this->project_id,$this->id);
             }
@@ -790,7 +791,7 @@ class Form extends Model {
                 foreach($sortRule as $flid => $order) {
                     //Used to protect SQL
                     if($filters['beta'])
-                        $field = $flid;
+                        $field = RestfulBetaController::removeIllegalFieldCharacters($flid);
                     else
                         $field = fieldMapper($flid,$this->project_id,$this->id);
                     $field = preg_replace("/[^A-Za-z0-9_]/", '', $field);
