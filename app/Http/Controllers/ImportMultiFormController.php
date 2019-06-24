@@ -263,7 +263,7 @@ class ImportMultiFormController extends Controller {
     }
 
     /**
-     * Import Kora 3 records via XML of JSON file. We will leave field specific stuff here because it's too specific.
+     * Import kora records via XML of JSON file. We will leave field specific stuff here because it's too specific.
      * There are some things here that are specific to MF record import, specifically associator related stuff.
      *
      * @param  int $pid - Project ID
@@ -364,7 +364,7 @@ class ImportMultiFormController extends Controller {
                     continue;
                 }
 
-                //Kora id connection for associator
+                //kora id connection for associator
                 if($matchup[$slug] == 'connection') {
                     $recRequest['connection'] = $field;
                     continue;
@@ -531,7 +531,7 @@ class ImportMultiFormController extends Controller {
                         $messages[$id] = $message;
                 }
             } else {
-                $messages[$id] = "Unable to determine error. This is usually caused by a structure issue in your XML/JSON, or an unexpected bug in Kora3.";
+                $messages[$id] = "Unable to determine error. This is usually caused by a structure issue in your XML/JSON, or an unexpected bug in kora.";
             }
         }
 

@@ -13,7 +13,7 @@ class HistoricalDateField extends BaseField {
     | Historical Date Field
     |--------------------------------------------------------------------------
     |
-    | This model represents the historical date field in Kora3
+    | This model represents the historical date field in kora
     |
     */
 
@@ -398,12 +398,13 @@ class HistoricalDateField extends BaseField {
      * @return mixed - Processed data
      */
     public function processLegacyData($value) {
+        $date = json_decode($value,true);
         return [
-            'prefix' => $value['circa'],
-            'month' => $value['month'],
-            'day' => $value['day'],
-            'year' => $value['year'],
-            'era' => $value['era'],
+            'prefix' => $date['circa'],
+            'month' => $date['month'],
+            'day' => $date['day'],
+            'year' => $date['year'],
+            'era' => $date['era'],
             'suffix' => ''
         ];
     }
@@ -677,7 +678,7 @@ class HistoricalDateField extends BaseField {
      */
     public function displayDate($date, $field) {
         $dateString = '';
-        $date['year'] = \DateTime::createFromFormat('y', $date['year'])->format('Y');
+        $date['year'] = sprintf('%04d', $date['year']); //TODO::FORCE 4 DIGIT FORMAT
 
         if($date['circa'] && $field['options']['ShowCirca'])
             $dateString .= 'circa ';

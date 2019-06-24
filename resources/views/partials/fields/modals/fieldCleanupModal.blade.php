@@ -15,7 +15,7 @@
             ]) !!}
             <input type="hidden" name="redirect_route" value="true">
             <span class="description">
-                Are you sure you wish to delete this field and any records with data in this field? This cannot be undone.
+                Are you sure you wish to delete this field? Deleting will remove any data collected for this field on preexisting records within this form. This cannot be undone.
             </span>
 
             <div class="form-group">

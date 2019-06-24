@@ -12,7 +12,7 @@ class FloatField extends BaseField {
     | Float Field
     |--------------------------------------------------------------------------
     |
-    | This model represents the float field in Kora3
+    | This model represents the float field in kora
     |
     */
 

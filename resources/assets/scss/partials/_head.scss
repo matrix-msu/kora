@@ -8,7 +8,7 @@
 
   .back {
     @include transition();
-      
+
     border: 1px solid palette('gray', slate, .10);
     border-radius: 0 0 5px 0;
     display: inline-block;
@@ -18,7 +18,7 @@
 
     i {
       @include transition();
-      
+
       border-radius: 5px;
       box-shadow: 0 3px 5px 0 palette('box-shadow', base, .03);
       color: palette('gray', slate);
@@ -141,7 +141,7 @@
     line-height: 1.5;
     margin: 0;
     padding: 0 0 #{map-get($spacing, xxl)};
-    
+
     .record-clone & {
       padding-bottom: 20px !important;
     }
@@ -159,7 +159,7 @@
 
   .content-sections {
     position: relative;
-    
+
     .content-sections-scroll {
       display: flex;
       flex-wrap: nowrap; // for tabs
@@ -201,12 +201,12 @@
       font-size: 0.5em;
       padding: 60px 21px 0 21px;
       position: absolute;
-      
+
       .hidden {
         display: none;
       }
     }
-    
+
     .tabs-left {
       left: -5px;
       transform: rotate(90deg) scale(0.9);
@@ -216,7 +216,7 @@
         font-size: 0.625em;
       }
     }
-    
+
     .tabs-right {
       right: -5px;
       transform: rotate(-90deg) scale(0.9);
@@ -231,6 +231,7 @@
   .profile-pic-cont {
     display: inline-block;
 
+    .icon-profile-dark,
     .icon-user {
       border: solid 2px palette('white', base);
       border-radius: 50%;

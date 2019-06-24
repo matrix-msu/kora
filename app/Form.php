@@ -1,5 +1,6 @@
 <?php namespace App;
 
+use App\Http\Controllers\RestfulBetaController;
 use App\KoraFields\BaseField;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\Model;
@@ -413,12 +414,21 @@ class Form extends Model {
             exit();
         }
 
+        //BETA LINE
+        if(!isset($filters['beta']))
+            $filters['beta'] = false;
+        else
+            $betaMappings = array();
+
         //Some prep to make assoc searching faster
         if($filters['assoc']) {
             $useAssoc = true;
             $allowedAssocFields = [];
             foreach($filters['assocFlids'] as $fieldName) {
-                $allowedAssocFields[] = fieldMapper($fieldName,$this->project_id,$this->id);
+                if($filters['beta'])
+                    $allowedAssocFields[] = RestfulBetaController::removeIllegalFieldCharacters($fieldName);
+                else
+                    $allowedAssocFields[] = fieldMapper($fieldName,$this->project_id,$this->id);
             }
             $assocSelect = "SELECT distinct(f.`id`), f.`layout` from ".$prefix."associations as a left join ".$prefix."forms as f on f.id=a.data_form where a.`assoc_form`=".$this->id;
             $theForms = $con->query($assocSelect);
@@ -506,7 +516,14 @@ class Form extends Model {
         } else {
             $flids = array();
             foreach($filters['fields'] as $fieldName) {
-                $flids[] = fieldMapper($fieldName,$this->project_id,$this->id);
+                if($filters['beta']) {
+                    //This helps us remap back to the old field name if it had special characters
+                    $tmpBetaName = RestfulBetaController::removeIllegalFieldCharacters($fieldName);
+                    if($tmpBetaName!=$fieldName)
+                        $betaMappings[$tmpBetaName] = $fieldName;
+                    $flids[] = $tmpBetaName;
+                } else
+                    $flids[] = fieldMapper($fieldName,$this->project_id,$this->id);
             }
         }
 
@@ -549,8 +566,13 @@ class Form extends Model {
                     $tmp = $mergeMappings[$flid];
                     $name = $flid . ' as `' . $tmp . '`';
                 } else {
-                    $tmp = $flid;
-                    $name = $tmp;
+                    if($filters['beta'] && isset($betaMappings[$flid])) {
+                        $tmp = $betaMappings[$flid];
+                        $name = $flid . ' as `' . $tmp . '`';
+                    } else {
+                        $tmp = $flid;
+                        $name = $tmp;
+                    }
                 }
                 if(in_array($this->layout['fields'][$flid]['type'], self::$jsonFields))
                     $jsonFields[$tmp] = 1;
@@ -584,7 +606,10 @@ class Form extends Model {
             foreach($filters['sort'] as $sortRule) {
                 foreach($sortRule as $flid => $order) {
                     //Used to protect SQL
-                    $field = fieldMapper($flid,$this->project_id,$this->id);
+                    if($filters['beta'])
+                        $field = RestfulBetaController::removeIllegalFieldCharacters($flid);
+                    else
+                        $field = fieldMapper($flid,$this->project_id,$this->id);
                     $field = preg_replace("/[^A-Za-z0-9_]/", '', $field);
                     $orderBy .= "$field IS NULL, $field $order,";
                 }
@@ -657,13 +682,23 @@ class Form extends Model {
                             $parts = explode('-',$aKid);
                             $aForm = $assocForms[$parts[1]];
 
-                            $result[$column][$aKid] = $this->getAssocRecord($parts[2], $aForm, $con, $prefix);
+                            if($filters['beta'])
+                                $result[$column]['value'][$aKid] = $this->getBetaAssocRecord($parts[2], $aForm, $con, $prefix);
+                            else
+                                $result[$column][$aKid] = $this->getAssocRecord($parts[2], $aForm, $con, $prefix);
                         }
                     }
-                } else if(array_key_exists($column,$jsonFields)) //array key search is faster than in array so that's why we use it here
-                    $result[$column] = json_decode($data,true);
-                else
-                    $result[$column] = $data;
+                } else if(array_key_exists($column,$jsonFields)) { //array key search is faster than in array so that's why we use it here
+                    if($filters['beta'])
+                        $result[$column]['value'] = json_decode($data, true);
+                    else
+                        $result[$column] = json_decode($data, true);
+                } else {
+                    if($filters['beta'])
+                        $result[$column]['value'] = $data;
+                    else
+                        $result[$column] = $data;
+                }
             }
 
             if($filters['revAssoc']) {
@@ -729,14 +764,34 @@ class Form extends Model {
 
         return $result;
     }
+    private function getBetaAssocRecord($rid, $aForm, $con, $prefix) {
+        $result = [];
+        $jsonFields = $aForm['jsonFields'];
+        $fieldString = $aForm['fieldString'];
+
+        $selectRecords = "SELECT $fieldString FROM ".$prefix."records_".$aForm['id']." WHERE `id`=$rid";
+
+        $records = $con->query($selectRecords);
+        while($row = $records->fetch_assoc()) {
+            foreach($row as $column => $data) {
+                if(array_key_exists($column,$jsonFields)) //array key search is faster than in array so that's why we use it here
+                    $result[$column]['value'] = json_decode($data,true);
+                else
+                    $result[$column]['value'] = $data;
+            }
+        }
+        $records->free();
+
+        return $result;
+    }
 
     /**
-     * Gets the data out of the DB in Kora 2 format.
+     * Gets the data out of the DB in kora 2 format.
      *
      * @param  $filters - The filters to modify the returned results
      * @param  $rids - The subset of rids we would like back
      *
-     * @return array - The Kora 2 formatted records
+     * @return array - The kora 2 formatted records
      */
     public function getRecordsForExportLegacy($filters, $rids = null) {
         $results = [];
@@ -755,6 +810,10 @@ class Form extends Model {
             exit();
         }
 
+        //BETA LINE
+        if(!isset($filters['beta']))
+            $filters['beta'] = false;
+
         $fields = ['kid','legacy_kid','updated_at','owner'];
         $fieldToModel = [];
         $fieldToRealName = [];
@@ -772,7 +831,10 @@ class Form extends Model {
         } else {
             $flids = array();
             foreach($filters['fields'] as $fieldName) {
-                $flids[] = fieldMapper($fieldName,$this->project_id,$this->id);
+                if($filters['beta'])
+                    $flids[] = RestfulBetaController::removeIllegalFieldCharacters($fieldName);
+                else
+                    $flids[] = fieldMapper($fieldName,$this->project_id,$this->id);
             }
         }
 
@@ -806,7 +868,10 @@ class Form extends Model {
             foreach($filters['sort'] as $sortRule) {
                 foreach($sortRule as $flid => $order) {
                     //Used to protect SQL
-                    $field = fieldMapper($flid,$this->project_id,$this->id);
+                    if($filters['beta'])
+                        $field = RestfulBetaController::removeIllegalFieldCharacters($flid);
+                    else
+                        $field = fieldMapper($flid,$this->project_id,$this->id);
                     $field = preg_replace("/[^A-Za-z0-9_]/", '', $field);
                     $orderBy .= "$field IS NULL, $field $order,";
                 }
@@ -1075,7 +1140,100 @@ class Form extends Model {
         }
 
         //Get filters for reverse associations
-        $revFilterQuery = "SELECT `source_flid`, `source_kid`, COUNT(`associated_kid`) as count FROM `kora3_reverse_associator_cache` WHERE `associated_form_id`=$this->id AND `source_kid` IS NOT NULL GROUP BY `source_flid`, `source_kid`";
+        $revFilterQuery = "SELECT `source_flid`, `source_kid`, COUNT(`associated_kid`) as count FROM `".$prefix."reverse_associator_cache` WHERE `associated_form_id`=$this->id AND `source_kid` IS NOT NULL GROUP BY `source_flid`, `source_kid`";
+        $results = $con->query($revFilterQuery);
+        while($row = $results->fetch_assoc()) {
+            $filters['reverseAssociations'][$row['source_flid']][$row['source_kid']] = (int)$row['count'];
+        }
+
+        foreach($valids as $f) {
+            $filterQuery = "SELECT `$f`, COUNT(*) as count FROM $table WHERE `$f` $subset GROUP BY `$f`";
+            $results = $con->query($filterQuery);
+
+            $isJson = false;
+            $tmpJsonArray = [];
+
+            while($row = $results->fetch_assoc()) {
+                if(!is_array(json_decode($row[$f]))) {
+                    if(!is_null($row[$f]) && $row['count'] >= $count)
+                        $filters[$f][$row[$f]] = (int)$row['count'];
+                } else {
+                    //JSON so handle
+                    $isJson = true;
+
+                    $values = json_decode($row[$f]);
+                    foreach($values as $val) {
+                        //Check for initial assignment
+                        if(!isset($tmpJsonArray[$val]))
+                            $tmpJsonArray[$val] = (int)$row['count'];
+                        else
+                            $tmpJsonArray[$val] += $row['count'];
+                    }
+                }
+            }
+
+            //Clean up count limit for JSON
+            if($isJson) {
+                foreach($tmpJsonArray as $val => $cnt) {
+                    if($cnt >= $count)
+                        $filters[$f][$val] = $cnt;
+                }
+            }
+
+            $results->free();
+        }
+
+        mysqli_close($con);
+
+        return $filters;
+    }
+    public function getBetaDataFilters($count, $fields, $rids=null) {
+        //Doing this for pretty much the same reason as keyword search above
+        $con = mysqli_connect(
+            config('database.connections.mysql.host'),
+            config('database.connections.mysql.username'),
+            config('database.connections.mysql.password'),
+            config('database.connections.mysql.database')
+        );
+        $prefix = config('database.connections.mysql.prefix');
+
+        //We want to make sure we are doing things in utf8 for special characters
+        if(!mysqli_set_charset($con, "utf8")) {
+            printf("Error loading character set utf8: %s\n", mysqli_error($con));
+            exit();
+        }
+
+        $layout = $this->layout['fields'];
+        $table = $prefix.'records_'.$this->id;
+        $filters = [];
+
+        //Subset of rids?
+        $subset = 'IS NOT NULL';
+        if(!is_null($rids)) {
+            if(empty($rids))
+                return [];
+            $ridString = implode(',',$rids);
+            $subset .= " AND `id` IN ($ridString)";
+        }
+
+        //Validate the fields
+        $valids = [];
+        if($fields == 'ALL') {
+            foreach(array_keys($layout) as $f) {
+                $type = $layout[$f]['type'];
+                if(in_array($type,self::$validFilterFields))
+                    $valids[] = $f;
+            }
+        } else {
+            foreach($fields as $f) {
+                $type = $layout[$f]['type'];
+                if(in_array($type,self::$validFilterFields))
+                    $valids[] = $f;
+            }
+        }
+
+        //Get filters for reverse associations
+        $revFilterQuery = "SELECT `source_flid`, `source_kid`, COUNT(`associated_kid`) as count FROM `".$prefix."reverse_associator_cache` WHERE `associated_form_id`=$this->id AND `source_kid` IS NOT NULL GROUP BY `source_flid`, `source_kid`";
         $results = $con->query($revFilterQuery);
         while($row = $results->fetch_assoc()) {
             $filters['reverseAssociations'][$row['source_flid']][$row['source_kid']] = (int)$row['count'];

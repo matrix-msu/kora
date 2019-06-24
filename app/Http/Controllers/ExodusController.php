@@ -22,7 +22,7 @@ class ExodusController extends Controller {
     | Exodus Controller
     |--------------------------------------------------------------------------
     |
-    | This controller handles the Exodus migration of Kora 2 data to Kora3
+    | This controller handles the Exodus migration of kora 2 data to kora v3
     |
     */
 
@@ -211,7 +211,7 @@ class ExodusController extends Controller {
                             if(isset($userArray[$m['uid']]))
                                 $gu = $userArray[$m['uid']];
                             else
-                                continue; //most likely get here because k2 Admin was added as a group user, but no need for that in kora 3
+                                continue; //most likely get here because k2 Admin was added as a group user, but no need for that in kora v3
                             array_push($groupUsers, $gu);
                         }
                         $k3Group->users()->attach($groupUsers);
@@ -236,7 +236,7 @@ class ExodusController extends Controller {
             foreach($tokenArray as $t => $tokenProjs) {
                 $token = new Token();
                 $token->token = $t;
-                $token->title = "Kora 2 Search Token";
+                $token->title = "kora 2 Search Token";
                 $token->search = 1;
                 $token->create = 0;
                 $token->edit = 0;
@@ -504,10 +504,10 @@ class ExodusController extends Controller {
     }
 
     /**
-     * Converts Kora 2 permissions to Project/Form permissions in Kora3.
+     * Converts kora 2 permissions to Project/Form permissions in kora v3.
      *
      * @param  int $perm - The permissions set to apply
-     * @return array - The new permission set in Kora3
+     * @return array - The new permission set in kora
      */
     private function k2tok3Perms($perm) {
         $result = array();

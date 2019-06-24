@@ -1,4 +1,4 @@
-@extends('app', ['page_title' => 'Welcome to Kora', 'page_class' => 'welcome-fresh'])
+@extends('app', ['page_title' => 'Welcome to kora', 'page_class' => 'welcome-fresh'])
 
 @section('body')
     <div class="content-install">
@@ -8,7 +8,7 @@
             </div>
 
             <div class="kora3 mt-xxl">
-                Kora 3
+                kora
             </div>
 
             <div class="ready mt-xxl">
@@ -16,7 +16,7 @@
             </div>
 
             <div class="commander mt-m">
-                We are ready to begin the Kora Initialization sequence, Commander.
+                We are ready to begin the kora Initialization sequence, Commander.
                 Ready when you are.
             </div>
 

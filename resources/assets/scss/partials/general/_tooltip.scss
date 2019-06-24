@@ -12,30 +12,6 @@
     opacity: 0;
   }
 
-  /* dashboard stuff */
-	.section-quick-actions &:last-child:hover::after {
-		left: -30px;
-  }
-
-  /* centering dash block quick actions */
-  .element .element-link-container &:hover::after {
-    left: -30px;
-  }
-  .element .element-link-container &.form-import:hover::after {
-    left: -15px;
-  }
-  .element .element-link-container &.permissions:hover::after,
-  .element .element-link-container &.presets:hover::after {
-    left: -45px;
-  }
-  .element .element-link-container &.search:hover::after {
-    left: -55px;
-  }
-  .element .element-link-container &.revisions:hover::after {
-    left: -60px;
-  }
-  /* end dash stuff */
-
   &:hover::after {
     animation: fadein .2s forwards;
     background: palette('gray', dropdown);
@@ -43,103 +19,55 @@
     color: palette('white');
     content: attr(tooltip);
     font-size: 12px;
-    left: 0;
+    left: 50%;
     line-height: 13px;
     margin: 0 auto;
     padding: 5px 10px;
     position: absolute;
     top: -30px;
     white-space: nowrap;
-	
-	.dots & {
-      left: -30px;
-      /*transform: translateX(50%);*/
-    }
-
-    .title & {
-      left: -45px;
-    }
 
     .page-header & {
       top: 15px;
-      left: 4px;
-    }
-
-    .backup .footer & {
-      top: 0;
-      left: -35px;
     }
 
     .content .footer & {
       top: -30px;
-      left: -45px;
     }
 
-    .field .footer & {
-      top: 0;
-      left: -30px;
-    }
-
-    .token .footer & {
-      top: 0;
-      left: -35px;
-    }
-	
-	.token-project & {
-		left: -75px;
-	}
-
-    .user .footer & {
-      top: 0;
-      left: -35px;
-    }
-
-    .record .footer & {
-      top: 0;
-      left: -35px;
-    }
-
+    .backup .footer &,
+    .field .footer &,
+    .token .footer &,
+    .user .footer &,
+    .record .footer &,
     .preset .footer & {
       top: 0;
-      left: -35px;
-    }
-
-    .project-cleanup & {
-      left: -25px;
-    }
-
-    .field-cleanup & {
-      left: -18px;
     }
 
     .form-cleanup & {
       top: -35px;
-      left: -18px;
     }
 
-    .show-options & {
-      left: -50px;
+    /* DASHBOARD SECTION */
+    .floating-buttons .edit-blocks & {
+      left: -40px;
     }
 
-    .open-create-regex & {
-      left: -140px;
+    .element .element-link-container & {
+      z-index: 1;
     }
 
-	/* DASHBOARD SECTION */
-	.floating-buttons .edit-blocks & {
-		left: -40px;
-	}
+    .edit-mode .edit-block & {
+      background: palette('white');
+      color: palette('gray', dropdown);
+    }
+    /* DASHBOARD SECTION END */
 
-	.element .element-link-container & {
-		z-index: 1;
-	}
+    .field-sidebar & {
+      left: 50%;
+      transform: translateX(-50%);
+    }
 
-	.edit-mode .edit-block & {
-		background: palette('white');
-		color: palette('gray', dropdown);
-	}
-	/* DASHBOARD SECTION END */
-    
     @media screen and (max-width: $max-mobile-xs-width) {
       .title & {
         left: -50px;
@@ -183,18 +111,15 @@
   }
 
   &.half-sub-btn.disabled {
-	border: 2px solid rgba(4, 182, 175, 0.2) !important;
-	color: rgba(4, 182, 175, 0.2) !important;
-	opacity: 1 !important;
+  	border: 2px solid rgba(4, 182, 175, 0.2) !important;
+  	color: rgba(4, 182, 175, 0.2) !important;
+  	opacity: 1 !important;
     pointer-events: unset !important;
 
-    &:hover {
-
-      &::after {
-        left: 45px;
-        line-height: 1;
-        top: -15px;
-      }
+    &:hover::after {
+      left: 45px;
+      line-height: 1;
+      top: -15px;
     }
   }
 }

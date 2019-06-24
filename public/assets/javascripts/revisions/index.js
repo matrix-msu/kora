@@ -76,7 +76,9 @@ Kora.Revisions.Index = function() {
                     direction: 'up',
                     mode: 'show',
                     duration: 240
-                });
+                }, function () {
+                    $token.css('height', '');
+								});
             } else {
                 $token.animate({
                     height: '58px'

@@ -2,55 +2,53 @@ var Kora = Kora || {};
 Kora.Forms = Kora.Forms || {};
 
 Kora.Forms.Edit = function() {
+    function initializeCleanUpModals() {
+      Kora.Modal.initialize();
 
-  function initializeCleanUpModals() {
-        Kora.Modal.initialize();
+      $('.form-trash-js').click(function(e) {
+          e.preventDefault();
 
-        $('.form-trash-js').click(function(e) {
-            e.preventDefault();
+          var $cleanupModal = $('.form-cleanup-modal-js');
 
-            var $cleanupModal = $('.form-cleanup-modal-js');
+          $cleanupModal.find('.title-js').html( $(this).data('title') );
 
-            $cleanupModal.find('.title-js').html( $(this).data('title') );
+          Kora.Modal.open($cleanupModal);
+      });
 
-            Kora.Modal.open($cleanupModal);
+      $('.delete-form-js').click(function(e) {
+         display_loader();
+       });
+
+      $('.delete-records-js').click(function(e) {
+          e.preventDefault();
+
+          var $cleanupModal = $('.delete-records-modal-js');
+
+          Kora.Modal.open($cleanupModal);
+      });
+
+      $('.delete-files-js').click(function(e) {
+        e.preventDefault();
+
+        var $cleanupModal = $('.delete-files-modal-js');
+
+        Kora.Modal.open($cleanupModal);
+      });
+
+  		$('.create-test-records-btn-js, .delete-test-records-btn-js').click(function(e) {
+        display_loader();
+      });
+
+      function scrollTop (allScrolls) {
+        var scrollTo = Math.min(...allScrolls);
+        var scrollTo = scrollTo - 100;
+        setTimeout( function () {
+          $('html, body').animate({
+            scrollTop: scrollTo
+          }, 500);
         });
-		
-		$('.delete-form-js').click(function(e) {
-			display_loader();
-		});
-
-        $('.delete-records-js').click(function(e) {
-            e.preventDefault();
-
-            var $cleanupModal = $('.delete-records-modal-js');
-
-            Kora.Modal.open($cleanupModal);
-        });
-
-        $('.delete-files-js').click(function(e) {
-			e.preventDefault();
-
-			var $cleanupModal = $('.delete-files-modal-js');
-
-			Kora.Modal.open($cleanupModal);
-        });
-		
-		$('.create-test-records-btn-js, .delete-test-records-btn-js').click(function(e) {
-			console.log("dislaying loader");
-			display_loader();
-        });
-  }
-
-  function scrollTop (allScrolls) {
-    var scrollTo = Math.min(...allScrolls);
-    var scrollTo = scrollTo - 100;
-    setTimeout( function () {
-      $('html, body').animate({
-        scrollTop: scrollTo
-      }, 500);
-    });
-  }
+      }
+    }
 
     function initializeValidation() {
         $('.validate-form-js').on('click', function(e) {
@@ -112,6 +110,6 @@ Kora.Forms.Edit = function() {
         });
     }
 
-  initializeCleanUpModals();
+    initializeCleanUpModals();
     initializeValidation();
 }

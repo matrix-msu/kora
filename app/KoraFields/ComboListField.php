@@ -19,7 +19,7 @@ class ComboListField extends BaseField {
     | Combo List Field
     |--------------------------------------------------------------------------
     |
-    | This model represents the combo list field in Kora3
+    | This model represents the combo list field in kora
     |
     */
 

@@ -11,7 +11,7 @@ class DateField extends BaseField {
     | Date Field
     |--------------------------------------------------------------------------
     |
-    | This model represents the date field in Kora3
+    | This model represents the date field in kora
     |
     */
 

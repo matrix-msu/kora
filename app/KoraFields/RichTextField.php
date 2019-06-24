@@ -12,7 +12,7 @@ class RichTextField extends BaseField {
     | Rich Text Field
     |--------------------------------------------------------------------------
     |
-    | This model represents the rich text field in Kora3
+    | This model represents the rich text field in kora
     |
     */
 

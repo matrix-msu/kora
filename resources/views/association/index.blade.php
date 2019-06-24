@@ -49,8 +49,8 @@
             <p class="description create-description-js {{count($assocs) === 0 ? 'hidden' : ''}}">The following forms are allowed to associate with and can search within this form:</p>
             @foreach ($assocs as $index=>$a)
                 <?php $f = \App\Form::where('id', '=', $a->assoc_form)->first() ?>
-                <div class="association association-js card {{ $index == 0 ? 'active' : '' }}" id="create-{{$f->id}}">
-                    <div class="header {{ $index == 0 ? 'active' : '' }}">
+                <div class="association association-js card" id="create-{{$f->id}}">
+                    <div class="header">
                         <div class="left pl-m">
                             <a class="title association-toggle-by-name-js" href="#">
                                 <span class="name name-js">{{ $f->name }}</span>
@@ -60,16 +60,16 @@
                         <div class="card-toggle-wrap">
                             <a href="#" class="card-toggle association-toggle-js">
                                 <span class="chevron-text">{{ $f->project()->get()->first()->name }}</span>
-                                <i class="icon icon-chevron {{ $index == 0 ? 'active' : '' }}"></i>
+                                <i class="icon icon-chevron"></i>
                             </a>
                         </div>
                     </div>
-                    <div class="content content-js {{ $index == 0 ? 'active' : '' }}">
+                    <div class="content content-js">
                         <div class="description">
                             {{ $f->description }}
                         </div>
                         <div class="footer">
-                            <a class="quick-action trash-container delete-permission-association-js left tooltip" href="#" data-form="{{$a->assocForm}}" data-reverse="false" tooltip="Remove Form Association">
+                            <a class="quick-action trash-container delete-permission-association-js left tooltip" href="#" data-form="{{$a->assoc_form}}" data-reverse="false" tooltip="Remove Form Association">
                                 <i class="icon icon-trash"></i>
                             </a>
                         </div>
@@ -96,7 +96,7 @@
                 <p class="description request-description-js {{count($available_associations) === 0 ? 'hidden' : ''}}">{{$form->name}} is allowed to associate with and can search within the following forms:</p>
                 @foreach ($available_associations as $index=>$a)
                     <?php $f = \App\Form::where('id', '=', $a->data_form)->first() ?>
-                    <div class="association association-js card {{ $index == 0 ? 'active' : '' }}" id="request-{{$f->id}}">
+                    <div class="association association-js card" id="request-{{$f->id}}">
                         <div class="header {{ $index == 0 ? 'active' : '' }}">
                             <div class="left pl-m">
                                 <a class="title association-toggle-by-name-js" href="#">
@@ -107,11 +107,11 @@
                             <div class="card-toggle-wrap">
                                 <a href="#" class="card-toggle association-toggle-js">
                                     <span class="chevron-text">{{ $f->project()->get()->first()->name }}</span>
-                                    <i class="icon icon-chevron {{ $index == 0 ? 'active' : '' }}"></i>
+                                    <i class="icon icon-chevron"></i>
                                 </a>
                             </div>
                         </div>
-                        <div class="content content-js {{ $index == 0 ? 'active' : '' }}">
+                        <div class="content content-js">
                             <div class="description">
                               {{ $f->description }}
                             </div>

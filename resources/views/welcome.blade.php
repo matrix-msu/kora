@@ -74,35 +74,40 @@
 @stop
 
 @section('javascripts')
-  
+  {!! Minify::javascript([
+		'/assets/javascripts/vendor/jquery/jquery.js',
+		'/assets/javascripts/vendor/jquery/jquery-ui.js',
+		'/assets/javascripts/general/modal.js'
+	])->withFullUrl() !!}
+
+
   <script type="text/javascript">
     var CSRFToken = '{{ csrf_token() }}';
     var emailURL = '{{ action('Auth\ResetPasswordController@preValidateEmail') }}';
   </script>
 
   <script>
-    Kora.Modal.initialize();
+  Kora.Modal.initialize();
 
-    $('.password-js').click(function(e) {
-      e.preventDefault();
+  $('.password-js').click(function(e) {
+    e.preventDefault();
+    Kora.Modal.open();
+  });
 
-      Kora.Modal.open();
-    });
+  $('.pass-reset-js').click(function(e) {
+    e.preventDefault();
 
-    $('.pass-reset-js').click(function(e) {
-        e.preventDefault();
+    var email = $('.pass-email-js').val();
 
-        var email = $('.pass-email-js').val();
-
-        if(email=='') {
-            $('.pass-error-js').text('The email field is required.');
-            $('.pass-email-js').addClass('error');
-        } else if(!validateEmail(email)) {
-            $('.pass-error-js').text('The email must be a valid email address.');
-            $('.pass-email-js').addClass('error');
-        } else {
+    if(email=='') {
+      $('.pass-error-js').text('The email field is required.');
+      $('.pass-email-js').addClass('error');
+    } else if(!validateEmail(email)) {
+      $('.pass-error-js').text('The email must be a valid email address.');
+      $('.pass-email-js').addClass('error');
+    } else {
 			display_loader();
-			
+
 			$.ajax({
 				url: emailURL,
 				method: 'POST',
@@ -112,7 +117,7 @@
 				},
 				success: function(data) {
 					var response = data.response
-					
+
 					if (response == "Found") {
 						$('.pass-error-js').text('');
 						setTimeout(function(){
@@ -122,18 +127,18 @@
 				},
 				error: function(data) {
 					var response = data.responseJSON.response;
-					
+
 					$('.pass-error-js').text(response);
 					$('.pass-email-js').addClass('error');
 					hide_loader();
 				}
 			});
-        }
-    });
-
-    function validateEmail(email) {
-        var re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-        return re.test(String(email).toLowerCase());
     }
+  });
+
+  function validateEmail(email) {
+		var re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+		return re.test(String(email).toLowerCase());
+	}
   </script>
 @stop

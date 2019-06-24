@@ -5,6 +5,7 @@ use App\Form;
 use App\Http\Controllers\RecordController;
 use App\Record;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
 use ZipArchive;
@@ -495,8 +496,12 @@ abstract class FileTypeField extends BaseField {
         else
             $fileNumDisk = 0;
 
-        //Prep comparing of field file size limit, vs files already in tmp folder
-        $maxFieldSize = !is_null($field['options']['FieldSize']) ? $field['options']['FieldSize']*1024 : 0; //conversion of kb to bytes
+        $maxFieldSize = $field['options']['FieldSize'];
+    		if (trim($maxFieldSize) === '') {
+    			$maxFieldSize = '0';
+    		}
+    		$maxFieldSize = $maxFieldSize * 1024;
+
         $fileSizeRequest = 0;
         foreach($_FILES['file'.$flid]['size'] as $size) {
             $fileSizeRequest += $size;
@@ -587,7 +592,7 @@ abstract class FileTypeField extends BaseField {
     /**
      * Public access link for a file. NOTE: Mirrors file download, but is publically accessible doesn't force download
      *
-     * @param  string $kid - Kora record that holds the file
+     * @param  string $kid - kora record that holds the file
      * @param  string $filename - Name of the file
      * @return mixed - the file
      */
@@ -652,7 +657,7 @@ abstract class FileTypeField extends BaseField {
     /**
      * Downloads a file from a particular record field.
      *
-     * @param  int $kid - Record Kora ID
+     * @param  int $kid - Record kora ID
      * @param  string $filename - Name of the file
      * @return Redirect - html for the file download
      */
@@ -681,7 +686,7 @@ abstract class FileTypeField extends BaseField {
     /**
      * Downloads a zip of all files from a particular record.
      *
-     * @param  int $kid - Record Kora ID
+     * @param  int $kid - Record kora ID
      * @return string - html for the file download
      */
     public static function getZipDownload($kid) {

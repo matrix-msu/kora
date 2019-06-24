@@ -259,7 +259,7 @@ class ImportController extends Controller {
     }
 
     /**
-     * Import Kora 3 records via XML of JSON file. We will leave field specific stuff here because it's too specific.
+     * Import kora records via XML of JSON file. We will leave field specific stuff here because it's too specific.
      *
      * @param  int $pid - Project ID
      * @param  int $fid - Form ID
@@ -344,7 +344,7 @@ class ImportController extends Controller {
                     continue;
                 }
 
-                //Kora id connection for associator
+                //kora id connection for associator
                 if($matchup[$flid] == 'connection') {
                     $recRequest['connection'] = $field;
                     continue;
@@ -459,7 +459,7 @@ class ImportController extends Controller {
                         $messages[$id] = $message;
                 }
             } else {
-                $messages[$id] = "Unable to determine error. This is usually caused by a structure issue in your XML/JSON, or an unexpected bug in Kora3.";
+                $messages[$id] = "Unable to determine error. This is usually caused by a structure issue in your XML/JSON, or an unexpected bug in kora.";
             }
         }
 
@@ -471,7 +471,7 @@ class ImportController extends Controller {
     }
 
     /**
-     * Import a k3Form file into Kora3.
+     * Import a kForm file into kora.
      *
      * @param  int $pid - Project ID
      * @param  Request $request
@@ -559,7 +559,7 @@ class ImportController extends Controller {
     }
 
     /**
-     * Import a Kora 2 scheme into Kora3.
+     * Import a kora 2 scheme into kora v3.
      *
      * @param  int $pid  - Project ID
      * @param  Request $request
@@ -937,7 +937,7 @@ class ImportController extends Controller {
                         $field = $form->layout['fields'][$flid];
 
                         //We leave this code here (instead of in the Field model) because they are heavily specific to
-                        // the conversion of Kora 2 data and will probably never change.
+                        // the conversion of kora 2 data and will probably never change.
                         switch($field['type']) {
                             case 'Text':
                                 $value = (string)$value;
@@ -1110,7 +1110,7 @@ class ImportController extends Controller {
     }
 
     /**
-     * Project import uses this to import its forms without the need for a k3Form file.
+     * Project import uses this to import its forms without the need for a kForm file.
      *
      * @param  int $pid - Project ID
      * @param  array $fileArray - Form structure info
@@ -1177,7 +1177,7 @@ class ImportController extends Controller {
 
 
     /**
-     * Import a k3Proj file into Kora3.
+     * Import a kProj file into kora.
      *
      * @param  Request $request
      * @return Redirect

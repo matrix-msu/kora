@@ -13,7 +13,7 @@ class FieldAjaxController extends Controller {
     | Field Ajax Controller
     |--------------------------------------------------------------------------
     |
-    | This controller handles ajax requests within Kora3/laravel to make Route
+    | This controller handles ajax requests within kora/laravel to make Route
     | for specific field related functions. This class merely calls the requested
     | field function, and then returns its result. We do this so field classes can
     | maintain their functions, but since routing in laravel is used to call
@@ -26,7 +26,7 @@ class FieldAjaxController extends Controller {
      * Constructs controller and makes sure user is authenticated.
      */
     public function __construct() {
-        $this->middleware('auth');
+        $this->middleware('auth', ['except' => ['publicRecordFile']]);
         $this->middleware('active', ['except' => ['publicRecordFile']]);
     }
 
@@ -117,7 +117,7 @@ class FieldAjaxController extends Controller {
     /**
      * Public access link for a file.
      *
-     * @param  string $kid - Kora record that holds the file
+     * @param  string $kid - kora record that holds the file
      * @param  string $filename - Name of the file
      * @return string - the file
      */
@@ -128,7 +128,7 @@ class FieldAjaxController extends Controller {
     /**
      * Downloads a file from a particular record field.
      *
-     * @param  int $kid - Record Kora ID
+     * @param  int $kid - Record kora ID
      * @param  string $filename - Name of the file
      * @return string - html for the file download
      */
@@ -139,7 +139,7 @@ class FieldAjaxController extends Controller {
     /**
      * Downloads a zip of all files from a particular record.
      *
-     * @param  int $kid - Record Kora ID
+     * @param  int $kid - Record kora ID
      * @return string - html for the file download
      */
     public function getZipDownload($kid) {

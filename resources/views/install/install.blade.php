@@ -1,13 +1,13 @@
-@extends('app',['page_title' => 'Kora Installation', 'page_class' => 'install'])
+@extends('app',['page_title' => 'kora Installation', 'page_class' => 'install'])
 
 @section('header')
     <section class="head">
         {{--NO BACK BUTTON HERE--}}
         <div class="inner-wrap center">
             <h1 class="title no-icon">
-                <span>Kora 3 Initialization Form</span>
+                <span>kora Initialization Form</span>
             </h1>
-            <p class="description">Fill out the following form to fully initialize Kora 3</p>
+            <p class="description">Fill out the following form to fully initialize kora</p>
         </div>
     </section>
 @stop

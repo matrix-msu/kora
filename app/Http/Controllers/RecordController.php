@@ -74,10 +74,6 @@ class RecordController extends Controller {
             $notification['message'] = 'Record Successfully Duplicated!';
           else if ($session == 'mass_records_updated')
             $notification['message'] = 'Batch Assign Successful!';
-          else if ($session == 'test_records_created') {
-            $numRecs = $request->session()->get('num_test_recs');
-            $notification['message'] = $numRecs.' Test Records Created!';
-          }
         }
 
         return view('records.index', compact('form', 'records', 'total', 'notification'));
@@ -126,7 +122,7 @@ class RecordController extends Controller {
 	}
 
     /**
-     * Saves a new record in Kora.
+     * Saves a new record in kora.
      *
      * @param  int $pid - Project ID
      * @param  int $fid - Form ID
@@ -481,7 +477,7 @@ class RecordController extends Controller {
     }
 
     /**
-     * Delete a record from Kora3.
+     * Delete a record from kora.
      *
      * @param  int $pid - Project ID
      * @param  int $fid - Form ID
@@ -508,7 +504,7 @@ class RecordController extends Controller {
     }
 
     /**
-     * Delete multiple records from Kora3.
+     * Delete multiple records from kora.
      *
      * @param  int $pid - Project ID
      * @param  int $fid - Form ID
@@ -630,7 +626,7 @@ class RecordController extends Controller {
     /**
      * Get a record back by KID.
      *
-     * @param  int $kid - Record Kora ID
+     * @param  int $kid - Record kora ID
      * @return Record - Requested record
      */
     public static function getRecord($kid) {

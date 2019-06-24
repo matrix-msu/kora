@@ -1,8 +1,6 @@
 <?php namespace App\Console\Commands;
 
-use App\Http\Controllers\InstallController;
 use App\Http\Controllers\UpdateController;
-use App\Http\Requests\InstallRequest;
 use Illuminate\Console\Command;
 
 class UpdateKora extends Command
@@ -12,7 +10,7 @@ class UpdateKora extends Command
     | Finish Update Script
     |--------------------------------------------------------------------------
     |
-    | This script finishes the Kora 3 update process by running any un-run update
+    | This script finishes the kora update process by running any un-run update
     | scripts
     |
     */
@@ -22,14 +20,14 @@ class UpdateKora extends Command
      *
      * @var string
      */
-    protected $signature = 'kora3:update';
+    protected $signature = 'kora:update';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Executes Kora 3 update scripts';
+    protected $description = 'Executes kora update scripts';
 
     /**
      * Create a new command instance.
@@ -54,6 +52,6 @@ class UpdateKora extends Command
 
         $request->runScripts();
 
-        $this->info("Kora 3 is up to date!");
+        $this->info("kora is up to date!");
     }
 }

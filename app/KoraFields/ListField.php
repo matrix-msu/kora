@@ -13,7 +13,7 @@ class ListField extends BaseField {
     | List Field
     |--------------------------------------------------------------------------
     |
-    | This model represents the list field in Kora3
+    | This model represents the list field in kora
     |
     */
 

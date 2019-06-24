@@ -17,9 +17,9 @@
                 <i class="icon icon-project-import"></i>
                 <span>Import Project Setup</span>
             </h1>
-            <p class="description">Upload your .k3proj project file below in order to import it into this kora
+            <p class="description">Upload your .kProj project file below in order to import it into this kora
                 intstallation. After uploading, you will supply the according project information on the next page.
-                For more information and help with this process, refer to the Kora Documentation.</p>
+                For more information and help with this process, refer to the kora Documentation.</p>
             <div class="content-sections">
               <div class="content-sections-scroll">
                 <a href="#projectfile" class="projectfile-link underline-middle active">Upload Project File</a>
@@ -37,7 +37,7 @@
     <section class="projectfile-section">
         <div class="form-group">
             <label>Drag & Drop or Select the Project File Below</label>
-            <input type="file" accept=".k3Proj" name="project" id="project" class="profile-input file-input-js" />
+            <input type="file" accept=".kProj" name="project" id="project" class="profile-input file-input-js" />
             <label for="project" class="profile-label extend">
                 <p class="filename">Drag & Drop the Project File Here</p>
                 <p class="instruction mb-0">

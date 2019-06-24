@@ -3,7 +3,7 @@
 <html lang="en">
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
-    <title>Kora 3 - Install Success</title>
+    <title>kora - Install Success</title>
 
     <link rel="stylesheet" href="{{url('assets/css/app.css')}}">
 </head>
@@ -13,27 +13,27 @@
     <section class="last-steps">
         <div class="last-desc">
             <img class="logo mt-xxxl" src="{{ url('assets/logos/koraiii-logo-blue.svg') }}">
-            <div class="title mt-xxxl">Kora 3</div>
+            <div class="title mt-xxxl">kora</div>
             <div class="sub-title mt-xl">Initialization Complete</div>
             <div class="description mt-m">
-                Kora 3 has finished initialization. Please review the following:
+                kora has finished initialization. Please review the following:
             </div>
         </div>
 
         <div class="last-cmd mt-xxxl">
             <div class="form-group">
-                <label for="preset">Give READ access to the web user for Kora3 and ALL sub-folders</label>
+                <label for="preset">Give READ access to the web user for your kora directory and ALL sub-folders</label>
             </div>
 
             <div class="form-group mt-xl">
                 <label for="preset">Give WRITE access to the web user for the following directories and ALL their sub-folders</label>
-                <div class="solid-box">Kora3/bootstrap/cache/</div>
+                <div class="solid-box">kora/bootstrap/cache/</div>
             </div>
             <div class="form-group mt-xs">
-                <div class="solid-box">Kora3/storage/</div>
+                <div class="solid-box">kora/storage/</div>
             </div>
             <div class="form-group mt-xs">
-                <div class="solid-box">Kora3/public/assets/javascripts/production/</div>
+                <div class="solid-box">kora/public/assets/javascripts/production/</div>
             </div>
 
             <div class="form-group mt-xl">
@@ -45,7 +45,7 @@
             </div>
 
             <div class="form-group mt-xxxl">
-                <a href="{{url('')}}" class="btn">Start Using Kora</a>
+                <a href="{{url('')}}" class="btn">Start Using kora</a>
             </div>
         </div>
     </section>

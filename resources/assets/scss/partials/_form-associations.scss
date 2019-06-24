@@ -2,6 +2,10 @@
   background: palette('gray', background);
   font-family: $ubuntu;
   min-height: 100vh;
+
+  .overflow-yes {
+	   overflow: visible !important;
+  }
 }
 
 .form-association-permissions {

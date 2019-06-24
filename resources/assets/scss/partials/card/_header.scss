@@ -57,6 +57,10 @@
     display: inline-block;
     font-size: 6px;
     padding: 26px;
+
+    &.active {
+      transform: rotate(-180deg);
+    }
   }
 
   @import 'move-actions';
@@ -78,7 +82,7 @@
     &.gray {
       color: palette('gray', text);
     }
-    
+
     span {
       display: inline-block;
       vertical-align: middle;

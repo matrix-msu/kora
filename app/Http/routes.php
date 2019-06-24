@@ -184,6 +184,7 @@ Route::group(['middleware' => 'web'], function () {
     Route::post('/projects/{pid}/forms/{fid}/cleanUp', 'RecordController@cleanUp');
     Route::get('/projects/{pid}/forms/{fid}/clone/{rid}', 'RecordController@cloneRecord');
     Route::get('/projects/{pid}/forms/{fid}/records/{rid}/geolocator/{flid}', 'FieldAjaxController@singleGeolocator');
+    Route::get('/projects/{pid}/forms/{fid}/records/{rid}/fields/{flid}/model', 'FieldController@singleModel');
 
 //revision routes
     Route::get('/projects/{pid}/forms/{fid}/records/revisions/recent', 'RevisionController@index');
@@ -294,4 +295,16 @@ Route::group(['middleware' => 'api'], function () {
     Route::delete('/api/delete', 'RestfulController@delete');
     Route::post('/api/create', 'RestfulController@create');
     Route::put('/api/edit', 'RestfulController@edit');
+
+//beta api routes
+    Route::get('/api/beta/version', 'RestfulBetaController@getKoraVersion');
+    Route::get('/api/beta/projects/{pid}/forms', 'RestfulBetaController@getProjectForms');
+    Route::post('/api/beta/projects/{pid}/forms/create', 'RestfulBetaController@createForm');
+    Route::get('/api/beta/projects/{pid}/forms/{fid}/fields', 'RestfulBetaController@getFormFields');
+    Route::put('/api/beta/projects/{pid}/forms/{fid}/fields', 'RestfulBetaController@modifyFormFields');
+    Route::get('/api/beta/projects/{pid}/forms/{fid}/recordCount', 'RestfulBetaController@getFormRecordCount');
+    Route::post('/api/beta/search', 'RestfulBetaController@search');
+    Route::delete('/api/beta/delete', 'RestfulBetaController@delete');
+    Route::post('/api/beta/create', 'RestfulBetaController@create');
+    Route::put('/api/beta/edit', 'RestfulBetaController@edit');
 });

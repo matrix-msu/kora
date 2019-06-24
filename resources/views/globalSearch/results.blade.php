@@ -71,7 +71,7 @@
         <section class="display-records display-js">
 
             @if(sizeof($records)>0)
-              
+
 	            <div class="form-group records-title mt-xxxl">
 	                Showing {{sizeof($records)}} of {{$total}} Records
 	            </div>
@@ -131,6 +131,10 @@
                     @php $project = \App\Http\Controllers\ProjectController::getProject($form->project_id) @endphp
                     @include('partials.projects.show.form')
                 @endforeach
+
+                <div class="form-group search-button-container mt-xxxl">
+                    <a class="btn half-sub-btn to-top">Try Another Search</a>
+                </div>
             @else
                 @include('partials.records.no-records')
             @endif
@@ -152,6 +156,10 @@
                         'form' => $form,
                     ])
                 @endforeach
+
+                <div class="form-group search-button-container mt-xxxl">
+                    <a class="btn half-sub-btn to-top">Try Another Search</a>
+                </div>
             @else
                 @include('partials.records.no-records')
             @endif
@@ -165,6 +173,10 @@
                 @foreach($projectArray as $index => $project)
                     @include('partials.projects.index.project')
                 @endforeach
+
+                <div class="form-group search-button-container mt-xxxl">
+                    <a class="btn half-sub-btn to-top">Try Another Search</a>
+                </div>
             @else
                 @include('partials.records.no-records')
             @endif

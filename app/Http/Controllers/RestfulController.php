@@ -14,7 +14,7 @@ class RestfulController extends Controller {
     | Restful Controller
     |--------------------------------------------------------------------------
     |
-    | This controller handles API requests to Kora3.
+    | This controller handles API requests to kora.
     |
     */
 
@@ -36,14 +36,14 @@ class RestfulController extends Controller {
     public $minorErrors = array();
 
     /**
-     * Gets the current version of Kora3.
+     * Gets the current version of kora.
      *
-     * @return mixed - Kora version
+     * @return mixed - kora version
      */
     public function getKoraVersion() {
         $instInfo = DB::table("versions")->first();
         if(is_null($instInfo))
-            return response()->json(["status"=>false,"error"=>"Failed to retrieve Kora installation version"],500);
+            return response()->json(["status"=>false,"error"=>"Failed to retrieve kora installation version"],500);
         else
             return $instInfo->version;
     }
@@ -180,7 +180,7 @@ class RestfulController extends Controller {
     }
 
     /**
-     * Performs an API search on Kora3.
+     * Performs an API search on kora.
      *
      * @param  Request $request
      * @return mixed - The records
@@ -491,7 +491,8 @@ class RestfulController extends Controller {
                     return response()->json(["status"=>false,"error"=>"No fields supplied in an advanced search for form: ". $form->name],500);
                 $fields = $query->adv_fields;
                 $processed = [];
-                foreach($fields as $flid => $data) {
+                foreach($fields as $advfield => $data) {
+                    $flid = fieldMapper($advfield, $form->project_id, $form->id);
                     if(!isset($form->layout['fields'][$flid])) {
                         array_push($this->minorErrors, "The following field in keyword search is not apart of the requested form: " . $this->cleanseOutput($flid));
                         continue;
@@ -652,13 +653,15 @@ class RestfulController extends Controller {
         }
 
         foreach($fields as $fieldName => $jsonField) {
-            if(!isset($form->layout['fields'][$fieldName]))
+            $flid = fieldMapper($fieldName, $form->project_id, $form->id);
+
+            if(!isset($form->layout['fields'][$flid]))
                 return response()->json(["status"=>false,"error"=>"The field, ".$this->cleanseOutput($fieldName).", does not exist"],500);
 
-            $field = $form->layout['fields'][$fieldName];
+            $field = $form->layout['fields'][$flid];
             $typedField = $form->getFieldModel($field['type']);
 
-            $recRequest = $typedField->processImportData($fieldName, $field, $jsonField, $recRequest);
+            $recRequest = $typedField->processImportData($flid, $field, $jsonField, $recRequest);
         }
 
         $recRequest['api'] = true;
@@ -719,13 +722,15 @@ class RestfulController extends Controller {
         }
 
         foreach($fields as $fieldName => $jsonField) {
-            if(!isset($form->layout['fields'][$fieldName]))
+            $flid = fieldMapper($fieldName, $form->project_id, $form->id);
+
+            if(!isset($form->layout['fields'][$flid]))
                 return response()->json(["status"=>false,"error"=>"The field, ".$this->cleanseOutput($fieldName).", does not exist"],500);
 
-            $field = $form->layout['fields'][$fieldName];
+            $field = $form->layout['fields'][$flid];
             $typedField = $form->getFieldModel($field['type']);
 
-            $recRequest = $typedField->processImportData($fieldName, $field, $jsonField, $recRequest);
+            $recRequest = $typedField->processImportData($flid, $field, $jsonField, $recRequest);
         }
 
         $recRequest['api'] = true;
@@ -736,7 +741,7 @@ class RestfulController extends Controller {
     }
 
     /**
-     * Delete a set of records from Kora3
+     * Delete a set of records from kora
      *
      * @param  Request $request
      * @return mixed - Status of record deletion

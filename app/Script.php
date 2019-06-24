@@ -9,7 +9,7 @@ class Script extends Model {
     | Script
     |--------------------------------------------------------------------------
     |
-    | This model represents an update script for Kora3
+    | This model represents an update script for kora
     |
     */
 

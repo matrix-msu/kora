@@ -9,20 +9,20 @@
                     </a>
                 </span>
             </span>
-            <img src="{{ url('/assets/images/onboarding/newFeatures.png') }}" alt="Kora onboarding animated what's-new picture">
+            <img src="{{ url('/assets/images/onboarding/newFeatures.png') }}" alt="kora onboarding animated what's-new picture">
         </div>
         <div class="body onboarding">
-            <h3>Great!  Here's what's new in Kora 3.0!</h3>
+            <h3>Great!  Here's what's new in kora v3!</h3>
             <ul>
 				<li>A brand new user interface that is simple and easy to use</li>
 				<li>A personalized dashboard for getting to what's important to you faster</li>
 				<li>Improved global search to get to everything you need quicker</li>
 				<li>Revamped breadcrumb menu-bar system, and a new robust, persistent side-bar</li>
 				<li>Receive the latest update quickly and easily</li>
-				<li>Full backup system to create restore points for Kora3</li>
-				<li>Powerful tools to import your Kora 2 data into Kora3</li>
+				<li>Full backup system to create restore points for kora</li>
+				<li>Powerful tools to import your kora 2 data into kora v3</li>
 			</ul>
-			<p>But wait, there's more!  To read about all of Kora 3.0s new features, feel free to <a href="#">read our post about it here</a>.</p>
+			<p>But wait, there's more!  To read about all of kora's new features, feel free to <a href="#">read our post about it here</a>.</p>
         </div>
     </section>
     <section class="hidden" id="Permissions">
@@ -35,7 +35,7 @@
                     </a>
                 </span>
             </span>
-            <img src="{{ url('/assets/images/onboarding/permissions.png') }}" alt="Kora onboarding animated permissions picture">
+            <img src="{{ url('/assets/images/onboarding/permissions.png') }}" alt="kora onboarding animated permissions picture">
         </div>
         <div class="body onboarding">
             <h3>Do you need project permissions?</h3>

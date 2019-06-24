@@ -74,8 +74,8 @@
             </select>
         </div>
         <div class="show-options show-options-js">
-            <a href="#" class="expand-fields-js" title="Expand all fields"><i class="icon icon-expand icon-expand-js"></i></a>
-            <a href="#" class="collapse-fields-js" title="Collapse all fields"><i class="icon icon-condense icon-condense-js"></i></a>
+            <a href="#" class="tooltip expand-fields-js" tooltip="Expand all fields"><i class="icon icon-expand icon-expand-js"></i></a>
+            <a href="#" class="tooltip collapse-fields-js" tooltip="Collapse all fields"><i class="icon icon-condense icon-condense-js"></i></a>
         </div>
     </section>
       <section class="revisions revisions-js center">

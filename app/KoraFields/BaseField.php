@@ -12,7 +12,7 @@ abstract class BaseField extends Model {
     | Base Field
     |--------------------------------------------------------------------------
     |
-    | This model represents the abstract class for all typed fields in Kora3
+    | This model represents the abstract class for all typed fields in kora
     |
     */
 
@@ -92,7 +92,7 @@ abstract class BaseField extends Model {
     abstract public function validateField($flid, $field, $request, $forceReq = false);
 
     //TODO::NEWFIELD formerly createNewRecordField
-    //Must be in format of JSON export in Kora 3.0
+    //Must be in format of JSON export in kora
     /**
      * Formats data for record entry.
      *
