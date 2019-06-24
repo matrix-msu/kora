@@ -1,6 +1,7 @@
 <?php namespace App;
 
 use App\KoraFields\BaseField;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -394,6 +395,7 @@ class Form extends Model {
         $results = [];
         $jsonFields = [];
         $assocFields = [];
+        $comboFields = [];
         $assocForms = [];
         $useAssoc = false;
 
@@ -535,6 +537,8 @@ class Form extends Model {
                     $jsonFields[$tmp] = 1;
                 if($this->layout['fields'][$flid]['type'] == self::_ASSOCIATOR)
                     $assocFields[$tmp] = 1;
+                if($this->layout['fields'][$flid]['type'] == self::_COMBO_LIST)
+                    $comboFields[$tmp] = 1;
                 array_push($realNames,$name);
             }
             $flids = $realNames;
@@ -552,6 +556,8 @@ class Form extends Model {
                     $jsonFields[$tmp] = 1;
                 if($this->layout['fields'][$flid]['type'] == self::_ASSOCIATOR)
                     $assocFields[$tmp] = 1;
+                if($this->layout['fields'][$flid]['type'] == self::_COMBO_LIST)
+                    $comboFields[$tmp] = 1;
                 array_push($realFlids,$name);
             }
             $flids = $realFlids;
@@ -594,6 +600,33 @@ class Form extends Model {
                 $limitBy .= ' OFFSET '.$filters['index'];
         }
 
+        if(!empty($comboFields)){
+            // Need id later to link combo values back into results
+            $fieldString = $fieldString . ',id';
+
+            foreach(array_keys($comboFields) as $comboField) {
+                $subFields = [];
+                foreach(['one', 'two'] as $seq) {
+                    array_push($subFields, $this->layout['fields'][$comboField][$seq]['flid']);
+                }
+                $comboResults = [];
+                foreach(DB::table($comboField . $this->id)->get() as $combo) {
+                    if(empty($comboResults[$combo->record_id]))
+                        $comboResults[$combo->record_id] = [];
+
+                    foreach ($subFields as $subField) {
+                        if(empty($comboResults[$combo->record_id][$subField]))
+                            $comboResults[$combo->record_id][$subField] = [];
+                        array_push(
+                            $comboResults[$combo->record_id][$subField],
+                            $combo->{$subField}
+                        );
+                    }
+                }
+                $comboFields[$comboField] = $comboResults;
+            }
+        }
+
         $selectRecords = "SELECT $fieldString FROM ".$prefix."records_".$this->id.$subset.$orderBy.$limitBy;
 
         $records = $con->query($selectRecords);
@@ -628,6 +661,23 @@ class Form extends Model {
         $records->free();
 
         $con->close();
+
+        if(!empty($comboFields)){
+            $tmpResults = [];
+            foreach($results as $kid => $record) {
+                foreach ($comboFields as $field => $values) {
+                    foreach ($values as $id => $value) {
+                        if ($record['id'] == $id) {
+                            $record[$field] = $value;
+                            break;
+                        }
+                    }
+                }
+                unset($record['id']);
+                $tmpResults[$kid] = $record;
+            }
+            $results = $tmpResults;
+        }
 
         return $results;
     }
