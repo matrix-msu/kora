@@ -415,6 +415,8 @@ class Form extends Model {
         //BETA LINE
         if(!isset($filters['beta']))
             $filters['beta'] = false;
+        else
+            $betaMappings = array();
 
         //Some prep to make assoc searching faster
         if($filters['assoc']) {
@@ -512,9 +514,13 @@ class Form extends Model {
         } else {
             $flids = array();
             foreach($filters['fields'] as $fieldName) {
-                if($filters['beta'])
-                    $flids[] = RestfulBetaController::removeIllegalFieldCharacters($fieldName);
-                else
+                if($filters['beta']) {
+                    //This helps us remap back to the old field name if it had special characters
+                    $tmpBetaName = RestfulBetaController::removeIllegalFieldCharacters($fieldName);
+                    if($tmpBetaName!=$fieldName)
+                        $betaMappings[$tmpBetaName] = $fieldName;
+                    $flids[] = $tmpBetaName;
+                } else
                     $flids[] = fieldMapper($fieldName,$this->project_id,$this->id);
             }
         }
@@ -556,7 +562,10 @@ class Form extends Model {
                     $tmp = $mergeMappings[$flid];
                     $name = $flid . ' as `' . $tmp . '`';
                 } else {
-                    $tmp = $flid;
+                    if($filters['beta'] && isset($betaMappings[$flid])) {
+                        $tmp = $flid . ' as `' . $betaMappings[$flid] . '`';
+                    } else
+                        $tmp = $flid;
                     $name = $tmp;
                 }
                 if(in_array($this->layout['fields'][$flid]['type'], self::$jsonFields))
