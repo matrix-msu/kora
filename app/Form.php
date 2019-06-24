@@ -605,21 +605,38 @@ class Form extends Model {
             $fieldString = $fieldString . ',id';
 
             foreach(array_keys($comboFields) as $comboField) {
-                $subFields = [];
-                foreach(['one', 'two'] as $seq) {
-                    array_push($subFields, $this->layout['fields'][$comboField][$seq]['flid']);
-                }
                 $comboResults = [];
                 foreach(DB::table($comboField . $this->id)->get() as $combo) {
                     if(empty($comboResults[$combo->record_id]))
                         $comboResults[$combo->record_id] = [];
 
-                    foreach ($subFields as $subField) {
-                        if(empty($comboResults[$combo->record_id][$subField]))
-                            $comboResults[$combo->record_id][$subField] = [];
+                    foreach(['one', 'two'] as $seq) {
+                        $subField = $this->layout['fields'][$comboField][$seq];
+                        $subFlid = $subField['flid'];
+                        $subType = $subField['type'];
+
+                        if(empty($comboResults[$combo->record_id][$subFlid]))
+                            $comboResults[$combo->record_id][$subFlid] = [];
+                        $value = $combo->{$subFlid};
+                        if(in_array($subType, self::$jsonFields)) {
+                            $value = json_decode($combo->{$subFlid}, true);
+                        } else if($subType == self::_ASSOCIATOR) {
+                            $parts = explode('-',$value);
+                            $aForm = $assocForms[$parts[1]];
+                            $data = DB::table("records_".$aForm['id'])
+                                ->pluck($aForm['fieldString'])
+                                ->where('rid', $parts[2])
+                                ->first();
+                            $data = $data->{$aForm['fieldString']};
+                            if(array_key_exists($subFlid,$aForm['jsonFields']))
+                                $value = json_decode($data,true);
+                            else
+                                $value = $data;
+                        }
+
                         array_push(
-                            $comboResults[$combo->record_id][$subField],
-                            $combo->{$subField}
+                            $comboResults[$combo->record_id][$subFlid],
+                            $value
                         );
                     }
                 }
