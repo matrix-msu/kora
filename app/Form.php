@@ -563,10 +563,12 @@ class Form extends Model {
                     $name = $flid . ' as `' . $tmp . '`';
                 } else {
                     if($filters['beta'] && isset($betaMappings[$flid])) {
-                        $tmp = $flid . ' as `' . $betaMappings[$flid] . '`';
-                    } else
+                        $tmp = $betaMappings[$flid];
+                        $name = $flid . ' as `' . $tmp . '`';
+                    } else {
                         $tmp = $flid;
-                    $name = $tmp;
+                        $name = $tmp;
+                    }
                 }
                 if(in_array($this->layout['fields'][$flid]['type'], self::$jsonFields))
                     $jsonFields[$tmp] = 1;
