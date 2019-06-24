@@ -459,11 +459,13 @@ class RestfulBetaController extends Controller {
 
                     //takes care of converting slugs to flids
                     foreach($query->fields as $qfield) {
+                        $qfield = RestfulBetaController::removeIllegalFieldCharacters($qfield);
+                        
                         if(!isset($form->layout['fields'][$qfield])) {
                             array_push($this->minorErrors, "The following field in keyword search is not apart of the requested form: " . $this->cleanseOutput($qfield));
                             continue;
                         }
-                        $qfield = RestfulBetaController::removeIllegalFieldCharacters($qfield);
+
                         $fieldMod = $form->layout['fields'][$qfield];
 
                         if(!$fieldMod['external_search']) {
