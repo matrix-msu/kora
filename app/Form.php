@@ -578,8 +578,13 @@ class Form extends Model {
                     $jsonFields[$tmp] = 1;
                 if($this->layout['fields'][$flid]['type'] == self::_ASSOCIATOR)
                     $assocFields[$tmp] = 1;
-                if($this->layout['fields'][$flid]['type'] == self::_COMBO_LIST)
-                    $comboFields[$tmp] = 1;
+                if($this->layout['fields'][$flid]['type'] == self::_COMBO_LIST) {
+                    $subFields = [];
+                    foreach (['one', 'two'] as $seq) {
+                        array_push($subFields, $this->layout['fields'][$tmp][$seq]['flid']);
+                    }
+                    $comboFields[$tmp] = implode(',', $subFields);
+                }
                 array_push($realFlids,$name);
             }
             $flids = $realFlids;
@@ -625,50 +630,6 @@ class Form extends Model {
                 $limitBy .= ' OFFSET '.$filters['index'];
         }
 
-        if(!empty($comboFields)){
-            // Need id later to link combo values back into results
-            $fieldString = $fieldString . ',id';
-
-            foreach(array_keys($comboFields) as $comboField) {
-                $comboResults = [];
-                foreach(DB::table($comboField . $this->id)->get() as $combo) {
-                    if(empty($comboResults[$combo->record_id]))
-                        $comboResults[$combo->record_id] = [];
-
-                    foreach(['one', 'two'] as $seq) {
-                        $subField = $this->layout['fields'][$comboField][$seq];
-                        $subFlid = $subField['flid'];
-                        $subType = $subField['type'];
-
-                        if(empty($comboResults[$combo->record_id][$subFlid]))
-                            $comboResults[$combo->record_id][$subFlid] = [];
-                        $value = $combo->{$subFlid};
-                        if(in_array($subType, self::$jsonFields)) {
-                            $value = json_decode($combo->{$subFlid}, true);
-                        } else if($subType == self::_ASSOCIATOR) {
-                            $parts = explode('-',$value);
-                            $aForm = $assocForms[$parts[1]];
-                            $data = DB::table("records_".$aForm['id'])
-                                ->pluck($aForm['fieldString'])
-                                ->where('rid', $parts[2])
-                                ->first();
-                            $data = $data->{$aForm['fieldString']};
-                            if(array_key_exists($subFlid,$aForm['jsonFields']))
-                                $value = json_decode($data,true);
-                            else
-                                $value = $data;
-                        }
-
-                        array_push(
-                            $comboResults[$combo->record_id][$subFlid],
-                            $value
-                        );
-                    }
-                }
-                $comboFields[$comboField] = $comboResults;
-            }
-        }
-
         $selectRecords = "SELECT $fieldString FROM ".$prefix."records_".$this->id.$subset.$orderBy.$limitBy;
 
         $records = $con->query($selectRecords);
@@ -687,6 +648,14 @@ class Form extends Model {
                             else
                                 $result[$column][$aKid] = $this->getAssocRecord($parts[2], $aForm, $con, $prefix);
                         }
+                    }
+                } else if(array_key_exists($column,$comboFields)){
+                    $comboIds = json_decode($data, true);
+                    if($comboIds !== NULL) {
+                        if($filters['beta'])
+                            $result[$column]['value'] = $this->getComboRecord($comboIds, $con, $prefix, $comboFields, $this->id);
+                        else
+                            $result[$column] = $this->getComboRecord($comboIds, $con, $prefix, $comboFields, $this->id);
                     }
                 } else if(array_key_exists($column,$jsonFields)) { //array key search is faster than in array so that's why we use it here
                     if($filters['beta'])
@@ -713,23 +682,7 @@ class Form extends Model {
         $records->free();
 
         $con->close();
-
-        if(!empty($comboFields)){
-            $tmpResults = [];
-            foreach($results as $kid => $record) {
-                foreach ($comboFields as $field => $values) {
-                    foreach ($values as $id => $value) {
-                        if ($record['id'] == $id) {
-                            $record[$field] = $value;
-                            break;
-                        }
-                    }
-                }
-                unset($record['id']);
-                $tmpResults[$kid] = $record;
-            }
-            $results = $tmpResults;
-        }
+        dd($results);
 
         return $results;
     }
@@ -783,6 +736,34 @@ class Form extends Model {
         $records->free();
 
         return $result;
+    }
+
+    private function getComboRecord($comboIds, $con, $prefix, $cForm, $formId) {
+        $result = [];
+        $comboField = key($cForm);
+        $fieldString = $cForm[$comboField];
+        $comboIds = implode(',', $comboIds);
+
+        $selectRecords = "SELECT $fieldString FROM ".$prefix.$comboField.$formId." WHERE FIND_IN_SET(`id`, '$comboIds')";
+        // dd($selectRecords);
+
+        $records = $con->query($selectRecords);
+        while($row = $records->fetch_assoc()) {
+            foreach($row as $column => $data) {
+                if(empty($result[$column]))
+                    $result[$column] = [];
+                array_push($result[$column], $data);
+            //     if(array_key_exists($column,$jsonFields)) //array key search is faster than in array so that's why we use it here
+            //         $result[$column]['value'] = json_decode($data,true);
+            //     else
+            //         $result[$column]['value'] = $data;
+            }
+        }
+        $records->free();
+        // dd($result);
+
+        return $result;
+
     }
 
     /**
