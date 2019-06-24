@@ -21,7 +21,7 @@
         </a>
       </li>
 
-      @if(\Auth::user()->admin==1)
+      @if(!is_null(\Auth::user()) && \Auth::user()->admin==1)
         <li class="content-link content-link-js" data-page="project-create">
           <a href="{{ url('/projects/create') }}">Create New Project</a>
         </li>
@@ -60,7 +60,7 @@
         </li>
       @endif
 	  
-	  @if(\Auth::user()->admin==0)
+	  @if(!is_null(\Auth::user()) && \Auth::user()->admin==0)
 	  <li class="content-link request-permissions-js">
         <a class="project-request-perms-js" href="#">Request Project Permissions</a>
       </li>
