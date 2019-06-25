@@ -746,6 +746,8 @@ class Form extends Model {
         //BETA LINE
         if(!isset($filters['beta']))
             $filters['beta'] = false;
+        else
+            $betaMappings = array();
 
         $fields = ['kid','legacy_kid','updated_at','owner'];
         $fieldToModel = [];
@@ -764,9 +766,13 @@ class Form extends Model {
         } else {
             $flids = array();
             foreach($filters['fields'] as $fieldName) {
-                if($filters['beta'])
-                    $flids[] = RestfulBetaController::removeIllegalFieldCharacters($fieldName);
-                else
+                if($filters['beta']) {
+                    //This helps us remap back to the old field name if it had special characters
+                    $tmpBetaName = RestfulBetaController::removeIllegalFieldCharacters($fieldName);
+                    if($tmpBetaName != $fieldName)
+                        $betaMappings[$tmpBetaName] = $fieldName;
+                    $flids[] = $tmpBetaName;
+                } else
                     $flids[] = fieldMapper($fieldName,$this->project_id,$this->id);
             }
         }
@@ -839,7 +845,10 @@ class Form extends Model {
                     if(is_null($value))
                        $value = '';
 
-                    $results[$kid][$fieldToRealName[$index]] = $fieldToModel[$index]->processLegacyData($value);
+                    if($filters['beta'] && isset($betaMappings[$index]))
+                        $results[$kid][$betaMappings[$index]] = $fieldToModel[$index]->processLegacyData($value);
+                    else
+                        $results[$kid][$fieldToRealName[$index]] = $fieldToModel[$index]->processLegacyData($value);
                 }
             }
 
