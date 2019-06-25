@@ -30,14 +30,19 @@
   <label>Profile Image</label>
   <input type="file" accept="image/*" name="profile" id="profile" class="profile-input" />
   <label for="profile" class="profile-label">
-      @if ($user->profile)
-        <div class="icon-user-cont"><img src="{{ $user->getProfilePicUrl() }}" alt='Profile Picture'></div>
+      @php
+          $imgpath = storage_path('app/profiles/' . $user->id . '/' . $user->preferences['profile_pic']);
+          $imgurl = $user->getProfilePicUrl();
+          $photoExists = File::exists($imgpath);
+      @endphp
+      @if($photoExists)
+        <div class="icon-user-cont"><img src="{{ $imgurl }}" alt='Profile Picture'></div>
         <p class="filename">{{ $user->getProfilePicFilename() }}</p>
       @else
         <div class="icon-user-cont"><i class="icon icon-user"></i></div>
         <p class="filename">Add a photo to help others identify you</p>
       @endif
-    <p class="instruction mb-0 @if($user->preferences['profile_pic']) photo-selected @endif">
+    <p class="instruction mb-0 @if($photoExists) photo-selected @endif">
       <span class="dd">Drag and Drop or Select a Photo here</span>
       <span class="no-dd">Select a Photo here</span>
       <span class="select-new">Select a Different Photo?</span>

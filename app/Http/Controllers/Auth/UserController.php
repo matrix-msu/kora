@@ -534,7 +534,9 @@ class UserController extends Controller {
         //set new pic to db
         $newFilename = $file->getClientOriginalName();
 
-        $user->preferences['profile_pic'] = $newFilename;
+        $prefs = $user->preferences;
+        $prefs['profile_pic'] = $newFilename;
+        $user->preferences = $prefs;
         $user->save();
 
         //move photo and return new path
