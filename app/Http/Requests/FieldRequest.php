@@ -31,6 +31,7 @@ class FieldRequest extends Request {
             'fid' => 'required|numeric',
             'type' => 'required',
             'name' => 'required|min:3|max:60|regex:/^[a-zA-Z0-9\s]+$/',
+            'altName' => 'min:3|max:60|regex:/^[a-zA-Z0-9\s]+$/',
             'desc' => 'required|max:500',
             'cfname1' =>'required_if:type,Combo List',
             'cfname2' =>'required_if:type,Combo List'

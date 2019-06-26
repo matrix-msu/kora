@@ -124,7 +124,7 @@ class RestfulBetaController extends Controller {
         if(!self::isValidFormat($apiFormat))
             return response()->json(["status"=>false,"error"=>"Invalid format provided"],500);
 
-        //check for global //TODO::CASTLE Do we want to convert these?
+        //check for global
         $globalRecords = array();
         $globalForms = array();
         //Merge will combine the results and let you maps field names together.
@@ -279,7 +279,7 @@ class RestfulBetaController extends Controller {
             }
         }
 
-        if($globalMerge) { //TODO::CASTLE First need to decide if it's needed
+        if($globalMerge) {
             $final = [];
             foreach($resultsGlobal as $result) {
                 $final = array_merge($final,$result);
@@ -290,7 +290,7 @@ class RestfulBetaController extends Controller {
         }
 
         //Handle any global sorting
-        if($globalSort) { //TODO::CASTLE First need to decide if it's needed
+        if($globalSort) {
             $globalSortedResults = array();
 
             //Build and run the query to get the KIDs in proper order

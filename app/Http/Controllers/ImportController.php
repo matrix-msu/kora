@@ -844,6 +844,7 @@ class ImportController extends Controller {
                         $field = array();
                         $field['type'] = $newType;
                         $field['name'] = preg_replace("/[^A-Za-z0-9 ]/", ' ', $name);
+                        $field['alt_name'] = '';
                         $newFlid = str_replace(" ","_", $field['name']).'_'.$form->project_id.'_'.$form->id.'_';
 
                         //Add it to the appropriate page

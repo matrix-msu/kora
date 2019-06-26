@@ -599,7 +599,7 @@ class UserController extends Controller {
 
             \Auth::login($user);
 
-            $this->makeDefaultProject($user);
+            //$this->makeDefaultProject($user);
 
             return redirect('/');
         } else {
@@ -629,7 +629,7 @@ class UserController extends Controller {
             $user->active = 1;
             $user->save();
 
-            $this->makeDefaultProject($user);
+            //$this->makeDefaultProject($user);
 
             return redirect('/');
         }

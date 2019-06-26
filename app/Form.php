@@ -441,34 +441,24 @@ class Form extends Model {
 
                 //Get the real names of fields
                 //Also check for json types
-                if($filters['realnames']) {
-                    $realNames = [];
-                    foreach($flids as $flid) {
-                        //Since this is mostly used on the API, we can force external view on fields
-                        if(!$aLayout['fields'][$flid]['external_view'])
-                            continue;
-                        if($allowedAssocFields != 'ALL' && !in_array($flid,$allowedAssocFields))
-                            continue;
+                $realNames = [];
+                foreach($flids as $flid) {
+                    //Since this is mostly used on the API, we can force external view on fields
+                    if(!$aLayout['fields'][$flid]['external_view'])
+                        continue;
+                    if($allowedAssocFields != 'ALL' && !in_array($flid,$allowedAssocFields))
+                        continue;
 
+                    if($filters['altNames'] && $aLayout['fields'][$flid]['alt_name'] != '')
+                        $name = $flid.' as `'.$aLayout['fields'][$flid]['alt_name'].'`';
+                    else
                         $name = $flid.' as `'.$aLayout['fields'][$flid]['name'].'`';
-                        //We do this in realnames because the flid gets us the type to check if its JSON, but it will be compared against the DB result which will have real names instead of flid
-                        if(in_array($aLayout['fields'][$flid]['type'], self::$jsonFields))
-                            $aJsonFields[$name] = 1;
-                        array_push($realNames,$name);
-                    }
-                    $flids = $realNames;
-                } else {
-                    foreach($flids as $flid) {
-                        //Since this is mostly used on the API, we can force external view on fields
-                        if(!$aLayout['fields'][$flid]['external_view'])
-                            continue;
-                        if($allowedAssocFields != 'ALL' && !in_array($flid,$allowedAssocFields))
-                            continue;
-
-                        if(in_array($aLayout['fields'][$flid]['type'], self::$jsonFields))
-                            $aJsonFields[$flid] = 1;
-                    }
+                    //We do this in realnames because the flid gets us the type to check if its JSON, but it will be compared against the DB result which will have real names instead of flid
+                    if(in_array($aLayout['fields'][$flid]['type'], self::$jsonFields))
+                        $aJsonFields[$name] = 1;
+                    array_push($realNames,$name);
                 }
+                $flids = $realNames;
 
                 //Determine whether to return data
                 $fields = array_merge($flids,$fields);
@@ -521,42 +511,26 @@ class Form extends Model {
         }
         //Get the real names of fields
         //Also check for json types
-        if($filters['realnames']) {
-            $realNames = [];
-            foreach($flids as $flid) {
-                if(!empty($mergeMappings) && isset($mergeMappings[$flid])) {
-                    $tmp = $mergeMappings[$flid];
-                    $name = $flid . ' as `' . $tmp . '`';
-                } else {
+        $realNames = [];
+        foreach($flids as $flid) {
+            if(!empty($mergeMappings) && isset($mergeMappings[$flid])) {
+                $tmp = $mergeMappings[$flid];
+                $name = $flid . ' as `' . $tmp . '`';
+            } else {
+                if($filters['altNames'] && $this->layout['fields'][$flid]['alt_name'] != '')
+                    $tmp = $this->layout['fields'][$flid]['alt_name'];
+                else
                     $tmp = $this->layout['fields'][$flid]['name'];
-                    $name = $flid . ' as `' . $tmp . '`';
-                }
-                //We do this in realnames because the flid gets us the type to check if its JSON, but it will be compared against the DB result which will have real names instead of flid
-                if(in_array($this->layout['fields'][$flid]['type'], self::$jsonFields))
-                    $jsonFields[$tmp] = 1;
-                if($this->layout['fields'][$flid]['type'] == self::_ASSOCIATOR)
-                    $assocFields[$tmp] = 1;
-                array_push($realNames,$name);
+                $name = $flid . ' as `' . $tmp . '`';
             }
-            $flids = $realNames;
-        } else {
-            $realFlids = [];
-            foreach($flids as $flid) {
-                if(!empty($mergeMappings) && isset($mergeMappings[$flid])) {
-                    $tmp = $mergeMappings[$flid];
-                    $name = $flid . ' as `' . $tmp . '`';
-                } else {
-                    $tmp = $flid;
-                    $name = $tmp;
-                }
-                if(in_array($this->layout['fields'][$flid]['type'], self::$jsonFields))
-                    $jsonFields[$tmp] = 1;
-                if($this->layout['fields'][$flid]['type'] == self::_ASSOCIATOR)
-                    $assocFields[$tmp] = 1;
-                array_push($realFlids,$name);
-            }
-            $flids = $realFlids;
+            //We do this in realnames because the flid gets us the type to check if its JSON, but it will be compared against the DB result which will have real names instead of flid
+            if(in_array($this->layout['fields'][$flid]['type'], self::$jsonFields))
+                $jsonFields[$tmp] = 1;
+            if($this->layout['fields'][$flid]['type'] == self::_ASSOCIATOR)
+                $assocFields[$tmp] = 1;
+            array_push($realNames,$name);
         }
+        $flids = $realNames;
 
         //Determine whether to return data
         if($filters['data'])

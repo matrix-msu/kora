@@ -70,6 +70,7 @@ class FieldController extends Controller {
         //Fill out its data
         $field['type'] = $request->type;
         $field['name'] = $request->name;
+        $field['alt_name'] = $request->altName;
         $field['description'] = $request->desc;
         $field['default'] = null;
         $field['required'] = isset($request->required) && $request->required ? 1 : 0;
@@ -224,6 +225,7 @@ class FieldController extends Controller {
         $form = FormController::getForm($fid);
 
         $field['name'] = $request->name;
+        $field['alt_name'] = $request->altName;
         $newFlid = str_replace(" ","_", $request->name).'_'.$form->project_id.'_'.$form->id.'_';
 
         $field['description'] = $request->desc;
