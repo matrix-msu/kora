@@ -778,6 +778,20 @@ class Form extends Model {
             }
         }
 
+        //Before assigning fields, prep merge if it exists
+        $mergeMappings = [];
+        if($filters['beta'] && array_key_exists('merge', $filters) && !is_null($filters['merge'])){
+            foreach($filters['merge'] as $newName => $mergeFields) {
+                foreach($mergeFields as $mergeField) {
+                    if($filters['beta'])
+                        $mergeFlid = $mergeField;
+                    else
+                        $mergeFlid = fieldMapper($mergeField,$this->project_id,$this->id);
+                    $mergeMappings[$mergeFlid] = $newName;
+                }
+            }
+        }
+
         $fields = array_merge($flids,$fields);
         $fieldString = implode(',',$fields);
 
@@ -846,7 +860,9 @@ class Form extends Model {
                     if(is_null($value))
                        $value = '';
 
-                    if($filters['beta'] && isset($betaMappings[$index]))
+                    if($filters['beta'] && isset($mergeMappings[$index]))
+                        $results[$kid][$mergeMappings[$index]] = $fieldToModel[$index]->processLegacyData($value);
+                    else if($filters['beta'] && isset($betaMappings[$index]))
                         $results[$kid][$betaMappings[$index]] = $fieldToModel[$index]->processLegacyData($value);
                     else
                         $results[$kid][$fieldToRealName[$index]] = $fieldToModel[$index]->processLegacyData($value);
