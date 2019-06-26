@@ -604,7 +604,7 @@ class Form extends Model {
                 if($this->layout['fields'][$flid]['type'] == self::_ASSOCIATOR)
                     $assocFields[$tmp] = 1;
                 if($this->layout['fields'][$flid]['type'] == self::_COMBO_LIST) {
-                    $comboFields[$tmp] = 1
+                    $comboFields[$tmp] = 1;
                     $subFields = [];
                     $comboInfo[$tmp]['jsonFields'] = [];
                     $comboInfo[$tmp]['assocFields'] = [];
