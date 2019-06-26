@@ -187,7 +187,7 @@
 
 <div class="email">
     <div class="header max-width-large">
-        <img src="{{ url('assets/logos/k3Dummy.jpg') }}" alt="Logo" title="Logo">
+        <img src="{{ url('assets/logos/logo_green_text_dark.svg') }}" alt="Logo" title="Logo">
     </div>
 
     <div class="content max-width-regular">

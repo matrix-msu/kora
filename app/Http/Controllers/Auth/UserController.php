@@ -647,6 +647,10 @@ class UserController extends Controller {
             \Auth::logout(\Auth::user()->id);
 
         $user = User::where('regtoken', '=', $token)->first();
+
+        if(is_null($user))
+            return redirect('/')->with('status', 'bad_activation_token');
+
         \Auth::login($user);
 
         if($token != $user->regtoken)

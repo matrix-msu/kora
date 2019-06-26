@@ -3,7 +3,7 @@
 @section('body')
 <div class="content">
   <div class="form-container center">
-    <div class="logo"></div>
+    <img class="logo" src="{{ url('assets/logos/logo_green_text_dark.svg') }}">
     <section class="head">
       <h1 class="title">Welcome to Kora!</h1>
       <h3 class="sub-title">Let's set up your account.</h3>

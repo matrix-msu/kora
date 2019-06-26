@@ -3,9 +3,7 @@
 @section('body')
     <div class="content-install">
         <div class="form-container py-100-xl ma-auto">
-            <div>
-                <img src="{{ url('assets/logos/koraiii-logo-blue.svg') }}">
-            </div>
+            <img class="logo" src="{{ url('assets/logos/logo_green_text_dark.svg') }}">
 
             <div class="kora3 mt-xxl">
                 kora

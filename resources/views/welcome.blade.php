@@ -4,7 +4,7 @@
 @include('partials.projects.notification')
 <div class="content">
   <div class="form-container center">
-    <img class="logo" src="{{ url('assets/logos/koraiii-logo-blue.svg') }}">
+    <img class="logo" src="{{ url('assets/logos/logo_green_text_dark.svg') }}">
 
     <div>
       <form class="form-horizontal" role="form" method="POST" action="{{ url('/login') }}">

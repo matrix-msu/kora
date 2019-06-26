@@ -12,7 +12,7 @@
 <div class="install-success">
     <section class="last-steps">
         <div class="last-desc">
-            <img class="logo mt-xxxl" src="{{ url('assets/logos/koraiii-logo-blue.svg') }}">
+            <img class="logo mt-xxxl" src="{{ url('assets/logos/logo_green_text_dark.svg') }}">
             <div class="title mt-xxxl">kora</div>
             <div class="sub-title mt-xl">Initialization Complete</div>
             <div class="description mt-m">
