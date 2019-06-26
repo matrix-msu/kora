@@ -530,7 +530,10 @@ class Form extends Model {
         if(array_key_exists('merge', $filters) && !is_null($filters['merge'])){
             foreach($filters['merge'] as $newName => $mergeFields) {
                 foreach($mergeFields as $mergeField) {
-                    $mergeFlid = fieldMapper($mergeField,$this->project_id,$this->id);
+                    if($filters['beta'])
+                        $mergeFlid = $mergeField;
+                    else
+                        $mergeFlid = fieldMapper($mergeField,$this->project_id,$this->id);
                     $mergeMappings[$mergeFlid] = $newName;
                 }
             }
@@ -561,14 +564,12 @@ class Form extends Model {
                 if(!empty($mergeMappings) && isset($mergeMappings[$flid])) {
                     $tmp = $mergeMappings[$flid];
                     $name = $flid . ' as `' . $tmp . '`';
+                } else if($filters['beta'] && isset($betaMappings[$flid])) {
+                    $tmp = $betaMappings[$flid];
+                    $name = $flid . ' as `' . $tmp . '`';
                 } else {
-                    if($filters['beta'] && isset($betaMappings[$flid])) {
-                        $tmp = $betaMappings[$flid];
-                        $name = $flid . ' as `' . $tmp . '`';
-                    } else {
-                        $tmp = $flid;
-                        $name = $tmp;
-                    }
+                    $tmp = $flid;
+                    $name = $tmp;
                 }
                 if(in_array($this->layout['fields'][$flid]['type'], self::$jsonFields))
                     $jsonFields[$tmp] = 1;
