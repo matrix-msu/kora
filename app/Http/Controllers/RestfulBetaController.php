@@ -124,7 +124,7 @@ class RestfulBetaController extends Controller {
         if(!self::isValidFormat($apiFormat))
             return response()->json(["status"=>false,"error"=>"Invalid format provided"],500);
 
-        //check for global //TODO::CASTLE Do we want to convert these?
+        //check for global
         $globalRecords = array();
         $globalForms = array();
         //Merge will combine the results and let you maps field names together.
@@ -212,9 +212,9 @@ class RestfulBetaController extends Controller {
                 if($apiFormat==self::XML)
                     $records = $form->getRecordsForExportXML($filters);
                 else if($apiFormat==self::KORA)
-                    $records = $form->getRecordsForExportLegacy($filters);
+                    $records = $form->getRecordsForExportLegacyBeta($filters);
                 else
-                    $records = $form->getRecordsForExport($filters);
+                    $records = $form->getRecordsForExportBeta($filters);
 
                 if($filters['size']) {
                     if($apiFormat==self::XML) //Since the return XML is a string. We'll just get the record count manually.
@@ -256,9 +256,9 @@ class RestfulBetaController extends Controller {
                 if($apiFormat==self::XML)
                     $records = $form->getRecordsForExportXML($filters,$returnRIDS);
                 else if($apiFormat==self::KORA)
-                    $records = $form->getRecordsForExportLegacy($filters,$returnRIDS);
+                    $records = $form->getRecordsForExportLegacyBeta($filters,$returnRIDS);
                 else
-                    $records = $form->getRecordsForExport($filters,$returnRIDS);
+                    $records = $form->getRecordsForExportBeta($filters,$returnRIDS);
 
                 if($filters['size']) {
                     $cnt = sizeof($returnRIDS);
@@ -279,7 +279,7 @@ class RestfulBetaController extends Controller {
             }
         }
 
-        if($globalMerge) { //TODO::CASTLE First need to decide if it's needed
+        if($globalMerge) {
             $final = [];
             foreach($resultsGlobal as $result) {
                 $final = array_merge($final,$result);
@@ -290,7 +290,7 @@ class RestfulBetaController extends Controller {
         }
 
         //Handle any global sorting
-        if($globalSort) { //TODO::CASTLE First need to decide if it's needed
+        if($globalSort) {
             $globalSortedResults = array();
 
             //Build and run the query to get the KIDs in proper order

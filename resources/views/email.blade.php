@@ -138,7 +138,7 @@
         }
 
         .email > .content > .post-action-text > a {
-            font-family: 'Ubuntu-medium', sans-serif;
+            font-weight: 500;
         }
 
         .email > .content > .line {

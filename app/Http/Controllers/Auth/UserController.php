@@ -534,7 +534,9 @@ class UserController extends Controller {
         //set new pic to db
         $newFilename = $file->getClientOriginalName();
 
-        $user->preferences['profile_pic'] = $newFilename;
+        $prefs = $user->preferences;
+        $prefs['profile_pic'] = $newFilename;
+        $user->preferences = $prefs;
         $user->save();
 
         //move photo and return new path
@@ -597,7 +599,7 @@ class UserController extends Controller {
 
             \Auth::login($user);
 
-            $this->makeDefaultProject($user);
+            //$this->makeDefaultProject($user);
 
             return redirect('/');
         } else {
@@ -627,7 +629,7 @@ class UserController extends Controller {
             $user->active = 1;
             $user->save();
 
-            $this->makeDefaultProject($user);
+            //$this->makeDefaultProject($user);
 
             return redirect('/');
         }

@@ -225,6 +225,8 @@ class RestfulController extends Controller {
                 return response()->json(["status"=>false,"error"=>"Invalid Form: ".$this->cleanseOutput($f->form)],500);
 
             //Authentication failed
+            if(!isset($f->bearer_token))
+                return response()->json(["status"=>false,"error"=>"No search token provided for form: ".$this->cleanseOutput($f->form)],500);
             if(!$this->validateToken($form->project_id,$f->bearer_token,"search"))
                 return response()->json(["status"=>false,"error"=>"Invalid search token provided for form: ".$this->cleanseOutput($f->form)],500);
         }
@@ -248,8 +250,8 @@ class RestfulController extends Controller {
             $filters['data'] = isset($f->data) && is_bool($f->data) ? $f->data : true; //do we want data, or just info about the records theme selves
             $filters['meta'] = isset($f->meta) && is_bool($f->meta) ? $f->meta : true; //get meta data about record
             $filters['size'] = isset($f->size) && is_bool($f->size) ? $f->size : false; //do we want the number of records in the search result returned instead of data
-            $filters['realnames'] = isset($f->real_names) && is_bool($f->real_names) ? $f->real_names : true; //do we want records indexed by titles rather than flids
             $filters['fields'] = isset($f->return_fields) && is_array($f->return_fields) ? $f->return_fields : 'ALL'; //which fields do we want data for
+            $filters['altNames'] = isset($f->alt_names) && is_bool($f->alt_names) ? $f->alt_names : false; //Use alternative field names in returned results
             $filters['assoc'] = isset($f->assoc) && is_bool($f->assoc) ? $f->assoc : false; //do we want information back about associated records
             $filters['assocFlids'] = isset($f->assoc_fields) && is_array($f->assoc_fields) ? $f->assoc_fields : 'ALL'; //What fields should associated records return? Should be array
             $filters['revAssoc'] = isset($f->reverse_assoc) && is_bool($f->reverse_assoc) ? $f->reverse_assoc : true; //do we want information back about reverse associations for XML OUTPUT

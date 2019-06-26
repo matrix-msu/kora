@@ -1,10 +1,10 @@
 <li class="navigation-profile">
   <a href="#" class="profile-toggle navigation-toggle-js">
     @php
-      $imgpath = 'app/profiles/' . \Auth::user()->id . '/' . \Auth::user()->preferences['profile_pic'];
+      $imgpath = storage_path('app/profiles/' . \Auth::user()->id . '/' . \Auth::user()->preferences['profile_pic']);
       $imgurl = \Auth::user()->getProfilePicUrl();
     @endphp
-    @if(File::exists( public_path('app/' . $imgpath) ))
+    @if(File::exists($imgpath))
       <img class="profile-picture" src="{{url($imgurl)}}">
     @else
       <i class="icon icon-user-little"></i>

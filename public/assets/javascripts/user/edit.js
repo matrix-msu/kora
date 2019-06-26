@@ -13,8 +13,8 @@ Kora.User.Edit = function() {
   }
 
   function initializePasswordChange() {
-    var newPassword = $("#new_password");
-    var confirmPassword = $("#confirm");
+    var newPassword = $("#password");
+    var confirmPassword = $("#password_confirmation");
 
     // Initially disable confirm password
     confirmPassword.prop("disabled", true);
@@ -70,32 +70,6 @@ Kora.User.Edit = function() {
           }
         });
       });
-
-
-      //$('.user-cleanup-submit').click(function(e) {
-      //  e.preventDefault();
-      //
-      //  var deleteForm = $(this).parent();
-      //  var actionURL = deleteForm.attr("action");
-      //  var method = deleteForm.attr("method");
-      //
-      //    // Insert user id into delete URL
-      //  var pos = actionURL.indexOf('/delete')
-      //  actionURL = [actionURL.slice(0, pos), userid, actionURL.slice(pos)].join('');
-      //
-      //  $.ajax({
-      //    url: actionURL,
-      //    type: method,
-      //    data: deleteForm.serialize(),
-      //    datatype: 'json',
-      //    success: function(data) {
-      //      window.location = redirectUrl;
-      //    },
-      //    error: function(data) {
-      //      //location.reload();
-      //    }
-      //  });
-      //});
     });
   }
 

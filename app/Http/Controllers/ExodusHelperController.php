@@ -362,6 +362,7 @@ class ExodusHelperController extends Controller {
                 $field = array();
                 $field['type'] = $newType;
                 $field['name'] = $this->renameFields($c['name']);
+                $field['alt_name'] = '';
                 $newFlid = str_replace(" ","_", $field['name']).'_'.$newForm->project_id.'_'.$newForm->id.'_';
 
                 //Add it to the appropriate page

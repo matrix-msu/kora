@@ -43,10 +43,12 @@
   </div>
 
   <div class="content content-js {{ $index == 0 ? 'active' : '' }}">
+      @if($field['alt_name']!='')
     <div class="id">
-      <span class="attribute">Unique Field ID: </span>
-      <span>{{$flid}}</span>
+      <span class="attribute">Alternative Name: </span>
+      <span>{{$field['alt_name']}}</span>
     </div>
+      @endif
 
     <div class="description">
       {{$field['description']}}

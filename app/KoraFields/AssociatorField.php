@@ -258,7 +258,7 @@ class AssociatorField extends BaseField {
      * @return mixed - Processed data
      */
     public function processLegacyData($value) {
-        return $value;
+        return json_decode($value,true);
     }
 
     /**
