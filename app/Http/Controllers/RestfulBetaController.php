@@ -212,9 +212,9 @@ class RestfulBetaController extends Controller {
                 if($apiFormat==self::XML)
                     $records = $form->getRecordsForExportXML($filters);
                 else if($apiFormat==self::KORA)
-                    $records = $form->getRecordsForExportLegacy($filters);
+                    $records = $form->getRecordsForExportLegacyBeta($filters);
                 else
-                    $records = $form->getRecordsForExport($filters);
+                    $records = $form->getRecordsForExportBeta($filters);
 
                 if($filters['size']) {
                     if($apiFormat==self::XML) //Since the return XML is a string. We'll just get the record count manually.
@@ -256,9 +256,9 @@ class RestfulBetaController extends Controller {
                 if($apiFormat==self::XML)
                     $records = $form->getRecordsForExportXML($filters,$returnRIDS);
                 else if($apiFormat==self::KORA)
-                    $records = $form->getRecordsForExportLegacy($filters,$returnRIDS);
+                    $records = $form->getRecordsForExportLegacyBeta($filters,$returnRIDS);
                 else
-                    $records = $form->getRecordsForExport($filters,$returnRIDS);
+                    $records = $form->getRecordsForExportBeta($filters,$returnRIDS);
 
                 if($filters['size']) {
                     $cnt = sizeof($returnRIDS);
