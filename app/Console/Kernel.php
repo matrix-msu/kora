@@ -11,7 +11,6 @@ class Kernel extends ConsoleKernel {
 	 * @var array
 	 */
 	protected $commands = [
-		'App\Console\Commands\AltNameFix',
 		'App\Console\Commands\ExodusScript',
         'App\Console\Commands\GenerateThumbs',
         'App\Console\Commands\Inspire',
