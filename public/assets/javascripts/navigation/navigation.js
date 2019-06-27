@@ -472,7 +472,7 @@ function initializeRequestProjectPermissionsModal()
 				  error: function(result) {
                       $('.note').children('p').text('Project permissions request failed!');
                       $('.note').children('p').addClass('with-description');
-                      $('.note').children('span').text('Please contact your Kora3 administrator.');
+                      $('.note').children('span').text('Please contact your kora administrator.');
                       $('.note').children('span').addClass('note-description');
                       $('.notification').addClass('static-js');
                       $('.notification').addClass('warning');

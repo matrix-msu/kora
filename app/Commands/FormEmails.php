@@ -36,7 +36,7 @@ class FormEmails extends MailCommand implements ShouldQueue {
                     Mail::send('emails.request.assoc', compact('myForm', 'myProj', 'thierForm', 'thierProj'), function ($message) use ($user) {
                         $message->from(config('mail.from.address'));
                         $message->to($user->email);
-                        $message->subject('Kora Form Association Request');
+                        $message->subject('kora Form Association Request');
                     });
                 } catch(\Exception $e) {
                     Log::error("Form Association Request Email Failed!!!");

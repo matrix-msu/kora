@@ -11,7 +11,7 @@ class GalleryField extends FileTypeField {
     | Gallery Field
     |--------------------------------------------------------------------------
     |
-    | This model represents the gallery field in Kora3
+    | This model represents the gallery field in kora
     |
     | NOTE: Because of caption data associated with the gallery field, some
     | parent functions are overwritten.
@@ -324,7 +324,7 @@ class GalleryField extends FileTypeField {
      * @param  boolean $negative - Get opposite results of the search
      * @return array - The RIDs that match search
      */
-    public function keywordSearchTyped($flid, $arg, $recordMod, $negative = false) {
+    public function keywordSearchTyped($flid, $arg, $recordMod, $form, $negative = false) {
         if($negative)
             $param = 'NOT LIKE';
         else

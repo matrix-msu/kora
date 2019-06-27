@@ -1,6 +1,6 @@
 <section class="lat-lon-switch-js">
     <div class="form-group mt-xl half pr-m">
-        {!! Form::label($flid.'_lat', 'Latitude') !!}
+        {!! Form::label($flid.'_lat', $field['alt_name']!='' ? $field['name'].' ('.$field['alt_name'].') - Latitude' : $field['name'].' - Latitude') !!}
         <div class="number-input-container number-input-container-js">
             <input type="number" class="text-input" min=-90 max=90 step=".000001" placeholder="Enter center latitude" id="{{$flid}}_lat" name="{{$flid}}_lat">
         </div>

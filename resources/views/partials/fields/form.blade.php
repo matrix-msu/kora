@@ -9,6 +9,12 @@
 </div>
 
 <div class="form-group mt-xl">
+    {!! Form::label('altName', 'Alternative Field Name') !!}
+    <span class="error-message">{{array_key_exists("altName", $errors->messages()) ? $errors->messages()["altName"][0] : ''}}</span>
+    {!! Form::text('altName', null, ['class' => 'text-input' . (array_key_exists("altName", $errors->messages()) ? ' error' : ''), 'placeholder' => 'Enter the alternative field name here (optional)', 'autofocus']) !!}
+</div>
+
+<div class="form-group mt-xl">
     {!! Form::label('desc', 'Description') !!}
     <span class="error-message">{{array_key_exists("desc", $errors->messages()) ? $errors->messages()["desc"][0] : ''}}</span>
     {!! Form::textarea('desc', null, ['class' => 'text-area' . (array_key_exists("desc", $errors->messages()) ? ' error' : ''), 'placeholder' => "Enter the field's description here (max. 500 characters)"]) !!}

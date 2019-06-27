@@ -24,7 +24,7 @@ class AdminController extends Controller {
     | Admin Controller
     |--------------------------------------------------------------------------
     |
-    | This controller handles administrative functions for Kora 3
+    | This controller handles administrative functions for kora
     |
     */
 
@@ -291,7 +291,7 @@ class AdminController extends Controller {
     }
 
     /**
-     * Batch invites users to Kora3 using list of emails. Creates users in the db if they don't exist.
+     * Batch invites users to kora using list of emails. Creates users in the db if they don't exist.
      *
      * @param  Request $request
      * @return View

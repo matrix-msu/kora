@@ -3,7 +3,7 @@
 <html lang="en">
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
-    <title>Kora 3 - Email</title>
+    <title>kora - Email</title>
 
     <link href="https://fonts.googleapis.com/css?family=Ubuntu:400,400i,500,500i,700,700i" rel="stylesheet">
     <style>
@@ -138,7 +138,7 @@
         }
 
         .email > .content > .post-action-text > a {
-            font-family: 'Ubuntu-medium', sans-serif;
+            font-weight: 500;
         }
 
         .email > .content > .line {
@@ -187,7 +187,7 @@
 
 <div class="email">
     <div class="header max-width-large">
-        <img src="{{ url('assets/logos/k3Dummy.jpg') }}" alt="Logo" title="Logo">
+        <img src="{{ url('assets/logos/logo_green_text_white.svg') }}" alt="Logo" title="Logo">
     </div>
 
     <div class="content max-width-regular">

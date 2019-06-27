@@ -1,22 +1,16 @@
-@extends('app', ['page_title' => 'Welcome to Kora', 'page_class' => 'welcome-fresh'])
+@extends('app', ['page_title' => 'Welcome to kora', 'page_class' => 'welcome-fresh'])
 
 @section('body')
     <div class="content-install">
         <div class="form-container py-100-xl ma-auto">
-            <div>
-                <img src="{{ url('assets/logos/koraiii-logo-blue.svg') }}">
-            </div>
-
-            <div class="kora3 mt-xxl">
-                Kora 3
-            </div>
+            <img class="logo" src="{{ url('assets/logos/logo_green_text_dark.svg') }}">
 
             <div class="ready mt-xxl">
                 Ready for Initialization
             </div>
 
             <div class="commander mt-m">
-                We are ready to begin the Kora Initialization sequence, Commander.
+                We are ready to begin the kora Initialization sequence, Commander.
                 Ready when you are.
             </div>
 

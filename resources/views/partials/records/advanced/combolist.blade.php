@@ -6,7 +6,7 @@
 ?>
 
 <div class="form-group mt-xl">
-    {!! Form::label($flid,$field['name']) !!}
+    {!! Form::label($flid,$field['alt_name']!='' ? $field['name'].' ('.$field['alt_name'].')' : $field['name']) !!}
 </div>
 <div class="record-data-card">
     @include('partials.records.advanced.combo-sub', ['cftype' => $type_1, 'cftitle' => $title_1, 'cfnum' => 'one'])

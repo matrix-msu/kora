@@ -9,7 +9,7 @@ class PlaylistField extends FileTypeField {
     | Playlist Field
     |--------------------------------------------------------------------------
     |
-    | This model represents the playlist field in Kora3
+    | This model represents the playlist field in kora
     |
     */
 

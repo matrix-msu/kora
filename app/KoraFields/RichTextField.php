@@ -12,7 +12,7 @@ class RichTextField extends BaseField {
     | Rich Text Field
     |--------------------------------------------------------------------------
     |
-    | This model represents the rich text field in Kora3
+    | This model represents the rich text field in kora
     |
     */
 
@@ -283,7 +283,7 @@ class RichTextField extends BaseField {
      * @param  boolean $negative - Get opposite results of the search
      * @return array - The RIDs that match search
      */
-    public function keywordSearchTyped($flid, $arg, $recordMod, $negative = false) {
+    public function keywordSearchTyped($flid, $arg, $recordMod, $form, $negative = false) {
         if($negative)
             $param = 'NOT LIKE';
         else
@@ -318,7 +318,7 @@ class RichTextField extends BaseField {
      * @param  boolean $negative - Get opposite results of the search
      * @return array - The RIDs that match search
      */
-    public function advancedSearchTyped($flid, $query, $recordMod, $negative = false) {
+    public function advancedSearchTyped($flid, $query, $recordMod, $form, $negative = false) {
         $arg = $query['input'];
         $arg = Search::prepare([$arg])[0]; //We make an array to 'prepare' the term
         $arg = str_replace(' ','%',$arg); //This searches around tags, may get more than desired but better than nothing

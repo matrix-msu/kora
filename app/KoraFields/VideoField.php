@@ -9,7 +9,7 @@ class VideoField extends FileTypeField {
     | Video Field
     |--------------------------------------------------------------------------
     |
-    | This model represents the video field in Kora3
+    | This model represents the video field in kora
     |
     */
 

@@ -9,7 +9,7 @@ class DocumentsField extends FileTypeField {
     | Documents Field
     |--------------------------------------------------------------------------
     |
-    | This model represents the documents field in Kora3
+    | This model represents the documents field in kora
     |
     */
 

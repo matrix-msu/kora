@@ -14,7 +14,7 @@ class AssociatorField extends BaseField {
     | Associator Field
     |--------------------------------------------------------------------------
     |
-    | This model represents the text field in Kora3
+    | This model represents the text field in kora
     |
     */
 
@@ -258,7 +258,7 @@ class AssociatorField extends BaseField {
      * @return mixed - Processed data
      */
     public function processLegacyData($value) {
-        return $value;
+        return json_decode($value,true);
     }
 
     /**
@@ -328,7 +328,7 @@ class AssociatorField extends BaseField {
      * @param  boolean $negative - Get opposite results of the search
      * @return array - The RIDs that match search
      */
-    public function keywordSearchTyped($flid, $arg, $recordMod, $negative = false) {
+    public function keywordSearchTyped($flid, $arg, $recordMod, $form, $negative = false) {
         if($negative)
             $param = 'NOT LIKE';
         else
@@ -363,7 +363,7 @@ class AssociatorField extends BaseField {
      * @param  boolean $negative - Get opposite results of the search
      * @return array - The RIDs that match search
      */
-    public function advancedSearchTyped($flid, $query, $recordMod, $negative = false) {
+    public function advancedSearchTyped($flid, $query, $recordMod, $form, $negative = false) {
         $arg = $query['input'];
         $args = Search::prepare($arg);
 
@@ -391,7 +391,7 @@ class AssociatorField extends BaseField {
      * for this record.
      *
      * @param  array $field - Field info array
-     * @param  int $kid - Record Kora ID
+     * @param  int $kid - Record kora ID
      * @return string - Html structure of the preview field's value
      */
     public static function getPreviewValues($field,$kid) {

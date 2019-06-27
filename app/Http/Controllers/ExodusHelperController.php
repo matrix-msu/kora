@@ -362,6 +362,7 @@ class ExodusHelperController extends Controller {
                 $field = array();
                 $field['type'] = $newType;
                 $field['name'] = $this->renameFields($c['name']);
+                $field['alt_name'] = '';
                 $newFlid = str_replace(" ","_", $field['name']).'_'.$newForm->project_id.'_'.$newForm->id.'_';
 
                 //Add it to the appropriate page
@@ -693,7 +694,7 @@ class ExodusHelperController extends Controller {
         $filename = storage_path(ExodusController::EXODUS_DATA_PATH.'assoc_'.$ogSid.'_'.$filePartNum.'.json');
         file_put_contents($filename,$dataToWrite);
 
-        //We want to save the conversion array of Kora 2 KIDs to Kora 3 RIDs for this scheme
+        //We want to save the conversion array of kora 2 KIDs to kora v3 RIDs for this scheme
         $ridChunks = array_chunk($oldKidToNewKid, 500, true);
         $partIndex = 0;
         foreach($ridChunks as $ridc) {

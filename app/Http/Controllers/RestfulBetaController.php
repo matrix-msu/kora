@@ -15,6 +15,8 @@ class RestfulBetaController extends Controller {
     |
     | This controller handles API requests to Kora3 for projects developed during the kora 3.0.0 BETA.
     |
+    | NOTE: You will have to fix file URLs on a per application base.
+    |
     */
 
     /**
@@ -32,7 +34,7 @@ class RestfulBetaController extends Controller {
     /**
      * @var array - Minor errors in api search. Since they happen in nested functions, it's easier to store globally.
      */
-    public $minorErrors = array();
+    public $minorErrors = array("USE OF THE BETA API IS DEPRECATED! DO NOT USE FOR NEW DEVELOPMENT!");
 
     /**
      * Gets the current version of Kora3.
@@ -122,7 +124,7 @@ class RestfulBetaController extends Controller {
         if(!self::isValidFormat($apiFormat))
             return response()->json(["status"=>false,"error"=>"Invalid format provided"],500);
 
-        //check for global //TODO::CASTLE Do we want to convert these?
+        //check for global
         $globalRecords = array();
         $globalForms = array();
         //Merge will combine the results and let you maps field names together.
@@ -210,9 +212,9 @@ class RestfulBetaController extends Controller {
                 if($apiFormat==self::XML)
                     $records = $form->getRecordsForExportXML($filters);
                 else if($apiFormat==self::KORA)
-                    $records = $form->getRecordsForExportLegacy($filters);
+                    $records = $form->getRecordsForExportLegacyBeta($filters);
                 else
-                    $records = $form->getRecordsForExport($filters);
+                    $records = $form->getRecordsForExportBeta($filters);
 
                 if($filters['size']) {
                     if($apiFormat==self::XML) //Since the return XML is a string. We'll just get the record count manually.
@@ -254,9 +256,9 @@ class RestfulBetaController extends Controller {
                 if($apiFormat==self::XML)
                     $records = $form->getRecordsForExportXML($filters,$returnRIDS);
                 else if($apiFormat==self::KORA)
-                    $records = $form->getRecordsForExportLegacy($filters,$returnRIDS);
+                    $records = $form->getRecordsForExportLegacyBeta($filters,$returnRIDS);
                 else
-                    $records = $form->getRecordsForExport($filters,$returnRIDS);
+                    $records = $form->getRecordsForExportBeta($filters,$returnRIDS);
 
                 if($filters['size']) {
                     $cnt = sizeof($returnRIDS);
@@ -277,7 +279,7 @@ class RestfulBetaController extends Controller {
             }
         }
 
-        if($globalMerge) { //TODO::CASTLE First need to decide if it's needed
+        if($globalMerge) {
             $final = [];
             foreach($resultsGlobal as $result) {
                 $final = array_merge($final,$result);
@@ -288,7 +290,7 @@ class RestfulBetaController extends Controller {
         }
 
         //Handle any global sorting
-        if($globalSort) { //TODO::CASTLE First need to decide if it's needed
+        if($globalSort) {
             $globalSortedResults = array();
 
             //Build and run the query to get the KIDs in proper order
@@ -418,6 +420,8 @@ class RestfulBetaController extends Controller {
                 $fields = $query->fields;
                 $processed = [];
                 foreach($fields as $flid => $data) {
+                    $flid = RestfulBetaController::removeIllegalFieldCharacters($flid);
+
                     if(!isset($form->layout['fields'][$flid])) {
                         array_push($this->minorErrors, "The following field in keyword search is not apart of the requested form: " . $this->cleanseOutput($flid));
                         continue;
@@ -443,7 +447,7 @@ class RestfulBetaController extends Controller {
                 break;
             case 'keyword':
                 //do a keyword search
-                if(!isset($query->keys) || !is_array($query->keys))
+                if(!isset($query->keys))
                     return response()->json(["status"=>false,"error"=>"No keywords supplied in a keyword search for form: ". $form->name],500);
                 $keys = $query->keys;
 
@@ -455,10 +459,13 @@ class RestfulBetaController extends Controller {
 
                     //takes care of converting slugs to flids
                     foreach($query->fields as $qfield) {
+                        $qfield = RestfulBetaController::removeIllegalFieldCharacters($qfield);
+
                         if(!isset($form->layout['fields'][$qfield])) {
                             array_push($this->minorErrors, "The following field in keyword search is not apart of the requested form: " . $this->cleanseOutput($qfield));
                             continue;
                         }
+
                         $fieldMod = $form->layout['fields'][$qfield];
 
                         if(!$fieldMod['external_search']) {
@@ -477,9 +484,15 @@ class RestfulBetaController extends Controller {
                 $method = isset($query->method) && is_string($query->method) ? $query->method : 'OR';
                 switch($method) {
                     case 'OR':
+                        $keys = explode(' ',$query->keys);
                         $method = Search::SEARCH_OR;
                         break;
                     case 'AND':
+                        $keys = explode(' ',$query->keys);
+                        $method = Search::SEARCH_AND;
+                        break;
+                    case 'EXACT':
+                        $keys = [$query->keys];
                         $method = Search::SEARCH_AND;
                         break;
                     default:
@@ -546,7 +559,7 @@ class RestfulBetaController extends Controller {
 
     private function convertLogicForBeta($logic) {
         $arg1 = $logic[0];
-        $op = $logic[1];
+        $op = strtolower($logic[1]);
         $arg2 = $logic[2];
 
         if(!is_numeric($arg1))
@@ -601,6 +614,8 @@ class RestfulBetaController extends Controller {
         }
 
         foreach($fields as $fieldName => $jsonField) {
+            $fieldName = RestfulBetaController::removeIllegalFieldCharacters($fieldName);
+
             if(!isset($form->layout['fields'][$fieldName]))
                 return response()->json(["status"=>false,"error"=>"The field, ".$this->cleanseOutput($fieldName).", does not exist"],500);
 
@@ -668,6 +683,8 @@ class RestfulBetaController extends Controller {
         }
 
         foreach($fields as $fieldName => $jsonField) {
+            $fieldName = RestfulBetaController::removeIllegalFieldCharacters($fieldName);
+
             if(!isset($form->layout['fields'][$fieldName]))
                 return response()->json(["status"=>false,"error"=>"The field, ".$this->cleanseOutput($fieldName).", does not exist"],500);
 
@@ -761,5 +778,14 @@ class RestfulBetaController extends Controller {
         }
 
         return $intersection;
+    }
+
+    public static function removeIllegalFieldCharacters($flid) {
+        //Remove illegal characters
+        $newNameSpaced = preg_replace("/[^A-Za-z0-9\_]/", '_', $flid);
+        //Remove multi spaces
+        $newName = preg_replace('!\_+!', '_', $newNameSpaced);
+        //Trim and return
+        return trim($newName);
     }
 }

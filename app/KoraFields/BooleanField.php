@@ -12,7 +12,7 @@ class BooleanField extends BaseField {
     | Boolean Field
     |--------------------------------------------------------------------------
     |
-    | This model represents the boolean field in Kora3
+    | This model represents the boolean field in kora
     |
     */
 
@@ -281,7 +281,7 @@ class BooleanField extends BaseField {
      * @param  boolean $negative - Get opposite results of the search
      * @return array - The RIDs that match search
      */
-    public function keywordSearchTyped($flid, $arg, $recordMod, $negative = false) {
+    public function keywordSearchTyped($flid, $arg, $recordMod, $form, $negative = false) {
         if($negative)
             $param = '!=';
         else
@@ -325,7 +325,7 @@ class BooleanField extends BaseField {
      * @param  boolean $negative - Get opposite results of the search
      * @return array - The RIDs that match search
      */
-    public function advancedSearchTyped($flid, $query, $recordMod, $negative = false) {
+    public function advancedSearchTyped($flid, $query, $recordMod, $form, $negative = false) {
         $arg = is_bool($query['input']) && $query['input'] ? 1 : 0;
 
         if($negative)

@@ -10,7 +10,11 @@
     <div class="inner-wrap center">
       <h1 class="title">
         <div class="profile-pic-cont profile-pic-cont-js">
-          @if ($user->profile)
+          @php
+            $imgpath = storage_path('app/profiles/' . $user->id . '/' . $user->preferences['profile_pic']);
+            $imgurl = $user->getProfilePicUrl();
+          @endphp
+          @if(File::exists($imgpath))
             <img class="profile-pic profile-pic-js" src="{{ $user->getProfilePicUrl() }}" alt="Profile Pic">
           @else
             <i class="icon icon-profile-dark"></i>

@@ -1,6 +1,7 @@
 <?php namespace App\Http\Controllers;
 
 use App\KoraFields\FileTypeField;
+use App\KoraFields\ComboListField;
 use App\RecordPreset;
 use App\Revision;
 use App\User;
@@ -121,7 +122,7 @@ class RecordController extends Controller {
 	}
 
     /**
-     * Saves a new record in Kora.
+     * Saves a new record in kora.
      *
      * @param  int $pid - Project ID
      * @param  int $fid - Form ID
@@ -476,7 +477,7 @@ class RecordController extends Controller {
     }
 
     /**
-     * Delete a record from Kora3.
+     * Delete a record from kora.
      *
      * @param  int $pid - Project ID
      * @param  int $fid - Form ID
@@ -503,7 +504,7 @@ class RecordController extends Controller {
     }
 
     /**
-     * Delete multiple records from Kora3.
+     * Delete multiple records from kora.
      *
      * @param  int $pid - Project ID
      * @param  int $fid - Form ID
@@ -625,7 +626,7 @@ class RecordController extends Controller {
     /**
      * Get a record back by KID.
      *
-     * @param  int $kid - Record Kora ID
+     * @param  int $kid - Record kora ID
      * @return Record - Requested record
      */
     public static function getRecord($kid) {
@@ -913,26 +914,21 @@ class RecordController extends Controller {
     public function massAssignRecordSet($pid, $fid, Request $request) {
         if(!$this->checkPermissions($fid,'modify'))
             return redirect()->back();
-
         $form = FormController::getForm($fid);
         $flid = $request->field_selection;
         if(!array_key_exists($flid, $form->layout['fields']))
             return redirect()->back()->with('k3_global_error', 'field_invalid');
-
         $field = $form->layout['fields'][$flid];
         $typedField = $form->getFieldModel($field['type']);
         $formFieldValue = $request->{$flid};
-
         if($request->rids)
             $kids = explode(',', $request->rids);
         else
             $kids = array();
-
         //A field may not be required for a record but we want to force validation here so we use forceReq
         $message = $typedField->validateField($flid, $field, $request, true);
         if(empty($message)) {
             $typedField->massAssignSubsetRecordField($form, $flid, $formFieldValue, $request, $kids);
-
             return redirect()->action('RecordController@index', compact('pid', 'fid'))->with('k3_global_success', 'mass_records_updated');
         } else {
             return redirect()->back()->with('k3_global_error', 'mass_value_invalid');

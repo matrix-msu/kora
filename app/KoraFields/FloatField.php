@@ -12,7 +12,7 @@ class FloatField extends BaseField {
     | Float Field
     |--------------------------------------------------------------------------
     |
-    | This model represents the float field in Kora3
+    | This model represents the float field in kora
     |
     */
 
@@ -325,7 +325,7 @@ class FloatField extends BaseField {
      * @param  boolean $negative - Get opposite results of the search
      * @return array - The RIDs that match search
      */
-    public function keywordSearchTyped($flid, $arg, $recordMod, $negative = false) {
+    public function keywordSearchTyped($flid, $arg, $recordMod, $form, $negative = false) {
         $tmpArg = str_replace("%","",$arg);
         if(is_numeric($tmpArg)) { // Only search if we're working with a number.
             $tmpArg = floatval($tmpArg);
@@ -382,7 +382,7 @@ class FloatField extends BaseField {
      * @param  boolean $negative - Get opposite results of the search
      * @return array - The RIDs that match search
      */
-    public function advancedSearchTyped($flid, $query, $recordMod, $negative = false) {
+    public function advancedSearchTyped($flid, $query, $recordMod, $form, $negative = false) {
         $left = (int)$query['left'];
         $right = (int)$query['right'];
         $invert = isset($query['invert']) ? (bool)$query['invert'] : false;

@@ -1,7 +1,7 @@
 <div class="form-group date-input-form-group date-input-form-group-js mt-xl">
     <div class="form-input-container">
         <div class="form-group">
-            {!! Form::label($flid.'_input',$field['name'].' Start Date') !!}
+            {!! Form::label($flid.'_input',$field['alt_name']!='' ? $field['name'].' ('.$field['alt_name'].') - Start Date' : $field['name'].' - Start Date') !!}
             <div class="date-inputs-container">
                 {!! Form::select($flid."_begin_month",['' => '',
                     '01' => '01 - '.date("F", mktime(0, 0, 0, 1, 10)), '02' => '02 - '.date("F", mktime(0, 0, 0, 2, 10)),
@@ -68,7 +68,7 @@
         @endif
 
         <div class="form-group mt-xl">
-            {!! Form::label($flid.'_input',$field['name'].' End Date') !!}
+            {!! Form::label($flid.'_input','End Date') !!}
             <div class="date-inputs-container">
                 {!! Form::select($flid."_end_month",['' => '',
                     '01' => '01 - '.date("F", mktime(0, 0, 0, 1, 10)), '02' => '02 - '.date("F", mktime(0, 0, 0, 2, 10)),

@@ -815,6 +815,12 @@ Kora.Fields.Options = function(fieldType) {
                 val1 = inputOne.val();
             }
 
+            if(type1=='Boolean') {
+                if (inputOne.prop('checked') != true) {
+                    val1 = 0;
+                }
+            }
+
             if(type2=='Date' | type2=='Historical Date') {
                 monthTwo = $('#default_month_two');
                 dayTwo = $('#default_day_two');
@@ -838,9 +844,15 @@ Kora.Fields.Options = function(fieldType) {
                 val2 = inputTwo.val();
             }
 
+            if(type2=='Boolean') {
+                if (inputTwo.prop('checked') != true) {
+                    val2 = 0;
+                }
+            }
+
             defaultDiv = $('.combo-value-div-js');
 
-            if(val1=='' | val2=='' | val1==null | val2==null | val1=='//'| val2=='//') {
+            if(val1==null | val2==null | val1=='//'| val2=='//') {
                 $('.combo-error-js').text('Both fields must be filled out');
             } else {
                 $('.combo-error-js').text('');
@@ -856,6 +868,12 @@ Kora.Fields.Options = function(fieldType) {
 
                 if(type1=='Text' | type1=='List' | type1=='Integer' | type1=='Float' | type1=='Boolean') {
                     div += '<input type="hidden" name="default_combo_one[]" value="'+val1+'">';
+                    if(type1=='Boolean') {
+                        if (val1 == 1) {
+                            val1 = 'true';
+                        } else if (val1 == 0)
+                            val1 = 'false';
+                    }
                     div += '<span class="combo-column">'+val1+'</span>';
                 } else if(type1=='Date' | type1=='Historical Date') {
                     div += '<input type="hidden" name="default_day_combo_one[]" value="'+dayOne.val()+'">';
@@ -873,6 +891,12 @@ Kora.Fields.Options = function(fieldType) {
 
                 if(type2=='Text' | type2=='List' | type2=='Integer' | type2=='Float' | type2=='Boolean') {
                     div += '<input type="hidden" name="default_combo_two[]" value="'+val2+'">';
+                    if(type2=='Boolean') {
+                        if (val2 == 1)
+                            val2 = 'true';
+                        if (val2 == 0)
+                            val2 = 'false';
+                    }
                     div += '<span class="combo-column">'+val2+'</span>';
                 } else if(type2=='Date' | type2=='Historical Date') {
                     div += '<input type="hidden" name="default_day_combo_two[]" value="'+dayTwo.val()+'">';

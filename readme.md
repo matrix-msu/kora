@@ -1,4 +1,4 @@
-# kora v3.0.0
+# kora 3.0.0
 
 #### The easiest way to manage and publish your data.
 

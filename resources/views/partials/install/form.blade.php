@@ -35,10 +35,10 @@
     <div class="form-group mt-xl">
         <label for="db_prefix">Prefix</label>
         <span class="error-message"></span>
-        <input class="text-input" placeholder="Enter the prefix here" type="text" id="db_prefix" name="db_prefix" value="{{'kora3_'}}">
+        <input class="text-input" placeholder="Enter the prefix here" type="text" id="db_prefix" name="db_prefix" value="{{'kora_'}}">
     </div>
 
     <div class="form-group mt-xxl">
-        <button id="install_submit" type="button" class="btn btn-primary validate-install-js">Complete Kora Initialization</button>
+        <button id="install_submit" type="button" class="btn btn-primary validate-install-js">Complete kora Initialization</button>
     </div>
 </section>

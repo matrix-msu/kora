@@ -10,7 +10,7 @@ class Search {
     | Search
     |--------------------------------------------------------------------------
     |
-    | This class contains core search functionality in Kora3
+    | This class contains core search functionality in kora
     |
     */
 
@@ -88,7 +88,7 @@ class Search {
                     foreach($fields as $flid => $field) {
                         // These checks make sure the field is searchable
                         if( (!$external && $field['searchable']) || ($external && $field['external_search']) ) {
-                            $results = $form->getFieldModel($field['type'])->keywordSearchTyped($flid, $arg, $recordMod, $negative);
+                            $results = $form->getFieldModel($field['type'])->keywordSearchTyped($flid, $arg, $recordMod, $form, $negative);
                             $this->imitateMerge($rids, $results);
                         }
                     }
@@ -172,7 +172,7 @@ class Search {
     }
 
     /**
-     * Prepares a statement for mysql search. Based on things we found in Kora.
+     * Prepares a statement for mysql search. Based on things we found in kora.
      *
      * @param  array $keys - Statements to prepare
      * @return array - The cleaned array

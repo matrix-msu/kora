@@ -24,7 +24,7 @@ class InstallController extends Controller {
 	*/
 
     /**
-     * @var string - The version that will be assigned when you install Kora.
+     * @var string - The version that will be assigned when you install kora.
      */
 	const INSTALLED_VERSION = '3.0.0';
 
@@ -133,7 +133,7 @@ class InstallController extends Controller {
     }
 
     /**
-     * Install Kora 3 - Creates the database, and adds any defaults needed
+     * Install kora - Creates the database, and adds any defaults needed
      *
      * @param  string $password - The admin password to create
      * @param  array $request - Optional DB values
@@ -172,7 +172,7 @@ class InstallController extends Controller {
         //Install database tables
         $shellRes = null;
         try {
-            echo "Installing Kora 3 tables...\n";
+            echo "Installing kora tables...\n";
             $shellRes = Artisan::call('migrate', array('--force' => true));
             echo "Kora 3 tables installed!\n";
         } catch(\Exception $e) {
@@ -185,7 +185,7 @@ class InstallController extends Controller {
 
         //Set the version number for this Kora 3 install
         try {
-            echo "Setting Kora 3 version number...\n";
+            echo "Setting kora version number...\n";
             $v = new Version();
             $v->version = InstallController::INSTALLED_VERSION;
             $v->save();
@@ -204,7 +204,7 @@ class InstallController extends Controller {
             echo "Storage directories created!\n";
         } catch(\Exception $e) {
             Log::info($e);
-            echo "Failed to create storage directories! Check user permissions for writing files to the Kora 3 directory.\n";
+            echo "Failed to create storage directories! Check user permissions for writing files to the kora directory.\n";
             $this->resetInstall($dbc);
             return false;
         }
@@ -271,7 +271,7 @@ class InstallController extends Controller {
         ]);
 
         $preferences = array();
-        $preferences['first_name'] = 'Kora3';
+        $preferences['first_name'] = 'Kora';
         $preferences['last_name'] = 'Admin';
         $preferences['organization'] = 'Kora User';
         $preferences['language'] = 'en';

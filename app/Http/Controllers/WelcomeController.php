@@ -46,7 +46,7 @@ class WelcomeController extends Controller {
 				$notification['static'] = true;
 			} else if($session == 'activation_email_failed') {
 				$notification['message'] ='Registration successful, but activation email failed.';
-				$notification['description'] ='Have the activation email resent, or contact your Kora3 administrator for help.';
+				$notification['description'] ='Have the activation email resent, or contact your kora administrator for help.';
 				$notification['warning'] = true;
 				$notification['static'] = true;
 			}
@@ -66,7 +66,7 @@ class WelcomeController extends Controller {
 				$notification['static'] = false;
 			} else if($session == 'activation_email_failed') {
 				$notification['message'] ='Registration successful, but activation email failed.';
-				$notification['description'] ='Have the activation email resent, or contact your Kora3 administrator for help.';
+				$notification['description'] ='Have the activation email resent, or contact your kora administrator for help.';
 				$notification['warning'] = true;
 				$notification['static'] = true;
 			} else if($session == 'user_activate_resent') {

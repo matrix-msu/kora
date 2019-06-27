@@ -7,7 +7,7 @@
 <div class="form-group mt-xxxl">
     <label>@if($field['required'])<span class="oval-icon"></span> @endif{{$field['name']}}</label>
     <span class="error-message"></span>
-	
+
     <div class="check-box-half">
         <input type="hidden" name="{{$flid}}" value="0">
         <input type="checkbox" value="1" id="preset" class="check-box-input" name="{{$flid}}"

@@ -9,12 +9,12 @@
     padding-left: 25px;
     vertical-align: middle;
 
-    .icon:hover {
+    .img:hover {
       color: palette('green', accent);
     }
 
     // Replace this class with the image class once the placeholder is replaced.
-    .icon-placeholder {
+    .img {
       @include transition();
 
       display: inline-block;
@@ -155,7 +155,7 @@
 @media screen and (max-width: $max-mobile-xs-width) { // 480
   // Replace .icon-placeholder with the image class when replaced
   .navigation-left {
-    .logo .icon-placeholder {
+    .logo img {
       margin: #{ ($navigation-height - 27px) / 2 } 0;
     }
     .navigation-item {

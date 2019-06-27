@@ -69,7 +69,7 @@
                             {{ $f->description }}
                         </div>
                         <div class="footer">
-                            <a class="quick-action trash-container delete-permission-association-js left tooltip" href="#" data-form="{{$a->assocForm}}" data-reverse="false" tooltip="Remove Form Association">
+                            <a class="quick-action trash-container delete-permission-association-js left tooltip" href="#" data-form="{{$a->assoc_form}}" data-reverse="false" tooltip="Remove Form Association">
                                 <i class="icon icon-trash"></i>
                             </a>
                         </div>

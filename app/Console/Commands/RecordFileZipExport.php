@@ -19,7 +19,7 @@ class RecordFileZipExport extends Command {
      *
      * @var string
      */
-    protected $signature = 'kora3:record-file-zip {fid}';
+    protected $signature = 'kora:record-file-zip {fid}';
 
     /**
      * The console command description.

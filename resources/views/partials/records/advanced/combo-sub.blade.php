@@ -1,21 +1,22 @@
 @switch($cftype)
     @case('Text')
     <div class="form-group mt-sm">
-        {!! Form::label($field->flid."_".$cfnum."_input",$cftitle) !!}
-        {!! Form::text($field->flid."_".$cfnum."_input", null, ['class' => 'text-input', 'placeholder' => 'Enter search text']) !!}
+        {!! Form::label($field[$cfnum]['flid']."_".$cfnum."_input",$cftitle) !!}
+        {!! Form::text($field[$cfnum]['flid']."_".$cfnum."_input", null, ['class' => 'text-input', 'placeholder' => 'Enter search text']) !!}
     </div>
     @break
-    @case('Number')
+    @case('Float')
+    @case('Integer')
     <div class="form-group mt-sm">
-        {!! Form::label($field->flid."_".$cfnum."_left",$cftitle) !!}
-        <input class="text-input" type="number" name="{{$field->flid}}_{{$cfnum}}_left" placeholder="Enter left bound (leave blank for -infinity)">
+        {!! Form::label($field[$cfnum]['flid']."_".$cfnum."_left",$cftitle) !!}
+        <input class="text-input" type="number" name="{{$field[$cfnum]['flid']}}_{{$cfnum}}_left" placeholder="Enter left bound (leave blank for -infinity)">
     </div>
     <div class="form-group mt-sm">
-        <input class="text-input" type="number" name="{{$field->flid}}_{{$cfnum}}_right" placeholder="Enter right bound (leave blank for infinity)">
+        <input class="text-input" type="number" name="{{$field[$cfnum]['flid']}}_{{$cfnum}}_right" placeholder="Enter right bound (leave blank for infinity)">
     </div>
     <div class="form-group mt-sm">
         <div class="check-box-half">
-            <input type="checkbox" value="1" id="active" class="check-box-input" name="{{$field->flid}}_{{$cfnum}}_invert" />
+            <input type="checkbox" value="1" id="active" class="check-box-input" name="{{$field[$cfnum]['flid']}}_{{$cfnum}}_invert" />
             <span class="check"></span>
             <span class="placeholder">Searches outside the given range</span>
         </div>
@@ -23,8 +24,8 @@
     @break
     @case('Date')
     <div class="form-group mt-sm">
-        {!! Form::label($field->flid."_".$cfnum."_month",$cftitle) !!}
-        {!! Form::select($field->flid."_".$cfnum."_month",['' => '',
+        {!! Form::label($field[$cfnum]['flid']."_".$cfnum."_month",$cftitle) !!}
+        {!! Form::select($field[$cfnum]['flid']."_".$cfnum."_month",['' => '',
             '1' => '01 - '.date("F", mktime(0, 0, 0, 1, 10)), '2' => '02 - '.date("F", mktime(0, 0, 0, 2, 10)),
             '3' => '03 - '.date("F", mktime(0, 0, 0, 3, 10)), '4' => '04 - '.date("F", mktime(0, 0, 0, 4, 10)),
             '5' => '05 - '.date("F", mktime(0, 0, 0, 5, 10)), '6' => '06 - '.date("F", mktime(0, 0, 0, 6, 10)),
@@ -36,7 +37,7 @@
     </div>
 
     <div class="form-group mt-sm">
-        <select name="{{$field->flid}}_{{$cfnum}}_day" class="single-select" data-placeholder="Select a Start Day">
+        <select name="{{$field[$cfnum]['flid']}}_{{$cfnum}}_day" class="single-select" data-placeholder="Select a Start Day">
             <option value=""></option>
             <?php
             $i = 1;
@@ -49,7 +50,7 @@
     </div>
 
     <div class="form-group mt-sm">
-        <select name="{{$field->flid}}_{{$cfnum}}_year" class="single-select" data-placeholder="Select a Start Year">
+        <select name="{{$field[$cfnum]['flid']}}_{{$cfnum}}_year" class="single-select" data-placeholder="Select a Start Year">
             <option value=""></option>
             <?php
             $i = \App\ComboListField::getComboFieldOption($field,'Start',$cfnum);
@@ -64,38 +65,48 @@
     @break
     @case('List')
     <div class="form-group mt-sm">
-        {!! Form::label($field->flid."_".$cfnum."_input",$cftitle) !!}
-        {!! Form::select( $field->flid . "_".$cfnum."_input", \App\ComboListField::getComboList($field,true,$cfnum), '', ["class" => "single-select"]) !!}
+        {!! Form::label($field[$cfnum]['flid']."_".$cfnum."_input",$cftitle) !!}
+        {!! Form::select( $field[$cfnum]['flid'] . "_".$cfnum."_input", \App\ComboListField::getComboList($field,true,$cfnum), '', ["class" => "single-select"]) !!}
     </div>
     @break
     @case('Multi-Select List')
     <div class="form-group mt-sm">
-        {!! Form::label($field->flid."_".$cfnum."_input[]",$cftitle) !!}
-        {!! Form::select( $field->flid . "_".$cfnum."_input[]", \App\ComboListField::getComboList($field,true,$cfnum), '', ["class" => "multi-select", "Multiple"]) !!}
+        {!! Form::label($field[$cfnum]['flid']."_".$cfnum."_input[]",$cftitle) !!}
+        {!! Form::select( $field[$cfnum]['flid'] . "_".$cfnum."_input[]", \App\ComboListField::getComboList($field,true,$cfnum), '', ["class" => "multi-select", "Multiple"]) !!}
     </div>
     @break
     @case('Generated List')
     <div class="form-group mt-sm">
-        {!! Form::label($field->flid."_".$cfnum."_input[]",$cftitle) !!}
-        {!! Form::select( $field->flid . "_".$cfnum."_input[]", \App\ComboListField::getComboList($field,true,$cfnum), '', ["class" => "multi-select modify-select", "Multiple"]) !!}
+        {!! Form::label($field[$cfnum]['flid']."_".$cfnum."_input[]",$cftitle) !!}
+        {!! Form::select( $field[$cfnum]['flid'] . "_".$cfnum."_input[]", \App\ComboListField::getComboList($field,true,$cfnum), '', ["class" => "multi-select modify-select", "Multiple"]) !!}
     </div>
     @break
     @case('Associator')
     <div class="form-group mt-sm">
-        {!! Form::label($field->flid."_".$cfnum."_input[]",$cftitle) !!}
+        {!! Form::label($field[$cfnum]['flid']."_".$cfnum."_input[]",$cftitle) !!}
         <?php
         $asc = new \App\Http\Controllers\AssociatorSearchController();
         $request = new \Illuminate\Http\Request();
         $request->replace(['keyword' => '']);
 
-        $results = $asc->assocSearch($field->flid,$request);
+        $results = $asc->assocSearch($field[$cfnum]['flid'],$request);
         $rids = array();
         foreach($results as $kid => $prevArray) {
             $preview = implode(" | ", $prevArray);
             $rids[$kid] = "$kid: $preview";
         }
         ?>
-        {!! Form::select($field->flid . "_".$cfnum."_input[]", $rids, '', ["class" => "multi-select", "Multiple"]) !!}
+        {!! Form::select($field[$cfnum]['flid'] . "_".$cfnum."_input[]", $rids, '', ["class" => "multi-select", "Multiple"]) !!}
+    </div>
+    @break
+    @case('Boolean')
+    <div class="form-group mt-xl">
+        {!! Form::label($field[$cfnum]['flid']."_".$cfnum."_input[]",$cftitle) !!}
+        <div class="check-box-half">
+            <input type="checkbox" value="1" id="preset" class="check-box-input" name="{{$field[$cfnum]['flid'] . "_".$cfnum."_input[]"}}">
+            <span class="check"></span>
+            <span class="placeholder"></span>
+        </div>
     </div>
     @break
     @default

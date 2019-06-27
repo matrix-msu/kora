@@ -11,10 +11,10 @@
         <div class="inner-wrap center">
             <h1 class="title">
                 <i class="icon icon-projects"></i>
-                <span>Kora Configuration File</span>
+                <span>kora Configuration File</span>
             </h1>
-            <p class="description">Here you can edit the configuration file for this Kora Installation. This includes
-                updating ReCaptcha keys, which are used for User Registration, and updating your server/host settings for emails in Kora 3</p>
+            <p class="description">Here you can edit the configuration file for this kora Installation. This includes
+                updating ReCaptcha keys, which are used for User Registration, and updating your server/host settings for emails in kora</p>
         </div>
     </section>
 @stop

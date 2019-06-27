@@ -3,7 +3,7 @@
 <html lang="en">
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
-    <title>Kora 3 - {{ $page_title }}</title>
+    <title>kora - {{ $page_title }}</title>
 
     <link rel="stylesheet" href="{{url('assets/css/app.css')}}">
     <link rel="stylesheet" type="text/css" href="{{ url('assets/css/vendor/leaflet/leaflet.css') }}"/>

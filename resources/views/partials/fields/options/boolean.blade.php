@@ -6,15 +6,7 @@
 @stop
 
 @section('fieldOptions')
-    <div class="form-group">
-        {!! Form::label('default','Default') !!}
-        <div class="check-box-half">
-            <input type="checkbox" value="1" id="preset" class="check-box-input" name="default"
-                    {{ ((!is_null($field['default']) && $field['default']) ? 'checked' : '') }}>
-            <span class="check"></span>
-            <span class="placeholder"></span>
-        </div>
-    </div>
+    @include('partials.fields.options.defaults.boolean')
 @stop
 
 @section('fieldOptionsJS')

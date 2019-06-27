@@ -54,14 +54,14 @@ return [
 			'password'  => env('DB_PASSWORD', ''),
 			'charset'   => 'utf8',
 			'collation' => 'utf8_unicode_ci',
-			'prefix'    => env('DB_PREFIX','Kora3_'),
+			'prefix'    => env('DB_PREFIX','kora_'),
 			'strict'    => false,
 		],
 
 		'sqlite' => [
 			'driver'   => 'sqlite',
 			'database' => storage_path().'/database.sqlite',
-			'prefix'   => env('DB_PREFIX','Kora3_'),
+			'prefix'   => env('DB_PREFIX','kora_'),
 		],
 
 		'mysql' => [
@@ -72,7 +72,7 @@ return [
 			'password'  => env('DB_PASSWORD', ''),
 			'charset'   => 'utf8',
 			'collation' => 'utf8_unicode_ci',
-			'prefix'    => env('DB_PREFIX','Kora3_'),
+			'prefix'    => env('DB_PREFIX','kora_'),
 			'strict'    => false,
 		],
 
@@ -83,7 +83,7 @@ return [
 			'username' => env('DB_USERNAME', 'forge'),
 			'password' => env('DB_PASSWORD', ''),
 			'charset'  => 'utf8',
-			'prefix'   => env('DB_PREFIX','Kora3_'),
+			'prefix'   => env('DB_PREFIX','kora_'),
 			'schema'   => 'public',
 		],
 
@@ -93,7 +93,7 @@ return [
 			'database' => env('DB_DATABASE', 'forge'),
 			'username' => env('DB_USERNAME', 'forge'),
 			'password' => env('DB_PASSWORD', ''),
-			'prefix'   => env('DB_PREFIX','Kora3_'),
+			'prefix'   => env('DB_PREFIX','kora_'),
 		],
 
 	],

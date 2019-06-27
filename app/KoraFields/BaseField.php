@@ -12,7 +12,7 @@ abstract class BaseField extends Model {
     | Base Field
     |--------------------------------------------------------------------------
     |
-    | This model represents the abstract class for all typed fields in Kora3
+    | This model represents the abstract class for all typed fields in kora
     |
     */
 
@@ -92,7 +92,7 @@ abstract class BaseField extends Model {
     abstract public function validateField($flid, $field, $request, $forceReq = false);
 
     //TODO::NEWFIELD formerly createNewRecordField
-    //Must be in format of JSON export in Kora 3.0
+    //Must be in format of JSON export in kora
     /**
      * Formats data for record entry.
      *
@@ -207,7 +207,7 @@ abstract class BaseField extends Model {
      * @param  boolean $negative - Get opposite results of the search
      * @return array - The RIDs that match search
      */
-    abstract public function keywordSearchTyped($flid, $arg, $recordMod, $negative = false);
+    abstract public function keywordSearchTyped($flid, $arg, $recordMod, $form, $negative = false);
 
     /**
      * Updates the request for an API search to mimic the advanced search structure.
@@ -226,7 +226,7 @@ abstract class BaseField extends Model {
      * @param  boolean $negative - Get opposite results of the search
      * @return array - The RIDs that match search
      */
-    abstract public function advancedSearchTyped($flid, $query, $recordMod, $negative = false);
+    abstract public function advancedSearchTyped($flid, $query, $recordMod, $form, $negative = false);
 
     /**
      * Find every record that does not have data for this field.

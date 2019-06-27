@@ -420,7 +420,7 @@ abstract class FileTypeField extends BaseField {
      * @param  boolean $negative - Get opposite results of the search
      * @return array - The RIDs that match search
      */
-    public function keywordSearchTyped($flid, $arg, $recordMod, $negative = false) {
+    public function keywordSearchTyped($flid, $arg, $recordMod, $form, $negative = false) {
         if($negative)
             $param = 'NOT LIKE';
         else
@@ -454,7 +454,7 @@ abstract class FileTypeField extends BaseField {
      * @param  boolean $negative - Get opposite results of the search
      * @return array - The RIDs that match search
      */
-    public function advancedSearchTyped($flid, $query, $recordMod, $negative = false) {
+    public function advancedSearchTyped($flid, $query, $recordMod, $form, $negative = false) {
         return null;
     }
 
@@ -592,7 +592,7 @@ abstract class FileTypeField extends BaseField {
     /**
      * Public access link for a file. NOTE: Mirrors file download, but is publically accessible doesn't force download
      *
-     * @param  string $kid - Kora record that holds the file
+     * @param  string $kid - kora record that holds the file
      * @param  string $filename - Name of the file
      * @return mixed - the file
      */
@@ -657,7 +657,7 @@ abstract class FileTypeField extends BaseField {
     /**
      * Downloads a file from a particular record field.
      *
-     * @param  int $kid - Record Kora ID
+     * @param  int $kid - Record kora ID
      * @param  string $filename - Name of the file
      * @return Redirect - html for the file download
      */
@@ -686,7 +686,7 @@ abstract class FileTypeField extends BaseField {
     /**
      * Downloads a zip of all files from a particular record.
      *
-     * @param  int $kid - Record Kora ID
+     * @param  int $kid - Record kora ID
      * @return string - html for the file download
      */
     public static function getZipDownload($kid) {

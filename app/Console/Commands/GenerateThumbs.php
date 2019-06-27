@@ -11,7 +11,7 @@ class GenerateThumbs extends Command
      *
      * @var string
      */
-    protected $signature = 'kora3:generate-thumbs {fid} {flid} {size}';
+    protected $signature = 'kora:generate-thumbs {fid} {flid} {size}';
 
     /**
      * The console command description.
