@@ -563,16 +563,17 @@ class ComboListField extends BaseField {
      * Updates the request for an API search to mimic the advanced search structure.
      *
      * @param  array $data - Data from the search
-     * @return Request - The update request
+     * @return array - The update request
      */
     public function setRestfulAdvSearch($data) {
         $return = [];
 
-        $flid = $data->$flid;
+        $flid = $data->{$flid};
 
-        $field = FieldController::getField($data->$flid, $data->$fid);
+        $field = FieldController::getField($data->{$flid}, $data->{$fid});
 
         foreach (['one', 'two'] as $seq) {
+            $type = $field[$seq]['type'];
             $className = $this->fieldModel[$type];
             $object = new $className;
             $return[$seq] = $object->setRestfulAdvSearch($data->{$seq});
