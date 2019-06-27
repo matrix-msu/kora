@@ -16,7 +16,7 @@
       @endif
     @elseif (!Auth::user()->active && strtolower($page_class == "invited-register"))
       <li class="navigation-item logo invited">
-          <img src="{{url('assets/logos/logo_white.svg')}}">
+          <img src="{{url('assets/logos/logo_dark.svg')}}">
       </li>
       <li class="navigation-item invited">
         <form id="logout_link" class="form-horizontal" role="form" method="POST" action="{{ url('/logout') }}">
@@ -26,7 +26,7 @@
       </li>
     @elseif (!Auth::user()->active)
       <li class="navigation-item logo">
-          <img src="{{url('assets/logos/logo_white.svg')}}">
+          <img src="{{url('assets/logos/logo_dark.svg')}}">
       </li>
     @else
       @if(isInstalled())

@@ -5,10 +5,6 @@
         <div class="form-container py-100-xl ma-auto">
             <img class="logo" src="{{ url('assets/logos/logo_green_text_dark.svg') }}">
 
-            <div class="kora3 mt-xxl">
-                kora
-            </div>
-
             <div class="ready mt-xxl">
                 Ready for Initialization
             </div>
