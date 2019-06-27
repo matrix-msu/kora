@@ -86,6 +86,13 @@
                         <div class="card combo-value-item-js">
                             @if($oneType=='Text' | $oneType=='List' | $oneType=='Integer'| $oneType=='Float' | $oneType=='Boolean')
                                 {!! Form::hidden("default_combo_one[]",$valueOne) !!}
+                                @php
+                                    if($oneType=='Boolean')
+                                        if($valueOne == 1)
+                                            $valueOne = 'true';
+                                        else if($valueOne == 0)
+                                            $valueOne = 'false';
+                                @endphp
                                 <span class="combo-column">{{$valueOne}}</span>
                             @elseif($oneType=='Date' | $oneType=='Historical Date')
                                 @php
@@ -112,6 +119,13 @@
                             @endif
                             @if($twoType=='Text' | $twoType=='List' | $oneType=='Integer'| $oneType=='Float' | $twoType=='Boolean')
                                 {!! Form::hidden("default_combo_two[]",$valueTwo) !!}
+                                @php
+                                    if($twoType=='Boolean')
+                                        if($valueTwo == 1)
+                                            $valueTwo = 'true';
+                                        else if($valueTwo == 0)
+                                            $valueTwo = 'false';
+                                @endphp
                                 <span class="combo-column">{{$valueTwo}}</span>
                             @elseif($twoType=='Date' | $twoType=='Historical Date')
                                 @php

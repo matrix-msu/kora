@@ -145,20 +145,4 @@ class FieldAjaxController extends Controller {
     public function getZipDownload($kid) {
         return FileTypeField::getZipDownload($kid);
     }
-
-    /**
-     * Validates record data for a Combo List Field.
-     *
-     * @param  int $pid - Project ID
-     * @param  int $fid - Form ID
-     * @param  int $flid - Field ID
-     * @param  Request $request
-     * @return JsonResponse - Returns success/error message
-     */
-    public function validateComboListOpt($pid, $fid, $flid, Request $request) { //TODO::CASTLE
-        if(!FieldController::validProjFormField($pid, $fid, $flid))
-            return response()->json(["status"=>false,"message"=>"field_invalid"],500);
-
-        return ComboListField::validateComboListOpt($flid, $request);
-    }
 }

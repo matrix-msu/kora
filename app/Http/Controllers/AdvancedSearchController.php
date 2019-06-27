@@ -4,6 +4,7 @@ use App\Record;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
 use Illuminate\View\View;
+use Illuminate\Support\Str;
 
 class AdvancedSearchController extends Controller {
 
@@ -66,7 +67,7 @@ class AdvancedSearchController extends Controller {
             if(array_diff(array_keys($query),array('negative','empty')) == [])
                 $result = [];
             else
-                $result = $form->getFieldModel($field['type'])->advancedSearchTyped($flid, $query, $recModel);
+                $result = $form->getFieldModel($field['type'])->advancedSearchTyped($flid, $query, $recModel, $form);
 
             //This is a negative search so we want the opposite results of what the search would produce
             if(isset($query['negative']))
@@ -191,7 +192,7 @@ class AdvancedSearchController extends Controller {
         foreach($data as $fieldName => $query) {
             $flid = fieldMapper($fieldName,$pid,$fid);
             $field = $form->layout['fields'][$flid];
-            $result = $form->getFieldModel($field['type'])->advancedSearchTyped($flid, $query, $recModel, $negative);
+            $result = $form->getFieldModel($field['type'])->advancedSearchTyped($flid, $query, $recModel, $form, $negative);
 
             $results[] = $result;
         }
@@ -220,118 +221,144 @@ class AdvancedSearchController extends Controller {
      */
     private function processRequest(array $request, $layout) {
         $processed = [];
-        //dd($request);
 
         foreach($request as $key => $value) {
+            $fields = [];
             if(array_key_exists($key,$layout['fields'])) {
-                $flid = $key;
-                $field = $layout['fields'][$flid];
-
-                switch($field['type']) {
-                    case 'Integer':
-                    case 'Float':
-                        if($request[$flid.'_left'] != '' | $request[$flid.'_right'] != '') {
-                            $processed[$flid]['left'] = $request[$flid . '_left'];
-                            $processed[$flid]['right'] = $request[$flid . '_right'];
-                            $processed[$flid]['invert'] = isset($request[$flid . '_invert']) ? (bool)$request[$flid . '_invert'] : false;
+                $field = $layout['fields'][$key];
+                if($field['type'] == 'Combo List') {
+                    foreach (array_keys($request) as $tmpKey) {
+                        foreach(['one', 'two'] as $seq) {
+                            if (Str::contains($tmpKey, '_' . $seq)) {
+                                array_push($fields,
+                                    [
+                                        'flid' => $field[$seq]['flid'] . '_' . $seq,
+                                        'type' => $field[$seq]['type']
+                                    ]
+                                );
+                            }
                         }
-                        break;
-                    case 'Date':
-                    case 'DateTime':
-                        if(
-                            isset($request[$flid.'_begin_month']) && $request[$flid.'_begin_month'] != '' &&
-                            isset($request[$flid.'_begin_day']) && $request[$flid.'_begin_day'] != '' &&
-                            isset($request[$flid.'_begin_year']) && $request[$flid.'_begin_year'] != '' &&
-                            isset($request[$flid.'_end_month']) && $request[$flid.'_end_month'] != '' &&
-                            isset($request[$flid.'_end_day']) && $request[$flid.'_end_day'] != '' &&
-                            isset($request[$flid.'_end_year']) && $request[$flid.'_end_year'] != ''
-                        ) {
-                            $processed[$flid]['begin_month'] = $request[$flid.'_begin_month'];
-                            $processed[$flid]['begin_day'] = $request[$flid.'_begin_day'];
-                            $processed[$flid]['begin_year'] = $request[$flid.'_begin_year'];
-                            $processed[$flid]['end_month'] = $request[$flid.'_end_month'];
-                            $processed[$flid]['end_day'] = $request[$flid.'_end_day'];
-                            $processed[$flid]['end_year'] = $request[$flid.'_end_year'];
-
-                            if(isset($request[$flid.'_begin_hour']))
-                                $processed[$flid]['begin_hour'] = $request[$flid.'_begin_hour'];
-                            if(isset($request[$flid.'_begin_minute']))
-                                $processed[$flid]['begin_minute'] = $request[$flid.'_begin_minute'];
-                            if(isset($request[$flid.'_begin_second']))
-                                $processed[$flid]['begin_second'] = $request[$flid.'_begin_second'];
-
-                            if(isset($request[$flid.'_end_hour']))
-                                $processed[$flid]['end_hour'] = $request[$flid.'_end_hour'];
-                            if(isset($request[$flid.'_end_minute']))
-                                $processed[$flid]['end_minute'] = $request[$flid.'_end_minute'];
-                            if(isset($request[$flid.'_end_second']))
-                                $processed[$flid]['end_second'] = $request[$flid.'_end_second'];
-                        }
-                        break;
-                    case 'Historical Date':
-                        $beginEra = isset($request[$flid.'_begin_era']) ? $request[$flid.'_begin_era'] : 'CE';
-                        $endEra = isset($request[$flid.'_end_era']) ? $request[$flid.'_end_era'] : 'CE';
-
-                        //Check for valid ERA combos, year must be set either way
-                        if(
-                            (
-                                ($beginEra == 'CE' && $endEra == 'CE') |
-                                ($beginEra == 'BCE' && ($endEra == 'BCE' | $endEra == 'CE')) |
-                                ($beginEra == 'BP' && $endEra == 'BP') |
-                                ($beginEra == 'KYA BP' && $endEra == 'KYA BP')
-                            ) &&
-                            (
-                                isset($request[$flid.'_begin_year']) && $request[$flid.'_begin_year'] != '' &&
-                                isset($request[$flid.'_end_year']) && $request[$flid.'_end_year'] != ''
-                            )
-                        ) {
-                            $processed[$flid]['begin_era'] = $beginEra;
-                            $processed[$flid]['end_era'] = $endEra;
-
-                            if(isset($request[$flid.'_begin_month']) && $request[$flid.'_begin_month'] != '')
-                                $processed[$flid]['begin_month'] = $request[$flid.'_begin_month'];
-                            if(isset($request[$flid.'_begin_day']) && $request[$flid.'_begin_day'] != '')
-                                $processed[$flid]['begin_day'] = $request[$flid.'_begin_day'];
-
-                            $processed[$flid]['begin_year'] = $request[$flid.'_begin_year'];
-
-                            if(isset($request[$flid.'_end_month']) && $request[$flid.'_end_month'] != '')
-                                $processed[$flid]['end_month'] = $request[$flid.'_end_month'];
-                            if(isset($request[$flid.'_end_day']) && $request[$flid.'_end_day'] != '')
-                                $processed[$flid]['end_day'] = $request[$flid.'_end_day'];
-
-                            $processed[$flid]['end_year'] = $request[$flid.'_end_year'];
-                        }
-                        break;
-                    case 'Geolocator':
-                        if($request[$flid.'_lat'] != '' && $request[$flid.'_lng'] != '' && $request[$flid.'_range'] != '') {
-                            $processed[$flid]['lat'] = $request[$flid . '_lat'];
-                            $processed[$flid]['lng'] = $request[$flid . '_lng'];
-                            $processed[$flid]['range'] = $request[$flid . '_range'];
-                        }
-                        break;
-                    case 'Boolean':
-                        if(isset($request[$flid.'_input']) && $request[$flid.'_input'] == '1')
-                            $processed[$flid]['input'] = true;
-                        break;
-                    default:
-                        if(isset($request[$flid.'_input']) && $request[$flid.'_input'] != '')
-                            $processed[$flid]['input'] = $request[$flid.'_input'];
-
-                        if(isset($request[$flid.'_input[]']) && !empty($request[$flid.'_input[]']))
-                            $processed[$flid]['input'] = $request[$flid.'_input[]'];
-                        break;
+                    }
+                } else {
+                    array_push($fields,
+                        [
+                            'flid' => $key,
+                            'type' => $field['type']
+                        ]
+                    );
                 }
 
-                if(isset($request[$flid.'_negative']))
-                    $processed[$flid]['negative'] = $request[$flid.'_negative'];
+                foreach ($fields as $tmpField) {
+                    $flid = $tmpField['flid'];
+                    switch($tmpField['type']) {
+                        case 'Integer':
+                        case 'Float':
+                            if($request[$flid.'_left'] != '' | $request[$flid.'_right'] != '') {
+                                $processed[$flid]['left'] = $request[$flid . '_left'];
+                                $processed[$flid]['right'] = $request[$flid . '_right'];
+                                $processed[$flid]['invert'] = isset($request[$flid . '_invert']) ? (bool)$request[$flid . '_invert'] : false;
+                            }
+                            break;
+                        case 'Date':
+                        case 'DateTime':
+                            if(
+                                isset($request[$flid.'_begin_month']) && $request[$flid.'_begin_month'] != '' &&
+                                isset($request[$flid.'_begin_day']) && $request[$flid.'_begin_day'] != '' &&
+                                isset($request[$flid.'_begin_year']) && $request[$flid.'_begin_year'] != '' &&
+                                isset($request[$flid.'_end_month']) && $request[$flid.'_end_month'] != '' &&
+                                isset($request[$flid.'_end_day']) && $request[$flid.'_end_day'] != '' &&
+                                isset($request[$flid.'_end_year']) && $request[$flid.'_end_year'] != ''
+                            ) {
+                                $processed[$flid]['begin_month'] = $request[$flid.'_begin_month'];
+                                $processed[$flid]['begin_day'] = $request[$flid.'_begin_day'];
+                                $processed[$flid]['begin_year'] = $request[$flid.'_begin_year'];
+                                $processed[$flid]['end_month'] = $request[$flid.'_end_month'];
+                                $processed[$flid]['end_day'] = $request[$flid.'_end_day'];
+                                $processed[$flid]['end_year'] = $request[$flid.'_end_year'];
 
-                if(isset($request[$flid.'_empty']))
-                    $processed[$flid]['empty'] = $request[$flid.'_empty'];
+                                if(isset($request[$flid.'_begin_hour']))
+                                    $processed[$flid]['begin_hour'] = $request[$flid.'_begin_hour'];
+                                if(isset($request[$flid.'_begin_minute']))
+                                    $processed[$flid]['begin_minute'] = $request[$flid.'_begin_minute'];
+                                if(isset($request[$flid.'_begin_second']))
+                                    $processed[$flid]['begin_second'] = $request[$flid.'_begin_second'];
+
+                                if(isset($request[$flid.'_end_hour']))
+                                    $processed[$flid]['end_hour'] = $request[$flid.'_end_hour'];
+                                if(isset($request[$flid.'_end_minute']))
+                                    $processed[$flid]['end_minute'] = $request[$flid.'_end_minute'];
+                                if(isset($request[$flid.'_end_second']))
+                                    $processed[$flid]['end_second'] = $request[$flid.'_end_second'];
+                            }
+                            break;
+                        case 'Historical Date':
+                            $beginEra = isset($request[$flid.'_begin_era']) ? $request[$flid.'_begin_era'] : 'CE';
+                            $endEra = isset($request[$flid.'_end_era']) ? $request[$flid.'_end_era'] : 'CE';
+
+                            //Check for valid ERA combos, year must be set either way
+                            if(
+                                (
+                                    ($beginEra == 'CE' && $endEra == 'CE') |
+                                    ($beginEra == 'BCE' && ($endEra == 'BCE' | $endEra == 'CE')) |
+                                    ($beginEra == 'BP' && $endEra == 'BP') |
+                                    ($beginEra == 'KYA BP' && $endEra == 'KYA BP')
+                                ) &&
+                                (
+                                    isset($request[$flid.'_begin_year']) && $request[$flid.'_begin_year'] != '' &&
+                                    isset($request[$flid.'_end_year']) && $request[$flid.'_end_year'] != ''
+                                )
+                            ) {
+                                $processed[$flid]['begin_era'] = $beginEra;
+                                $processed[$flid]['end_era'] = $endEra;
+
+                                if(isset($request[$flid.'_begin_month']) && $request[$flid.'_begin_month'] != '')
+                                    $processed[$flid]['begin_month'] = $request[$flid.'_begin_month'];
+                                if(isset($request[$flid.'_begin_day']) && $request[$flid.'_begin_day'] != '')
+                                    $processed[$flid]['begin_day'] = $request[$flid.'_begin_day'];
+
+                                $processed[$flid]['begin_year'] = $request[$flid.'_begin_year'];
+
+                                if(isset($request[$flid.'_end_month']) && $request[$flid.'_end_month'] != '')
+                                    $processed[$flid]['end_month'] = $request[$flid.'_end_month'];
+                                if(isset($request[$flid.'_end_day']) && $request[$flid.'_end_day'] != '')
+                                    $processed[$flid]['end_day'] = $request[$flid.'_end_day'];
+
+                                $processed[$flid]['end_year'] = $request[$flid.'_end_year'];
+                            }
+                            break;
+                        case 'Geolocator':
+                            if($request[$flid.'_lat'] != '' && $request[$flid.'_lng'] != '' && $request[$flid.'_range'] != '') {
+                                $processed[$flid]['lat'] = $request[$flid . '_lat'];
+                                $processed[$flid]['lng'] = $request[$flid . '_lng'];
+                                $processed[$flid]['range'] = $request[$flid . '_range'];
+                            }
+                            break;
+                        case 'Boolean':
+                            if(isset($request[$flid.'_input']) && $request[$flid.'_input'] == '1')
+                                $processed[$flid]['input'] = true;
+                            break;
+                        default:
+                            if(isset($request[$flid.'_input']) && $request[$flid.'_input'] != '')
+                                $processed[$flid]['input'] = $request[$flid.'_input'];
+
+                            if(isset($request[$flid.'_input[]']) && !empty($request[$flid.'_input[]']))
+                                $processed[$flid]['input'] = $request[$flid.'_input[]'];
+                            break;
+                    }
+
+                    if(isset($request[$flid.'_negative']))
+                        $processed[$flid]['negative'] = $request[$flid.'_negative'];
+
+                    if(isset($request[$flid.'_empty']))
+                        $processed[$flid]['empty'] = $request[$flid.'_empty'];
+
+                    if($field['type'] == 'Combo List') {
+                        $processed[$key] = $processed;
+                        unset($processed[$flid]);
+                    }
+                }
             }
         }
-
-        //dd($processed);
 
         return $processed;
     }
