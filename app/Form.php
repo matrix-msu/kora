@@ -885,7 +885,6 @@ class Form extends Model {
         $records->free();
 
         $con->close();
-        dd($results);
 
         return $results;
     }
