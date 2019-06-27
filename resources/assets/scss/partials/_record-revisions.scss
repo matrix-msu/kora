@@ -13,9 +13,9 @@
   @import 'record-revisions/card';
   @import 'record-revisions/pagination';
   @import 'record-revisions/no-revisions';
-  
+
   .revisions {
-    margin: 40px auto 0;
+    margin: 30px auto 0;
     max-width: calc(#{$max-site-width} - 600px);
     width: $max-site-width;
 

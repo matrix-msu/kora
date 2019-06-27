@@ -2,6 +2,7 @@
 
 use App\Record;
 use App\Revision;
+use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Input;
@@ -46,7 +47,29 @@ class RevisionController extends Controller {
         $order = app('request')->input('order') === null ? 'lmd' : app('request')->input('order');
         $order_type = substr($order, 0, 2) === "lm" ? "updated_at" : "id";
         $order_direction = substr($order, 2, 3) === "a" ? "asc" : "desc";
-        $revisions = Revision::where('form_id', '=', $fid)->orderBy($order_type, $order_direction)->paginate($pagination);
+        $selected_records = app('request')->input('records') == null ? [] : explode(",", app('request')->input('records'));
+        $selected_users = app('request')->input('users') == null ? [] : explode(",", app('request')->input('users'));
+        $selected_dates = app('request')->input('dates') == null ? [] : explode(",", app('request')->input('dates'));
+        $revisions = Revision::where('form_id', '=', $fid)
+          ->when($selected_records, function($query, $selected_records) {
+              return $query->whereIn('record_kid', $selected_records);
+          })
+          ->when($selected_users, function($query, $selected_users) {
+              return $query->whereIn('owner', $selected_users);
+          })
+          ->when($selected_dates, function($query, $selected_dates) {
+              $formatted_dates = array_map(function($date) {return Carbon::parse($date)->format('Y-m-d');}, $selected_dates);
+              foreach ($formatted_dates as $index => $date) {
+                if ($index == 0) {
+                  $query->whereDate('updated_at', $date);
+                } else {
+                  $query->orWhereDate('updated_at', $date);
+                }
+              }
+              return $query;
+          })
+          ->orderBy($order_type, $order_direction)
+          ->paginate($pagination);
 
         $all_form_revisions = Revision::where('form_id', '=', $fid)->get();
         $records = array();
@@ -61,7 +84,9 @@ class RevisionController extends Controller {
           'static' => false
         );
 
-        return view('revisions.index', compact('revisions', 'records', 'form', 'notification', [
+        //dd($revisions);
+
+        return view('revisions.index', compact('revisions', 'records', 'selected_records', 'selected_users', 'form', 'notification', [
             'revisions' => $revisions->appends(Input::except('page'))
         ]));
     }
@@ -94,7 +119,30 @@ class RevisionController extends Controller {
         $order = app('request')->input('order') === null ? 'lmd' : app('request')->input('order');
         $order_type = substr($order, 0, 2) === "lm" ? "updated_at" : "id";
         $order_direction = substr($order, 2, 3) === "a" ? "asc" : "desc";
-        $revisions = Revision::where('record_kid', '=', $kid)->orderBy($order_type, $order_direction)->paginate($pagination);
+        $selected_records = app('request')->input('records') == null ? [] : explode(",", app('request')->input('records'));
+        $selected_users = app('request')->input('users') == null ? [] : explode(",", app('request')->input('users'));
+        $selected_dates = app('request')->input('dates') == null ? [] : explode(",", app('request')->input('dates'));
+
+        $revisions = Revision::where('record_kid', '=', $kid)
+          ->when($selected_records, function($query, $selected_records) {
+              return $query->whereIn('record_kid', $selected_records);
+          })
+          ->when($selected_users, function($query, $selected_users) {
+              return $query->whereIn('owner', $selected_users);
+          })
+          ->when($selected_dates, function($query, $selected_dates) {
+              $formatted_dates = array_map(function($date) {return Carbon::parse($date)->format('Y-m-d');}, $selected_dates);
+              foreach ($formatted_dates as $index => $date) {
+                if ($index == 0) {
+                  $query->whereDate('updated_at', $date);
+                } else {
+                  $query->orWhereDate('updated_at', $date);
+                }
+              }
+              return $query;
+          })
+          ->orderBy($order_type, $order_direction)
+          ->paginate($pagination);
 
         $all_form_revisions = Revision::where('form_id', '=', $fid)->get();
         $records = array();
@@ -111,7 +159,7 @@ class RevisionController extends Controller {
           'static' => false
         );
 
-        return view('revisions.index', compact('revisions', 'records', 'form', 'message', 'record', 'rid', 'notification'));
+        return view('revisions.index', compact('revisions', 'records', 'selected_records', 'selected_users', 'form', 'message', 'record', 'rid', 'notification'));
     }
 
     /**
@@ -209,11 +257,11 @@ class RevisionController extends Controller {
             case Revision::ROLLBACK:
                 foreach($form->layout['fields'] as $flid => $field) {
                     $fieldMod = $form->getFieldModel($field['type']);
-                    if(is_null($revData['data'][$flid]))
+                    if(!array_key_exists($flid, $revData['data']) || is_null($revData['data'][$flid]))
                         $formatted['current'][$flid] = 'No Field Data';
                     else
                         $formatted['current'][$flid] = $fieldMod->processRevisionData($revData['data'][$flid]);
-                    if(is_null($revData['oldData'][$flid]))
+                    if(!array_key_exists($flid, $revData['oldData']) || is_null($revData['oldData'][$flid]))
                         $formatted['old'][$flid] = 'No Field Data';
                     else
                         $formatted['old'][$flid] = $fieldMod->processRevisionData($revData['oldData'][$flid]);

@@ -39,9 +39,9 @@
         <div class="description">
             @if(!$exists && $revision->rollback)
                 <p class="deleted-description">
-                    This record has been deleted, 
-                    but you still have the option to 
-                    <a class="underline-middle-hover reactivate-js" href="#" data-revision="{{$revision->id}}">re-activate the record</a> 
+                    This record has been deleted,
+                    but you still have the option to
+                    <a class="underline-middle-hover reactivate-js" href="#" data-revision="{{$revision->id}}">re-activate the record</a>
                     to its previous state that is listed below.
                 </p>
             @elseif(!$exists)
