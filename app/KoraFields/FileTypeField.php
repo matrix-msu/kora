@@ -165,6 +165,9 @@ abstract class FileTypeField extends BaseField {
                 $files[] = $infoArray[$fName];
             }
 
+            if(empty($files))
+                return null;
+
             return json_encode($files);
         } else {
             return null;
@@ -199,33 +202,33 @@ abstract class FileTypeField extends BaseField {
      *
      * @return Request - Processed data
      */
-    public function processImportData($flid, $field, $value, $request) { //TODO::CASTLE
+    public function processImportData($flid, $field, $value, $request) {
         $files = array();
-        $originRid = $request->originRid;
 
-        //See where we are looking first
-        if(is_null($originRid))
-            $currDir = storage_path( 'app/tmpFiles/impU' . \Auth::user()->id);
-        else
-            $currDir = storage_path('app/tmpFiles/impU' . \Auth::user()->id . '/' . $originRid);
+        $currDir = storage_path( 'app/tmpFiles/impU' . \Auth::user()->id);
 
         //Make destination directory
         $newDir = storage_path('app/tmpFiles/recordU' . \Auth::user()->id);
         if(!file_exists($newDir))
             mkdir($newDir, 0775, true);
 
-        $value = explode(' | ', $value);
-
         foreach($value as $file) {
-            if(!$file)
+            if(!isset($file['name']))
                 return response()->json(["status"=>false,"message"=>"json_validation_error",
                     "record_validation_error"=>[$request->kid => "$flid is missing name for a file"]],500);
-            if(!self::validateRecordFileName($file))
+
+            $pathname = $file['name'];
+            $parts = explode('/',$pathname);
+            $name = end($parts);
+
+            if(!file_exists($currDir . '/' . $pathname))
+                return response()->json(["status" => false, "message" => "xml_validation_error",
+                    "record_validation_error" => [$request->kid => "$flid: trouble finding file $name"]], 500);
+            if(!self::validateRecordFileName($name))
                 return response()->json(["status"=>false,"message"=>"json_validation_error",
                     "record_validation_error"=>[$request->kid => "$flid has file with illegal filename"]],500);
-            $name = $file;
             //move file from imp temp to tmp files
-            copy($currDir . '/' . $name, $newDir . '/' . $name);
+            copy($currDir . '/' . $pathname, $newDir . '/' . $name);
             //add input for this file
             array_push($files, $name);
         }
@@ -244,39 +247,31 @@ abstract class FileTypeField extends BaseField {
      *
      * @return Request - Processed data
      */
-    public function processImportDataXML($flid, $field, $value, $request) { //TODO::CASTLE
+    public function processImportDataXML($flid, $field, $value, $request) {
         $files = array();
-        $originRid = $request->originRid;
 
-        //See where we are looking first
-        if(is_null($originRid))
-            $currDir = storage_path( 'app/tmpFiles/impU' . \Auth::user()->id);
-        else
-            $currDir = storage_path('app/tmpFiles/impU' . \Auth::user()->id . '/' . $originRid);
+        $currDir = storage_path( 'app/tmpFiles/impU' . \Auth::user()->id);
 
         //Make destination directory
         $newDir = storage_path('app/tmpFiles/recordU' . \Auth::user()->id);
-        if(file_exists($newDir))
+        if(!file_exists($newDir))
             mkdir($newDir, 0775, true);
 
         if(empty($value->File))
             return response()->json(["status"=>false,"message"=>"xml_validation_error",
                 "record_validation_error"=>[$request->kid => "$flid format is incorrect for a File Type Field"]],500);
-        foreach ($value->File as $file) {
-            $name = (string)$file;
+        foreach($value->File as $file) {
+            $pathname = (string)$file->Name;
+            $parts = explode('/',$pathname);
+            $name = end($parts);
             //move file from imp temp to tmp files
-            if(!file_exists($currDir . '/' . $name)) {
-                //Before we fail, let's see first if it's just failing because the originRid was specified
-                // and not because the file doesn't actually exist. We will now force look into the ZIPs root folder
-                $currDir = storage_path( 'app/tmpFiles/impU' . \Auth::user()->id);
-                if(!file_exists($currDir . '/' . $name))
-                    return response()->json(["status" => false, "message" => "xml_validation_error",
-                        "record_validation_error" => [$request->kid => "$flid: trouble finding file $name"]], 500);
-            }
+            if(!file_exists($currDir . '/' . $pathname))
+                return response()->json(["status" => false, "message" => "xml_validation_error",
+                    "record_validation_error" => [$request->kid => "$flid: trouble finding file $name"]], 500);
             if(!self::validateRecordFileName($name))
                 return response()->json(["status"=>false,"message"=>"json_validation_error",
                     "record_validation_error"=>[$request->kid => "$flid has file with illegal filename"]],500);
-            copy($currDir . '/' . $name, $newDir . '/' . $name);
+            copy($currDir . '/' . $pathname, $newDir . '/' . $name);
             //add input for this file
             array_push($files, $name);
         }
