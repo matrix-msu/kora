@@ -202,6 +202,8 @@ class RecordController extends Controller {
 
                 $field = $fieldsArray[$key];
                 $request->rid = $record->id;
+                $request->pid = $record->project_id;
+                $request->fid = $record->form_id;
                 $field['flid'] = $key;
                 $processedData = $form->getFieldModel($field['type'])->processRecordData($field, $value, $request);
                 if($field['type'] == \App\Form::_COMBO_LIST) {
@@ -445,6 +447,9 @@ class RecordController extends Controller {
 
             $field = $fieldsArray[$key];
             $field['flid'] = $key;
+            $request->rid = $record->id;
+            $request->pid = $record->project_id;
+            $request->fid = $record->form_id;
             $processedData = $form->getFieldModel($field['type'])->processRecordData($field, $value, $request);
             if($field['type'] == \App\Form::_COMBO_LIST) {
               $processedData = $form->getFieldModel($field['type'])->save(array('fid'=>$fid,'rid'=>$request->rid,'field' => $field, 'values'=>$processedData));

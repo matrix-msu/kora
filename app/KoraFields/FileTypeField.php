@@ -205,10 +205,15 @@ abstract class FileTypeField extends BaseField {
     public function processImportData($flid, $field, $value, $request) {
         $files = array();
 
-        $currDir = storage_path( 'app/tmpFiles/impU' . \Auth::user()->id);
+        if(isset($request->userId))
+            $subpath = $request->userId;
+        else
+            $subpath = \Auth::user()->id;
+
+        $currDir = storage_path( 'app/tmpFiles/impU' . $subpath);
 
         //Make destination directory
-        $newDir = storage_path('app/tmpFiles/recordU' . \Auth::user()->id);
+        $newDir = storage_path('app/tmpFiles/recordU' . $subpath);
         if(!file_exists($newDir))
             mkdir($newDir, 0775, true);
 
@@ -222,7 +227,7 @@ abstract class FileTypeField extends BaseField {
             $name = end($parts);
 
             if(!file_exists($currDir . '/' . $pathname))
-                return response()->json(["status" => false, "message" => "xml_validation_error",
+                return response()->json(["status" => false, "message" => "json_validation_error",
                     "record_validation_error" => [$request->kid => "$flid: trouble finding file $name"]], 500);
             if(!self::validateRecordFileName($name))
                 return response()->json(["status"=>false,"message"=>"json_validation_error",

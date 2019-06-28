@@ -636,18 +636,18 @@ class RestfulController extends Controller {
         if(!isset($request->fields))
             return response()->json(["status"=>false,"error"=>"No data supplied to insert into: ".$form->name],500);
 
-        $fields = json_decode($request->fields);
+        $fields = json_decode($request->fields,true);
         $recRequest = new Request();
 
         $uToken = uniqid(); //need a temp user id to interact, specifically for files
         $recRequest['userId'] = $uToken; //the new record will ultimately be owned by the root/sytem
         if(!is_null($request->file("zip_file")) ) {
             $file = $request->file("zip_file");
-            $zipPath = $file->move(storage_path('app/tmpFiles/recordU' . $uToken));
+            $zipPath = $file->move(storage_path('app/tmpFiles/impU' . $uToken));
             $zip = new \ZipArchive();
             $res = $zip->open($zipPath);
             if($res === TRUE) {
-                $zip->extractTo(storage_path('app/tmpFiles/recordU' . $uToken));
+                $zip->extractTo(storage_path('app/tmpFiles/impU' . $uToken));
                 $zip->close();
             } else {
                 return response()->json(["status"=>false,"error"=>"There was an error extracting the provided zip"],500);
@@ -701,7 +701,7 @@ class RestfulController extends Controller {
         if(!isset($request->fields))
             return response()->json(["status"=>false,"error"=>"No data supplied to insert into: ".$form->name],500);
 
-        $fields = json_decode($request->fields);
+        $fields = json_decode($request->fields,true);
         $record = RecordController::getRecord($request->kid);
         if(is_null($record))
             return response()->json(["status"=>false,"error"=>"Invalid KID provided"],500);
@@ -712,11 +712,11 @@ class RestfulController extends Controller {
         $recRequest['userId'] = $uToken; //the new record will ultimately be owned by the root/sytem
         if( !is_null($request->file("zip_file")) ) {
             $file = $request->file("zip_file");
-            $zipPath = $file->move(storage_path('app/tmpFiles/recordU' . $uToken));
+            $zipPath = $file->move(storage_path('app/tmpFiles/impU' . $uToken));
             $zip = new \ZipArchive();
             $res = $zip->open($zipPath);
             if($res === TRUE) {
-                $zip->extractTo(storage_path('app/tmpFiles/recordU' . $uToken));
+                $zip->extractTo(storage_path('app/tmpFiles/impU' . $uToken));
                 $zip->close();
             } else {
                 return response()->json(["status"=>false,"error"=>"There was an issue extracting the provided file zip"],500);
