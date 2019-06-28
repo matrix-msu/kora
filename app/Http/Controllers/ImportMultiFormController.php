@@ -222,9 +222,9 @@ class ImportMultiFormController extends Controller {
                 foreach($tagNames as $name) {
                     // Matching three different naming conventions
                     if(
-                        $flid==$name |
-                        $flid==str_replace(' ', '_', $name) |
-                        $flid==$field['name']
+                        $name==$flid |
+                        $name==str_replace(' ', '_', $field['name']) |
+                        $name==$field['name']
                     )
                         $table .= '<option val="'.$name.'" selected>' . $name . '</option>';
                     else
@@ -251,6 +251,22 @@ class ImportMultiFormController extends Controller {
             $table .= '</div>';
             $table .= '<div class="form-group"></div>';
             $table .= '</div>';
+
+            //For assoc connections
+            $table .= '<div class="form-group mt-xl half">';
+            $table .= '<div class="solid-box get-slug-js" slug="kidConnection">kidConnection</div></div>';
+            $table .= '<div class="form-group mt-xl half">';
+            $table .= '<select class="single-select get-tag-js" data-placeholder="Select field if applicable">';
+            $table .= '<option></option>';
+            foreach($tagNames as $name) {
+                if($name == "kidConnection")
+                    $table .= '<option val="'.$name.'" selected>' . $name . '</option>';
+                else
+                    $table .= '<option val="'.$name.'">'.$name.'</option>';
+            }
+            $table .= '</select>';
+            $table .= '</div>';
+            $table .= '<div class="form-group"></div>';
 
             $data['records'] = $recordObjs;
             $data['type'] = $type;

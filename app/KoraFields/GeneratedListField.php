@@ -201,7 +201,7 @@ class GeneratedListField extends BaseField {
      * @return Request - Processed data
      */
     public function processImportDataXML($flid, $field, $value, $request) {
-        $request[$flid] = (array)$value;
+        $request[$flid] = (array)$value->value;
 
         return $request;
     }
@@ -227,7 +227,16 @@ class GeneratedListField extends BaseField {
      * @return mixed - Processed data
      */
     public function processXMLData($field, $value) {
-        return "<$field>".htmlspecialchars($value, ENT_XML1, 'UTF-8')."</$field>";
+        $values = json_decode($value);
+        $xmlString = "<$field>";
+
+        foreach($values as $value) {
+            $xmlString .= "<value>".htmlspecialchars($value, ENT_XML1, 'UTF-8')."</value>";
+        }
+
+        $xmlString .= "</$field>";
+
+        return $xmlString;
     }
 
     /**

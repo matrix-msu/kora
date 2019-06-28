@@ -174,7 +174,7 @@ class BooleanField extends BaseField {
      * @return Request - Processed data
      */
     public function processImportDataXML($flid, $field, $value, $request) {
-        $request[$flid] = (boolean)$value;
+        $request[$flid] = $value;
 
         return $request;
     }

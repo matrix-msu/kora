@@ -55,7 +55,7 @@ class ExportController extends Controller {
             return redirect('projects/'.$pid.'/forms/'.$fid);
 
         //Get the data
-        $filters = ["revAssoc" => true, "meta" => false, "fields" => 'ALL', "realnames" => false, "assoc" => false,
+        $filters = ["revAssoc" => true, "meta" => false, "fields" => 'ALL', "altNames" => false, "assoc" => false,
             "data" => true, "sort" => null, "count" => null, "index" => null];
         if($type==self::JSON) {
             $data = json_encode($form->getRecordsForExport($filters));
@@ -103,7 +103,7 @@ class ExportController extends Controller {
 
         //Get the data
         $rids = array_map('intval', explode(',', $request->rid));
-        $filters = ["revAssoc" => true, "meta" => false, "fields" => 'ALL', "realnames" => false, "assoc" => false,
+        $filters = ["revAssoc" => true, "meta" => false, "fields" => 'ALL', "altNames" => false, "assoc" => false,
             "data" => true, "sort" => null, "count" => null, "index" => null];
         if($type==self::JSON) {
             $data = json_encode($form->getRecordsForExport($filters,$rids));

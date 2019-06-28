@@ -216,9 +216,9 @@ class ImportController extends Controller {
             foreach($tagNames as $name) {
                 // Matching three different naming conventions
                 if(
-                    $flid==$name |
-                    $flid==str_replace(' ', '_', $name) |
-                    $flid==$field['name']
+                    $name==$flid |
+                    $name==str_replace(' ', '_', $field['name']) |
+                    $name==$field['name']
                 )
                     $table .= '<option val="'.$name.'" selected>' . $name . '</option>';
                 else
@@ -237,6 +237,22 @@ class ImportController extends Controller {
         $table .= '<option></option>';
         foreach($tagNames as $name) {
             if($name == "reverseAssociations")
+                $table .= '<option val="'.$name.'" selected>' . $name . '</option>';
+            else
+                $table .= '<option val="'.$name.'">'.$name.'</option>';
+        }
+        $table .= '</select>';
+        $table .= '</div>';
+        $table .= '<div class="form-group"></div>';
+
+        //For assoc connections
+        $table .= '<div class="form-group mt-xl half">';
+        $table .= '<div class="solid-box get-slug-js" slug="kidConnection">kidConnection</div></div>';
+        $table .= '<div class="form-group mt-xl half">';
+        $table .= '<select class="single-select get-tag-js" data-placeholder="Select field if applicable">';
+        $table .= '<option></option>';
+        foreach($tagNames as $name) {
+            if($name == "kidConnection")
                 $table .= '<option val="'.$name.'" selected>' . $name . '</option>';
             else
                 $table .= '<option val="'.$name.'">'.$name.'</option>';
@@ -272,7 +288,6 @@ class ImportController extends Controller {
             return redirect('projects/'.$pid)->with('k3_global_error', 'not_form_admin');
 
         $matchup = $request->table;
-        $matchup['KORA ID CONNECTION'] = 'connection';
 
         $record = $request->record;
 
@@ -303,15 +318,14 @@ class ImportController extends Controller {
                             "record_validation_error"=>[$request->kid => "$matchup[$key] format is incorrect for applying reverse associations"]],500);
                     $rFinal = [];
                     foreach($field->Record as $rAssoc) {
-                        $rFinal[(string)$rAssoc['flid']][] = (string)$rAssoc;
+                        $rFinal[(string)$rAssoc['field']][] = (string)$rAssoc;
                     }
                     $recRequest['newRecRevAssoc'] = $rFinal;
                     continue;
                 }
 
-                // TODO::this has to be tested still
-                if($matchup[$flid] == 'connection') {
-                    $recRequest['connection'] = (string)$field;
+                if($matchup[$key] == 'kidConnection') {
+                    $recRequest['kidConnection'] = (string)$field;
                     continue;
                 }
 
@@ -328,10 +342,10 @@ class ImportController extends Controller {
             if(Record::isKIDPattern($originKid))
                 $recRequest->query->add(['originRid' => explode('-', $originKid)[2]]);
 
-            foreach($record as $flid => $field) {
+            foreach($record as $key => $field) {
 
                 //Just in case there are extra/unused fields in the JSON
-                if(!array_key_exists($flid,$matchup))
+                if(!array_key_exists($key,$matchup))
                     continue;
 
                 //If value is not set, move on
@@ -339,18 +353,18 @@ class ImportController extends Controller {
                     continue;
 
                 //Deal with reverse associations and move on
-                if($matchup[$flid] == 'reverseAssociations') {
+                if($matchup[$key] == 'reverseAssociations') {
                     $recRequest['newRecRevAssoc'] = $field;
                     continue;
                 }
 
                 //kora id connection for associator
-                if($matchup[$flid] == 'connection') {
-                    $recRequest['connection'] = $field;
+                if($matchup[$key] == 'kidConnection') {
+                    $recRequest['kidConnection'] = $field;
                     continue;
                 }
 
-                $flid = $matchup[$flid];
+                $flid = $matchup[$key];
                 $fieldMod = $form->layout['fields'][$flid];
                 $typedField = $form->getFieldModel($fieldMod['type']);
                 $recRequest = $typedField->processImportData($flid,$fieldMod,$field,$recRequest);

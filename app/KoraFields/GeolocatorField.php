@@ -259,10 +259,10 @@ class GeolocatorField extends BaseField {
 
 
             $loc = GeolocatorField::geoConvert($geoReq);
-            if(empty($loc->Desc))
+            if(empty($loc->Description))
                 $loc['description'] = '';
             else
-                $loc['description'] = $loc->Desc;
+                $loc['description'] = $loc->Description;
             array_push($geo, $loc);
         }
 
@@ -295,10 +295,12 @@ class GeolocatorField extends BaseField {
         $locs = json_decode($value,true);
         $xml = "<$field>";
         foreach($locs as $loc) {
-            $xml .= '<Desc>'.$loc['description'].'</Desc>';
+            $xml .= '<Location>';
+            $xml .= '<Description>'.$loc['description'].'</Description>';
             $xml .= '<Lat>'.$loc['geometry']['location']['lat'].'</Lat>';
             $xml .= '<Lon>'.$loc['geometry']['location']['lng'].'</Lon>';
             $xml .= '<Address>'.$loc['formatted_address'].'</Address>';
+            $xml .= '</Location>';
         }
         $xml .= "</$field>";
 

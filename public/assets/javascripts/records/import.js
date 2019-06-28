@@ -140,7 +140,7 @@ Kora.Records.Import = function () {
                                     success: function (data) {
                                         //building connections
                                         kids.push(data['kid']);
-                                        if (data['connection'].length != 0) connections[data['connection']] = data['kid'];
+                                        if (data['kidConnection'].length != 0) connections[data['kidConnection']] = data['kid'];
 
                                         succ++;
                                         progressText.text(succ + ' of ' + total + ' Records Submitted');

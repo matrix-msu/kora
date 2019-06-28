@@ -2,8 +2,6 @@
 
 use App\Http\Controllers\RestfulBetaController;
 use App\KoraFields\BaseField;
-use App\Http\Controllers\FormController;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -537,7 +535,7 @@ class Form extends Model {
                 $jsonFields[$tmp] = 1;
             if($this->layout['fields'][$flid]['type'] == self::_ASSOCIATOR)
                 $assocFields[$tmp] = 1;
-            if($this->layout['fields'][$flid]['type'] == self::_COMBO_LIST)
+            if($this->layout['fields'][$flid]['type'] == self::_COMBO_LIST) {
                 $comboFields[$tmp] = 1;
                 $subFields = [];
                 $comboInfo[$tmp]['jsonFields'] = [];
@@ -546,7 +544,7 @@ class Form extends Model {
                 foreach (['one', 'two'] as $seq) {
                     $cType = $this->layout['fields'][$tmp][$seq]['type'];
                     $cFlid = $this->layout['fields'][$tmp][$seq]['flid'];
-                    if (in_array($cType, self::$jsonFields))
+                    if(in_array($cType, self::$jsonFields))
                         array_push($comboInfo[$tmp]['jsonFields'], $cFlid);
                     else if($cType == self::_ASSOCIATOR)
                         array_push($comboInfo[$tmp]['assocFields'], $cFlid);
@@ -554,6 +552,7 @@ class Form extends Model {
                 }
 
                 $comboInfo[$tmp]['fieldString'] = implode(',', $subFields);
+            }
             array_push($realNames,$name);
         }
         $flids = $realNames;

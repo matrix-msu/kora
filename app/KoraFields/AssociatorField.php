@@ -214,7 +214,7 @@ class AssociatorField extends BaseField {
      * @return Request - Processed data
      */
     public function processImportDataXML($flid, $field, $value, $request) {
-        $request[$flid] = (array)$value->Record;
+        $request[$flid] = (array)$value->record;
 
         return $request;
     }
@@ -243,7 +243,7 @@ class AssociatorField extends BaseField {
         $recs = json_decode($value,true);
         $xml = "<$field>";
         foreach($recs as $rec) {
-            $xml .= '<Record>'.$rec.'</Record>';
+            $xml .= '<record>'.$rec.'</record>';
         }
         $xml .= "</$field>";
 

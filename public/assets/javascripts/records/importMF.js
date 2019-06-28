@@ -215,7 +215,7 @@ Kora.Records.ImportMF = function () {
                                             assocTagConvert[fid][data['assocTag']] = data['kid'];
                                         crossFormAssoc[fid][data['kid']] = data['assocArray'];
                                         kids[fid].push(data['kid']);
-                                        if (data['connection'].length != 0) connections[fid][data['connection']] = data['kid'];
+                                        if (data['kidConnection'].length != 0) connections[fid][data['kidConnection']] = data['kid'];
 
                                         if(done == total)
                                             $.ajax({

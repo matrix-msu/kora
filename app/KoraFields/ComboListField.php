@@ -696,7 +696,7 @@ class ComboListField extends BaseField {
     /**
      * Gets the list options for a combo list field.
      *
-     * @param  Field $field - Field to pull options from
+     * @param  array $field - Field to pull options from
      * @param  bool $blankOpt - Has blank option as first array element
      * @return array - The list options
      */
@@ -711,10 +711,10 @@ class ComboListField extends BaseField {
     /**
      * Gets an option of a combo list sub field
      *
-     * @param  Field $field - Combo field to inspect
+     * @param  array $field - Combo field to inspect
      * @param  string $key - The option we want
      * @param  int $seq - Sequence of sub field
-     * @return string - The option
+     * @return array - The option
      */
     public static function getComboFieldOption($field, $key, $seq) {
         return $field[$seq]['options'][$key];

@@ -173,6 +173,7 @@ class RecordController extends Controller {
         }
 
         $connection = '';
+        $revAssoc = '';
         for($i = 0; $i < $numRecs ; $i++) {
             $record = new Record(array(),$fid);
             $record->project_id = $pid;
@@ -186,9 +187,13 @@ class RecordController extends Controller {
 
             foreach($request->all() as $key => $value) {
                 //Import assoc specific, then skip
-                if($key == 'connection') {
+                if($key == 'kidConnection') {
                   $connection = $value;
                   continue;
+                }
+                if($key == 'newRecRevAssoc') {
+                    $revAssoc = $value;
+                    continue;
                 }
 
                 //Skip request variables that are not fields
@@ -215,6 +220,20 @@ class RecordController extends Controller {
 
             $record->save();
 
+            //Handle reverse connections
+            if(is_array($revAssoc)) {
+                foreach($revAssoc as $fieldName => $aRecs) {
+                    foreach($aRecs as $aKid) {
+                        $aRec = self::getRecord($aKid);
+                        $aFLID = fieldMapper($fieldName,$aRec->project_id,$aRec->form_id);
+                        $assocVals = json_decode($aRec->{$aFLID});
+                        $assocVals[] = $record->kid;
+                        $aRec->{$aFLID} = json_encode($assocVals);
+                        $aRec->save();
+                    }
+                }
+            }
+
             //
             // Only create a revision if the record was not mass created.
             // This prevents clutter from an operation that the user
@@ -237,7 +256,7 @@ class RecordController extends Controller {
         }
 
         if($request->api)
-            return response()->json(["status"=>true,"message"=>"record_created","kid"=>$record->kid, "connection"=>$connection],200);
+            return response()->json(["status"=>true,"message"=>"record_created","kid"=>$record->kid, "kidConnection"=>$connection],200);
         else if($request->mass_creation_num > 0)
             return redirect('projects/' . $pid . '/forms/' . $fid . '/records')->with('k3_global_success', 'record_duplicated');
         else

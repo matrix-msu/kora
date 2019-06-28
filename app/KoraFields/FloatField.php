@@ -234,7 +234,7 @@ class FloatField extends BaseField {
      * @return mixed - Processed data
      */
     public function processDisplayData($field, $value) {
-        return $value;
+        return (float)$value;
     }
 
     /**
@@ -246,7 +246,7 @@ class FloatField extends BaseField {
      * @return mixed - Processed data
      */
     public function processXMLData($field, $value) {
-        return "<$field>".htmlspecialchars($value, ENT_XML1, 'UTF-8')."</$field>";
+        return "<$field>".htmlspecialchars((float)$value, ENT_XML1, 'UTF-8')."</$field>";
     }
 
     /**
@@ -257,7 +257,7 @@ class FloatField extends BaseField {
      * @return mixed - Processed data
      */
     public function processLegacyData($value) {
-        return $value;
+        return (float)$value;
     }
 
 
