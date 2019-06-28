@@ -172,7 +172,7 @@ class MultiSelectListField extends BaseField {
      * @return Request - Processed data
      */
     public function processImportData($flid, $field, $value, $request) {
-        $request[$flid] = explode(' | ', $value);
+        $request[$flid] = $value;
 
         return $request;
     }
@@ -189,6 +189,22 @@ class MultiSelectListField extends BaseField {
      */
     public function processImportDataXML($flid, $field, $value, $request) {
         $request[$flid] = (array)$value->value;
+
+        return $request;
+    }
+
+    /**
+     * Formats data for record entry.
+     *
+     * @param  string $flid - Field ID
+     * @param  array $field - The field to represent record data
+     * @param  array $value - Data to add
+     * @param  Request $request
+     *
+     * @return Request - Processed data
+     */
+    public function processImportDataCSV($flid, $field, $value, $request) {
+        $request[$flid] = explode(' | ', $value);
 
         return $request;
     }
@@ -266,33 +282,6 @@ class MultiSelectListField extends BaseField {
     public function massAssignSubsetRecordField($form, $flid, $formFieldValue, $request, $kids) {
         $recModel = new Record(array(),$form->id);
         $recModel->newQuery()->whereIn('kid',$kids)->update([$flid => $formFieldValue]);
-    }
-
-    /**
-     * Provides an example of the field's structure in an export to help with importing records.
-     *
-     * @param  string $slug - Field nickname
-     * @param  string $expType - Type of export
-     * @return mixed - The example
-     */
-    public function getExportSample($slug,$type) {
-        switch($type) {
-            case "XML":
-                $xml = '<' . $slug . '>';
-                $xml .= '<value>' . utf8_encode('This is one of the list options that was selected') . '</value>';
-                $xml .= '<value>' . utf8_encode('This is another list option that was selected') . '</value>';
-                $xml .= '<' . $slug . '>';
-
-                return $xml;
-                break;
-            case "JSON":
-                $fieldArray[$slug] = array('This is one of the list options that was selected',
-                    'This is another list option that was selected');
-
-                return $fieldArray;
-                break;
-        }
-
     }
 
     /**

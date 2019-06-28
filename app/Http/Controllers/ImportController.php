@@ -39,80 +39,6 @@ class ImportController extends Controller {
     }
 
     /**
-     * Exports a sample file of the structure for importing data.
-     *
-     * @param  int $pid - Project ID
-     * @param  int $fid - Form ID
-     * @param  string $type - Format type
-     * @return string - html for the file download
-     */
-    public function exportSample($pid, $fid, $type) {
-        if(!FormController::validProjForm($pid, $fid))
-            return redirect('projects/'.$pid)->with('k3_global_error', 'form_invalid');
-
-        $form = FormController::getForm($fid);
-
-        if(!(\Auth::user()->isFormAdmin($form)))
-            return redirect('projects/'.$pid)->with('k3_global_error', 'not_form_admin');
-
-        switch($type) {
-            case self::XML:
-                $xml = '<?xml version="1.0" encoding="utf-8"?><Records><Record>';
-
-                foreach($form->layout['fields'] as $flid => $field) {
-                    $xml .= $form->getFieldModel($field['type'])->getExportSample($flid, self::XML);
-                }
-
-                $xml .= '<reverseAssociations><Record flid="1337">1-3-37</Record><Record flid="1337">1-3-37</Record></reverseAssociations>';
-                $xml .= '</Record></Records>';
-
-                header("Content-Disposition: attachment; filename=" . $form->name . '_exampleData.xml');
-                header("Content-Type: application/octet-stream; ");
-
-                echo $xml;
-                exit;
-                break;
-            case self::JSON:
-                $tmpArray = array();
-
-                foreach($form->layout['fields'] as $flid => $field) {
-                    $fieldArray = $form->getFieldModel($field['type'])->getExportSample($flid, self::JSON);
-                    $tmpArray = array_merge($fieldArray, $tmpArray);
-                }
-
-                $tmpArray["reverseAssociations"] = ["1337" => array("1-3-37","1-3-37")];
-                $json = [$tmpArray];
-
-                $json = json_encode($json);
-
-                header("Content-Disposition: attachment; filename=" . $form->name . '_exampleData.json');
-                header("Content-Type: application/octet-stream; ");
-
-                echo $json;
-                exit;
-                break;
-            // case self::CSV:
-                // TODO::CASTLE getExportSample() for all fields
-                // $tmpArray = array();
-
-                // foreach($form->layout['fields'] as $flid => $field) {
-                //     $csv .= $form->getFieldModel($field['type'])->getExportSample($flid, self::CSV);
-                // }
-
-                // $csv .= 'id,reverseAssociations';
-                // $csv .= '1337,1-3-37 | 1-3-37';
-
-
-                // header("Content-Disposition: attachment; filename=" . $form->name . '_exampleData.csv');
-                // header("Content-Type: application/octet-stream; ");
-
-                // echo $csv;
-                // exit;
-                // break;
-        }
-    }
-
-    /**
      * Builds the matchup table for comparing imported tag names to actual field names.
      *
      * @param  int $pid - Project ID
@@ -337,13 +263,12 @@ class ImportController extends Controller {
                 $typedField = $form->getFieldModel($fieldMod['type']);
                 $recRequest = $typedField->processImportDataXML($flid,$fieldMod,$field,$recRequest);
             }
-        } else if($request->type==self::JSON | $request->type==self::CSV) {
+        } else if($request->type==self::JSON) {
             $originKid = $request->kid;
             if(Record::isKIDPattern($originKid))
                 $recRequest->query->add(['originRid' => explode('-', $originKid)[2]]);
 
             foreach($record as $key => $field) {
-
                 //Just in case there are extra/unused fields in the JSON
                 if(!array_key_exists($key,$matchup))
                     continue;
@@ -368,6 +293,46 @@ class ImportController extends Controller {
                 $fieldMod = $form->layout['fields'][$flid];
                 $typedField = $form->getFieldModel($fieldMod['type']);
                 $recRequest = $typedField->processImportData($flid,$fieldMod,$field,$recRequest);
+            }
+        } else if($request->type==self::CSV) {
+            $originKid = $request->kid;
+            if(Record::isKIDPattern($originKid))
+                $recRequest->query->add(['originRid' => explode('-', $originKid)[2]]);
+
+            foreach($record as $key => $field) {
+                //Just in case there are extra/unused fields in the JSON
+                if(!array_key_exists($key,$matchup))
+                    continue;
+
+                //If value is not set, move on
+                if(!$field | is_null($field) | $field=='')
+                    continue;
+
+                //Deal with reverse associations and move on
+                if($matchup[$key] == 'reverseAssociations') {
+                    $rFinal = [];
+                    $rAssocs = explode(' | ', $field);
+                    foreach($rAssocs as $rAssoc) {
+                        $parts = explode(' [KIDS] ', $rAssoc);
+                        $aField = $parts[0];
+                        $aKIDs = explode(',', $parts[1]);
+
+                        $rFinal[$aField] = $aKIDs;
+                    }
+                    $recRequest['newRecRevAssoc'] = $rFinal;
+                    continue;
+                }
+
+                //kora id connection for associator
+                if($matchup[$key] == 'kidConnection') {
+                    $recRequest['kidConnection'] = $field;
+                    continue;
+                }
+
+                $flid = $matchup[$key];
+                $fieldMod = $form->layout['fields'][$flid];
+                $typedField = $form->getFieldModel($fieldMod['type']);
+                $recRequest = $typedField->processImportDataCSV($flid,$fieldMod,$field,$recRequest);
             }
         }
 

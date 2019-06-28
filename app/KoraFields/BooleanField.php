@@ -180,6 +180,22 @@ class BooleanField extends BaseField {
     }
 
     /**
+     * Formats data for record entry.
+     *
+     * @param  string $flid - Field ID
+     * @param  array $field - The field to represent record data
+     * @param  array $value - Data to add
+     * @param  Request $request
+     *
+     * @return Request - Processed data
+     */
+    public function processImportDataCSV($flid, $field, $value, $request) {
+        $request[$flid] = $value;
+
+        return $request;
+    }
+
+    /**
      * Formats data for record display.
      *
      * @param  array $field - The field to represent record data
@@ -246,30 +262,6 @@ class BooleanField extends BaseField {
     public function massAssignSubsetRecordField($form, $flid, $formFieldValue, $request, $kids) {
         $recModel = new Record(array(),$form->id);
         $recModel->newQuery()->whereIn('kid',$kids)->update([$flid => $formFieldValue]);
-    }
-
-    /**
-     * Provides an example of the field's structure in an export to help with importing records.
-     *
-     * @param  string $slug - Field nickname
-     * @param  string $expType - Type of export
-     * @return mixed - The example
-     */
-    public function getExportSample($slug,$type) {
-        switch($type) {
-            case "XML":
-                $xml = '<' . $slug . '>';
-                $xml .= 1;
-                $xml .= '</' . $slug . '>';
-
-                return $xml;
-                break;
-            case "JSON":
-                $fieldArray[$slug] = 1;
-
-                return $fieldArray;
-                break;
-        }
     }
 
     /**

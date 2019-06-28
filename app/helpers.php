@@ -304,12 +304,16 @@ function parseCSV($record) {
   if (($handle = fopen($record, "r")) !== FALSE) {
       $row = 0;
       $result = $fields = $ids = $data = $records = array();
+      $bom = pack("CCC", 0xef, 0xbb, 0xbf);
       while (($data = fgetcsv($handle, 0, ",")) !== FALSE) {
           $num = count($data);
           for ($c=0; $c < $num; $c++) {
               if ($row == 0) {
                   $result[$c] = [];
-                  array_push($fields, $data[$c]);
+                  //GETS RID OF BYTE ORDER MARKS THAT ARE SOMETIMES MADE BY FGETCSV
+                  if(0 === strncmp($data[$c], $bom, 3))
+                      $data[$c] = substr($data[$c], 3);
+                  array_push($fields, str_replace('ufeff','',$data[$c]));
               } else {
                   if($data[$c]) {
                       if(!in_array($row, $ids))

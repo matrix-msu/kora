@@ -289,48 +289,11 @@ class HistoricalDateField extends BaseField {
     public function processImportData($flid, $field, $value, $request) {
         $request[$flid] = $flid;
 
-        if(is_string($value)) { // TODO::CASTLE Abstract this.
-            // Assume failure
-            $request['circa_'.$flid] = 0;
-            $request['era_'.$flid] = 'CE';
-            foreach(['month_', 'day_', 'year_'] as $part) {
-                $request[$part.$flid] = '';
-            }
-
-            if(Str::startsWith($value, 'circa')) {
-                $request['circa_'.$flid] = 1;
-                $value = explode('circa', $value)[1];
-            }
-
-            // Era order matters here
-            foreach(['BCE', 'KYA BP', 'CE', 'BP'] as $era) {
-                if(Str::endsWith($value, $era)) {
-                    $request['era_'.$flid] = $era;
-                    $value = explode(' ' . $era, $value)[0];
-                    break;
-                }
-            }
-
-            $year = $value;
-            if(Str::contains($value, '-')) {
-                $value = explode('-', $value);
-                $year = $value[0];
-
-                $request['month_'.$flid] = $value[1];
-
-                if(count($value) == 3) {
-                    $request['day_'.$flid] = $value[2];
-                }
-            }
-
-            $request['year_'.$flid] = $year;
-        } else {
-            $request['month_'.$flid] = isset($value['month']) ? $value['month'] : '';
-            $request['day_'.$flid] = isset($value['day']) ? $value['day'] : '';
-            $request['year_'.$flid] = isset($value['year']) ? $value['year'] : '';
-            $request['circa_'.$flid] = isset($value['circa']) ? $value['circa'] : 0;
-            $request['era_'.$flid] = isset($value['era']) ? $value['era'] : 'CE';
-        }
+        $request['month_'.$flid] = isset($value['month']) ? $value['month'] : '';
+        $request['day_'.$flid] = isset($value['day']) ? $value['day'] : '';
+        $request['year_'.$flid] = isset($value['year']) ? $value['year'] : '';
+        $request['circa_'.$flid] = isset($value['circa']) ? $value['circa'] : 0;
+        $request['era_'.$flid] = isset($value['era']) ? $value['era'] : 'CE';
 
         return $request;
     }
@@ -352,6 +315,56 @@ class HistoricalDateField extends BaseField {
         $request['year_'.$flid] = isset($value->Year) ? (string)$value->Year : '';
         $request['circa_'.$flid] = isset($value->Circa) ? (string)$value->Circa : 0;
         $request['era_'.$flid] = isset($value->Era) ? (string)$value->Era : 'CE';
+
+        return $request;
+    }
+
+    /**
+     * Formats data for record entry.
+     *
+     * @param  string $flid - Field ID
+     * @param  array $field - The field to represent record data
+     * @param  array $value - Data to add
+     * @param  Request $request
+     *
+     * @return Request - Processed data
+     */
+    public function processImportDataCSV($flid, $field, $value, $request) {
+        $request[$flid] = $flid;
+
+        $request['circa_'.$flid] = 0;
+        $request['era_'.$flid] = 'CE';
+        foreach(['month_', 'day_', 'year_'] as $part) {
+            $request[$part.$flid] = '';
+        }
+
+        if(Str::startsWith($value, 'circa')) {
+            $request['circa_'.$flid] = 1;
+            $value = explode('circa ', $value)[1];
+        }
+
+        // Era order matters here
+        foreach(['BCE', 'KYA BP', 'CE', 'BP'] as $era) {
+            if(Str::endsWith($value, $era)) {
+                $request['era_'.$flid] = $era;
+                $value = explode(' ' . $era, $value)[0];
+                break;
+            }
+        }
+
+        $year = $value;
+        if(Str::contains($value, '-')) {
+            $value = explode('-', $value);
+            $year = $value[0];
+
+            $request['month_'.$flid] = $value[1];
+
+            if(count($value) == 3) {
+                $request['day_'.$flid] = $value[2];
+            }
+        }
+
+        $request['year_'.$flid] = $year;
 
         return $request;
     }
@@ -458,38 +471,6 @@ class HistoricalDateField extends BaseField {
 
         $recModel = new Record(array(),$form->id);
         $recModel->newQuery()->whereIn('kid',$kids)->update([$flid => $date]);
-    }
-
-    /**
-     * Provides an example of the field's structure in an export to help with importing records.
-     *
-     * @param  string $slug - Field nickname
-     * @param  string $expType - Type of export
-     * @return mixed - The example
-     */
-    public function getExportSample($slug,$type) {
-        switch($type) {
-            case "XML":
-                $xml = '<' . $slug . '>';
-                $xml .= '<Circa>' . utf8_encode('1 if CIRCA. 0 if NOT CIRCA (Tag is optional)') . '</Circa>';
-                $xml .= '<Month>' . utf8_encode('NUMERIC VALUE OF MONTH (i.e. 03)') . '</Month>';
-                $xml .= '<Day>' . utf8_encode('3') . '</Day>';
-                $xml .= '<Year>' . utf8_encode('2003') . '</Year>';
-                $xml .= '<Era>' . utf8_encode('CE, BCE, BP, or KYA BP (Tag is optional)') . '</Era>';
-                $xml .= '</' . $slug . '>';
-
-                return $xml;
-                break;
-            case "JSON":
-                $fieldArray[$slug]['circa'] = '1 if CIRCA. 0 if NOT CIRCA (Index is optional)';
-                $fieldArray[$slug]['month'] = 'NUMERIC VALUE OF MONTH (i.e. 03)';
-                $fieldArray[$slug]['day'] = 3;
-                $fieldArray[$slug]['year'] = 2003;
-                $fieldArray[$slug]['era'] = 'CE, BCE, BP, or KYA BP (Index is optional)';
-
-                return $fieldArray;
-                break;
-        }
     }
 
     /**

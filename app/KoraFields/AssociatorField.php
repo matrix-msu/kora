@@ -197,9 +197,6 @@ class AssociatorField extends BaseField {
     public function processImportData($flid, $field, $value, $request) {
         $request[$flid] = $value;
 
-        if (is_string($value))
-            $request[$flid] = explode(' | ', $value);
-
         return $request;
     }
 
@@ -215,6 +212,22 @@ class AssociatorField extends BaseField {
      */
     public function processImportDataXML($flid, $field, $value, $request) {
         $request[$flid] = (array)$value->record;
+
+        return $request;
+    }
+
+    /**
+     * Formats data for record entry.
+     *
+     * @param  string $flid - Field ID
+     * @param  array $field - The field to represent record data
+     * @param  array $value - Data to add
+     * @param  Request $request
+     *
+     * @return Request - Processed data
+     */
+    public function processImportDataCSV($flid, $field, $value, $request) {
+        $request[$flid] = explode(' | ', $value);
 
         return $request;
     }
@@ -290,33 +303,6 @@ class AssociatorField extends BaseField {
     public function massAssignSubsetRecordField($form, $flid, $formFieldValue, $request, $kids) {
         $recModel = new Record(array(),$form->id);
         $recModel->newQuery()->whereIn('kid',$kids)->update([$flid => $formFieldValue]);
-    }
-
-    /**
-     * Provides an example of the field's structure in an export to help with importing records.
-     *
-     * @param  string $slug - Field nickname
-     * @param  string $expType - Type of export
-     * @return mixed - The example
-     */
-    public function getExportSample($slug,$type) {
-        switch($type) {
-            case "XML":
-                $xml = '<' . $slug . '>';
-                $xml .= "<Record>".utf8_encode('0-3-0')."</Record>";
-                $xml .= "<Record>".utf8_encode('0-3-1')."</Record>";
-                $xml .= "<Record>".utf8_encode('0-3-2')."</Record>";
-                $xml .= "<Record>".utf8_encode('0-3-3')."</Record>";
-                $xml .= '</' . $slug . '>';
-
-                return $xml;
-                break;
-            case "JSON":
-                $fieldArray[$slug] = array('0-3-0','0-3-1','0-3-2','0-3-3');
-
-                return $fieldArray;
-                break;
-        }
     }
 
     /**

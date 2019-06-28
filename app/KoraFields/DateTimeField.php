@@ -304,6 +304,31 @@ class DateTimeField extends BaseField {
     }
 
     /**
+     * Formats data for record entry.
+     *
+     * @param  string $flid - Field ID
+     * @param  array $field - The field to represent record data
+     * @param  array $value - Data to add
+     * @param  Request $request
+     *
+     * @return Request - Processed data
+     */
+    public function processImportDataCSV($flid, $field, $value, $request) {
+        $request[$flid] = $flid;
+        $parts = explode(' ',$value);
+        $dparts = explode('-',$parts[0]);
+        $tparts = explode(':',$parts[1]);
+        $request['month_'.$flid] = $dparts[1];
+        $request['day_'.$flid] = $dparts[2];
+        $request['year_'.$flid] = $dparts[0];
+        $request['hour_'.$flid] = $tparts[0];
+        $request['minute_'.$flid] = $tparts[1];
+        $request['second_'.$flid] = $tparts[2];
+
+        return $request;
+    }
+
+    /**
      * Formats data for record display.
      *
      * @param  array $field - The field to represent record data
@@ -393,30 +418,6 @@ class DateTimeField extends BaseField {
 
         $recModel = new Record(array(),$form->id);
         $recModel->newQuery()->whereIn('kid',$kids)->update([$flid => $date]);
-    }
-
-    /**
-     * Provides an example of the field's structure in an export to help with importing records.
-     *
-     * @param  string $slug - Field nickname
-     * @param  string $expType - Type of export
-     * @return mixed - The example
-     */
-    public function getExportSample($slug,$type) {
-        switch($type) {
-            case "XML":
-                $xml = '<' . $slug . '>';
-                $xml .= 'YYYY-MM-DD HH:MM:SS';
-                $xml .= '</' . $slug . '>';
-
-                return $xml;
-                break;
-            case "JSON":
-                $fieldArray[$slug] = 'YYYY-MM-DD HH:MM:SS';
-
-                return $fieldArray;
-                break;
-        }
     }
 
     /**

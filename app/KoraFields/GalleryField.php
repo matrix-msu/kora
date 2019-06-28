@@ -245,6 +245,22 @@ class GalleryField extends FileTypeField {
     }
 
     /**
+     * Formats data for record entry.
+     *
+     * @param  string $flid - Field ID
+     * @param  array $field - The field to represent record data
+     * @param  array $value - Data to add
+     * @param  Request $request
+     *
+     * @return Request - Processed data
+     */
+    public function processImportDataCSV($flid, $field, $value, $request) {
+        $request[$flid] = $value;
+
+        return $request;
+    }
+
+    /**
      * Formats data for XML record display.
      *
      * @param  string $field - Field ID
@@ -267,52 +283,6 @@ class GalleryField extends FileTypeField {
         $xml .= "</$field>";
 
         return $xml;
-    }
-
-    /**
-     * Provides an example of the field's structure in an export to help with importing records.
-     *
-     * @param  string $slug - Field nickname
-     * @param  string $expType - Type of export
-     * @return mixed - The example
-     */
-    public function getExportSample($slug, $type) {
-        switch($type) {
-            case "XML":
-                $xml = '<'.$slug.'>';
-                $xml .= '<File>';
-                $xml .= '<Name>' . utf8_encode('FILENAME 1') . '</Name>';
-                $xml .= '</File>';
-                $xml .= '<File>';
-                $xml .= '<Name>' . utf8_encode('FILENAME 2') . '</Name>';
-                $xml .= '<Caption>' . utf8_encode('Example of one that has a caption!') . '</Caption>';
-                $xml .= '</File>';
-                $xml .= '<File>';
-                $xml .= '<Name>' . utf8_encode('so on...') . '</Name>';
-                $xml .= '</File>';
-                $xml .= '</' . $slug . '>';
-
-                return $xml;
-                break;
-            case "JSON":
-                $fieldArray = [];
-
-                $fileArray = [];
-                $fileArray['name'] = 'FILENAME 1';
-                $fieldArray[$slug]['value'][] = $fileArray;
-
-                $fileArray = [];
-                $fileArray['name'] = 'FILENAME2';
-                $fileArray['caption'] = 'Example of one that has a caption!';
-                $fieldArray[$slug][] = $fileArray;
-
-                $fileArray = [];
-                $fileArray['name'] = 'so on...';
-                $fieldArray[$slug][] = $fileArray;
-
-                return $fieldArray;
-                break;
-        }
     }
 
     /**

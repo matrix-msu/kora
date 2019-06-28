@@ -287,6 +287,26 @@ class DateField extends BaseField {
     }
 
     /**
+     * Formats data for record entry.
+     *
+     * @param  string $flid - Field ID
+     * @param  array $field - The field to represent record data
+     * @param  array $value - Data to add
+     * @param  Request $request
+     *
+     * @return Request - Processed data
+     */
+    public function processImportDataCSV($flid, $field, $value, $request) {
+        $request[$flid] = $flid;
+        $parts = explode('-',$value);
+        $request['month_'.$flid] = $parts[1];
+        $request['day_'.$flid] = $parts[2];
+        $request['year_'.$flid] = $parts[0];
+
+        return $request;
+    }
+
+    /**
      * Formats data for record display.
      *
      * @param  array $field - The field to represent record data
@@ -370,30 +390,6 @@ class DateField extends BaseField {
 
         $recModel = new Record(array(),$form->id);
         $recModel->newQuery()->whereIn('kid',$kids)->update([$flid => $date]);
-    }
-
-    /**
-     * Provides an example of the field's structure in an export to help with importing records.
-     *
-     * @param  string $slug - Field nickname
-     * @param  string $expType - Type of export
-     * @return mixed - The example
-     */
-    public function getExportSample($slug,$type) {
-        switch($type) {
-            case "XML":
-                $xml = '<' . $slug . '>';
-                $xml .= 'YYYY-MM-DD';
-                $xml .= '</' . $slug . '>';
-
-                return $xml;
-                break;
-            case "JSON":
-                $fieldArray[$slug] = 'YYYY-MM-DD';
-
-                return $fieldArray;
-                break;
-        }
     }
 
     /**

@@ -139,6 +139,18 @@ abstract class BaseField extends Model {
     abstract public function processImportDataXML($flid, $field, $value, $request);
 
     /**
+     * Formats data for record entry.
+     *
+     * @param  string $flid - Field ID
+     * @param  array $field - The field to represent record data
+     * @param  array $value - Data to add
+     * @param  Request $request
+     *
+     * @return mixed - Processed data
+     */
+    abstract public function processImportDataCSV($flid, $field, $value, $request);
+
+    /**
      * Formats data for record display.
      *
      * @param  array $field - The field to represent record data
@@ -188,15 +200,6 @@ abstract class BaseField extends Model {
      * @param  array $kids - The KIDs to update
      */
     abstract public function massAssignSubsetRecordField($form, $flid, $formFieldValue, $request, $kids);
-
-    /**
-     * Provides an example of the field's structure in an export to help with importing records.
-     *
-     * @param  string $slug - Field nickname
-     * @param  string $expType - Type of export
-     * @return mixed - The example
-     */
-    abstract public function getExportSample($slug,$type);
 
     /**
      * Performs a keyword search on this field and returns any results.

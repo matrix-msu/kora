@@ -195,40 +195,6 @@ class GeolocatorField extends BaseField {
     public function processImportData($flid, $field, $value, $request) {
         $request[$flid] = $value;
 
-        if (is_string($value)) {
-            $geo = array();
-            $values = explode(' | ', $value);
-
-            foreach ($values as $value) {
-                $blob = explode(' [DESCRIPTION] ', $value);
-                $loc = $description = '';
-                $geoReq = new Request();
-
-                if (count($blob) == 2) {
-                    list($loc, $description) = $blob;
-                } else {
-                    $loc = $blob[0];
-                }
-
-                list($lat, $lon) = array_merge(explode(',', $loc), array(''));
-
-                if (is_numeric($lat) && is_numeric($lon)) {
-                    $geoReq->type = 'latlon';
-                    $geoReq->lat = $lat;
-                    $geoReq->lon = $lon;
-                } else {
-                    $geoReq->type = 'geo';
-                    $geoReq->addr = $loc;
-                }
-
-                $loc = GeolocatorField::geoConvert($geoReq);
-                $loc['description'] = $description;
-                array_push($geo, $loc);
-            }
-
-            $request[$flid] = $geo;
-        }
-
         return $request;
     }
 
@@ -263,6 +229,51 @@ class GeolocatorField extends BaseField {
                 $loc['description'] = '';
             else
                 $loc['description'] = $loc->Description;
+            array_push($geo, $loc);
+        }
+
+        $request[$flid] = $geo;
+
+        return $request;
+    }
+
+    /**
+     * Formats data for record entry.
+     *
+     * @param  string $flid - Field ID
+     * @param  array $field - The field to represent record data
+     * @param  array $value - Data to add
+     * @param  Request $request
+     *
+     * @return Request - Processed data
+     */
+    public function processImportDataCSV($flid, $field, $value, $request) {
+        $geo = array();
+        $values = explode(' | ', $value);
+
+        foreach ($values as $value) {
+            $blob = explode(' [DESCRIPTION] ', $value);
+            $loc = $description = '';
+            $geoReq = new Request();
+
+            if(count($blob) == 2)
+                list($loc, $description) = $blob;
+            else
+                $loc = $blob[0];
+
+            list($lat, $lon) = array_merge(explode(',', $loc), array(''));
+
+            if(is_numeric($lat) && is_numeric($lon)) {
+                $geoReq->type = 'latlon';
+                $geoReq->lat = $lat;
+                $geoReq->lon = $lon;
+            } else {
+                $geoReq->type = 'geo';
+                $geoReq->addr = $loc;
+            }
+
+            $loc = GeolocatorField::geoConvert($geoReq);
+            $loc['description'] = $description;
             array_push($geo, $loc);
         }
 
@@ -349,43 +360,6 @@ class GeolocatorField extends BaseField {
         $locsValue = '['.implode(',',$formFieldValue).']';
         $recModel = new Record(array(),$form->id);
         $recModel->newQuery()->whereIn('kid',$kids)->update([$flid => $locsValue]);
-    }
-
-    /**
-     * Provides an example of the field's structure in an export to help with importing records.
-     *
-     * @param  string $slug - Field nickname
-     * @param  string $expType - Type of export
-     * @return mixed - The example
-     */
-    public function getExportSample($slug,$type) {
-        switch($type) {
-            case "XML":
-                $xml = '<' . $slug . '>';
-                $xml .= '<Location>';
-                $xml .= '<Desc>' . utf8_encode('Matrix') . '</Desc>';
-                $xml .= '<Lat>' . utf8_encode('42.7314094') . '</Lat>';
-                $xml .= '<Lon>' . utf8_encode('-84.476258') . '</Lon>';
-                $xml .= '<Address>' . utf8_encode('288 Farm Ln, East Lansing, MI 48823') . '</Address>';
-                $xml .= '</Location>';
-                $xml .= '</' . $slug . '>';
-
-                return $xml;
-                break;
-            case "JSON":
-                $fieldArray = [$slug => ['type' => 'Geolocator']];
-
-                $locArray = array();
-
-                $locArray['description'] = 'Matrix';
-                $locArray['geometry']['location']['lat'] = 42.7314094;
-                $locArray['geometry']['location']['lng'] = -84.476258;
-                $locArray['formatted_address'] = '288 Farm Ln, East Lansing, MI 48823';
-                $fieldArray[$slug] = array($locArray);
-
-                return $fieldArray;
-                break;
-        }
     }
 
     /**
