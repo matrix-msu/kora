@@ -17,11 +17,13 @@
                 <i class="icon icon-record-import"></i>
                 <span class="header-text-js">Import Multi Form Records</span>
             </h1>
-            <p class="description desc-text-js">You can import records for multiple Forms via XML or JSON Files. Upload
-                one file for each Form, and then enter the forms in order in the list below. Compared to the records
-                import page, there is no matchup sequence so file field names must match the expected Unique Field
-                Identifiers. This systems also allows records to be associated between the uploaded forms. Please see
-                the Kora Documentation for references on how to define cross-Form associations.</p>
+            <p class="description desc-text-js">
+                You can import records for multiple Forms via CSV, JSON, or XML Files. Upload one file for each Form,
+                and then enter the forms in order in the list below. Please read the Record Import Documentation to
+                learn about the structure of records for each file type. This systems also allows records to be
+                associated between records in the uploaded forms, and to be associated by existing records. Please see
+                the Kora Documentation for references on how to define these associations.
+            </p>
             <div class="content-sections sections-remove-js">
               <div class="content-sections-scroll">
                 <a href="#recordfile" class="recordfile-link underline-middle active">Upload Record Files</a>

@@ -18,11 +18,11 @@
                 <i class="icon icon-record-import"></i>
                 <span class="header-text-js">Import Records</span>
             </h1>
-            <p class="description desc-text-js">You can import records via XML, CSV, or JSON File. You may
-                <a href="{{ action('ImportController@exportSample',['pid' => $form->project_id, 'fid' => $form->id, 'type' => 'XML']) }}">download our sample XML file here</a>,
-                or
-                <a href="{{ action('ImportController@exportSample',['pid' => $form->project_id, 'fid' => $form->id, 'type' => 'JSON']) }}">our sample JSON file here</a>
-                to get an idea on how to organize your record data. </p>
+            <p class="description desc-text-js">
+                You can import records via a CSV, JSON, or XML File. Please read the Record Import Documentation to
+                learn about the structure of records for each file type. This systems also allows records to be
+                associated between records in the uploaded forms, and to be associated by existing records. Please see
+                the Kora Documentation for references on how to define these associations.
             <div class="content-sections sections-remove-js">
               <div class="content-sections-scroll">
                 <a href="#recordfile" class="recordfile-link underline-middle active">Upload Record Files</a>
