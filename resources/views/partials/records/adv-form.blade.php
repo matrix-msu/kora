@@ -4,7 +4,9 @@
         <?php $typedField = $form->getFieldModel($field['type']); ?>
         @if($field['advanced_search'])
             <input type="hidden" name="{{$flid}}" value="{{$flid}}">
-            @include($typedField->getAdvancedSearchInputView(), ['flid' => $flid, 'field' => $field])
+            @if ($typedField->getAdvancedSearchInputView() != "")
+              @include($typedField->getAdvancedSearchInputView(), ['flid' => $flid, 'field' => $field])
+            @endif
             <div class="form-group mt-sm">
                 <div class="check-box-half">
                     <input type="checkbox" value="1" id="active" class="check-box-input" name="{{$flid}}_negative" />

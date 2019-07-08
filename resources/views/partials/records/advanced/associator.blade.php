@@ -1,5 +1,5 @@
 <div class="form-group mt-xl">
-    {!! Form::label($flid.'_input',$field['alt_name']!='' ? $field['name'].' ('.$field['alt_name'].')' : $field['name']) !!}
+    {!! Form::label($flid.'_input', array_key_exists('alt_name', $field) && $field['alt_name']!='' ? $field['name'].' ('.$field['alt_name'].')' : $field['name']) !!}
     <?php
         $asc = new \App\Http\Controllers\AssociatorSearchController();
         $request = new \Illuminate\Http\Request();
