@@ -449,6 +449,22 @@ class ComboListField extends BaseField {
     }
 
     /**
+     * Formats data for record entry.
+     *
+     * @param  string $flid - Field ID
+     * @param  array $field - The field to represent record data
+     * @param  array $value - Data to add
+     * @param  Request $request
+     *
+     * @return Request - Processed data
+     */
+    public function processImportDataCSV($flid, $field, $value, $request) { // TODO::CASTLE
+        $request[$flid] = $value;
+
+        return $request;
+    }
+
+    /**
      * Formats data for record display.
      *
      * @param  array $field - The field to represent record data
