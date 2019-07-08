@@ -1,16 +1,11 @@
 <?php namespace App\KoraFields;
 
 use App\Form;
+use App\Record;
 use App\Search;
-use App\Http\Controllers\AssociationController;
 use App\Http\Controllers\FieldController;
-use App\Http\Controllers\FormController;
-use Illuminate\Database\Query\Builder;
-use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Redirect;
 
 class ComboListField extends BaseField {
 
@@ -344,8 +339,8 @@ class ComboListField extends BaseField {
      * @param  Request $request
      * @param  bool $overwrite - Overwrite if data exists
      */
-    public function massAssignRecordField($form, $flid, $formFieldValue, $request, $overwrite=0) {
-        //TODO::CASTLE
+    public function massAssignRecordField($form, $flid, $formFieldValue, $request, $overwrite=0) { //TODO::CASTLE
+
     }
 
     /**
@@ -357,8 +352,8 @@ class ComboListField extends BaseField {
      * @param  Request $request
      * @param  array $kids - The KIDs to update
      */
-    public function massAssignSubsetRecordField($form, $flid, $formFieldValue, $request, $kids) {
-        //TODO::CASTLE
+    public function massAssignSubsetRecordField($form, $flid, $formFieldValue, $request, $kids) { //TODO::CASTLE
+
     }
 
     /**
@@ -412,7 +407,7 @@ class ComboListField extends BaseField {
      * @return mixed - Processed data
      */
     public function processRevisionData($data) { // TODO::CASTLE
-        return $data;
+        return null;
     }
 
     /**
@@ -426,8 +421,6 @@ class ComboListField extends BaseField {
      * @return Request - Processed data
      */
     public function processImportData($flid, $field, $value, $request) { // TODO::CASTLE
-        $request[$flid] = $value;
-
         return $request;
     }
 
@@ -443,8 +436,6 @@ class ComboListField extends BaseField {
      * @return Request - Processed data
      */
     public function processImportDataXML($flid, $field, $value, $request, $simple = false) { // TODO::CASTLE
-        $request[$flid] = (string)$value;
-
         return $request;
     }
 
@@ -459,8 +450,6 @@ class ComboListField extends BaseField {
      * @return Request - Processed data
      */
     public function processImportDataCSV($flid, $field, $value, $request) { // TODO::CASTLE
-        $request[$flid] = $value;
-
         return $request;
     }
 
@@ -485,8 +474,8 @@ class ComboListField extends BaseField {
      *
      * @return mixed - Processed data
      */
-    public function processXMLData($field, $value) {
-        return "<$field>".htmlspecialchars($value, ENT_XML1, 'UTF-8')."</$field>";
+    public function processXMLData($field, $value) { //TODO::CASTLE
+        return "<$field>".''."</$field>";
     }
 
     /**
@@ -497,7 +486,7 @@ class ComboListField extends BaseField {
      * @return mixed - Processed data
      */
     public function processLegacyData($value) {
-        return $value;
+        return null;
     }
 
     /**
