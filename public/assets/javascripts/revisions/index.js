@@ -2,6 +2,134 @@ var Kora = Kora || {};
 Kora.Revisions = Kora.Revisions || {};
 
 Kora.Revisions.Index = function() {
+	function updateWindowLocation($param, $updatedParamValue) {
+		var paramArray = [];
+
+		// Get Existing URL Parameters
+		var pageCountParam = getURLParameter('page-count');
+		var orderParam = getURLParameter('order');
+		var recordsParam = getURLParameter('records');
+		var usersParam = getURLParameter('users');
+		var datesParam = getURLParameter('dates');
+
+		// Page Count parameter
+		if ($param == 'page-count') {
+			// If this is the updated param, replace the existing param
+			if ($updatedParamValue != "") {
+				paramArray.push('page-count='+$updatedParamValue);
+			}
+		} else if (pageCountParam && pageCountParam != "") {
+			// Keep existing param if we are not updating it
+			paramArray.push('page-count='+pageCountParam);
+		}
+
+		// Order parameter
+		if ($param == 'order') {
+			if ($updatedParamValue != "") {
+				paramArray.push('order='+$updatedParamValue);
+			}
+		} else if (orderParam && orderParam != "") {
+			paramArray.push('order='+orderParam);
+		}
+
+		// Records parameter
+		if ($param == 'records') {
+			if ($updatedParamValue != "") {
+				paramArray.push('records='+$updatedParamValue);
+			}
+		} else if (recordsParam && recordsParam != "") {
+			paramArray.push('records='+recordsParam);
+		}
+
+		// Users parameter
+		if ($param == 'users') {
+			if ($updatedParamValue != "") {
+				paramArray.push('users='+$updatedParamValue);
+			}
+		} else if (usersParam && usersParam != "") {
+			paramArray.push('users='+usersParam);
+		}
+
+		// Dates parameter
+		if ($param == 'dates') {
+			if ($updatedParamValue != "") {
+				paramArray.push('dates='+$updatedParamValue);
+			}
+		} else if (datesParam && datesParam != "") {
+			paramArray.push('dates='+datesParam);
+		}
+
+		if (paramArray.length > 0) {
+				return window.location.pathname + "?" + paramArray.join('&');
+		} else {
+				return window.location.pathname;
+		}
+	}
+
+	function initializeSelects() {
+			//Most field option pages need these
+			$('.single-select').chosen({
+					disable_search_threshold: 4,
+					width: '100%',
+					allow_single_deselect: true,
+			});
+
+			$('.multi-select').chosen({
+					width: '100%',
+			});
+
+			// Record filter
+			var $recordsMultiSelect = $('#records-multi-select');
+			var $recordsPlaceholderInput = $recordsMultiSelect.next().find('.search-field .chosen-search-input');
+
+			$recordsMultiSelect.change(function(e, params) {
+					var records = (getURLParameter('records') !== null ? getURLParameter('records').split(",") : []);
+
+					if (params['selected']) {
+							records.push(params['selected']);
+					} else if (params['deselected']) {
+							records.splice($.inArray(params['deselected'], records), 1);
+					}
+
+					window.location = updateWindowLocation('records', records);
+			});
+
+			// User filter
+			var $usersMultiSelect = $('#users-multi-select');
+			var $usersPlaceholderInput = $usersMultiSelect.next().find('.search-field .chosen-search-input');
+
+			$usersMultiSelect.change(function(e, params) {
+					var users = (getURLParameter('users') !== null ? getURLParameter('users').split(",") : []);
+
+					if (params['selected']) {
+							users.push(params['selected']);
+					} else if (params['deselected']) {
+							users.splice($.inArray(params['deselected'], users), 1);
+					}
+
+					window.location = updateWindowLocation('users', users);
+			});
+
+			// Date filter
+			$('.date-picker-js').multiDatesPicker({
+				changeMonth: true,
+				changeYear: true,
+				yearRange: "2000:+nn",
+				prevTest: "Test",
+				showAnim: "slideDown",
+				separator: ",",
+				onSelect: function(date) {
+					window.location = updateWindowLocation('dates', $(this).val());
+					console.log($(this).val());
+				}
+			});
+
+			var dates = getURLParameter('dates');
+			if (dates && dates != "") {
+				$('.date-picker-js').multiDatesPicker('addDates', dates.split(','));
+			}
+	}
+
 	function initializeOptionDropdowns() {
 		$('.option-dropdown-js').chosen({
 			disable_search_threshold: 10,
@@ -9,11 +137,9 @@ Kora.Revisions.Index = function() {
 		}).change(function() {
             var type = $(this).attr('id');
             if (type === 'page-count-dropdown') {
-                var order = getURLParameter('order');
-                window.location = window.location.pathname + "?page-count=" + $(this).val() + (order ? "&order=" + order : '');
+                window.location = updateWindowLocation('page-count', $(this).val());
             } else if (type === 'order-dropdown') {
-                var pageCount = getURLParameter('page-count');
-                window.location = window.location.pathname + "?order=" + $(this).val() + (pageCount ? "&page-count=" + pageCount : '');
+                window.location = updateWindowLocation('order', $(this).val());
             }
         });
     }
@@ -173,6 +299,7 @@ Kora.Revisions.Index = function() {
         });
     }
 
+		initializeSelects()
     initializeOptionDropdowns();
     initializeRecordSelect();
     initializePaginationShortcut();

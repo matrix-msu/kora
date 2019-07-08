@@ -187,6 +187,7 @@
   @import 'inputs/selects';
   @import 'inputs/text';
 
+
   // Specialty Field Inputs
   @import 'inputs/date';
   @import 'inputs/file';
@@ -194,4 +195,5 @@
   @import 'inputs/list';
 }
 
+@import 'inputs/datepicker'; // Placed within body by jQuery
 @import 'inputs/new-object-button';

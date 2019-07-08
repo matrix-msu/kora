@@ -1,0 +1,117 @@
+.ui-datepicker {
+  background: palette('white', base);
+  border-radius: 5px;
+  box-shadow: 0 3px 5px palette('box-shadow', base, .07);
+  display: none;
+  font-size: 12px;
+  margin-top: 10px;
+  padding: 10px;
+  z-index: 10 !important;
+
+  .ui-datepicker-calendar {
+    border-collapse: collapse;
+
+    a {
+      box-sizing: border-box;
+      color: palette('gray', text);
+      display: block;
+      padding: 8.5px 0;
+      text-decoration: none;
+
+      &:hover {
+        background: palette('green', accent, .07);
+      }
+    }
+
+    td {
+      box-sizing: border-box;
+      height: 30px;
+      padding: 0;
+      text-align: center;
+      transition: .2s all ease;
+      width: 30px;
+
+      &:hover:not(.ui-datepicker-unselectable) {
+        background: palette('green', accent, .07);
+      }
+
+      &.ui-state-highlight a {
+        background: palette('green', accent, .2);
+      }
+
+      &.ui-datepicker-other-month {
+        a {
+          color: palette('gray', text, .07);
+        }
+      }
+
+      &.ui-datepicker-today {
+        a {
+          color: palette('green', accent);
+        }
+      }
+    }
+
+    th {
+      font-weight: normal;
+    }
+  }
+
+  .ui-datepicker-month,
+  .ui-datepicker-year {
+    appearance: none;
+    background: palette('gray', base, .07);
+    border: 0;
+    border-radius: 5px;
+    cursor: pointer;
+    margin: 0 2px;
+    padding: 2px 10px;
+    transition: .2s all ease;
+
+    &:hover {
+      background: palette('green', accent, .07);
+      color: palette('green', accent);
+    }
+
+    &:focus {
+      outline: none;
+    }
+  }
+
+  .ui-datepicker-header {
+    padding: 8px;
+
+    .ui-datepicker-next,
+    .ui-datepicker-prev {
+      cursor: pointer;
+    }
+
+    .ui-datepicker-next {
+      float: right;
+
+      .ui-icon {
+        //display: none;
+      }
+    }
+
+    .ui-datepicker-prev {
+      float: left;
+
+      .ui-icon {
+        //display: none;
+      }
+    }
+
+    .ui-datepicker-title {
+      text-align: center;
+    }
+
+  }
+
+
+
+
+
+
+
+}
