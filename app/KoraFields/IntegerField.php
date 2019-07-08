@@ -228,7 +228,7 @@ class IntegerField extends BaseField {
      * @return Request - Processed data
      */
     public function processImportDataCSV($flid, $field, $value, $request) {
-        $request[$flid] = $value;
+        $request[$flid] = trim($value);
 
         return $request;
     }

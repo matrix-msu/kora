@@ -297,7 +297,48 @@ abstract class FileTypeField extends BaseField {
      * @return Request - Processed data
      */
     public function processImportDataCSV($flid, $field, $value, $request) {
-        $request[$flid] = $value;
+        $files = array();
+
+        if(isset($request->userId))
+            $subpath = $request->userId;
+        else
+            $subpath = \Auth::user()->id;
+
+        $currDir = storage_path( 'app/tmpFiles/impU' . $subpath);
+
+        //Make destination directory
+        $newDir = storage_path('app/tmpFiles/recordU' . $subpath);
+        if(!file_exists($newDir))
+            mkdir($newDir, 0775, true);
+
+        $newVal = array();
+        $fileParts = explode('|', $value);
+        foreach($fileParts as $fPart) {
+            $newFile = ['name' => trim($fPart)];
+            $newVal[] = $newFile;
+        }
+
+        foreach($newVal as $file) {
+            if(!isset($file['name']))
+                return response()->json(["status"=>false,"message"=>"json_validation_error",
+                    "record_validation_error"=>[$request->kid => "$flid is missing name for a file"]],500);
+
+            $pathname = $file['name'];
+            $parts = explode('/',$pathname);
+            $name = end($parts);
+
+            if(!file_exists($currDir . '/' . $pathname))
+                return response()->json(["status" => false, "message" => "json_validation_error",
+                    "record_validation_error" => [$request->kid => "$flid: trouble finding file $name"]], 500);
+            if(!self::validateRecordFileName($name))
+                return response()->json(["status"=>false,"message"=>"json_validation_error",
+                    "record_validation_error"=>[$request->kid => "$flid has file with illegal filename"]],500);
+            //move file from imp temp to tmp files
+            copy($currDir . '/' . $pathname, $newDir . '/' . $name);
+            //add input for this file
+            array_push($files, $name);
+        }
+        $request[$flid] = $files;
 
         return $request;
     }

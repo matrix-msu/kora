@@ -249,10 +249,10 @@ class GeolocatorField extends BaseField {
      */
     public function processImportDataCSV($flid, $field, $value, $request) {
         $geo = array();
-        $values = explode(' | ', $value);
+        $values = explode('|', $value);
 
         foreach ($values as $value) {
-            $blob = explode(' [DESCRIPTION] ', $value);
+            $blob = explode('[DESCRIPTION]', $value);
             $loc = $description = '';
             $geoReq = new Request();
 
@@ -265,15 +265,15 @@ class GeolocatorField extends BaseField {
 
             if(is_numeric($lat) && is_numeric($lon)) {
                 $geoReq->type = 'latlon';
-                $geoReq->lat = $lat;
-                $geoReq->lon = $lon;
+                $geoReq->lat = trim($lat);
+                $geoReq->lon = trim($lon);
             } else {
                 $geoReq->type = 'geo';
-                $geoReq->addr = $loc;
+                $geoReq->addr = trim($loc);
             }
 
             $loc = GeolocatorField::geoConvert($geoReq);
-            $loc['description'] = $description;
+            $loc['description'] = trim($description);
             array_push($geo, $loc);
         }
 

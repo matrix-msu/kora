@@ -340,14 +340,14 @@ class HistoricalDateField extends BaseField {
 
         if(Str::startsWith($value, 'circa')) {
             $request['circa_'.$flid] = 1;
-            $value = explode('circa ', $value)[1];
+            $value = trim(explode('circa', $value)[1]);
         }
 
         // Era order matters here
         foreach(['BCE', 'KYA BP', 'CE', 'BP'] as $era) {
             if(Str::endsWith($value, $era)) {
                 $request['era_'.$flid] = $era;
-                $value = explode(' ' . $era, $value)[0];
+                $value = trim(explode($era, $value)[0]);
                 break;
             }
         }

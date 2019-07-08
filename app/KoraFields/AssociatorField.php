@@ -227,7 +227,12 @@ class AssociatorField extends BaseField {
      * @return Request - Processed data
      */
     public function processImportDataCSV($flid, $field, $value, $request) {
-        $request[$flid] = explode(' | ', $value);
+        $cleaned = array();
+        $values = explode('|', $value);
+        foreach($values as $val) {
+            $cleaned[] = trim($val);
+        }
+        $request[$flid] = $cleaned;
 
         return $request;
     }
