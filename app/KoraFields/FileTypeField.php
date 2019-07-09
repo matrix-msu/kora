@@ -81,10 +81,12 @@ abstract class FileTypeField extends BaseField {
                 return [$flid => $field['name'].' is required'];
         }
 
-        foreach(new \DirectoryIterator(storage_path($tmpPath)) as $file) {
-            if($file->isFile()) {
-                if(!self::validateRecordFileName($file->getFilename()))
-                    return [$flid => $field['name'].' has file with illegal filename'];
+        if(file_exists(storage_path($tmpPath))) {
+            foreach (new \DirectoryIterator(storage_path($tmpPath)) as $file) {
+                if ($file->isFile()) {
+                    if (!self::validateRecordFileName($file->getFilename()))
+                        return [$flid => $field['name'] . ' has file with illegal filename'];
+                }
             }
         }
 
