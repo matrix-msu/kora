@@ -420,7 +420,34 @@ class ComboListField extends BaseField {
      *
      * @return Request - Processed data
      */
-    public function processImportData($flid, $field, $value, $request) { // TODO::CASTLE
+    public function processImportData($flid, $field, $value, $request) {
+        $request[$flid] = $flid;
+
+        // Setting up for return request
+        foreach (['_combo_one', '_combo_two'] as $suffix) {
+            $request[$flid . $suffix] = [];
+        }
+
+        foreach ($value as $json) {
+            foreach ($json as $name => $subValue) {
+                $type = $subFlid = $subSeq = '';
+                foreach (['one', 'two'] as $seq) {
+                    if ($field[$seq]['name'] == $name) {
+                        $type = $field[$seq]['type'];
+                        $subFlid = $field[$seq]['flid'];
+                        $subSeq = $seq;
+                    }
+                }
+                $className = $this->fieldModel[$type];
+                $object = new $className;
+                $request = $object->processImportData($subFlid, $field, $subValue, $request);
+                $values = $request->{$flid . '_combo_' . $subSeq};
+                $processedData = $object->processRecordData($field[$subSeq], $request->{$subFlid}, $request);
+                array_push($values, $processedData);
+                $request[$flid . '_combo_' . $subSeq] = $values;
+            }
+        }
+
         return $request;
     }
 
