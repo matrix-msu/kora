@@ -38,7 +38,7 @@
 @section('body')
     <section class="recordfile-section">
         <div class="form-group mt-xxxl">
-            <label>Record XML / JSON Files</label>
+            <label>Record CSV / XML / JSON Files</label>
             <span class="error-message"></span>
         </div>
 
@@ -70,7 +70,7 @@
             </div>
 
             <div class="form-group mt-xxxl">
-                <div class="record-file-title">If you have files that correlate to the XML / JSON File above, upload
+                <div class="record-file-title">If you have files that correlate to the CSV / XML / JSON File above, upload
                     them below in a zipped file. If the zipped file is too large, extract the files manually to
                     'storage/app/tmpFiles/impU{{\Auth::user()->id}}/'</div>
             </div>

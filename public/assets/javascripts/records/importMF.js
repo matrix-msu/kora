@@ -31,11 +31,14 @@ Kora.Records.ImportMF = function () {
             fd.append('_token', CSRFToken);
             if(zipInput.val() != '')
                 fd.append("files", zipInput[0].files[0]);
-            fd.append('importForms', JSON.stringify(msInput.val()));
             formOrder = [];
+            formsThemselves = [];
             $(".search-choice-close").each(function() {
-                formOrder.push($(this).attr('data-option-array-index'));
+                $thisIndex = $(this).attr('data-option-array-index');
+                formOrder.push($thisIndex);
+                formsThemselves.push(msInput.val()[$thisIndex]);
             });
+            fd.append('importForms', JSON.stringify(formsThemselves));
             fd.append('formOrder', JSON.stringify(formOrder));
 
             // from https://stackoverflow.com/a/3730579
@@ -406,8 +409,116 @@ Kora.Records.ImportMF = function () {
         });
     }
 
+    // For field functionatily
+    var fileInput = $(".file-input");
+
+    var fileButton = $(".file-label");
+
+    var fileFilename = $(".file-filename");
+
+    var fileInstruction = $(".file-instruction");
+
+    var fileDroppedFile = false;
+
+    //Resets file input
+    function resetFileInput(type) {
+        switch (type) {
+            case "file":
+                fileInput.replaceWith(fileInput.val('').clone(true));
+                fileFilename.html("Drag & Drop or Select the Kora 2 Record Files Zip Below");
+                fileInstruction.removeClass("photo-selected");
+                fileDroppedFile = false;
+                break;
+            default:
+                break;
+        }
+    }
+
+    //Simulating just for fun
+    function newProfilePic(type, pic, name) {
+        switch (type) {
+            case "file":
+                fileFilename.html(name + "<span class='remove-file remove ml-xs'><i class='icon icon-cancel'></i></span>");
+                fileInstruction.addClass("photo-selected");
+                fileDroppedFile = pic;
+                $(".remove-file").click(function (event) {
+                    event.preventDefault();
+                    resetFileInput(type);
+                });
+                break;
+            default:
+                break;
+        }
+    }
+
+    // Check for Drag and Drop Support on the browser
+    var isAdvancedUpload = function () {
+        var div = document.createElement('div');
+        return (('draggable' in div) || ('ondragstart' in div && 'ondrop' in div)) && 'FormData' in window && 'FileReader' in window;
+    }();
+
+    //We're basically replicating what profile pic does, just for 3 file inputs on a single page
+    function initializeFileUpload() {
+        // When hovering over input, hitting enter or space opens the menu
+        fileButton.keydown(function (event) {
+            if (event.keyCode == 13 || event.keyCode == 32)
+                fileInput.focus();
+        });
+
+        // Clicking input opens menu
+        fileButton.click(function (event) {
+            fileInput.focus();
+        });
+
+        // For clicking on input to select an image
+        fileInput.change(function (event) {
+            event.preventDefault();
+
+            if (this.files && this.files[0]) {
+                var name = this.value.substring(this.value.lastIndexOf('\\') + 1);
+                var reader = new FileReader();
+                reader.onload = function (e) {
+                    newProfilePic("file", e.target.result, name);
+                };
+                reader.readAsDataURL(this.files[0]);
+            }
+        });
+
+        // Drag and Drop
+        // detect and disable if we are on Safari
+        if (isAdvancedUpload && window.safari == undefined && navigator.vendor != 'Apple Computer, Inc.') {
+            fileButton.addClass('has-advanced-upload');
+
+            fileButton.on('drag dragstart dragend dragover dragenter dragleave drop', function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+            })
+                .on('dragover dragenter', function () {
+                    fileButton.addClass('is-dragover');
+                })
+                .on('dragleave dragend drop', function () {
+                    fileButton.removeClass('is-dragover');
+                })
+                .on('drop', function (e) {
+                    e.stopPropagation();
+                    e.preventDefault();
+
+                    fileDroppedFile = e.originalEvent.dataTransfer.files[0];
+                    var reader = new FileReader();
+                    reader.onload = function (e) {
+                        newProfilePic('file', e.target.result, fileDroppedFile.name);
+                        fileDroppedFile = e.target.result;
+                    };
+                    reader.readAsDataURL(fileDroppedFile);
+                    droppedFile = fileDroppedFile;
+
+                    $('.record-input-js').trigger('change');
+                });
+        }
+    }
+
     initializeSelects();
-    // initializeFormProgression();
+    initializeFileUpload();
     initializeImportRecords();
     intializeFileUploaderOptions();
 
