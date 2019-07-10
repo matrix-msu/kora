@@ -32,30 +32,39 @@ Kora.Records.ImportMF = function () {
             if(zipInput.val() != '')
                 fd.append("files", zipInput[0].files[0]);
             formOrder = [];
-            formsThemselves = [];
             $(".search-choice-close").each(function() {
-                $thisIndex = $(this).attr('data-option-array-index');
+                $thisIndex = parseInt($(this).attr('data-option-array-index'));
                 formOrder.push($thisIndex);
-                formsThemselves.push(msInput.val()[$thisIndex]);
             });
-            fd.append('importForms', JSON.stringify(formsThemselves));
+            fd.append('importForms', JSON.stringify(msInput.val()));
             fd.append('formOrder', JSON.stringify(formOrder));
 
-            // from https://stackoverflow.com/a/3730579
-            // this normalizes the order array to be readable on the backend
+            //The goal is to not reorder the indices, but to drop them down.
+            //i.e. values 2,7,3 should become 0,2,1
+            //i.e. values 2,4,3,1 should become 1,3,2,0
             function sortWithIndeces(toSort) {
-              for (var i = 0; i < toSort.length; i++) {
-                toSort[i] = [toSort[i], i];
-              }
-              toSort.sort(function(left, right) {
-                return left[0] < right[0] ? -1 : 1;
-              });
-              toSort.sortIndices = [];
-              for (var j = 0; j < toSort.length; j++) {
-                toSort.sortIndices.push(toSort[j][1]);
-                toSort[j] = toSort[j][0];
-              }
-              return toSort.sortIndices;
+                var finished = [];
+                var ignore = [];
+                var currentValue = 0;
+
+                while(currentValue < toSort.length) {
+                    var smallestIndex = 0; //want to find the index of the smallest number
+                    var smallestNum = 10000000000; //The actual smallest number, defaults to a stupid amount
+
+                    //Loop through current array to find it
+                    for(var i=0; i<toSort.length; i++) {
+                        if(!ignore.includes(toSort[i]) && toSort[i] < smallestNum) {
+                            smallestIndex = i;
+                            smallestNum = toSort[i];
+                        }
+                    }
+
+                    ignore.push(smallestNum);
+                    finished[smallestIndex] = currentValue;
+                    currentValue++;
+                }
+
+                return finished;
             }
 
             fd.append('formOrder', JSON.stringify(sortWithIndeces(formOrder)));
