@@ -9,7 +9,7 @@
         }
     } else {
         $listValues = $field['default'];
-        $mainValues = App\KoraFields\GeneratedListField::getList($field);
+        $mainValues = App\KoraFields\GeneratedListField::getList($field)["Options"];
     }
 @endphp
 <div class="form-group mt-xxxl specialty-field-group list-input-form-group">
