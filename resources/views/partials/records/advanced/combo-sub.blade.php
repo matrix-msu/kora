@@ -53,8 +53,8 @@
         <select name="{{$field[$cfnum]['flid']}}_{{$cfnum}}_year" class="single-select" data-placeholder="Select a Start Year">
             <option value=""></option>
             <?php
-            $i = \App\ComboListField::getComboFieldOption($field,'Start',$cfnum);
-            $j = \App\ComboListField::getComboFieldOption($field,'End',$cfnum);
+            $i = \App\KoraFields\ComboListField::getComboFieldOption($field,'Start',$cfnum);
+            $j = \App\KoraFields\ComboListField::getComboFieldOption($field,'End',$cfnum);
             while ($i <= $j) {
                 echo "<option value=" . $i . ">" . $i . "</option>";
                 $i++;
@@ -66,19 +66,19 @@
     @case('List')
     <div class="form-group {{ $cfnum != 'one' ? 'mt-sm' : null }}">
         {!! Form::label($field[$cfnum]['flid']."_".$cfnum."_input",$cftitle) !!}
-        {!! Form::select( $field[$cfnum]['flid'] . "_".$cfnum."_input", \App\ComboListField::getComboList($field,true,$cfnum), '', ["class" => "single-select"]) !!}
+        {!! Form::select( $field[$cfnum]['flid'] . "_".$cfnum."_input", \App\KoraFields\ComboListField::getComboList($field,true,$cfnum), '', ["class" => "single-select"]) !!}
     </div>
     @break
     @case('Multi-Select List')
     <div class="form-group {{ $cfnum != 'one' ? 'mt-sm' : null }}">
         {!! Form::label($field[$cfnum]['flid']."_".$cfnum."_input[]",$cftitle) !!}
-        {!! Form::select( $field[$cfnum]['flid'] . "_".$cfnum."_input[]", \App\ComboListField::getComboList($field,true,$cfnum), '', ["class" => "multi-select", "Multiple"]) !!}
+        {!! Form::select( $field[$cfnum]['flid'] . "_".$cfnum."_input[]", \App\KoraFields\ComboListField::getComboList($field,true,$cfnum), '', ["class" => "multi-select", "Multiple"]) !!}
     </div>
     @break
     @case('Generated List')
     <div class="form-group {{ $cfnum != 'one' ? 'mt-sm' : null }}">
         {!! Form::label($field[$cfnum]['flid']."_".$cfnum."_input[]",$cftitle) !!}
-        {!! Form::select( $field[$cfnum]['flid'] . "_".$cfnum."_input[]", \App\ComboListField::getComboList($field,true,$cfnum), '', ["class" => "multi-select modify-select", "Multiple"]) !!}
+        {!! Form::select( $field[$cfnum]['flid'] . "_".$cfnum."_input[]", \App\KoraFields\ComboListField::getComboList($field,true,$cfnum), '', ["class" => "multi-select modify-select", "Multiple"]) !!}
     </div>
     @break
     @case('Associator')
