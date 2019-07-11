@@ -474,7 +474,7 @@ class ComboListField extends BaseField {
             foreach ($xml as $name => $subValue) {
                 $type = $subFlid = $subSeq = '';
                 foreach (['one', 'two'] as $seq) {
-                    if ($field[$seq]['name'] == $name) {
+                    if ($field[$seq]['name'] == str_replace('_', ' ', $name)) {
                         $type = $field[$seq]['type'];
                         $subFlid = $field[$seq]['flid'];
                         $subSeq = $seq;
@@ -516,7 +516,7 @@ class ComboListField extends BaseField {
             foreach ($json as $name => $subValue) {
                 $type = $subFlid = $subSeq = '';
                 foreach (['one', 'two'] as $seq) {
-                    if ($field[$seq]['name'] == $name) {
+                    if ($field[$seq]['name'] == str_replace('_', ' ', $name)) {
                         $type = $field[$seq]['type'];
                         $subFlid = $field[$seq]['flid'];
                         $subSeq = $seq;
