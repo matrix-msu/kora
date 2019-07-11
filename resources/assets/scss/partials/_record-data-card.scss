@@ -1,9 +1,10 @@
 .record-data-card { /*this section is for advanced-search page cards*/
-  border: 1px solid palette('gray', text, .1);
+  background: palette('gray', page, 1);
+  border: 1px solid palette('box-shadow', base, 0.05);
   border-radius: 5px;
-  box-shadow: 0 3px 5px 0 palette('gray', text, .05);
-  margin-top: 10px;
-  padding: 10px;
+  box-shadow: 0 5px 15px 0 palette('box-shadow', base, 0.03);
+  margin-top: 0;
+  padding: 25px 30px 30px;
   position: relative;
 
   .field-data & {/*this is for cards on all-records page*/

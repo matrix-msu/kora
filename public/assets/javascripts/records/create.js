@@ -204,7 +204,6 @@ Kora.Records.Create = function() {
 
         //list reordered
         $('.list-option-card-container-js').sortable({
-            disabled: true
             // update: function () {
             //     let options = $('.list-option-card-container-js').sortable('toArray');
             //     let chosen_choices = list.siblings('.chosen-container').find('.search-choice');
@@ -1219,7 +1218,7 @@ Kora.Records.Create = function() {
     initializeSelectAddition();
     initializeSpecialInputs();
     intializeAssociatorOptions();
-    initializeGenListOptions();
+    //initializeGenListOptions();
     initializeComboListOptions();
     initializeDateOptions();
     intializeGeolocatorOptions();

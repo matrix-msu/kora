@@ -317,17 +317,19 @@ Kora.Fields.Options = function(fieldType) {
         });
     }
 
-    function initializeList() {
+    function initializeList(listType = '') {
         function setCardTitleWidth() {
-            var $cards = $('.list-option-card-js');
+            $(window).load(function() {
+                var $cards = $('.list-option-card-js');
 
-            $cards.each(function() {
-                var $card = $(this);
-                var $value = $card.find('.title');
+                $cards.each(function() {
+                    var $card = $(this);
+                    var $value = $card.find('.title');
 
-                var maxValueWidth = $card.outerWidth() * .75;
-                $value.css('max-width', maxValueWidth);
-            })
+                    var maxValueWidth = $card.outerWidth() * .75;
+                    $value.css('max-width', maxValueWidth);
+                })
+            });
         }
 
         // Function to add list options and the respective cards
@@ -355,9 +357,15 @@ Kora.Fields.Options = function(fieldType) {
                 if(newListOption!='') {
                     // Prevent duplicate entries
 
+                    // If generated list, name of hidden input needs to be field name
+                    var optionName = "options[]";
+                    if (listType == 'GenList') {
+                      optionName = $newListOptionInput.data('flid') + "[]";
+                    }
+
                     // Create and display new card
                     var newCardHtml = '<div class="card list-option-card list-option-card-js" data-list-value="' + newListOption + '">' +
-                        '<input type="hidden" class="list-option-js" name="options[]" value="' + newListOption + '">' +
+                        '<input type="hidden" class="list-option-js" name="'+optionName+'" value="' + newListOption + '">' +
                         '<div class="header">' +
                         '<div class="left">' +
                         '<div class="move-actions">' +
@@ -393,6 +401,8 @@ Kora.Fields.Options = function(fieldType) {
         }
 
         function initializeListSort() {
+            $('.list-option-card-container').sortable();
+
             $('.move-action-js').click(function(e) {
                 e.preventDefault();
 
@@ -1299,7 +1309,7 @@ Kora.Fields.Options = function(fieldType) {
             initializeDateOptions();
             break;
         case 'Generated List':
-            initializeList();
+            initializeList('GenList');
             break;
         case 'List':
             initializeList();

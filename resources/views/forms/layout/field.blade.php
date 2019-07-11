@@ -1,4 +1,4 @@
-<div class="field card {{ $index == 0 ? 'active' : '' }}" id="{{$flid}}" 
+<div class="field card {{ $index == 0 ? 'active' : '' }}" id="{{$flid}}"
   delete-url="{{action('FieldController@destroy', ['pid' => $pid, 'fid' => $fid, 'flid' => $flid])}}"
   sequence="{{$flid}}"
   >
@@ -43,11 +43,11 @@
   </div>
 
   <div class="content content-js {{ $index == 0 ? 'active' : '' }}">
-      @if($field['alt_name']!='')
-    <div class="id">
-      <span class="attribute">Alternative Name: </span>
-      <span>{{$field['alt_name']}}</span>
-    </div>
+      @if(array_key_exists('alt_name', $field) && $field['alt_name']!='')
+        <div class="id">
+          <span class="attribute">Alternative Name: </span>
+          <span>{{$field['alt_name']}}</span>
+        </div>
       @endif
 
     <div class="description">
@@ -105,7 +105,7 @@
             />
             <span class="check"></span>
             <span class="placeholder">Viewable in Results</span>
-          </div> 
+          </div>
         </div>
       </div>
 
@@ -132,7 +132,7 @@
             />
             <span class="check"></span>
             <span class="placeholder">Externally Viewable</span>
-          </div> 
+          </div>
         </div>
       </div>
 
@@ -148,7 +148,7 @@
             />
             <span class="check"></span>
             <span class="placeholder">Advanced Searchable</span>
-          </div> 
+          </div>
         </div>
       </div>
     </div>

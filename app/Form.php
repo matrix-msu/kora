@@ -452,7 +452,7 @@ class Form extends Model {
                     if($allowedAssocFields != 'ALL' && !in_array($flid,$allowedAssocFields))
                         continue;
 
-                    if($filters['altNames'] && $aLayout['fields'][$flid]['alt_name'] != '')
+                    if(array_key_exists('altNames', $filters) && $filters['altNames'] && $aLayout['fields'][$flid]['alt_name'] != '')
                         $name = $flid.' as `'.$aLayout['fields'][$flid]['alt_name'].'`';
                     else
                         $name = $flid.' as `'.$aLayout['fields'][$flid]['name'].'`';
@@ -524,7 +524,7 @@ class Form extends Model {
                 $tmp = $mergeMappings[$flid];
                 $name = $flid . ' as `' . $tmp . '`';
             } else {
-                if($filters['altNames'] && $this->layout['fields'][$flid]['alt_name'] != '')
+                if(array_key_exists('altNames', $filters) && $filters['altNames'] && $this->layout['fields'][$flid]['alt_name'] != '')
                     $tmp = $this->layout['fields'][$flid]['alt_name'];
                 else
                     $tmp = $this->layout['fields'][$flid]['name'];

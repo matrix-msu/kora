@@ -19,10 +19,6 @@
           transform-origin: center;
         }
 
-        &.tooltip:hover::after {
-          left: -53px;
-        }
-
         &:hover {
           i {
             transform: scale(1.25);
@@ -79,14 +75,6 @@
 
   .list-option-card-container {
     margin: 20px 0 30px;
-
-    &.genlist-record-input .list-option-card {
-      cursor: default;
-
-      .move-actions {
-        display: none;
-      }
-    }
   }
 
   .new-list-option-card {
