@@ -55,7 +55,7 @@ class AssociatorSearchController extends Controller {
             foreach($opt_flids as $flid) {
                 if($flid!='') {
                     $field = FieldController::getField($flid,$opt_fid);
-                    $flids[$flid] = $field['type'];
+                    $flids[$field['name']] = $field['type'];
                 }
             }
 
@@ -108,7 +108,7 @@ class AssociatorSearchController extends Controller {
         $results = array();
         $fid = $form->id;
 
-        $filters = ["revAssoc" => false, "meta" => false, "fields" => 'ALL', "realnames" => false, "assoc" => false,
+        $filters = ["revAssoc" => true, "meta" => false, "fields" => 'ALL', "altNames" => false, "assoc" => false,
             "data" => true, "sort" => null, "count" => null, "index" => null];
         $formRecords = $form->getRecordsForExport($filters);
 
