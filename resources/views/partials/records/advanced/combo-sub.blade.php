@@ -66,7 +66,7 @@
     @case('List')
     <div class="form-group {{ $cfnum != 'one' ? 'mt-sm' : null }}">
         {!! Form::label($field[$cfnum]['flid']."_".$cfnum."_input",$cftitle) !!}
-        {!! Form::select( $field[$cfnum]['flid'] . "_".$cfnum."_input", \App\KoraFields\ComboListField::getComboList($field,true,$cfnum), '', ["class" => "single-select"]) !!}
+        {!! Form::select( $field[$cfnum]['flid'] . "_".$cfnum."_input", [null=>'']+\App\KoraFields\ComboListField::getComboList($field,true,$cfnum), '', ["class" => "single-select"]) !!}
     </div>
     @break
     @case('Multi-Select List')
