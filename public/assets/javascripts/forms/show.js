@@ -507,6 +507,7 @@ Kora.Forms.Show = function() {
         },
         success: function(result) {
           window.localStorage.setItem('newPageCheck', 'true');
+          window.localStorage.setItem('newPageNumber', newPageNumber);
           location.reload();
         }
       });
@@ -639,20 +640,16 @@ Kora.Forms.Show = function() {
 // scroll to new page if new page was created
 $(document).ready(function () {
   try {
-    var check = window.localStorage.getItem('newPageCheck')
-    if (check) {
-      window.localStorage.removeItem('newPageCheck')
-      var pageIDs = []
-      var pages = $('.page');
-      for (var i = 0; i < pages.length; i++) {
-        pageIDs.push('' + pages[i].getAttribute('page-id'))
+      var check = window.localStorage.getItem('newPageCheck');
+      var pageNum = window.localStorage.getItem('newPageNumber');
+      if(check) {
+        window.localStorage.removeItem('newPageCheck');
+        window.localStorage.removeItem('newPageNumber');
+        var scrollTo = $('.page[page-id=' + pageNum + ']').offset().top;
+        $('html, body').animate({
+          scrollTop: scrollTo
+        }, 2500);
       }
-      var max = Math.max.apply(null, pageIDs)
-      var scrollTo = $('.page[page-id=' + max + ']').offset().top
-      $('html, body').animate({
-        scrollTop: scrollTo
-      }, 2500);
-    } 
   }
   catch (err) {
     console.log('' + err.message)
