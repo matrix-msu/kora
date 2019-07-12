@@ -37,7 +37,11 @@ class Handler extends ExceptionHandler {
 	 * @return \Illuminate\Http\Response
 	 */
 	public function render($request, Exception $exception)
-	{		
+	{
+        if($request->is('api/*')) {
+            return response()->json(["status"=>false,"error"=>"Unknown error occurred. Please contact your system administrator."],500);
+        }
+
 		if (config('app.env') === 'production' && $exception instanceof \ErrorException) {
 			$install_admin = User::where('id','=',1)->first();
 			return response()->view('errors.500', ['install_admin_email' => $install_admin->email], 500);
