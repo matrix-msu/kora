@@ -44,11 +44,24 @@
     </div>
 </div>
 
-<div class="form-group mt-m">
-    <div class="check-box-half">
-        <input type="checkbox" value="1" id="preset" class="check-box-input" name="default_circa">
+<div class="form-group inline-checkbox-form-group mt-m">
+    <label>Select Prefix (Optional)</label>
+    <div class="check-box-half mr-m">
+        <input type="checkbox" value="circa" class="check-box-input prefix-check-js" name="default_prefix">
         <span class="check"></span>
-        <span class="placeholder">Mark this date as an approximate (Circa)?</span>
+        <span class="placeholder">Circa</span>
+    </div>
+
+    <div class="check-box-half mr-m">
+        <input type="checkbox" value="pre" class="check-box-input prefix-check-js" name="default_prefix">
+        <span class="check"></span>
+        <span class="placeholder">Pre</span>
+    </div>
+
+    <div class="check-box-half mr-m">
+        <input type="checkbox" value="post" class="check-box-input prefix-check-js" name="default_prefix">
+        <span class="check"></span>
+        <span class="placeholder">Post</span>
     </div>
 </div>
 
@@ -115,8 +128,8 @@
 </div>
 
 <div class="form-group mt-xl">
-    {!! Form::label('circa','Show Circa Approximations?') !!}
-    {!! Form::select('circa', [0 => 'No', 1 => 'Yes'], 0, ['class' => 'single-select']) !!}
+    {!! Form::label('prefix','Show Prefixes?') !!}
+    {!! Form::select('prefix', [0 => 'No', 1 => 'Yes'], 0, ['class' => 'single-select']) !!}
 </div>
 
 <div class="form-group mt-xl">

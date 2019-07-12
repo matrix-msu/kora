@@ -70,12 +70,27 @@
         </div>
     </div>
 
-    <div class="form-group mt-xl">
-        <div class="check-box-half">
-            <input type="checkbox" value="1" id="preset" class="check-box-input" name="default_circa"
-                {{ ((!is_null($field['default']) && $field['default']['circa']) ? 'checked' : '') }}>
+    <div class="form-group inline-checkbox-form-group mt-xl">
+        <label>Select Prefix (Optional)</label>
+        <div class="check-box-half mr-m">
+            <input type="checkbox" value="circa" class="check-box-input prefix-check-js" name="default_prefix"
+                {{ ((!is_null($field['default']) && $field['default']['prefix']=='circa') ? 'checked' : '') }}>
             <span class="check"></span>
-            <span class="placeholder">Mark this date as an approximate (Circa)?</span>
+            <span class="placeholder">Circa</span>
+        </div>
+
+        <div class="check-box-half mr-m">
+            <input type="checkbox" value="pre" class="check-box-input prefix-check-js" name="default_prefix"
+                {{ ((!is_null($field['default']) && $field['default']['prefix']=='pre') ? 'checked' : '') }}>
+            <span class="check"></span>
+            <span class="placeholder">Pre</span>
+        </div>
+
+        <div class="check-box-half mr-m">
+            <input type="checkbox" value="post" class="check-box-input prefix-check-js" name="default_prefix"
+                {{ ((!is_null($field['default']) && $field['default']['prefix']=='post') ? 'checked' : '') }}>
+            <span class="check"></span>
+            <span class="placeholder">Post</span>
         </div>
     </div>
 

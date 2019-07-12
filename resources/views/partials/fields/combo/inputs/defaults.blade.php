@@ -47,10 +47,23 @@
                 </div>
                 @if($type=='Historical Date')
                     <div class="form-group mt-xl">
-                        <div class="check-box-half">
-                            <input type="checkbox" value="1" id="default_circa_{{$fnum}}" class="check-box-input" name="default_circa_{{$fnum}}">
+                        <label>Select Prefix (Optional)</label>
+                        <div class="check-box-half mr-m">
+                            <input type="checkbox" value="circa" id="default_prefix_{{$fnum}}_circa" class="check-box-input prefix-check-js" name="default_prefix_{{$fnum}}_circa">
                             <span class="check"></span>
-                            <span class="placeholder">Mark this date as an approximate (Circa)?</span>
+                            <span class="placeholder">Circa</span>
+                        </div>
+
+                        <div class="check-box-half mr-m">
+                            <input type="checkbox" value="pre" id="default_prefix_{{$fnum}}_pre" class="check-box-input prefix-check-js" name="default_prefix_{{$fnum}}_pre">
+                            <span class="check"></span>
+                            <span class="placeholder">Pre</span>
+                        </div>
+
+                        <div class="check-box-half mr-m">
+                            <input type="checkbox" value="post" id="default_prefix_{{$fnum}}_post" class="check-box-input prefix-check-js" name="default_prefix_{{$fnum}}_post">
+                            <span class="check"></span>
+                            <span class="placeholder">Post</span>
                         </div>
                     </div>
 
@@ -102,10 +115,50 @@
         ['id' => 'default_'.$fnum, 'class' => 'multi-select default-input-js', 'multiple']) !!}
     </div>
 @elseif($type=='Generated List')
-    <div class="form-group">
+    <div class="form-group specialty-field-group list-input-form-group">
         {!! Form::label('default_'.$fnum, $cfName) !!}
-        {!! Form::select('default_'.$fnum.'[]',App\KoraFields\ComboListField::getComboList($field,false,$fnum), null,
-        ['id' => 'default_'.$fnum, 'class' => 'multi-select modify-select default-input-js', 'multiple']) !!}
+        <div class="form-input-container">
+            <p class="directions">Add List Options below, and order them via drag & drop or their arrow icons.</p>
+
+            <!-- Cards of list options -->
+            <div class="genlist-record-input list-option-card-container list-option-card-container-js">
+                @foreach(App\KoraFields\ComboListField::getComboList($field,false,$fnum) as $opt)
+                    <div id="{{$opt}}" class="card list-option-card list-option-card-js" data-list-value="{{$opt}}">
+                        {!! Form::hidden('default_'.$fnum.'[]', $opt) !!}
+                        <div class="header">
+                            <div class="left">
+                                <div class="move-actions">
+                                    <a class="action move-action-js up-js" href="">
+                                        <i class="icon icon-arrow-up"></i>
+                                    </a>
+                                    <a class="action move-action-js down-js" href="">
+                                        <i class="icon icon-arrow-down"></i>
+                                    </a>
+                                </div>
+                                <span class="title">{{$opt}}</span>
+                            </div>
+
+                            <div class="card-toggle-wrap">
+                                <a class="list-option-delete list-option-delete-js tooltip" tooltip="Delete List Option" href=""><i class="icon icon-trash"></i></a>
+                            </div>
+                        </div>
+                    </div>
+                @endforeach
+            </div>
+
+            <!-- Card to add list options -->
+            <div class="card new-list-option-card new-list-option-card-js">
+                <div class="header">
+                    <div class="left">
+                        <input class="new-list-option new-list-option-js" type="text" placeholder='Type here and hit the enter key or "Add" to add new list options' data-flid='{{'default_'.$fnum}}'>
+                    </div>
+
+                    <div class="card-toggle-wrap">
+                        <a class="list-option-add list-option-add-js" href=""><span>Add</span></a>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 @elseif($type=='Associator')
 <div class="associator-section">

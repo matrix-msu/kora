@@ -96,7 +96,7 @@ class HistoricalDateField extends BaseField {
      */
     public function getDefaultOptions($type = null) {
         return [
-            'ShowCirca' => 0,
+            'ShowPrefix' => 0,
             'ShowEra' => 0,
             'Start' => 1900,
             'End' => 2030,
@@ -118,7 +118,7 @@ class HistoricalDateField extends BaseField {
                 'month' => $request->default_month,
                 'day' => $request->default_day,
                 'year' => $request->default_year,
-                'circa' => !is_null($request->default_circa) ? $request->default_circa : 0,
+                'prefix' => !is_null($request->default_prefix) ? $request->default_prefix : '',
                 'era' => !is_null($request->default_era) ? $request->default_era : 'CE'
             ];
         } else {
@@ -148,7 +148,7 @@ class HistoricalDateField extends BaseField {
         }
 
         $field['default'] = $default;
-        $field['options']['ShowCirca'] = $request->circa;
+        $field['options']['ShowPrefix'] = $request->prefix;
         $field['options']['ShowEra'] = $request->era;
         $field['options']['Start'] = $request->start;
         $field['options']['End'] = $request->end;
@@ -250,7 +250,7 @@ class HistoricalDateField extends BaseField {
             'month' => $request->input('month_'.$value,''),
             'day' => $request->input('day_'.$value,''),
             'year' => $request->input('year_'.$value,''),
-            'circa' => !is_null($request->{'circa_'.$value}) ? $request->{'circa_'.$value} : 0,
+            'prefix' => !is_null($request->{'prefix_'.$value}) ? $request->{'prefix_'.$value} : '',
             'era' => !is_null($request->{'era_'.$value}) ? $request->{'era_'.$value} : 'CE'
         ];
         if(!self::validateDate($date['month'],$date['day'],$date['year']))
@@ -269,7 +269,7 @@ class HistoricalDateField extends BaseField {
      */
     public function processRevisionData($data) {
         $date = json_decode($data,true);
-        $return = ($date['circa']) ? 'circa ' : '';
+        $return = $date['prefix']!='' ? $date['prefix'].' ' : '';
         $return .= $date['year'].'-'.$date['month'].'-'.$date['day'];
         $return .= ' '.$date['era'];
 
@@ -292,7 +292,7 @@ class HistoricalDateField extends BaseField {
         $request['month_'.$flid] = isset($value['month']) ? $value['month'] : '';
         $request['day_'.$flid] = isset($value['day']) ? $value['day'] : '';
         $request['year_'.$flid] = isset($value['year']) ? $value['year'] : '';
-        $request['circa_'.$flid] = isset($value['circa']) ? $value['circa'] : 0;
+        $request['prefix_'.$flid] = isset($value['prefix']) ? $value['prefix'] : '';
         $request['era_'.$flid] = isset($value['era']) ? $value['era'] : 'CE';
 
         return $request;
@@ -313,7 +313,7 @@ class HistoricalDateField extends BaseField {
         $request['month_'.$flid] = isset($value->Month) ? (string)$value->Month : '';
         $request['day_'.$flid] = isset($value->Day) ? (string)$value->Day : '';
         $request['year_'.$flid] = isset($value->Year) ? (string)$value->Year : '';
-        $request['circa_'.$flid] = isset($value->Circa) ? (string)$value->Circa : 0;
+        $request['prefix_'.$flid] = isset($value->Prefix) ? (string)$value->Prefix : '';
         $request['era_'.$flid] = isset($value->Era) ? (string)$value->Era : 'CE';
 
         return $request;
@@ -332,15 +332,21 @@ class HistoricalDateField extends BaseField {
     public function processImportDataCSV($flid, $field, $value, $request) {
         $request[$flid] = $flid;
 
-        $request['circa_'.$flid] = 0;
+        $request['prefix_'.$flid] = '';
         $request['era_'.$flid] = 'CE';
         foreach(['month_', 'day_', 'year_'] as $part) {
             $request[$part.$flid] = '';
         }
 
         if(Str::startsWith($value, 'circa')) {
-            $request['circa_'.$flid] = 1;
+            $request['prefix_'.$flid] = 'circa';
             $value = trim(explode('circa', $value)[1]);
+        } else if(Str::startsWith($value, 'pre')) {
+            $request['prefix_'.$flid] = 'pre';
+            $value = trim(explode('pre', $value)[1]);
+        } else if(Str::startsWith($value, 'post')) {
+            $request['prefix_'.$flid] = 'post';
+            $value = trim(explode('post', $value)[1]);
         }
 
         // Era order matters here
@@ -393,7 +399,7 @@ class HistoricalDateField extends BaseField {
     public function processXMLData($field, $value) {
         $date = json_decode($value,true);
         $xml = "<$field>";
-        $xml .= '<Circa>'.$date['circa'].'</Circa>';
+        $xml .= '<Prefix>'.$date['prefix'].'</Prefix>';
         $xml .= '<Month>'.$date['month'].'</Month>';
         $xml .= '<Day>'.$date['day'].'</Day>';
         $xml .= '<Year>'.$date['year'].'</Year>';
@@ -413,7 +419,7 @@ class HistoricalDateField extends BaseField {
     public function processLegacyData($value) {
         $date = json_decode($value,true);
         return [
-            'prefix' => $date['circa'],
+            'prefix' => $date['prefix'],
             'month' => $date['month'],
             'day' => $date['day'],
             'year' => $date['year'],
@@ -436,7 +442,7 @@ class HistoricalDateField extends BaseField {
             'month' => $request->input('month_'.$formFieldValue,''),
             'day' => $request->input('day_'.$formFieldValue,''),
             'year' => $request->input('year_'.$formFieldValue,''),
-            'circa' => !is_null($request->{'circa_'.$formFieldValue}) ? $request->{'circa_'.$formFieldValue} : 0,
+            'prefix' => !is_null($request->{'prefix_'.$formFieldValue}) ? $request->{'prefix_'.$formFieldValue} : '',
             'era' => !is_null($request->{'era_'.$formFieldValue}) ? $request->{'era_'.$formFieldValue} : 'CE'
         ];
         if(!self::validateDate($date['month'],$date['day'],$date['year']))
@@ -463,7 +469,7 @@ class HistoricalDateField extends BaseField {
             'month' => $request->input('month_'.$formFieldValue,''),
             'day' => $request->input('day_'.$formFieldValue,''),
             'year' => $request->input('year_'.$formFieldValue,''),
-            'circa' => !is_null($request->{'circa_'.$formFieldValue}) ? $request->{'circa_'.$formFieldValue} : 0,
+            'prefix' => !is_null($request->{'prefix_'.$formFieldValue}) ? $request->{'prefix_'.$formFieldValue} : '',
             'era' => !is_null($request->{'era_'.$formFieldValue}) ? $request->{'era_'.$formFieldValue} : 'CE'
         ];
         if(!self::validateDate($date['month'],$date['day'],$date['year']))
@@ -496,11 +502,13 @@ class HistoricalDateField extends BaseField {
             $dbQuery->where($flid, $param, "%\"day\": \"$arg\"%");
             $dbQuery->where($flid, $param, "%\"year\": \"$arg\"%");
             $dbQuery->where($flid, $param, "%\"era\": \"$arg\"%");
+            $dbQuery->where($flid, $param, "%\"prefix\": \"$arg\"%");
         } else {
             $dbQuery->orWhere($flid, $param, "%\"month\": \"$arg\"%");
             $dbQuery->orWhere($flid, $param, "%\"day\": \"$arg\"%");
             $dbQuery->orWhere($flid, $param, "%\"year\": \"$arg\"%");
             $dbQuery->orWhere($flid, $param, "%\"era\": \"$arg\"%");
+            $dbQuery->orWhere($flid, $param, "%\"prefix\": \"$arg\"%");
         }
 
         return $dbQuery->pluck('id')
@@ -513,7 +521,7 @@ class HistoricalDateField extends BaseField {
      * @param  array $data - Data from the search
      * @return array - The update request
      */
-    public function setRestfulAdvSearch($data) {
+    public function setRestfulAdvSearch($data) { //TODO::CIRCA+PRE+POST
         $request = [];
 
         if(isset($data->begin_month) && is_int($data->begin_month))
@@ -547,7 +555,7 @@ class HistoricalDateField extends BaseField {
      * @param  boolean $negative - Get opposite results of the search
      * @return array - The RIDs that match search
      */
-    public function advancedSearchTyped($flid, $query, $recordMod, $form, $negative = false) {
+    public function advancedSearchTyped($flid, $query, $recordMod, $form, $negative = false) { //TODO::CIRCA+PRE+POST
         $beginEra = isset($query['begin_era']) ? $query['begin_era'] : 'CE';
         $endEra = isset($query['end_era']) ? $query['end_era'] : 'CE';
 
@@ -659,10 +667,10 @@ class HistoricalDateField extends BaseField {
      */
     public function displayDate($date, $field) {
         $dateString = '';
-        $date['year'] = sprintf('%04d', $date['year']); //TODO::FORCE 4 DIGIT FORMAT
+        $date['year'] = sprintf('%04d', $date['year']);
 
-        if($date['circa'] && $field['options']['ShowCirca'])
-            $dateString .= 'circa ';
+        if($date['prefix']!='' && $field['options']['ShowPrefix'])
+            $dateString .= $date['prefix'].' ';
 
         if($date['month']=='' && $date['day']=='')
             $dateString .= $date['year'];

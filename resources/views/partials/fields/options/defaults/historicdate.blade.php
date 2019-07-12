@@ -53,8 +53,8 @@
 @include("partials.fields.modals.changeDefaultYearModal")
 
 <div class="form-group mt-xl">
-    {!! Form::label('circa' . $seq,'Show Circa Approximations?') !!}
-    {!! Form::select('circa' . $seq, [0 => 'No', 1 => 'Yes'], $field['options']['ShowCirca'], ['class' => 'single-select']) !!}
+    {!! Form::label('prefix' . $seq,'Show Prefixes?') !!}
+    {!! Form::select('prefix' . $seq, [0 => 'No', 1 => 'Yes'], $field['options']['ShowPrefix'], ['class' => 'single-select']) !!}
 </div>
 
 <div class="form-group mt-xl">

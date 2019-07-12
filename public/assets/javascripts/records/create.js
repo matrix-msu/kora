@@ -255,12 +255,12 @@ Kora.Records.Create = function() {
                             eraOne = $(this);
                         }
                     });
-                    circaOne = $('#default_circa_one_'+flid);
-                    circaOneVal = 'Circa';
-                    if (circaTwo.prop('checked') != true) {
-                        circaTwo.val('0');
-                        circaOneVal = '';
-                    }
+                    prefixOne = '';
+                    $(`[id^=default_prefix_one_${flid}]`).each(function () {
+                        if ($(this).is(':checked')) {
+                            prefixOne = $(this);
+                        }
+                    });
                 }
             } else {
                 inputOne = $('#default_one_'+flid);
@@ -284,12 +284,12 @@ Kora.Records.Create = function() {
                             eraTwo = $(this);
                         }
                     });
-                    circaTwo = $('#default_circa_two_'+flid);
-                    circaTwoVal = 'Circa';
-                    if (circaTwo.prop('checked') != true) {
-                        circaTwo.val('0');
-                        circaTwoVal = '';
-                    }
+                    prefixTwo = '';
+                    $(`[id^=default_prefix_two_${flid}]`).each(function () {
+                        if ($(this).is(':checked')) {
+                            prefixTwo = $(this);
+                        }
+                    });
                 }
             } else {
                 inputTwo = $('#default_two_'+flid);
@@ -330,7 +330,7 @@ Kora.Records.Create = function() {
                         "day":dayOne.val(),
                         "era":eraOne.val(),
                         "year":yearOne.val(),
-                        "circa":circaOne.val(),
+                        "prefix":prefixOne!='' ? prefixOne.val() : prefixOne,
                         "month":monthOne.val()
                     };
                     div += '<input type="hidden" name="'+flid+'_combo_one[]" value='+JSON.stringify(dateJson)+'>';
@@ -354,7 +354,7 @@ Kora.Records.Create = function() {
                         "day":dayTwo.val(),
                         "era":eraTwo.val(),
                         "year":yearTwo.val(),
-                        "circa":circaTwo.val(),
+                        "prefix":prefixTwo!='' ? prefixTwo.val() : prefixTwo,
                         "month":monthTwo.val()
                     };
                     div += '<input type="hidden" name="'+flid+'_combo_two[]" value='+JSON.stringify(dateJson)+'>';
@@ -375,7 +375,12 @@ Kora.Records.Create = function() {
                         $(`[id^=default_era_one_${flid}]`).each(function () {
                             $(this).trigger("chosen:updated");
                         });
-                        circaOne.trigger("chosen:updated");
+                        if(prefixOne!='') {
+                            prefixOne.prop("checked", false);
+                            $(`[id^=default_prefix_one_${flid}]`).each(function () {
+                                $(this).trigger("chosen:updated");
+                            });
+                        }
                     }
                 } else
                     inputOne.val('').trigger("chosen:updated");
@@ -388,7 +393,12 @@ Kora.Records.Create = function() {
                         $(`[id^=default_era_two_${flid}]`).each(function () {
                             $(this).trigger("chosen:updated");
                         });
-                        circaTwo.trigger("chosen:updated");
+                        if(prefixTwo!='') {
+                            prefixTwo.prop("checked", false);
+                            $(`[id^=default_prefix_two_${flid}]`).each(function () {
+                                $(this).trigger("chosen:updated");
+                            });
+                        }
                     }
                 } else
                     inputTwo.val('').trigger("chosen:updated");
@@ -403,8 +413,18 @@ Kora.Records.Create = function() {
         var $dateListInputs = $dateFormGroups.find('.chosen-container');
         var scrollBarWidth = 17;
 
+        $prefixCheckboxes = $('.prefix-check-js');
         $eraCheckboxes = $('.era-check-js');
 
+        $prefixCheckboxes.click(function() {
+            var $selected = $(this);
+            flid = $selected.attr('flid');
+            $isChecked = $selected.prop('checked');
+
+            $('.prefix-check-'+flid+'-js').prop('checked', false);
+            if($isChecked)
+                $selected.prop('checked', true);
+        });
         $eraCheckboxes.click(function() {
             var $selected = $(this);
             flid = $selected.attr('flid');
@@ -975,8 +995,7 @@ Kora.Records.Create = function() {
                         case 'Historical Date':
                             var date = JSON.parse(value);
 
-                            if(date['circa'])
-                                $('[name=circa_' + flid + ']').prop('checked', true);
+                            $('[name=prefix_' + flid + ']').val(date['prefix']).trigger("chosen:updated");
                             $('[name=month_' + flid + ']').val(date['month']).trigger("chosen:updated");
                             $('[name=day_' + flid + ']').val(date['day']).trigger("chosen:updated");
                             $('[name=year_' + flid + ']').val(date['year']).trigger("chosen:updated");

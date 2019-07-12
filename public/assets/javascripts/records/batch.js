@@ -217,8 +217,17 @@ Kora.Records.Batch = function() {
         var $dateListInputs = $dateFormGroups.find('.chosen-container');
         var scrollBarWidth = 17;
 
+        $prefixCheckboxes = $('.prefix-check-js');
         $eraCheckboxes = $('.era-check-js');
 
+        $prefixCheckboxes.click(function() {
+            var $selected = $(this);
+            $isChecked = $selected.prop('checked');
+
+            $prefixCheckboxes.prop('checked', false);
+            if($isChecked)
+                $selected.prop('checked', true);
+        });
         $eraCheckboxes.click(function() {
             var $selected = $(this);
 

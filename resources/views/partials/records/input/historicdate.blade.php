@@ -10,7 +10,7 @@
             'month' => '',
             'day' => '',
             'year' => '',
-            'circa' => 0,
+            'prefix' => '',
             'era' => 'CE'
         ];
     } elseif (!is_array($histDate)) {
@@ -85,12 +85,25 @@
             </div>
         </div>
 
-        @if($field['options']['ShowCirca'])
+        @if($field['options']['ShowPrefix'])
             <div class="form-group mt-xl">
-                <div class="check-box-half">
-                    <input type="checkbox" value="1" id="preset" class="check-box-input" name="{{'circa_'.$flid}}" {{ ($histDate['circa'] ? 'checked' : '') }}>
+                <label>Select Prefix (Optional)</label>
+                <div class="check-box-half mr-m">
+                    <input type="checkbox" value="circa" class="check-box-input prefix-check-js prefix-check-{{$flid}}-js" name="prefix_{{$flid}}" {{ ($histDate['prefix'] == 'circa' ? 'checked' : '') }} flid="{{$flid}}">
                     <span class="check"></span>
-                    <span class="placeholder">Mark this date as an approximate (Circa)?</span>
+                    <span class="placeholder">Circa</span>
+                </div>
+
+                <div class="check-box-half mr-m">
+                    <input type="checkbox" value="pre" class="check-box-input prefix-check-js prefix-check-{{$flid}}-js" name="prefix_{{$flid}}" {{ ($histDate['prefix'] == 'pre' ? 'checked' : '') }} flid="{{$flid}}">
+                    <span class="check"></span>
+                    <span class="placeholder">Pre</span>
+                </div>
+
+                <div class="check-box-half mr-m">
+                    <input type="checkbox" value="post" class="check-box-input prefix-check-js prefix-check-{{$flid}}-js" name="prefix_{{$flid}}" {{ ($histDate['prefix'] == 'post' ? 'checked' : '') }} flid="{{$flid}}">
+                    <span class="check"></span>
+                    <span class="placeholder">Post</span>
                 </div>
             </div>
         @endif

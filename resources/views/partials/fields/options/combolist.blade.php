@@ -105,11 +105,11 @@
                                     @php
                                         array_push(
                                             $date,
-                                            $valueOne['circa'] ? 'Circa' : '',
+                                            $valueOne['prefix'],
                                             $valueOne['era']
                                         );
                                     @endphp
-                                    {!! Form::hidden("default_circa_combo_one[]",$valueOne['circa']) !!}
+                                    {!! Form::hidden("default_prefix_combo_one[]",$valueOne['prefix']) !!}
                                     {!! Form::hidden("default_era_combo_one[]",$valueOne['era']) !!}
                                 @endif
                                 <span class="combo-column">{{implode('/', array_filter($date))}}</span>
@@ -138,11 +138,11 @@
                                     @php
                                         array_push(
                                             $date,
-                                            $valueTwo['circa'] ? 'Circa' : '',
+                                            $valueTwo['prefix'],
                                             $valueTwo['era']
                                         );
                                     @endphp
-                                    {!! Form::hidden("default_circa_combo_two[]",$valueTwo['circa']) !!}
+                                    {!! Form::hidden("default_prefix_combo_two[]",$valueTwo['prefix']) !!}
                                     {!! Form::hidden("default_era_combo_two[]",$valueTwo['era']) !!}
                                 @endif
                                 <span class="combo-column">{{implode('/', array_filter($date))}}</span>

@@ -117,8 +117,17 @@ Kora.Fields.Options = function(fieldType) {
         var currentYear = new Date().getFullYear();
         var scrollBarWidth = 17;
 
+        $prefixCheckboxes = $('.prefix-check-js');
         $eraCheckboxes = $('.era-check-js');
 
+        $prefixCheckboxes.click(function() {
+            var $selected = $(this);
+            $isChecked = $selected.prop('checked');
+
+            $prefixCheckboxes.prop('checked', false);
+            if($isChecked)
+                $selected.prop('checked', true);
+        });
         $eraCheckboxes.click(function() {
             var $selected = $(this);
 
@@ -812,14 +821,14 @@ Kora.Fields.Options = function(fieldType) {
                             eraOne = $(this);
                         }
                     });
-                    circaOne = $('#default_circa_one');
-                    circaOneVal = 'Circa';
-                    if (circaTwo.prop('checked') != true) {
-                        circaTwo.val('0');
-                        circaOneVal = '';
-                    }
+                    prefixOne = '';
+                    $(`[id^=default_prefix_one]`).each(function () {
+                        if ($(this).is(':checked')) {
+                            prefixOne = $(this);
+                        }
+                    });
                 }
-                val1 = [monthOne.val(), dayOne.val(), yearOne.val(), circaOneVal, eraOne.val()].filter(Boolean).join('/');
+                val1 = [monthOne.val(), dayOne.val(), yearOne.val(), prefixOne!='' ? prefixOne.val() : '', eraOne.val()].filter(Boolean).join('/');
             } else {
                 inputOne = $('#default_one');
                 val1 = inputOne.val();
@@ -841,14 +850,14 @@ Kora.Fields.Options = function(fieldType) {
                             eraTwo = $(this);
                         }
                     });
-                    circaTwo = $('#default_circa_two');
-                    circaTwoVal = 'Circa';
-                    if (circaTwo.prop('checked') != true) {
-                        circaTwo.val('0');
-                        circaTwoVal = '';
-                    }
+                    prefixTwo = '';
+                    $(`[id^=default_prefix_two]`).each(function () {
+                        if ($(this).is(':checked')) {
+                            prefixTwo = $(this);
+                        }
+                    });
                 }
-                val2 = [monthTwo.val(), dayTwo.val(), yearTwo.val(), circaTwoVal, eraTwo.val()].filter(Boolean).join('/');
+                val2 = [monthTwo.val(), dayTwo.val(), yearTwo.val(), prefixTwo!='' ? prefixTwo.val() : '', eraTwo.val()].filter(Boolean).join('/');
             } else {
                 inputTwo = $('#default_two');
                 val2 = inputTwo.val();
@@ -890,7 +899,9 @@ Kora.Fields.Options = function(fieldType) {
                     div += '<input type="hidden" name="default_month_combo_one[]" value="'+monthOne.val()+'">';
                     div += '<input type="hidden" name="default_year_combo_one[]" value="'+yearOne.val()+'">';
                     if(type1=='Historical Date') {
-                        div += '<input type="hidden" name="default_circa_combo_one[]" value="'+circaOne.val()+'">';
+                        div += '<input type="hidden" name="default_prefix_combo_one[]" value="';
+                        div += prefixOne!='' ? prefixOne.val() : '';
+                        div += '">';
                         div += '<input type="hidden" name="default_era_combo_one[]" value="'+eraOne.val()+'">';
                     }
                     div += '<span class="combo-column">'+val1+'</span>';
@@ -913,7 +924,9 @@ Kora.Fields.Options = function(fieldType) {
                     div += '<input type="hidden" name="default_month_combo_two[]" value="'+monthTwo.val()+'">';
                     div += '<input type="hidden" name="default_year_combo_two[]" value="'+yearTwo.val()+'">';
                     if(type2=='Historical Date') {
-                        div += '<input type="hidden" name="default_circa_combo_two[]" value="'+circaTwo.val()+'">';
+                        div += '<input type="hidden" name="default_prefix_combo_two[]" value="';
+                        div += prefixTwo!='' ? prefixTwo.val() : '';
+                        div += '">';
                         div += '<input type="hidden" name="default_era_combo_two[]" value="'+eraTwo.val()+'">';
                     }
                     div += '<span class="combo-column">'+val2+'</span>';
@@ -943,7 +956,12 @@ Kora.Fields.Options = function(fieldType) {
                         $('[id^=default_era_one]').each(function () {
                             $(this).trigger("chosen:updated");
                         });
-                        circaOne.trigger("chosen:updated");
+                        if(prefixOne!='') {
+                            prefixOne.prop("checked", false);
+                            $(`[id^=default_prefix_one_${flid}]`).each(function () {
+                                $(this).trigger("chosen:updated");
+                            });
+                        }
                     }
                 } else {
                     inputOne.val('');
@@ -961,7 +979,12 @@ Kora.Fields.Options = function(fieldType) {
                         $('[id^=default_era_two]').each(function () {
                             $(this).trigger("chosen:updated");
                         });
-                        circaTwo.trigger("chosen:updated");
+                        if(prefixTwo!='') {
+                            prefixTwo.prop("checked", false);
+                            $(`[id^=default_prefix_two_${flid}]`).each(function () {
+                                $(this).trigger("chosen:updated");
+                            });
+                        }
                     }
                 } else {
                     inputTwo.val('');
@@ -1195,11 +1218,20 @@ Kora.Fields.Options = function(fieldType) {
 
         function initializeDateOptions() {
             $eraCheckboxes = $('.era-check-js');
+            $prefixCheckboxes = $('.prefix-check-js');
 
+            $prefixCheckboxes.click(function() {
+                var $selected = $(this);
+                $isChecked = $selected.prop('checked');
+
+                $prefixCheckboxes.prop('checked', false);
+                if($isChecked)
+                    $selected.prop('checked', true);
+            });
             $eraCheckboxes.click(function() {
                 var $selected = $(this);
 
-                $('.era-check-js').prop('checked', false);
+                $eraCheckboxes.prop('checked', false);
                 $selected.prop('checked', true);
 
                 currEra = $selected.val();

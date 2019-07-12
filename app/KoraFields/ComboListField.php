@@ -239,7 +239,7 @@ class ComboListField extends BaseField {
                         'default_month',
                         'default_day',
                         'default_year',
-                        'circa',
+                        'prefix',
                         'era',
                         'start',
                         'end',
@@ -249,7 +249,7 @@ class ComboListField extends BaseField {
                         'day',
                         'month',
                         'year',
-                        'circa',
+                        'prefix',
                         'era'
                     );
                     break;

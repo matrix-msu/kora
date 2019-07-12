@@ -690,15 +690,15 @@ class ImportController extends Controller {
                                     $prefix = '';
                                 }
 
-                                $circa = 0;
                                 $for = 'YYYYMMDD';
-                                if($prefix=='circa') {$circa=1;}
+                                if($prefix!='circa' && $prefix!='pre' && $prefix!='post')
+                                    $prefix = '';
                                 if($format=='MDY') {$for='MMDDYYYY';}
                                 else if($format=='DMY') {$for='DDMMYYYY';}
                                 else if($format=='YMD') {$for='YYYYMMDD';}
 
                                 $newOpts = [
-                                    'ShowCirca' => $circa,
+                                    'ShowPrefix' => $prefix!='' ? 1 : 0,
                                     'ShowEra' => $era,
                                     'Start' => $startY,
                                     'End' => $endY,
@@ -708,7 +708,7 @@ class ImportController extends Controller {
                                     'month' => $defMon,
                                     'day' => $defDay,
                                     'year' => $defYear,
-                                    'circa' => 0,
+                                    'prefix' => '',
                                     'era' => 'CE'
                                 ];
                                 $newType = 'Historical Date';
@@ -943,10 +943,11 @@ class ImportController extends Controller {
                                 }
                                 break;
                             case 'Historical Date':
-                                $circa=0;
+                                $prefix = '';
                                 if(isset($value->attributes()["prefix"])) {
-                                    if($value->attributes()["prefix"] == "circa")
-                                        $circa=1;
+                                    $recPrefix = $value->attributes()["prefix"];
+                                    if($recPrefix == "circa" || $recPrefix == "pre" || $recPrefix == "post")
+                                        $prefix = $recPrefix;
                                 }
                                 $dateStr = (string)$value;
                                 if($dateStr!="") {
@@ -965,7 +966,7 @@ class ImportController extends Controller {
                                         'month' => $monthData,
                                         'day' => $dayData,
                                         'year' => $yearData,
-                                        'circa' => $circa,
+                                        'prefix' => $prefix,
                                         'era' => $era
                                     ];
                                     $recModel->{$flid} = json_encode($date);
