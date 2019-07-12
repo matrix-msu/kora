@@ -80,12 +80,32 @@ class UpdateController extends Controller {
      * @return array - The version info
      */
     public static function processUpdate() {
-        $html = file_get_contents(self::UPDATE_PAGE);
+        //got from https://stackoverflow.com/questions/51095694/unable-to-catch-php-file-get-contents-error-using-try-catch-block
+        // so we can properly fail if github is unreachable
+        set_error_handler(function ($err_severity, $err_msg, $err_file, $err_line, array $err_context)
+        {
+            throw new \ErrorException( $err_msg, 0, $err_severity, $err_file, $err_line );
+        }, E_WARNING);
 
-        $html = explode('<body>',$html)[1];
-        $html = explode('</body>',$html)[0];
+        try {
+            $html = file_get_contents(self::UPDATE_PAGE);
 
-        return json_decode($html, true);
+            $html = explode('<body>', $html)[1];
+            $html = explode('</body>', $html)[0];
+
+
+            $update = json_decode($html, true);
+        } catch(\Exception $e) {
+            $update = [
+                'version' => 0,
+                'notes' => 'Update check failed!',
+                'features' => ['none'],
+                'bugs' => ['Server cannot contact: '.self::UPDATE_PAGE]
+            ];
+        }
+
+        restore_error_handler();
+        return $update;
     }
 
     /**
