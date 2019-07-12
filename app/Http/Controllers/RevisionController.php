@@ -1,5 +1,6 @@
 <?php namespace App\Http\Controllers;
 
+use App\Form;
 use App\Record;
 use App\Revision;
 use Carbon\Carbon;
@@ -225,7 +226,13 @@ class RevisionController extends Controller {
         $form = FormController::getForm($record->form_id);
 
         foreach(array_keys($form->layout['fields']) as $flid) {
-            $data[$flid] = $record->{$flid};
+            if($form->layout['fields'][$flid]['type']==Form::_COMBO_LIST && !is_null($record->{$flid})) {
+                $typedField = $form->getFieldModel(Form::_COMBO_LIST);
+                $cflid1 = $form->layout['fields'][$flid]['one']['flid'];
+                $cflid2 = $form->layout['fields'][$flid]['two']['flid'];
+                $data[$flid] = $typedField->setTable($flid . $form->id)->select(["$cflid1 as cfOne", "$cflid2 as cfTwo"])->findMany(json_decode($record->{$flid}));
+            } else
+                $data[$flid] = $record->{$flid};
         }
 
         return $data;
@@ -322,7 +329,7 @@ class RevisionController extends Controller {
                     $record->kid = $revision->record_kid;
                     $record->save();
 
-                    $this->rollback_routine($record, $revision, false);
+                    $this->rollback_routine($form, $record, $revision, false);
                     self::storeRevision($record, Revision::CREATE);
 
                     return response()->json(["status"=>true,"message"=>"record_created","created_kid"=>$record->kid],200);
@@ -331,7 +338,7 @@ class RevisionController extends Controller {
             case Revision::EDIT:
             case Revision::ROLLBACK:
                 $record = RecordController::getRecord($revision->record_kid);
-                $this->rollback_routine($record, $revision);
+                $this->rollback_routine($form, $record, $revision);
 
                 return response()->json(["status"=>true,"message"=>"record_modified","modified_kid"=>$record->kid],200);
                 break;
@@ -341,17 +348,35 @@ class RevisionController extends Controller {
     /**
      * Performs the actual rollback.
      *
+     * @param  Form $form - Form to rollback in
      * @param  Record $record - Record to rollback
      * @param  Revision $revision - Revision to pull data from
      * @param  bool $is_rollback - Basically is this revision type Edit or Rollback, or are we reversing a Delete revision
      */
-    public function rollback_routine(Record $record, Revision $revision, $is_rollback = true) {
+    public function rollback_routine(Form $form, Record $record, Revision $revision, $is_rollback = true) {
         if($is_rollback) {
             $oldRecordCopy = $record->replicate();
             $oldRecordFileCopy = $record->getHashedRecordFiles();
         }
 
         foreach($revision->revision['oldData'] as $flid => $data) {
+            if($form->layout['fields'][$flid]['type']==Form::_COMBO_LIST) {
+                $cfval = [];
+                $typedField = $form->getFieldModel(Form::_COMBO_LIST);
+                $cflid1 = $form->layout['fields'][$flid]['one']['flid'];
+                $cflid2 = $form->layout['fields'][$flid]['two']['flid'];
+
+                foreach($data as $cfRow) {
+                    //store in typed table and get ID back
+                    $rowID = $typedField->setTable($flid . $form->id)->insertGetId(['record_id' => $record->id,$cflid1 => $cfRow['cfOne'], $cflid2 => $cfRow['cfTwo']]);
+                    //store that id in array
+                    $cfval[] = $rowID;
+                }
+
+                //save data as the new array
+                $data = json_encode($cfval);
+            }
+
             $record->{$flid} = $data;
         }
 

@@ -1,5 +1,6 @@
 <?php namespace App\Http\Controllers;
 
+use App\Form;
 use App\KoraFields\FileTypeField;
 use App\KoraFields\ComboListField;
 use App\RecordPreset;
@@ -830,7 +831,7 @@ class RecordController extends Controller {
         $fields = array();
         foreach($all_fields as $flid => $field) {
             //We don't want File Fields to be mass assignable because of the processing expense with large data sets
-            if($form->getFieldModel($field['type']) instanceof FileTypeField || $field['type']=='Combo List')
+            if($form->getFieldModel($field['type']) instanceof FileTypeField || $field['type']==Form::_COMBO_LIST)
                 continue;
             else
                 $fields[$flid] = $field;
@@ -857,7 +858,7 @@ class RecordController extends Controller {
         $fields = array();
         foreach($all_fields as $flid => $field) {
             //We don't want File Fields to be mass assignable because of the processing expense with large data sets
-            if($form->getFieldModel($field['type']) instanceof FileTypeField || $field['type']=='Combo List')
+            if($form->getFieldModel($field['type']) instanceof FileTypeField || $field['type']==Form::_COMBO_LIST)
                 continue;
             else
                 $fields[$flid] = $field;
