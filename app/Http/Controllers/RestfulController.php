@@ -60,6 +60,7 @@ class RestfulController extends Controller {
 
         $project = ProjectController::getProject($pid);
         $formMods = $project->forms()->get();
+        $forms = [];
         foreach($formMods as $form) {
             $fArray = array();
             $fArray['name'] = $form->name;
