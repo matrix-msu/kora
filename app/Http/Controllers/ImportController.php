@@ -1198,10 +1198,10 @@ class ImportController extends Controller {
 
         $project->save();
 
-        $fieldValuePresets = $fileArray->fieldValuePresets;
+        $fieldValuePresets = $fileArray['fieldValuePresets'];
         foreach($fieldValuePresets as $opt) {
-            $preset = ["name" => $opt->name,"type"=>$opt->type,"preset"=>$opt->preset];
-            FieldValuePreset::create(['project_id' => $project->id, 'preset' => $preset, 'shared' => $opt->shared]);
+            $preset = ["name" => $opt['name'],"type"=>$opt['type'],"preset"=>$opt['preset']];
+            FieldValuePreset::create(['project_id' => $project->id, 'preset' => $preset, 'shared' => $opt['shared']]);
         }
 
         $forms = $fileArray['forms'];
