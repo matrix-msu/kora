@@ -24,7 +24,7 @@ educational value of the objects.
        
     a) Configure the `RewriteBase` rule if the installation is **NOT** located at the root of your url.
     
-    i.e if url is http://www.example.com/digitalRepo/kora/public, then rule is:
+    i.e if url is http://www.example.com/digitalRepo/kora/public, then the rule is:
        
        RewriteBase /digitalRepo/kora/public
        
@@ -67,4 +67,4 @@ Thank you for considering contributing to kora! The contribution guide can be fo
 
 ### License
 
-Kora is an open-sourced software licensed under the [GPU GPL-3.0 license](https://opensource.org/licenses/GPL-3.0)
+kora is an open-sourced software licensed under the [GPU GPL-3.0 license](https://opensource.org/licenses/GPL-3.0)
