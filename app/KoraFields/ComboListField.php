@@ -4,6 +4,7 @@ use App\Form;
 use App\Record;
 use App\Search;
 use App\Http\Controllers\FieldController;
+use App\Http\Controllers\FormController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -557,11 +558,30 @@ class ComboListField extends BaseField {
      *
      * @param  string $field - Field ID
      * @param  string $value - Data to format
+     * @param  int $fid - Form ID
      *
      * @return mixed - Processed data
      */
-    public function processXMLData($field, $value) { //TODO::CASTLE
-        return "<$field>".''."</$field>";
+    public function processXMLData($field, $value, $fid = null) {
+        $form = FieldController::getField($field, '1');
+        $records = $this->retrieve($field, $fid, $value);
+        $xml = "<$field>";
+        foreach($records as $record) {
+            $value = '<Value>';
+            foreach (['one', 'two'] as $seq) {
+                $className = $this->fieldModel[$form[$seq]['type']];
+                $object = new $className;
+                $value .= $object->processXMLData(
+                    $form[$seq]['name'],
+                    $record->{$form[$seq]['flid']}
+                );
+            }
+            $value .= '</Value>';
+            $xml .= $value;
+        }
+        $xml .= "</$field>";
+
+        return $xml;
     }
 
     /**

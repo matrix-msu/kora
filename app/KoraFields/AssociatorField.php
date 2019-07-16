@@ -254,10 +254,11 @@ class AssociatorField extends BaseField {
      *
      * @param  string $field - Field ID
      * @param  string $value - Data to format
+     * @param  int $fid - Form ID
      *
      * @return mixed - Processed data
      */
-    public function processXMLData($field, $value) {
+    public function processXMLData($field, $value, $fid = null) {
         $recs = json_decode($value,true);
         $xml = "<$field>";
         foreach($recs as $rec) {
