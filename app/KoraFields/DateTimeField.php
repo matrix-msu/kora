@@ -345,10 +345,11 @@ class DateTimeField extends BaseField {
      *
      * @param  string $field - Field ID
      * @param  string $value - Data to format
+     * @param  int $fid - Form ID
      *
      * @return mixed - Processed data
      */
-    public function processXMLData($field, $value) {
+    public function processXMLData($field, $value, $fid = null) {
         $xml = "<$field>$value</$field>";
 
         return $xml;

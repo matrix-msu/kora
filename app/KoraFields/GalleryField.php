@@ -317,10 +317,11 @@ class GalleryField extends FileTypeField {
      *
      * @param  string $field - Field ID
      * @param  string $value - Data to format
+     * @param  int $fid - Form ID
      *
      * @return mixed - Processed data
      */
-    public function processXMLData($field, $value) {
+    public function processXMLData($field, $value, $fid = null) {
         $files = json_decode($value,true);
         $xml = "<$field>";
         foreach($files as $file) {

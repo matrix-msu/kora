@@ -165,10 +165,11 @@ abstract class BaseField extends Model {
      *
      * @param  string $field - Field ID
      * @param  string $value - Data to format
+     * @param  int $fid - Form ID
      *
      * @return mixed - Processed data
      */
-    abstract public function processXMLData($field, $value);
+    abstract public function processXMLData($field, $value, $fid = null);
 
     /**
      * Formats data for XML record display.

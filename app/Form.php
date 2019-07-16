@@ -1368,7 +1368,7 @@ class Form extends Model {
 
             foreach($row as $index => $value) {
                 if($index != 'kid' && !is_null($value))
-                    $results .= $fieldToModel[$index]->processXMLData($index, $value);
+                    $results .= $fieldToModel[$index]->processXMLData($index, $value, $this->id);
             }
 
             if($filters['revAssoc']) {
