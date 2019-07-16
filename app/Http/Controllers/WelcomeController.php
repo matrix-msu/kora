@@ -80,7 +80,7 @@ class WelcomeController extends Controller {
 
 			return view('/auth/activate', compact('notification'));
 		} else {
-			if(UserController::returnUserPrefs('logo_target') == 1)
+			if(UserController::returnUserPrefs('logo_target') == 1 && UserController::returnUserPrefs('use_dashboard'))
 				return redirect('/dashboard');
 			else
 				return redirect('/projects');

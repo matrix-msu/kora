@@ -31,8 +31,11 @@
     @else
       @if(isInstalled())
         <li class="logo">
-          @php $pref = 'logo_target' @endphp
-          <a href="{{ \App\Http\Controllers\Auth\UserController::returnUserPrefs($pref) == "1" ? url('/dashboard') : url('/projects') }}">
+          @php
+              $logo = \App\Http\Controllers\Auth\UserController::returnUserPrefs('logo_target');
+              $useDash = \App\Http\Controllers\Auth\UserController::returnUserPrefs('use_dashboard');
+          @endphp
+          <a href="{{ ($logo==1 && $useDash) ? url('/dashboard') : url('/projects') }}">
               <img src="{{url('assets/logos/logo_white.svg')}}">
           </a>
         </li>
