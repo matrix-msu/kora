@@ -25,11 +25,6 @@ class IsActive {
         if(!(\Auth::user()->active))
             return redirect('/')->with('k3_global_error', 'user_not_activated');
 
-        if(\Auth::user()->locked_out) { //This is for backup and restore operations, see BackupController@lockUsers
-            \Auth::logout();
-            return redirect('/')->with('k3_global_error', 'user_locked_out');
-        }
-
         return $next($request);
     }
 }

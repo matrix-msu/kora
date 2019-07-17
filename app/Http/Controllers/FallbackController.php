@@ -7,10 +7,10 @@ class FallbackController extends Controller {
 
     /*
     |--------------------------------------------------------------------------
-    | Dashboard Controller
+    | Fallback Controller
     |--------------------------------------------------------------------------
     |
-    | This controller handles the user dashboard system
+    | This controller handles routing of unknown routes to a custom 404 page
     |
     */
 
