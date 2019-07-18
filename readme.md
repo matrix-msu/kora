@@ -1,4 +1,6 @@
-# kora 3.0.0
+# ![kora Logo](https://matrix-msu.github.io/kora/images/logo_green_text_dark.svg) 
+
+#v3.0.0
 
 #### The easiest way to manage and publish your data.
 
