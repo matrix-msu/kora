@@ -4,8 +4,12 @@
       <span class="title">
         <span class="name mr-xl">
           <span class="profile mr-m">
-          @if ($user->preferences['profile_pic'])
-            <img src="{{ $user->getProfilePicUrl() }}" alt="Profile Pic">
+            @php
+              $imgpath = storage_path('app/profiles/' . $user->id . '/' . $user->preferences['profile_pic']);
+              $imgurl = $user->getProfilePicUrl();
+            @endphp
+          @if (File::exists($imgpath) && $user->preferences['profile_pic']!='')
+            <img src="{{ $imgurl }}" alt="Profile Pic">
           @else
             <i class="icon icon-user-little"></i>
           @endif

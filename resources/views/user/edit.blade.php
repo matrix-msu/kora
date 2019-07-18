@@ -14,8 +14,8 @@
             $imgpath = storage_path('app/profiles/' . $user->id . '/' . $user->preferences['profile_pic']);
             $imgurl = $user->getProfilePicUrl();
           @endphp
-          @if(File::exists($imgpath))
-            <img class="profile-pic profile-pic-js" src="{{ $user->getProfilePicUrl() }}" alt="Profile Pic">
+          @if(File::exists($imgpath) && $user->preferences['profile_pic']!='')
+            <img class="profile-pic profile-pic-js" src="{{ $imgurl }}" alt="Profile Pic">
           @else
             <i class="icon icon-profile-dark"></i>
           @endif
