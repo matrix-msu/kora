@@ -33,7 +33,7 @@
       @php
           $imgpath = storage_path('app/profiles/' . $user->id . '/' . $user->preferences['profile_pic']);
           $imgurl = $user->getProfilePicUrl();
-          $photoExists = File::exists($imgpath);
+          $photoExists = (File::exists($imgpath) && $user->preferences['profile_pic']!='');
       @endphp
       @if($photoExists)
         <div class="icon-user-cont"><img src="{{ $imgurl }}" alt='Profile Picture'></div>

@@ -4,8 +4,8 @@
       $imgpath = storage_path('app/profiles/' . \Auth::user()->id . '/' . \Auth::user()->preferences['profile_pic']);
       $imgurl = \Auth::user()->getProfilePicUrl();
     @endphp
-    @if(File::exists($imgpath))
-      <img class="profile-picture" src="{{url($imgurl)}}">
+    @if(File::exists($imgpath) && \Auth::user()->preferences['profile_pic']!='')
+      <img class="profile-picture" src="{{$imgurl}}">
     @else
       <i class="icon icon-user-little"></i>
     @endif
