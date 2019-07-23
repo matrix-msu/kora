@@ -556,10 +556,13 @@ class Form extends Model {
                     $cFlid = $this->layout['fields'][$flid][$seq]['flid'];
                     $cName = $this->layout['fields'][$flid][$seq]['name'];
 
-                    if(in_array($cType, self::$jsonFields))
+                    if(in_array($cType, self::$jsonFields)) {
                         array_push($comboInfo[$tmp]['jsonFields'], $cFlid);
-                    else if($cType == self::_ASSOCIATOR)
+                        array_push($comboInfo[$tmp]['jsonFields'], $cName);
+                    } else if($cType == self::_ASSOCIATOR) {
                         array_push($comboInfo[$tmp]['assocFields'], $cFlid);
+                        array_push($comboInfo[$tmp]['assocFields'], $cName);
+                    }
                     array_push($subFields, $this->layout['fields'][$flid][$seq]['flid']." as $cName");
                 }
 
@@ -979,9 +982,9 @@ class Form extends Model {
             foreach($row as $column => $data) {
                 if(empty($result[$column]))
                     $result[$column] = [];
-                if(array_key_exists($column,$jsonFields))
+                if(in_array($column,$jsonFields))
                     array_push($result[$column], json_decode($data, true));
-                else if(array_key_exists($column,$assocFields)) {
+                else if(in_array($column,$assocFields)) {
                     $aKids = json_decode($data,true);
                     if($aKids !== NULL && !empty($assocForms)) {
                         foreach($aKids as $aKid) {
