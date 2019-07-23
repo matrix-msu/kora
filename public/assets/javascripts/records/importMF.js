@@ -229,7 +229,8 @@ Kora.Records.ImportMF = function () {
                                         kids[fid].push(data['kid']);
                                         if (data['kidConnection'].length != 0) connections[fid][data['kidConnection']] = data['kid'];
 
-                                        if(done == total)
+                                        if(done == total) {
+                                            $('.progress-text-js').html('Connecting cross-Form associations. One moment...');
                                             $.ajax({
                                                 url: crossAssocURL,
                                                 type: 'POST',
@@ -240,9 +241,11 @@ Kora.Records.ImportMF = function () {
                                                     "connections": connections,
                                                     "kids": kids,
                                                     "fids": fids
+                                                }, success: function (data) {
+                                                    finishImport(succ, total, importType);
                                                 }
                                             });
-                                            finishImport(succ, total, importType);
+                                        }
                                     },
                                     error: function (data) {
                                         failedRecords.push([this.local_kid, importRecs[this.local_kid], data]);
@@ -266,24 +269,32 @@ Kora.Records.ImportMF = function () {
             });
         });
 
-        function finishImport(succ, total, importType) {
-            $('.progress-text-js').html('Connecting cross-Form associations. One moment...');
-
+        function finishImport(succ, total, impType) {
             var recImpLabel = $('.records-imported-label-js');
             var recImpText = $('.records-imported-text-js');
             var recImpText2 = $('.records-imported-text2-js');
             var btnContainer = $('.button-container-js');
             var btnContainer2 = $('.button-container2-js');
 
-            $('.progress-text-js').html(succ + ' of ' + total + ' records successfully imported!');
+            $('.recordresults-section').addClass('hidden');
+            $('.allrecords-section').removeClass('hidden');
+
+            $('.header-text-js').text('Import Records Complete!');
+            $('.desc-text-js').text('Below is a summary of the imported records.');
+
             if(succ==total) {
+                recImpLabel.text(succ + ' of ' + total + ' Records Successfully Imported!');
                 recImpText.text('Way to have your data organized! We found zero errors with this import. Woohoo!');
+
+                btnContainer.html('<a href="' + viewRecordsUrl + '" class="btn half-btn import-thin-btn-text">View Imported Records</a>');
             } else {
+                recImpLabel.text(succ + ' of ' + total + ' Records Successfully Imported');
                 recImpText.html('Looks like not all of the records made it. You can download the failed records and ' +
                     'their report below to identify the problem with their import.');
-                btnContainer.html('<a href="#" class="btn half-sub-btn import-thick-btn-text failed-records-js">Download Failed Records (' + importType + ')</a>'
+
+                btnContainer.html('<a href="#" class="btn half-sub-btn import-thick-btn-text failed-records-js">Download Failed Records (' + impType + ')</a>'
                     + '<form action="' + downloadFailedUrl + '" method="post" class="records-form-js" style="display:none;">'
-                    + '<input type="hidden" name="type" value="' + importType + '"/>'
+                    + '<input type="hidden" name="type" value="' + impType + '"/>'
                     + '<input type="hidden" name="_token" value="' + CSRFToken + '"/>'
                     + '</form>'
                     + '<a class="btn half-sub-btn import-thick-btn-text failed-reasons-js" href="#">Download Failed Records Report</a>'
@@ -291,7 +302,11 @@ Kora.Records.ImportMF = function () {
                     + '<input type="hidden" name="_token" value="' + CSRFToken + '"/>'
                     + '</form>');
 
-                recImpText2.text('You may also try importing again at anytime, or view the records that successfully imported.');
+
+                recImpText2.text('You may also try importing again at anytime, or go to the Project home page.');
+
+                btnContainer2.html('<a class="btn half-sub-btn import-thick-btn-text refresh-records-js" href="#">Try Importing Again</a>' +
+                    '<a href="' + viewRecordsUrl + '" class="btn half-btn import-thin-btn-text">Project Home</a>');
             }
         }
 
