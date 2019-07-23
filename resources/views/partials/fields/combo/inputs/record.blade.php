@@ -160,7 +160,7 @@
             <div class="genlist-record-input list-option-card-container list-option-card-container-js">
                 @foreach(App\KoraFields\ComboListField::getComboList($field,false,$fnum) as $opt)
                     <div id="{{$opt}}" class="card list-option-card list-option-card-js" data-list-value="{{$opt}}">
-                        {!! Form::hidden('default_'.$fnum.'[]', $opt) !!}
+                        {!! Form::hidden('default_'.$fnum.'_'.$flid.'[]', $opt, ['id' => 'default_'.$fnum.'_'.$flid]) !!}
                         <div class="header">
                             <div class="left">
                                 <div class="move-actions">
@@ -186,7 +186,7 @@
             <div class="card new-list-option-card new-list-option-card-js">
                 <div class="header">
                     <div class="left">
-                        <input class="new-list-option new-list-option-js" type="text" placeholder='Type here and hit the enter key or "Add" to add new list options' data-flid='{{'default_'.$fnum}}'>
+                        <input class="new-list-option new-list-option-js" type="text" placeholder='Type here and hit the enter key or "Add" to add new list options' data-flid='{{'default_'.$fnum.'_'.$flid}}'>
                     </div>
 
                     <div class="card-toggle-wrap">

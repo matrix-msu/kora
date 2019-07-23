@@ -468,7 +468,7 @@ class Form extends Model {
                         $aJsonFields[$jsonName] = 1;
 
                     if($aLayout['fields'][$flid]['type'] == self::_COMBO_LIST)
-                            $aComboFields[$flid] = 1;
+                        $aComboFields[$jsonName] = 1;
                     array_push($realNames,$name);
                 }
                 $flids = $realNames;
@@ -556,14 +556,14 @@ class Form extends Model {
                     $cFlid = $this->layout['fields'][$flid][$seq]['flid'];
                     $cName = $this->layout['fields'][$flid][$seq]['name'];
 
-                    if(in_array($cType, self::$jsonFields)) {
-                        array_push($comboInfo[$tmp]['jsonFields'], $cFlid);
-                        array_push($comboInfo[$tmp]['jsonFields'], $cName);
-                    } else if($cType == self::_ASSOCIATOR) {
-                        array_push($comboInfo[$tmp]['assocFields'], $cFlid);
-                        array_push($comboInfo[$tmp]['assocFields'], $cName);
+                    if($cType == self::_ASSOCIATOR) {
+                        //$comboInfo[$tmp]['assocFields'][$cFlid] = 1;
+                        $comboInfo[$tmp]['assocFields'][$cName] = 1;
+                    } else if(in_array($cType, self::$jsonFields)) {
+                        //$comboInfo[$tmp]['jsonFields'][$cFlid] = 1;
+                        $comboInfo[$tmp]['jsonFields'][$cName] = 1;
                     }
-                    array_push($subFields, $this->layout['fields'][$flid][$seq]['flid']." as $cName");
+                    array_push($subFields, $this->layout['fields'][$flid][$seq]['flid']." as `$cName`");
                 }
 
                 $comboInfo[$tmp]['fieldString'] = implode(',', $subFields);
@@ -934,11 +934,12 @@ class Form extends Model {
         while($row = $records->fetch_assoc()) {
             foreach($row as $column => $data) {
                 // needs to be able to call getComboRecord
-                if(array_key_exists($column,$jsonFields)) //array key search is faster than in array so that's why we use it here
+                if(array_key_exists($column,$comboFields) && !empty($comboInfo)) {
+                    $cForm = $comboInfo[$column];
+                    $result[$column] = $this->getComboRecord($column, json_decode($data, true), $cForm, $con, $prefix, $aForm['id'], $aForm['project_id'], []);
+                } else if(array_key_exists($column,$jsonFields)) //array key search is faster than in array so that's why we use it here
                     $result[$column] = json_decode($data,true);
-                elseif(array_key_exists($column,$comboFields) && !empty($comboInfo)) {
-                    $result[$column] = $this->getComboRecord($column, json_decode($data, true), $comboInfo, $con, $prefix, $aForm['id'], $aForm['project_id'], []);
-                } else
+                else
                     $result[$column] = $data;
             }
         }
@@ -982,17 +983,19 @@ class Form extends Model {
             foreach($row as $column => $data) {
                 if(empty($result[$column]))
                     $result[$column] = [];
-                if(in_array($column,$jsonFields))
+                if(array_key_exists($column,$jsonFields))
                     array_push($result[$column], json_decode($data, true));
-                else if(in_array($column,$assocFields)) {
+                else if(array_key_exists($column,$assocFields)) {
                     $aKids = json_decode($data,true);
                     if($aKids !== NULL && !empty($assocForms)) {
                         foreach($aKids as $aKid) {
-                            $parts = explode('-',$data);
+                            $parts = explode('-',$aKid);
                             $aForm = $assocForms[$parts[1]];
                             $assocValue = $this->getAssocRecord($parts[2], $aForm, $con, $prefix);
-                            array_push($result[$column][$aKid], $assocValue);
+                            $result[$column][$aKid][] = $assocValue;
                         }
+                    } else {
+                        array_push($result[$column], $aKids);
                     }
                 } else
                     array_push($result[$column], $data);
