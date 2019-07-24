@@ -21,9 +21,10 @@
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteRule ^ index.php [L]
 </IfModule>
-#Only use these if your system allows overwrites
+#Recommended but only use these if your system allows overwrites
 #php_value upload_max_filesize 4998M
 #php_value post_max_size 4999M
 #php_value memory_limit 5000M
 #php_value max_execution_time 3000
 #php_value max_input_time 3000
+#php_value max_input_vars 10000

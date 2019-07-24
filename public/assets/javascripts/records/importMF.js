@@ -231,20 +231,23 @@ Kora.Records.ImportMF = function () {
 
                                         if(done == total) {
                                             $('.progress-text-js').html('Connecting cross-Form associations. One moment...');
-                                            $.ajax({
-                                                url: crossAssocURL,
-                                                type: 'POST',
-                                                data: {
-                                                    "_token": CSRFToken,
-                                                    "assocTagConvert": assocTagConvert,
-                                                    "crossFormAssoc": crossFormAssoc,
-                                                    "connections": connections,
-                                                    "kids": kids,
-                                                    "fids": fids
-                                                }, success: function (data) {
-                                                    finishImport(succ, total, importType);
-                                                }
-                                            });
+                                            if (connections && kids) {
+                                                $.ajax({
+                                                    url: crossAssocURL,
+                                                    type: 'POST',
+                                                    data: {
+                                                        "_token": CSRFToken,
+                                                        "assocTagConvert": assocTagConvert,
+                                                        "crossFormAssoc": crossFormAssoc,
+                                                        "connections": connections,
+                                                        "kids": kids,
+                                                        "fids": fids
+                                                    }, success: function (data) {
+                                                        finishImport(succ, total, importType);
+                                                    }
+                                                });
+                                            } else
+                                                finishImport(succ, total, importType);
                                         }
                                     },
                                     error: function (data) {
@@ -258,8 +261,26 @@ Kora.Records.ImportMF = function () {
                                         progressFill.attr('style', 'width:' + percent + '%');
                                         progressText.text(succ + ' of ' + total + ' Records Submitted');
 
-                                        if(done == total)
-                                            finishImport(succ, total, importType);
+                                        if(done == total) {
+                                            $('.progress-text-js').html('Connecting cross-Form associations. One moment...');
+                                            if (connections && kids) {
+                                                $.ajax({
+                                                    url: crossAssocURL,
+                                                    type: 'POST',
+                                                    data: {
+                                                        "_token": CSRFToken,
+                                                        "assocTagConvert": assocTagConvert,
+                                                        "crossFormAssoc": crossFormAssoc,
+                                                        "connections": connections,
+                                                        "kids": kids,
+                                                        "fids": fids
+                                                    }, success: function (data) {
+                                                        finishImport(succ, total, importType);
+                                                    }
+                                                });
+                                            } else
+                                                finishImport(succ, total, importType);
+                                        }
                                     }
                                 });
                             }

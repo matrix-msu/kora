@@ -3796,6 +3796,52 @@
         ]
     },
     {
+        "name": "rairlie/laravel-locking-session",
+        "version": "v1.1.2",
+        "version_normalized": "1.1.2.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/rairlie/laravel-locking-session.git",
+            "reference": "93a623a7eacbcab6ef29b4f036ec35d7383d7395"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/rairlie/laravel-locking-session/zipball/93a623a7eacbcab6ef29b4f036ec35d7383d7395",
+            "reference": "93a623a7eacbcab6ef29b4f036ec35d7383d7395",
+            "shasum": ""
+        },
+        "require": {
+            "illuminate/session": "~5.0",
+            "php": ">=5.5.9"
+        },
+        "require-dev": {
+            "phpunit/phpunit": "^8.0"
+        },
+        "time": "2019-04-10T21:29:01+00:00",
+        "type": "library",
+        "installation-source": "dist",
+        "autoload": {
+            "psr-0": {
+                "Rairlie\\LockingSession": "src/"
+            }
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "MIT"
+        ],
+        "authors": [
+            {
+                "name": "Richard Airlie",
+                "email": "richard@backtrace.co.uk"
+            }
+        ],
+        "description": "Provide session locking in Laravel",
+        "keywords": [
+            "laravel",
+            "session"
+        ]
+    },
+    {
         "name": "ramsey/uuid",
         "version": "3.7.3",
         "version_normalized": "3.7.3.0",
@@ -4469,17 +4515,17 @@
         "source": {
             "type": "git",
             "url": "https://github.com/stilliard/CsvParser.git",
-            "reference": "1013108b61d987a21b996f330dde2a20628a0b74"
+            "reference": "259b265fb9d69fcefe37a085844f22c64ef0bd6e"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/stilliard/CsvParser/zipball/1013108b61d987a21b996f330dde2a20628a0b74",
-            "reference": "1013108b61d987a21b996f330dde2a20628a0b74",
+            "url": "https://api.github.com/repos/stilliard/CsvParser/zipball/259b265fb9d69fcefe37a085844f22c64ef0bd6e",
+            "reference": "259b265fb9d69fcefe37a085844f22c64ef0bd6e",
             "shasum": ""
         },
-        "time": "2018-03-21T23:21:41+00:00",
+        "time": "2019-05-23T19:04:15+00:00",
         "type": "library",
-        "installation-source": "dist",
+        "installation-source": "source",
         "autoload": {
             "psr-4": {
                 "CsvParser\\": "src"
@@ -4492,8 +4538,8 @@
         "authors": [
             {
                 "name": "Andrew Stilliard",
-                "email": "andrew.stilliard@gmail.com",
-                "role": "Developer"
+                "role": "Developer",
+                "email": "andrew.stilliard@gmail.com"
             }
         ],
         "description": "csv manipulation made simple"

@@ -182,8 +182,23 @@ Kora.Records.Import = function () {
                                         progressFill.attr('style', 'width:' + percent + '%');
                                         progressText.text(succ + ' of ' + total + ' Records Submitted');
 
-                                        if(done == total)
-                                            completeImport(succ, total, this.impType);
+                                        if(done == total) {
+                                            $('.progress-text-js').html('Connecting cross-Form associations. One moment...');
+                                            if (connections && kids) {
+                                                $.ajax({
+                                                    url: connectRecordsUrl,
+                                                    type: 'POST',
+                                                    data: {
+                                                        "_token": CSRFToken,
+                                                        "connections": connections,
+                                                        "kids": kids
+                                                    }, success: function (data) {
+                                                        completeImport(succ, total, this.impType);
+                                                    }
+                                                });
+                                            } else
+                                                completeImport(succ, total, this.impType);
+                                        }
                                     }
                                 });
                             }
