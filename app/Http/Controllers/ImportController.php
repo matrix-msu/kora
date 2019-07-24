@@ -386,29 +386,53 @@ class ImportController extends Controller {
         $failedRecords = json_decode($request->failures);
         $form = FormController::getForm($fid);
 
-        if($request->type=='JSON' | $request->type=='CSV')
+        if($request->type=='JSON')
             $records = [];
         else if($request->type=='XML')
             $records = '<?xml version="1.0" encoding="utf-8"?><Records>';
+        else if($request->type=='CSV') {
+            $keys = [];
+            foreach($failedRecords[0][1] as $key => $value) {
+                $keys[] = $key;
+            }
+            $records = implode(',',$keys)."\n";
+        }
 
         foreach($failedRecords as $element) {
-            if($request->type=='JSON' | $request->type=='CSV')
+            if($request->type=='JSON')
                 $records[$element[0]] = $element[1];
             else if($request->type=='XML')
                 $records .= $element[1];
+            else if($request->type=='CSV') {
+                $values = [];
+                foreach($failedRecords[0][1] as $key => $value) {
+                    //Escape values before we report them back
+                    $value = str_replace('"','""',$value);
+                    $values[] = '"'.$value.'"';
+                }
+                $records .= implode(',',$values)."\n";
+            }
         }
 
-        if($request->type=='JSON'  | $request->type=='CSV') {
+        if($request->type=='JSON') {
             header("Content-Disposition: attachment; filename=" . $form->name . '_failedImports.json');
             header("Content-Type: application/octet-stream; ");
 
             echo json_encode($records);
             exit;
-        }
-        else if($request->type=='XML') {
+        } else if($request->type=='XML') {
             $records .= '</Records>';
 
             header("Content-Disposition: attachment; filename=" . $form->name . '_failedImports.xml');
+            header("Content-Type: application/octet-stream; ");
+
+            echo $records;
+            exit;
+        } else if($request->type=='CSV') {
+            //Strip off last newline character
+            $records = rtrim($records);
+
+            header("Content-Disposition: attachment; filename=" . $form->name . '_failedImports.csv');
             header("Content-Type: application/octet-stream; ");
 
             echo $records;
@@ -438,7 +462,7 @@ class ImportController extends Controller {
                         $messages[$id] = $message;
                 }
             } else {
-                $messages[$id] = "Unable to determine error. This is usually caused by a structure issue in your XML/JSON, or an unexpected bug in kora.";
+                $messages[$id] = "Unable to determine error. This is usually caused by a structure issue in your CSV/XML/JSON, or an unexpected bug in kora.";
             }
         }
 

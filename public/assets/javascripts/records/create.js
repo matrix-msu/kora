@@ -271,6 +271,11 @@ Kora.Records.Create = function() {
                 if (inputOne.prop('checked') != true) {
                     val1 = 0;
                 }
+            } else if(type1=='Generated List') {
+                var tmpName = 'default_one_'+flid+'[]';
+                val1 = $("input[name='"+tmpName+"']")
+                    .map(function(x, elm) { return elm.value; })
+                    .get();
             }
 
             if(type2=='Date' | type2=='Historical Date') {
@@ -300,6 +305,11 @@ Kora.Records.Create = function() {
                 if (inputTwo.prop('checked') != true) {
                     val2 = 0;
                 }
+            } else if(type2=='Generated List') {
+                var tmpName = 'default_two_'+flid+'[]';
+                val2 = $("input[name='"+tmpName+"']")
+                    .map(function(x, elm) { return elm.value; })
+                    .get();
             }
 
             if(val1==null | val2==null | val1=='//'| val2=='//') {

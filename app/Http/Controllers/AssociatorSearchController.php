@@ -62,14 +62,13 @@ class AssociatorSearchController extends Controller {
             $activeForms[$opt_fid] = ['flids' => $flids];
         }
 
+        $results = array();
         foreach($activeForms as $actfid => $details) {
-            $results = array();
-
             if(Record::isKIDPattern($keyword)) {
                 //KID Search
                 $recModel = new Record(array(),$actfid);
                 $record = $recModel->newQuery()->where('kid','=',$keyword)->first();
-                if(!is_null($record)) {
+                if(!is_null($record) && $record->form_id == $actfid) {
                     $preview = array();
                     foreach($details['flids'] as $dflid => $type) {
                         if(!in_array($type,Form::$validAssocFields)) {
@@ -87,7 +86,7 @@ class AssociatorSearchController extends Controller {
             } else {
                 //Form Search
                 $form = FormController::getForm($actfid);
-                $results = self::search($form->project_id, $form, $keyword, $details);
+                $results = array_merge($results, self::search($form->project_id, $form, $keyword, $details));
             }
         }
 

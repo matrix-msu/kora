@@ -299,24 +299,19 @@ class ImportMultiFormController extends Controller {
         $recRequest['api'] = true;
 
         $matchup = $request->table[$fid];
-        $matchup['KORA ID CONNECTION'] = 'connection';
-
-        $assocTag = null;
-        $assocArray = [];
 
         if($request->type==self::XML) {
             $record = simplexml_load_string($record);
 
             $originKid = $record->attributes()->kid;
-            $originRid = null;
-            if(!is_null($originKid)) {
-                if(Record::isKIDPattern($originKid))
-                    $originRid = explode('-', $originKid)[2];
-
-                $assocTag = (string)$originKid;
-            }
+            if(!is_null($originKid))
+                $recRequest->query->add(['originRid' => explode('-', $originKid)[2]]);
 
             foreach($record->children() as $key => $field) {
+                //Just in case there are extra/unused tags in the XML
+                if(!array_key_exists($key,$matchup))
+                    continue;
+
                 //If value is not set, we assume no value so move on
                 if($field->count() == 0 && (string)$field == '')
                     continue;
@@ -325,18 +320,17 @@ class ImportMultiFormController extends Controller {
                 if($matchup[$key] == 'reverseAssociations') {
                     if(empty($field->Record))
                         return response()->json(["status"=>false,"message"=>"xml_validation_error",
-                            "record_validation_error"=>[$request->kid => "$key format is incorrect for applying reverse associations"]],500);
+                            "record_validation_error"=>[$request->kid => "$matchup[$key] format is incorrect for applying reverse associations"]],500);
                     $rFinal = [];
                     foreach($field->Record as $rAssoc) {
-                        $rFinal[(string)$rAssoc['flid']][] = (string)$rAssoc;
+                        $rFinal[(string)$rAssoc['field']][] = (string)$rAssoc;
                     }
                     $recRequest['newRecRevAssoc'] = $rFinal;
                     continue;
                 }
 
-                // TODO::this has to be tested still
-                if($matchup[$flid] == 'connection') {
-                    $recRequest['connection'] = (string)$field;
+                if($matchup[$key] == 'kidConnection') {
+                    $recRequest['kidConnection'] = (string)$field;
                     continue;
                 }
 
@@ -344,24 +338,18 @@ class ImportMultiFormController extends Controller {
                 if(!isset($form->layout['fields'][$flid]))
                     return response()->json(["status"=>false,"message"=>"xml_validation_error",
                         "record_validation_error"=>[$request->kid => "Invalid provided field, $flid"]],500);
-
                 $fieldMod = $form->layout['fields'][$flid];
                 $typedField = $form->getFieldModel($fieldMod['type']);
                 $recRequest = $typedField->processImportDataXML($flid,$fieldMod,$field,$recRequest);
             }
-        } else if($request->type==self::JSON | $request->type==self::CSV) {
+        } else if($request->type==self::JSON) {
             $originKid = $request->kid;
-            $originRid = null;
-            if(!is_null($originKid)) {
-                if(Record::isKIDPattern($originKid))
-                    $originRid = explode('-', $originKid)[2];
+            if(Record::isKIDPattern($originKid))
+                $recRequest->query->add(['originRid' => explode('-', $originKid)[2]]);
 
-                $assocTag = $originKid;
-            }
-
-            foreach($record as $slug => $field) {
+            foreach($record as $key => $field) {
                 //Just in case there are extra/unused fields in the JSON
-                if(!array_key_exists($slug,$matchup))
+                if(!array_key_exists($key,$matchup))
                     continue;
 
                 //If value is not set, move on
@@ -369,38 +357,67 @@ class ImportMultiFormController extends Controller {
                     continue;
 
                 //Deal with reverse associations and move on
-                if($slug == 'reverseAssociations') {
-                    $recRequest['newRecRevAssoc'] = $field;
-                    continue;
-                }
-
-                 //Deal with reverse associations and move on
-                if($matchup[$slug] == 'reverseAssociations') {
+                if($matchup[$key] == 'reverseAssociations') {
                     $recRequest['newRecRevAssoc'] = $field;
                     continue;
                 }
 
                 //kora id connection for associator
-                if($matchup[$slug] == 'connection') {
-                    $recRequest['connection'] = $field;
+                if($matchup[$key] == 'kidConnection') {
+                    $recRequest['kidConnection'] = $field;
                     continue;
                 }
 
-                $flid = $matchup[$slug];
-
+                $flid = $matchup[$key];
                 $fieldMod = $form->layout['fields'][$flid];
                 $typedField = $form->getFieldModel($fieldMod['type']);
                 $recRequest = $typedField->processImportData($flid,$fieldMod,$field,$recRequest);
             }
+        } else if($request->type==self::CSV) {
+            $originKid = $request->kid;
+            if(Record::isKIDPattern($originKid))
+                $recRequest->query->add(['originRid' => explode('-', $originKid)[2]]);
+
+            foreach($record as $key => $field) {
+                //Just in case there are extra/unused fields in the JSON
+                if(!array_key_exists($key,$matchup))
+                    continue;
+
+                //If value is not set, move on
+                if(!$field | is_null($field) | $field=='')
+                    continue;
+
+                //Deal with reverse associations and move on
+                if($matchup[$key] == 'reverseAssociations') {
+                    $rFinal = [];
+                    $rAssocs = explode(' | ', $field);
+                    foreach($rAssocs as $rAssoc) {
+                        $parts = explode(' [KIDS] ', $rAssoc);
+                        $aField = $parts[0];
+                        $aKIDs = explode(',', $parts[1]);
+
+                        $rFinal[$aField] = $aKIDs;
+                    }
+                    $recRequest['newRecRevAssoc'] = $rFinal;
+                    continue;
+                }
+
+                //kora id connection for associator
+                if($matchup[$key] == 'kidConnection') {
+                    $recRequest['kidConnection'] = $field;
+                    continue;
+                }
+
+                $flid = $matchup[$key];
+                $fieldMod = $form->layout['fields'][$flid];
+                $typedField = $form->getFieldModel($fieldMod['type']);
+                $recRequest = $typedField->processImportDataCSV($flid,$fieldMod,$field,$recRequest);
+            }
         }
 
+        $recRequest->query->add(['pid' => $pid, 'fid' => $fid]);
         $recCon = new RecordController();
-        $result = $recCon->store($pid,$fid,$recRequest);
-
-        $resData = $result->getData(true);
-        $result->setData($resData);
-
-        return $result;
+        return $recCon->store($pid,$fid,$recRequest);
     }
 
     /**
@@ -496,29 +513,53 @@ class ImportMultiFormController extends Controller {
         $failedRecords = json_decode($request->failures);
         $project = ProjectController::getProject($pid);
 
-        if($request->type=='JSON' | $request->type=='CSV')
+        if($request->type=='JSON')
             $records = [];
         else if($request->type=='XML')
             $records = '<?xml version="1.0" encoding="utf-8"?><Records>';
+        else if($request->type=='CSV') {
+            $keys = [];
+            foreach($failedRecords[0][1] as $key => $value) {
+                $keys[] = $key;
+            }
+            $records = implode(',',$keys)."\n";
+        }
 
         foreach($failedRecords as $element) {
-            if($request->type=='JSON' | $request->type=='CSV')
+            if($request->type=='JSON')
                 $records[$element[0]] = $element[1];
             else if($request->type=='XML')
                 $records .= $element[1];
+            else if($request->type=='CSV') {
+                $values = [];
+                foreach($failedRecords[0][1] as $key => $value) {
+                    //Escape values before we report them back
+                    $value = str_replace('"','""',$value);
+                    $values[] = '"'.$value.'"';
+                }
+                $records .= implode(',',$values)."\n";
+            }
         }
 
-        if($request->type=='JSON'  | $request->type=='CSV') {
+        if($request->type=='JSON') {
             header("Content-Disposition: attachment; filename=" . $project->name . '_failedImports.json');
             header("Content-Type: application/octet-stream; ");
 
             echo json_encode($records);
             exit;
-        }
-        else if($request->type=='XML') {
+        } else if($request->type=='XML') {
             $records .= '</Records>';
 
             header("Content-Disposition: attachment; filename=" . $project->name . '_failedImports.xml');
+            header("Content-Type: application/octet-stream; ");
+
+            echo $records;
+            exit;
+        } else if($request->type=='CSV') {
+            //Strip off last newline character
+            $records = rtrim($records);
+
+            header("Content-Disposition: attachment; filename=" . $project->name . '_failedImports.csv');
             header("Content-Type: application/octet-stream; ");
 
             echo $records;
@@ -547,7 +588,7 @@ class ImportMultiFormController extends Controller {
                         $messages[$id] = $message;
                 }
             } else {
-                $messages[$id] = "Unable to determine error. This is usually caused by a structure issue in your XML/JSON, or an unexpected bug in kora.";
+                $messages[$id] = "Unable to determine error. This is usually caused by a structure issue in your CSV/XML/JSON, or an unexpected bug in kora.";
             }
         }
 

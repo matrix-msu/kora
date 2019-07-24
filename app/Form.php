@@ -1,5 +1,6 @@
 <?php namespace App;
 
+use App\Http\Controllers\FormController;
 use App\Http\Controllers\RestfulBetaController;
 use App\KoraFields\BaseField;
 use Illuminate\Database\Eloquent\Model;
@@ -388,131 +389,85 @@ class Form extends Model {
      *
      * @param  $filters - The filters to modify the returned results
      * @param  $rids - The subset of rids we would like back
+     * @param  $con - Allows user to pass mysqli connection recursively so we don't open a million connections
      *
      * @return array - The records
      */
-    public function getRecordsForExport($filters, $rids = null) {
+    public function getRecordsForExport($filters, $rids = null, &$con = null) {
+        $firstVisit = false;
         $results = [];
         $jsonFields = [];
+
+        $useAssoc = false;
+        $assocForms = [];
+        $assocFilters = [];
         $assocFields = [];
+
         $comboFields = [];
         $comboInfo = [];
-        $assocForms = [];
-        $useAssoc = false;
 
-        $con = mysqli_connect(
-            config('database.connections.mysql.host'),
-            config('database.connections.mysql.username'),
-            config('database.connections.mysql.password'),
-            config('database.connections.mysql.database')
-        );
-        $prefix = config('database.connections.mysql.prefix');
+        //If we don't have a passed connection, first visit, grab it
+        if(is_null($con)) {
+            $firstVisit = true;
 
-        //We want to make sure we are doing things in utf8 for special characters
-        if(!mysqli_set_charset($con, "utf8")) {
-            printf("Error loading character set utf8: %s\n", mysqli_error($con));
-            exit();
+            $con = mysqli_connect(
+                config('database.connections.mysql.host'),
+                config('database.connections.mysql.username'),
+                config('database.connections.mysql.password'),
+                config('database.connections.mysql.database')
+            );
+
+            //We want to make sure we are doing things in utf8 for special characters
+            if(!mysqli_set_charset($con, "utf8")) {
+                printf("Error loading character set utf8: %s\n", mysqli_error($con));
+                exit();
+            }
         }
+        $prefix = config('database.connections.mysql.prefix');
 
         //Some prep to make assoc searching faster
         if($filters['assoc']) {
             $useAssoc = true;
-            $allowedAssocFields = [];
-            if($filters['assocFlids']!="ALL") {
-                foreach ($filters['assocFlids'] as $fieldName) {
-                    $allowedAssocFields[] = fieldMapper($fieldName, $this->project_id, $this->id);
-                }
-            } else {
-                $allowedAssocFields = "ALL";
-            }
-            $assocSelect = "SELECT distinct(f.`id`), f.`project_id`, f.`layout` from ".$prefix."associations as a left join ".$prefix."forms as f on f.id=a.data_form where a.`assoc_form`=".$this->id;
+
+            //Grab all forms we have permission to search
+            $assocSelect = "SELECT distinct(f.`id`) from ".$prefix."associations as a left join ".$prefix."forms as f on f.`id`=a.`data_form` where a.`assoc_form`=".$this->id;
             $theForms = $con->query($assocSelect);
             while($row = $theForms->fetch_assoc()) {
-                //prep fields like rest of function does
-                $aLayout = json_decode($row['layout'],true);
-                $aJsonFields = [];
-                $aComboFields = [];
+                //Get the form
+                $aFormMod = FormController::getForm($row['id']);
 
-                //Get metadata
-                if($filters['meta'])
-                    $fields = ['kid','legacy_kid','project_id','form_id','owner','created_at','updated_at'];
-                else
-                    $fields = ['kid'];
-
-                //Adds the data fields
-                //Builds out order of fields based on page
-                $flids = array();
-                foreach($aLayout['pages'] as $page) {
-                    $flids = array_merge($flids, $page['flids']);
-                }
-
-                //Get the real names of fields
-                //Also check for json types
-                $realNames = [];
-                foreach($flids as $flid) {
-                    //Since this is mostly used on the API, we can force external view on fields
-                    if(!$aLayout['fields'][$flid]['external_view'])
-                        continue;
-                    if($allowedAssocFields != 'ALL' && !in_array($flid,$allowedAssocFields))
-                        continue;
-
-                    if(array_key_exists('altNames', $filters) && $filters['altNames'] && $aLayout['fields'][$flid]['alt_name'] != '') {
-                        $name = $flid . ' as `' . $aLayout['fields'][$flid]['alt_name'] . '`';
-                        $jsonName = $aLayout['fields'][$flid]['alt_name'];
-                    } else {
-                        $name = $flid . ' as `' . $aLayout['fields'][$flid]['name'] . '`';
-                        $jsonName = $aLayout['fields'][$flid]['name'];
+                //Get the requested fields, but only the ones that are for this particular form
+                $allowedAssocFields = [];
+                if($filters['assocFlids']!="ALL") {
+                    foreach ($filters['assocFlids'] as $fieldName) {
+                        $flid = fieldMapper($fieldName, $aFormMod->project_id, $aFormMod->id);
+                        if(isset($aFormMod->layout['fields'][$flid]))
+                            $allowedAssocFields[] = $fieldName;
                     }
-                    //We do this in realnames because the flid gets us the type to check if its JSON, but it will be compared against the DB result which will have real names instead of flid
-                    if(in_array($aLayout['fields'][$flid]['type'], self::$jsonFields))
-                        $aJsonFields[$jsonName] = 1;
-
-                    if($aLayout['fields'][$flid]['type'] == self::_COMBO_LIST)
-                            $aComboFields[$flid] = 1;
-                    array_push($realNames,$name);
+                } else {
+                    $allowedAssocFields = "ALL";
                 }
-                $flids = $realNames;
 
-                //Determine whether to return data
-                $fields = array_merge($flids,$fields);
-                $fieldString = implode(',',$fields);
-
-                //Save it
-                $assocForms[$row['id']] = [
-                    'id' => $row['id'],
-                    'project_id' => $row['project_id'],
-                    'layout' => json_decode($row['layout'],true),
-                    'fieldString' => $fieldString,
-                    'jsonFields' => $aJsonFields,
-                    'comboFields' => $aComboFields
+                //Store the form and filter configurations for fetching those records
+                $assocForms[$row['id']] = $aFormMod;
+                $assocFilters[$row['id']] = [
+                    'assoc' => false, 'revAssoc' => false, 'meta' => $filters['meta'], 'fields' => $allowedAssocFields,
+                    'data' => $filters['data'], 'sort' => null, 'count' => null, 'index' => null
                 ];
+                if(isset($filters['altNames']))
+                    $assocFilters[$row['id']]['altNames'] = $filters['altNames'];
             }
         }
 
         //Prep to make reverse associations faster
-        if($filters['revAssoc']) {
+        if($filters['revAssoc'])
             $reverseAssociations = $this->getReverseAssociationsMapping($con,$prefix);
-        }
 
         //Get metadata
         if($filters['meta'])
             $fields = ['kid','legacy_kid','project_id','form_id','owner','created_at','updated_at'];
         else
             $fields = ['kid'];
-
-        //Adds the data fields
-        if(!is_array($filters['fields']) && $filters['fields'] == 'ALL') {
-            //Builds out order of fields based on page
-            $flids = array();
-            foreach($this->layout['pages'] as $page) {
-                $flids = array_merge($flids, $page['flids']);
-            }
-        } else {
-            $flids = array();
-            foreach($filters['fields'] as $fieldName) {
-                $flids[] = fieldMapper($fieldName,$this->project_id,$this->id);
-            }
-        }
 
         //Before assigning fields, prep merge if it exists
         $mergeMappings = [];
@@ -525,56 +480,83 @@ class Form extends Model {
             }
         }
 
-        //Get the real names of fields
-        //Also check for json types
-        $realNames = [];
-        foreach($flids as $flid) {
-            if(!empty($mergeMappings) && isset($mergeMappings[$flid])) {
-                $tmp = $mergeMappings[$flid];
-                $name = $flid . ' as `' . $tmp . '`';
+        //Determine whether to actually get data back
+        if($filters['data']) {
+            //Adds the data fields
+            if(!is_array($filters['fields']) && $filters['fields'] == 'ALL') {
+                //Builds out order of fields based on page
+                $flids = array();
+                foreach ($this->layout['pages'] as $page) {
+                    $flids = array_merge($flids, $page['flids']);
+                }
             } else {
-                if(array_key_exists('altNames', $filters) && $filters['altNames'] && $this->layout['fields'][$flid]['alt_name'] != '')
-                    $tmp = $this->layout['fields'][$flid]['alt_name'];
-                else
-                    $tmp = $this->layout['fields'][$flid]['name'];
-                $name = $flid . ' as `' . $tmp . '`';
+                //Get fields in requested order
+                $flids = array();
+                foreach ($filters['fields'] as $fieldName) {
+                    $flids[] = fieldMapper($fieldName, $this->project_id, $this->id);
+                }
             }
 
-            //We do this in realnames because the flid gets us the type to check if its JSON, but it will be compared against the DB result which will have real names instead of flid
-            if(in_array($this->layout['fields'][$flid]['type'], self::$jsonFields))
-                $jsonFields[$tmp] = 1;
-            if($this->layout['fields'][$flid]['type'] == self::_ASSOCIATOR)
-                $assocFields[$tmp] = 1;
-            if($this->layout['fields'][$flid]['type'] == self::_COMBO_LIST) {
-                $comboFields[$tmp] = 1;
-                $subFields = [];
-                $comboInfo[$tmp]['jsonFields'] = [];
-                $comboInfo[$tmp]['assocFields'] = [];
-
-                foreach (['one', 'two'] as $seq) {
-                    $cType = $this->layout['fields'][$flid][$seq]['type'];
-                    $cFlid = $this->layout['fields'][$flid][$seq]['flid'];
-                    $cName = $this->layout['fields'][$flid][$seq]['name'];
-
-                    if(in_array($cType, self::$jsonFields))
-                        array_push($comboInfo[$tmp]['jsonFields'], $cFlid);
-                    else if($cType == self::_ASSOCIATOR)
-                        array_push($comboInfo[$tmp]['assocFields'], $cFlid);
-                    array_push($subFields, $this->layout['fields'][$flid][$seq]['flid']." as $cName");
+            //Get the real names of fields for the mysql call
+            //Also check for json types
+            $realNames = [];
+            foreach($flids as $flid) {
+                //If a merge was defined, set it
+                if(!empty($mergeMappings) && isset($mergeMappings[$flid])) {
+                    $tmp = $mergeMappings[$flid];
+                    $name = $flid . ' as `' . $tmp . '`';
+                } else {
+                    //Other wise, we are going to use either the field names, or alternative names if requested
+                    if (array_key_exists('altNames', $filters) && $filters['altNames'] && $this->layout['fields'][$flid]['alt_name'] != '')
+                        $tmp = $this->layout['fields'][$flid]['alt_name'];
+                    else
+                        $tmp = $this->layout['fields'][$flid]['name'];
+                    $name = $flid . ' as `' . $tmp . '`';
                 }
 
-                $comboInfo[$tmp]['fieldString'] = implode(',', $subFields);
-            }
-            array_push($realNames,$name);
-        }
-        $flids = $realNames;
+                //We want to track which fields are json, associator, or combo so we can handle these later.
+                // Stored as array_keys because the lookup is faster than in_array
+                if(in_array($this->layout['fields'][$flid]['type'], self::$jsonFields))
+                    $jsonFields[$tmp] = 1;
+                if($this->layout['fields'][$flid]['type'] == self::_ASSOCIATOR)
+                    $assocFields[$tmp] = 1;
+                if($this->layout['fields'][$flid]['type'] == self::_COMBO_LIST) {
+                    $comboFields[$tmp] = 1;
+                    $comboInfo[$tmp]['flid'] = $flid; //We need this in case alternative names are used
 
-        //Determine whether to return data
-        if($filters['data'])
-            $fields = array_merge($flids,$fields);
+                    //Determine if either sub field is a json or assoc field
+                    $subFields = [];
+                    $comboInfo[$tmp]['jsonFields'] = [];
+                    $comboInfo[$tmp]['assocFields'] = [];
+
+                    foreach (['one', 'two'] as $seq) {
+                        $cType = $this->layout['fields'][$flid][$seq]['type'];
+                        $cName = $this->layout['fields'][$flid][$seq]['name'];
+
+                        if($cType == self::_ASSOCIATOR)
+                            $comboInfo[$tmp]['assocFields'][$cName] = 1;
+                        else if(in_array($cType, self::$jsonFields))
+                            $comboInfo[$tmp]['jsonFields'][$cName] = 1;
+
+                        //Create its mysql select call
+                        array_push($subFields, $this->layout['fields'][$flid][$seq]['flid']." as `$cName`");
+                    }
+
+                    //Build the full select call
+                    $comboInfo[$tmp]['fieldString'] = implode(',', $subFields);
+                }
+
+                //Now that the fields SQL is prepared, add it
+                array_push($realNames, $name);
+            }
+
+            //Add data fields to meta/other
+            $fields = array_merge($realNames, $fields);
+        }
+
         $fieldString = implode(',',$fields);
 
-        //Subset of rids?
+        //Are we getting a subset of rids?
         $subset = '';
         if(!is_null($rids)) {
             if(empty($rids))
@@ -606,6 +588,7 @@ class Form extends Model {
                 $limitBy .= ' OFFSET '.$filters['index'];
         }
 
+        //Build the master selector
         $selectRecords = "SELECT $fieldString FROM ".$prefix."records_".$this->id.$subset.$orderBy.$limitBy;
 
         $records = $con->query($selectRecords);
@@ -615,19 +598,22 @@ class Form extends Model {
                 if($useAssoc && array_key_exists($column,$assocFields)) {
                     $aKids = json_decode($data,true);
                     if($aKids !== NULL) {
+                        //We are going to recursively call this function for each associator in the record's associator field
+                        //It's expensive, but that's the cost, use pagination
                         foreach($aKids as $aKid) {
                             $parts = explode('-',$aKid);
                             $aForm = $assocForms[$parts[1]];
-
-                            $result[$column][$aKid] = $this->getAssocRecord($parts[2], $aForm, $con, $prefix, $comboInfo);
+                            $result[$column][$aKid] = $aForm->getRecordsForExport($assocFilters[$parts[1]],[$parts[2]],$con)[$aKid];
                         }
                     }
-                } else if(array_key_exists($column,$comboFields)){
+                } else if(array_key_exists($column,$comboFields)) {
                     $comboIds = json_decode($data, true);
-                    if($comboIds !== NULL) {
-                        $result[$column] = $this->getComboRecord($column, $comboIds, $comboInfo[$column], $con, $prefix, $this->id, $this->project_id, $assocForms);
-                    }
-                } else if(array_key_exists($column,$jsonFields)) { //array key search is faster than in array so that's why we use it here
+                    //Determine if we want assoc data back for the combo list
+                    if($comboIds !== NULL && $useAssoc)
+                        $result[$column] = $this->getComboRecord($column, $comboIds, $comboInfo[$column], $con, $prefix, [$assocForms, $assocFilters]);
+                    else if($comboIds !== NULL && !$useAssoc)
+                        $result[$column] = $this->getComboRecord($column, $comboIds, $comboInfo[$column], $con, $prefix, null);
+                } else if(array_key_exists($column,$jsonFields)) {
                     $result[$column] = json_decode($data, true);
                 } else {
                     $result[$column] = $data;
@@ -645,9 +631,64 @@ class Form extends Model {
         }
         $records->free();
 
-        $con->close();
+        if($firstVisit)
+            $con->close();
 
         return $results;
+    }
+
+    /**
+     * Gets the record data for a combo list field.
+     *
+     * @param  $field - The name of the combo field
+     * @param  $comboIds - The array of ids from the records table that represent rows in the combo table
+     * @param  $comboInfo - The data about the combo field and its sub fields
+     * @param  $con - The mysqli DB connection
+     * @param  $prefix - The prefix for the DB tables
+     * @param  $assocData - If the export wants associator field data, grab the combo list associators as well
+     *
+     * @return array - The combo field record data
+     */
+    private function getComboRecord($field, $comboIds, $comboInfo, &$con, $prefix, $assocData = null) {
+        $result = [];
+        $assocForms = !is_null($assocData) ? $assocData[0] : [];
+        $assocFilters = !is_null($assocData) ? $assocData[1] : [];
+
+        $fieldString = $comboInfo['fieldString'];
+        $jsonFields = $comboInfo['jsonFields'];
+        $assocFields = $comboInfo['assocFields'];
+
+        //Build the query
+        $fieldForStatement = $comboInfo['flid'];
+        $comboTableName = $prefix.$fieldForStatement.$this->id;
+        $comboIds = implode(',', $comboIds);
+        $selectRecords = "SELECT $fieldString FROM $comboTableName WHERE FIND_IN_SET(`id`, '$comboIds')";
+
+        $records = $con->query($selectRecords);
+        while($row = $records->fetch_assoc()) {
+            foreach($row as $column => $data) {
+                if(empty($result[$column]))
+                    $result[$column] = [];
+                if(array_key_exists($column,$jsonFields))
+                    array_push($result[$column], json_decode($data, true));
+                else if(array_key_exists($column,$assocFields)) {
+                    $aKids = json_decode($data,true);
+                    if($aKids !== NULL && !empty($assocForms)) {
+                        foreach($aKids as $aKid) {
+                            $parts = explode('-',$aKid);
+                            $aForm = $assocForms[$parts[1]];
+                            $result[$column][$aKid] = $aForm->getRecordsForExport($assocFilters[$parts[1]],[$parts[2]],$con)[$aKid];
+                        }
+                    } else {
+                        array_push($result[$column], $aKids);
+                    }
+                } else
+                    array_push($result[$column], $data);
+            }
+        }
+        $records->free();
+
+        return $result;
     }
 
     /**
@@ -909,40 +950,6 @@ class Form extends Model {
         return $results;
     }
 
-    /**
-     * Gets the data out of the DB for a single record.
-     *
-     * @param  $kid - Record ID
-     * @param  $aForm - The form data
-     * @param  $con - DB connection
-     * @param  $prefix - DB table prefix
-     *
-     * @return array - The records
-     */
-    private function getAssocRecord($rid, $aForm, $con, $prefix, $comboInfo = []) {
-        $result = [];
-        $jsonFields = $aForm['jsonFields'];
-        $comboFields = $aForm['comboFields'];
-        $fieldString = $aForm['fieldString'];
-
-        $selectRecords = "SELECT $fieldString FROM ".$prefix."records_".$aForm['id']." WHERE `id`=$rid";
-
-        $records = $con->query($selectRecords);
-        while($row = $records->fetch_assoc()) {
-            foreach($row as $column => $data) {
-                // needs to be able to call getComboRecord
-                if(array_key_exists($column,$jsonFields)) //array key search is faster than in array so that's why we use it here
-                    $result[$column] = json_decode($data,true);
-                elseif(array_key_exists($column,$comboFields) && !empty($comboInfo)) {
-                    $result[$column] = $this->getComboRecord($column, json_decode($data, true), $comboInfo, $con, $prefix, $aForm['id'], $aForm['project_id'], []);
-                } else
-                    $result[$column] = $data;
-            }
-        }
-        $records->free();
-
-        return $result;
-    }
     private function getBetaAssocRecord($rid, $aForm, $con, $prefix) {
         $result = [];
         $jsonFields = $aForm['jsonFields'];
@@ -962,43 +969,6 @@ class Form extends Model {
         $records->free();
 
         return $result;
-    }
-
-    private function getComboRecord($field, $comboIds, $cForm, $con, $prefix, $formId, $projId ,$assocForms = []) {
-        $result = [];
-        $fieldString = $cForm['fieldString'];
-        $jsonFields = $cForm['jsonFields'];
-        $assocFields = $cForm['assocFields'];
-        $comboIds = implode(',', $comboIds);
-
-        $fieldForStatement = fieldMapper($field,$projId,$formId);
-        $selectRecords = "SELECT $fieldString FROM ".$prefix.$fieldForStatement.$formId." WHERE FIND_IN_SET(`id`, '$comboIds')";
-
-        $records = $con->query($selectRecords);
-        while($row = $records->fetch_assoc()) {
-            foreach($row as $column => $data) {
-                if(empty($result[$column]))
-                    $result[$column] = [];
-                if(array_key_exists($column,$jsonFields))
-                    array_push($result[$column], json_decode($data, true));
-                else if(array_key_exists($column,$assocFields)) {
-                    $aKids = json_decode($data,true);
-                    if($aKids !== NULL && !empty($assocForms)) {
-                        foreach($aKids as $aKid) {
-                            $parts = explode('-',$data);
-                            $aForm = $assocForms[$parts[1]];
-                            $assocValue = $this->getAssocRecord($parts[2], $aForm, $con, $prefix);
-                            array_push($result[$column][$aKid], $assocValue);
-                        }
-                    }
-                } else
-                    array_push($result[$column], $data);
-            }
-        }
-        $records->free();
-
-        return $result;
-
     }
 
     /**

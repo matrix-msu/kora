@@ -183,7 +183,6 @@ class ComboListField extends BaseField {
      * @return array - The updated field array
      */
     public function updateOptions($field, Request $request, $flid = null, $prefix = 'records_') {
-
         foreach (['one', 'two'] as $seq) {
             $defaults = $parts = array();
             $type = $request->{'type' . $seq};
@@ -254,18 +253,18 @@ class ComboListField extends BaseField {
                     );
                     break;
                 case Form::_ASSOCIATOR:
-                    $fid = '';
+                    $defaults = array(
+                        'default'
+                    );
                     foreach(array_keys($request->all()) as $key) {
                         if(substr( $key, 0, 8 ) === "checkbox") {
-                            $fid = explode('_',$key)[1];
-                            break;
+                            $fidParts = explode('_',$key);
+                            if($fidParts[2]==$seq) {
+                                $defaults[] = 'checkbox_' . $fidParts[1];
+                                $defaults[] = 'preview_' . $fidParts[1];
+                            }
                         }
                     }
-                    $defaults = array(
-                        'default',
-                        'checkbox_' . $fid,
-                        'preview_' . $fid
-                    );
                     break;
                 case Form::_BOOLEAN:
                     $defaults = array(

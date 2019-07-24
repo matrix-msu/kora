@@ -135,6 +135,7 @@ class ComposerStaticInit23979a8a3fb78b4f78e5f7913c5439a2
         ),
         'C' => 
         array (
+            'CsvParser\\' => 10,
             'Cron\\' => 5,
             'Collective\\Html\\' => 16,
             'Clue\\StreamFilter\\' => 18,
@@ -382,6 +383,10 @@ class ComposerStaticInit23979a8a3fb78b4f78e5f7913c5439a2
         array (
             0 => __DIR__ . '/..' . '/myclabs/deep-copy/src/DeepCopy',
         ),
+        'CsvParser\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/stilliard/csvparser/src',
+        ),
         'Cron\\' => 
         array (
             0 => __DIR__ . '/..' . '/dragonmantank/cron-expression/src/Cron',
@@ -405,6 +410,13 @@ class ComposerStaticInit23979a8a3fb78b4f78e5f7913c5439a2
     );
 
     public static $prefixesPsr0 = array (
+        'R' => 
+        array (
+            'Rairlie\\LockingSession' => 
+            array (
+                0 => __DIR__ . '/..' . '/rairlie/laravel-locking-session/src',
+            ),
+        ),
         'P' => 
         array (
             'Prophecy\\' => 
@@ -673,6 +685,18 @@ class ComposerStaticInit23979a8a3fb78b4f78e5f7913c5439a2
         'CssVariablesMinifierFilter' => __DIR__ . '/..' . '/natxet/CssMin/src/CssMin.php',
         'CssVariablesMinifierPlugin' => __DIR__ . '/..' . '/natxet/CssMin/src/CssMin.php',
         'CssWhitesmithsFormatter' => __DIR__ . '/..' . '/natxet/CssMin/src/CssMin.php',
+        'CsvParser\\Csv' => __DIR__ . '/..' . '/stilliard/csvparser/src/Csv.php',
+        'CsvParser\\Exception' => __DIR__ . '/..' . '/stilliard/csvparser/src/Exception.php',
+        'CsvParser\\Parser' => __DIR__ . '/..' . '/stilliard/csvparser/src/Parser.php',
+        'CsvParser\\Reader\\ArrayReader' => __DIR__ . '/..' . '/stilliard/csvparser/src/Reader/ArrayReader.php',
+        'CsvParser\\Reader\\FileReader' => __DIR__ . '/..' . '/stilliard/csvparser/src/Reader/FileReader.php',
+        'CsvParser\\Reader\\ReaderInterface' => __DIR__ . '/..' . '/stilliard/csvparser/src/Reader/ReaderInterface.php',
+        'CsvParser\\Reader\\StringReader' => __DIR__ . '/..' . '/stilliard/csvparser/src/Reader/StringReader.php',
+        'CsvParser\\Writer\\ArrayWriter' => __DIR__ . '/..' . '/stilliard/csvparser/src/Writer/ArrayWriter.php',
+        'CsvParser\\Writer\\ChunksWriter' => __DIR__ . '/..' . '/stilliard/csvparser/src/Writer/ChunksWriter.php',
+        'CsvParser\\Writer\\FileWriter' => __DIR__ . '/..' . '/stilliard/csvparser/src/Writer/FileWriter.php',
+        'CsvParser\\Writer\\StringWriter' => __DIR__ . '/..' . '/stilliard/csvparser/src/Writer/StringWriter.php',
+        'CsvParser\\Writer\\WriterInterface' => __DIR__ . '/..' . '/stilliard/csvparser/src/Writer/WriterInterface.php',
         'DatabaseSeeder' => __DIR__ . '/../..' . '/database/seeds/DatabaseSeeder.php',
         'DeepCopy\\DeepCopy' => __DIR__ . '/..' . '/myclabs/deep-copy/src/DeepCopy/DeepCopy.php',
         'DeepCopy\\Exception\\CloneException' => __DIR__ . '/..' . '/myclabs/deep-copy/src/DeepCopy/Exception/CloneException.php',
@@ -3916,6 +3940,13 @@ class ComposerStaticInit23979a8a3fb78b4f78e5f7913c5439a2
         'Psy\\VersionUpdater\\GitHubChecker' => __DIR__ . '/..' . '/psy/psysh/src/VersionUpdater/GitHubChecker.php',
         'Psy\\VersionUpdater\\IntervalChecker' => __DIR__ . '/..' . '/psy/psysh/src/VersionUpdater/IntervalChecker.php',
         'Psy\\VersionUpdater\\NoopChecker' => __DIR__ . '/..' . '/psy/psysh/src/VersionUpdater/NoopChecker.php',
+        'Rairlie\\LockingSession\\EncryptedStore' => __DIR__ . '/..' . '/rairlie/laravel-locking-session/src/Rairlie/LockingSession/EncryptedStore.php',
+        'Rairlie\\LockingSession\\Lock' => __DIR__ . '/..' . '/rairlie/laravel-locking-session/src/Rairlie/LockingSession/Lock.php',
+        'Rairlie\\LockingSession\\LockingSessionHandler' => __DIR__ . '/..' . '/rairlie/laravel-locking-session/src/Rairlie/LockingSession/LockingSessionHandler.php',
+        'Rairlie\\LockingSession\\LockingSessionServiceProvider' => __DIR__ . '/..' . '/rairlie/laravel-locking-session/src/Rairlie/LockingSession/LockingSessionServiceProvider.php',
+        'Rairlie\\LockingSession\\Middleware\\StartSession' => __DIR__ . '/..' . '/rairlie/laravel-locking-session/src/Rairlie/LockingSession/Middleware/StartSession.php',
+        'Rairlie\\LockingSession\\SessionManager' => __DIR__ . '/..' . '/rairlie/laravel-locking-session/src/Rairlie/LockingSession/SessionManager.php',
+        'Rairlie\\LockingSession\\Store' => __DIR__ . '/..' . '/rairlie/laravel-locking-session/src/Rairlie/LockingSession/Store.php',
         'Ramsey\\Uuid\\BinaryUtils' => __DIR__ . '/..' . '/ramsey/uuid/src/BinaryUtils.php',
         'Ramsey\\Uuid\\Builder\\DefaultUuidBuilder' => __DIR__ . '/..' . '/ramsey/uuid/src/Builder/DefaultUuidBuilder.php',
         'Ramsey\\Uuid\\Builder\\DegradedUuidBuilder' => __DIR__ . '/..' . '/ramsey/uuid/src/Builder/DegradedUuidBuilder.php',
