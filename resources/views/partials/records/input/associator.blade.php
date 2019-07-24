@@ -4,8 +4,10 @@
     if($editRecord && !is_null($record->{$flid})) {
         $selected = array();
         foreach(json_decode($record->{$flid},true) as $kid) {
-            $value[$kid] = $kid;
-            $selected[] = $kid;
+            if(\App\Record::isKIDPattern($kid)) {
+                $value[$kid] = $kid;
+                $selected[] = $kid;
+            }
         }
     }
 @endphp

@@ -600,7 +600,11 @@ class Form extends Model {
                     if($aKids !== NULL) {
                         //We are going to recursively call this function for each associator in the record's associator field
                         //It's expensive, but that's the cost, use pagination
+                        $result[$column] = [];
                         foreach($aKids as $aKid) {
+                            if(!Record::isKIDPattern($aKid))
+                                continue;
+
                             $parts = explode('-',$aKid);
                             $aForm = $assocForms[$parts[1]];
                             $result[$column][$aKid] = $aForm->getRecordsForExport($assocFilters[$parts[1]],[$parts[2]],$con)[$aKid];
@@ -674,7 +678,11 @@ class Form extends Model {
                 else if(array_key_exists($column,$assocFields)) {
                     $aKids = json_decode($data,true);
                     if($aKids !== NULL && !empty($assocForms)) {
+                        $result[$column] = [];
                         foreach($aKids as $aKid) {
+                            if(!Record::isKIDPattern($aKid))
+                                continue;
+
                             $parts = explode('-',$aKid);
                             $aForm = $assocForms[$parts[1]];
                             $result[$column][$aKid] = $aForm->getRecordsForExport($assocFilters[$parts[1]],[$parts[2]],$con)[$aKid];

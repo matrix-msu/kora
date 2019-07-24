@@ -66,6 +66,9 @@ class ReverseAssocCache extends Command
                             continue;
 
                         foreach($values as $val) {
+                            if(!Record::isKIDPattern($val))
+                                continue;
+
                             $inserts[] = [
                                 'associated_kid' => $val,
                                 'associated_form_id' => explode('-',$val)[1],
@@ -100,6 +103,9 @@ class ReverseAssocCache extends Command
                             $vals = json_decode($subval->{$subFieldName},true);
 
                             foreach($vals as $val) {
+                                if(!Record::isKIDPattern($val))
+                                    continue;
+
                                 $inserts[] = [
                                     'associated_kid' => $val,
                                     'associated_form_id' => explode('-', $val)[1],
@@ -135,6 +141,9 @@ class ReverseAssocCache extends Command
                             $vals = json_decode($subval->{$subFieldName},true);
 
                             foreach($vals as $val) {
+                                if(!Record::isKIDPattern($val))
+                                    continue;
+                                
                                 $inserts[] = [
                                     'associated_kid' => $val,
                                     'associated_form_id' => explode('-', $val)[1],
