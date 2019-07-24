@@ -387,6 +387,9 @@ class AssociatorField extends BaseField {
      * @return string - Html structure of the preview field's value
      */
     public static function getPreviewValues($field,$kid) {
+        if(!Record::isKIDPattern($kid))
+            return '';
+
         //individual kid elements
         $recParts = explode('-',$kid);
         $pid = $recParts[0];

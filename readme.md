@@ -31,7 +31,7 @@ educational value of the objects.
        RewriteBase /digitalRepo/kora/public
        
     b) Configure the `php_value` rules in the newly created `.htaccess` if the installation supports variable 
-       overwriting in htaccess (i.e. if you plan on uploading larger files).
+       overwriting in htaccess (i.e. if you plan on uploading larger files and/or importing larger record sets).
 
 3) Create `.env` from the example in `kora`:
 
