@@ -606,6 +606,11 @@ class Form extends Model {
                                 continue;
 
                             $parts = explode('-',$aKid);
+                            if(!isset($assocForms[$parts[1]])) {
+                                $result[$column][$aKid] = "Form association permissions no longer exist";
+                                continue;
+                            }
+
                             $aForm = $assocForms[$parts[1]];
                             $result[$column][$aKid] = $aForm->getRecordsForExport($assocFilters[$parts[1]],[$parts[2]],$con)[$aKid];
                         }
@@ -733,8 +738,12 @@ class Form extends Model {
         if($filters['assoc']) {
             $useAssoc = true;
             $allowedAssocFields = [];
-            foreach($filters['assocFlids'] as $fieldName) {
-                $allowedAssocFields[] = RestfulBetaController::removeIllegalFieldCharacters($fieldName);
+            if($filters['assocFlids']!="ALL") {
+                foreach($filters['assocFlids'] as $fieldName) {
+                    $allowedAssocFields[] = RestfulBetaController::removeIllegalFieldCharacters($fieldName);
+                }
+            } else {
+                $allowedAssocFields = "ALL";
             }
             $assocSelect = "SELECT distinct(f.`id`), f.`layout` from ".$prefix."associations as a left join ".$prefix."forms as f on f.id=a.data_form where a.`assoc_form`=".$this->id;
             $theForms = $con->query($assocSelect);
@@ -803,7 +812,7 @@ class Form extends Model {
 
         //Prep to make reverse associations faster
         if($filters['revAssoc']) {
-            $reverseAssociations = $this->getReverseAssociationsMapping($con,$prefix);
+            $reverseAssociations = $this->getReverseAssociationsBetaMapping($con,$prefix);
         }
 
         //Get metadata
@@ -930,6 +939,12 @@ class Form extends Model {
                     if($aKids !== NULL) {
                         foreach($aKids as $aKid) {
                             $parts = explode('-',$aKid);
+
+                            if(!isset($assocForms[$parts[1]])) {
+                                $result[$column]['value'][$aKid] = "Association permissions no longer exist";
+                                continue;
+                            }
+
                             $aForm = $assocForms[$parts[1]];
 
                             $result[$column]['value'][$aKid] = $this->getBetaAssocRecord($parts[2], $aForm, $con, $prefix);
@@ -937,6 +952,8 @@ class Form extends Model {
                     }
                 } else if(array_key_exists($column,$jsonFields)) { //array key search is faster than in array so that's why we use it here
                     $result[$column]['value'] = json_decode($data, true);
+                } else if(array_key_exists($column,['kid'=>1,'legacy_kid'=>1,'project_id'=>1,'form_id'=>1,'owner'=>1,'created_at'=>1,'updated_at'=>1])) {
+                    $result[$column] = $data;
                 } else {
                     $result[$column]['value'] = $data;
                 }
@@ -970,6 +987,8 @@ class Form extends Model {
             foreach($row as $column => $data) {
                 if(array_key_exists($column,$jsonFields)) //array key search is faster than in array so that's why we use it here
                     $result[$column]['value'] = json_decode($data,true);
+                else if(array_key_exists($column,['kid'=>1,'legacy_kid'=>1,'project_id'=>1,'form_id'=>1,'owner'=>1,'created_at'=>1,'updated_at'=>1]))
+                    $result[$column] = $data;
                 else
                     $result[$column]['value'] = $data;
             }
@@ -1130,7 +1149,7 @@ class Form extends Model {
         $fieldToRealName = [];
 
         //Prep to make reverse associations faster
-        $reverseAssociations = $this->getReverseAssociationsMapping($con,$prefix,'KORA_OLD');
+        $reverseAssociations = $this->getReverseAssociationsBetaMapping($con,$prefix,'KORA_OLD');
 
         //Adds the data fields
         if(!is_array($filters['fields']) && $filters['fields'] == 'ALL') {
@@ -1385,6 +1404,29 @@ class Form extends Model {
             switch($type) {
                 case 'JSON':
                     $return[$row['associated_kid']][$row['source_flid']][] = $row['source_kid'];
+                    break;
+                case 'KORA_OLD':
+                    $return[$row['associated_kid']][] = $row['source_kid'];
+                    break;
+                case 'XML':
+                    $return[$row['associated_kid']][] = "<Record flid='".$row['source_flid']."'>".$row['source_kid']."</Record>";
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        return $return;
+    }
+    private function getReverseAssociationsBetaMapping($con, $prefix, $type = 'JSON') {
+        $return = [];
+
+        $reverseSelect = "SELECT * FROM ".$prefix."reverse_associator_cache WHERE `associated_form_id`=".$this->id;
+        $results = $con->query($reverseSelect);
+        while($row = $results->fetch_assoc()) {
+            switch($type) {
+                case 'JSON':
+                    $return[$row['associated_kid']][] = $row['source_kid'];
                     break;
                 case 'KORA_OLD':
                     $return[$row['associated_kid']][] = $row['source_kid'];
