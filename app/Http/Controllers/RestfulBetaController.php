@@ -434,7 +434,7 @@ class RestfulBetaController extends Controller {
                         continue;
                     }
 
-                    $processed[$flid] = $form->getFieldModel($fieldModel['type'])->setRestfulAdvSearch($data);
+                    $processed[$fieldModel['name']] = $form->getFieldModel($fieldModel['type'])->setRestfulAdvSearch($data);
                     if(isset($data->negative) && is_bool($data->negative))
                         $processed[$flid]['negative'] = true;
                     if(isset($data->empty) && is_bool($data->empty))
