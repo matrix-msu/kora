@@ -421,7 +421,7 @@ class RecordController extends Controller {
         $kid = "$pid-$fid-$rid";
         $record = self::getRecord($kid);
         $oldRecordCopy = $record->replicate();
-        $oldRecordFileCopy = $record->getHashedRecordFiles();
+        //$oldRecordFileCopy = $record->getHashedRecordFiles(); //TODO::FILE_REBUILD
 
         //Before we move files back over from edit, clear the record folder
         $storageType = 'LaravelStorage'; //TODO:: make this a config once we actually support other storage types
@@ -461,7 +461,7 @@ class RecordController extends Controller {
         $record->save();
 
         //Store the edit
-        RevisionController::storeRevision($record,Revision::EDIT,$oldRecordCopy,$oldRecordFileCopy);
+        RevisionController::storeRevision($record,Revision::EDIT,$oldRecordCopy);
 
         //Make new preset
         if($makePreset) {

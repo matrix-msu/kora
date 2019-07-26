@@ -73,7 +73,7 @@ class ReverseAssocCache extends Command
                                 'associated_kid' => $val,
                                 'associated_form_id' => explode('-',$val)[1],
                                 'source_kid' => $row->kid,
-                                'source_flid' => $flid,
+                                'source_flid' => $field['name'],
                                 'source_form_id' => $form->id
                             ];
                         }
@@ -110,7 +110,7 @@ class ReverseAssocCache extends Command
                                     'associated_kid' => $val,
                                     'associated_form_id' => explode('-', $val)[1],
                                     'source_kid' => $row->kid,
-                                    'source_flid' => $flid,
+                                    'source_flid' => $field['name'],
                                     'source_form_id' => $form->id
                                 ];
                             }
@@ -143,12 +143,12 @@ class ReverseAssocCache extends Command
                             foreach($vals as $val) {
                                 if(!Record::isKIDPattern($val))
                                     continue;
-                                
+
                                 $inserts[] = [
                                     'associated_kid' => $val,
                                     'associated_form_id' => explode('-', $val)[1],
                                     'source_kid' => $row->kid,
-                                    'source_flid' => $flid,
+                                    'source_flid' => $field['name'],
                                     'source_form_id' => $form->id
                                 ];
                             }
