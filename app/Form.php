@@ -1491,26 +1491,31 @@ class Form extends Model {
 
         //Validate the fields
         $valids = [];
+        $converts = [];
         if($fields == 'ALL') {
             foreach(array_keys($layout) as $f) {
                 $type = $layout[$f]['type'];
-                if(in_array($type,self::$validFilterFields))
+                if(in_array($type,self::$validFilterFields)) {
                     $valids[] = $f;
+                    $converts[$f] = $layout[$f]['name'];
+                }
             }
         } else {
             foreach($fields as $fieldName) {
                 $f = fieldMapper($fieldName,$this->project_id,$this->id);
                 $type = $layout[$f]['type'];
-                if(in_array($type,self::$validFilterFields))
+                if(in_array($type,self::$validFilterFields)) {
                     $valids[] = $f;
+                    $converts[$f] = $fieldName;
+                }
             }
         }
 
         //Get filters for reverse associations
-        $revFilterQuery = "SELECT `source_flid`, `source_kid`, COUNT(`associated_kid`) as count FROM `".$prefix."reverse_associator_cache` WHERE `associated_form_id`=$this->id AND `source_kid` IS NOT NULL GROUP BY `source_flid`, `source_kid`";
+        $revFilterQuery = "SELECT `source_flid`, `source_kid`, `source_form_id`, COUNT(`associated_kid`) as count FROM `".$prefix."reverse_associator_cache` WHERE `associated_form_id`=$this->id AND `source_kid` IS NOT NULL GROUP BY `source_flid`, `source_kid`, `source_form_id`";
         $results = $con->query($revFilterQuery);
         while($row = $results->fetch_assoc()) {
-            $filters['reverseAssociations'][$row['source_flid']][$row['source_kid']] = (int)$row['count'];
+            $filters['reverseAssociations'][$row['source_form_id']][$row['source_flid']][$row['source_kid']] = (int)$row['count'];
         }
 
         foreach($valids as $f) {
@@ -1523,7 +1528,7 @@ class Form extends Model {
             while($row = $results->fetch_assoc()) {
                 if(!is_array(json_decode($row[$f]))) {
                     if(!is_null($row[$f]) && $row['count'] >= $count)
-                        $filters[$f][$row[$f]] = (int)$row['count'];
+                        $filters[$converts[$f]][$row[$f]] = (int)$row['count'];
                 } else {
                     //JSON so handle
                     $isJson = true;
@@ -1543,7 +1548,7 @@ class Form extends Model {
             if($isJson) {
                 foreach($tmpJsonArray as $val => $cnt) {
                     if($cnt >= $count)
-                        $filters[$f][$val] = $cnt;
+                        $filters[$converts[$f]][$val] = $cnt;
                 }
             }
 
@@ -1603,7 +1608,8 @@ class Form extends Model {
         $revFilterQuery = "SELECT `source_flid`, `source_kid`, COUNT(`associated_kid`) as count FROM `".$prefix."reverse_associator_cache` WHERE `associated_form_id`=$this->id AND `source_kid` IS NOT NULL GROUP BY `source_flid`, `source_kid`";
         $results = $con->query($revFilterQuery);
         while($row = $results->fetch_assoc()) {
-            $filters['reverseAssociations'][$row['source_flid']][$row['source_kid']] = (int)$row['count'];
+            $parts = explode('-',$row['source_kid']);
+            $filters['reverseAssociations'][fieldMapper($row['source_flid'],$parts[0],$parts[1])][$row['source_kid']] = (int)$row['count'];
         }
 
         foreach($valids as $f) {

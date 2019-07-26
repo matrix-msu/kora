@@ -303,7 +303,7 @@ class RestfulController extends Controller {
                 $resultsGlobal[] = $records;
 
                 if($filters['filters'])
-                    $filtersGlobal[$form->internal_name] = $form->getDataFilters($filters['filterCount'], $filters['filterFlids']);
+                    $filtersGlobal[$form->id] = $form->getDataFilters($filters['filterCount'], $filters['filterFlids']);
 
                 if($globalSort) {
                     $globalForms[] = $form;
@@ -344,7 +344,7 @@ class RestfulController extends Controller {
                 $resultsGlobal[] = $records;
 
                 if($filters['filters'])
-                    $filtersGlobal[$form->internal_name] = $form->getDataFilters($filters['filterCount'], $filters['filterFlids'], $returnRIDS);
+                    $filtersGlobal[$form->id] = $form->getDataFilters($filters['filterCount'], $filters['filterFlids'], $returnRIDS);
 
                 if($globalSort) {
                     $globalForms[] = $form;
