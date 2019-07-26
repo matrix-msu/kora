@@ -1403,13 +1403,13 @@ class Form extends Model {
         while($row = $results->fetch_assoc()) {
             switch($type) {
                 case 'JSON':
-                    $return[$row['associated_kid']][$row['source_flid']][] = $row['source_kid'];
+                    $return[$row['associated_kid']][$row['source_form_id']][$row['source_flid']][] = $row['source_kid'];
                     break;
                 case 'KORA_OLD':
                     $return[$row['associated_kid']][] = $row['source_kid'];
                     break;
                 case 'XML':
-                    $return[$row['associated_kid']][] = "<Record flid='".$row['source_flid']."'>".$row['source_kid']."</Record>";
+                    $return[$row['associated_kid']][] = "<Record fid='".$row['source_form_id']."' flid='".$row['source_flid']."'>".$row['source_kid']."</Record>";
                     break;
                 default:
                     break;
