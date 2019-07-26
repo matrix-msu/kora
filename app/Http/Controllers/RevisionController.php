@@ -412,7 +412,7 @@ class RevisionController extends Controller {
                 //Restore old files
                 if(!is_null($fileData)) {
                     foreach ($fileData as $name => $hash) {
-                        $data = base64_decode($hash);
+                        $data = gzuncompress($hash);
                         file_put_contents("$dir/$name", $data);
                     }
                 }
