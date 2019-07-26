@@ -151,7 +151,7 @@ class Record extends Model {
                         if($file->isFile()) {
                             $name = $file->getFilename();
                             $data = file_get_contents("$dir/$name");
-                            $hashArray[$name] = gzcompress($data,9);
+                            $hashArray[$name] = base64_encode($data);
                         }
                     }
                 }

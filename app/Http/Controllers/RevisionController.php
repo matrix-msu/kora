@@ -189,22 +189,22 @@ class RevisionController extends Controller {
         switch($type) {
             case Revision::CREATE:
                 $revArray['data'] = self::buildDataArray($record);
-                $revArray['data_files'] = $record->getHashedRecordFiles();
+                //$revArray['data_files'] = $record->getHashedRecordFiles(); //TODO::FILE_REBUILD
                 $revArray['oldData'] = null;
-                $revArray['oldData_files'] = null;
+                //$revArray['oldData_files'] = null; //TODO::FILE_REBUILD
                 break;
             case Revision::EDIT:
             case Revision::ROLLBACK:
                 $revArray['data'] = self::buildDataArray($record);
-                $revArray['data_files'] = $record->getHashedRecordFiles();
+                //$revArray['data_files'] = $record->getHashedRecordFiles(); //TODO::FILE_REBUILD
                 $revArray['oldData'] = self::buildDataArray($oldRecord);
-                $revArray['oldData_files'] = $oldFiles;
+                //$revArray['oldData_files'] = $oldFiles; //TODO::FILE_REBUILD
                 break;
             case Revision::DELETE:
                 $revArray['data'] = null;
-                $revArray['data_files'] = null;
+                //$revArray['data_files'] = null; //TODO::FILE_REBUILD
                 $revArray['oldData'] = self::buildDataArray($record);
-                $revArray['oldData_files'] = $record->getHashedRecordFiles();
+                //$revArray['oldData_files'] = $record->getHashedRecordFiles(); //TODO::FILE_REBUILD
                 break;
         }
 
@@ -356,7 +356,7 @@ class RevisionController extends Controller {
     public function rollback_routine(Form $form, Record $record, Revision $revision, $is_rollback = true) {
         if($is_rollback) {
             $oldRecordCopy = $record->replicate();
-            $oldRecordFileCopy = $record->getHashedRecordFiles();
+            //$oldRecordFileCopy = $record->getHashedRecordFiles(); //TODO::FILE_REBUILD
         }
 
         foreach($revision->revision['oldData'] as $flid => $data) {
@@ -382,10 +382,10 @@ class RevisionController extends Controller {
 
         $record->save();
 
-        $this->rollback_files($record, $revision->revision['oldData_files']);
+        //$this->rollback_files($record, $revision->revision['oldData_files']); //TODO::FILE_REBUILD
 
         if($is_rollback)
-            self::storeRevision($record, Revision::ROLLBACK, $oldRecordCopy, $oldRecordFileCopy);
+            self::storeRevision($record, Revision::ROLLBACK, $oldRecordCopy);
     }
 
     /**
@@ -394,7 +394,7 @@ class RevisionController extends Controller {
      * @param  Record $record - Record to rollback
      * @param  array $fileData - File data to restore
      */
-    private function rollback_files($record, $fileData) {
+    private function rollback_files($record, $fileData) { //TODO::FILE_REBUILD
         $storageType = 'LaravelStorage'; //TODO:: make this a config once we actually support other storage types
         switch($storageType) {
             case 'LaravelStorage':
@@ -412,7 +412,7 @@ class RevisionController extends Controller {
                 //Restore old files
                 if(!is_null($fileData)) {
                     foreach ($fileData as $name => $hash) {
-                        $data = gzuncompress($hash);
+                        $data = base64_decode($hash);
                         file_put_contents("$dir/$name", $data);
                     }
                 }

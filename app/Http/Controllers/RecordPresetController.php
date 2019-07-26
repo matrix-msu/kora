@@ -89,7 +89,7 @@ class RecordPresetController extends Controller {
         }
 
         //Move any record files
-        $response['files'] = $record->getHashedRecordFiles();
+        $response['files'] = ''; //TODO::FILE_REBUILD
 
         $response['data'] = $dataArray;
         $response['name'] = $name;
