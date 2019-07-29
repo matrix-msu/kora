@@ -343,44 +343,40 @@ class ImportController extends Controller {
 
     public function connectRecords($pid, $fid, Request $request) {
 	    ini_set('max_execution_time',0);
+        
+        $kids = json_decode($request->kids,true);
+		$connections = json_decode($request->connections,true);
+        
         $form = FormController::getForm($fid);
-        $recordMod = new Record(array(),$fid);
-
-        if(!(\Auth::user()->isFormAdmin($form)))
-            return redirect('projects/'.$pid)->with('k3_global_error', 'not_form_admin');
+        $recModel = new Record(array(),$fid);
+        $records = $recModel->newQuery()->whereIn('kid', $kids)->get();
 
         $fieldsArray = $form->layout['fields'];
-
-        $assocField = array();
-        foreach ($fieldsArray as $flid => $field) {
-            if($field['type'] == \App\Form::_ASSOCIATOR)
-                $assocField[$flid] = $field;
+		$assocField = array();
+        foreach($fieldsArray as $flid => $field) {
+            if($field['type'] == Form::_ASSOCIATOR)
+                $assocField[] = $flid;
         }
-
-		$kids = json_decode($request->kids,true);
-		$connections = json_decode($request->connections,true);
-        if(!empty($assocField)) {
-            foreach($kids as $kid) {
-                $record = $recordMod->newQuery()->where('kid', '=', $kid)->first();
-                foreach($assocField as $flid => $field) {
-	                $assoc = json_decode($record->{$flid});
-	                if(!is_null($assoc)) {
-	                    $newAssoc = [];
-	                    $update = false;
-						for($i=0;$i<count($assoc);$i++) {
-							$val = $assoc[$i];
-	                        if(array_key_exists($val, $connections)) {
-								$update = true;
-	                            $newAssoc[] = $connections[$val];
-	                        } else
-	                        	$newAssoc[] = $val;
-	                    }
-	                    if($update)
-	                    	$record->{$flid} = json_encode($newAssoc);
-	                }
+        
+        foreach($records as $record) {
+        	foreach($assocField as $flid) {
+                $assoc = json_decode($record->{$flid});
+                if(!is_null($assoc)) {
+                    $newAssoc = [];
+                    $update = false;
+					for($i=0;$i<count($assoc);$i++) {
+						$val = $assoc[$i];
+                        if(array_key_exists($val, $connections)) {
+							$update = true;
+                            $newAssoc[] = $connections[$val];
+                        } else
+                        	$newAssoc[] = $val;
+                    }
+                    if($update)
+                    	$record->{$flid} = json_encode($newAssoc);
                 }
-                $record->save();
             }
+            $record->save();
         }
     }
 

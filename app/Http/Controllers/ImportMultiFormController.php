@@ -429,31 +429,24 @@ class ImportMultiFormController extends Controller {
     public function connectRecords($pid, Request $request) {
 	    ini_set('max_execution_time',0);
         $fids = $request->fids;
-        $assocField = array();
-        $recModels = array();
+        
+        $kids = json_decode($request->kids,true);
+		$connections = json_decode($request->connections,true);
         
         foreach($fids as $fid) {
             $form = FormController::getForm($fid);
-            $recModels[$fid] = new Record(array(),$fid);
-
-            if(!(\Auth::user()->isFormAdmin($form)))
-                return redirect('projects/' . $pid)->with('k3_global_error', 'not_form_admin');
+            $recModel = new Record(array(),$fid);
+            $records = $recModel->newQuery()->whereIn('kid', $kids)->get();
 
             $fieldsArray = $form->layout['fields'];
-
+			$assocField = array();
             foreach($fieldsArray as $flid => $field) {
                 if($field['type'] == Form::_ASSOCIATOR)
-                    $assocField[$flid] = $field;
+                    $assocField[] = $flid;
             }
-        }
-
-		$kids = json_decode($request->kids,true);
-		$connections = json_decode($request->connections,true);
-        if(!empty($assocField)) {
-            foreach($kids as $kid) {
-	            $parts = explode('-',$kid);
-                $record = $recModels[$parts[1]]->newQuery()->where('kid', '=', $kid)->first();
-                foreach($assocField as $flid => $field) {
+            
+            foreach($records as $record) {
+	        	foreach($assocField as $flid) {
 	                $assoc = json_decode($record->{$flid});
 	                if(!is_null($assoc)) {
 	                    $newAssoc = [];
@@ -471,7 +464,7 @@ class ImportMultiFormController extends Controller {
 	                }
                 }
                 $record->save();
-            }
+	        }
         }
     }
 
