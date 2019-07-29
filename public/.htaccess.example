@@ -27,4 +27,3 @@
 #php_value memory_limit 5000M
 #php_value max_execution_time 3000
 #php_value max_input_time 3000
-#php_value max_input_vars 10000
