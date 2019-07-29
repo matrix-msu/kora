@@ -1,9 +1,7 @@
 <?php namespace App\Http\Controllers;
 
-use App\ComboListField;
-use App\Field;
 use App\FieldHelpers\UploadHandler;
-use App\GeolocatorField;
+use App\Form;
 use App\Record;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -250,7 +248,6 @@ class ImportMultiFormController extends Controller {
             $table .= '</select>';
             $table .= '</div>';
             $table .= '<div class="form-group"></div>';
-            $table .= '</div>';
 
             //For assoc connections
             $table .= '<div class="form-group mt-xl half">';
@@ -267,6 +264,8 @@ class ImportMultiFormController extends Controller {
             $table .= '</select>';
             $table .= '</div>';
             $table .= '<div class="form-group"></div>';
+
+            $table .= '</div>';
 
             $data['records'] = $recordObjs;
             $data['type'] = $type;
@@ -292,13 +291,13 @@ class ImportMultiFormController extends Controller {
         if(!(\Auth::user()->isFormAdmin($form)))
             return redirect('projects/'.$pid)->with('k3_global_error', 'not_form_admin');
 
-        $record = $request->record;
+        $record = json_decode($request->record,true);
 
         $recRequest = new Request();
         $recRequest['userId'] = \Auth::user()->id;
         $recRequest['api'] = true;
 
-        $matchup = $request->table[$fid];
+        $matchup = json_decode($request->table,true)[$fid];
 
         if($request->type==self::XML) {
             $record = simplexml_load_string($record);
@@ -427,79 +426,45 @@ class ImportMultiFormController extends Controller {
      * @param  int $pid - Project ID
      * @param  Request $request
      */
-    public function crossFormAssociations($pid, Request $request) {
-        $project = ProjectController::getProject($pid);
-
-        if(!\Auth::user()->isProjectAdmin($project))
-            return redirect('projects')->with('k3_global_error', 'not_project_admin');
-
-        foreach($request->fids as $fid) {
+    public function connectRecords($pid, Request $request) {
+	    ini_set('max_execution_time',0);
+        $fids = $request->fids;
+        
+        $kids = json_decode($request->kids,true);
+		$connections = json_decode($request->connections,true);
+        
+        foreach($fids as $fid) {
             $form = FormController::getForm($fid);
-            if (
-                $request->has('assocTagConvert') &&
-                $request->has('crossFormAssoc') &&
-                array_key_exists($fid, $request->assocTagConvert) &&
-                array_key_exists($fid, $request->crossFormAssoc)
-            ) {
-                //Conversion of record tag identifiers to KIDs
-                $assocTagConvert = $request->assocTagConvert[$fid];
+            $recModel = new Record(array(),$fid);
+            $records = $recModel->newQuery()->whereIn('kid', $kids)->get();
 
-                //Actual associator field data to convert
-                $crossFormAssoc = $request->crossFormAssoc[$fid];
-                foreach($crossFormAssoc as $kid => $data) {
-                    $record = RecordController::getRecord($kid);
-
-                    if ($record) {
-                        foreach($data as $flid => $akids) {
-                            //Get values
-                            $values = array();
-                            foreach($akids as $tag) {
-                                array_push($values,$assocTagConvert->{$tag});
-                            }
-
-                            $record->{$flid} = json_encode($values);
-                        }
-                    }
-                }
+            $fieldsArray = $form->layout['fields'];
+			$assocField = array();
+            foreach($fieldsArray as $flid => $field) {
+                if($field['type'] == Form::_ASSOCIATOR)
+                    $assocField[] = $flid;
             }
-
-            if (
-                $request->has('kids') &&
-                $request->has('connections') &&
-                array_key_exists($fid, $request->kids) &&
-                array_key_exists($fid, $request->connections)
-            ) {
-                    //Single form assoc to new record
-                $kids = $request->kids[$fid];
-                $connections = $request->connections[$fid];
-
-                $fieldsArray = $form->layout['fields'];
-
-                $assocField = array();
-                foreach ($fieldsArray as $flid => $field) {
-                    if($field['type'] == \App\Form::_ASSOCIATOR)
-                        $assocField[$flid] = $field;
+            
+            foreach($records as $record) {
+	        	foreach($assocField as $flid) {
+	                $assoc = json_decode($record->{$flid});
+	                if(!is_null($assoc)) {
+	                    $newAssoc = [];
+	                    $update = false;
+						for($i=0;$i<count($assoc);$i++) {
+							$val = $assoc[$i];
+	                        if(array_key_exists($val, $connections)) {
+								$update = true;
+	                            $newAssoc[] = $connections[$val];
+	                        } else
+	                        	$newAssoc[] = $val;
+	                    }
+	                    if($update)
+	                    	$record->{$flid} = json_encode($newAssoc);
+	                }
                 }
-
-                if($assocField) {
-                    foreach($kids as $kid) {
-                        $record = RecordController::getRecord($kid);
-                        $key = key($assocField);
-                        $assoc = json_decode($record->{$key});
-                        if($assoc) {
-                            foreach ($connections as $connection => $kid) {
-                                for($i=0;$i<count($assoc);$i++) {
-                                    if($assoc[$i] == $connection) {
-                                        $assoc[$i] = $kid;
-                                    }
-                                }
-                            }
-                            $record->{$key} = json_encode($assoc);
-                            $record->save();
-                        }
-                    }
-                }
-            }
+                $record->save();
+	        }
         }
     }
 

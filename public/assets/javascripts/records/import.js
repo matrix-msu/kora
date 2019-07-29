@@ -130,9 +130,9 @@ Kora.Records.Import = function () {
                                     type: 'POST',
                                     data: {
                                         "_token": CSRFToken,
-                                        "record": importRecs[kid],
+                                        "record": JSON.stringify(importRecs[kid]),
                                         "kid": kid,
-                                        "table": table,
+                                        "table": JSON.stringify(table),
                                         "type": importType
                                     },
                                     local_kid: kid,
@@ -161,8 +161,8 @@ Kora.Records.Import = function () {
                                                     type: 'POST',
                                                     data: {
                                                         "_token": CSRFToken,
-                                                        "connections": connections,
-                                                        "kids": kids
+                                                        "connections": JSON.stringify(connections),
+                                                        "kids": JSON.stringify(kids)
                                                     }, success: function (data) {
                                                         completeImport(succ, total, this.impType);
                                                     }
@@ -190,8 +190,8 @@ Kora.Records.Import = function () {
                                                     type: 'POST',
                                                     data: {
                                                         "_token": CSRFToken,
-                                                        "connections": connections,
-                                                        "kids": kids
+                                                        "connections": JSON.stringify(connections),
+                                                        "kids": JSON.stringify(kids)
                                                     }, success: function (data) {
                                                         completeImport(succ, total, this.impType);
                                                     }

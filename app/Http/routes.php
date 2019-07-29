@@ -28,7 +28,7 @@ Route::group(['middleware' => 'web'], function () {
     Route::get('/projects/{pid}/importMF', 'ImportMultiFormController@index');
     Route::post('/projects/{pid}/importMF', 'ImportMultiFormController@beginImport');
     Route::post('/projects/{pid}/importMFRecord', 'ImportMultiFormController@importRecord');
-    Route::post('/projects/{pid}/importMFAssoc', 'ImportMultiFormController@crossFormAssociations');
+    Route::post('/projects/{pid}/connectRecords', 'ImportMultiFormController@connectRecords');
     Route::post('/saveTmpFileMF', 'ImportMultiFormController@saveTmpFile');
     Route::patch('/saveTmpFileMF', 'ImportMultiFormController@saveTmpFile');
     Route::delete('/deleteTmpFileMF/{filename}', 'ImportMultiFormController@delTmpFile');
