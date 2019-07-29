@@ -172,27 +172,21 @@ Kora.Records.ImportMF = function () {
                             }
                         });
 
+                        console.log(table);
+
                         //build for potential connections
-                        var assocTagConvert = {};
-                        var crossFormAssoc = {};
-                        var kids = {};
+                        var kids = [];
                         var fids = [];
                         var connections = {};
 
                         for(var fid in data) {
+                            fids.push(fid);
+
                             // skip loop if the property is from prototype
                             if (!data.hasOwnProperty(fid)) continue;
 
                             var importRecs = data[fid]['records'];
                             var importType = data[fid]['type'];
-
-                            // cross assoc requires fid
-                            assocTagConvert[fid] = {};
-                            crossFormAssoc[fid] = {};
-                            kids[fid] = [];
-                            connections[fid] = {};
-
-                            fids.push(fid);
 
                             //foreach record in the dataset
                             for (var kid in importRecs) {
@@ -213,6 +207,10 @@ Kora.Records.ImportMF = function () {
                                     },
                                     local_kid: kid,
                                     success: function (data) {
+                                        //building connections
+                                        kids.push(data['kid']);
+                                        if(data['kidConnection'].length != 0) connections[data['kidConnection']] = data['kid'];
+
                                         succ++;
                                         progressText.text(succ + ' of ' + total + ' Records Submitted');
 
@@ -223,22 +221,15 @@ Kora.Records.ImportMF = function () {
                                             percent = 7;
                                         progressFill.attr('style', 'width:' + percent + '%');
                                         progressText.text(succ + ' of ' + total + ' Records Submitted');
-                                        if(data['assocTag']!=null)
-                                            assocTagConvert[fid][data['assocTag']] = data['kid'];
-                                        crossFormAssoc[fid][data['kid']] = data['assocArray'];
-                                        kids[fid].push(data['kid']);
-                                        if (data['kidConnection'].length != 0) connections[fid][data['kidConnection']] = data['kid'];
 
                                         if(done == total) {
                                             $('.progress-text-js').html('Connecting cross-Form associations. One moment...');
                                             if (connections && kids) {
                                                 $.ajax({
-                                                    url: crossAssocURL,
+                                                    url: connectRecordsUrl,
                                                     type: 'POST',
                                                     data: {
                                                         "_token": CSRFToken,
-                                                        "assocTagConvert": assocTagConvert,
-                                                        "crossFormAssoc": crossFormAssoc,
                                                         "connections": connections,
                                                         "kids": kids,
                                                         "fids": fids
@@ -265,12 +256,10 @@ Kora.Records.ImportMF = function () {
                                             $('.progress-text-js').html('Connecting cross-Form associations. One moment...');
                                             if (connections && kids) {
                                                 $.ajax({
-                                                    url: crossAssocURL,
+                                                    url: connectRecordsUrl,
                                                     type: 'POST',
                                                     data: {
                                                         "_token": CSRFToken,
-                                                        "assocTagConvert": assocTagConvert,
-                                                        "crossFormAssoc": crossFormAssoc,
                                                         "connections": connections,
                                                         "kids": kids,
                                                         "fids": fids

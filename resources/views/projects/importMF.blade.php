@@ -141,7 +141,7 @@
         var deleteFileUrl = '{{ url('deleteTmpFileMF') }}/';
         var mfrInputURL = '{{ url('projects/'.$project->id.'/importMF') }}';
         var importRecordUrl = '{{ url('projects/'.$project->id.'/importMFRecord') }}';
-        var crossAssocURL = '{{ url('projects/'.$project->id.'/importMFAssoc') }}';
+        var connectRecordsUrl = '{{ action('ImportMultiFormController@connectRecords',['pid'=>$project->id]) }}';;
         var viewRecordsUrl = '{{ url('projects/'.$project->id) }}';
         var downloadFailedUrl = '{{ action('ImportMultiFormController@downloadFailedRecords',['pid'=>$project->id]) }}';
         var downloadReasonsUrl = '{{ action('ImportMultiFormController@downloadFailedReasons',['pid'=>$project->id]) }}';
