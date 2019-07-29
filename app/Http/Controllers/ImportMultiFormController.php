@@ -291,13 +291,13 @@ class ImportMultiFormController extends Controller {
         if(!(\Auth::user()->isFormAdmin($form)))
             return redirect('projects/'.$pid)->with('k3_global_error', 'not_form_admin');
 
-        $record = $request->record;
+        $record = json_decode($request->record,true);
 
         $recRequest = new Request();
         $recRequest['userId'] = \Auth::user()->id;
         $recRequest['api'] = true;
 
-        $matchup = $request->table[$fid];
+        $matchup = json_decode($request->table,true)[$fid];
 
         if($request->type==self::XML) {
             $record = simplexml_load_string($record);
@@ -427,10 +427,14 @@ class ImportMultiFormController extends Controller {
      * @param  Request $request
      */
     public function connectRecords($pid, Request $request) {
+	    ini_set('max_execution_time',0);
         $fids = $request->fids;
         $assocField = array();
+        $recModels = array();
+        
         foreach($fids as $fid) {
             $form = FormController::getForm($fid);
+            $recModels[$fid] = new Record(array(),$fid);
 
             if(!(\Auth::user()->isFormAdmin($form)))
                 return redirect('projects/' . $pid)->with('k3_global_error', 'not_form_admin');
@@ -443,22 +447,30 @@ class ImportMultiFormController extends Controller {
             }
         }
 
-        if($assocField) {
-            foreach($request->kids as $kid) {
-                $record = RecordController::getRecord($kid);
-                $key = key($assocField);
-                $assoc = json_decode($record->{$key});
-                if($assoc) {
-                    foreach($request->connections as $connection => $kid) {
-                        for($i=0;$i<count($assoc);$i++) {
-                            if($assoc[$i] == $connection) {
-                                $assoc[$i] = $kid;
-                            }
-                        }
-                    }
-                    $record->{$key} = json_encode($assoc);
-                    $record->save();
+		$kids = json_decode($request->kids,true);
+		$connections = json_decode($request->connections,true);
+        if(!empty($assocField)) {
+            foreach($kids as $kid) {
+	            $parts = explode('-',$kid);
+                $record = $recModels[$parts[1]]->newQuery()->where('kid', '=', $kid)->first();
+                foreach($assocField as $flid => $field) {
+	                $assoc = json_decode($record->{$flid});
+	                if(!is_null($assoc)) {
+	                    $newAssoc = [];
+	                    $update = false;
+						for($i=0;$i<count($assoc);$i++) {
+							$val = $assoc[$i];
+	                        if(array_key_exists($val, $connections)) {
+								$update = true;
+	                            $newAssoc[] = $connections[$val];
+	                        } else
+	                        	$newAssoc[] = $val;
+	                    }
+	                    if($update)
+	                    	$record->{$flid} = json_encode($newAssoc);
+	                }
                 }
+                $record->save();
             }
         }
     }
