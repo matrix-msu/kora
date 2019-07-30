@@ -674,30 +674,31 @@ class Form extends Model {
         $selectRecords = "SELECT $fieldString FROM $comboTableName WHERE FIND_IN_SET(`id`, '$comboIds')";
 
         $records = $con->query($selectRecords);
+        $int=0;
         while($row = $records->fetch_assoc()) {
             foreach($row as $column => $data) {
-                if(empty($result[$column]))
-                    $result[$column] = [];
                 if(array_key_exists($column,$jsonFields))
-                    array_push($result[$column], json_decode($data, true));
+                    $result[$int][$column] = json_decode($data, true);
                 else if(array_key_exists($column,$assocFields)) {
                     $aKids = json_decode($data,true);
                     if($aKids !== NULL && !empty($assocForms)) {
-                        $result[$column] = [];
+                        $result[$int][$column] = [];
                         foreach($aKids as $aKid) {
                             if(!Record::isKIDPattern($aKid))
                                 continue;
 
                             $parts = explode('-',$aKid);
                             $aForm = $assocForms[$parts[1]];
-                            $result[$column][$aKid] = $aForm->getRecordsForExport($assocFilters[$parts[1]],[$parts[2]],$con)[$aKid];
+                            $result[$int][$column][$aKid] = $aForm->getRecordsForExport($assocFilters[$parts[1]],[$parts[2]],$con)[$aKid];
                         }
                     } else {
-                        array_push($result[$column], $aKids);
+                        $result[$int][$column] = $aKids;
                     }
                 } else
-                    array_push($result[$column], $data);
+                    $result[$int][$column] = $data;
             }
+
+            $int++;
         }
         $records->free();
 
@@ -719,6 +720,9 @@ class Form extends Model {
         $assocForms = [];
         $betaMappings = [];
         $useAssoc = false;
+
+        $comboFields = [];
+        $comboInfo = [];
 
         $con = mysqli_connect(
             config('database.connections.mysql.host'),
@@ -780,6 +784,7 @@ class Form extends Model {
                         //We do this in realnames because the flid gets us the type to check if its JSON, but it will be compared against the DB result which will have real names instead of flid
                         if(in_array($aLayout['fields'][$flid]['type'], self::$jsonFields))
                             $aJsonFields[$name] = 1;
+
                         array_push($realNames,$name);
                     }
                     $flids = $realNames;
@@ -866,6 +871,31 @@ class Form extends Model {
                     $jsonFields[$tmp] = 1;
                 if($this->layout['fields'][$flid]['type'] == self::_ASSOCIATOR)
                     $assocFields[$tmp] = 1;
+                if($this->layout['fields'][$flid]['type'] == self::_COMBO_LIST) {
+                    $comboFields[$tmp] = 1;
+                    $comboInfo[$tmp]['flid'] = $flid; //We need this in case alternative names are used
+
+                    //Determine if either sub field is a json or assoc field
+                    $subFields = [];
+                    $comboInfo[$tmp]['jsonFields'] = [];
+                    $comboInfo[$tmp]['assocFields'] = [];
+
+                    foreach (['one', 'two'] as $seq) {
+                        $cType = $this->layout['fields'][$flid][$seq]['type'];
+                        $cName = $this->layout['fields'][$flid][$seq]['name'];
+
+                        if($cType == self::_ASSOCIATOR)
+                            $comboInfo[$tmp]['assocFields'][$cName] = 1;
+                        else if(in_array($cType, self::$jsonFields))
+                            $comboInfo[$tmp]['jsonFields'][$cName] = 1;
+
+                        //Create its mysql select call
+                        array_push($subFields, $this->layout['fields'][$flid][$seq]['flid']." as `$cName`");
+                    }
+
+                    //Build the full select call
+                    $comboInfo[$tmp]['fieldString'] = implode(',', $subFields);
+                }
                 array_push($realNames,$name);
             }
             $flids = $realNames;
@@ -886,6 +916,32 @@ class Form extends Model {
                     $jsonFields[$tmp] = 1;
                 if($this->layout['fields'][$flid]['type'] == self::_ASSOCIATOR)
                     $assocFields[$tmp] = 1;
+                if($this->layout['fields'][$flid]['type'] == self::_COMBO_LIST) {
+                    $comboFields[$tmp] = 1;
+                    $comboInfo[$tmp]['flid'] = $flid; //We need this in case alternative names are used
+
+                    //Determine if either sub field is a json or assoc field
+                    $subFields = [];
+                    $comboInfo[$tmp]['jsonFields'] = [];
+                    $comboInfo[$tmp]['assocFields'] = [];
+
+                    foreach (['one', 'two'] as $seq) {
+                        $cType = $this->layout['fields'][$flid][$seq]['type'];
+                        $cName = $this->layout['fields'][$flid][$seq]['name'];
+
+                        if($cType == self::_ASSOCIATOR)
+                            $comboInfo[$tmp]['assocFields'][$cName] = 1;
+                        else if(in_array($cType, self::$jsonFields))
+                            $comboInfo[$tmp]['jsonFields'][$cName] = 1;
+
+                        //Create its mysql select call
+                        array_push($subFields, $this->layout['fields'][$flid][$seq]['flid']." as `$cName`");
+                    }
+
+                    //Build the full select call
+                    $comboInfo[$tmp]['fieldString'] = implode(',', $subFields);
+                }
+
                 array_push($realFlids,$name);
             }
             $flids = $realFlids;
@@ -950,6 +1006,12 @@ class Form extends Model {
                             $result[$column]['value'][$aKid] = $this->getBetaAssocRecord($parts[2], $aForm, $con, $prefix);
                         }
                     }
+                } else if(array_key_exists($column,$comboFields)) { //TODO
+                    $comboIds = json_decode($data, true);
+                    if(!is_null($comboIds))
+                        $result[$column]['value'] = $this->getComboRecord($column, $comboIds, $comboInfo[$column], $con, $prefix, null);
+                    else
+                        $result[$column]['value'] = null;
                 } else if(array_key_exists($column,$jsonFields)) { //array key search is faster than in array so that's why we use it here
                     $result[$column]['value'] = json_decode($data, true);
                 } else if(array_key_exists($column,['kid'=>1,'legacy_kid'=>1,'project_id'=>1,'form_id'=>1,'owner'=>1,'created_at'=>1,'updated_at'=>1])) {
@@ -1107,7 +1169,7 @@ class Form extends Model {
             foreach($row as $index => $value) {
                 if(!in_array($index,['kid','legacy_kid','updated_at','owner'])) {
                     if(is_null($value))
-                       $value = '';
+                        $value = '';
 
                     $results[$kid][$fieldToRealName[$index]] = $fieldToModel[$index]->processLegacyData($value);
                 }
