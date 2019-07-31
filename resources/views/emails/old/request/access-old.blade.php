@@ -1,8 +1,16 @@
 @extends('email')
 
 @section('main-text')
-    {{ \Auth::user()->getFullName() }} is requesting access to the following kora Project: {{$project->name}}
-    <br/><br/>
+    <span class="bold-highlight">{{ \Auth::user()->getFullName() }}</span> is requesting access to the following Kora Project:
+@endsection
+
+@section('project-text')
+<div class="project-text">
+    {{$project->name}}
+</div>
+@endsection
+
+@section('sub-text')
     As an admin of {{$project->name}}, you may add them to a permissions group within the project.
 @endsection
 
@@ -16,6 +24,8 @@
 
 @section('footer-text')
     Permissions are being requested by {{ \Auth::user()->getFullName() }}
-    <br/>
-    ({{ \Auth::user()->username }}, <a href="mailto:{{ \Auth::user()->email }}">{{ \Auth::user()->email }}</a>)
+@endsection
+
+@section('footer-email')
+    ({{\Auth::user()->username}}, <a class="bold-highlight" href="mailto:{{\Auth::user()->email}}">{{\Auth::user()->email}}</a>)
 @endsection

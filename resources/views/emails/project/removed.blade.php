@@ -1,13 +1,7 @@
 @extends('email')
 
 @section('main-text')
-    You have been removed from the following Kora Project:
-@endsection
-
-@section('project-text')
-<div class="project-text">
-    {{$project->name}}
-</div>
+    You have been removed from the following kora Project: {{$project->name}}
 @endsection
 
 @section('button-link')
@@ -20,8 +14,6 @@
 
 @section('footer-text')
     Your permissions have been updated by {{ \Auth::user()->getFullName() }}
-@endsection
-
-@section('footer-email')
-    ({{\Auth::user()->username}}, <a class="bold-highlight" href="mailto:{{\Auth::user()->email}}">{{\Auth::user()->email}}</a>)
+    <br/>
+    ({{ \Auth::user()->username }}, <a href="mailto:{{ \Auth::user()->email }}">{{ \Auth::user()->email }}</a>)
 @endsection

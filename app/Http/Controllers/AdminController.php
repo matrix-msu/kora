@@ -12,8 +12,6 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\View\View;
 
@@ -305,6 +303,9 @@ class AdminController extends Controller {
         if(isset($request->projectGroup)) {
             $projectGroup = ProjectGroup::where('id', '=', $request->projectGroup)->first();
             $project = Project::where('id','=',$projectGroup->project_id)->first();
+        } else {
+            $projectGroup = null;
+            $project = null;
         }
 
         $notification = array(
