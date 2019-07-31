@@ -1,7 +1,13 @@
 @extends('email')
 
 @section('main-text')
-    You permissions have been updated for the following kora Project: {{$project->name}}
+    You permissions have been updated for the following Kora Project:
+@endsection
+
+@section('project-text')
+<div class="project-text">
+    {{$project->name}}
+</div>
 @endsection
 
 @section('button-link')
@@ -12,7 +18,7 @@
     View Project
 @endsection
 
-@section('footer-text')
+@section('post-action-text')
     @php
         if($group->name == $project->name. ' Default Group')
             $gName = 'Default Group';
@@ -22,13 +28,16 @@
             $gName = $group->name;
     @endphp
     You are a member of the “{{ $gName }}” permissions group. This means you can:
-    <br/>
-    - View the Project
-    @if($group->create == '1') <br/>- Create Forms @endif
-    @if($group->edit == '1') <br/>- Edit Forms @endif
-    @if($group->delete == '1') <br/>- Delete Forms @endif
-    <br/><br/>
+    <div class="top-list-item">&bull; View Project</div>
+    @if($group->create)<div>&bull; Create new Forms</div>@endif
+    @if($group->edit)<div>&bull; Edit Forms</div>@endif
+    @if($group->delete)<div>&bull; Delete Forms</div>@endif
+@endsection
+
+@section('footer-text')
     Your permissions have been updated by {{ \Auth::user()->getFullName() }}
-    <br/>
-    ({{ \Auth::user()->username }}, <a href="mailto:{{ \Auth::user()->email }}">{{ \Auth::user()->email }}</a>)
+@endsection
+
+@section('footer-email')
+    ({{\Auth::user()->username}}, <a class="bold-highlight" href="mailto:{{\Auth::user()->email}}">{{\Auth::user()->email}}</a>)
 @endsection
