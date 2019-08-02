@@ -5,8 +5,8 @@ Kora.Records.Import = function () {
     var droppedRecord
     var droppedFile
 
-    var importType = '';
     var failedRecords = [];
+    var failedConnections = [];
 
     function initializeFormProgression() {
         $('.record-input-js').change(function () {
@@ -164,6 +164,7 @@ Kora.Records.Import = function () {
                                                         "connections": JSON.stringify(connections),
                                                         "kids": JSON.stringify(kids)
                                                     }, success: function (data) {
+                                                        failedConnections = JSON.parse(data);
                                                         completeImport(succ, total, this.impType);
                                                     }
                                                 });
@@ -193,6 +194,7 @@ Kora.Records.Import = function () {
                                                         "connections": JSON.stringify(connections),
                                                         "kids": JSON.stringify(kids)
                                                     }, success: function (data) {
+                                                        failedConnections = JSON.parse(data);
                                                         completeImport(succ, total, this.impType);
                                                     }
                                                 });
@@ -212,8 +214,10 @@ Kora.Records.Import = function () {
             var recImpLabel = $('.records-imported-label-js');
             var recImpText = $('.records-imported-text-js');
             var recImpText2 = $('.records-imported-text2-js');
+            var recImpText3 = $('.records-imported-text3-js');
             var btnContainer = $('.button-container-js');
             var btnContainer2 = $('.button-container2-js');
+            var btnContainer3 = $('.button-container3-js');
 
             $('.recordresults-section').addClass('hidden');
             $('.allrecords-section').removeClass('hidden');
@@ -247,6 +251,15 @@ Kora.Records.Import = function () {
                 btnContainer2.html('<a class="btn half-sub-btn import-thick-btn-text refresh-records-js" href="#">Try Importing Again</a>' +
                     '<a href="' + viewRecordsUrl + '" class="btn half-btn import-thin-btn-text">View Imported Records</a>');
             }
+
+            if(failedConnections.length > 0) {
+                recImpText3.text('Looks like some records failed to find their associations. Download the report below.');
+
+                btnContainer3.html('<a class="btn half-sub-btn import-thick-btn-text failed-connection-js" href="#">Download Failed Connections Report</a>'
+                    + '<form action="' + downloadConnectionUrl + '" method="post" class="connection-form-js" style="display:none;">'
+                    + '<input type="hidden" name="_token" value="' + CSRFToken + '"/>'
+                    + '</form>');
+            }
         }
 
         $('.button-container-js').on('click', '.failed-records-js', function (e) {
@@ -277,6 +290,18 @@ Kora.Records.Import = function () {
         $('.button-container2-js').on('click', '.refresh-records-js', function (e) {
             e.preventDefault();
             location.reload();
+        });
+
+        $('.button-container3-js').on('click', '.failed-connection-js', function (e) {
+            e.preventDefault();
+            var $recForm = $('.connection-form-js');
+
+            var input = $("<input>")
+                .attr("type", "hidden")
+                .attr("name", "failures").val(JSON.stringify(failedConnections));
+            $recForm.append($(input));
+
+            $recForm.submit();
         });
     }
 

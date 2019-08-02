@@ -115,6 +115,15 @@
                 </div>
             </div>
         </div>
+
+        <div class="form-group records-imported-text3-js"></div>
+
+        <div class="form-group mt-xxl">
+            <div class="form-quick-options">
+                <div class="button-container button-container3-js">
+                </div>
+            </div>
+        </div>
     </section>
 @stop
 
@@ -129,6 +138,7 @@
         var viewRecordsUrl = '{{ action('RecordController@index',['pid' => $form->project_id, 'fid' => $form->id]) }}';
         var downloadFailedUrl = '{{ action('ImportController@downloadFailedRecords',['pid'=>$form->project_id,'fid'=>$form->id]) }}';
         var downloadReasonsUrl = '{{ action('ImportController@downloadFailedReasons',['pid'=>$form->project_id,'fid'=>$form->id]) }}';
+        var downloadConnectionUrl = '{{ action('ImportController@downloadFailedConnections',['pid'=>$form->project_id,'fid'=>$form->id]) }}';
         var CSRFToken = '{{ csrf_token() }}';
 
         Kora.Records.Import();

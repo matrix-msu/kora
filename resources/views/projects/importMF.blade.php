@@ -130,6 +130,15 @@
                 </div>
             </div>
         </div>
+
+        <div class="form-group records-imported-text3-js"></div>
+
+        <div class="form-group mt-xxl">
+            <div class="form-quick-options">
+                <div class="button-container button-container3-js">
+                </div>
+            </div>
+        </div>
     </section>
 @stop
 
@@ -145,6 +154,7 @@
         var viewRecordsUrl = '{{ url('projects/'.$project->id) }}';
         var downloadFailedUrl = '{{ action('ImportMultiFormController@downloadFailedRecords',['pid'=>$project->id]) }}';
         var downloadReasonsUrl = '{{ action('ImportMultiFormController@downloadFailedReasons',['pid'=>$project->id]) }}';
+        var downloadConnectionUrl = '{{ action('ImportMultiFormController@downloadFailedConnections',['pid'=>$project->id]) }}';
 
         Kora.Records.ImportMF();
     </script>

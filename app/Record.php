@@ -171,17 +171,23 @@ class Record extends Model {
     public function getReversePreview() {
         $form = $this->form()->first();
         $fields = $form->layout['fields'];
+        $pages = $form->layout['pages'];
 
         $preview = 'No Preview Field Available';
-        foreach($fields as $flid => $field) {
-            //Can this field be previewed?
-            if(!in_array($field['type'],Form::$validAssocFields))
-                continue;
-            //Is there data in this record?
-            if(is_null($this->{$flid}))
-                continue;
+        foreach($pages as $page) {
+            foreach($page['flids'] as $flid) {
+                $field = $fields[$flid];
 
-            $preview = $this->{$flid};
+                //Can this field be previewed?
+                if(!in_array($field['type'], Form::$validAssocFields))
+                    continue;
+                //Is there data in this record?
+                if(is_null($this->{$flid}))
+                    continue;
+
+                $preview = $this->{$flid};
+                break 2;
+            }
         }
 
         return $preview;
