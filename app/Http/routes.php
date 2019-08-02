@@ -34,6 +34,7 @@ Route::group(['middleware' => 'web'], function () {
     Route::delete('/deleteTmpFileMF/{filename}', 'ImportMultiFormController@delTmpFile');
     Route::post('/projects/{pid}/importRecordFailed', 'ImportMultiFormController@downloadFailedRecords');
     Route::post('/projects/{pid}/importReasonsFailed', 'ImportMultiFormController@downloadFailedReasons');
+    Route::post('/projects/{pid}/importConnectionsFailed', 'ImportMultiFormController@downloadFailedConnections');
     Route::post('projects/validate', 'ProjectController@validateProjectFields');
     Route::patch('projects/validate/{projects}', 'ProjectController@validateProjectFields');
 
@@ -174,6 +175,7 @@ Route::group(['middleware' => 'web'], function () {
     Route::post('/projects/{pid}/forms/{fid}/records/connectRecords', 'ImportController@connectRecords');
     Route::post('/projects/{pid}/forms/{fid}/records/importRecordFailed', 'ImportController@downloadFailedRecords');
     Route::post('/projects/{pid}/forms/{fid}/records/importReasonsFailed', 'ImportController@downloadFailedReasons');
+    Route::post('/projects/{pid}/forms/{fid}/records/importConnectionsFailed', 'ImportController@downloadFailedConnections');
     Route::get('/projects/{pid}/forms/{fid}/records/{rid}', 'RecordController@show');
     Route::get('/projects/{pid}/forms/{fid}/records/{rid}/edit', 'RecordController@edit');
     Route::post('/projects/{pid}/forms/{fid}/records', 'RecordController@store');

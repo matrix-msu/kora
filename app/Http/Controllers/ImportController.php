@@ -346,6 +346,7 @@ class ImportController extends Controller {
         
         $kids = json_decode($request->kids,true);
 		$connections = json_decode($request->connections,true);
+		$connErrors = [];
         
         $form = FormController::getForm($fid);
         $recModel = new Record(array(),$fid);
@@ -366,11 +367,13 @@ class ImportController extends Controller {
                     $update = false;
 					for($i=0;$i<count($assoc);$i++) {
 						$val = $assoc[$i];
-                        if(array_key_exists($val, $connections)) {
+                        if(array_key_exists($val, $connections)) { //Connection found
 							$update = true;
                             $newAssoc[] = $connections[$val];
-                        } else
-                        	$newAssoc[] = $val;
+                        } else if(Record::isKIDPattern($val)) { //Normal KID value
+                            $newAssoc[] = $val;
+                        } else //Connection not found
+                            $connErrors[] = ['connection' => $val, 'record' => $record->kid, 'field' => $fieldsArray[$flid]['name']];
                     }
                     if($update)
                     	$record->{$flid} = json_encode($newAssoc);
@@ -378,6 +381,8 @@ class ImportController extends Controller {
             }
             $record->save();
         }
+
+        return json_encode($connErrors);
     }
 
     /**
@@ -472,6 +477,33 @@ class ImportController extends Controller {
         }
 
         header("Content-Disposition: attachment; filename=" . $form->name . '_importExplain.json');
+        header("Content-Type: application/octet-stream; ");
+
+        echo json_encode($messages);
+        exit;
+    }
+
+    /**
+     * Downloads the file with the kid connections that failed.
+     *
+     * @param  int $pid - Project ID
+     * @param  int $fid - Form ID
+     * @param  Request $request
+     */
+    public function downloadFailedConnections($pid, $fid, Request $request) {
+        $failedConnections = json_decode($request->failures,true);
+        $form = FormController::getForm($fid);
+
+        $messages = [];
+
+        foreach($failedConnections as $element) {
+            $conn = $element['connection'];
+            $rec = $element['record'];
+            $field = $element['field'];
+            $messages[] = "The connection name, '$conn', could not be found for record ($rec) in the $field field.";
+        }
+
+        header("Content-Disposition: attachment; filename=" . $form->name . '_connectionExplain.json');
         header("Content-Type: application/octet-stream; ");
 
         echo json_encode($messages);

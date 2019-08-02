@@ -432,6 +432,7 @@ class ImportMultiFormController extends Controller {
         
         $kids = json_decode($request->kids,true);
 		$connections = json_decode($request->connections,true);
+        $connErrors = [];
         
         foreach($fids as $fid) {
             $form = FormController::getForm($fid);
@@ -453,11 +454,13 @@ class ImportMultiFormController extends Controller {
 	                    $update = false;
 						for($i=0;$i<count($assoc);$i++) {
 							$val = $assoc[$i];
-	                        if(array_key_exists($val, $connections)) {
-								$update = true;
-	                            $newAssoc[] = $connections[$val];
-	                        } else
-	                        	$newAssoc[] = $val;
+                            if(array_key_exists($val, $connections)) { //Connection found
+                                $update = true;
+                                $newAssoc[] = $connections[$val];
+                            } else if(Record::isKIDPattern($val)) { //Normal KID value
+                                $newAssoc[] = $val;
+                            } else //Connection not found
+                                $connErrors[] = ['connection' => $val, 'record' => $record->kid, 'field' => $fieldsArray[$flid]['name']];
 	                    }
 	                    if($update)
 	                    	$record->{$flid} = json_encode($newAssoc);
@@ -466,6 +469,8 @@ class ImportMultiFormController extends Controller {
                 $record->save();
 	        }
         }
+
+        return json_encode($connErrors);
     }
 
     /**
@@ -558,6 +563,32 @@ class ImportMultiFormController extends Controller {
         }
 
         header("Content-Disposition: attachment; filename=" . $project->name . '_importExplain.json');
+        header("Content-Type: application/octet-stream; ");
+
+        echo json_encode($messages);
+        exit;
+    }
+
+    /**
+     * Downloads the file with the kid connections that failed.
+     *
+     * @param  int $pid - Project ID
+     * @param  Request $request
+     */
+    public function downloadFailedConnections($pid, Request $request) {
+        $failedConnections = json_decode($request->failures,true);
+        $project = ProjectController::getProject($pid);
+
+        $messages = [];
+
+        foreach($failedConnections as $element) {
+            $conn = $element['connection'];
+            $rec = $element['record'];
+            $field = $element['field'];
+            $messages[] = "The connection name, '$conn', could not be found for record ($rec) in the $field field.";
+        }
+
+        header("Content-Disposition: attachment; filename=" . $project->name . '_connectionExplain.json');
         header("Content-Type: application/octet-stream; ");
 
         echo json_encode($messages);
