@@ -326,13 +326,13 @@ Kora.Records.Import = function () {
         switch (type) {
             case "record":
                 recordInput.replaceWith(recordInput.val('').clone(true));
-                recordFilename.html("Drag & Drop or Select the Kora 2 Record XML Below");
+                recordFilename.html("Drag & Drop or Select the XML / JSON / CSV File Below");
                 recordInstruction.removeClass("photo-selected");
                 recordDroppedFile = false;
                 break;
             case "file":
                 fileInput.replaceWith(fileInput.val('').clone(true));
-                fileFilename.html("Drag & Drop or Select the Kora 2 Record Files Zip Below");
+                fileFilename.html("Drag & Drop or Select the Zipped File Below ");
                 fileInstruction.removeClass("photo-selected");
                 fileDroppedFile = false;
                 break;

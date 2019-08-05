@@ -2,6 +2,7 @@ var Kora = Kora || {};
 Kora.Records = Kora.Records || {};
 
 Kora.Records.ImportMF = function () {
+    var droppedFile
 
     var failedRecords = [];
     var failedConnections = [];
@@ -30,8 +31,11 @@ Kora.Records.ImportMF = function () {
 
             fd = new FormData();
             fd.append('_token', CSRFToken);
-            if(zipInput.val() != '')
+            if (droppedFile) { // zip file upload
+                fd.append("files", droppedFile);
+            } else if (zipInput.val() != '') {
                 fd.append("files", zipInput[0].files[0]);
+            }
             formOrder = [];
             $(".search-choice-close").each(function() {
                 $thisIndex = parseInt($(this).attr('data-option-array-index'));
@@ -483,7 +487,7 @@ Kora.Records.ImportMF = function () {
         switch (type) {
             case "file":
                 fileInput.replaceWith(fileInput.val('').clone(true));
-                fileFilename.html("Drag & Drop or Select the Kora 2 Record Files Zip Below");
+                fileFilename.html("Drag & Drop or Select the Zipped File Below ");
                 fileInstruction.removeClass("photo-selected");
                 fileDroppedFile = false;
                 break;
