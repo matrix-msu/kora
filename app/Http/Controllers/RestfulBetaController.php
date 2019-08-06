@@ -595,7 +595,7 @@ class RestfulBetaController extends Controller {
         if(!isset($request->fields))
             return response()->json(["status"=>false,"error"=>"No data supplied to insert into: ".$form->name],500);
 
-        $fields = json_decode($request->fields);
+        $fields = json_decode($request->fields,true);
         $recRequest = new Request();
 
         $uToken = uniqid(); //need a temp user id to interact, specifically for files
@@ -622,7 +622,7 @@ class RestfulBetaController extends Controller {
             $field = $form->layout['fields'][$fieldName];
             $typedField = $form->getFieldModel($field['type']);
 
-            $recRequest = $typedField->processImportData($fieldName, $field, $jsonField->value, $recRequest);
+            $recRequest = $typedField->processImportData($fieldName, $field, $jsonField['value'], $recRequest);
         }
 
         $recRequest['api'] = true;
@@ -660,7 +660,7 @@ class RestfulBetaController extends Controller {
         if(!isset($request->fields))
             return response()->json(["status"=>false,"error"=>"No data supplied to insert into: ".$form->name],500);
 
-        $fields = json_decode($request->fields);
+        $fields = json_decode($request->fields,true);
         $record = RecordController::getRecord($request->kid);
         if(is_null($record))
             return response()->json(["status"=>false,"error"=>"Invalid KID provided"],500);
@@ -691,7 +691,7 @@ class RestfulBetaController extends Controller {
             $field = $form->layout['fields'][$fieldName];
             $typedField = $form->getFieldModel($field['type']);
 
-            $recRequest = $typedField->processImportData($fieldName, $field, $jsonField->value, $recRequest);
+            $recRequest = $typedField->processImportData($fieldName, $field, $jsonField['value'], $recRequest);
         }
 
         $recRequest['api'] = true;
