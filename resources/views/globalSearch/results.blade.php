@@ -113,8 +113,8 @@
 
                 @include('partials.projectSearch.pagination', ['totalCount' => $total])
 
-                <div class="form-group search-button-container mt-xxxl">
-                  <a class="btn half-sub-btn to-top">Try Another Search</a>
+                <div class="form-group search-button-container mt-xxl">
+                    <a href="#" class="btn half-sub-btn try-another-search try-another-js">Try Another Search</a>
                 </div>
             @else
                 <div class="display-keywords mt-xxl"><ul class="keywords"></ul></div>
@@ -132,8 +132,8 @@
                     @include('partials.projects.show.form')
                 @endforeach
 
-                <div class="form-group search-button-container mt-xxxl">
-                    <a class="btn half-sub-btn to-top">Try Another Search</a>
+                <div class="form-group search-button-container mt-xxl">
+                    <a href="#" class="btn half-sub-btn try-another-search try-another-js">Try Another Search</a>
                 </div>
             @else
                 @include('partials.records.no-records')
@@ -157,9 +157,9 @@
                     ])
                 @endforeach
 
-                <div class="form-group search-button-container mt-xxxl">
-                    <a class="btn half-sub-btn to-top">Try Another Search</a>
-                </div>
+                    <div class="form-group search-button-container mt-xxl">
+                        <a href="#" class="btn half-sub-btn try-another-search try-another-js">Try Another Search</a>
+                    </div>
             @else
                 @include('partials.records.no-records')
             @endif

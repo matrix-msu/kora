@@ -1,10 +1,10 @@
 <div class="record card all active form-group" id="{{$record->id}}">
     <div class="header active check-box">
 
-        @if (is_null(app('request')->input('projects')))
+        @if (is_null(app('request')->input('projects')) && is_null(app('request')->input('forms')))
           <span class="check ml-xxs mt-xxs"></span>
         @endif
-        <div class="left @if (is_null(app('request')->input('projects'))) pl-xxxl @else pl-xl @endif">
+        <div class="left @if (is_null(app('request')->input('projects')) && is_null(app('request')->input('forms'))) pl-xxxl @else pl-xl @endif">
             <a class="title underline-middle-hover" href="{{ action("RecordController@show",
                 ["pid" => $record->project_id, "fid" => $record->form_id, "rid" => $record->id]) }}">
                 <span class="name">{{$record->kid}}</span>
