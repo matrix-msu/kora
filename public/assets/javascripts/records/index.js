@@ -246,19 +246,21 @@ Kora.Records.Index = function() {
     }
 
     function displayKeywords () {
+        $('.back-to-search, .to-top, .try-another-js').click( function (e) {
+            console.log("scroll back");
+            e.preventDefault();
+            $('html, body').animate({
+                scrollTop: 0
+            }, 1500);
+        });
+
       var keywords = $('.keywords-get-js').val();
       if (keywords != null && keywords != '') {
         keywords = keywords.split(/\s+/);
         keywords.forEach(function(keyword){
           $('ul.keywords').append('<li class="keyword"><span>' + keyword + '</span><a class="keyword-close"></a></li>');
         });
-        $('ul.keywords').append('<li class="back-to-search"><span>Back to Search</span><i class="icon icon-arrow-up"></i></li>');
-
-        $('.back-to-search, .to-top, .try-another-js').click(function () {
-          $('html, body').animate({
-            scrollTop: 0
-          }, 1500);
-        });
+        $('ul.keywords').append('<li class="back-to-search try-another-js"><span>Back to Search</span><i class="icon icon-arrow-up"></i></li>');
 
         $('.keyword-close').click(function(){
           $(this).parent().remove();

@@ -14,7 +14,7 @@
           autocomplete="off" value=""
           placeholder="&nbsp;Start Typing to Search ..."
           name="keywords">
-        <input type="hidden" name="method" value="2">
+        <input type="hidden" name="method" value="0">
         <input type="hidden" name="projects[]" value="ALL">
         <button class="global-search-submit global-search-submit-js">
           <i class="icon icon-chevron"></i>
