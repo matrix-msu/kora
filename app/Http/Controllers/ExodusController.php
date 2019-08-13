@@ -72,6 +72,7 @@ class ExodusController extends Controller {
         $migratedProjects = explode(",",$request->projects);
         //file path of kora files
         $filePath = $request->filePath;
+        $installURL = isset($request->installURL) ? $request->installURL : url('files');
 
         $userArray = array();
         $userNameArray = array();
@@ -423,7 +424,7 @@ class ExodusController extends Controller {
         $exodus_id = DB::table('exodus_overall')->insertGetId(['progress'=>0,'total_forms'=>sizeof($formArray),'created_at'=>Carbon::now(),'updated_at'=>Carbon::now()]);
         foreach($formArray as $sid=>$fid) {
             $job = new ExodusHelperController();
-            $job->migrateControlsAndRecords($sid, $fid, $formArray, $pairArray, $dbInfo, $filePath, $exodus_id, $userNameArray);
+            $job->migrateControlsAndRecords($sid, $fid, $formArray, $pairArray, $dbInfo, $filePath, $exodus_id, $userNameArray, $installURL);
         }
     }
 
@@ -468,8 +469,10 @@ class ExodusController extends Controller {
                         $newKids = array();
 
                         foreach($kidArray as $oldKid) {
-                            $nKid = $masterConvertor[$oldKid];
-                            $newKids[] = $nKid;
+                            if(isset($masterConvertor[$oldKid])) {
+                                $nKid = $masterConvertor[$oldKid];
+                                $newKids[] = $nKid;
+                            }
                         }
                         $record->{$flid} = json_encode($newKids);
                     }
