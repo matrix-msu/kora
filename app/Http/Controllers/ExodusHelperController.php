@@ -79,8 +79,9 @@ class ExodusHelperController extends Controller {
      * @param  $filePath - Local system path for kora 2 files
      * @param  $exodus_id - Progress table id
      * @param  $userNameArray - Array of old user names to new ids
+     * @param  $installURL - The files url of the installation
      */
-    public function migrateControlsAndRecords($ogSid, $fid, $formArray, $pairArray, $dbInfo, $filePath, $exodus_id, $userNameArray) {
+    public function migrateControlsAndRecords($ogSid, $fid, $formArray, $pairArray, $dbInfo, $filePath, $exodus_id, $userNameArray, $installURL) {
         //connect to db and set up variables
         $con = mysqli_connect($dbInfo['host'],$dbInfo['user'],$dbInfo['pass'],$dbInfo['name']);
         $con->set_charset("utf8");
@@ -385,11 +386,11 @@ class ExodusHelperController extends Controller {
                 //Save field
                 $layout['fields'][$newFlid] = $field;
                 $fieldMod = $newForm->getFieldModel($field['type']);
-                $fieldMod->addDatabaseColumn($newForm->id, $newFlid, $newOpts);
+                $fieldMod->addDatabaseColumn($newForm->id, $newFlid);
 
                 //Makes legacy file field for
                 if($fieldMod instanceof FileTypeField) {
-                    $fieldMod->addDatabaseColumn($newForm->id, "legacy_$newFlid", $newOpts);
+                    $fieldMod->addDatabaseColumn($newForm->id, "legacy_$newFlid");
                 }
 
                 //Builds out the opts for enum field
@@ -549,7 +550,7 @@ class ExodusHelperController extends Controller {
                         $newname = $this->renameFiles($realname);
                         $localname = (string)$fileXML->localName;
                         //URL for accessing file publically
-                        $dataURL = url('files').'/'.$newForm->project_id . '-' . $newForm->id . '-' . $recordDataToSave[$r['id']]['id'].'/';
+                        $dataURL = $installURL.'/'.$newForm->project_id . '-' . $newForm->id . '-' . $recordDataToSave[$r['id']]['id'].'/';
 
                         if($localname!='') {
                             $storageType = 'LaravelStorage'; //TODO:: make this a config once we actually support other storage types
@@ -600,7 +601,7 @@ class ExodusHelperController extends Controller {
                         $newname = $this->renameFiles($realname);
                         $localname = (string)$fileXML->localName;
                         //URL for accessing file publically
-                        $dataURL = url('files').'/'.$newForm->project_id . '-' . $newForm->id . '-' . $recordDataToSave[$r['id']]['id'].'/';
+                        $dataURL = $installURL.'/'.$newForm->project_id . '-' . $newForm->id . '-' . $recordDataToSave[$r['id']]['id'].'/';
 
                         if($localname!='') {
                             $storageType = 'LaravelStorage'; //TODO:: make this a config once we actually support other storage types

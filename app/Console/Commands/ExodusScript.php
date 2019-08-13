@@ -28,7 +28,7 @@ class ExodusScript extends Command {
      *
      * @var string
      */
-    protected $signature = 'kora:exodus {dbhost} {dbuser} {dbname} {dbpass} {project} {fileDir}';
+    protected $signature = 'kora:exodus {dbhost} {dbuser} {dbname} {dbpass} {project} {fileDir} {installURL}';
 
     /**
      * The console command description.
@@ -66,6 +66,9 @@ class ExodusScript extends Command {
         $request->migrateTokens = false;
         $request->projects = $this->argument('project');
         $request->filePath = $this->argument('fileDir');
+        //Command line doesn't know the installtion url, so gives us a way to tell it (i.e. https://www.mykora.com/files)
+        $request->installURL = $this->argument('installURL');
+
 
         //Call Exodus function
         $ec = new ExodusController();
