@@ -81,7 +81,7 @@ class Search {
             case self::SEARCH_OR:
                 //foreach args
                 foreach($this->keys as $arg) {
-                    if(!$customWildcards)
+                    if(!$customWildcards && $arg!="")
                         $arg = "%$arg%";
 
                     //search the fields
@@ -103,7 +103,7 @@ class Search {
 
                 //foreach args
                 foreach($this->keys as $arg) {
-                    if(!$customWildcards)
+                    if(!$customWildcards && $arg!="")
                         $arg = "%$arg%";
 
                     $set = array();
