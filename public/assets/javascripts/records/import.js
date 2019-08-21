@@ -53,7 +53,6 @@ Kora.Records.Import = function () {
                 fd.append("fid", fidForFormData);
                 fd.append('_token', CSRFToken);
 
-                // todo::after this call function to do connections
                 $.ajax({
                     url: matchUpFieldsUrl,
                     type: 'POST',
@@ -119,89 +118,94 @@ Kora.Records.Import = function () {
                             var kids = [];
                             var connections = {};
 
+                            //Initialize throttler to prevent
+                            var throttle = throttledQueue(75, 5000);
+
                             //foreach record in the dataset
                             for (var kid in importRecs) {
                                 // skip loop if the property is from prototype
                                 if (!importRecs.hasOwnProperty(kid)) continue;
+                                
+                                throttle(function() {
+                                    //ajax to store record
+                                    $.ajax({
+                                        url: importRecordUrl,
+                                        type: 'POST',
+                                        data: {
+                                            "_token": CSRFToken,
+                                            "record": JSON.stringify(importRecs[kid]),
+                                            "kid": kid,
+                                            "table": JSON.stringify(table),
+                                            "type": importType
+                                        },
+                                        local_kid: kid,
+                                        impType: importType,
+                                        success: function (data) {
+                                            //building connections
+                                            kids.push(data['kid']);
+                                            if (data['kidConnection'].length != 0) connections[data['kidConnection']] = data['kid'];
 
-                                //ajax to store record
-                                $.ajax({
-                                    url: importRecordUrl,
-                                    type: 'POST',
-                                    data: {
-                                        "_token": CSRFToken,
-                                        "record": JSON.stringify(importRecs[kid]),
-                                        "kid": kid,
-                                        "table": JSON.stringify(table),
-                                        "type": importType
-                                    },
-                                    local_kid: kid,
-                                    impType: importType,
-                                    success: function (data) {
-                                        //building connections
-                                        kids.push(data['kid']);
-                                        if (data['kidConnection'].length != 0) connections[data['kidConnection']] = data['kid'];
+                                            succ++;
+                                            progressText.text(succ + ' of ' + total + ' Records Submitted');
 
-                                        succ++;
-                                        progressText.text(succ + ' of ' + total + ' Records Submitted');
+                                            done++;
+                                            //update progress bar
+                                            percent = (done / total) * 100;
+                                            if (percent < 7)
+                                                percent = 7;
+                                            progressFill.attr('style', 'width:' + percent + '%');
+                                            progressText.text(succ + ' of ' + total + ' Records Submitted');
 
-                                        done++;
-                                        //update progress bar
-                                        percent = (done / total) * 100;
-                                        if(percent < 7)
-                                            percent = 7;
-                                        progressFill.attr('style', 'width:' + percent + '%');
-                                        progressText.text(succ + ' of ' + total + ' Records Submitted');
+                                            if (done == total) {
+                                                $('.progress-text-js').html('Connecting cross-Form associations. One moment...');
+                                                if (connections && kids) {
+                                                    $.ajax({
+                                                        url: connectRecordsUrl,
+                                                        type: 'POST',
+                                                        data: {
+                                                            "_token": CSRFToken,
+                                                            "connections": JSON.stringify(connections),
+                                                            "kids": JSON.stringify(kids)
+                                                        }, success: function (data) {
+                                                            failedConnections = JSON.parse(data);
+                                                            completeImport(succ, total, this.impType);
+                                                        }
+                                                    });
+                                                } else
+                                                    completeImport(succ, total, this.impType);
+                                            }
+                                        },
+                                        error: function (data) {
+                                            failedRecords.push([this.local_kid, importRecs[this.local_kid], data]);
 
-                                        if(done == total) {
-                                            $('.progress-text-js').html('Connecting cross-Form associations. One moment...');
-                                            if (connections && kids) {
-                                                $.ajax({
-                                                    url: connectRecordsUrl,
-                                                    type: 'POST',
-                                                    data: {
-                                                        "_token": CSRFToken,
-                                                        "connections": JSON.stringify(connections),
-                                                        "kids": JSON.stringify(kids)
-                                                    }, success: function (data) {
-                                                        failedConnections = JSON.parse(data);
-                                                        completeImport(succ, total, this.impType);
-                                                    }
-                                                });
-                                            } else
-                                                completeImport(succ, total, this.impType);
+                                            done++;
+                                            //update progress bar
+                                            percent = (done / total) * 100;
+                                            if (percent < 7)
+                                                percent = 7;
+                                            progressFill.attr('style', 'width:' + percent + '%');
+                                            progressText.text(succ + ' of ' + total + ' Records Submitted');
+
+                                            if (done == total) {
+                                                $('.progress-text-js').html('Connecting cross-Form associations. One moment...');
+                                                if (connections && kids) {
+                                                    $.ajax({
+                                                        url: connectRecordsUrl,
+                                                        type: 'POST',
+                                                        data: {
+                                                            "_token": CSRFToken,
+                                                            "connections": JSON.stringify(connections),
+                                                            "kids": JSON.stringify(kids)
+                                                        }, success: function (data) {
+                                                            failedConnections = JSON.parse(data);
+                                                            completeImport(succ, total, this.impType);
+                                                        }
+                                                    });
+                                                } else
+                                                    completeImport(succ, total, this.impType);
+                                            }
                                         }
-                                    },
-                                    error: function (data) {
-                                        failedRecords.push([this.local_kid, importRecs[this.local_kid], data]);
-
-                                        done++;
-                                        //update progress bar
-                                        percent = (done / total) * 100;
-                                        if(percent < 7)
-                                            percent = 7;
-                                        progressFill.attr('style', 'width:' + percent + '%');
-                                        progressText.text(succ + ' of ' + total + ' Records Submitted');
-
-                                        if(done == total) {
-                                            $('.progress-text-js').html('Connecting cross-Form associations. One moment...');
-                                            if (connections && kids) {
-                                                $.ajax({
-                                                    url: connectRecordsUrl,
-                                                    type: 'POST',
-                                                    data: {
-                                                        "_token": CSRFToken,
-                                                        "connections": JSON.stringify(connections),
-                                                        "kids": JSON.stringify(kids)
-                                                    }, success: function (data) {
-                                                        failedConnections = JSON.parse(data);
-                                                        completeImport(succ, total, this.impType);
-                                                    }
-                                                });
-                                            } else
-                                                completeImport(succ, total, this.impType);
-                                        }
-                                    }
+                                    });
                                 });
                             }
                         });
