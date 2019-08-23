@@ -194,11 +194,8 @@ Kora.Records.ImportMF = function () {
                             var importType = data[fid]['type'];
 
                             //foreach record in the dataset
-                            for (var kid in importRecs) {
-                                // skip loop if the property is from prototype
-                                if (!importRecs.hasOwnProperty(kid)) continue;
-
-                                throttle({ "kid": kid, "fid": fid, "type": importType, "record": importRecs[kid], "table": table }, function(importData) {
+                            for (var import_id in importRecs) {
+                                throttle({ "import_id": import_id, "fid": fid, "type": importType, "record": importRecs[import_id], "table": table }, function(importData) {
                                     //ajax to store record
                                     $.ajax({
                                         url: importRecordUrl,
@@ -207,7 +204,7 @@ Kora.Records.ImportMF = function () {
                                             "_token": CSRFToken,
                                             "fid": importData["fid"],
                                             "record": JSON.stringify(importData["record"]),
-                                            "kid": importData["kid"],
+                                            "import_id": importData["import_id"],
                                             "table": JSON.stringify(importData["table"]),
                                             "type": importData["type"]
                                         },
@@ -256,7 +253,7 @@ Kora.Records.ImportMF = function () {
                                                 type: 'POST',
                                                 data: {
                                                     "_token": CSRFToken,
-                                                    "failure": JSON.stringify([importData["kid"], importData["record"], data]),
+                                                    "failure": JSON.stringify([importData["import_id"], importData["record"], data]),
                                                     "type": importData["type"]
                                                 }, success: function (data) {
                                                     //

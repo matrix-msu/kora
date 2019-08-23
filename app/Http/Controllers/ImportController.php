@@ -98,8 +98,8 @@ class ImportController extends Controller {
             case self::JSON:
                 $json = json_decode(file_get_contents($request->file('records')), true);
 
-                foreach($json as $kid => $record) {
-                    $recordObjs[$kid] = $record;
+                foreach($json as $id => $record) {
+                    $recordObjs[$id] = $record;
                     foreach(array_keys($record) as $field) {
                         array_push($tagNames, $field);
                     }
@@ -109,8 +109,8 @@ class ImportController extends Controller {
             case self::CSV:
                 $csv = parseCSV($request->file('records'));
 
-                foreach($csv as $kid => $record) {
-                    $recordObjs[$kid] = $record;
+                foreach($csv as $id => $record) {
+                    $recordObjs[$id] = $record;
                     foreach(array_keys($record) as $field) {
                         array_push($tagNames, $field);
                     }
@@ -226,10 +226,6 @@ class ImportController extends Controller {
         if($request->type==self::XML) {
             $record = simplexml_load_string($record);
 
-            $originKid = $record->attributes()->kid;
-            if(!is_null($originKid))
-                $recRequest->query->add(['originRid' => explode('-', $originKid)[2]]);
-
             foreach($record->children() as $key => $field) {
                 //Just in case there are extra/unused tags in the XML
                 if(!array_key_exists($key,$matchup))
@@ -243,7 +239,7 @@ class ImportController extends Controller {
                 if($matchup[$key] == 'reverseAssociations') {
                     if(empty($field->Record))
                         return response()->json(["status"=>false,"message"=>"xml_validation_error",
-                            "record_validation_error"=>[$request->kid => "$matchup[$key] format is incorrect for applying reverse associations"]],500);
+                            "record_validation_error"=>[$request->import_id => "$matchup[$key] format is incorrect for applying reverse associations"]],500);
                     $rFinal = [];
                     foreach($field->Record as $rAssoc) {
                         $rFinal[(string)$rAssoc['field']][] = (string)$rAssoc;
@@ -260,16 +256,12 @@ class ImportController extends Controller {
                 $flid = $matchup[$key];
                 if(!isset($form->layout['fields'][$flid]))
                     return response()->json(["status"=>false,"message"=>"xml_validation_error",
-                        "record_validation_error"=>[$request->kid => "Invalid provided field, $flid"]],500);
+                        "record_validation_error"=>[$request->import_id => "Invalid provided field, $flid"]],500);
                 $fieldMod = $form->layout['fields'][$flid];
                 $typedField = $form->getFieldModel($fieldMod['type']);
                 $recRequest = $typedField->processImportDataXML($flid,$fieldMod,$field,$recRequest);
             }
         } else if($request->type==self::JSON) {
-            $originKid = $request->kid;
-            if(Record::isKIDPattern($originKid))
-                $recRequest->query->add(['originRid' => explode('-', $originKid)[2]]);
-
             foreach($record as $key => $field) {
                 //Just in case there are extra/unused fields in the JSON
                 if(!array_key_exists($key,$matchup))
@@ -297,10 +289,6 @@ class ImportController extends Controller {
                 $recRequest = $typedField->processImportData($flid,$fieldMod,$field,$recRequest);
             }
         } else if($request->type==self::CSV) {
-            $originKid = $request->kid;
-            if(Record::isKIDPattern($originKid))
-                $recRequest->query->add(['originRid' => explode('-', $originKid)[2]]);
-
             foreach($record as $key => $field) {
                 //Just in case there are extra/unused fields in the JSON
                 if(!array_key_exists($key,$matchup))
@@ -415,7 +403,7 @@ class ImportController extends Controller {
         //Get the actual record data
         if($request->type==self::JSON | $request->type==self::XML)
             $record = $failedRecord[1];
-        else if($request->type=='CSV') {
+        else if($request->type==self::CSV) {
             $values = [];
             $keys = [];
             foreach($failedRecord[1] as $key => $value) {
@@ -449,20 +437,19 @@ class ImportController extends Controller {
             ->orderBy('reference_id','asc')->get();
         $form = FormController::getForm($fid);
 
-        if($request->type=='JSON')
+        if($request->type==self::JSON)
             $records = [];
-        else if($request->type=='XML')
+        else if($request->type==self::XML)
             $records = '<?xml version="1.0" encoding="utf-8"?><Records>';
-        else if($request->type=='CSV') {
+        else if($request->type==self::CSV)
             $records = '';
-        }
 
         foreach($failedRecords as $failedRecord) {
-            if($request->type=='JSON')
-                $records[] = $failedRecord->record;
-            else if($request->type=='XML')
-                $records .= $failedRecord->record;
-            else if($request->type=='CSV') {
+            if($request->type==self::JSON)
+                $records[] = json_decode($failedRecord->record,true);
+            else if($request->type==self::XML)
+                $records .= trim($failedRecord->record,'"');
+            else if($request->type==self::CSV) {
                 //Add key row to the CSV if it hasn't been already
                 if($records == '')
                     $records = json_decode($failedRecord->record,true)['keys'];
@@ -471,13 +458,13 @@ class ImportController extends Controller {
             }
         }
 
-        if($request->type=='JSON') {
+        if($request->type==self::JSON) {
             header("Content-Disposition: attachment; filename=" . $form->name . '_failedImports.json');
             header("Content-Type: application/octet-stream; ");
 
             echo json_encode($records);
             exit;
-        } else if($request->type=='XML') {
+        } else if($request->type==self::XML) {
             $records .= '</Records>';
 
             header("Content-Disposition: attachment; filename=" . $form->name . '_failedImports.xml');
@@ -485,7 +472,7 @@ class ImportController extends Controller {
 
             echo $records;
             exit;
-        } else if($request->type=='CSV') {
+        } else if($request->type==self::CSV) {
             //Strip off last newline character
             $records = rtrim($records);
 
