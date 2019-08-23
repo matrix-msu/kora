@@ -1,0 +1,36 @@
+{
+  "name": "throttled-queue",
+  "version": "1.0.7",
+  "description": "Throttles arbitrary code to execute a maximum number of times per interval. Best for making throttled API requests.",
+  "main": "throttled-queue.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "./node_modules/mocha/bin/mocha --recursive --timeout 200000"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/shaunpersad/throttled-queue.git"
+  },
+  "keywords": [
+    "node",
+    "rate limit",
+    "queue",
+    "throttle",
+    "throttled",
+    "request"
+  ],
+  "author": "Shaun Persad <shaunpersad@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/shaunpersad/throttled-queue/issues"
+  },
+  "devDependencies": {
+    "gulp": "^3.9.1",
+    "gulp-concat": "^2.6.0",
+    "gulp-rename": "^1.2.2",
+    "gulp-uglify": "^1.5.2",
+    "mocha": "^2.4.5"
+  }
+}

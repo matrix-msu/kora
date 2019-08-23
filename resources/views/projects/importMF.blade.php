@@ -152,6 +152,7 @@
         var importRecordUrl = '{{ url('projects/'.$project->id.'/importMFRecord') }}';
         var connectRecordsUrl = '{{ action('ImportMultiFormController@connectRecords',['pid'=>$project->id]) }}';;
         var viewRecordsUrl = '{{ url('projects/'.$project->id) }}';
+        var saveFailedUrl = '{{ action('ImportController@saveImportFailure',['pid'=>$project->id,'fid'=>'']) }}';
         var downloadFailedUrl = '{{ action('ImportMultiFormController@downloadFailedRecords',['pid'=>$project->id]) }}';
         var downloadReasonsUrl = '{{ action('ImportMultiFormController@downloadFailedReasons',['pid'=>$project->id]) }}';
         var downloadConnectionUrl = '{{ action('ImportMultiFormController@downloadFailedConnections',['pid'=>$project->id]) }}';

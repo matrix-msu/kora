@@ -9,6 +9,7 @@ use App\User;
 use App\Record;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\View\View;
 use RecursiveIteratorIterator;
@@ -644,6 +645,7 @@ class RecordController extends Controller {
             return redirect('projects/'.$pid.'/forms/'.$fid)->with('k3_global_error', 'cant_create_records');
 
         $form = FormController::getForm($fid);
+        Auth::user()->clearFailedImportRecords();
 
         return view('records.import',compact('form','pid','fid'));
     }
