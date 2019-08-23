@@ -5,7 +5,6 @@ Kora.Records.Import = function () {
     var droppedRecord
     var droppedFile
 
-    var failedRecords = [];
     var failedConnections = [];
 
     function initializeFormProgression() {
@@ -125,21 +124,20 @@ Kora.Records.Import = function () {
                             for (var kid in importRecs) {
                                 // skip loop if the property is from prototype
                                 if (!importRecs.hasOwnProperty(kid)) continue;
-                                
-                                throttle(function() {
+
+                                throttle({ "kid": kid, "type": importType, "record": importRecs[kid], "table": table }, function(importData) {
                                     //ajax to store record
                                     $.ajax({
                                         url: importRecordUrl,
                                         type: 'POST',
                                         data: {
                                             "_token": CSRFToken,
-                                            "record": JSON.stringify(importRecs[kid]),
-                                            "kid": kid,
-                                            "table": JSON.stringify(table),
-                                            "type": importType
+                                            "record": JSON.stringify(importData["record"]),
+                                            "kid": importData["kid"],
+                                            "table": JSON.stringify(importData["table"]),
+                                            "type": importData["type"]
                                         },
-                                        local_kid: kid,
-                                        impType: importType,
+                                        importData: importData,
                                         success: function (data) {
                                             //building connections
                                             kids.push(data['kid']);
@@ -172,11 +170,21 @@ Kora.Records.Import = function () {
                                                         }
                                                     });
                                                 } else
-                                                    completeImport(succ, total, this.impType);
+                                                    completeImport(succ, total, importData["type"]);
                                             }
                                         },
                                         error: function (data) {
-                                            failedRecords.push([this.local_kid, importRecs[this.local_kid], data]);
+                                            $.ajax({
+                                                url: saveFailedUrl,
+                                                type: 'POST',
+                                                data: {
+                                                    "_token": CSRFToken,
+                                                    "failure": JSON.stringify([importData["kid"], importData["record"], data]),
+                                                    "type": importData["type"]
+                                                }, success: function (data) {
+                                                    //
+                                                }
+                                            });
 
                                             done++;
                                             //update progress bar
@@ -198,7 +206,7 @@ Kora.Records.Import = function () {
                                                             "kids": JSON.stringify(kids)
                                                         }, success: function (data) {
                                                             failedConnections = JSON.parse(data);
-                                                            completeImport(succ, total, this.impType);
+                                                            completeImport(succ, total, importData["type"]);
                                                         }
                                                     });
                                                 } else
@@ -270,24 +278,13 @@ Kora.Records.Import = function () {
             e.preventDefault();
 
             var $recForm = $('.records-form-js');
-
-            var input = $("<input>")
-                .attr("type", "hidden")
-                .attr("name", "failures").val(JSON.stringify(failedRecords));
-            $recForm.append($(input));
-
             $recForm.submit();
         });
 
         $('.button-container-js').on('click', '.failed-reasons-js', function (e) {
             e.preventDefault();
+
             var $recForm = $('.reasons-form-js');
-
-            var input = $("<input>")
-                .attr("type", "hidden")
-                .attr("name", "failures").val(JSON.stringify(failedRecords));
-            $recForm.append($(input));
-
             $recForm.submit();
         });
 

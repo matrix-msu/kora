@@ -457,6 +457,13 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
     }
 
     /**
+     * Before beginning record import, delete any belonging to this user.
+     */
+    public function clearFailedImportRecords() {
+        DB::table('failed_records')->where('user_id','=',$this->id)->delete();
+    }
+
+    /**
      * Returns true if a user is in any of a form's form groups, false if not.
      *
      * @param Form $form - Form to check permissions

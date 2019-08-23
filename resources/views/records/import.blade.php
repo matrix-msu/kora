@@ -136,6 +136,7 @@
         var importRecordUrl = '{{ action('ImportController@importRecord',['pid'=>$form->project_id,'fid'=>$form->id]) }}';
         var connectRecordsUrl = '{{ action('ImportController@connectRecords',['pid'=>$form->project_id,'fid'=>$form->id]) }}';
         var viewRecordsUrl = '{{ action('RecordController@index',['pid' => $form->project_id, 'fid' => $form->id]) }}';
+        var saveFailedUrl = '{{ action('ImportController@saveImportFailure',['pid'=>$form->project_id,'fid'=>$form->id]) }}';
         var downloadFailedUrl = '{{ action('ImportController@downloadFailedRecords',['pid'=>$form->project_id,'fid'=>$form->id]) }}';
         var downloadReasonsUrl = '{{ action('ImportController@downloadFailedReasons',['pid'=>$form->project_id,'fid'=>$form->id]) }}';
         var downloadConnectionUrl = '{{ action('ImportController@downloadFailedConnections',['pid'=>$form->project_id,'fid'=>$form->id]) }}';

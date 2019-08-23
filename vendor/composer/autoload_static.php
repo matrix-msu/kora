@@ -135,7 +135,6 @@ class ComposerStaticInit23979a8a3fb78b4f78e5f7913c5439a2
         ),
         'C' => 
         array (
-            'CsvParser\\' => 10,
             'Cron\\' => 5,
             'Collective\\Html\\' => 16,
             'Clue\\StreamFilter\\' => 18,
@@ -383,10 +382,6 @@ class ComposerStaticInit23979a8a3fb78b4f78e5f7913c5439a2
         array (
             0 => __DIR__ . '/..' . '/myclabs/deep-copy/src/DeepCopy',
         ),
-        'CsvParser\\' => 
-        array (
-            0 => __DIR__ . '/..' . '/stilliard/csvparser/src',
-        ),
         'Cron\\' => 
         array (
             0 => __DIR__ . '/..' . '/dragonmantank/cron-expression/src/Cron',
@@ -481,6 +476,7 @@ class ComposerStaticInit23979a8a3fb78b4f78e5f7913c5439a2
         'App\\Commands\\ProjectEmails' => __DIR__ . '/../..' . '/app/Commands/ProjectEmails.php',
         'App\\Commands\\UserEmails' => __DIR__ . '/../..' . '/app/Commands/UserEmails.php',
         'App\\Console\\Commands\\ExodusScript' => __DIR__ . '/../..' . '/app/Console/Commands/ExodusScript.php',
+        'App\\Console\\Commands\\FileUrlFix' => __DIR__ . '/../..' . '/app/Console/Commands/FileUrlFix.php',
         'App\\Console\\Commands\\GenerateThumbs' => __DIR__ . '/../..' . '/app/Console/Commands/GenerateThumbs.php',
         'App\\Console\\Commands\\Inspire' => __DIR__ . '/../..' . '/app/Console/Commands/Inspire.php',
         'App\\Console\\Commands\\InstallKora' => __DIR__ . '/../..' . '/app/Console/Commands/InstallKora.php',
@@ -601,6 +597,7 @@ class ComposerStaticInit23979a8a3fb78b4f78e5f7913c5439a2
         'CreateDashboardTable' => __DIR__ . '/../..' . '/database/migrations/2017_00_00_000000_CreateDashboardTable.php',
         'CreateExodusTable' => __DIR__ . '/../..' . '/database/migrations/2017_00_00_000000_CreateExodusTable.php',
         'CreateFailedJobsTable' => __DIR__ . '/../..' . '/database/migrations/2018_00_00_000000_CreateFailedJobsTable.php',
+        'CreateFailedRecordsTable' => __DIR__ . '/../..' . '/database/migrations/2019_00_00_000000_CreateFailedRecordsTable.php',
         'CreateFieldValuePresetsTable' => __DIR__ . '/../..' . '/database/migrations/2017_00_00_000000_CreateFieldValuePresetsTable.php',
         'CreateFormCustomTable' => __DIR__ . '/../..' . '/database/migrations/2017_00_00_000000_CreateFormCustomTable.php',
         'CreateFormGroupsTable' => __DIR__ . '/../..' . '/database/migrations/2017_00_00_000000_CreateFormGroupsTable.php',
@@ -685,18 +682,6 @@ class ComposerStaticInit23979a8a3fb78b4f78e5f7913c5439a2
         'CssVariablesMinifierFilter' => __DIR__ . '/..' . '/natxet/CssMin/src/CssMin.php',
         'CssVariablesMinifierPlugin' => __DIR__ . '/..' . '/natxet/CssMin/src/CssMin.php',
         'CssWhitesmithsFormatter' => __DIR__ . '/..' . '/natxet/CssMin/src/CssMin.php',
-        'CsvParser\\Csv' => __DIR__ . '/..' . '/stilliard/csvparser/src/Csv.php',
-        'CsvParser\\Exception' => __DIR__ . '/..' . '/stilliard/csvparser/src/Exception.php',
-        'CsvParser\\Parser' => __DIR__ . '/..' . '/stilliard/csvparser/src/Parser.php',
-        'CsvParser\\Reader\\ArrayReader' => __DIR__ . '/..' . '/stilliard/csvparser/src/Reader/ArrayReader.php',
-        'CsvParser\\Reader\\FileReader' => __DIR__ . '/..' . '/stilliard/csvparser/src/Reader/FileReader.php',
-        'CsvParser\\Reader\\ReaderInterface' => __DIR__ . '/..' . '/stilliard/csvparser/src/Reader/ReaderInterface.php',
-        'CsvParser\\Reader\\StringReader' => __DIR__ . '/..' . '/stilliard/csvparser/src/Reader/StringReader.php',
-        'CsvParser\\Writer\\ArrayWriter' => __DIR__ . '/..' . '/stilliard/csvparser/src/Writer/ArrayWriter.php',
-        'CsvParser\\Writer\\ChunksWriter' => __DIR__ . '/..' . '/stilliard/csvparser/src/Writer/ChunksWriter.php',
-        'CsvParser\\Writer\\FileWriter' => __DIR__ . '/..' . '/stilliard/csvparser/src/Writer/FileWriter.php',
-        'CsvParser\\Writer\\StringWriter' => __DIR__ . '/..' . '/stilliard/csvparser/src/Writer/StringWriter.php',
-        'CsvParser\\Writer\\WriterInterface' => __DIR__ . '/..' . '/stilliard/csvparser/src/Writer/WriterInterface.php',
         'DatabaseSeeder' => __DIR__ . '/../..' . '/database/seeds/DatabaseSeeder.php',
         'DeepCopy\\DeepCopy' => __DIR__ . '/..' . '/myclabs/deep-copy/src/DeepCopy/DeepCopy.php',
         'DeepCopy\\Exception\\CloneException' => __DIR__ . '/..' . '/myclabs/deep-copy/src/DeepCopy/Exception/CloneException.php',

@@ -4,7 +4,6 @@ Kora.Records = Kora.Records || {};
 Kora.Records.ImportMF = function () {
     var droppedFile
 
-    var failedRecords = [];
     var failedConnections = [];
 
     function initializeSelects() {
@@ -199,20 +198,20 @@ Kora.Records.ImportMF = function () {
                                 // skip loop if the property is from prototype
                                 if (!importRecs.hasOwnProperty(kid)) continue;
 
-                                throttle(function() {
+                                throttle({ "kid": kid, "fid": fid, "type": importType, "record": importRecs[kid], "table": table }, function(importData) {
                                     //ajax to store record
                                     $.ajax({
                                         url: importRecordUrl,
                                         type: 'POST',
                                         data: {
                                             "_token": CSRFToken,
-                                            "fid": fid,
-                                            "record": JSON.stringify(importRecs[kid]),
-                                            "kid": kid,
-                                            "table": JSON.stringify(table),
-                                            "type": importType
+                                            "fid": importData["fid"],
+                                            "record": JSON.stringify(importData["record"]),
+                                            "kid": importData["kid"],
+                                            "table": JSON.stringify(importData["table"]),
+                                            "type": importData["type"]
                                         },
-                                        local_kid: kid,
+                                        importData: importData,
                                         success: function (data) {
                                             //building connections
                                             kids.push(data['kid']);
@@ -242,15 +241,27 @@ Kora.Records.ImportMF = function () {
                                                             "fids": fids
                                                         }, success: function (data) {
                                                             failedConnections = JSON.parse(data);
-                                                            finishImport(succ, total, importType);
+                                                            finishImport(succ, total, importData["type"]);
                                                         }
                                                     });
                                                 } else
-                                                    finishImport(succ, total, importType);
+                                                    finishImport(succ, total, importData["type"]);
                                             }
                                         },
                                         error: function (data) {
-                                            failedRecords.push([this.local_kid, importRecs[this.local_kid], data]);
+                                            //Need to manually add this records form ID to the route
+                                            var formSaveURL = saveFailedUrl.replace('forms//','forms/'+importData["fid"]+'/');
+                                            $.ajax({
+                                                url: formSaveURL,
+                                                type: 'POST',
+                                                data: {
+                                                    "_token": CSRFToken,
+                                                    "failure": JSON.stringify([importData["kid"], importData["record"], data]),
+                                                    "type": importData["type"]
+                                                }, success: function (data) {
+                                                    //
+                                                }
+                                            });
 
                                             done++;
                                             //update progress bar
@@ -273,11 +284,11 @@ Kora.Records.ImportMF = function () {
                                                             "fids": fids
                                                         }, success: function (data) {
                                                             failedConnections = JSON.parse(data);
-                                                            finishImport(succ, total, importType);
+                                                            finishImport(succ, total, importData["type"]);
                                                         }
                                                     });
                                                 } else
-                                                    finishImport(succ, total, importType);
+                                                    finishImport(succ, total, importData["type"]);
                                             }
                                         }
                                     });
@@ -345,24 +356,13 @@ Kora.Records.ImportMF = function () {
             e.preventDefault();
 
             var $recForm = $('.records-form-js');
-
-            var input = $("<input>")
-                .attr("type", "hidden")
-                .attr("name", "failures").val(JSON.stringify(failedRecords));
-            $recForm.append($(input));
-
             $recForm.submit();
         });
 
         $('.button-container-js').on('click', '.failed-reasons-js', function (e) {
             e.preventDefault();
+
             var $recForm = $('.reasons-form-js');
-
-            var input = $("<input>")
-                .attr("type", "hidden")
-                .attr("name", "failures").val(JSON.stringify(failedRecords));
-            $recForm.append($(input));
-
             $recForm.submit();
         });
 

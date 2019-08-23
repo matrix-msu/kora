@@ -4,6 +4,8 @@ use App\FieldHelpers\UploadHandler;
 use App\Form;
 use App\Record;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 
 class ImportMultiFormController extends Controller {
@@ -71,6 +73,8 @@ class ImportMultiFormController extends Controller {
         foreach($formObjs as $obj) {
             $forms[$obj->id] = $obj->name;
         }
+
+        Auth::user()->clearFailedImportRecords();
 
         return view('projects.importMF',compact('project','forms'));
     }
@@ -480,59 +484,71 @@ class ImportMultiFormController extends Controller {
      * @param  Request $request
      */
     public function downloadFailedRecords($pid, Request $request) {
-        $failedRecords = json_decode($request->failures);
+        $failedRecords = DB::table('failed_records')->where('user_id','=',Auth::user()->id)
+            ->orderBy('form_id','asc')->orderBy('reference_id','asc')->get();
         $project = ProjectController::getProject($pid);
 
-        if($request->type=='JSON')
-            $records = [];
-        else if($request->type=='XML')
-            $records = '<?xml version="1.0" encoding="utf-8"?><Records>';
-        else if($request->type=='CSV') {
-            $keys = [];
-            foreach($failedRecords[0][1] as $key => $value) {
-                $keys[] = $key;
+        $records = [];
+        foreach($project->forms()->get() as $form) {
+            if($request->type=='JSON')
+                $records[$form->id] = [];
+            else if($request->type=='XML')
+                $records[$form->id] = '<?xml version="1.0" encoding="utf-8"?><Records>';
+            else if($request->type=='CSV') {
+                $records[$form->id] = '';
             }
-            $records = implode(',',$keys)."\n";
         }
 
-        foreach($failedRecords as $element) {
+        foreach($failedRecords as $failedRecord) {
             if($request->type=='JSON')
-                $records[$element[0]] = $element[1];
+                $records[$failedRecord->form_id][] = $failedRecord->record;
             else if($request->type=='XML')
-                $records .= $element[1];
+                $records[$failedRecord->form_id] .= $failedRecord->record;
             else if($request->type=='CSV') {
-                $values = [];
-                foreach($failedRecords[0][1] as $key => $value) {
-                    //Escape values before we report them back
-                    $value = str_replace('"','""',$value);
-                    $values[] = '"'.$value.'"';
-                }
-                $records .= implode(',',$values)."\n";
+                //Add key row to the CSV if it hasn't been already
+                if($records[$failedRecord->form_id] == '')
+                    $records[$failedRecord->form_id] .= json_decode($failedRecord->record,true)['keys'];
+
+                $records[$failedRecord->form_id] .= json_decode($failedRecord->record,true)['value'];
             }
         }
 
         if($request->type=='JSON') {
+            $final = '';
+            foreach($records as $fid => $set) {
+                if($final == '')
+                    $final .= json_encode($set);
+                else
+                    $final .= "\n\n\n".json_encode($set);
+            }
+
             header("Content-Disposition: attachment; filename=" . $project->name . '_failedImports.json');
             header("Content-Type: application/octet-stream; ");
 
-            echo json_encode($records);
+            echo $final;
             exit;
         } else if($request->type=='XML') {
-            $records .= '</Records>';
+            $final = '';
+            foreach($records as $fid => $set) {
+                if($final == '')
+                    $final .= $set.'</Records>';
+                else
+                    $final .= "\n\n\n".$set.'</Records>';
+            }
 
             header("Content-Disposition: attachment; filename=" . $project->name . '_failedImports.xml');
             header("Content-Type: application/octet-stream; ");
 
-            echo $records;
+            echo $final;
             exit;
         } else if($request->type=='CSV') {
             //Strip off last newline character
-            $records = rtrim($records);
+            $final = rtrim(implode("\n\n", $records));
 
             header("Content-Disposition: attachment; filename=" . $project->name . '_failedImports.csv');
             header("Content-Type: application/octet-stream; ");
 
-            echo $records;
+            echo $final;
             exit;
         }
     }
@@ -544,22 +560,13 @@ class ImportMultiFormController extends Controller {
      * @param  Request $request
      */
     public function downloadFailedReasons($pid, Request $request) {
-        $failedRecords = json_decode($request->failures);
+        $failedRecords = DB::table('failed_records')->where('user_id','=',Auth::user()->id)
+            ->orderBy('form_id','asc')->orderBy('reference_id','asc')->get();
         $project = ProjectController::getProject($pid);
 
         $messages = [];
-
         foreach($failedRecords as $element) {
-            $id = $element[0];
-            if(isset($element[2]->responseJSON->record_validation_error)) {
-                $messageArray = $element[2]->responseJSON->record_validation_error;
-                foreach($messageArray as $message) {
-                    if($message != '' && $message != ' ')
-                        $messages[$id] = $message;
-                }
-            } else {
-                $messages[$id] = "Unable to determine error. This is usually caused by a structure issue in your CSV/XML/JSON, or an unexpected bug in kora.";
-            }
+            $messages[$element->form_id][$element->reference_id] = $element->error_text;
         }
 
         header("Content-Disposition: attachment; filename=" . $project->name . '_importExplain.json');

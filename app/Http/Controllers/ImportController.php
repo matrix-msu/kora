@@ -9,6 +9,8 @@ use App\ProjectGroup;
 use App\Record;
 use App\RecordPreset;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
 
 class ImportController extends Controller {
@@ -386,6 +388,56 @@ class ImportController extends Controller {
     }
 
     /**
+     * Downloads the file with the reasons why records failed.
+     *
+     * @param  int $pid - Project ID
+     * @param  int $fid - Form ID
+     * @param  Request $request
+     */
+    public function saveImportFailure($pid, $fid, Request $request) {
+        $failedRecord = json_decode($request->failure);
+
+        //Set up and capture the reason
+        $userID = Auth::user()->id;
+        $referenceID = $failedRecord[0];
+        if(isset($failedRecord[2]->responseJSON->record_validation_error)) {
+            $messageArray = $failedRecord[2]->responseJSON->record_validation_error;
+            foreach($messageArray as $message) {
+                if($message != '' && $message != ' ')
+                    $errorText = $message;
+                else
+                    $errorText = "Unable to determine error. This is usually caused by a structure issue in your CSV/XML/JSON, or an unexpected bug in kora.";
+            }
+        } else {
+            $errorText = "Unable to determine error. This is usually caused by a structure issue in your CSV/XML/JSON, or an unexpected bug in kora.";
+        }
+
+        //Get the actual record data
+        if($request->type==self::JSON | $request->type==self::XML)
+            $record = $failedRecord[1];
+        else if($request->type=='CSV') {
+            $values = [];
+            $keys = [];
+            foreach($failedRecord[1] as $key => $value) {
+                //Escape values before we report them back
+                $value = str_replace('"','""',$value);
+                $values[] = '"'.$value.'"';
+                $keys[] = $key;
+            }
+            $record = ['keys'=>implode(',',$keys)."\n", 'value'=>implode(',',$values)."\n"];
+        }
+
+        //Save the failed record to DB
+        DB::table('failed_records')->insert([
+            'user_id' => $userID,
+            'reference_id' => $referenceID,
+            'form_id' => $fid,
+            'error_text' => $errorText,
+            'record' => json_encode($record)
+        ]);
+    }
+
+    /**
      * Downloads the file with all the failed records.
      *
      * @param  int $pid - Project ID
@@ -393,7 +445,8 @@ class ImportController extends Controller {
      * @param  Request $request
      */
     public function downloadFailedRecords($pid, $fid, Request $request) {
-        $failedRecords = json_decode($request->failures);
+        $failedRecords = DB::table('failed_records')->where('user_id','=',Auth::user()->id)->where('form_id','=',$fid)
+            ->orderBy('reference_id','asc')->get();
         $form = FormController::getForm($fid);
 
         if($request->type=='JSON')
@@ -401,26 +454,20 @@ class ImportController extends Controller {
         else if($request->type=='XML')
             $records = '<?xml version="1.0" encoding="utf-8"?><Records>';
         else if($request->type=='CSV') {
-            $keys = [];
-            foreach($failedRecords[0][1] as $key => $value) {
-                $keys[] = $key;
-            }
-            $records = implode(',',$keys)."\n";
+            $records = '';
         }
 
-        foreach($failedRecords as $element) {
+        foreach($failedRecords as $failedRecord) {
             if($request->type=='JSON')
-                $records[$element[0]] = $element[1];
+                $records[] = $failedRecord->record;
             else if($request->type=='XML')
-                $records .= $element[1];
+                $records .= $failedRecord->record;
             else if($request->type=='CSV') {
-                $values = [];
-                foreach($failedRecords[0][1] as $key => $value) {
-                    //Escape values before we report them back
-                    $value = str_replace('"','""',$value);
-                    $values[] = '"'.$value.'"';
-                }
-                $records .= implode(',',$values)."\n";
+                //Add key row to the CSV if it hasn't been already
+                if($records == '')
+                    $records = json_decode($failedRecord->record,true)['keys'];
+
+                $records .= json_decode($failedRecord->record,true)['value'];
             }
         }
 
@@ -458,22 +505,13 @@ class ImportController extends Controller {
      * @param  Request $request
      */
     public function downloadFailedReasons($pid, $fid, Request $request) {
-        $failedRecords = json_decode($request->failures);
+        $failedRecords = DB::table('failed_records')->where('user_id','=',Auth::user()->id)->where('form_id','=',$fid)
+            ->orderBy('reference_id','asc')->get();
         $form = FormController::getForm($fid);
 
         $messages = [];
-
         foreach($failedRecords as $element) {
-            $id = $element[0];
-            if(isset($element[2]->responseJSON->record_validation_error)) {
-                $messageArray = $element[2]->responseJSON->record_validation_error;
-                foreach($messageArray as $message) {
-                    if($message != '' && $message != ' ')
-                        $messages[$id] = $message;
-                }
-            } else {
-                $messages[$id] = "Unable to determine error. This is usually caused by a structure issue in your CSV/XML/JSON, or an unexpected bug in kora.";
-            }
+            $messages[$element->reference_id] = $element->error_text;
         }
 
         header("Content-Disposition: attachment; filename=" . $form->name . '_importExplain.json');

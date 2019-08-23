@@ -63,7 +63,7 @@
 
             var callbacks = queue.splice(0, maxRequestPerInterval);
             for(var x = 0; x < callbacks.length; x++) {
-                callbacks[x]();
+                callbacks[x][0](callbacks[x][1]); //Now pass the temp ID into the callback (See enqueue below)
             }
 
             lastCalled = Date.now();
@@ -74,9 +74,9 @@
             }
         };
 
-        return function enqueue(callback) {
+        return function enqueue(importData, callback) { //Modified to pass imported record's temp ID
 
-            queue.push(callback);
+            queue.push([callback,importData]); //We then store that kid with the ajax call back
             if (!timeout) {
                 timeout = setTimeout(dequeue, interval);
             }
