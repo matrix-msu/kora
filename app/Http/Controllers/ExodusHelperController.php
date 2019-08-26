@@ -505,7 +505,7 @@ class ExodusHelperController extends Controller {
                 //Field info
                 $flid = $oldControlInfo[$r['cid']];
                 $field = $form->layout['fields'][$flid];
-                $value = utf8_encode($r['value']);
+                $value = $r['value'];
 
                 switch($field['type']) {
                     case 'Text':
