@@ -442,8 +442,11 @@ class ExodusHelperController extends Controller {
 
             while($lf = $listRows->fetch_assoc()) {
                 $val = $lf['value'];
-                if(!in_array($val,$opts))
+                if(!in_array($val,$opts)) {
+                    Log::info("Added list option `".(string)$val."` to field, $flid...");
+                    echo "Added list option `".(string)$val."` to field, $flid...\n";
                     $opts[] = (string)$val;
+                }
             }
 
             $tmpLayout['fields'][$flid]['options']['Options'] = $opts;
