@@ -668,6 +668,8 @@ class HistoricalDateField extends BaseField {
      */
     public function displayDate($date, $field) {
         $dateString = '';
+        $date['month'] = $date['month']!='' ? sprintf('%02d', $date['month']) : '';
+        $date['day'] = $date['day']!='' ? sprintf('%02d', $date['day']) : '';
         $date['year'] = sprintf('%04d', $date['year']);
 
         if($date['prefix']!='' && $field['options']['ShowPrefix'])
