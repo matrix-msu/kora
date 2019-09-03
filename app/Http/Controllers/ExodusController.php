@@ -290,7 +290,7 @@ class ExodusController extends Controller {
                         else
                             $shared = 0;
 
-                        $preset = ["name" => $o['name'],"type"=>"Regex","preset"=>$options];
+                        $preset = ["name" => $o['name'],"type"=>"List","preset"=>$options];
                         FieldValuePreset::create(['project_id' => $optionPID, 'preset' => $preset, 'shared' => $shared]);
                     }
                     break;
