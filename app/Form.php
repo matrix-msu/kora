@@ -1423,7 +1423,7 @@ class Form extends Model {
         $records = $con->query($selectRecords);
         while($row = $records->fetch_assoc()) {
             $kid = $row['kid'];
-            $results .= "<Record>";
+            $results .= "<Record kid='$kid'>";
 
             foreach($row as $index => $value) {
                 if($index != 'kid' && !is_null($value))
