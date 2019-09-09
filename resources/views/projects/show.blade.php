@@ -27,6 +27,26 @@
           <span>Unique Project ID:</span>
           <span>{{ $project->internal_name }}</span>
         </p>
+          @if(Auth::user()->isProjectAdmin($project))
+              @php
+                  $i=0;
+                  $count = $projectTokens->count();
+              @endphp
+              @if($count>0)
+                  @foreach($projectTokens as $token)
+                      <p class="token @if($i == $count-1) token-last @endif">
+                          <span>Token:</span>
+                          <span>{{ $token->title." - ".$token->token }}</span>
+                      </p>
+                      @php $i++; @endphp
+                  @endforeach
+              @else
+                  <p class="token token-last">
+                      <span>Token:</span>
+                      <span class="inactive">No Token Available</span>
+                  </p>
+              @endif
+          @endif
         <p class="description">{{ $project->description }}</p>
       </div>
   </section>

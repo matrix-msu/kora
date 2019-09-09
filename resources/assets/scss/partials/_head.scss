@@ -135,6 +135,32 @@
     }
   }
 
+  .token {
+    margin: 0;
+
+    span {
+      font-family: $ubuntu;
+      font-size: 14px;
+    }
+
+    span:first-child {
+      font-family: $ubuntu-medium;
+    }
+
+    @media screen and (max-width: $max-mobile-xs-width){
+      margin: 0 0 10px;
+    }
+  }
+  .token-last {
+    margin: 0 0 20px;
+
+    .inactive {
+      color: palette('gray', base);
+      font-family: $ubuntu;
+      opacity: 0.6;
+    }
+  }
+
   .description {
     align-self: center;
     font-size: 16px;
