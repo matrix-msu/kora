@@ -1,6 +1,7 @@
 <?php namespace App\Http\Controllers;
 
 use App\Commands\ProjectEmails;
+use App\Token;
 use App\User;
 use App\Project;
 use App\ProjectGroup;
@@ -235,6 +236,15 @@ class ProjectController extends Controller {
         $project->internal_name = str_replace(" ","_", $project->name).'_'.$project->id.'_';
         $project->save();
 
+        //Make the projects initial search token
+        $token = new Token();
+        $token->token = uniqid();
+        $token->title = $project->name. " Search Token";
+        $token->search = true;
+        $token->save();
+
+        $token->projects()->attach([$project->id]);
+
         return redirect('projects/'.$project->pid)->with('k3_global_success', 'project_created');
 	}
 
@@ -254,6 +264,8 @@ class ProjectController extends Controller {
         $project = self::getProject($id);
         $formCollections = $project->forms()->get()->sortBy("name", SORT_NATURAL|SORT_FLAG_CASE);
         $user = \Auth::user();
+
+        $projectTokens = $project->tokens()->orderBy('created_at','asc')->get();
 
         $forms = array();
         $custom = array();
@@ -308,7 +320,7 @@ class ProjectController extends Controller {
           }
         }
 
-        return view('projects.show', compact('project','forms', 'custom', 'notification'));
+        return view('projects.show', compact('project','forms', 'custom', 'notification', 'projectTokens'));
 	}
 
     /**
