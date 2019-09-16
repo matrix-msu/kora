@@ -70,7 +70,10 @@ class ProjectSearchController extends Controller {
                     $foundRecords = $foundRecords->union($recordMod->newQuery()->select('kid','updated_at')->whereIn("id", $rids));
             }
 
-            $total = $foundRecords->get()->count();
+            if(!is_null($foundRecords))
+                $total = $foundRecords->get()->count();
+            else
+                $total = 0;
 
             $pageCount = $request->input('page-count') === null ? 10 : app('request')->input('page-count');
             $page = $request->input('page') === null ? 1 : app('request')->input('page');
@@ -78,7 +81,10 @@ class ProjectSearchController extends Controller {
             $order_type = substr($order, 0, 2) === "lm" ? "updated_at" : "kid";
             $order_direction = substr($order, 2, 3) === "a" ? "asc" : "desc";
 
-            $records = $foundRecords->orderBy($order_type, $order_direction)->skip(($page-1)*$pageCount)->take($pageCount)->pluck('kid')->toArray();
+            if(!is_null($foundRecords))
+                $records = $foundRecords->orderBy($order_type, $order_direction)->skip(($page-1)*$pageCount)->take($pageCount)->pluck('kid')->toArray();
+            else
+                $records = [];
         } else {
             //INITIAL PAGE VISIT
             $records = [];
@@ -146,7 +152,10 @@ class ProjectSearchController extends Controller {
                 }
             }
 
-            $total = $foundRecords->get()->count();
+            if(!is_null($foundRecords))
+                $total = $foundRecords->get()->count();
+            else
+                $total = 0;
 
             $pageCount = $request->input('page-count') === null ? 10 : app('request')->input('page-count');
             $page = $request->input('page') === null ? 1 : app('request')->input('page');
@@ -154,7 +163,10 @@ class ProjectSearchController extends Controller {
             $order_type = substr($order, 0, 2) === "lm" ? "updated_at" : "kid";
             $order_direction = substr($order, 2, 3) === "a" ? "asc" : "desc";
 
-            $records = $foundRecords->orderBy($order_type, $order_direction)->skip(($page-1)*$pageCount)->take($pageCount)->pluck('kid')->toArray();
+            if(!is_null($foundRecords))
+                $records = $foundRecords->orderBy($order_type, $order_direction)->skip(($page-1)*$pageCount)->take($pageCount)->pluck('kid')->toArray();
+            else
+                $records = [];
         } else {
             //INITIAL PAGE VISIT
             $records = [];
@@ -167,7 +179,7 @@ class ProjectSearchController extends Controller {
         foreach($allProjects as $p) {
             if(!Auth::user()->inAProjectGroup($p))
                 continue;
-            $projects[$p->pid] = $p->name;
+            $projects[$p->id] = $p->name;
         }
 
         if(isset($request->keywords) && $request->keywords != '') {
