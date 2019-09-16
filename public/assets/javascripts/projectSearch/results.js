@@ -37,5 +37,12 @@ Kora.ProjectSearch.Results = function() {
         });
     }
 
+    function initializeSearchLoadingIcon() {
+        $('.submit-search-js').click(function(e) {
+            display_loader();
+        });
+    }
+
     initializePaginationRouting();
+    initializeSearchLoadingIcon();
 }
