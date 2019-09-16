@@ -116,6 +116,7 @@ class ExodusHelperController extends Controller {
 
             //Store which index the page is at
             $collToPage[$c['collid']] = $currPageIndex;
+            $currPageIndex++;
         }
 
         //build all the fields for the form
