@@ -426,6 +426,9 @@ Kora.Forms.Show = function() {
             '_token': CSRFToken,
             'method': upMethod,
             'pageID': $pageID
+          },
+          success: function(result) {
+            location.reload();
           }
         });
       } else {
@@ -480,6 +483,9 @@ Kora.Forms.Show = function() {
             '_token': CSRFToken,
             'method': downMethod,
             'pageID': $pageID
+          },
+          success: function(result) {
+            location.reload();
           }
         });
       }
