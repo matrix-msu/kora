@@ -19,7 +19,7 @@
                   'class' => 'delete-record-form-js'
                 ]) !!}
             @endif
-                <div class="form-group">
+                <div class="form-group rev-assoc-warning-js">
                     Are you sure you want to delete this Record?
                 </div>
 

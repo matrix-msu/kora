@@ -58,6 +58,10 @@ Kora.Records.Show = function() {
 
             var $modal = $('.delete-record-modal-js');
 
+            if(revAssocCount>0)
+                $('.rev-assoc-warning-js').text('Are you sure you want to delete this Record?' +
+                    'WARNING: There are '+revAssocCount+' other records that associate to this record!');
+
             Kora.Modal.open($modal);
         });
     }
