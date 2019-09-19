@@ -221,6 +221,11 @@ Kora.Records.Index = function() {
             var url = deleteRecordURL+'/'+$(this).attr('rid');
             $('.delete-record-form-js').attr('action', url);
 
+            var revAssocCount = $(this).attr('rev-assoc-count');
+            if(revAssocCount>0)
+                $('.rev-assoc-warning-js').text('Are you sure you want to delete this Record?' +
+                    'WARNING: There are '+revAssocCount+' other records that associate to this record!');
+
             Kora.Modal.open($modal);
         });
     }

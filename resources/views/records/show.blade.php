@@ -116,6 +116,7 @@
     <script type="text/javascript">
         makeRecordPresetURL = '{{action('RecordPresetController@presetRecord')}}';
         ridForPreset = '{{$record->kid}}';
+        revAssocCount = {{sizeof($record->getAssociatedRecords())}}
         csrfToken = '{{csrf_token()}}';
 
         Kora.Records.Show();

@@ -49,7 +49,7 @@
         </div>
 
         <div class="footer">
-            <a class="quick-action trash-container left danger delete-record-js tooltip" rid="{{$record->id}}" href="#" tooltip="Delete Record">
+            <a class="quick-action trash-container left danger delete-record-js tooltip" rid="{{$record->id}}" rev-assoc-count="{{sizeof($record->getAssociatedRecords())}}" href="#" tooltip="Delete Record">
                 <i class="icon icon-trash"></i>
             </a>
 
