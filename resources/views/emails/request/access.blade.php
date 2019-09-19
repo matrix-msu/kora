@@ -1,7 +1,7 @@
 @extends('email')
 
 @section('main-text')
-{{ \Auth::user()->getFullName() }} is requesting access to the following kora Project: {{$project->name}}
+{{ \Auth::user()->getFullName() }} from {{ \Auth::user()->preferences['organization'] }} is requesting access to the following kora Project: {{$project->name}}
 <br/><br/>
 As an admin of {{$project->name}}, you may add them to a permissions group within the project.
 @endsection
