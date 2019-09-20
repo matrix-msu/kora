@@ -362,7 +362,7 @@ class ListField extends BaseField {
      * @return array - The list options
      */
     public static function getList($field) {
-        $options = array();
+        $options = ['Options' => array()];
         foreach ($field['options']['Options'] as $option) {
             $options['Options'][$option] = $option;
         }
