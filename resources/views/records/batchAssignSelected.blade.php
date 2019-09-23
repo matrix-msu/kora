@@ -44,7 +44,7 @@
                 </select>
             </div>
 
-            @foreach($fields as $field)
+            @foreach($fields as $flid => $field)
                 <section id="batch_{{$flid}}" class="batch-field-section-js hidden">
                     @php $typedField = $form->getFieldModel($field['type']); @endphp
                     @include($typedField->getFieldInputView(), ['field' => $field, 'hasData' => false, 'editRecord' => false])
