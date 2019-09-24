@@ -5,7 +5,6 @@ use App\Form;
 use App\Http\Controllers\RecordController;
 use App\Record;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
 use ZipArchive;
@@ -111,57 +110,74 @@ abstract class FileTypeField extends BaseField {
 
         //See if files were uploaded
         if(glob(storage_path($tmpPath.'/*.*')) != false) {
-            $storageType = 'LaravelStorage'; //TODO:: make this a config once we actually support other storage types
             $files = [];
             $infoArray = array();
+            $kid = $request->pid . '-' . $request->fid . '-' . $request->rid;
             //URL for accessing file publically
-            $dataURL = url('files').'/'.$request->pid . '-' . $request->fid . '-' . $request->rid.'/';
-            $fileIDString = $field['flid'] . $request->rid . '_';
+            $dataURL = url('files').'/'.$kid.'/';
             $types = self::getMimeTypes();
 
-            switch($storageType) {
-                case 'LaravelStorage':
-                    $newPath = storage_path('app/files/' . $request->pid . '/' . $request->fid . '/' . $request->rid);
-                    if(!file_exists($newPath))
-                        mkdir($newPath, 0775, true);
-                    else {
-                        //empty path files, revisions already saved these files in case things go wrong
-                        foreach(new \DirectoryIterator($newPath) as $file) {
-                            if($file->isFile())
-                                unlink($newPath.'/'.$file->getFilename());
+            $oldData = RecordController::getRecord($kid)->{$field['flid']};
+            if(!is_null($oldData))
+                $oldData = json_decode($oldData,true);
+
+            foreach(new \DirectoryIterator(storage_path($tmpPath)) as $file) {
+                if($file->isFile()) {
+                    $fileName = $file->getFilename();
+                    //last validation check protector
+                    if(!self::validateRecordFileName($fileName))
+                        continue;
+
+                    //Hash the file
+                    $checksum = hash_file('sha256', $tmpPath . '/' . $fileName);
+
+                    //Before we store, we need to compare to other files if they exist, to see if new file exists
+                    $exists = false;
+                    if(!is_null($oldData)) {
+                        //foreach old record file
+                        foreach($oldData as $oldFile) {
+                            if($fileName==$oldFile['name'] && $checksum==$oldFile['checksum']) {
+                                $exists = true;
+                                $info = $oldFile;
+                                break;
+                            }
                         }
                     }
 
-                    foreach(new \DirectoryIterator(storage_path($tmpPath)) as $file) {
-                        if($file->isFile()) {
-                            $fileName = $file->getFilename();
+                    if(!$exists) {
+                        //Get the actual MEME type
+                        if(!array_key_exists($file->getExtension(), $types))
+                            $type = 'application/octet-stream';
+                        else
+                            $type = $types[$file->getExtension()];
 
-                            //last validation check protector
-                            if(!self::validateRecordFileName($fileName))
-                                continue;
+                        //Get timestamp
+                        $timestamp = time();
 
-                            //Hash the file
-                            $checksum = hash_file('sha256', $tmpPath . '/' . $fileName);
+                        //Build info array
+                        $info = ['name' => $fileName, 'size' => $file->getSize(), 'type' => $type,
+                            'url' => $dataURL.urlencode($fileName), 'checksum' => $checksum, 'timestamp' => $timestamp];
 
-                            //Get the actual MEME type
-                            if(!array_key_exists($file->getExtension(), $types))
-                                $type = 'application/octet-stream';
-                            else
-                                $type = $types[$file->getExtension()];
+                        $storageType = 'LaravelStorage'; //TODO:: make this a config once we actually support other storage types
+                        switch($storageType) {
+                            case 'LaravelStorage':
+                                $newPath = storage_path('app/files/' . $request->pid . '/' . $request->fid . '/' . $request->rid);
+                                if(!file_exists($newPath))
+                                    mkdir($newPath, 0775, true);
 
-                            //Store the info array
-                            $info = ['name' => $fileName, 'size' => $file->getSize(), 'type' => $type,
-                                'url' => $dataURL.urlencode($fileName), 'checksum' => $checksum];
-                            $infoArray[$fileName] = $info;
-
-                            //Move the file to its new home
-                            copy(storage_path($tmpPath . '/' . $fileName), $newPath . '/' . $fileName);
+                                //Move the file to its new home
+                                copy(storage_path($tmpPath . '/' . $fileName), $newPath . '/' . "$timestamp.$fileName");
+                                break;
+                            default:
+                                break;
                         }
                     }
-                    break;
-                default:
-                    break;
+
+                    //Store the info array
+                    $infoArray[$fileName] = $info;
+                }
             }
+
 
             foreach($value as $fName) {
                 $files[] = $infoArray[$fName];
@@ -188,7 +204,8 @@ abstract class FileTypeField extends BaseField {
         $data = json_decode($data,true);
         $return = '';
         foreach($data as $file) {
-            $return .= "<div>".$file['name']."</div>";
+            $tsp = isset($file['timestamp']) ? ' ('.$file['timestamp'].')' : '';
+            $return .= "<div>".$file['name']."$tsp</div>";
         }
 
         return $return;
@@ -612,9 +629,8 @@ abstract class FileTypeField extends BaseField {
      * @param  string $filename - Name of the file
      * @return mixed - the file
      */
-    public static function publicRecordFile($kid, $filename) {
+    public static function publicRecordFile($kid, $filename) { //TODO::UFO
         $record = RecordController::getRecord($kid);
-        $storageType = 'LaravelStorage'; //TODO:: make this a config once we actually support other storage types
 
         $thumb = \request('thumb');
         $createThumb = false;
@@ -633,7 +649,7 @@ abstract class FileTypeField extends BaseField {
             $thumbFilename = implode('.',$fileParts)."_$thumb.".$ext;
         }
 
-
+        $storageType = 'LaravelStorage'; //TODO:: make this a config once we actually support other storage types
         switch($storageType) {
             case 'LaravelStorage':
                 // Check if file exists in app/storage/file folder
@@ -677,7 +693,7 @@ abstract class FileTypeField extends BaseField {
      * @param  string $filename - Name of the file
      * @return Redirect - html for the file download
      */
-    public static function getFileDownload($kid, $filename) {
+    public static function getFileDownload($kid, $filename) { //TODO::UFO
         $record = RecordController::getRecord($kid);
         $storageType = 'LaravelStorage'; //TODO:: make this a config once we actually support other storage types
 
@@ -705,7 +721,7 @@ abstract class FileTypeField extends BaseField {
      * @param  int $kid - Record kora ID
      * @return string - html for the file download
      */
-    public static function getZipDownload($kid) {
+    public static function getZipDownload($kid) { //TODO::UFO
         $record = RecordController::getRecord($kid);
         $storageType = 'LaravelStorage'; //TODO:: make this a config once we actually support other storage types
 
