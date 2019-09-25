@@ -1168,10 +1168,10 @@ class Form extends Model {
 
             foreach($row as $index => $value) {
                 if(!in_array($index,['kid','legacy_kid','updated_at','owner'])) {
-                    if(is_null($value))
-                        $value = '';
-
-                    $results[$kid][$fieldToRealName[$index]] = $fieldToModel[$index]->processLegacyData($value);
+                    if(is_null($value) || $value=='')
+                        $results[$kid][$fieldToRealName[$index]] = '';
+                    else
+                        $results[$kid][$fieldToRealName[$index]] = $fieldToModel[$index]->processLegacyData($value);
                 }
             }
 
@@ -1304,15 +1304,21 @@ class Form extends Model {
 
             foreach($row as $index => $value) {
                 if(!in_array($index,['kid','legacy_kid','updated_at','owner'])) {
-                    if(is_null($value))
-                        $value = '';
-
-                    if(isset($mergeMappings[$index]))
-                        $results[$kid][$mergeMappings[$index]] = $fieldToModel[$index]->processLegacyData($value);
-                    else if(isset($betaMappings[$index]))
-                        $results[$kid][$betaMappings[$index]] = $fieldToModel[$index]->processLegacyData($value);
-                    else
-                        $results[$kid][$fieldToRealName[$index]] = $fieldToModel[$index]->processLegacyData($value);
+                    if(is_null($value) || $value == '') {
+                        if(isset($mergeMappings[$index]))
+                            $results[$kid][$mergeMappings[$index]] = '';
+                        else if(isset($betaMappings[$index]))
+                            $results[$kid][$betaMappings[$index]] = '';
+                        else
+                            $results[$kid][$fieldToRealName[$index]] = '';
+                    } else {
+                        if(isset($mergeMappings[$index]))
+                            $results[$kid][$mergeMappings[$index]] = $fieldToModel[$index]->processLegacyData($value);
+                        else if (isset($betaMappings[$index]))
+                            $results[$kid][$betaMappings[$index]] = $fieldToModel[$index]->processLegacyData($value);
+                        else
+                            $results[$kid][$fieldToRealName[$index]] = $fieldToModel[$index]->processLegacyData($value);
+                    }
                 }
             }
 
