@@ -111,21 +111,25 @@ abstract class FileTypeField extends BaseField {
         //See if files were uploaded
         if(glob(storage_path($tmpPath.'/*.*')) != false) {
             $files = [];
-            $infoArray = array();
             $kid = $request->pid . '-' . $request->fid . '-' . $request->rid;
             //URL for accessing file publically
             $dataURL = url('files').'/'.$kid.'/';
             $types = self::getMimeTypes();
 
-            $oldData = RecordController::getRecord($kid)->{$field['flid']};
-            if(!is_null($oldData))
-                $oldData = json_decode($oldData,true);
+            //Check if data already exists for this record and its field
+            $oldData = RecordController::getRecord($kid);
+            if(!is_null($oldData)) {
+                $oldData->{$field['flid']};
+                if (!is_null($oldData))
+                    $oldData = json_decode($oldData, true);
+            }
 
             foreach(new \DirectoryIterator(storage_path($tmpPath)) as $file) {
                 if($file->isFile()) {
                     $fileName = $file->getFilename();
                     //last validation check protector
-                    if(!self::validateRecordFileName($fileName))
+                    //Also check if filename is apart of this field data
+                    if(!self::validateRecordFileName($fileName) || !in_array($fileName,$value))
                         continue;
 
                     //Hash the file
@@ -174,13 +178,8 @@ abstract class FileTypeField extends BaseField {
                     }
 
                     //Store the info array
-                    $infoArray[$fileName] = $info;
+                    $files[] = $info;
                 }
-            }
-
-
-            foreach($value as $fName) {
-                $files[] = $infoArray[$fName];
             }
 
             if(empty($files))

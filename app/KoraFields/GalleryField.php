@@ -95,7 +95,7 @@ class GalleryField extends FileTypeField {
      *
      * @return mixed - Processed data
      */
-    public function processRecordData($field, $value, $request) { //TODO::UFO
+    public function processRecordData($field, $value, $request) {
         $flid = $field['flid'];
         $captions = !is_null($request->input('file_captions'.$flid)) ? $request->input('file_captions'.$flid) : null;
 
@@ -123,11 +123,12 @@ class GalleryField extends FileTypeField {
      *
      * @return mixed - Processed data
      */
-    public function processRevisionData($data) { //TODO::UFO
+    public function processRevisionData($data) {
         $data = json_decode($data,true);
         $return = '';
         foreach($data as $file) {
-            $return .= "<div>".$file['name']."</div>";
+            $tsp = isset($file['timestamp']) ? ' ('.$file['timestamp'].')' : '';
+            $return .= "<div>".$file['name']."$tsp</div>";
             $return .= "<div>".$file['caption']."</div>";
         }
 
@@ -144,7 +145,7 @@ class GalleryField extends FileTypeField {
      *
      * @return Request - Processed data
      */
-    public function processImportData($flid, $field, $value, $request) { //TODO::UFO
+    public function processImportData($flid, $field, $value, $request) {
         $files = $captions = array();
 
         if(isset($request->userId))
@@ -201,7 +202,7 @@ class GalleryField extends FileTypeField {
      *
      * @return Request - Processed data
      */
-    public function processImportDataXML($flid, $field, $value, $request) { //TODO::UFO
+    public function processImportDataXML($flid, $field, $value, $request) {
         $files = $captions = array();
 
         $currDir = storage_path( 'app/tmpFiles/impU' . \Auth::user()->id);
@@ -252,7 +253,7 @@ class GalleryField extends FileTypeField {
      *
      * @return Request - Processed data
      */
-    public function processImportDataCSV($flid, $field, $value, $request) { //TODO::UFO
+    public function processImportDataCSV($flid, $field, $value, $request) {
         $files = $captions = array();
 
         if(isset($request->userId))
@@ -320,7 +321,7 @@ class GalleryField extends FileTypeField {
      *
      * @return mixed - Processed data
      */
-    public function processXMLData($field, $value, $fid = null) { //TODO::UFO
+    public function processXMLData($field, $value, $fid = null) {
         $files = json_decode($value,true);
         $xml = "<$field>";
         foreach($files as $file) {
@@ -346,7 +347,7 @@ class GalleryField extends FileTypeField {
      * @param  boolean $negative - Get opposite results of the search
      * @return array - The RIDs that match search
      */
-    public function keywordSearchTyped($flid, $arg, $recordMod, $form, $negative = false) { //TODO::UFO
+    public function keywordSearchTyped($flid, $arg, $recordMod, $form, $negative = false) {
         if($negative)
             $param = 'NOT LIKE';
         else
@@ -356,10 +357,10 @@ class GalleryField extends FileTypeField {
             ->select("id");
 
         if($negative) {
-            $dbQuery->whereRaw("`$flid`->\"$[*].original_name\" $param \"$arg\"");
+            $dbQuery->whereRaw("`$flid`->\"$[*].name\" $param \"$arg\"");
             $dbQuery->whereRaw("`$flid`->\"$[*].caption\" $param \"$arg\"");
         } else {
-            $dbQuery->orWhereRaw("`$flid`->\"$[*].original_name\" $param \"$arg\"");
+            $dbQuery->orWhereRaw("`$flid`->\"$[*].name\" $param \"$arg\"");
             $dbQuery->orWhereRaw("`$flid`->\"$[*].caption\" $param \"$arg\"");
         }
 
