@@ -2,6 +2,7 @@
 
 use App\FieldHelpers\UploadHandler;
 use App\Form;
+use App\Http\Controllers\FormController;
 use App\Http\Controllers\RecordController;
 use App\Record;
 use Illuminate\Http\Request;
@@ -119,8 +120,8 @@ abstract class FileTypeField extends BaseField {
             //Check if data already exists for this record and its field
             $oldData = RecordController::getRecord($kid);
             if(!is_null($oldData)) {
-                $oldData->{$field['flid']};
-                if (!is_null($oldData))
+                $oldData = $oldData->{$field['flid']};
+                if(!is_null($oldData))
                     $oldData = json_decode($oldData, true);
             }
 
@@ -628,8 +629,22 @@ abstract class FileTypeField extends BaseField {
      * @param  string $filename - Name of the file
      * @return mixed - the file
      */
-    public static function publicRecordFile($kid, $filename) { //TODO::UFO
+    public static function publicRecordFile($kid, $filename) {
         $record = RecordController::getRecord($kid);
+        $form = FormController::getForm($record->form_id);
+
+        //Need to get the actual local name of the file if it has a timestamp
+        foreach($form->layout['fields'] as $flid => $field) {
+            if($form->getFieldModel($field['type']) instanceof FileTypeField && !is_null($record->{$flid})) {
+                $files = json_decode($record->{$flid}, true);
+                foreach($files as $recordFile) {
+                    if($recordFile['name'] == $filename) {
+                        $filename = isset($recordFile['timestamp']) ? $recordFile['timestamp'].'.'.$recordFile['name'] : $recordFile['name'];
+                        break(2);
+                    }
+                }
+            }
+        }
 
         $thumb = \request('thumb');
         $createThumb = false;
@@ -692,10 +707,24 @@ abstract class FileTypeField extends BaseField {
      * @param  string $filename - Name of the file
      * @return Redirect - html for the file download
      */
-    public static function getFileDownload($kid, $filename) { //TODO::UFO
+    public static function getFileDownload($kid, $filename) {
         $record = RecordController::getRecord($kid);
-        $storageType = 'LaravelStorage'; //TODO:: make this a config once we actually support other storage types
+        $form = FormController::getForm($record->form_id);
 
+        //Need to get the actual local name of the file if it has a timestamp
+        foreach($form->layout['fields'] as $flid => $field) {
+            if($form->getFieldModel($field['type']) instanceof FileTypeField && !is_null($record->{$flid})) {
+                $files = json_decode($record->{$flid}, true);
+                foreach($files as $recordFile) {
+                    if($recordFile['name'] == $filename) {
+                        $filename = isset($recordFile['timestamp']) ? $recordFile['timestamp'].'.'.$recordFile['name'] : $recordFile['name'];
+                        break(2);
+                    }
+                }
+            }
+        }
+
+        $storageType = 'LaravelStorage'; //TODO:: make this a config once we actually support other storage types
         switch($storageType) {
             case 'LaravelStorage':
                 // Check if file exists in app/storage/file folder
@@ -720,10 +749,25 @@ abstract class FileTypeField extends BaseField {
      * @param  int $kid - Record kora ID
      * @return string - html for the file download
      */
-    public static function getZipDownload($kid) { //TODO::UFO
+    public static function getZipDownload($kid) {
         $record = RecordController::getRecord($kid);
-        $storageType = 'LaravelStorage'; //TODO:: make this a config once we actually support other storage types
+        $form = FormController::getForm($record->form_id);
 
+        //Build an array of the files that actually need to be zipped from every file field
+        //This will ignore old record files
+        //Also builds an array of local file names to original names to compensate for timestamps
+        $fileArray = [];
+        foreach($form->layout['fields'] as $flid => $field) {
+            if($form->getFieldModel($field['type']) instanceof FileTypeField && !is_null($record->{$flid})) {
+                $files = json_decode($record->{$flid}, true);
+                foreach($files as $recordFile) {
+                    $localName = isset($recordFile['timestamp']) ? $recordFile['timestamp'].'.'.$recordFile['name'] : $recordFile['name'];
+                    $fileArray[$localName] = $recordFile['name'];
+                }
+            }
+        }
+
+        $storageType = 'LaravelStorage'; //TODO:: make this a config once we actually support other storage types
         switch($storageType) {
             case 'LaravelStorage':
                 // Check if file exists in app/storage/file folder
@@ -735,9 +779,9 @@ abstract class FileTypeField extends BaseField {
 
                     if($zip->open($zip_dir . '/' . $zip_name, ZipArchive::CREATE) === TRUE) {
                         foreach(new \DirectoryIterator($dir_path) as $file) {
-                            if($file->isFile()) {
+                            if($file->isFile() && array_key_exists($file->getFilename(),$fileArray)) {
                                 $content = file_get_contents($file->getRealPath());
-                                $zip->addFromString($file->getFilename(), $content);
+                                $zip->addFromString($fileArray[$file->getFilename()], $content);
                             }
                         }
                         $zip->close();

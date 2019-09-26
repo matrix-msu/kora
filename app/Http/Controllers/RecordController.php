@@ -360,21 +360,26 @@ class RecordController extends Controller {
         }
 
         //See if record files exist, and copy over
-        $storageType = 'LaravelStorage'; //TODO:: make this a config once we actually support other storage types
-        switch($storageType) {
-            case 'LaravelStorage':
-                // Check if file exists in app/storage/file folder
-                $file_path = storage_path('app/files/'.$pid.'/'.$fid.'/'.$rid);
-                if(file_exists($file_path)) {
-                    foreach(new \DirectoryIterator($file_path) as $file) {
-                        if($file->isFile()) {
-                            copy($file_path . '/' . $file->getFilename(), $dirTmp . '/' . $file->getFilename());
-                        }
+        foreach($form->layout['fields'] as $flid => $field) {
+            if($form->getFieldModel($field['type']) instanceof FileTypeField && !is_null($record->{$flid})) {
+                $files = json_decode($record->{$flid},true);
+                foreach($files as $recordFile) {
+                    //Determine if timestamp needed for local name
+                    $filename = isset($recordFile['timestamp']) ? $recordFile['timestamp'].'.'.$recordFile['name'] : $recordFile['name'];
+
+                    $storageType = 'LaravelStorage'; //TODO:: make this a config once we actually support other storage types
+                    switch ($storageType) {
+                        case 'LaravelStorage':
+                            // Check if file exists in app/storage/file folder
+                            $file_path = storage_path('app/files/' . $pid . '/' . $fid . '/' . $rid);
+                            if(file_exists($file_path . '/' . $filename))
+                                copy($file_path . '/' . $filename, $dirTmp . '/' . $recordFile['name']);
+                            break;
+                        default:
+                            break;
                     }
                 }
-                break;
-            default:
-                break;
+            }
         }
 
         return view('records.edit', compact('record', 'form'));
@@ -422,25 +427,6 @@ class RecordController extends Controller {
         $kid = "$pid-$fid-$rid";
         $record = self::getRecord($kid);
         $oldRecordCopy = $record->replicate();
-        //$oldRecordFileCopy = $record->getHashedRecordFiles(); //TODO::FILE_REBUILD
-
-        //Before we move files back over from edit, clear the record folder
-        $storageType = 'LaravelStorage'; //TODO:: make this a config once we actually support other storage types
-        switch($storageType) {
-            case 'LaravelStorage':
-                $dir = storage_path('app/files/'.$record->project_id.'/'.$record->form_id.'/'.$record->id);
-                if(file_exists($dir)) {
-                    foreach(new \DirectoryIterator($dir) as $file) {
-                        if($file->isFile())
-                            unlink($dir.'/'.$file->getFilename());
-                    }
-                } else {
-                    mkdir($dir,0775,true); //Make it!
-                }
-                break;
-            default:
-                break;
-        }
 
         foreach($request->all() as $key => $value) {
             //Skip request variables that are not fields
@@ -498,6 +484,41 @@ class RecordController extends Controller {
         $form = FormController::getForm($fid);
         $kid = "$pid-$fid-$rid";
         $record = self::getRecord($kid);
+
+        //Make sure tmp file field folder exists
+        $folder = 'recordU'.\Auth::user()->id;
+        $dirTmp = storage_path('app/tmpFiles/'.$folder);
+        if(file_exists($dirTmp)) {
+            foreach(new \DirectoryIterator($dirTmp) as $file) {
+                if($file->isFile())
+                    unlink($dirTmp.'/'.$file->getFilename());
+            }
+        } else {
+            mkdir($dirTmp,0775,true); //Make it!
+        }
+
+        //See if record files exist, and copy over
+        foreach($form->layout['fields'] as $flid => $field) {
+            if($form->getFieldModel($field['type']) instanceof FileTypeField && !is_null($record->{$flid})) {
+                $files = json_decode($record->{$flid},true);
+                foreach($files as $recordFile) {
+                    //Determine if timestamp needed for local name
+                    $filename = isset($recordFile['timestamp']) ? $recordFile['timestamp'].'.'.$recordFile['name'] : $recordFile['name'];
+
+                    $storageType = 'LaravelStorage'; //TODO:: make this a config once we actually support other storage types
+                    switch ($storageType) {
+                        case 'LaravelStorage':
+                            // Check if file exists in app/storage/file folder
+                            $file_path = storage_path('app/files/' . $pid . '/' . $fid . '/' . $rid);
+                            if(file_exists($file_path . '/' . $filename))
+                                copy($file_path . '/' . $filename, $dirTmp . '/' . $recordFile['name']);
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            }
+        }
 
         return view('records.clone', compact('record', 'form'));
     }
