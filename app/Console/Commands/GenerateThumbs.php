@@ -37,7 +37,6 @@ class GenerateThumbs extends Command
      */
     public function handle()
     {
-        $storageType = 'LaravelStorage'; //TODO:: make this a config once we actually support other storage types
         $fid = $this->argument('fid');
         $form = FormController::getForm($fid);
         $flid = $this->argument('flid');
@@ -65,7 +64,8 @@ class GenerateThumbs extends Command
                     $ext = array_pop($fileParts);
                     $thumbFilename = implode('.', $fileParts) . "_$thumb." . $ext;
 
-                    switch ($storageType) {
+                    $storageType = 'LaravelStorage'; //TODO:: make this a config once we actually support other storage types
+                    switch($storageType) {
                         case 'LaravelStorage':
                             $filePath = storage_path('app/files/' . $form->project_id . '/' . $form->id . '/' . $record->id . '/' . $filename);
                             $thumbPath = storage_path('app/files/' . $form->project_id . '/' . $form->id . '/' . $record->id . '/' . $thumbFilename);

@@ -275,24 +275,6 @@ class FormController extends Controller {
     }
 
     /**
-     * Gets the view for the import form page for K2 schemes.
-     *
-     * @param  int $pid - Project ID
-     * @return View
-     */
-    public function importFormViewK2($pid) {
-        if(!ProjectController::validProj($pid))
-            return redirect('projects')->with('k3_global_error', 'project_invalid');
-
-        if(!self::checkPermissions($pid, 'create'))
-            return redirect('projects/'.$pid.'/forms')->with('k3_global_error', 'cant_create_form');
-
-        $proj = ProjectController::getProject($pid);
-
-        return view('forms.importk2',compact('proj','pid'));
-    }
-
-    /**
      * Gets a form by fid or slug.
      *
      * @param  mixed $fid - Form ID or slug

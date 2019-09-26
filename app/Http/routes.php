@@ -98,9 +98,7 @@ Route::group(['middleware' => 'web'], function () {
     Route::patch('/projects/{pid}/forms/{fid}', 'FormController@update');
     Route::get('/projects/{pid}/forms/create', 'FormController@create');
     Route::get('/projects/{pid}/forms/import', 'FormController@importFormView');
-    Route::get('/projects/{pid}/forms/importk2', 'FormController@importFormViewK2');
     Route::post('/projects/{pid}/forms/import', 'ImportController@importForm');
-    Route::post('/projects/{pid}/forms/importk2', 'ImportController@importFormK2');
     Route::get('/projects/{pid}/forms/{fid}', 'FormController@show');
     Route::delete('/projects/{pid}/forms/{fid}', 'FormController@destroy');
     Route::get('/projects/{pid}/forms/{fid}/edit', 'FormController@edit');

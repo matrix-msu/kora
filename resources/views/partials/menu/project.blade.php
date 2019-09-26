@@ -77,10 +77,6 @@
       </li>
 
       <li class="link">
-        <a href="{{ action('FormController@importFormViewK2',['pid' => $pid]) }}">Kora 2 Scheme Importer</a>
-      </li>
-
-      <li class="link">
         <a href="{{ action('ExportController@exportProject',['pid' => $pid]) }}">Export Project</a>
       </li>
     @endif
