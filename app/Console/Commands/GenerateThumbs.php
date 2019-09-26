@@ -52,18 +52,22 @@ class GenerateThumbs extends Command
             $recTable = new Record(array(), $form->id);
             $records = $recTable->newQuery()->select('id',$flid)->get();
 
-            foreach ($records as $record) {
+            foreach($records as $record) {
+                if(is_null($record->{$flid}))
+                    continue;
+
                 $files = json_decode($record->{$flid},true);
 
                 foreach ($files as $file) {
                     //Define the name of the thumb
-                    $fileParts = explode('.', $file['name']);
+                    $filename = isset($file['timestamp']) ? $file['timestamp'].'.'.$file['name'] : $file['name'];
+                    $fileParts = explode('.', $filename);
                     $ext = array_pop($fileParts);
                     $thumbFilename = implode('.', $fileParts) . "_$thumb." . $ext;
 
                     switch ($storageType) {
                         case 'LaravelStorage':
-                            $filePath = storage_path('app/files/' . $form->project_id . '/' . $form->id . '/' . $record->id . '/' . $file['name']);
+                            $filePath = storage_path('app/files/' . $form->project_id . '/' . $form->id . '/' . $record->id . '/' . $filename);
                             $thumbPath = storage_path('app/files/' . $form->project_id . '/' . $form->id . '/' . $record->id . '/' . $thumbFilename);
 
                             //Check if we already made the thumb

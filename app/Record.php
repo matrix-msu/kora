@@ -118,35 +118,6 @@ class Record extends Model {
     }
 
     /**
-     * Builds the hashed file data array for the record.
-     *
-     * @return array - The file data for DB storage
-     */
-    public function getHashedRecordFiles() {
-        $hashArray = [];
-
-        $storageType = 'LaravelStorage'; //TODO:: make this a config once we actually support other storage types
-        switch($storageType) {
-            case 'LaravelStorage':
-                $dir = storage_path('app/files/'.$this->project_id.'/'.$this->form_id.'/'.$this->id);
-                if(file_exists($dir)) {
-                    foreach(new \DirectoryIterator($dir) as $file) {
-                        if($file->isFile()) {
-                            $name = $file->getFilename();
-                            $data = file_get_contents("$dir/$name");
-                            $hashArray[$name] = base64_encode($data);
-                        }
-                    }
-                }
-                break;
-            default:
-                break;
-        }
-
-        return $hashArray;
-    }
-
-    /**
      * Gets a preview value for the record when displaying in a reverse association.
      *
      * @return string - The preview value

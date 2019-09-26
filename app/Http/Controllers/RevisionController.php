@@ -389,40 +389,6 @@ class RevisionController extends Controller {
     }
 
     /**
-     * Performs the actual rollback for files.
-     *
-     * @param  Record $record - Record to rollback
-     * @param  array $fileData - File data to restore
-     */
-    private function rollback_files($record, $fileData) { //TODO::FILE_REBUILD
-        $storageType = 'LaravelStorage'; //TODO:: make this a config once we actually support other storage types
-        switch($storageType) {
-            case 'LaravelStorage':
-                //Clear the current directory
-                $dir = storage_path('app/files/'.$record->project_id.'/'.$record->form_id.'/'.$record->id);
-                if(file_exists($dir)) {
-                    foreach(new \DirectoryIterator($dir) as $file) {
-                        if($file->isFile())
-                            unlink($dir.'/'.$file->getFilename());
-                    }
-                } else {
-                    mkdir($dir,0775,true); //Make it!
-                }
-
-                //Restore old files
-                if(!is_null($fileData)) {
-                    foreach ($fileData as $name => $hash) {
-                        $data = base64_decode($hash);
-                        file_put_contents("$dir/$name", $data);
-                    }
-                }
-                break;
-            default:
-                break;
-        }
-    }
-
-    /**
      * Turns off rollback for all revisions in a form.
      *
      * @param  int $fid - Form ID
