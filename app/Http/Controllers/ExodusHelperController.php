@@ -577,19 +577,20 @@ class ExodusHelperController extends Controller {
 
                                     //Hash the file
                                     $checksum = hash_file('sha256', $oldDir.$localname);
+                                    $timestamp = time();
                                     //Move files
-                                    copy($oldDir.$localname,$newPath.$newname);
+                                    copy($oldDir.$localname,$newPath.$timestamp.'.'.$newname);
 
                                     //Get file info
                                     $mimes = FileTypeField::getMimeTypes();
-                                    $ext = pathinfo($newPath.$newname,PATHINFO_EXTENSION);
+                                    $ext = pathinfo($newPath.$timestamp.'.'.$newname,PATHINFO_EXTENSION);
                                     if(!array_key_exists($ext, $mimes))
                                         $type = 'application/octet-stream';
                                     else
                                         $type = $mimes[$ext];
 
-                                    $info = ['name' => $newname, 'size' => filesize($newPath.$newname), 'type' => $type,
-                                        'url' => $dataURL.urlencode($newname), 'checksum' => $checksum];
+                                    $info = ['name' => $newname, 'size' => filesize($newPath.$timestamp.'.'.$newname), 'type' => $type,
+                                        'url' => $dataURL.urlencode($newname), 'checksum' => $checksum, 'timestamp' => $timestamp];
                                     break;
                                 default:
                                     break;
@@ -628,19 +629,20 @@ class ExodusHelperController extends Controller {
 
                                     //Hash the file
                                     $checksum = hash_file('sha256', $oldDir.$localname);
+                                    $timestamp = time();
                                     //Move files
-                                    copy($oldDir.$localname,$newPath.$newname);
+                                    copy($oldDir.$localname,$newPath.$timestamp.'.'.$newname);
 
                                     //Get file info
                                     $mimes = FileTypeField::getMimeTypes();
-                                    $ext = pathinfo($newPath.$newname,PATHINFO_EXTENSION);
+                                    $ext = pathinfo($newPath.$timestamp.'.'.$newname,PATHINFO_EXTENSION);
                                     if(!array_key_exists($ext, $mimes))
                                         $type = 'application/octet-stream';
                                     else
                                         $type = $mimes[$ext];
 
-                                    $info = ['name' => $newname, 'size' => filesize($newPath.$newname), 'type' => $type,
-                                        'url' => $dataURL.urlencode($newname), 'checksum' => $checksum, 'caption' => ''];
+                                    $info = ['name' => $newname, 'size' => filesize($newPath.$timestamp.'.'.$newname), 'type' => $type,
+                                        'url' => $dataURL.urlencode($newname), 'checksum' => $checksum, 'timestamp' => $timestamp, 'caption' => ''];
                                     break;
                                 default:
                                     break;
