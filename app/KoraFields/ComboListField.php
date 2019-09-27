@@ -715,7 +715,6 @@ class ComboListField extends BaseField {
                                 $param = '=';
 
                             $input = $values['input'];
-                            $input = Search::prepare([$input])[0];
                             $db_query->orWhere($flid, $param, "$input");
                             break;
                     }

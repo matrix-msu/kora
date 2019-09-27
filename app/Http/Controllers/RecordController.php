@@ -711,7 +711,6 @@ class RecordController extends Controller {
     public static function validProjFormRecord($pid, $fid, $rid) {
         $record = self::getRecord("$pid-$fid-$rid");
         $form = FormController::getForm($fid);
-        $proj = ProjectController::getProject($pid);
 
         if(!FormController::validProjForm($pid, $fid))
             return false;

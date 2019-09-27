@@ -313,7 +313,6 @@ class RichTextField extends BaseField {
      */
     public function advancedSearchTyped($flid, $query, $recordMod, $form, $negative = false) {
         $arg = $query['input'];
-        $arg = Search::prepare([$arg])[0]; //We make an array to 'prepare' the term
         $arg = str_replace(' ','%',$arg); //This searches around tags, may get more than desired but better than nothing
 
         if($negative)
