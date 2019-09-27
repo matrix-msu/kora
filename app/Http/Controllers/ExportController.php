@@ -2,10 +2,13 @@
 
 use App\FieldValuePreset;
 use App\Form;
+use App\KoraFields\FileTypeField;
+use App\Record;
 use App\RecordPreset;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Http\Request;
+use ZipArchive;
 
 class ExportController extends Controller {
 
@@ -142,53 +145,77 @@ class ExportController extends Controller {
             return redirect('projects/'.$pid)->with('k3_global_error', 'form_invalid');
 
         $form = FormController::getForm($fid);
-
         if(!(\Auth::user()->isFormAdmin($form)))
             return redirect('projects/'.$pid)->with('k3_global_error', 'not_form_admin');
 
-        $path = storage_path('app/files/'.$pid.'/'.$fid);
-        $zipPath = storage_path('app/tmpFiles/'.$form->internal_name.'preppedZIP_user'.\Auth::user()->id.'.zip');
-
+        ini_set('max_execution_time',0);
+        ini_set('memory_limit', "6G");
         $fileSizeCount = 0.0;
+        $fileCount = 0;
 
-        // Initialize archive object
-        $zip = new \ZipArchive();
-        $zip->open($zipPath, (\ZipArchive::CREATE | \ZipArchive::OVERWRITE));
+        //Build an array of the files that actually need to be zipped from every file field
+        //This will ignore old record files
+        //Also builds an array of local file names to original names to compensate for timestamps
+        $recMod = new Record(array(), $fid);
+        $fileArray = [];
+        foreach($form->layout['fields'] as $flid => $field) {
+            if($form->getFieldModel($field['type']) instanceof FileTypeField) {
+                $records = $recMod->newQuery()->select(['id',$flid])->whereNotNull($flid)->get();
+                foreach($records as $record) {
+                    if(!is_null($record->{$flid})) {
+                        $files = json_decode($record->{$flid}, true);
+                        foreach($files as $recordFile) {
+                            $fileCount++;
+                            $fileSizeCount += number_format($recordFile['size'] / 1073741824, 2);
+                            if($fileSizeCount > 5)
+                                return response()->json(["status" => false, "message" => "zip_too_big"], 500);
 
-        if(file_exists($path)) {
-            ini_set('max_execution_time',0);
-            ini_set('memory_limit', "2G");
-
-            //add files
-            $files = new \RecursiveIteratorIterator(
-                new \RecursiveDirectoryIterator($path),
-                \RecursiveIteratorIterator::LEAVES_ONLY
-            );
-
-            foreach ($files as $name => $file) {
-                if($fileSizeCount > 1)
-                    return response()->json(["status"=>false,"message"=>"zip_too_big"],500);
-
-                // Skip directories (they would be added automatically)
-                if(!$file->isDir()) {
-                    // Get real and relative path for current file
-                    $filePath = $file->getRealPath();
-                    $relativePath = substr($filePath, strlen($path) + 1);
-
-                    // Add current file to archive
-                    $zip->addFile($filePath, $relativePath);
-
-                    $fileSizeCount += number_format(filesize($filePath) / 1073741824, 2);
+                            $localName = isset($recordFile['timestamp']) ? $recordFile['timestamp'] . '.' . $recordFile['name'] : $recordFile['name'];
+                            $fileArray[$record->id][$localName] = $recordFile['name'];
+                        }
+                    }
                 }
             }
-        } else {
-            return response()->json(["status"=>false,"message"=>"no_record_files"],500);
         }
 
-        // Zip archive will be created only after closing object
-        $zip->close();
+        if($fileCount == 0)
+            return response()->json(["status" => false, "message" => "no_record_files"], 500);
 
-        return 'Success';
+        $storageType = 'LaravelStorage'; //TODO:: make this a config once we actually support other storage types
+        switch($storageType) {
+            case 'LaravelStorage':
+                $zip_name = $form->internal_name.'preppedZIP_user'.\Auth::user()->id.'.zip';
+                $zip_dir = storage_path('app/tmpFiles');
+                $zip = new ZipArchive();
+
+                $dir_path = storage_path('app/files/'.$pid . '/' . $fid);
+                if($zip->open($zip_dir . '/' . $zip_name, ZipArchive::CREATE) === TRUE) {
+                    foreach($fileArray as $rid => $recordFileArray) {
+                        foreach(new \DirectoryIterator("$dir_path/$rid") as $file) {
+                            if($file->isFile() && array_key_exists($file->getFilename(), $recordFileArray)) {
+                                $content = file_get_contents($file->getRealPath());
+                                $zip->addFromString($rid.'/'.$recordFileArray[$file->getFilename()], $content);
+                            }
+                        }
+                    }
+                    $zip->close();
+                }
+
+                // Set Header
+                $headers = array(
+                    'Content-Type' => 'application/octet-stream',
+                );
+
+                $filetopath = $zip_dir . '/' . $zip_name;
+                // Create Download Response
+                if(file_exists($filetopath))
+                    return response()->download($filetopath, $zip_name, $headers);
+                break;
+            default:
+                break;
+        }
+
+        return response()->json(["status" => false, "message" => "no_record_files"], 500);
     }
 
     /**
@@ -203,64 +230,88 @@ class ExportController extends Controller {
             return redirect('projects/'.$pid)->with('k3_global_error', 'form_invalid');
 
         $form = FormController::getForm($fid);
-
         if(!(\Auth::user()->isFormAdmin($form)))
             return redirect('projects/'.$pid)->with('k3_global_error', 'not_form_admin');
 
-        $path = storage_path('app/files/'.$pid.'/'.$fid);
-        $zipPath = storage_path('app/tmpFiles/');
-
         ini_set('max_execution_time',0);
         ini_set('memory_limit', "6G");
-
         $fileSizeCount = 0.0;
+        $fileCount = 0;
 
-        if(file_exists($zipPath.$form->internal_name.'preppedZIP_user'.\Auth::user()->id.'.zip')) {
-            $subPath = $form->internal_name.'preppedZIP_user'.\Auth::user()->id.'.zip';
+        if(file_exists(storage_path('app/tmpFiles/').$form->internal_name.'preppedZIP_user'.\Auth::user()->id.'.zip')) {
+            $zip_name = $form->internal_name.'preppedZIP_user'.\Auth::user()->id.'.zip';
+            header('Content-Disposition: attachment; filename="' . $zip_name . '"');
+            header('Content-Type: application/zip; ');
+
+            readfile(storage_path('app/tmpFiles/').$zip_name);
+            exit;
         } else {
-            $time = Carbon::now();
-            $subPath = $form->internal_name . 'fileData_' . $time . '.zip';
+            //Build an array of the files that actually need to be zipped from every file field
+            //This will ignore old record files
+            //Also builds an array of local file names to original names to compensate for timestamps
+            $recMod = new Record(array(), $fid);
+            $fileArray = [];
+            foreach ($form->layout['fields'] as $flid => $field) {
+                if ($form->getFieldModel($field['type']) instanceof FileTypeField) {
+                    $records = $recMod->newQuery()->select(['id', $flid])->whereNotNull($flid)->get();
+                    foreach ($records as $record) {
+                        if (!is_null($record->{$flid})) {
+                            $files = json_decode($record->{$flid}, true);
+                            foreach ($files as $recordFile) {
+                                $fileCount++;
+                                $fileSizeCount += number_format($recordFile['size'] / 1073741824, 2);
+                                if ($fileSizeCount > 5)
+                                    return redirect('projects/' . $pid . '/forms/' . $fid)->with('k3_global_error', 'zip_too_big');
 
-            // Initialize archive object
-            $zip = new \ZipArchive();
-            $zip->open($zipPath . $subPath, \ZipArchive::CREATE);
-
-            if(file_exists($path)) {
-                //add files
-                $files = new \RecursiveIteratorIterator(
-                    new \RecursiveDirectoryIterator($path),
-                    \RecursiveIteratorIterator::LEAVES_ONLY
-                );
-
-                foreach($files as $name => $file) {
-                    if($fileSizeCount > 5)
-                        return redirect('projects/' . $pid . '/forms/' . $fid)->with('k3_global_error', 'zip_too_big');
-
-                    // Skip directories (they would be added automatically)
-                    if(!$file->isDir()) {
-                        // Get real and relative path for current file
-                        $filePath = $file->getRealPath();
-                        $relativePath = substr($filePath, strlen($path) + 1);
-
-                        // Add current file to archive
-                        $zip->addFile($filePath, $relativePath);
-
-                        $fileSizeCount += number_format(filesize($filePath) / 1073741824, 2);
+                                $localName = isset($recordFile['timestamp']) ? $recordFile['timestamp'] . '.' . $recordFile['name'] : $recordFile['name'];
+                                $fileArray[$record->id][$localName] = $recordFile['name'];
+                            }
+                        }
                     }
                 }
-            } else {
-                return redirect('projects/' . $pid . '/forms/' . $fid)->with('k3_global_error', 'no_record_files');
             }
 
-            // Zip archive will be created only after closing object
-            $zip->close();
+            if($fileCount == 0)
+                return redirect('projects/' . $pid . '/forms/' . $fid)->with('k3_global_error', 'no_record_files');
+
+            $storageType = 'LaravelStorage'; //TODO:: make this a config once we actually support other storage types
+            switch ($storageType) {
+                case 'LaravelStorage':
+                    $time = Carbon::now();
+                    $zip_name = $form->internal_name . 'fileData_' . $time . '.zip';
+                    $zip_dir = storage_path('app/tmpFiles');
+                    $zip = new ZipArchive();
+
+                    $dir_path = storage_path('app/files/' . $pid . '/' . $fid);
+                    if($zip->open($zip_dir . '/' . $zip_name, ZipArchive::CREATE) === TRUE) {
+                        foreach($fileArray as $rid => $recordFileArray) {
+                            foreach(new \DirectoryIterator("$dir_path/$rid") as $file) {
+                                if($file->isFile() && array_key_exists($file->getFilename(), $recordFileArray)) {
+                                    $content = file_get_contents($file->getRealPath());
+                                    $zip->addFromString($rid.'/'.$recordFileArray[$file->getFilename()], $content);
+                                }
+                            }
+                        }
+                        $zip->close();
+                    }
+
+                    // Set Header
+                    header('Content-Disposition: attachment; filename="' . $zip_name . '"');
+                    header('Content-Type: application/zip; ');
+
+                    $filetopath = $zip_dir . '/' . $zip_name;
+                    // Create Download Response
+                    if(file_exists($filetopath)) {
+                        readfile($filetopath);
+                        exit;
+                    }
+                    break;
+                default:
+                    break;
+            }
         }
 
-        header('Content-Disposition: attachment; filename="'.$subPath.'"');
-        header('Content-Type: application/zip; ');
-
-        readfile($zipPath.$subPath);
-        exit;
+        return redirect('projects/' . $pid . '/forms/' . $fid)->with('k3_global_error', 'no_record_files');
     }
 
     /**
