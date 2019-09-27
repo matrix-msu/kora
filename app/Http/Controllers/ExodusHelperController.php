@@ -2,6 +2,7 @@
 
 use App\Form;
 use App\KoraFields\FileTypeField;
+use App\KoraFields\HistoricalDateField;
 use App\Record;
 use App\RecordPreset;
 use Carbon\Carbon;
@@ -229,13 +230,18 @@ class ExodusHelperController extends Controller {
                             'End' => $endY,
                             'Format' => $for
                         ];
-                        $newDef = [
-                            'month' => $defMon,
-                            'day' => $defDay,
-                            'year' => $defYear,
-                            'prefix' => '',
-                            'era' => 'CE'
-                        ];
+
+                        if(self::validateDate($defMon,$defDay,$defYear)) {
+                            $newDef = [
+                                'month' => $defMon,
+                                'day' => $defDay,
+                                'year' => $defYear,
+                                'prefix' => '',
+                                'era' => 'CE'
+                            ];
+                        } else {
+                            $newDef = null;
+                        }
                         $newType = 'Historical Date';
                         break;
                     case 'MultiDateControl': //We convert multi date to a generated list with a date regex
@@ -758,5 +764,30 @@ class ExodusHelperController extends Controller {
         }
 
         return $filtered;
+    }
+
+    /**
+     * Validates the month, day, year combinations so illegal dates can't happen.
+     *
+     * @param  int $m - Month
+     * @param  int $d - Day
+     * @param  int $y - Year
+     * @return bool - Is valid
+     */
+    private static function validateDate($m,$d,$y) {
+        //Must have a year
+        //No day without a month.
+        if(
+            ($y=='') | ($d!='' && $m=='')
+        ) {
+            return false;
+        }
+
+        //Next we need to make sure the date provided is legal (i.e. no Feb 30th, etc)
+        //For the check we need to default any blank values to 1, cause checkdate doesn't like partial dates
+        if($m=='') {$m=1;}
+        if($d=='') {$d=1;}
+
+        return checkdate($m, $d, $y);
     }
 }
