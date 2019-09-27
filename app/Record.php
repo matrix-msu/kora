@@ -73,23 +73,6 @@ class Record extends Model {
             ->orWhere('source_kid','=',$this->kid)
             ->delete();
 
-        //Delete images
-        $storageType = 'LaravelStorage'; //TODO:: make this a config once we actually support other storage types
-        switch($storageType) {
-            case 'LaravelStorage':
-                $filePath = storage_path('app/files/' . $this->project_id . '/' . $this->form_id . '/' . $this->id);
-                if(file_exists($filePath)) {
-                    //empty path files, revisions already saved these files in case things go wrong
-                    foreach(new \DirectoryIterator($filePath) as $file) {
-                        if($file->isFile())
-                            unlink($filePath . '/' . $file->getFilename());
-                    }
-                }
-                break;
-            default:
-                break;
-        }
-
         parent::delete();
     }
 
@@ -132,35 +115,6 @@ class Record extends Model {
         }
 
         return $records;
-    }
-
-    /**
-     * Builds the hashed file data array for the record.
-     *
-     * @return array - The file data for DB storage
-     */
-    public function getHashedRecordFiles() {
-        $hashArray = [];
-
-        $storageType = 'LaravelStorage'; //TODO:: make this a config once we actually support other storage types
-        switch($storageType) {
-            case 'LaravelStorage':
-                $dir = storage_path('app/files/'.$this->project_id.'/'.$this->form_id.'/'.$this->id);
-                if(file_exists($dir)) {
-                    foreach(new \DirectoryIterator($dir) as $file) {
-                        if($file->isFile()) {
-                            $name = $file->getFilename();
-                            $data = file_get_contents("$dir/$name");
-                            $hashArray[$name] = base64_encode($data);
-                        }
-                    }
-                }
-                break;
-            default:
-                break;
-        }
-
-        return $hashArray;
     }
 
     /**

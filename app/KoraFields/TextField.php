@@ -330,7 +330,6 @@ class TextField extends BaseField {
      */
     public function advancedSearchTyped($flid, $query, $recordMod, $form, $negative = false) {
         $arg = $query['input'];
-        $arg = Search::prepare([$arg])[0]; //We make an array to 'prepare' the term
 
         if($negative)
             $param = '!=';

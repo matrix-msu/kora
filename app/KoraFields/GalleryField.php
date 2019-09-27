@@ -1,7 +1,6 @@
 <?php namespace App\KoraFields;
 
 use App\Record;
-use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 
 class GalleryField extends FileTypeField {
@@ -21,11 +20,11 @@ class GalleryField extends FileTypeField {
     /**
      * @var string - Views for the typed field options
      */
-    const FIELD_OPTIONS_VIEW = "partials.fields.options.gallery";
-    const FIELD_ADV_OPTIONS_VIEW = "partials.fields.advanced.gallery";
+    const FIELD_OPTIONS_VIEW = "partials.fields.options.gallery"; //TODO::UFO
+    const FIELD_ADV_OPTIONS_VIEW = "partials.fields.advanced.gallery"; //TODO::UFO
     const FIELD_ADV_INPUT_VIEW = null;
-    const FIELD_INPUT_VIEW = "partials.records.input.gallery";
-    const FIELD_DISPLAY_VIEW = "partials.records.display.gallery";
+    const FIELD_INPUT_VIEW = "partials.records.input.gallery"; //TODO::UFO
+    const FIELD_DISPLAY_VIEW = "partials.records.display.gallery"; //TODO::UFO
 
     /**
      * @var array - Supported file types in this field
@@ -128,7 +127,8 @@ class GalleryField extends FileTypeField {
         $data = json_decode($data,true);
         $return = '';
         foreach($data as $file) {
-            $return .= "<div>".$file['name']."</div>";
+            $tsp = isset($file['timestamp']) ? ' ('.$file['timestamp'].')' : '';
+            $return .= "<div>".$file['name']."$tsp</div>";
             $return .= "<div>".$file['caption']."</div>";
         }
 
@@ -357,10 +357,10 @@ class GalleryField extends FileTypeField {
             ->select("id");
 
         if($negative) {
-            $dbQuery->whereRaw("`$flid`->\"$[*].original_name\" $param \"$arg\"");
+            $dbQuery->whereRaw("`$flid`->\"$[*].name\" $param \"$arg\"");
             $dbQuery->whereRaw("`$flid`->\"$[*].caption\" $param \"$arg\"");
         } else {
-            $dbQuery->orWhereRaw("`$flid`->\"$[*].original_name\" $param \"$arg\"");
+            $dbQuery->orWhereRaw("`$flid`->\"$[*].name\" $param \"$arg\"");
             $dbQuery->orWhereRaw("`$flid`->\"$[*].caption\" $param \"$arg\"");
         }
 
