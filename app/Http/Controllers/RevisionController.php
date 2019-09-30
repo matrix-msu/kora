@@ -332,6 +332,17 @@ class RevisionController extends Controller {
             case Revision::EDIT:
             case Revision::ROLLBACK:
                 $record = RecordController::getRecord($revision->record_kid);
+                if(is_null($record)) {
+                    // We must create a new record
+                    $record = new Record(array(),$form->id);
+                    $record->id = explode('-',$revision->record_kid)[2];
+                    $record->project_id = $form->project_id;
+                    $record->form_id = $form->id;
+                    $record->owner = \Auth::user()->id;
+                    $record->kid = $revision->record_kid;
+                    $record->save();
+                }
+
                 $this->rollback_routine($form, $record, $revision);
 
                 return response()->json(["status"=>true,"message"=>"record_modified","modified_kid"=>$record->kid],200);
