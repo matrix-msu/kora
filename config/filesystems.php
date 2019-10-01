@@ -16,6 +16,7 @@ return [
 	*/
 
 	'default' => 'local',
+    'kora_storage' => env('STORAGE_TYPE','LaravelStorage'),
 
 	/*
 	|--------------------------------------------------------------------------

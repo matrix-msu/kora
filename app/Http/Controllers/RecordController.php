@@ -2,7 +2,6 @@
 
 use App\Form;
 use App\KoraFields\FileTypeField;
-use App\KoraFields\ComboListField;
 use App\RecordPreset;
 use App\Revision;
 use App\User;
@@ -367,9 +366,8 @@ class RecordController extends Controller {
                     //Determine if timestamp needed for local name
                     $filename = isset($recordFile['timestamp']) ? $recordFile['timestamp'].'.'.$recordFile['name'] : $recordFile['name'];
 
-                    $storageType = 'LaravelStorage'; //TODO:: make this a config once we actually support other storage types
-                    switch ($storageType) {
-                        case 'LaravelStorage':
+                    switch(config('filesystems.kora_storage')) {
+                        case FileTypeField::_LaravelStorage:
                             // Check if file exists in app/storage/file folder
                             $file_path = storage_path('app/files/' . $pid . '/' . $fid . '/' . $rid);
                             if(file_exists($file_path . '/' . $filename))
@@ -505,9 +503,8 @@ class RecordController extends Controller {
                     //Determine if timestamp needed for local name
                     $filename = isset($recordFile['timestamp']) ? $recordFile['timestamp'].'.'.$recordFile['name'] : $recordFile['name'];
 
-                    $storageType = 'LaravelStorage'; //TODO:: make this a config once we actually support other storage types
-                    switch ($storageType) {
-                        case 'LaravelStorage':
+                    switch(config('filesystems.kora_storage')) {
+                        case FileTypeField::_LaravelStorage:
                             // Check if file exists in app/storage/file folder
                             $file_path = storage_path('app/files/' . $pid . '/' . $fid . '/' . $rid);
                             if(file_exists($file_path . '/' . $filename))

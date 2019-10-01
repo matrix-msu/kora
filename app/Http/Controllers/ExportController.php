@@ -181,9 +181,8 @@ class ExportController extends Controller {
         if($fileCount == 0)
             return response()->json(["status" => false, "message" => "no_record_files"], 500);
 
-        $storageType = 'LaravelStorage'; //TODO:: make this a config once we actually support other storage types
-        switch($storageType) {
-            case 'LaravelStorage':
+        switch(config('filesystems.kora_storage')) {
+            case FileTypeField::_LaravelStorage:
                 $zip_name = $form->internal_name.'preppedZIP_user'.\Auth::user()->id.'.zip';
                 $zip_dir = storage_path('app/tmpFiles');
                 $zip = new ZipArchive();
@@ -274,9 +273,8 @@ class ExportController extends Controller {
             if($fileCount == 0)
                 return redirect('projects/' . $pid . '/forms/' . $fid)->with('k3_global_error', 'no_record_files');
 
-            $storageType = 'LaravelStorage'; //TODO:: make this a config once we actually support other storage types
-            switch ($storageType) {
-                case 'LaravelStorage':
+            switch(config('filesystems.kora_storage')) {
+                case FileTypeField::_LaravelStorage:
                     $time = Carbon::now();
                     $zip_name = $form->internal_name . 'fileData_' . $time . '.zip';
                     $zip_dir = storage_path('app/tmpFiles');

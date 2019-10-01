@@ -2,7 +2,6 @@
 
 use App\Form;
 use App\KoraFields\FileTypeField;
-use App\KoraFields\HistoricalDateField;
 use App\Record;
 use App\RecordPreset;
 use Carbon\Carbon;
@@ -563,9 +562,8 @@ class ExodusHelperController extends Controller {
                         $dataURL = $installURL.'/'.$newForm->project_id . '-' . $newForm->id . '-' . $recordDataToSave[$r['id']]['id'].'/';
 
                         if($localname!='') {
-                            $storageType = 'LaravelStorage'; //TODO:: make this a config once we actually support other storage types
-                            switch($storageType) {
-                                case 'LaravelStorage':
+                            switch(config('filesystems.kora_storage')) {
+                                case FileTypeField::_LaravelStorage:
                                     //Make folder
                                     $dataPath = $newForm->project_id . '/' . $newForm->id . '/' . $recordDataToSave[$r['id']]['id'].'/';
                                     $newPath = storage_path('app/files/' . $dataPath);
@@ -615,9 +613,8 @@ class ExodusHelperController extends Controller {
                         $dataURL = $installURL.'/'.$newForm->project_id . '-' . $newForm->id . '-' . $recordDataToSave[$r['id']]['id'].'/';
 
                         if($localname!='') {
-                            $storageType = 'LaravelStorage'; //TODO:: make this a config once we actually support other storage types
-                            switch($storageType) {
-                                case 'LaravelStorage':
+                            switch(config('filesystems.kora_storage')) {
+                                case FileTypeField::_LaravelStorage:
                                     //Make folder
                                     $dataPath = $newForm->project_id . '/' . $newForm->id . '/' . $recordDataToSave[$r['id']]['id'].'/';
                                     $newPath = storage_path('app/files/' . $dataPath);

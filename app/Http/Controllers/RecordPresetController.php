@@ -1,6 +1,5 @@
 <?php namespace App\Http\Controllers;
 
-use App\Form;
 use App\KoraFields\FileTypeField;
 use App\Record;
 use App\RecordPreset;
@@ -90,9 +89,8 @@ class RecordPresetController extends Controller {
             $dataArray[$flid] = $record->{$flid};
             //If file field, move the data
             if(!is_null($record->{$flid}) && $form->getFieldModel($field['type']) instanceof FileTypeField) {
-                $storageType = 'LaravelStorage'; //TODO:: make this a config once we actually support other storage types
-                switch($storageType) {
-                    case 'LaravelStorage':
+                switch(config('filesystems.kora_storage')) {
+                    case FileTypeField::_LaravelStorage:
                         //Clear the current directory
                         $dir = storage_path('app/presetFiles/'.$record->kid);
                         if(file_exists($dir)) {
@@ -201,9 +199,8 @@ class RecordPresetController extends Controller {
 
         $preset = RecordPreset::where('id',$presetID)->first();
 
-        $storageType = 'LaravelStorage'; //TODO:: make this a config once we actually support other storage types
-        switch($storageType) {
-            case 'LaravelStorage':
+        switch(config('filesystems.kora_storage')) {
+            case FileTypeField::_LaravelStorage:
                 //Clear the current directory
                 $dir = storage_path('app/tmpFiles/recordU'.$userID);
                 if(file_exists($dir)) {
