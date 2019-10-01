@@ -1,6 +1,7 @@
 <?php namespace App\Console\Commands;
 
 use App\Http\Controllers\FormController;
+use App\KoraFields\FileTypeField;
 use App\Record;
 use Illuminate\Console\Command;
 
@@ -64,9 +65,8 @@ class GenerateThumbs extends Command
                     $ext = array_pop($fileParts);
                     $thumbFilename = implode('.', $fileParts) . "_$thumb." . $ext;
 
-                    $storageType = 'LaravelStorage'; //TODO:: make this a config once we actually support other storage types
-                    switch($storageType) {
-                        case 'LaravelStorage':
+                    switch(config('filesystems.kora_storage')) {
+                        case FileTypeField::_LaravelStorage:
                             $filePath = storage_path('app/files/' . $form->project_id . '/' . $form->id . '/' . $record->id . '/' . $filename);
                             $thumbPath = storage_path('app/files/' . $form->project_id . '/' . $form->id . '/' . $record->id . '/' . $thumbFilename);
 

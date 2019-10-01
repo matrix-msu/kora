@@ -1,5 +1,6 @@
 <?php namespace App\Http\Controllers;
 
+use App\KoraFields\FileTypeField;
 use App\Record;
 use App\RecordPreset;
 use Illuminate\Http\JsonResponse;
@@ -86,11 +87,37 @@ class RecordPresetController extends Controller {
 
         foreach($fields as $flid => $field) {
             $dataArray[$flid] = $record->{$flid};
+            //If file field, move the data
+            if(!is_null($record->{$flid}) && $form->getFieldModel($field['type']) instanceof FileTypeField) {
+                switch(config('filesystems.kora_storage')) {
+                    case FileTypeField::_LaravelStorage:
+                        //Clear the current directory
+                        $dir = storage_path('app/presetFiles/'.$record->kid);
+                        if(file_exists($dir)) {
+                            foreach(new \DirectoryIterator($dir) as $file) {
+                                if($file->isFile())
+                                    unlink($dir.'/'.$file->getFilename());
+                            }
+                        } else {
+                            mkdir($dir,0775,true); //Make it!
+                        }
+
+                        $recordFiles = json_decode($record->{$flid},true);
+                        foreach($recordFiles as $recordFile) {
+                            //Get file location
+                            $filename = isset($recordFile['timestamp']) ? $recordFile['timestamp'].'.'.$recordFile['name'] : $recordFile['name'];
+                            $filePath = storage_path('app/files/'.$record->project_id.'/'.$record->form_id.'/'.$record->id);
+                            //Copy the file
+                            copy($filePath.'/'.$filename, $dir.'/'.$recordFile['name']);
+                        }
+                        break;
+                    default:
+                        break;
+                }
+            }
         }
 
         //Move any record files
-        $response['files'] = ''; //TODO::FILE_REBUILD
-
         $response['data'] = $dataArray;
         $response['name'] = $name;
 
@@ -166,16 +193,14 @@ class RecordPresetController extends Controller {
      *
      * @param  Request $request
      */
-    public function moveFilesToTemp(Request $request) { //TODO::RECORD PRESET REBUILD
+    public function moveFilesToTemp(Request $request) {
         $presetID = $request->presetID;
         $userID = \Auth::user()->id;
 
         $preset = RecordPreset::where('id',$presetID)->first();
-        $fileData = $preset->preset['files'];
 
-        $storageType = 'LaravelStorage'; //TODO:: make this a config once we actually support other storage types
-        switch($storageType) {
-            case 'LaravelStorage':
+        switch(config('filesystems.kora_storage')) {
+            case FileTypeField::_LaravelStorage:
                 //Clear the current directory
                 $dir = storage_path('app/tmpFiles/recordU'.$userID);
                 if(file_exists($dir)) {
@@ -188,12 +213,16 @@ class RecordPresetController extends Controller {
                 }
 
                 //Restore old files
-                if(!is_null($fileData)) {
-                    foreach ($fileData as $name => $hash) {
-                        $data = base64_decode($hash);
-                        file_put_contents("$dir/$name", $data);
+                //Get file location
+                $presetDir = storage_path('app/presetFiles/'.$preset->record_kid);
+                //Move the file
+                if(file_exists($presetDir)) {
+                    foreach(new \DirectoryIterator($presetDir) as $file) {
+                        if($file->isFile())
+                            copy($presetDir.'/'.$file->getFilename(),$dir.'/'.$file->getFilename());
                     }
                 }
+
                 break;
             default:
                 break;

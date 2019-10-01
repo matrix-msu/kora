@@ -23,6 +23,11 @@ abstract class FileTypeField extends BaseField {
     */
 
     /**
+     * @var string - The available storage types
+     */
+    const _LaravelStorage = "LaravelStorage";
+
+    /**
      * Gets the default options string for a new field.
      *
      * @param  int $fid - Form ID
@@ -163,9 +168,8 @@ abstract class FileTypeField extends BaseField {
                         $info = ['name' => $fileName, 'size' => $file->getSize(), 'type' => $type,
                             'url' => $dataURL.urlencode($fileName), 'checksum' => $checksum, 'timestamp' => $timestamp];
 
-                        $storageType = 'LaravelStorage'; //TODO:: make this a config once we actually support other storage types
-                        switch($storageType) {
-                            case 'LaravelStorage':
+                        switch(config('filesystems.kora_storage')) {
+                            case FileTypeField::_LaravelStorage:
                                 $newPath = storage_path('app/files/' . $request->pid . '/' . $request->fid . '/' . $request->rid);
                                 if(!file_exists($newPath))
                                     mkdir($newPath, 0775, true);
@@ -663,9 +667,8 @@ abstract class FileTypeField extends BaseField {
             $thumbFilename = implode('.',$fileParts)."_$thumb.".$ext;
         }
 
-        $storageType = 'LaravelStorage'; //TODO:: make this a config once we actually support other storage types
-        switch($storageType) {
-            case 'LaravelStorage':
+        switch(config('filesystems.kora_storage')) {
+            case FileTypeField::_LaravelStorage:
                 // Check if file exists in app/storage/file folder
                 $filePath = storage_path('app/files/'.$record->project_id.'/'.$record->form_id.'/'.$record->id.'/'.$filename);
                 if(file_exists($filePath)) {
@@ -724,9 +727,8 @@ abstract class FileTypeField extends BaseField {
             }
         }
 
-        $storageType = 'LaravelStorage'; //TODO:: make this a config once we actually support other storage types
-        switch($storageType) {
-            case 'LaravelStorage':
+        switch(config('filesystems.kora_storage')) {
+            case FileTypeField::_LaravelStorage:
                 // Check if file exists in app/storage/file folder
                 $filePath = storage_path('app/files/'.$record->project_id.'/'.$record->form_id.'/'.$record->id.'/'.$filename);
                 if(file_exists($filePath)) {
@@ -767,9 +769,8 @@ abstract class FileTypeField extends BaseField {
             }
         }
 
-        $storageType = 'LaravelStorage'; //TODO:: make this a config once we actually support other storage types
-        switch($storageType) {
-            case 'LaravelStorage':
+        switch(config('filesystems.kora_storage')) {
+            case FileTypeField::_LaravelStorage:
                 // Check if file exists in app/storage/file folder
                 $dir_path = storage_path('app/files/'.$record->project_id.'/'.$record->form_id.'/'.$record->id);
                 if(file_exists($dir_path)) {
