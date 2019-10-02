@@ -77,6 +77,7 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
             return false;
 
         //NOTE::When you re-implement this function in the laravel Register system, use this fail state:
+        //For more information, check out the Laravel Upgrade Documentation
 //        if(!\App\User::verifyRegisterRecaptcha($request,$this)) {
 //            $notification = array(
 //                'message' => 'ReCaptcha validation error',
@@ -96,7 +97,7 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
      * @param  Request $request - The registration request data
      * @return bool - Success of activation email
      */
-    public static function finishRegistration($request) {
+    public static function finishRegistration($request) { //TODO::UPDATE TEST
         $user = \Auth::user();
         $token = $user->token;
         $preferences = array();
@@ -138,6 +139,7 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
         return true;
 
         //NOTE::When you re-implement this function in the laravel Register system, use this fail state:
+        //For more information, check out the Laravel Upgrade Documentation
 //        if(\App\User::finishRegistration($request))
 //            $status = 'activation_email_sent';
 //        else
@@ -154,7 +156,7 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
      *
      * @param  string $token - The reset token
      */
-    public function sendPasswordResetNotification($token) {
+    public function sendPasswordResetNotification($token) { //TODO::UPDATE TEST
         $userMail = $this->email;
 
         //Send email
