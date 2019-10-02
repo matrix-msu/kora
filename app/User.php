@@ -156,7 +156,7 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
      *
      * @param  string $token - The reset token
      */
-    public function sendPasswordResetNotification($token) { //TODO::UPDATE TEST
+    public function sendPasswordResetNotification($token) {
         $userMail = $this->email;
 
         //Send email
