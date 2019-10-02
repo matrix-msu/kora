@@ -923,7 +923,7 @@ if (! function_exists('url')) {
      * @param  bool|null    $secure
      * @return \Illuminate\Contracts\Routing\UrlGenerator|string
      */
-    function url($path = null, $parameters = [], $secure = null)
+    function url($path = null, $parameters = [], $secure = true)
     {
         if (is_null($path)) {
             return app(UrlGenerator::class);
