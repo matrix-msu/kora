@@ -91,7 +91,11 @@ trait AuthenticatesUsers
      */
     protected function credentials(Request $request)
     {
-        return $request->only($this->username(), 'password');
+        $credentials = $request->only($this->username(), 'password');
+
+        $credentials = \App\User::refineLoginCredentials($credentials);
+
+        return $credentials;
     }
 
     /**
