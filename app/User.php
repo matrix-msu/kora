@@ -97,7 +97,7 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
      * @param  Request $request - The registration request data
      * @return bool - Success of activation email
      */
-    public static function finishRegistration($request) { //TODO::UPDATE TEST
+    public static function finishRegistration($request) {
         $user = \Auth::user();
         $token = $user->token;
         $preferences = array();

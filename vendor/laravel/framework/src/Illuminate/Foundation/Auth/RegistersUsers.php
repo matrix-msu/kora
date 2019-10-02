@@ -45,8 +45,13 @@ trait RegistersUsers
 
         $this->guard()->login($user);
 
+        if(\App\User::finishRegistration($request))
+            $status = 'activation_email_sent';
+        else
+            $status = 'activation_email_failed';
+
         return $this->registered($request, $user)
-                        ?: redirect($this->redirectPath());
+                        ?: redirect($this->redirectPath())->with('status', $status)->send();
     }
 
     /**
