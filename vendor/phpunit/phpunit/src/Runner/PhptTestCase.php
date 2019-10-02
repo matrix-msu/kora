@@ -24,7 +24,7 @@ use Throwable;
 /**
  * Runner for PHPT test cases.
  */
-class PhptTestCase implements Test, SelfDescribing
+class PhptTestCase implements SelfDescribing, Test
 {
     /**
      * @var string[]
@@ -49,8 +49,9 @@ class PhptTestCase implements Test, SelfDescribing
         'report_memleaks=0',
         'report_zend_debug=0',
         'safe_mode=0',
-        'xdebug.default_enable=0'
+        'xdebug.default_enable=0',
     ];
+
     /**
      * @var string
      */
@@ -60,6 +61,11 @@ class PhptTestCase implements Test, SelfDescribing
      * @var AbstractPhpProcess
      */
     private $phpUtil;
+
+    /**
+     * @var string
+     */
+    private $output = '';
 
     /**
      * Constructs a test case with the given filename.
@@ -103,13 +109,21 @@ class PhptTestCase implements Test, SelfDescribing
      */
     public function run(TestResult $result = null): TestResult
     {
-        $sections = $this->parse();
-        $code     = $this->render($sections['FILE']);
-
         if ($result === null) {
             $result = new TestResult;
         }
 
+        try {
+            $sections = $this->parse();
+        } catch (Exception $e) {
+            $result->startTest($this);
+            $result->addFailure($this, new SkippedTestError($e->getMessage()), 0);
+            $result->endTest($this, 0);
+
+            return $result;
+        }
+
+        $code     = $this->render($sections['FILE']);
         $xfail    = false;
         $settings = $this->parseIniSection(self::SETTINGS);
 
@@ -149,13 +163,14 @@ class PhptTestCase implements Test, SelfDescribing
         }
 
         if ($result->getCollectCodeCoverageInformation()) {
-            $this->renderForCoverage($settings);
+            $this->renderForCoverage($code);
         }
 
         Timer::start();
 
-        $jobResult = $this->phpUtil->runJob($code, $this->stringifyIni($settings));
-        $time      = Timer::stop();
+        $jobResult    = $this->phpUtil->runJob($code, $this->stringifyIni($settings));
+        $time         = Timer::stop();
+        $this->output = $jobResult['stdout'] ?? '';
 
         if ($result->getCollectCodeCoverageInformation() && ($coverage = $this->cleanupForCoverage())) {
             $result->getCodeCoverage()->append($coverage, $this, true, [], [], true);
@@ -201,12 +216,30 @@ class PhptTestCase implements Test, SelfDescribing
         return $this->filename;
     }
 
+    public function usesDataProvider(): bool
+    {
+        return false;
+    }
+
+    public function getNumAssertions(): int
+    {
+        return 1;
+    }
+
+    public function getActualOutput(): string
+    {
+        return $this->output;
+    }
+
+    public function hasOutput(): bool
+    {
+        return !empty($this->output);
+    }
+
     /**
      * Parse --INI-- section key value pairs and return as array.
      *
      * @param array|string
-     * @param mixed $content
-     * @param mixed $ini
      */
     private function parseIniSection($content, $ini = []): array
     {
@@ -270,22 +303,18 @@ class PhptTestCase implements Test, SelfDescribing
         foreach ($assertions as $sectionName => $sectionAssertion) {
             if (isset($sections[$sectionName])) {
                 $sectionContent = \preg_replace('/\r\n/', "\n", \trim($sections[$sectionName]));
-                $assertion      = $sectionAssertion;
                 $expected       = $sectionName === 'EXPECTREGEX' ? "/{$sectionContent}/" : $sectionContent;
 
-                break;
+                if ($expected === null) {
+                    throw new Exception('No PHPT expectation found');
+                }
+                Assert::$sectionAssertion($expected, $actual);
+
+                return;
             }
         }
 
-        if (!isset($assertion)) {
-            throw new Exception('No PHPT assertion found');
-        }
-
-        if (!isset($expected)) {
-            throw new Exception('No PHPT expectation found');
-        }
-
-        Assert::$assertion($expected, $actual);
+        throw new Exception('No PHPT assertion found');
     }
 
     /**
@@ -350,7 +379,7 @@ class PhptTestCase implements Test, SelfDescribing
             'CGI',
             'EXPECTHEADERS',
             'EXTENSIONS',
-            'PHPDBG'
+            'PHPDBG',
         ];
 
         foreach (\file($this->filename) as $line) {
@@ -362,7 +391,7 @@ class PhptTestCase implements Test, SelfDescribing
             }
 
             if (empty($section)) {
-                throw new Exception('Invalid PHPT file');
+                throw new Exception('Invalid PHPT file: empty section header');
             }
 
             $sections[$section] .= $line;
@@ -382,7 +411,7 @@ class PhptTestCase implements Test, SelfDescribing
         foreach ($unsupportedSections as $section) {
             if (isset($sections[$section])) {
                 throw new Exception(
-                    'PHPUnit does not support this PHPT file'
+                    "PHPUnit does not support PHPT $section sections"
                 );
             }
         }
@@ -399,9 +428,9 @@ class PhptTestCase implements Test, SelfDescribing
             'FILE',
             'EXPECT',
             'EXPECTF',
-            'EXPECTREGEX'
+            'EXPECTREGEX',
         ];
-        $testDirectory = \dirname($this->filename) . DIRECTORY_SEPARATOR;
+        $testDirectory = \dirname($this->filename) . \DIRECTORY_SEPARATOR;
 
         foreach ($allowSections as $section) {
             if (isset($sections[$section . '_EXTERNAL'])) {
@@ -432,8 +461,8 @@ class PhptTestCase implements Test, SelfDescribing
             [
                 'EXPECT',
                 'EXPECTF',
-                'EXPECTREGEX'
-            ]
+                'EXPECTREGEX',
+            ],
         ];
 
         foreach ($requiredSections as $section) {
@@ -468,11 +497,11 @@ class PhptTestCase implements Test, SelfDescribing
         return \str_replace(
             [
                 '__DIR__',
-                '__FILE__'
+                '__FILE__',
             ],
             [
                 "'" . \dirname($this->filename) . "'",
-                "'" . $this->filename . "'"
+                "'" . $this->filename . "'",
             ],
             $code
         );
@@ -480,16 +509,16 @@ class PhptTestCase implements Test, SelfDescribing
 
     private function getCoverageFiles(): array
     {
-        $baseDir          = \dirname($this->filename) . DIRECTORY_SEPARATOR;
-        $basename         = \basename($this->filename, 'phpt');
+        $baseDir  = \dirname(\realpath($this->filename)) . \DIRECTORY_SEPARATOR;
+        $basename = \basename($this->filename, 'phpt');
 
         return [
             'coverage' => $baseDir . $basename . 'coverage',
-            'job'      => $baseDir . $basename . 'php'
+            'job'      => $baseDir . $basename . 'php',
         ];
     }
 
-    private function renderForCoverage(array &$settings): void
+    private function renderForCoverage(string &$job): void
     {
         $files = $this->getCoverageFiles();
 
@@ -512,7 +541,10 @@ class PhptTestCase implements Test, SelfDescribing
         $globals = '';
 
         if (!empty($GLOBALS['__PHPUNIT_BOOTSTRAP'])) {
-            $globals = '$GLOBALS[\'__PHPUNIT_BOOTSTRAP\'] = ' . \var_export($GLOBALS['__PHPUNIT_BOOTSTRAP'], true) . ";\n";
+            $globals = '$GLOBALS[\'__PHPUNIT_BOOTSTRAP\'] = ' . \var_export(
+                $GLOBALS['__PHPUNIT_BOOTSTRAP'],
+                true
+            ) . ";\n";
         }
 
         $template->setVar(
@@ -522,22 +554,21 @@ class PhptTestCase implements Test, SelfDescribing
                 'globals'          => $globals,
                 'job'              => $files['job'],
                 'coverageFile'     => $files['coverage'],
-                'autoPrependFile'  => \var_export(
-                    !empty($settings['auto_prepend_file']) ? $settings['auto_prepend_file'] : false,
-                    true
-                )
             ]
         );
 
-        \file_put_contents($files['job'], $template->render());
-
-        $settings['auto_prepend_file'] = $files['job'];
+        \file_put_contents($files['job'], $job);
+        $job = $template->render();
     }
 
     private function cleanupForCoverage(): array
     {
         $files    = $this->getCoverageFiles();
         $coverage = @\unserialize(\file_get_contents($files['coverage']));
+
+        if ($coverage === false) {
+            $coverage = [];
+        }
 
         foreach ($files as $file) {
             @\unlink($file);

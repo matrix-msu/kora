@@ -40,14 +40,14 @@ class Highlighter extends BaseHighlighter implements HighlighterContract
     /**
      * Creates an instance of the Highlighter.
      *
-     * @param \JakubOnderka\PhpConsoleHighlighter\ConsoleColor|null $color
+     * @param \JakubOnderka\PhpConsoleColor\ConsoleColor|null $color
      */
     public function __construct(ConsoleColor $color = null)
     {
         parent::__construct($color = $color ?: new ConsoleColor);
 
         foreach ($this->theme as $name => $styles) {
-            $color->addTheme($name, $styles);
+            $color->addTheme((string) $name, $styles);
         }
     }
 

@@ -22,6 +22,7 @@ namespace Mockery;
 
 use Mockery\HigherOrderMessage;
 use Mockery\MockInterface;
+use Mockery\LegacyMockInterface;
 use Mockery\ExpectsHigherOrderMessage;
 use Mockery\Exception\BadMethodCallException;
 
@@ -175,7 +176,7 @@ class Mock implements MockInterface
 
         if (!\Mockery::getConfiguration()->mockingNonExistentMethodsAllowed()) {
             foreach ($this->mockery_getMethods() as $method) {
-                if ($method->isPublic() && !$method->isStatic()) {
+                if ($method->isPublic()) {
                     $this->_mockery_mockableMethods[] = $method->getName();
                 }
             }
@@ -185,7 +186,7 @@ class Mock implements MockInterface
     /**
      * Set expected method calls
      *
-     * @param array ...$methodNames one or many methods that are expected to be called in this mock
+     * @param mixed ...$methodNames one or many methods that are expected to be called in this mock
      *
      * @return \Mockery\ExpectationInterface|\Mockery\Expectation|\Mockery\HigherOrderMessage
      */
@@ -229,6 +230,7 @@ class Mock implements MockInterface
         return $lastExpectation;
     }
 
+    // start method allows
     /**
      * @param mixed $something  String method name or map of method => return
      * @return self|\Mockery\ExpectationInterface|\Mockery\Expectation|\Mockery\HigherOrderMessage
@@ -249,7 +251,10 @@ class Mock implements MockInterface
 
         return $this;
     }
+    // end method allows
 
+    // start method expects
+    /**
     /**
      * @param mixed $something  String method name (optional)
      * @return \Mockery\ExpectationInterface|\Mockery\Expectation|ExpectsHigherOrderMessage
@@ -262,6 +267,7 @@ class Mock implements MockInterface
 
         return new ExpectsHigherOrderMessage($this);
     }
+    // end method expects
 
     /**
      * Shortcut method for setting an expectation that a method should not be called.
@@ -315,6 +321,14 @@ class Mock implements MockInterface
      */
     public function shouldAllowMockingProtectedMethods()
     {
+        if (!\Mockery::getConfiguration()->mockingNonExistentMethodsAllowed()) {
+            foreach ($this->mockery_getMethods() as $method) {
+                if ($method->isProtected()) {
+                    $this->_mockery_mockableMethods[] = $method->getName();
+                }
+            }
+        }
+
         $this->_mockery_allowMockingProtectedMethods = true;
         return $this;
     }
@@ -592,7 +606,7 @@ class Mock implements MockInterface
     public function __isset($name)
     {
         if (false === stripos($name, '_mockery_') && method_exists(get_parent_class($this), '__isset')) {
-            return parent::__isset($name);
+            return call_user_func('parent::__isset', $name);
         }
 
         return false;
@@ -614,6 +628,9 @@ class Mock implements MockInterface
      */
     public function mockery_callSubjectMethod($name, array $args)
     {
+        if (!method_exists($this, $name) && method_exists(get_parent_class($this), '__call')) {
+            return call_user_func('parent::__call', $name, $args);
+        }
         return call_user_func_array('parent::' . $name, $args);
     }
 
@@ -636,7 +653,7 @@ class Mock implements MockInterface
         $interfaces = array_filter($rfc->getInterfaces(), function ($i) {
             return $i->getName() !== "Stringish";
         });
-        $onlyImplementsMock = 1 == count($interfaces);
+        $onlyImplementsMock = 2 == count($interfaces);
 
         return (false === $rfc->getParentClass()) && $onlyImplementsMock;
     }
@@ -692,7 +709,7 @@ class Mock implements MockInterface
             return null;
         }
 
-        $type = (string) $returnType;
+        $type = PHP_VERSION_ID >= 70100 ? $returnType->getName() : (string) $returnType;
         switch ($type) {
             case '':       return;
             case 'string': return '';
@@ -745,6 +762,11 @@ class Mock implements MockInterface
         return $director;
     }
 
+    public function shouldHaveBeenCalled()
+    {
+        return $this->shouldHaveReceived("__invoke");
+    }
+
     public function shouldNotHaveReceived($method = null, $args = null)
     {
         if ($method === null) {
@@ -760,6 +782,11 @@ class Mock implements MockInterface
         $this->_mockery_expectations_count++;
         $director->verify();
         return null;
+    }
+
+    public function shouldNotHaveBeenCalled(array $args = null)
+    {
+        return $this->shouldNotHaveReceived("__invoke", $args);
     }
 
     protected static function _mockery_handleStaticMethodCall($method, array $args)
@@ -780,6 +807,20 @@ class Mock implements MockInterface
     protected function _mockery_getReceivedMethodCalls()
     {
         return $this->_mockery_receivedMethodCalls ?: $this->_mockery_receivedMethodCalls = new \Mockery\ReceivedMethodCalls();
+    }
+
+    /**
+     * Called when an instance Mock was created and its constructor is getting called
+     *
+     * @see \Mockery\Generator\StringManipulation\Pass\InstanceMockPass
+     * @param array $args
+     */
+    protected function _mockery_constructorCalled(array $args)
+    {
+        if (!isset($this->_mockery_expectations['__construct']) /* _mockery_handleMethodCall runs the other checks */) {
+            return;
+        }
+        $this->_mockery_handleMethodCall('__construct', $args);
     }
 
     protected function _mockery_findExpectedMethodHandler($method)
@@ -832,11 +873,15 @@ class Mock implements MockInterface
             }
         }
 
-        if (!is_null($this->_mockery_partial) && method_exists($this->_mockery_partial, $method)) {
+        if (!is_null($this->_mockery_partial) &&
+            (method_exists($this->_mockery_partial, $method) || method_exists($this->_mockery_partial, '__call'))
+        ) {
             return call_user_func_array(array($this->_mockery_partial, $method), $args);
         } elseif ($this->_mockery_deferMissing && is_callable("parent::$method")
             && (!$this->hasMethodOverloadingInParentClass() || method_exists(get_parent_class($this), $method))) {
             return call_user_func_array("parent::$method", $args);
+        } elseif ($this->_mockery_deferMissing && method_exists(get_parent_class($this), '__call')) {
+            return call_user_func('parent::__call', $method, $args);
         } elseif ($method == '__toString') {
             // __toString is special because we force its addition to the class API regardless of the
             // original implementation.  Thus, we should always return a string rather than honor

@@ -112,6 +112,11 @@ final class GoogleAddress extends Address
     private $subLocalityLevels;
 
     /**
+     * @var bool
+     */
+    private $partialMatch;
+
+    /**
      * @param null|string $id
      *
      * @return GoogleAddress
@@ -499,8 +504,31 @@ final class GoogleAddress extends Address
             $subLocalityLevels[] = new AdminLevel($level['level'], $name, $level['code'] ?? null);
         }
 
+        $subLocalityLevels = array_unique($subLocalityLevels);
+
         $new = clone $this;
         $new->subLocalityLevels = new AdminLevelCollection($subLocalityLevels);
+
+        return $new;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isPartialMatch()
+    {
+        return $this->partialMatch;
+    }
+
+    /**
+     * @param bool $partialMatch
+     *
+     * @return $this
+     */
+    public function withPartialMatch(bool $partialMatch)
+    {
+        $new = clone $this;
+        $new->partialMatch = $partialMatch;
 
         return $new;
     }

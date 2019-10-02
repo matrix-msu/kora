@@ -23,20 +23,20 @@ class TranslationExtractorPassTest extends TestCase
         $container = new ContainerBuilder();
         $extractorDefinition = $container->register('translation.extractor');
         $container->register('foo.id')
-            ->addTag('translation.extractor', array('alias' => 'bar.alias'));
+            ->addTag('translation.extractor', ['alias' => 'bar.alias']);
 
         $translationDumperPass = new TranslationExtractorPass();
         $translationDumperPass->process($container);
 
-        $this->assertEquals(array(array('addExtractor', array('bar.alias', new Reference('foo.id')))), $extractorDefinition->getMethodCalls());
+        $this->assertEquals([['addExtractor', ['bar.alias', new Reference('foo.id')]]], $extractorDefinition->getMethodCalls());
     }
 
     public function testProcessNoDefinitionFound()
     {
         $container = new ContainerBuilder();
 
-        $definitionsBefore = count($container->getDefinitions());
-        $aliasesBefore = count($container->getAliases());
+        $definitionsBefore = \count($container->getDefinitions());
+        $aliasesBefore = \count($container->getAliases());
 
         $translationDumperPass = new TranslationExtractorPass();
         $translationDumperPass->process($container);
@@ -46,19 +46,14 @@ class TranslationExtractorPassTest extends TestCase
         $this->assertCount($aliasesBefore, $container->getAliases());
     }
 
-    /**
-     * @expectedException \Symfony\Component\DependencyInjection\Exception\RuntimeException
-     * @expectedExceptionMessage The alias for the tag "translation.extractor" of service "foo.id" must be set.
-     */
     public function testProcessMissingAlias()
     {
-        $definition = $this->getMockBuilder('Symfony\Component\DependencyInjection\Definition')->disableOriginalConstructor()->getMock();
+        $this->expectException('Symfony\Component\DependencyInjection\Exception\RuntimeException');
+        $this->expectExceptionMessage('The alias for the tag "translation.extractor" of service "foo.id" must be set.');
         $container = new ContainerBuilder();
         $container->register('translation.extractor');
         $container->register('foo.id')
-            ->addTag('translation.extractor', array());
-
-        $definition->expects($this->never())->method('addMethodCall');
+            ->addTag('translation.extractor', []);
 
         $translationDumperPass = new TranslationExtractorPass();
         $translationDumperPass->process($container);

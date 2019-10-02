@@ -48,6 +48,10 @@ final class ServiceValueResolver implements ArgumentValueResolverInterface
             $controller = ltrim($controller, '\\');
         }
 
+        if (!$this->container->has($controller) && false !== $i = strrpos($controller, ':')) {
+            $controller = substr($controller, 0, $i).strtolower(substr($controller, $i));
+        }
+
         return $this->container->has($controller) && $this->container->get($controller)->has($argument->getName());
     }
 
@@ -64,11 +68,16 @@ final class ServiceValueResolver implements ArgumentValueResolverInterface
             $controller = ltrim($controller, '\\');
         }
 
+        if (!$this->container->has($controller)) {
+            $i = strrpos($controller, ':');
+            $controller = substr($controller, 0, $i).strtolower(substr($controller, $i));
+        }
+
         try {
             yield $this->container->get($controller)->get($argument->getName());
         } catch (RuntimeException $e) {
             $what = sprintf('argument $%s of "%s()"', $argument->getName(), $controller);
-            $message = preg_replace('/service "service_locator\.[^"]++"/', $what, $e->getMessage());
+            $message = preg_replace('/service "\.service_locator\.[^"]++"/', $what, $e->getMessage());
 
             if ($e->getMessage() === $message) {
                 $message = sprintf('Cannot resolve %s: %s', $what, $message);

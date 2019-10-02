@@ -3,7 +3,6 @@
 namespace Illuminate\Database\Query\Grammars;
 
 use Illuminate\Support\Arr;
-use Illuminate\Support\Str;
 use Illuminate\Database\Query\Builder;
 
 class SqlServerGrammar extends Grammar
@@ -105,6 +104,60 @@ class SqlServerGrammar extends Grammar
     }
 
     /**
+     * Compile a "where time" clause.
+     *
+     * @param  \Illuminate\Database\Query\Builder  $query
+     * @param  array  $where
+     * @return string
+     */
+    protected function whereTime(Builder $query, $where)
+    {
+        $value = $this->parameter($where['value']);
+
+        return 'cast('.$this->wrap($where['column']).' as time) '.$where['operator'].' '.$value;
+    }
+
+    /**
+     * Compile a "JSON contains" statement into SQL.
+     *
+     * @param  string  $column
+     * @param  string  $value
+     * @return string
+     */
+    protected function compileJsonContains($column, $value)
+    {
+        [$field, $path] = $this->wrapJsonFieldAndPath($column);
+
+        return $value.' in (select [value] from openjson('.$field.$path.'))';
+    }
+
+    /**
+     * Prepare the binding for a "JSON contains" statement.
+     *
+     * @param  mixed  $binding
+     * @return string
+     */
+    public function prepareBindingForJsonContains($binding)
+    {
+        return is_bool($binding) ? json_encode($binding) : $binding;
+    }
+
+    /**
+     * Compile a "JSON length" statement into SQL.
+     *
+     * @param  string  $column
+     * @param  string  $operator
+     * @param  string  $value
+     * @return string
+     */
+    protected function compileJsonLength($column, $operator, $value)
+    {
+        [$field, $path] = $this->wrapJsonFieldAndPath($column);
+
+        return '(select count(*) from openjson('.$field.$path.')) '.$operator.' '.$value;
+    }
+
+    /**
      * Create a full ANSI offset clause for the query.
      *
      * @param  \Illuminate\Database\Query\Builder  $query
@@ -157,7 +210,7 @@ class SqlServerGrammar extends Grammar
     {
         $constraint = $this->compileRowConstraint($query);
 
-        return "select * from ({$sql}) as temp_table where row_num {$constraint}";
+        return "select * from ({$sql}) as temp_table where row_num {$constraint} order by row_num";
     }
 
     /**
@@ -270,7 +323,7 @@ class SqlServerGrammar extends Grammar
     {
         $joins = ' '.$this->compileJoins($query, $query->joins);
 
-        $alias = strpos(strtolower($table), ' as ') !== false
+        $alias = stripos($table, ' as ') !== false
                 ? explode(' as ', $table)[1] : $table;
 
         return trim("delete {$alias} from {$table}{$joins} {$where}");
@@ -296,7 +349,7 @@ class SqlServerGrammar extends Grammar
      */
     public function compileUpdate(Builder $query, $values)
     {
-        list($table, $alias) = $this->parseUpdateTable($query->from);
+        [$table, $alias] = $this->parseUpdateTable($query->from);
 
         // Each one of the columns in the update statements needs to be wrapped in the
         // keyword identifiers, also a place-holder needs to be created for each of
@@ -336,7 +389,7 @@ class SqlServerGrammar extends Grammar
     {
         $table = $alias = $this->wrapTable($table);
 
-        if (strpos(strtolower($table), '] as [') !== false) {
+        if (stripos($table, '] as [') !== false) {
             $alias = '['.explode('] as [', $table)[1];
         }
 
@@ -352,24 +405,11 @@ class SqlServerGrammar extends Grammar
      */
     public function prepareBindingsForUpdate(array $bindings, array $values)
     {
-        // Update statements with joins in SQL Servers utilize an unique syntax. We need to
-        // take all of the bindings and put them on the end of this array since they are
-        // added to the end of the "where" clause statements as typical where clauses.
-        $bindingsWithoutJoin = Arr::except($bindings, 'join');
+        $cleanBindings = Arr::except($bindings, 'select');
 
         return array_values(
-            array_merge($values, $bindings['join'], Arr::flatten($bindingsWithoutJoin))
+            array_merge($values, Arr::flatten($cleanBindings))
         );
-    }
-
-    /**
-     * Determine if the grammar supports savepoints.
-     *
-     * @return bool
-     */
-    public function supportsSavepoints()
-    {
-        return true;
     }
 
     /**
@@ -412,18 +452,7 @@ class SqlServerGrammar extends Grammar
      */
     protected function wrapValue($value)
     {
-        if ($value === '*') {
-            return $value;
-        }
-
-        // If the given value is a JSON selector we will wrap it differently than a
-        // traditional value. We will need to split this path and wrap each part
-        // wrapped, etc. Otherwise, we will simply wrap the value as a string.
-        if (Str::contains($value, '->')) {
-            return $this->wrapJsonSelector($value);
-        }
-
-        return '['.str_replace(']', ']]', $value).']';
+        return $value === '*' ? $value : '['.str_replace(']', ']]', $value).']';
     }
 
     /**
@@ -434,13 +463,20 @@ class SqlServerGrammar extends Grammar
      */
     protected function wrapJsonSelector($value)
     {
-        $path = explode('->', $value);
+        [$field, $path] = $this->wrapJsonFieldAndPath($value);
 
-        $field = $this->wrapValue(array_shift($path));
+        return 'json_value('.$field.$path.')';
+    }
 
-        return sprintf('json_value(%s, \'$.%s\')', $field, collect($path)->map(function ($part) {
-            return '"'.$part.'"';
-        })->implode('.'));
+    /**
+     * Wrap the given JSON boolean value.
+     *
+     * @param  string  $value
+     * @return string
+     */
+    protected function wrapJsonBooleanValue($value)
+    {
+        return "'".$value."'";
     }
 
     /**
@@ -451,7 +487,11 @@ class SqlServerGrammar extends Grammar
      */
     public function wrapTable($table)
     {
-        return $this->wrapTableValuedFunction(parent::wrapTable($table));
+        if (! $this->isExpression($table)) {
+            return $this->wrapTableValuedFunction(parent::wrapTable($table));
+        }
+
+        return $this->getValue($table);
     }
 
     /**

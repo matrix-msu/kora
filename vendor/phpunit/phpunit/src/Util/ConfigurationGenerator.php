@@ -7,7 +7,6 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-
 namespace PHPUnit\Util;
 
 final class ConfigurationGenerator
@@ -47,13 +46,13 @@ EOT;
                 '{phpunit_version}',
                 '{bootstrap_script}',
                 '{tests_directory}',
-                '{src_directory}'
+                '{src_directory}',
             ],
             [
                 $phpunitVersion,
                 $bootstrapScript,
                 $testsDirectory,
-                $srcDirectory
+                $srcDirectory,
             ],
             self::TEMPLATE
         );

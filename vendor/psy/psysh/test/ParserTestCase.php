@@ -21,6 +21,13 @@ class ParserTestCase extends \PHPUnit\Framework\TestCase
     private $parser;
     private $printer;
 
+    public function tearDown()
+    {
+        $this->traverser = null;
+        $this->parser = null;
+        $this->printer = null;
+    }
+
     protected function parse($code, $prefix = '<?php ')
     {
         $code = $prefix . $code;
@@ -58,7 +65,8 @@ class ParserTestCase extends \PHPUnit\Framework\TestCase
     {
         $stmts = $this->parse($from);
         $stmts = $this->traverse($stmts);
-        $this->assertSame($to, $this->prettyPrint($stmts));
+        $toStmts = $this->parse($to);
+        $this->assertSame($this->prettyPrint($toStmts), $this->prettyPrint($stmts));
     }
 
     private function getParser()
@@ -84,6 +92,6 @@ class ParserTestCase extends \PHPUnit\Framework\TestCase
     {
         $msg = $e->getRawMessage();
 
-        return ($msg === 'Unexpected token EOF') || (strpos($msg, 'Syntax error, unexpected EOF') !== false);
+        return ($msg === 'Unexpected token EOF') || (\strpos($msg, 'Syntax error, unexpected EOF') !== false);
     }
 }

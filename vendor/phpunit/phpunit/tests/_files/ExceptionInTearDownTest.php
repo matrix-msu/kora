@@ -12,9 +12,13 @@ use PHPUnit\Framework\TestCase;
 class ExceptionInTearDownTest extends TestCase
 {
     public $setUp                = false;
+
     public $assertPreConditions  = false;
+
     public $assertPostConditions = false;
+
     public $tearDown             = false;
+
     public $testSomething        = false;
 
     protected function setUp(): void
@@ -26,7 +30,7 @@ class ExceptionInTearDownTest extends TestCase
     {
         $this->tearDown = true;
 
-        throw new Exception;
+        throw new Exception('throw Exception in tearDown()');
     }
 
     public function testSomething(): void

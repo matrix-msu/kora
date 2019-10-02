@@ -31,7 +31,9 @@ abstract class AbstractField implements FieldInterface
      */
     protected $rangeEnd;
 
-
+    /**
+     * Constructor
+     */
     public function __construct()
     {
         $this->fullRange = range($this->rangeStart, $this->rangeEnd);
@@ -139,11 +141,12 @@ abstract class AbstractField implements FieldInterface
             throw new \OutOfRangeException('Invalid range end requested');
         }
 
-        if ($step > ($rangeEnd - $rangeStart) + 1) {
-            throw new \OutOfRangeException('Step cannot be greater than total range');
+        // Steps larger than the range need to wrap around and be handled slightly differently than smaller steps
+        if ($step >= $this->rangeEnd) {
+            $thisRange = [$this->fullRange[$step % count($this->fullRange)]];
+        } else {
+            $thisRange = range($rangeStart, $rangeEnd, $step);
         }
-
-        $thisRange = range($rangeStart, $rangeEnd, $step);
 
         return in_array($dateValue, $thisRange);
     }
@@ -186,9 +189,13 @@ abstract class AbstractField implements FieldInterface
                 $offset = $range[0];
                 $to = isset($range[1]) ? $range[1] : $max;
             }
-            $offset = $offset == '*' ? 0 : $offset;
-            for ($i = $offset; $i <= $to; $i += $stepSize) {
-                $values[] = (int)$i;
+            $offset = $offset == '*' ? $this->rangeStart : $offset;
+            if ($stepSize >= $this->rangeEnd) {
+                $values = [$this->fullRange[$stepSize % count($this->fullRange)]];
+            } else {
+                for ($i = $offset; $i <= $to; $i += $stepSize) {
+                    $values[] = (int)$i;
+                }
             }
             sort($values);
         }
@@ -199,12 +206,18 @@ abstract class AbstractField implements FieldInterface
         return $values;
     }
 
+    /**
+     * Convert literal
+     *
+     * @param string $value
+     * @return string
+     */
     protected function convertLiterals($value)
     {
         if (count($this->literals)) {
             $key = array_search($value, $this->literals);
             if ($key !== false) {
-                return $key;
+                return (string) $key;
             }
         }
 
@@ -257,10 +270,16 @@ abstract class AbstractField implements FieldInterface
             return $this->validate($chunks[0]) && $this->validate($chunks[1]);
         }
 
-        // We should have a numeric by now, so coerce this into an integer
-        if (filter_var($value, FILTER_VALIDATE_INT) !== false) {
-            $value = (int) $value;
+        if (!is_numeric($value)) {
+            return false;
         }
+
+        if (is_float($value) || strpos($value, '.') !== false) {
+            return false;
+        }
+
+        // We should have a numeric by now, so coerce this into an integer
+        $value = (int) $value;
 
         return in_array($value, $this->fullRange, true);
     }

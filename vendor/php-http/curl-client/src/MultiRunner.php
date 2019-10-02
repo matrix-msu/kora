@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Http\Client\Curl;
 
 use Http\Client\Exception\RequestException;
@@ -17,7 +19,7 @@ class MultiRunner
      *
      * @var resource|null
      */
-    private $multiHandle = null;
+    private $multiHandle;
 
     /**
      * Awaiting cores.
@@ -41,7 +43,7 @@ class MultiRunner
      *
      * @param PromiseCore $core
      */
-    public function add(PromiseCore $core)
+    public function add(PromiseCore $core): void
     {
         foreach ($this->cores as $existed) {
             if ($existed === $core) {
@@ -62,7 +64,7 @@ class MultiRunner
      *
      * @param PromiseCore $core
      */
-    public function remove(PromiseCore $core)
+    public function remove(PromiseCore $core): void
     {
         foreach ($this->cores as $index => $existed) {
             if ($existed === $core) {
@@ -79,7 +81,7 @@ class MultiRunner
      *
      * @param PromiseCore|null $targetCore
      */
-    public function wait(PromiseCore $targetCore = null)
+    public function wait(PromiseCore $targetCore = null): void
     {
         do {
             $status = curl_multi_exec($this->multiHandle, $active);
@@ -116,7 +118,7 @@ class MultiRunner
      *
      * @return PromiseCore|null
      */
-    private function findCoreByHandle($handle)
+    private function findCoreByHandle($handle): ?PromiseCore
     {
         foreach ($this->cores as $core) {
             if ($core->getHandle() === $handle) {
