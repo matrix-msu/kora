@@ -1,27 +1,27 @@
 <?php
 
-use Illuminate\Foundation\Mix;
-use Illuminate\Support\HtmlString;
 use Illuminate\Container\Container;
-use Illuminate\Support\Facades\Date;
-use Illuminate\Queue\CallQueuedClosure;
-use Illuminate\Contracts\Bus\Dispatcher;
-use Illuminate\Queue\SerializableClosure;
 use Illuminate\Contracts\Auth\Access\Gate;
-use Illuminate\Contracts\Support\Responsable;
-use Illuminate\Contracts\Routing\UrlGenerator;
-use Illuminate\Foundation\Bus\PendingDispatch;
-use Symfony\Component\HttpFoundation\Response;
+use Illuminate\Contracts\Auth\Factory as AuthFactory;
+use Illuminate\Contracts\Broadcasting\Factory as BroadcastFactory;
+use Illuminate\Contracts\Bus\Dispatcher;
+use Illuminate\Contracts\Cookie\Factory as CookieFactory;
 use Illuminate\Contracts\Debug\ExceptionHandler;
 use Illuminate\Contracts\Routing\ResponseFactory;
-use Illuminate\Contracts\Auth\Factory as AuthFactory;
-use Illuminate\Contracts\View\Factory as ViewFactory;
-use Illuminate\Http\Exceptions\HttpResponseException;
-use Illuminate\Contracts\Cookie\Factory as CookieFactory;
-use Symfony\Component\Debug\Exception\FatalThrowableError;
-use Illuminate\Database\Eloquent\Factory as EloquentFactory;
+use Illuminate\Contracts\Routing\UrlGenerator;
+use Illuminate\Contracts\Support\Responsable;
 use Illuminate\Contracts\Validation\Factory as ValidationFactory;
-use Illuminate\Contracts\Broadcasting\Factory as BroadcastFactory;
+use Illuminate\Contracts\View\Factory as ViewFactory;
+use Illuminate\Database\Eloquent\Factory as EloquentFactory;
+use Illuminate\Foundation\Bus\PendingDispatch;
+use Illuminate\Foundation\Mix;
+use Illuminate\Http\Exceptions\HttpResponseException;
+use Illuminate\Queue\CallQueuedClosure;
+use Illuminate\Queue\SerializableClosure;
+use Illuminate\Support\Facades\Date;
+use Illuminate\Support\HtmlString;
+use Symfony\Component\Debug\Exception\FatalThrowableError;
+use Symfony\Component\HttpFoundation\Response;
 
 if (! function_exists('abort')) {
     /**
@@ -131,7 +131,7 @@ if (! function_exists('app_path')) {
      */
     function app_path($path = '')
     {
-        return app('path').($path ? DIRECTORY_SEPARATOR.$path : $path);
+        return app()->path($path);
     }
 }
 
@@ -190,7 +190,7 @@ if (! function_exists('base_path')) {
      */
     function base_path($path = '')
     {
-        return app()->basePath().($path ? DIRECTORY_SEPARATOR.$path : $path);
+        return app()->basePath($path);
     }
 }
 
@@ -293,7 +293,7 @@ if (! function_exists('config_path')) {
      */
     function config_path($path = '')
     {
-        return app()->make('path.config').($path ? DIRECTORY_SEPARATOR.$path : $path);
+        return app()->configPath($path);
     }
 }
 
@@ -875,7 +875,7 @@ if (! function_exists('trans')) {
             return app('translator');
         }
 
-        return app('translator')->trans($key, $replace, $locale);
+        return app('translator')->get($key, $replace, $locale);
     }
 }
 
@@ -884,14 +884,14 @@ if (! function_exists('trans_choice')) {
      * Translates the given message based on a count.
      *
      * @param  string  $key
-     * @param  int|array|\Countable  $number
+     * @param  \Countable|int|array  $number
      * @param  array   $replace
      * @param  string|null  $locale
      * @return string
      */
     function trans_choice($key, $number, array $replace = [], $locale = null)
     {
-        return app('translator')->transChoice($key, $number, $replace, $locale);
+        return app('translator')->choice($key, $number, $replace, $locale);
     }
 }
 
@@ -899,14 +899,18 @@ if (! function_exists('__')) {
     /**
      * Translate the given message.
      *
-     * @param  string  $key
+     * @param  string|null  $key
      * @param  array  $replace
      * @param  string|null  $locale
-     * @return string|array|null
+     * @return \Illuminate\Contracts\Translation\Translator|string|array|null
      */
-    function __($key, $replace = [], $locale = null)
+    function __($key = null, $replace = [], $locale = null)
     {
-        return app('translator')->getFromJson($key, $replace, $locale);
+        if (is_null($key)) {
+            return $key;
+        }
+
+        return trans($key, $replace, $locale);
     }
 }
 

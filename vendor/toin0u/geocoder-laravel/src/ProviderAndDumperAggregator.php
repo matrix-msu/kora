@@ -18,8 +18,10 @@ use Geocoder\Laravel\Exceptions\InvalidDumperException;
 use Geocoder\ProviderAggregator;
 use Geocoder\Query\GeocodeQuery;
 use Geocoder\Query\ReverseQuery;
+use Illuminate\Log\Logger;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
+use Psr\Log\LoggerAwareTrait;
 use ReflectionClass;
 
 /**
@@ -246,8 +248,16 @@ class ProviderAndDumperAggregator
             $arguments = $this->getArguments($arguments, $provider);
             $reflection = new ReflectionClass($provider);
 
-            if ($provider === 'Geocoder\Provider\Chain\Chain') {
-                return $reflection->newInstance($arguments);
+            if ($provider === "Geocoder\Provider\Chain\Chain") {
+                $chainProvider = $reflection->newInstance($arguments);
+
+                if (in_array(LoggerAwareTrait::class, class_uses($chainProvider))
+                    && app(Logger::class) !== null
+                ) {
+                    $chainProvider->setLogger(app(Logger::class));
+                }
+
+                return $chainProvider;
             }
 
             return $reflection->newInstanceArgs($arguments);

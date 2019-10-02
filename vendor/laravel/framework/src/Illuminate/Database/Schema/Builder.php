@@ -3,10 +3,10 @@
 namespace Illuminate\Database\Schema;
 
 use Closure;
-use LogicException;
-use RuntimeException;
 use Doctrine\DBAL\Types\Type;
 use Illuminate\Database\Connection;
+use LogicException;
+use RuntimeException;
 
 class Builder
 {
@@ -227,6 +227,18 @@ class Builder
     public function dropAllTypes()
     {
         throw new LogicException('This database driver does not support dropping all types.');
+    }
+
+    /**
+     * Get all of the table names for the database.
+     *
+     * @return void
+     *
+     * @throws \LogicException
+     */
+    public function getAllTables()
+    {
+        throw new LogicException('This database driver does not support getting all tables.');
     }
 
     /**

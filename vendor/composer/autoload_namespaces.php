@@ -6,7 +6,6 @@ $vendorDir = dirname(dirname(__FILE__));
 $baseDir = dirname($vendorDir);
 
 return array(
-    'Rairlie\\LockingSession' => array($vendorDir . '/rairlie/laravel-locking-session/src'),
     'PhpSpec' => array($vendorDir . '/phpspec/phpspec/src'),
     'PhpOption\\' => array($vendorDir . '/phpoption/phpoption/src'),
     'Parsedown' => array($vendorDir . '/erusev/parsedown'),

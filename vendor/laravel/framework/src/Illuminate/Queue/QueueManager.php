@@ -3,9 +3,9 @@
 namespace Illuminate\Queue;
 
 use Closure;
-use InvalidArgumentException;
 use Illuminate\Contracts\Queue\Factory as FactoryContract;
 use Illuminate\Contracts\Queue\Monitor as MonitorContract;
+use InvalidArgumentException;
 
 /**
  * @mixin \Illuminate\Contracts\Queue\Queue
@@ -244,16 +244,6 @@ class QueueManager implements FactoryContract, MonitorContract
     public function getName($connection = null)
     {
         return $connection ?: $this->getDefaultDriver();
-    }
-
-    /**
-     * Determine if the application is in maintenance mode.
-     *
-     * @return bool
-     */
-    public function isDownForMaintenance()
-    {
-        return $this->app->isDownForMaintenance();
     }
 
     /**

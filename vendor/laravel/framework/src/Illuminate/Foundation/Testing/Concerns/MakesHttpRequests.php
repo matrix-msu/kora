@@ -2,12 +2,12 @@
 
 namespace Illuminate\Foundation\Testing\Concerns;
 
-use Illuminate\Support\Str;
-use Illuminate\Http\Request;
-use Illuminate\Foundation\Testing\TestResponse;
 use Illuminate\Contracts\Http\Kernel as HttpKernel;
-use Symfony\Component\HttpFoundation\Request as SymfonyRequest;
+use Illuminate\Foundation\Testing\TestResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use Symfony\Component\HttpFoundation\File\UploadedFile as SymfonyUploadedFile;
+use Symfony\Component\HttpFoundation\Request as SymfonyRequest;
 
 trait MakesHttpRequests
 {
@@ -295,31 +295,31 @@ trait MakesHttpRequests
     }
 
     /**
-     * Visit the given URI with a OPTION request.
+     * Visit the given URI with a OPTIONS request.
      *
      * @param  string  $uri
      * @param  array  $data
      * @param  array  $headers
      * @return \Illuminate\Foundation\Testing\TestResponse
      */
-    public function option($uri, array $data = [], array $headers = [])
+    public function options($uri, array $data = [], array $headers = [])
     {
         $server = $this->transformHeadersToServerVars($headers);
 
-        return $this->call('OPTION', $uri, $data, [], [], $server);
+        return $this->call('OPTIONS', $uri, $data, [], [], $server);
     }
 
     /**
-     * Visit the given URI with a OPTION request, expecting a JSON response.
+     * Visit the given URI with a OPTIONS request, expecting a JSON response.
      *
      * @param  string  $uri
      * @param  array  $data
      * @param  array  $headers
      * @return \Illuminate\Foundation\Testing\TestResponse
      */
-    public function optionJson($uri, array $data = [], array $headers = [])
+    public function optionsJson($uri, array $data = [], array $headers = [])
     {
-        return $this->json('OPTION', $uri, $data, $headers);
+        return $this->json('OPTIONS', $uri, $data, $headers);
     }
 
     /**
