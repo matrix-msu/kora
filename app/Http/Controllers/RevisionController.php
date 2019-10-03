@@ -85,7 +85,7 @@ class RevisionController extends Controller {
         );
 
         return view('revisions.index', compact('revisions', 'records', 'selected_records', 'selected_users', 'form', 'notification', [
-            'revisions' => $revisions->appends(Request::except('page'))
+            'revisions' => $revisions->appends(request()->except('page'))
         ]));
     }
 

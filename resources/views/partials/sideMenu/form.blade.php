@@ -4,7 +4,7 @@
 
 @include('partials.sideMenu.project', ['pid' => $menuform->project_id, 'openDrawer' => false])
 <div class="drawer-element drawer-element-js">
-  <a href="#" class="drawer-toggle drawer-toggle-js" data-drawer="{{ $openDrawer or '0' }}">
+  <a href="#" class="drawer-toggle drawer-toggle-js" data-drawer="{{ $openDrawer ?? '0' }}">
     <i class="icon icon-form"></i>
     <span>{{ $menuform->name }}</span>
     <i class="icon icon-chevron"></i>

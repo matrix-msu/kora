@@ -3,7 +3,7 @@
 @endphp
 @include('partials.sideMenu.dashboard')
 <div class="drawer-element drawer-element-js">
-  <a href="#" class="drawer-toggle drawer-toggle-js" data-drawer="{{ $openDrawer or '0' }}">
+  <a href="#" class="drawer-toggle drawer-toggle-js" data-drawer="{{ $openDrawer ?? '0' }}">
     <i class="icon icon-project"></i>
     <span>{{ $project['name'] }}</span>
     <i class="icon icon-chevron"></i>
