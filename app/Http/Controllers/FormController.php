@@ -372,6 +372,7 @@ class FormController extends Controller {
                 //Fill out its data
                 $field['type'] = $oldField['type'];
                 $field['name'] = $oldField['name'];
+                $field['alt_name'] = $oldField['alt_name'];
                 $field['description'] = $oldField['description'];
                 $field['default'] = $oldField['default'];
                 if(isset($oldField['options'])) //Combo doesn't store it here
