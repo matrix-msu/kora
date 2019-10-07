@@ -91,8 +91,8 @@
         <div id="updated-at" class="hidden">{{$record->updated_at}}</div>
         <section class="meta-data time"></section>
 
-        @if(sizeof($record->getAssociatedRecords())>0)
-            <div class="meta-title mt-m">Associated Records ({{ sizeof($record->getAssociatedRecords()) }})</div>
+        @if($record->getAssociatedRecordsCount()>0)
+            <div class="meta-title mt-m">Associated Records ({{ $record->getAssociatedRecordsCount() }})</div>
             <section class="meta-data">
                 @foreach($record->getAssociatedRecords() as $aRecord)
                     <div><a class="meta-link underline-middle-hover"
@@ -116,7 +116,7 @@
     <script type="text/javascript">
         makeRecordPresetURL = '{{action('RecordPresetController@presetRecord')}}';
         ridForPreset = '{{$record->kid}}';
-        revAssocCount = {{sizeof($record->getAssociatedRecords())}}
+        revAssocCount = {{$record->getAssociatedRecordsCount()}}
         csrfToken = '{{csrf_token()}}';
 
         Kora.Records.Show();
