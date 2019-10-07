@@ -135,6 +135,7 @@ class ComposerStaticInit23979a8a3fb78b4f78e5f7913c5439a2
         ),
         'C' => 
         array (
+            'CsvParser\\' => 10,
             'Cron\\' => 5,
             'Collective\\Html\\' => 16,
             'Clue\\StreamFilter\\' => 18,
@@ -381,6 +382,10 @@ class ComposerStaticInit23979a8a3fb78b4f78e5f7913c5439a2
         'DeepCopy\\' => 
         array (
             0 => __DIR__ . '/..' . '/myclabs/deep-copy/src/DeepCopy',
+        ),
+        'CsvParser\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/stilliard/csvparser/src',
         ),
         'Cron\\' => 
         array (
