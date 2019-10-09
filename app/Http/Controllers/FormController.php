@@ -48,14 +48,14 @@ class FormController extends Controller {
         $admins = User::where("admin","=",1)->get();
 
 		$userNames = array();
-		foreach ($users as $user) {
-			if (!$currProjectAdmins->contains($user) && !$admins->contains($user)) {
+		foreach($users as $user) {
+			if(!$currProjectAdmins->contains($user) && !$admins->contains($user)) {
 				$firstName = $user->preferences['first_name'];
 				$lastName = $user->preferences['last_name'];
 				$userName = $user->username;
 
 				$pushThis = $firstName.' '.$lastName.' ('.$userName.')';
-				array_push($userNames, $pushThis);
+                $userNames[$user->id] = $pushThis;
 			}
 		}
 		natcasesort($userNames);
