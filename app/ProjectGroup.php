@@ -27,7 +27,7 @@ class ProjectGroup extends Model {
 	protected $fillable = ['name', 'project_id', 'create', 'edit', 'delete'];
 
     /**
-     * Returns projects associated with a project group.
+     * Returns users associated with a project group.
      *
      * @return BelongsToMany
      */
