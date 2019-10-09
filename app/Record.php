@@ -118,6 +118,17 @@ class Record extends Model {
     }
 
     /**
+     * Gets a number of records that associate to this record
+     *
+     * @return int - Number of records that associate it
+     */
+    public function getAssociatedRecordsCount() {
+        return DB::table(AssociatorField::Reverse_Cache_Table)
+            ->distinct()
+            ->where('associated_kid','=',$this->kid)->count();
+    }
+
+    /**
      * Gets a preview value for the record when displaying in a reverse association.
      *
      * @return string - The preview value

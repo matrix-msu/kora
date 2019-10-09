@@ -1,1 +1,1 @@
-{{$typedField->processDisplayData($field, $value)}}
+{!! $typedField->processDisplayData($field, $value) !!}

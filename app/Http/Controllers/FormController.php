@@ -48,14 +48,14 @@ class FormController extends Controller {
         $admins = User::where("admin","=",1)->get();
 
 		$userNames = array();
-		foreach ($users as $user) {
-			if (!$currProjectAdmins->contains($user) && !$admins->contains($user)) {
+		foreach($users as $user) {
+			if(!$currProjectAdmins->contains($user) && !$admins->contains($user)) {
 				$firstName = $user->preferences['first_name'];
 				$lastName = $user->preferences['last_name'];
 				$userName = $user->username;
 
 				$pushThis = $firstName.' '.$lastName.' ('.$userName.')';
-				array_push($userNames, $pushThis);
+                $userNames[$user->id] = $pushThis;
 			}
 		}
 		natcasesort($userNames);
@@ -372,6 +372,7 @@ class FormController extends Controller {
                 //Fill out its data
                 $field['type'] = $oldField['type'];
                 $field['name'] = $oldField['name'];
+                $field['alt_name'] = $oldField['alt_name'];
                 $field['description'] = $oldField['description'];
                 $field['default'] = $oldField['default'];
                 if(isset($oldField['options'])) //Combo doesn't store it here

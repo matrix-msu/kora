@@ -201,15 +201,14 @@ class ProjectController extends Controller {
 		$users = User::all();
 
 		$userNames = array();
-		foreach ($users as $user) {
-			if ($user->id != $currentUser->id) {
-
+		foreach($users as $user) {
+			if($user->id != $currentUser->id) {
 				$firstName = $user->preferences['first_name'];
 				$lastName = $user->preferences['last_name'];
 				$userName = $user->username;
 
 				$pushThis = $firstName.' '.$lastName.' ('.$userName.')';
-				array_push($userNames, $pushThis);
+                $userNames[$user->id] = $pushThis;
 			}
 		}
 		natcasesort($userNames);

@@ -29,7 +29,7 @@
             <div class="form-group mt-xl mb-xxl duplicate-record-special-js">
                 {!! Form::label('mass_creation_num', 'Select duplication amount (max 1000): ') !!}
                 <div class="number-input-container number-input-container-js">
-                  <input type="number" name="mass_creation_num" class="text-input" value="2" step="1" max="1000" min="1">
+                  <input type="number" name="mass_creation_num" class="text-input" value="1" step="1" max="1000" min="1">
                 </div>
             </div>
             <div class="content-sections">
@@ -60,7 +60,7 @@
         <div class="form-group mt-xxxl duplicate-record-js hidden">
             {!! Form::label('mass_creation_num', 'Select duplication amount (max 1000): ') !!}
             <div class="number-input-container number-input-container-js">
-                <input type="number" name="mass_creation_num" class="text-input" value="2" step="1" max="1000" min="1">
+                <input type="number" name="mass_creation_num" class="text-input" value="1" step="1" max="1000" min="1">
             </div>
         </div>
 

@@ -2,7 +2,6 @@
 
 use App\Form;
 use App\Record;
-use App\Search;
 use Illuminate\Http\Request;
 
 class TextField extends BaseField {
@@ -223,10 +222,16 @@ class TextField extends BaseField {
      * @return mixed - Processed data
      */
     public function processDisplayData($field, $value) {
+        //So normally in the display file for text (resources/views/partials/records/display/text.blade.php) we use to use
+        // the {{ }} tags to filter out html content by running it through htmlspecialchars. However in a multiline Text
+        // Field, we want to display the line breaks without processing other HTML to prevent XSS attacks.
+        //
+        //To solve, the display file now uses {!! !!} to not filter the html.
+        //We then for multiline Text Fields, filter the html first, and then process the line breaks
         if($field['options']['MultiLine'])
-            return nl2br($value);
+            return nl2br(htmlspecialchars($value));
         else
-            return $value;
+            return htmlspecialchars($value);
     }
 
     /**
