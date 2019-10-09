@@ -172,10 +172,14 @@ abstract class AbstractPaginator implements Htmlable
             $parameters = array_merge($this->query, $parameters);
         }
 
-        return $this->path()
+        $url = $this->path()
                         .(Str::contains($this->path(), '?') ? '&' : '?')
                         .Arr::query($parameters)
                         .$this->buildFragment();
+
+        $url = str_replace('http://','https://',$url);
+
+        return $url;
     }
 
     /**

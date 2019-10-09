@@ -135,12 +135,12 @@ class GeneratedListField extends BaseField {
         $regex = $field['options']['Regex'];
 
         if(($req==1 | $forceReq) && ($value==null | $value==""))
-            return [$flid->$field['name'].' is required'];
+            return [$flid => $field['name'].' is required'];
 
 		if($value!=null) {
 	        foreach($value as $opt) {
 	            if(($regex!=null | $regex!="") && !preg_match($regex,$opt))
-	                return [$flid->$field['name'].' match the regex pattern: '.$regex];
+	                return [$flid => $field['name'].' must match the regex pattern: '.$regex];
         	}
         }
 

@@ -3,6 +3,7 @@
 use Geocoder\Provider\Chain\Chain;
 use Geocoder\Provider\GeoPlugin\GeoPlugin;
 use Geocoder\Provider\GoogleMaps\GoogleMaps;
+use Geocoder\Provider\Nominatim\Nominatim;
 use Http\Client\Curl\Client;
 
 return [
@@ -57,6 +58,10 @@ return [
     */
     'providers' => [
         Chain::class => [
+            Nominatim::class => [
+                'https://nominatim.openstreetmap.org',
+                url('/')
+            ],
             GoogleMaps::class => [
                 env('GOOGLE_MAPS_LOCALE', 'en-US'),
                 env('GOOGLE_MAPS_API_KEY'),
