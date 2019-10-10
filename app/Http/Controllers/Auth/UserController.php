@@ -528,7 +528,7 @@ class UserController extends Controller {
 
         //remove old pic
         $oldFile = $pDir.$user->preferences['profile_pic'];
-        if(file_exists($oldFile))
+        if(file_exists($oldFile) && $oldFile!='')
             unlink($oldFile);
 
         //set new pic to db
