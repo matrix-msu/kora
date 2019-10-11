@@ -9,7 +9,7 @@ class GitlabProvider extends AbstractProvider implements ProviderInterface
      */
     protected function getAuthUrl($state)
     {
-        return $this->buildAuthUrlFromBase('https://gitlab.com/oauth/authorize', $state);
+        return $this->buildAuthUrlFromBase(config('services.gitlab.client').'/oauth/authorize', $state);
     }
 
     /**
@@ -17,7 +17,7 @@ class GitlabProvider extends AbstractProvider implements ProviderInterface
      */
     protected function getTokenUrl()
     {
-        return 'https://gitlab.com/oauth/token';
+        return config('services.gitlab.client').'/oauth/token';
     }
 
     /**
@@ -25,7 +25,7 @@ class GitlabProvider extends AbstractProvider implements ProviderInterface
      */
     protected function getUserByToken($token)
     {
-        $userUrl = 'https://gitlab.com/api/v3/user?access_token='.$token;
+        $userUrl = config('services.gitlab.client').'/api/v3/user?access_token='.$token;
 
         $response = $this->getHttpClient()->get($userUrl);
 
