@@ -275,8 +275,8 @@ Route::group(['middleware' => 'web'], function () {
 
 //user auth
     Auth::routes(); // generates user authentication routes
-    Route::get('login/gitlab', 'Auth\LoginController@redirectToProvider');
-    Route::get('login/gitlab/callback', 'Auth\LoginController@handleProviderCallback');
+    Route::get('login/gitlab', 'Auth\LoginController@redirectToGitlab');
+    Route::get('login/gitlab/callback', 'Auth\LoginController@handleGitlabCallback');
 
     Route::post("/user/projectCustom", "Auth\UserController@saveProjectCustomOrder");
     Route::post("/user/formCustom/{pid}", "Auth\UserController@saveFormCustomOrder");

@@ -645,7 +645,7 @@ if (! function_exists('redirect')) {
      * @param  bool|null    $secure
      * @return \Illuminate\Routing\Redirector|\Illuminate\Http\RedirectResponse
      */
-    function redirect($to = null, $status = 302, $headers = [], $secure = null)
+    function redirect($to = null, $status = 302, $headers = [], $secure = true)
     {
         if (is_null($to)) {
             return app('redirect');
