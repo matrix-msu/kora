@@ -33,6 +33,7 @@
 @stop
 
 @section('body')
+  @include('partials.projects.notification')
   <section class="form-container edit-form center">
 
     @if (\Auth::user()->admin && \Auth::user()->id != $user->id)

@@ -85,7 +85,7 @@ class LoginController extends Controller
 
                 Auth::login($newKoraUser);
 
-                return redirect('/user/'.$newKoraUser->id.'/edit');
+                return redirect('/user/'.$newKoraUser->id.'/edit')->with('k3_global_success', 'gitlab_user_created');
             }
         }
     }
@@ -117,7 +117,7 @@ class LoginController extends Controller
         $preferences['last_name'] = 'User';
         $preferences['logo_target'] = 2;
         $preferences['profile_pic'] = '';
-        $preferences['organization'] = 'Gitlab';
+        $preferences['organization'] = 'None';
         $preferences['onboarding'] = 1;
         $preferences['use_dashboard'] = 1;
         $preferences['form_tab_selection'] = 2;

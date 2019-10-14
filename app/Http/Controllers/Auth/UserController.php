@@ -207,7 +207,25 @@ class UserController extends Controller {
         else
           $user = \Auth::user();
 
-        return view('user/edit', compact('user'));
+        $notification = array(
+            'message' => '',
+            'description' => '',
+            'warning' => false,
+            'static' => false
+        );
+
+        $prevUrlArray = $request->session()->get('_previous');
+        $prevUrl = reset($prevUrlArray);
+        // we do not need to see notification every time we reload the page
+        if($prevUrl !== url()->current()) {
+            $session = $request->session()->get('k3_global_success');
+            if($session) {
+                if($session == 'gitlab_user_created')
+                    $notification['message'] = 'Gitlab user created! Please update profile.';
+            }
+        }
+
+        return view('user/edit', compact('user', 'notification'));
     }
 
     /**
