@@ -71,14 +71,9 @@ class LoginController extends Controller
         } else {
             $koraUserByName  = User::where('username','=',$user->nickname)->first();
 
-            if(!is_null($koraUserByEmail)) {
-                dd("user with email already exists!!!");
-                //User has same email as another user that existed previously
-                //TODO
-            } else if(!is_null($koraUserByName)) {
-                dd("user with username already exists!!!");
-                //User has same username as another user that existed previously
-                //TODO
+            if(!is_null($koraUserByEmail) | !is_null($koraUserByName)) {
+                //User has same email/username as another user that existed previously
+                return redirect('/home')->with('status', 'gitlab_user_conflict');
             } else {
                 //Create user and then force them to edit user page
                 $newKoraUser = $this->createNewUserFromOAuth($user->nickname,$user->email,'gitlab_token',$user->token);
