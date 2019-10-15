@@ -77,7 +77,7 @@ class FormGroupController extends Controller {
         if($request->name == "")
             return redirect(action('FormGroupController@index', ['fid'=>$form->fid]))->with('k3_global_error', 'form_group_noname');
 
-        $group = self::buildGroup($pid, $form->id, $request);
+        $group = self::buildGroup($form->id, $request);
 
         if(!is_null($request->users)) {
             foreach($request->users as $uid) {
