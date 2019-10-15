@@ -40,7 +40,11 @@ class LoginController extends Controller
     public function __construct()
     {
         $this->middleware('install');
-        $this->middleware('guest', ['except' => 'logout']);
+        $this->middleware('guest', ['except' => [
+            'logout',
+            'redirectToGitlab',
+            'handleGitlabCallback'
+        ]]);
     }
 
     /**
@@ -60,27 +64,52 @@ class LoginController extends Controller
     public function handleGitlabCallback() {
         $user = Socialite::driver('gitlab')->user();
 
-        //Check to see if user exists
-        $koraUserByEmail = User::where('email','=',$user->email)->first();
+        if(Auth::guest()) {
+            //Check to see if user exists
+            $koraUsersByHash = User::whereNotNull('gitlab_token')->get();
+            foreach($koraUsersByHash as $hashUser) {
+                //Found the user
+                if(Hash::check($user->token, $hashUser->gitlab_token)) {
+                    Auth::login($hashUser);
 
-        if( !is_null($koraUserByEmail) && Hash::check($user->token, $koraUserByEmail->gitlab_token) ) {
-            //Found a user, and token matched a user in the DB
-            Auth::login($koraUserByEmail);
+                    return redirect('/home');
+                }
+            }
 
-            return redirect('/home');
-        } else {
-            $koraUserByName  = User::where('username','=',$user->nickname)->first();
+            //Didn't find anybody so let's see if we can make account automatically
+            $koraUserByEmail = User::where('email', '=', $user->email)->first();
+            $koraUserByName = User::where('username', '=', $user->nickname)->first();
 
             if(!is_null($koraUserByEmail) | !is_null($koraUserByName)) {
-                //User has same email/username as another user that existed previously
-                return redirect('/home')->with('status', 'gitlab_user_conflict');
+                //Gitlab user has same email or username as another kora user that exists
+                return redirect('/home')->with('status', 'oauth_user_conflict');
             } else {
-                //Create user and then force them to edit user page
-                $newKoraUser = $this->createNewUserFromOAuth($user->nickname,$user->email,'gitlab_token',$user->token);
+                //Create user and then send them to profile page
+                $newKoraUser = $this->createNewUserFromOAuth($user->nickname, $user->email, 'gitlab_token', $user->token);
 
                 Auth::login($newKoraUser);
 
-                return redirect('/user/'.$newKoraUser->id.'/edit')->with('k3_global_success', 'gitlab_user_created');
+                return redirect('/user/' . $newKoraUser->id)->with('k3_global_success', 'gitlab_user_created');
+            }
+        } else {
+            //We are logged in, so assign gitlab to current user
+            $currentUser = Auth::user();
+
+            if(is_null($currentUser->gitlab_token)) {
+                //Make sure this account isn't assigned to another
+                $koraUsersByHash = User::whereNotNull('gitlab_token')->get();
+                foreach($koraUsersByHash as $hashUser) {
+                    if(Hash::check($user->token, $hashUser->gitlab_token))
+                        return redirect('/user/' . $currentUser->id)->with('k3_global_success', 'gitlab_user_used');
+                }
+
+                //Gitlab account not in use so assign it!
+                $currentUser->gitlab_token = Hash::make($user->token);
+                $currentUser->save();
+                return redirect('/user/' . $currentUser->id)->with('k3_global_success', 'gitlab_user_assigned');
+            } else {
+                //Already has a gitlab account
+                return redirect('/user/' . $currentUser->id)->with('k3_global_success', 'gitlab_user_exists');
             }
         }
     }

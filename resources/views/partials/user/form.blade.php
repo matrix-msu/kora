@@ -83,6 +83,17 @@
          id="password_confirmation" name="password_confirmation" placeholder="Enter password here">
 </div>
 
+@if(\Auth::user()->id == $user->id)
+<h2 class="mt-xxxl mb-xl">Assign OAuth Account</h2>
+<div class="form-group mt-xl">
+    @if(is_null($user->gitlab_token))
+        <a href="{{ action('Auth\LoginController@redirectToGitlab') }}" class="btn secondary" data-unsp-sanitized="clean">Add Gitlab Account</a>
+    @else
+        <a href="{{ action('Auth\UserController@removeGitlab', ["uid" => $user->id]) }}" class="btn warning" data-unsp-sanitized="clean">Remove Gitlab Account</a>
+    @endif
+</div>
+@endif
+
 <div class="form-group mt-100-xl floating-button-height">
     {!! Form::submit('Update Profile', ['class' => 'btn edit-btn update-user-submit pre-fixed-js validate-user-js color-transition']) !!}
 </div>

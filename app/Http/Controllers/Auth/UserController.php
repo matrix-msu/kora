@@ -120,6 +120,23 @@ class UserController extends Controller {
             } else {
               $notification['message'] = 'Profile Successfully Updated!';
             }
+          } else if($session == 'gitlab_user_created') {
+              $notification['message'] = 'Gitlab user created! Please update profile with proper name and organization.';
+              $notification['static'] = true;
+          } else if($session == 'gitlab_user_assigned') {
+              $notification['message'] ='Gitlab Account Successfully Assigned!';
+          } else if($session == 'gitlab_user_removed') {
+              $notification['message'] ='Gitlab Account Successfully Removed!';
+          } else if($session == 'gitlab_user_exists') {
+              $notification['message'] ='Gitlab Assign Error';
+              $notification['description'] ='It looks like your user already has Gitlab authentication.';
+              $notification['warning'] = true;
+              $notification['static'] = true;
+          } else if($session == 'gitlab_user_used') {
+              $notification['message'] ='Gitlab Already In Use';
+              $notification['description'] ='The provided Gitlab account has already been assigned.';
+              $notification['warning'] = true;
+              $notification['static'] = true;
           }
         }
 
@@ -207,25 +224,7 @@ class UserController extends Controller {
         else
           $user = \Auth::user();
 
-        $notification = array(
-            'message' => '',
-            'description' => '',
-            'warning' => false,
-            'static' => false
-        );
-
-        $prevUrlArray = $request->session()->get('_previous');
-        $prevUrl = reset($prevUrlArray);
-        // we do not need to see notification every time we reload the page
-        if($prevUrl !== url()->current()) {
-            $session = $request->session()->get('k3_global_success');
-            if($session) {
-                if($session == 'gitlab_user_created')
-                    $notification['message'] = 'Gitlab user created! Please update profile.';
-            }
-        }
-
-        return view('user/edit', compact('user', 'notification'));
+        return view('user/edit', compact('user'));
     }
 
     /**
@@ -402,6 +401,24 @@ class UserController extends Controller {
             return redirect('admin/users')->with('k3_global_success', 'user_deleted');
         else
             return redirect('/')->with('k3_global_success', 'account_deleted');
+    }
+
+    /**
+     * Removes gitlab authentication from an account.
+     *
+     * @param  int $uid - User's Id
+     * @return Redirect
+     */
+    public function removeGitlab($uid) {
+        $user = \Auth::user();
+
+        if($user->id != $uid)
+            return redirect('user')->with('k3_global_error', 'cannot_update_user');
+
+        $user->gitlab_token = null;
+        $user->save();
+
+        return redirect('/user/' . $user->id)->with('k3_global_success', 'gitlab_user_removed');
     }
 
     /**

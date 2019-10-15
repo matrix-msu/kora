@@ -49,10 +49,9 @@ class WelcomeController extends Controller {
 				$notification['description'] ='Have the activation email resent, or contact your kora administrator for help.';
 				$notification['warning'] = true;
 				$notification['static'] = true;
-			} else if($session == 'gitlab_user_conflict') {
+			} else if($session == 'oauth_user_conflict') {
 				$notification['message'] ='OAuth Account Conflict.';
-				$notification['description'] ='Provided username/email from OAuth account already exists in kora. Please 
-				    contact your kora administrator to merge accounts.';
+				$notification['description'] ='Provided username/email from OAuth account already exists. Go to edit user page to assign account, or contact your kora administrator';
 				$notification['warning'] = true;
 				$notification['static'] = true;
 			}
