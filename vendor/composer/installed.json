@@ -4768,6 +4768,52 @@
         ]
     },
     {
+        "name": "rairlie/laravel-locking-session",
+        "version": "v1.1.3",
+        "version_normalized": "1.1.3.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/rairlie/laravel-locking-session.git",
+            "reference": "9ea46e0d9dd3e37a99a984b14c0227896c01c233"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/rairlie/laravel-locking-session/zipball/9ea46e0d9dd3e37a99a984b14c0227896c01c233",
+            "reference": "9ea46e0d9dd3e37a99a984b14c0227896c01c233",
+            "shasum": ""
+        },
+        "require": {
+            "illuminate/session": ">=5.0",
+            "php": ">=5.5.9"
+        },
+        "require-dev": {
+            "phpunit/phpunit": "^8.0"
+        },
+        "time": "2019-10-14T19:11:42+00:00",
+        "type": "library",
+        "installation-source": "dist",
+        "autoload": {
+            "psr-0": {
+                "Rairlie\\LockingSession": "src/"
+            }
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "MIT"
+        ],
+        "authors": [
+            {
+                "name": "Richard Airlie",
+                "email": "richard@backtrace.co.uk"
+            }
+        ],
+        "description": "Provide session locking in Laravel",
+        "keywords": [
+            "laravel",
+            "session"
+        ]
+    },
+    {
         "name": "ralouphie/getallheaders",
         "version": "3.0.3",
         "version_normalized": "3.0.3.0",

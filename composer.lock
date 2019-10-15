@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "c9a61b972b86aa97cad9fe9a701fa641",
+    "content-hash": "9c55df3b75cfc87c6a9f8e3bfdcfdb71",
     "packages": [
         {
             "name": "clue/stream-filter",
@@ -3085,6 +3085,50 @@
                 "shell"
             ],
             "time": "2018-10-13T15:16:03+00:00"
+        },
+        {
+            "name": "rairlie/laravel-locking-session",
+            "version": "v1.1.3",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/rairlie/laravel-locking-session.git",
+                "reference": "9ea46e0d9dd3e37a99a984b14c0227896c01c233"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/rairlie/laravel-locking-session/zipball/9ea46e0d9dd3e37a99a984b14c0227896c01c233",
+                "reference": "9ea46e0d9dd3e37a99a984b14c0227896c01c233",
+                "shasum": ""
+            },
+            "require": {
+                "illuminate/session": ">=5.0",
+                "php": ">=5.5.9"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^8.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "Rairlie\\LockingSession": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Richard Airlie",
+                    "email": "richard@backtrace.co.uk"
+                }
+            ],
+            "description": "Provide session locking in Laravel",
+            "keywords": [
+                "laravel",
+                "session"
+            ],
+            "time": "2019-10-14T19:11:42+00:00"
         },
         {
             "name": "ralouphie/getallheaders",

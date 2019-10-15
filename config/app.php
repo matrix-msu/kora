@@ -146,7 +146,7 @@ return [
 		'Illuminate\Queue\QueueServiceProvider',
 		'Illuminate\Redis\RedisServiceProvider',
 		'Illuminate\Auth\Passwords\PasswordResetServiceProvider',
-		Illuminate\Session\SessionServiceProvider::class,
+        Rairlie\LockingSession\LockingSessionServiceProvider::class,
 		'Illuminate\Translation\TranslationServiceProvider',
 		'Illuminate\Validation\ValidationServiceProvider',
 		'Illuminate\View\ViewServiceProvider',

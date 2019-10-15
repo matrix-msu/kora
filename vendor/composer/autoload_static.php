@@ -563,6 +563,13 @@ class ComposerStaticInit23979a8a3fb78b4f78e5f7913c5439a2
     );
 
     public static $prefixesPsr0 = array (
+        'R' => 
+        array (
+            'Rairlie\\LockingSession' => 
+            array (
+                0 => __DIR__ . '/..' . '/rairlie/laravel-locking-session/src',
+            ),
+        ),
         'P' => 
         array (
             'PhpSpec' => 
@@ -4666,6 +4673,13 @@ class ComposerStaticInit23979a8a3fb78b4f78e5f7913c5439a2
         'Psy\\VersionUpdater\\GitHubChecker' => __DIR__ . '/..' . '/psy/psysh/src/VersionUpdater/GitHubChecker.php',
         'Psy\\VersionUpdater\\IntervalChecker' => __DIR__ . '/..' . '/psy/psysh/src/VersionUpdater/IntervalChecker.php',
         'Psy\\VersionUpdater\\NoopChecker' => __DIR__ . '/..' . '/psy/psysh/src/VersionUpdater/NoopChecker.php',
+        'Rairlie\\LockingSession\\EncryptedStore' => __DIR__ . '/..' . '/rairlie/laravel-locking-session/src/Rairlie/LockingSession/EncryptedStore.php',
+        'Rairlie\\LockingSession\\Lock' => __DIR__ . '/..' . '/rairlie/laravel-locking-session/src/Rairlie/LockingSession/Lock.php',
+        'Rairlie\\LockingSession\\LockingSessionHandler' => __DIR__ . '/..' . '/rairlie/laravel-locking-session/src/Rairlie/LockingSession/LockingSessionHandler.php',
+        'Rairlie\\LockingSession\\LockingSessionServiceProvider' => __DIR__ . '/..' . '/rairlie/laravel-locking-session/src/Rairlie/LockingSession/LockingSessionServiceProvider.php',
+        'Rairlie\\LockingSession\\Middleware\\StartSession' => __DIR__ . '/..' . '/rairlie/laravel-locking-session/src/Rairlie/LockingSession/Middleware/StartSession.php',
+        'Rairlie\\LockingSession\\SessionManager' => __DIR__ . '/..' . '/rairlie/laravel-locking-session/src/Rairlie/LockingSession/SessionManager.php',
+        'Rairlie\\LockingSession\\Store' => __DIR__ . '/..' . '/rairlie/laravel-locking-session/src/Rairlie/LockingSession/Store.php',
         'Ramsey\\Uuid\\BinaryUtils' => __DIR__ . '/..' . '/ramsey/uuid/src/BinaryUtils.php',
         'Ramsey\\Uuid\\Builder\\DefaultUuidBuilder' => __DIR__ . '/..' . '/ramsey/uuid/src/Builder/DefaultUuidBuilder.php',
         'Ramsey\\Uuid\\Builder\\DegradedUuidBuilder' => __DIR__ . '/..' . '/ramsey/uuid/src/Builder/DegradedUuidBuilder.php',

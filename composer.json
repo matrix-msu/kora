@@ -19,6 +19,7 @@
         "laravel/socialite": "^4.2",
         "laravel/tinker": "^1.0",
         "laravelcollective/html": "6.0.*",
+        "rairlie/laravel-locking-session": "^1.1",
         "stilliard/csvparser": "dev-master",
         "toin0u/geocoder-laravel": "@stable"
     },
