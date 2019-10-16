@@ -2,6 +2,9 @@
 
 
 @section('body')
+	@php
+		$install_admin_email = \App\User::where('id','=',1)->first()->email;
+	@endphp
   <div class="content">
     <div class="e500">
         <div class="form-container center">
