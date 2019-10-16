@@ -16,6 +16,8 @@
       @include('partials.sideMenu')
 
       <div class="{{ str_hyphenated($page_class) }} {{ ((Auth::guest() || !Auth::user()->active) && isInstalled()) ? 'auth' : '' }}">
+
+          @include('partials.records.modals.reverseAssociationModal')
         @yield('header')
         @yield('body')
         @yield('footer')

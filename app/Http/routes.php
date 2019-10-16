@@ -60,6 +60,7 @@ Route::group(['middleware' => 'web'], function () {
     Route::get('/admin/users', 'AdminController@users');
     Route::get('/admin/users/{id}/edit', 'AdminController@editUser');
     Route::post('/admin/users/validateEmails', 'AdminController@validateEmails');
+    Route::post('admin/reverseCache', 'AdminController@buildReverseCache');
     Route::patch('/admin/update/{id}', 'AdminController@update');
     Route::patch('/admin/updateActivation/{id}', 'AdminController@updateActivation');
     Route::patch('/admin/updateStatus/{id}', 'AdminController@updateStatus');

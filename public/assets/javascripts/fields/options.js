@@ -361,9 +361,10 @@ Kora.Fields.Options = function(fieldType) {
             $addButton.click(function(e) {
                 e.preventDefault();
 
-                var newListOption = $newListOptionInput.val();
+                //Splits options up by comma, but ignores commas inside of double quotes
+                var newListOptions = $newListOptionInput.val().split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
 
-                if(newListOption!='') {
+                if(newListOptions !== undefined && newListOptions.length > 0) {
                     // Prevent duplicate entries
 
                     // If generated list, name of hidden input needs to be field name
@@ -372,28 +373,35 @@ Kora.Fields.Options = function(fieldType) {
                       optionName = $newListOptionInput.data('flid') + "[]";
                     }
 
-                    // Create and display new card
-                    var newCardHtml = '<div class="card list-option-card list-option-card-js" data-list-value="' + newListOption + '">' +
-                        '<input type="hidden" class="list-option-js" name="'+optionName+'" value="' + newListOption + '">' +
-                        '<div class="header">' +
-                        '<div class="left">' +
-                        '<div class="move-actions">' +
-                        '<a class="action move-action-js up-js" href="">' +
-                        '<i class="icon icon-arrow-up"></i>' +
-                        '</a>' +
-                        '<a class="action move-action-js down-js" href="">' +
-                        '<i class="icon icon-arrow-down"></i>' +
-                        '</a>' +
-                        '</div>' +
-                        '<span class="title">' + newListOption + '</span>' +
-                        '</div>' +
-                        '<div class="card-toggle-wrap">' +
-                        '<a class="list-option-delete list-option-delete-js tooltip" tooltip="Delete List Option" href=""><i class="icon icon-trash"></i></a>' +
-                        '</div>' +
-                        '</div>' +
-                        '</div>';
+                    //Foreach option
+                    console.log(newListOptions);
+                    for(newOpt in newListOptions) {
+                        //Trim whitespace, and remove surrounding quotes
+                        newListOption = newListOptions[newOpt].trim().replace (/(^")|("$)/g, '');
 
-                    $cardContainer.append(newCardHtml);
+                        // Create and display new card
+                        var newCardHtml = '<div class="card list-option-card list-option-card-js" data-list-value="' + newListOption + '">' +
+                            '<input type="hidden" class="list-option-js" name="' + optionName + '" value="' + newListOption + '">' +
+                            '<div class="header">' +
+                            '<div class="left">' +
+                            '<div class="move-actions">' +
+                            '<a class="action move-action-js up-js" href="">' +
+                            '<i class="icon icon-arrow-up"></i>' +
+                            '</a>' +
+                            '<a class="action move-action-js down-js" href="">' +
+                            '<i class="icon icon-arrow-down"></i>' +
+                            '</a>' +
+                            '</div>' +
+                            '<span class="title">' + newListOption + '</span>' +
+                            '</div>' +
+                            '<div class="card-toggle-wrap">' +
+                            '<a class="list-option-delete list-option-delete-js tooltip" tooltip="Delete List Option" href=""><i class="icon icon-trash"></i></a>' +
+                            '</div>' +
+                            '</div>' +
+                            '</div>';
+
+                        $cardContainer.append(newCardHtml);
+                    }
 
                     // Initialize functionality for all the cards again
                     $('.move-action-js').unbind();

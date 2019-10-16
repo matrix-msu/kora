@@ -344,6 +344,37 @@ $('.export-record-link').click(function() {
     Kora.Modal.close($exportRecordsModal);
 });
 
+//Modal commands for the reverse assoc cache
+$('.reverse-cache-open-js').click(function(e) {
+    e.preventDefault();
+    Kora.Modal.initialize();
+
+    var $reverseAssociationModal = $('.reverse-association-modal-js');
+
+    Kora.Modal.open($reverseAssociationModal);
+});
+
+$('.assoc-cache-js').click(function(e) {
+    e.preventDefault();
+    $cacheDiv = $(this);
+
+    var cacheURL = $cacheDiv.attr('cache-url');
+    var token = $cacheDiv.attr('token');
+
+    //Ajax call to prep zip
+    $.ajax({
+        url: cacheURL,
+        type: 'POST',
+        data: {
+            "_token": token
+        },
+        success: function (data) {
+            var $reverseAssociationModal = $('.reverse-association-modal-js');
+            Kora.Modal.close($reverseAssociationModal);
+        }
+    });
+});
+
 function closeSidemenuDrawers() {
   var $drawers = $('.drawer-element-js');
   $drawers.each(function() {

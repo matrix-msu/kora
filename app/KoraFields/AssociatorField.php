@@ -22,6 +22,7 @@ class AssociatorField extends BaseField {
      * @var string - Name of cache table
      */
     const Reverse_Cache_Table = "reverse_associator_cache";
+    const Reverse_Temp_Table = "reverse_associator_temp";
 
     /**
      * @var string - Views for the typed field options
