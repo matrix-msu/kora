@@ -377,7 +377,7 @@ Kora.Fields.Options = function(fieldType) {
                     console.log(newListOptions);
                     for(newOpt in newListOptions) {
                         //Trim whitespace, and remove surrounding quotes
-                        newListOption = newListOptions[newOpt].trim().replace (/(^")|("$)/g, '');
+                        newListOption = newListOptions[newOpt].replace (/(^")|("$)/g, '').trim();
 
                         // Create and display new card
                         var newCardHtml = '<div class="card list-option-card list-option-card-js" data-list-value="' + newListOption + '">' +
@@ -519,10 +519,68 @@ Kora.Fields.Options = function(fieldType) {
             $listDef.trigger("chosen:updated");
         }
 
+        function initializeMassListOptions() {
+            $('.list-option-mass-copy-js').click(function(e) {
+                e.preventDefault();
+
+                var $cards = $('.list-option-card-js');
+                var returnArray = [];
+
+                if($cards.length > 0) {
+                    for (var i = 0; i < $cards.length; i++) {
+                        var $card = $($cards[i]);
+                        var option = $card.find('.list-option-js').val();
+
+                        if(option.includes(','))
+                            option = '"'+option+'"';
+
+                        returnArray.push(option);
+                    }
+                }
+
+                var returnString = returnArray.join();
+
+                //Send to clipboard
+                copyToClipboard(returnString);
+            });
+
+            $('.list-option-mass-delete-js').click(function(e) { //TODO::MASSLISTMODAL
+                e.preventDefault();
+
+                var $cards = $('.list-option-card-js');
+
+                if($cards.length > 0) {
+                    for (var i = 0; i < $cards.length; i++) {
+                        var $card = $($cards[i]);
+
+                        $card.remove();
+                    }
+                }
+            });
+
+            function copyToClipboard(stringToCopy) {
+                // Create a dummy input to copy the string array inside it
+                var dummy = document.createElement("input");
+                // Add it to the document
+                document.body.appendChild(dummy);
+                // Set its ID
+                dummy.setAttribute("id", "copy_to_clipboard");
+                // Output the array into it
+                document.getElementById("copy_to_clipboard").value=stringToCopy;
+                // Select it
+                dummy.select();
+                // Copy its contents
+                document.execCommand("copy");
+                // Remove it as its not needed anymore
+                document.body.removeChild(dummy);
+            }
+        }
+
         setCardTitleWidth();
         initializeListAddOption();
         initializeListSort();
         initializeListOptionDelete();
+        initializeMassListOptions();
         Kora.Fields.TypedFieldInputs.Initialize();
     }
 
