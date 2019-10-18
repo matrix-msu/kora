@@ -64,10 +64,9 @@ class AdminController extends Controller {
           'static' => false
         );
         $prevUrlArray = $request->session()->get('_previous');
-        $prevUrl = reset($prevUrlArray);
         $profChangesArray = $request->session()->get('user_changes');
         if($profChangesArray) $profChanges = reset($profChangesArray);
-        if($prevUrl !== url()->current()) {
+        if(!is_null($prevUrlArray) && reset($prevUrlArray) !== url()->current()) {
           $session = $request->session()->get('k3_global_success');
 
           if($session == 'user_updated' && isset($profChanges) && $profChanges == 'password')
