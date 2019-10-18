@@ -327,6 +327,8 @@ Kora.Fields.Options = function(fieldType) {
     }
 
     function initializeList(listType = '') {
+        Kora.Modal.initialize();
+
         function setCardTitleWidth() {
             $(window).load(function() {
                 var $cards = $('.list-option-card-js');
@@ -543,10 +545,20 @@ Kora.Fields.Options = function(fieldType) {
                 copyToClipboard(returnString);
             });
 
-            $('.list-option-mass-delete-js').click(function(e) { //TODO::MASSLISTMODAL
+            $('.list-option-mass-delete-js').click(function(e) {
                 e.preventDefault();
 
-                var $cards = $('.list-option-card-js');
+                $deleteMassListOptionModal = $('.delete-mass-list-option-js');
+                $deleteMassOptionButton = $('.delete-mass-options-js');
+                $deleteMassOptionButton.attr('card-class','.list-option-card-js');
+
+                Kora.Modal.open($deleteMassListOptionModal);
+            });
+
+            $('.delete-mass-options-js').click(function(e) {
+                $deleteMassListOptionModal = $('.delete-mass-list-option-js');
+                var callback = $(this).attr('card-class');
+                var $cards = $(callback);
 
                 if($cards.length > 0) {
                     for (var i = 0; i < $cards.length; i++) {
@@ -555,6 +567,8 @@ Kora.Fields.Options = function(fieldType) {
                         $card.remove();
                     }
                 }
+
+                Kora.Modal.close($deleteMassListOptionModal);
             });
 
             function copyToClipboard(stringToCopy) {
@@ -1312,10 +1326,20 @@ Kora.Fields.Options = function(fieldType) {
                 copyToClipboard(returnString);
             });
 
-            $('.list-option-mass-delete-'+fnum+'-js').click(function(e) { //TODO::MASSLISTMODAL
+            $('.list-option-mass-delete-'+fnum+'-js').click(function(e) {
                 e.preventDefault();
 
-                var $cards = $('.list-option-card-container-'+fnum+'-js .list-option-card-js');
+                $deleteMassListOptionModal = $('.delete-mass-list-option-js');
+                $deleteMassOptionButton = $('.delete-mass-options-js');
+                $deleteMassOptionButton.attr('card-class','.list-option-card-container-'+fnum+'-js .list-option-card-js');
+
+                Kora.Modal.open($deleteMassListOptionModal);
+            });
+
+            $('.delete-mass-options-js').click(function(e) {
+                $deleteMassListOptionModal = $('.delete-mass-list-option-js');
+                var callback = $(this).attr('card-class');
+                var $cards = $(callback);
 
                 if($cards.length > 0) {
                     for (var i = 0; i < $cards.length; i++) {
@@ -1324,6 +1348,8 @@ Kora.Fields.Options = function(fieldType) {
                         $card.remove();
                     }
                 }
+
+                Kora.Modal.close($deleteMassListOptionModal);
             });
 
             function copyToClipboard(stringToCopy) {

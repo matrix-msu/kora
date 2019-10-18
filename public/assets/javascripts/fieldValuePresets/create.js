@@ -139,6 +139,8 @@ Kora.FieldValuePresets.Create = function() {
     }
 
     function initializeList() {
+        Kora.Modal.initialize();
+
         function setCardTitleWidth() {
             var $cards = $('.list-option-card-js');
 
@@ -319,10 +321,20 @@ Kora.FieldValuePresets.Create = function() {
                 copyToClipboard(returnString);
             });
 
-            $('.list-option-mass-delete-js').click(function(e) { //TODO::MASSLISTMODAL
+            $('.list-option-mass-delete-js').click(function(e) {
                 e.preventDefault();
 
-                var $cards = $('.list-option-card-js');
+                $deleteMassListOptionModal = $('.delete-mass-list-option-js');
+                $deleteMassOptionButton = $('.delete-mass-options-js');
+                $deleteMassOptionButton.attr('card-class','.list-option-card-js');
+
+                Kora.Modal.open($deleteMassListOptionModal);
+            });
+
+            $('.delete-mass-options-js').click(function(e) {
+                $deleteMassListOptionModal = $('.delete-mass-list-option-js');
+                var callback = $(this).attr('card-class');
+                var $cards = $(callback);
 
                 if($cards.length > 0) {
                     for (var i = 0; i < $cards.length; i++) {
@@ -331,6 +343,8 @@ Kora.FieldValuePresets.Create = function() {
                         $card.remove();
                     }
                 }
+
+                Kora.Modal.close($deleteMassListOptionModal);
             });
 
             function copyToClipboard(stringToCopy) {
