@@ -177,6 +177,7 @@ Route::group(['middleware' => 'web'], function () {
     Route::post('/projects/{pid}/forms/{fid}/records/importReasonsFailed', 'ImportController@downloadFailedReasons');
     Route::post('/projects/{pid}/forms/{fid}/records/importConnectionsFailed', 'ImportController@downloadFailedConnections');
     Route::get('/projects/{pid}/forms/{fid}/records/{rid}', 'RecordController@show');
+    Route::post('/projects/{pid}/forms/{fid}/records/{rid}/revData', 'RecordController@getAssociatedRecordData');
     Route::get('/projects/{pid}/forms/{fid}/records/{rid}/edit', 'RecordController@edit');
     Route::post('/projects/{pid}/forms/{fid}/records', 'RecordController@store');
     Route::delete('projects/{pid}/forms/{fid}/records/deleteMultipleRecords', 'RecordController@deleteMultipleRecords');
