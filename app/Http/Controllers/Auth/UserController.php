@@ -109,9 +109,7 @@ class UserController extends Controller {
         );
 
         $prevUrlArray = $request->session()->get('_previous');
-        $prevUrl = reset($prevUrlArray);
-
-        if($prevUrl !== url()->current()) {
+        if(!is_null($prevUrlArray) && reset($prevUrlArray) !== url()->current()) {
           $session = $request->session()->get('k3_global_success');
           $changes = $request->session()->get('user_changes');
 
