@@ -326,6 +326,25 @@ class RecordController extends Controller {
         return view('records.show', compact('record', 'form', 'owner', 'numRevisions', 'alreadyPreset', 'notification'));
 	}
 
+	public function getAssociatedRecordData($pid, $fid, $rid, Request $request) {
+        if(!self::validProjFormRecord($pid, $fid, $rid))
+            return response()->json(['k3_global_error' => 'record_invalid'], 500);
+
+        if(!FieldController::checkPermissions($fid))
+            return response()->json(['k3_global_error' => 'cant_view_form'], 500);
+
+        $kid = "$pid-$fid-$rid";
+        $record = self::getRecord($kid);
+
+        $html = '';
+        foreach($record->getAssociatedRecordData() as $aRecord) {
+            $url = url('projects/'.$aRecord["project_id"].'/forms/'.$aRecord["form_id"].'/records/'.$aRecord["id"]);
+            $html .= '<div><a class="meta-link underline-middle-hover" href="'.$url.'">'.$aRecord["kid"].' </a> | '.$aRecord["preview"].'</div>';
+        }
+
+        return response()->json(["status"=>true,"revDataHtml"=>$html],200);
+    }
+
     /**
      * Get the edit record view.
      *
@@ -932,7 +951,7 @@ class RecordController extends Controller {
      */
     public function validateMassRecord($pid, $fid, Request $request) {
         if(!FormController::validProjForm($pid, $fid))
-            return response()->json(['k3_global_error' => 'form_invalid']);
+            return response()->json(['k3_global_error' => 'form_invalid'], 500);
 
         $errors = [];
 

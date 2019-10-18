@@ -441,12 +441,32 @@ Kora.Records.Show = function() {
       }
     }
 
+    function initializeReverseAssociatorLoad() {
+        $revDiv = $('.reverse-assoc-data-section-js');
+
+        $.ajax({
+            url: revAssocDataURL,
+            method: 'POST',
+            data: {
+                "_token": csrfToken,
+            },
+            success: function(data) {
+                if(data.revDataHtml != '')
+                    $revDiv.html(data.revDataHtml);
+            },
+            error: function(err) {
+                $revDiv.html("Failed to load reverse associations :(");
+            }
+        });
+    }
+
     initializeToggle();
     initializeAssociatorCardToggle();
     initializeDeleteRecord();
     initializeTypedFieldDisplays();
     initializeCardTitleEllipsifying();
     adjustForTimezone();
+    initializeReverseAssociatorLoad();
     Kora.Records.Modal();
     Kora.Fields.TypedFieldDisplays.Initialize();
 }

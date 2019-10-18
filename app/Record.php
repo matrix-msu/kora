@@ -98,20 +98,50 @@ class Record extends Model {
     }
 
     /**
-     * Gets a list of records that associate to this record
+     * Gets a list of records that associate to this record along with preview data
      *
      * @return array - Records that associate it
      */
-    public function getAssociatedRecords() {
+    public function getAssociatedRecordData() {
         $assoc = DB::table(AssociatorField::Reverse_Cache_Table)
             ->distinct()
             ->where('associated_kid','=',$this->kid)->get();
 
-        $records = array();
+        $records = $formToLayout = array();
         foreach($assoc as $af) {
             $kid = $af->source_kid;
             $rec = RecordController::getRecord($kid);
-            array_push($records,$rec);
+            $recData = [
+                'kid' => $kid,
+                'id' => $rec->id,
+                'form_id' => $rec->form_id,
+                'project_id' => $rec->project_id,
+            ];
+
+            $fid = $af->source_form_id;
+            if(!array_key_exists($fid, $formToLayout)) {
+                $form = $rec->form()->first();
+                $layout = $form->layout;
+                $formToLayout[$fid] = $layout;
+            } else {
+                $layout = $formToLayout[$fid];
+            }
+
+            $recData['preview'] = 'No Preview Field Available';
+            foreach($layout['pages'] as $page) {
+                foreach($page['flids'] as $flid) {
+                    $field = $layout['fields'][$flid];
+
+                    //Can this field be previewed?
+                    if(!in_array($field['type'], Form::$validAssocFields) | is_null($rec->{$flid}))
+                        continue;
+
+                    $recData['preview'] = $rec->{$flid};
+                    break 2;
+                }
+            }
+
+            array_push($records,$recData);
         }
 
         return $records;
@@ -126,36 +156,6 @@ class Record extends Model {
         return DB::table(AssociatorField::Reverse_Cache_Table)
             ->distinct()
             ->where('associated_kid','=',$this->kid)->count();
-    }
-
-    /**
-     * Gets a preview value for the record when displaying in a reverse association.
-     *
-     * @return string - The preview value
-     */
-    public function getReversePreview() {
-        $form = $this->form()->first();
-        $fields = $form->layout['fields'];
-        $pages = $form->layout['pages'];
-
-        $preview = 'No Preview Field Available';
-        foreach($pages as $page) {
-            foreach($page['flids'] as $flid) {
-                $field = $fields[$flid];
-
-                //Can this field be previewed?
-                if(!in_array($field['type'], Form::$validAssocFields))
-                    continue;
-                //Is there data in this record?
-                if(is_null($this->{$flid}))
-                    continue;
-
-                $preview = $this->{$flid};
-                break 2;
-            }
-        }
-
-        return $preview;
     }
 }
 
