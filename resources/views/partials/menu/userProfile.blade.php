@@ -35,7 +35,7 @@
 	  <li class="link first {{ \Auth::user()->id==1 ? '' : 'pre-spacer' }}">
         <a href="{{ action('AdminController@users') }}">User Management</a>
       </li>
-	  <li class="link">
+	  <li class="link pre-spacer">
         <a href="{{ action('TokenController@index') }}">Token Management</a>
       </li>
     @endif

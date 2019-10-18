@@ -44,4 +44,30 @@ class CreateAssociationsTable extends Migration {
 		Schema::drop('reverse_associator_cache');
 	}
 
+    /**
+     * Builds a temp table so that old cache is live while new is being built.
+     *
+     * @return void
+     */
+    public function buildTempCacheTable() {
+        Schema::create('reverse_associator_temp', function(Blueprint $table)
+        {
+            $table->string('associated_kid');
+            $table->integer('associated_form_id')->unsigned();
+            $table->string('source_kid');
+            $table->string('source_flid',60);
+            $table->integer('source_form_id')->unsigned();
+        });
+    }
+
+    /**
+     * Deletes the old cache and renames new table.
+     *
+     * @return void
+     */
+    public function swapTempCacheTable() {
+        Schema::drop('reverse_associator_cache');
+        Schema::rename('reverse_associator_temp', 'reverse_associator_cache');
+    }
+
 }

@@ -45,22 +45,23 @@ class ReverseAssocCache extends Command
         $forms = Form::all();
 
         $this->info('Clearing old cache...');
-        DB::table(AssociatorField::Reverse_Cache_Table)->truncate();
+        $tableManager = new \CreateAssociationsTable();
+        $tableManager->buildTempCacheTable();
 
         $this->info('Rebuilding cache...');
+        $inserts = [];
         foreach($forms as $form) {
             $this->info('Processing Form '.$form->internal_name.'...');
 
             $fields = $form->layout['fields'];
+            if(is_null($fields))
+                continue;
             $recModel = new Record(array(),$form->id);
-            $first_message = true;
 
             foreach($fields as $flid => $field) {
                 if($field['type'] == Form::_ASSOCIATOR) {
                     $assocData = $recModel->newQuery()->select('kid',$flid)->get();
                     foreach($assocData as $row) {
-                        $inserts = [];
-
                         $values = json_decode($row->{$flid},true);
                         if(is_null($values))
                             continue;
@@ -77,21 +78,11 @@ class ReverseAssocCache extends Command
                                 'source_form_id' => $form->id
                             ];
                         }
-
-                        if(!empty($inserts)) {
-                            //Break up the inserts into chuncks
-                            if($first_message)
-                                $this->info('Storing values for Form ' . $form->internal_name . '...');
-                            $first_message = false;
-                            DB::table(AssociatorField::Reverse_Cache_Table)->insert($inserts);
-                        }
                     }
                 } else if($field['type'] == Form::_COMBO_LIST && $field['one']['type'] == Form::_ASSOCIATOR) {
                     $subFieldName = $field['one']['flid'];
                     $assocData = $recModel->newQuery()->select('kid',$flid)->get();
                     foreach($assocData as $row) {
-                        $inserts = [];
-
                         $values = json_decode($row->{$flid},true);
                         if(is_null($values))
                             continue;
@@ -114,22 +105,12 @@ class ReverseAssocCache extends Command
                                     'source_form_id' => $form->id
                                 ];
                             }
-                        }
-
-                        if(!empty($inserts)) {
-                            //Break up the inserts into chuncks
-                            if($first_message)
-                                $this->info('Storing values for Form ' . $form->internal_name . '...');
-                            $first_message = false;
-                            DB::table(AssociatorField::Reverse_Cache_Table)->insert($inserts);
                         }
                     }
                 } else if($field['type'] == Form::_COMBO_LIST && $field['two']['type'] == Form::_ASSOCIATOR) {
                     $subFieldName = $field['two']['flid'];
                     $assocData = $recModel->newQuery()->select('kid',$flid)->get();
                     foreach($assocData as $row) {
-                        $inserts = [];
-
                         $values = json_decode($row->{$flid},true);
                         if(is_null($values))
                             continue;
@@ -153,18 +134,21 @@ class ReverseAssocCache extends Command
                                 ];
                             }
                         }
-
-                        if(!empty($inserts)) {
-                            //Break up the inserts into chuncks
-                            if($first_message)
-                                $this->info('Storing values for Form ' . $form->internal_name . '...');
-                            $first_message = false;
-                            DB::table(AssociatorField::Reverse_Cache_Table)->insert($inserts);
-                        }
                     }
                 }
             }
         }
+
+        if(!empty($inserts)) {
+            $this->info('Storing values...');
+            $chunks = array_chunk($inserts, 1000);
+            foreach($chunks as $chunk) {
+                //Break up the inserts into chuncks
+                DB::table(AssociatorField::Reverse_Temp_Table)->insert($chunk);
+            }
+        }
+
+        $tableManager->swapTempCacheTable();
 
         $this->info('Reverse association cache generated!');
     }
