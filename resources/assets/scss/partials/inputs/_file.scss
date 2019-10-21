@@ -1,7 +1,27 @@
 &.file-input-form-group {
+  .caption {
+    border: 0;
+    color: palette('gray', text, .8);
+    font-size: 13px;
+    font-family: $ubuntu;
+    height: 26px;
+    line-height: 1;
+    margin: 20px 20px 0;
+    outline: none;
+    overflow: hidden;
+    padding: 0;
+    resize: none;
+    width: calc(100% - 44px);
+
+    &:placeholder {
+      color: palette('gray', text, .6);
+      font-style: italic;
+    }
+  }
+
   .file-card {
     border: 1px solid palette('gray', slate, .1);
-    height: 50px;
+    height: auto;
     margin: 0 auto 15px;
     z-index: 1;
 
@@ -91,33 +111,6 @@
       .tooltip:hover::after {
         left: -57px;
       }
-    }
-  }
-
-  // Gallery specific 
-  &.gallery-input-form-group {
-    .caption {
-      border: 0;
-      color: palette('gray', text, .8);
-      font-size: 13px;
-      font-family: $ubuntu;
-      height: 26px;
-      line-height: 1;
-      margin: 20px 20px 0;
-      outline: none;
-      overflow: hidden;
-      padding: 0;
-      resize: none;
-      width: calc(100% - 44px);
-
-      &:placeholder {
-        color: palette('gray', text, .6);
-        font-style: italic;
-      }
-    }
-
-    .file-card {
-      height: auto;
     }
   }
 }

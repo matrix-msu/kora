@@ -685,11 +685,6 @@ Kora.Records.Create = function() {
                     $uploadInput.siblings('.error-message').text('');
                     $.each(data.result[inputName], function (index, file) {
                         if(file.error == "" || !file.hasOwnProperty('error')) {
-                            // Add caption only if input is a gallery
-                            var captionHtml = '';
-                            if ($formGroup.hasClass('gallery-input-form-group')) {
-                                captionHtml = '<textarea type="text" name="' + capName + '[]" class="caption autosize-js" placeholder="Enter caption here"></textarea>';
-                            }
                             // File card html
                             var fileCardHtml = '<div class="card file-card file-card-js">' +
                                 '<input type="hidden" name="' + lastClickedFlid + '[]" value ="' + file.name + '">' +
@@ -710,7 +705,7 @@ Kora.Records.Create = function() {
                                 '<i class="icon icon-trash danger"></i>' +
                                 '</a>' +
                                 '</div>' +
-                                captionHtml +
+                                '<textarea type="text" name="' + capName + '[]" class="caption autosize-js" placeholder="Enter caption here"></textarea>' +
                                 '</div>' +
                                 '</div>';
                             console.log(fileCardHtml);
