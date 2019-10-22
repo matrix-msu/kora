@@ -143,6 +143,12 @@ abstract class FileTypeField extends BaseField {
                     //Hash the file
                     $checksum = hash_file('sha256', $tmpPath . '/' . $fileName);
 
+                    //Get order index
+                    $valKey = array_search($fileName, $value);
+
+                    //Get caption
+                    $caption = $captions[$valKey];
+
                     //Before we store, we need to compare to other files if they exist, to see if new file exists
                     $exists = false;
                     if(!is_null($oldData)) {
@@ -151,6 +157,8 @@ abstract class FileTypeField extends BaseField {
                             if($fileName==$oldFile['name'] && $checksum==$oldFile['checksum']) {
                                 $exists = true;
                                 $info = $oldFile;
+                                //Update caption
+                                $info['caption'] = $caption;
                                 break;
                             }
                         }
@@ -167,7 +175,7 @@ abstract class FileTypeField extends BaseField {
                         $timestamp = time();
 
                         //Build info array
-                        $info = ['name' => $fileName, 'size' => $file->getSize(), 'type' => $type,
+                        $info = ['name' => $fileName, 'size' => $file->getSize(), 'type' => $type, 'caption' => $caption,
                             'url' => $dataURL.urlencode($fileName), 'checksum' => $checksum, 'timestamp' => $timestamp];
 
                         switch(config('filesystems.kora_storage')) {
@@ -185,18 +193,12 @@ abstract class FileTypeField extends BaseField {
                     }
 
                     //Store the info array
-                    $files[] = $info;
+                    $files[$valKey] = $info;
                 }
             }
 
             if(empty($files))
                 return null;
-
-            //Now that the files are stored, check for captions
-            foreach($files as $index => $file) {
-                if(!is_null($captions) && isset($captions[$index]))
-                    $files[$index]['caption'] = $captions[$index];
-            }
 
             return json_encode($files);
         } else {
