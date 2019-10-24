@@ -1,6 +1,7 @@
 @foreach($typedField->processDisplayData($field, $value) as $vid)
     @php
         $name = $vid['name'];
+        $caption = $vid['caption'];
         $link = action('FieldAjaxController@publicRecordFile',['kid' => $record->kid, 'filename' => $name]);
     @endphp
     <div class="record-data-card">
@@ -11,6 +12,10 @@
           Your browser does not support the video tag.
         </video>
       </div>
+
+        @if($caption!='')
+            <div class="video-info">{{$caption}}</div>
+        @endif
 
       <div class="field-sidebar video-sidebar video-sidebar-js">
           <div class="top">

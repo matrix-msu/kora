@@ -125,8 +125,12 @@
     margin: 5px 0 10px 10px;
   }
 
-  .file-size {
-    margin: 10px 0 20px 10px;
+  .file-info {
+    margin: 10px 0 10px 10px;
+  }
+
+  .file-info:last-of-type {
+    margin: 10px 0 23px 10px;
   }
 }
 
@@ -421,6 +425,19 @@
   }
 }
 
+.video-info {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+  padding: 15px 0 5px;
+  width: calc(100% - 44px);
+}
+
+.video-sidebar {
+  box-sizing: initial;
+  height: 300px;
+}
+
 /***** AUDIO *****/
 .audio-field-display {
   .audio-container {
@@ -508,7 +525,11 @@
     }
   }
 
-  .audio-filename {
+  .audio-info {
+    margin: 5px 0 5px 10px;
+  }
+
+  .audio-info:last-of-type {
     margin: 5px 0 15px 10px;
   }
 }

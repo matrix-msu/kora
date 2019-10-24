@@ -685,11 +685,6 @@ Kora.Records.Create = function() {
                     $uploadInput.siblings('.error-message').text('');
                     $.each(data.result[inputName], function (index, file) {
                         if(file.error == "" || !file.hasOwnProperty('error')) {
-                            // Add caption only if input is a gallery
-                            var captionHtml = '';
-                            if ($formGroup.hasClass('gallery-input-form-group')) {
-                                captionHtml = '<textarea type="text" name="' + capName + '[]" class="caption autosize-js" placeholder="Enter caption here"></textarea>';
-                            }
                             // File card html
                             var fileCardHtml = '<div class="card file-card file-card-js">' +
                                 '<input type="hidden" name="' + lastClickedFlid + '[]" value ="' + file.name + '">' +
@@ -710,7 +705,7 @@ Kora.Records.Create = function() {
                                 '<i class="icon icon-trash danger"></i>' +
                                 '</a>' +
                                 '</div>' +
-                                captionHtml +
+                                '<textarea type="text" name="' + capName + '[]" class="caption autosize-js" placeholder="Enter caption here"></textarea>' +
                                 '</div>' +
                                 '</div>';
                             console.log(fileCardHtml);
@@ -1053,7 +1048,7 @@ Kora.Records.Create = function() {
                             var fileDiv = $('.filenames-' + flid + '-js');
 
                             files.forEach(function (file, index) {
-                                fileDiv.append(galDivHTML(file, flid, 'Image'));
+                                fileDiv.append(fileDivHTML(file, flid, 'Image'));
                             });
 
                             break;
@@ -1139,34 +1134,6 @@ Kora.Records.Create = function() {
          * Generates the HTML for an uploaded file's div.
          */
         function fileDivHTML(file, flid, btnName) {
-            var name = file['name'];
-            deleteUrl = deleteFileUrl+flid+"/"+name;
-
-            var HTML = '<div class="card file-card file-card-js">';
-            HTML += '<input type="hidden" name="'+flid+'[]" value="'+name+'">';
-            HTML += '<div class="header">';
-            HTML += '<div class="left">';
-            HTML += '<div class="move-actions">';
-            HTML += '<a class="action move-action-js up-js" href=""><i class="icon icon-arrow-up"></i></a>';
-            HTML += '<a class="action move-action-js down-js" href=""><i class="icon icon-arrow-down"></i></a>';
-            HTML += '</div>';
-            HTML += '<span class="title">'+name+'</span>';
-            HTML += '</div>';
-            HTML += '<div class="card-toggle-wrap">';
-            HTML += '<a href="#" class="file-delete upload-filedelete-js ml-sm tooltip" tooltip="Remove '+btnName+'" data-url="'+deleteUrl+'">';
-            HTML += '<i class="icon icon-trash danger"></i>';
-            HTML += '</a>';
-            HTML += '</div>';
-            HTML += '</div>';
-            HTML += '</div>';
-
-            return HTML;
-        }
-
-        /**
-         * Generates the HTML for an uploaded file's div with the gallery captions.
-         */
-        function galDivHTML(file, flid, btnName) {
             var name = file['name'];
             var caption = file['caption'];
             deleteUrl = deleteFileUrl+flid+"/"+name;

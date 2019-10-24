@@ -1,11 +1,15 @@
 @foreach($typedField->processDisplayData($field, $value) as $aud)
     @php
         $name = $aud['name'];
+        $caption = $aud['caption'];
         $link = action('FieldAjaxController@publicRecordFile',['kid' => $record->kid, 'filename' => $name]);
     @endphp
     <div class="record-data-card">
         <div class="field-display audio-field-display">
-            <p class="audio-filename">{{$name}}</p>
+            <p class="audio-info">{{$name}}</p>
+            @if($caption!='')
+                <p class="audio-info">{{$caption}}</p>
+            @endif
 
             <div class="audio-container">
                 <i class="icon icon-play audio-button audio-button-js play-button-js active"></i>

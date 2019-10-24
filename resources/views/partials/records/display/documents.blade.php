@@ -5,12 +5,16 @@
                 @php
                     $name = $opt['name'];
                     $size = $opt['size'];
+                    $caption = $opt['caption'];
                     $link = action('FieldAjaxController@getFileDownload',['kid' => $record->kid, 'filename' => $name]);
                     $pubLink = action('FieldAjaxController@publicRecordFile',['kid' => $record->kid, 'filename' => $name]);
                 @endphp
                 <div>
                     <p class="filename"><a class="documents-link underline-middle-hover" href="{{$link}}">{{$name}}</a></p>
-                    <p class="file-size">File size: {{formatBytes($size)}}</p>
+                    <p class="file-info">File size: {{formatBytes($size)}}</p>
+                    @if($caption!='')
+                        <p class="file-info">{{$caption}}</p>
+                    @endif
                 </div>
             @endif
         </div>
