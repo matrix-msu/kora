@@ -219,7 +219,7 @@ abstract class FileTypeField extends BaseField {
         $return = '';
         foreach($data as $file) {
             $tsp = isset($file['timestamp']) ? ' ('.$file['timestamp'].')' : '';
-            $caption = isset($file['caption']) ? ' ('.$file['caption'].')' : '';
+            $caption = isset($file['caption']) && $file['caption']!='' ? ' ('.$file['caption'].')' : '';
             $return .= "<div>".$file['name']."$tsp</div>";
             $return .= "<div>".$caption."</div>";
         }
