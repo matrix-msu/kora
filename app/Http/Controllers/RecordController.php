@@ -632,34 +632,40 @@ class RecordController extends Controller {
         $recMod = new Record(array(),$fid);
         $existingRIDS = $recMod->newQuery()->where('form_id','=',$fid)->pluck('id')->toArray();
 
-        $basePath = storage_path('app/files/'.$pid.'/'.$fid);
+        switch(config('filesystems.kora_storage')) {
+            case FileTypeField::_LaravelStorage:
+                $basePath = storage_path('app/files/'.$pid.'/'.$fid);
 
-        //for each 'r###' directory in $basePath
-        foreach(new \DirectoryIterator($basePath) as $rDir) {
-            if($rDir->isDot()) continue;
+                //for each 'r###' directory in $basePath
+                foreach(new \DirectoryIterator($basePath) as $rDir) {
+                    if($rDir->isDot()) continue;
 
-            $rid = $rDir->getFilename();
+                    $rid = $rDir->getFilename();
 
-            //if record does not exist in $existingRIDS
-            if(!in_array($rid,$existingRIDS)) {
-                //recursively delete record files
-                $path = $basePath . $rid;
-                if(is_dir($path)) {
-                    $it = new RecursiveDirectoryIterator($path, RecursiveDirectoryIterator::SKIP_DOTS);
-                    $files = new RecursiveIteratorIterator($it,
-                        RecursiveIteratorIterator::CHILD_FIRST);
-                    foreach($files as $file) {
-                        if($file->isDir())
-                            rmdir($file->getRealPath());
-                        else
-                            unlink($file->getRealPath());
+                    //if record does not exist in $existingRIDS
+                    if(!in_array($rid,$existingRIDS)) {
+                        //recursively delete record files
+                        $path = $basePath . $rid;
+                        if(is_dir($path)) {
+                            $it = new RecursiveDirectoryIterator($path, RecursiveDirectoryIterator::SKIP_DOTS);
+                            $files = new RecursiveIteratorIterator($it,
+                                RecursiveIteratorIterator::CHILD_FIRST);
+                            foreach($files as $file) {
+                                if($file->isDir())
+                                    rmdir($file->getRealPath());
+                                else
+                                    unlink($file->getRealPath());
+                            }
+                            rmdir($path);
+                        }
+
+                        //prevent rollback revisions for that record if any exist
+                        Revision::where('record_kid','=',$pid.'-'.$fid.'-'.$rid)->update(['rollback' => 0]);
                     }
-                    rmdir($path);
                 }
-
-                //prevent rollback revisions for that record if any exist
-                Revision::where('record_kid','=',$pid.'-'.$fid.'-'.$rid)->update(['rollback' => 0]);
-            }
+                break;
+            default:
+                break;
         }
 
         return redirect()->action('FormController@show', ['pid' => $pid, 'fid' => $fid])->with('k3_global_success', 'old_records_deleted');
