@@ -60,6 +60,7 @@ Route::group(['middleware' => 'web'], function () {
     Route::get('/admin/users', 'AdminController@users');
     Route::get('/admin/users/{id}/edit', 'AdminController@editUser');
     Route::post('/admin/users/validateEmails', 'AdminController@validateEmails');
+    Route::post('admin/reverseCache', 'AdminController@buildReverseCache');
     Route::patch('/admin/update/{id}', 'AdminController@update');
     Route::patch('/admin/updateActivation/{id}', 'AdminController@updateActivation');
     Route::patch('/admin/updateStatus/{id}', 'AdminController@updateStatus');
@@ -176,6 +177,7 @@ Route::group(['middleware' => 'web'], function () {
     Route::post('/projects/{pid}/forms/{fid}/records/importReasonsFailed', 'ImportController@downloadFailedReasons');
     Route::post('/projects/{pid}/forms/{fid}/records/importConnectionsFailed', 'ImportController@downloadFailedConnections');
     Route::get('/projects/{pid}/forms/{fid}/records/{rid}', 'RecordController@show');
+    Route::post('/projects/{pid}/forms/{fid}/records/{rid}/revData', 'RecordController@getAssociatedRecordData');
     Route::get('/projects/{pid}/forms/{fid}/records/{rid}/edit', 'RecordController@edit');
     Route::post('/projects/{pid}/forms/{fid}/records', 'RecordController@store');
     Route::delete('projects/{pid}/forms/{fid}/records/deleteMultipleRecords', 'RecordController@deleteMultipleRecords');

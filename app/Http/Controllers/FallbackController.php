@@ -1,6 +1,5 @@
 <?php namespace App\Http\Controllers;
 
-use App\User;
 use Illuminate\Http\Request;
 
 class FallbackController extends Controller {
@@ -26,7 +25,6 @@ class FallbackController extends Controller {
      * Bounces user to unknown page if route is invalid.
      */
 	public function routeNotFound(Request $request) {
-		$install_admin = User::where('id','=',1)->first();
-		return response()->view('errors.404', ['install_admin_email' => $install_admin->email], 404);
+		return response()->view('errors.404', [], 404);
 	}
 }

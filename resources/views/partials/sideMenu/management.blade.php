@@ -16,6 +16,10 @@
             <a href="{{ action('TokenController@index') }}">Token Management</a>
         </li>
 
+        <li class="content-link content-link-js reverse-cache-open-js" data-page="reverse-cache">
+            <a href="#">Build Reverse Association Cache</a>
+        </li>
+
         <li class="content-link content-link-js" data-page="edit-config">
             <a href="{{ action('InstallController@editEnvConfigs') }}">Kora Configuration File</a>
         </li>

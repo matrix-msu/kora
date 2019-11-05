@@ -4,8 +4,10 @@ use App\Commands\UserEmails;
 use App\Form;
 use App\FormGroup;
 use App\Http\Controllers\Auth\RegisterController;
+use App\KoraFields\AssociatorField;
 use App\Project;
 use App\ProjectGroup;
+use App\Record;
 use App\User;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
@@ -62,10 +64,9 @@ class AdminController extends Controller {
           'static' => false
         );
         $prevUrlArray = $request->session()->get('_previous');
-        $prevUrl = reset($prevUrlArray);
         $profChangesArray = $request->session()->get('user_changes');
         if($profChangesArray) $profChanges = reset($profChangesArray);
-        if($prevUrl !== url()->current()) {
+        if(!is_null($prevUrlArray) && reset($prevUrlArray) !== url()->current()) {
           $session = $request->session()->get('k3_global_success');
 
           if($session == 'user_updated' && isset($profChanges) && $profChanges == 'password')
@@ -392,6 +393,120 @@ class AdminController extends Controller {
 			else
 				return redirect('admin/users')->with('k3_global_success', 'batch_users')->with('batch_users_created', $created)->with('batch_users_skipped', $skipped)->with('notification', $notification);
         }
+    }
+
+    /**
+     * Kicks off a process to build the reverse association cache.
+     *
+     * @return JsonResponse
+     */
+    public function buildReverseCache() {
+        ini_set('memory_limit','2G'); //We might be pulling a lot of rows so this is a safety precaution
+
+        $forms = Form::all();
+
+        $tableManager = new \CreateAssociationsTable();
+        $tableManager->buildTempCacheTable();
+
+        $inserts = [];
+        foreach($forms as $form) {
+            $fields = $form->layout['fields'];
+            if(is_null($fields))
+                continue;
+            $recModel = new Record(array(),$form->id);
+
+            foreach($fields as $flid => $field) {
+                if($field['type'] == Form::_ASSOCIATOR) {
+                    $assocData = $recModel->newQuery()->select('kid',$flid)->get();
+                    foreach($assocData as $row) {
+                        $values = json_decode($row->{$flid},true);
+                        if(is_null($values))
+                            continue;
+
+                        foreach($values as $val) {
+                            if(!Record::isKIDPattern($val))
+                                continue;
+
+                            $inserts[] = [
+                                'associated_kid' => $val,
+                                'associated_form_id' => explode('-',$val)[1],
+                                'source_kid' => $row->kid,
+                                'source_flid' => $field['name'],
+                                'source_form_id' => $form->id
+                            ];
+                        }
+                    }
+                } else if($field['type'] == Form::_COMBO_LIST && $field['one']['type'] == Form::_ASSOCIATOR) {
+                    $subFieldName = $field['one']['flid'];
+                    $assocData = $recModel->newQuery()->select('kid',$flid)->get();
+                    foreach($assocData as $row) {
+                        $values = json_decode($row->{$flid},true);
+                        if(is_null($values))
+                            continue;
+
+                        //Need to pull values from combo table
+                        $subvalues = DB::table($flid.$form->id)->whereIn('id',$values)->select($subFieldName)->get();
+
+                        foreach($subvalues as $subval) {
+                            $vals = json_decode($subval->{$subFieldName},true);
+
+                            foreach($vals as $val) {
+                                if(!Record::isKIDPattern($val))
+                                    continue;
+
+                                $inserts[] = [
+                                    'associated_kid' => $val,
+                                    'associated_form_id' => explode('-', $val)[1],
+                                    'source_kid' => $row->kid,
+                                    'source_flid' => $field['name'],
+                                    'source_form_id' => $form->id
+                                ];
+                            }
+                        }
+                    }
+                } else if($field['type'] == Form::_COMBO_LIST && $field['two']['type'] == Form::_ASSOCIATOR) {
+                    $subFieldName = $field['two']['flid'];
+                    $assocData = $recModel->newQuery()->select('kid',$flid)->get();
+                    foreach($assocData as $row) {
+                        $values = json_decode($row->{$flid},true);
+                        if(is_null($values))
+                            continue;
+
+                        //Need to pull values from combo table
+                        $subvalues = DB::table($flid.$form->id)->whereIn('id',$values)->select($subFieldName)->get();
+
+                        foreach($subvalues as $subval) {
+                            $vals = json_decode($subval->{$subFieldName},true);
+
+                            foreach($vals as $val) {
+                                if(!Record::isKIDPattern($val))
+                                    continue;
+
+                                $inserts[] = [
+                                    'associated_kid' => $val,
+                                    'associated_form_id' => explode('-', $val)[1],
+                                    'source_kid' => $row->kid,
+                                    'source_flid' => $field['name'],
+                                    'source_form_id' => $form->id
+                                ];
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        if(!empty($inserts)) {
+            $chunks = array_chunk($inserts, 1000);
+            foreach($chunks as $chunk) {
+                //Break up the inserts into chuncks
+                DB::table(AssociatorField::Reverse_Temp_Table)->insert($chunk);
+            }
+        }
+
+        $tableManager->swapTempCacheTable();
+
+        return response()->json(["status" => true, "message" => "reverse_cache_built"], 200);
     }
 
     /**

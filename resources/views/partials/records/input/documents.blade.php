@@ -36,6 +36,8 @@
                                 <i class="icon icon-trash danger"></i>
                             </a>
                         </div>
+
+                        <textarea type="text" name="file_captions{{$flid}}[]" class="caption autosize-js" placeholder="Enter caption here">{{ $file['caption'] }}</textarea>
                     </div>
                 </div>
             @endforeach

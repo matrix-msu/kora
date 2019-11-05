@@ -57,11 +57,9 @@ class ProjectGroupController extends Controller {
         );
 
         $prevUrlArray = $request->session()->get('_previous');
-        $prevUrl = reset($prevUrlArray);
         $session = $request->session()->get('k3_global_success');
-        if ($prevUrl == url()->current() && $session == 'project_group_created') {
+        if(!is_null($prevUrlArray) && reset($prevUrlArray) !== url()->current() && $session == 'project_group_created')
             $notification['message'] = 'Project Permissions Group Successfully Created';
-        }
 
         return view('projectGroups.index', compact('project', 'projectGroups', 'users', 'all_users', 'active', 'notification'));
     }

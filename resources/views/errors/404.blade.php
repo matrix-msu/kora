@@ -1,6 +1,9 @@
 @extends('app', ['page_title' => 'Error 404', 'page_class' => 'error-404'])
 
 @section('body')
+	@php
+		$install_admin_email = \App\User::where('id','=',1)->first()->email;
+	@endphp
   <div class="content">
     <div class="e404">
         <div class="form-container center">

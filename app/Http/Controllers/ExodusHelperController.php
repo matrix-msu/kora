@@ -554,56 +554,6 @@ class ExodusHelperController extends Controller {
                         $recordDataToSave[$r['id']][$flid] = json_encode($date);
                         break;
                     case 'Documents':
-                        $fileXML = simplexml_load_string($value);
-                        $realname = (string)$fileXML->originalName;
-                        $newname = $this->renameFiles($realname);
-                        $localname = (string)$fileXML->localName;
-                        //URL for accessing file publically
-                        $dataURL = $installURL.'/'.$newForm->project_id . '-' . $newForm->id . '-' . $recordDataToSave[$r['id']]['id'].'/';
-
-                        if($localname!='') {
-                            switch(config('filesystems.kora_storage')) {
-                                case FileTypeField::_LaravelStorage:
-                                    //Make folder
-                                    $dataPath = $newForm->project_id . '/' . $newForm->id . '/' . $recordDataToSave[$r['id']]['id'].'/';
-                                    $newPath = storage_path('app/files/' . $dataPath);
-                                    if(!file_exists($newPath))
-                                        mkdir($newPath, 0775, true);
-
-                                    $oldDir = $filePath.'/'.$oldPid.'/'.$ogSid.'/';
-
-                                    if(!file_exists($oldDir.$localname)) {
-                                        //OLD FILE DOESNT EXIST SO BALE
-                                        Log::info('File not found: '.$oldDir.$localname);
-                                        echo 'File not found: '.$oldDir.$localname,"\n";
-                                        continue(2);
-                                    }
-
-                                    //Hash the file
-                                    $checksum = hash_file('sha256', $oldDir.$localname);
-                                    $timestamp = time();
-                                    //Move files
-                                    copy($oldDir.$localname,$newPath.$timestamp.'.'.$newname);
-
-                                    //Get file info
-                                    $mimes = FileTypeField::getMimeTypes();
-                                    $ext = pathinfo($newPath.$timestamp.'.'.$newname,PATHINFO_EXTENSION);
-                                    if(!array_key_exists($ext, $mimes))
-                                        $type = 'application/octet-stream';
-                                    else
-                                        $type = $mimes[$ext];
-
-                                    $info = ['name' => $newname, 'size' => filesize($newPath.$timestamp.'.'.$newname), 'type' => $type,
-                                        'url' => $dataURL.urlencode($newname), 'checksum' => $checksum, 'timestamp' => $timestamp];
-                                    break;
-                                default:
-                                    break;
-                            }
-
-                            $recordDataToSave[$r['id']][$flid] = json_encode([$info]);
-                            $recordDataToSave[$r['id']]["legacy_$flid"] = json_encode([$realname]);
-                        }
-                        break;
                     case 'Gallery':
                         $fileXML = simplexml_load_string($value);
                         $realname = (string)$fileXML->originalName;

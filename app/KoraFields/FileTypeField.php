@@ -113,6 +113,8 @@ abstract class FileTypeField extends BaseField {
         else
             $uid = Auth::user()->id;
         $tmpPath = 'app/tmpFiles/recordU' . $uid;
+        $flid = $field['flid'];
+        $captions = !is_null($request->input('file_captions'.$flid)) ? $request->input('file_captions'.$flid) : null;
 
         //See if files were uploaded
         if(glob(storage_path($tmpPath.'/*.*')) != false) {
@@ -125,7 +127,7 @@ abstract class FileTypeField extends BaseField {
             //Check if data already exists for this record and its field
             $oldData = RecordController::getRecord($kid);
             if(!is_null($oldData)) {
-                $oldData = $oldData->{$field['flid']};
+                $oldData = $oldData->{$flid};
                 if(!is_null($oldData))
                     $oldData = json_decode($oldData, true);
             }
@@ -141,6 +143,12 @@ abstract class FileTypeField extends BaseField {
                     //Hash the file
                     $checksum = hash_file('sha256', $tmpPath . '/' . $fileName);
 
+                    //Get order index
+                    $valKey = array_search($fileName, $value);
+
+                    //Get caption
+                    $caption = $captions[$valKey];
+
                     //Before we store, we need to compare to other files if they exist, to see if new file exists
                     $exists = false;
                     if(!is_null($oldData)) {
@@ -149,6 +157,8 @@ abstract class FileTypeField extends BaseField {
                             if($fileName==$oldFile['name'] && $checksum==$oldFile['checksum']) {
                                 $exists = true;
                                 $info = $oldFile;
+                                //Update caption
+                                $info['caption'] = $caption;
                                 break;
                             }
                         }
@@ -165,7 +175,7 @@ abstract class FileTypeField extends BaseField {
                         $timestamp = time();
 
                         //Build info array
-                        $info = ['name' => $fileName, 'size' => $file->getSize(), 'type' => $type,
+                        $info = ['name' => $fileName, 'size' => $file->getSize(), 'type' => $type, 'caption' => $caption,
                             'url' => $dataURL.urlencode($fileName), 'checksum' => $checksum, 'timestamp' => $timestamp];
 
                         switch(config('filesystems.kora_storage')) {
@@ -183,7 +193,7 @@ abstract class FileTypeField extends BaseField {
                     }
 
                     //Store the info array
-                    $files[] = $info;
+                    $files[$valKey] = $info;
                 }
             }
 
@@ -209,7 +219,9 @@ abstract class FileTypeField extends BaseField {
         $return = '';
         foreach($data as $file) {
             $tsp = isset($file['timestamp']) ? ' ('.$file['timestamp'].')' : '';
+            $caption = isset($file['caption']) && $file['caption']!='' ? ' ('.$file['caption'].')' : '';
             $return .= "<div>".$file['name']."$tsp</div>";
+            $return .= "<div>".$caption."</div>";
         }
 
         return $return;
@@ -226,7 +238,7 @@ abstract class FileTypeField extends BaseField {
      * @return Request - Processed data
      */
     public function processImportData($flid, $field, $value, $request) {
-        $files = array();
+        $files = $captions = array();
 
         if(isset($request->userId))
             $subpath = $request->userId;
@@ -259,7 +271,14 @@ abstract class FileTypeField extends BaseField {
             copy($currDir . '/' . $pathname, $newDir . '/' . $name);
             //add input for this file
             array_push($files, $name);
+
+            if(isset($file["caption"]))
+                array_push($captions, $file["caption"]);
+            else
+                array_push($captions, '');
         }
+
+        $request['file_captions' . $flid] = $captions;
         $request[$flid] = $files;
 
         return $request;
@@ -276,7 +295,7 @@ abstract class FileTypeField extends BaseField {
      * @return Request - Processed data
      */
     public function processImportDataXML($flid, $field, $value, $request) {
-        $files = array();
+        $files = $captions = array();
 
         $currDir = storage_path( 'app/tmpFiles/impU' . \Auth::user()->id);
 
@@ -302,8 +321,14 @@ abstract class FileTypeField extends BaseField {
             copy($currDir . '/' . $pathname, $newDir . '/' . $name);
             //add input for this file
             array_push($files, $name);
+
+            if(!empty($file->Caption))
+                array_push($captions, (string)$file->Caption);
+            else
+                array_push($captions, '');
         }
 
+        $request['file_captions' . $flid] = $captions;
         $request[$flid] = $files;
 
         return $request;
@@ -320,7 +345,7 @@ abstract class FileTypeField extends BaseField {
      * @return Request - Processed data
      */
     public function processImportDataCSV($flid, $field, $value, $request) {
-        $files = array();
+        $files = $captions = array();
 
         if(isset($request->userId))
             $subpath = $request->userId;
@@ -337,7 +362,12 @@ abstract class FileTypeField extends BaseField {
         $newVal = array();
         $fileParts = explode('|', $value);
         foreach($fileParts as $fPart) {
-            $newFile = ['name' => trim($fPart)];
+            if(strpos($fPart, '[CAPTION]') !== false) {
+                $capParts = explode('[CAPTION]', $fPart);
+                $newFile = ['name' => trim($capParts[0]), 'caption' => trim($capParts[1])];
+            } else {
+                $newFile = ['name' => trim($fPart)];
+            }
             $newVal[] = $newFile;
         }
 
@@ -360,7 +390,14 @@ abstract class FileTypeField extends BaseField {
             copy($currDir . '/' . $pathname, $newDir . '/' . $name);
             //add input for this file
             array_push($files, $name);
+
+            if(isset($file["caption"]))
+                array_push($captions, $file["caption"]);
+            else
+                array_push($captions, '');
         }
+
+        $request['file_captions' . $flid] = $captions;
         $request[$flid] = $files;
 
         return $request;
@@ -393,6 +430,7 @@ abstract class FileTypeField extends BaseField {
         foreach($files as $file) {
             $xml .= '<File>';
             $xml .= '<Name>'.$file['name'].'</Name>';
+            $xml .= '<Caption>'.$file['caption'].'</Caption>';
             $xml .= '<Size>'.$file['size'].'</Size>';
             $xml .= '<Type>'.$file['type'].'</Type>';
             $xml .= '<Url>'.$file['url'].'</Url>';
@@ -466,7 +504,13 @@ abstract class FileTypeField extends BaseField {
         $dbQuery = $recordMod->newQuery()
             ->select("id");
 
-        $dbQuery->whereRaw("`$flid`->\"$[*].name\" $param \"$arg\"");
+        if($negative) {
+            $dbQuery->whereRaw("`$flid`->\"$[*].name\" $param \"$arg\"");
+            $dbQuery->whereRaw("`$flid`->\"$[*].caption\" $param \"$arg\"");
+        } else {
+            $dbQuery->orWhereRaw("`$flid`->\"$[*].name\" $param \"$arg\"");
+            $dbQuery->orWhereRaw("`$flid`->\"$[*].caption\" $param \"$arg\"");
+        }
 
         return $dbQuery->pluck('id')
             ->toArray();

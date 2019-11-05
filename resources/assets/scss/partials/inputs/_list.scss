@@ -131,4 +131,54 @@
       border-color: palette('green', accent, .6);
     }
   }
+
+  .list-option-mass-opts {
+    .list-option-mass-link {
+      display: inline;
+
+      i {
+        display: inline-block;
+        font-size: 14px;
+        padding: 0 0 2px;
+      }
+
+      a {
+        font-family: $ubuntu-medium;
+        font-size: 14px;
+        margin-left: 5px;
+        text-decoration: none;
+      }
+    }
+
+    @media screen and (max-width: $max-mobile-l-width) {
+      .list-option-mass-link {
+        display: block;
+        float: none;
+      }
+
+      .list-option-mass-delete {
+        margin-top: 15px;
+      }
+    }
+
+    .list-option-mass-copy {
+      i {
+        color: palette('green', accent);
+      }
+
+      a {
+        color: palette('green', accent);
+      }
+    }
+
+    .list-option-mass-delete {
+      i {
+        color: palette('red', base);
+      }
+
+      a {
+        color: palette('red', base);
+      }
+    }
+  }
 }

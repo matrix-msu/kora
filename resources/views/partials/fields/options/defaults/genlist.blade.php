@@ -52,6 +52,17 @@
                 </div>
             </div>
         </div>
+
+        <div class="list-option-mass-opts mt-xl mb-xs">
+            <div class="list-option-mass-link list-option-mass-copy">
+                <i class="icon icon-duplicate-little"></i>
+                <a href="#" class="list-option-mass-copy-{{$jseq}}js">Copy All List Options</a>
+            </div>
+            <div class="list-option-mass-link list-option-mass-delete right">
+                <i class="icon icon-trash"></i>
+                <a href="#" class="list-option-mass-delete-{{$jseq}}js">Delete All List Options</a>
+            </div>
+        </div>
     </div>
 
     @if($seq)

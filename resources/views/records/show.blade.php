@@ -93,13 +93,7 @@
 
         @if($record->getAssociatedRecordsCount()>0)
             <div class="meta-title mt-m">Associated Records ({{ $record->getAssociatedRecordsCount() }})</div>
-            <section class="meta-data">
-                @foreach($record->getAssociatedRecords() as $aRecord)
-                    <div><a class="meta-link underline-middle-hover"
-                            href='{{url('projects/'.$aRecord->project_id.'/forms/'.$aRecord->form_id.'/records/'.$aRecord->id)}}'>{{$aRecord->kid}}
-                        </a> | {{$aRecord->getReversePreview()}}</div>
-                @endforeach
-            </section>
+            <section class="meta-data reverse-assoc-data-section-js">Loading...</section>
         @endif
     </section>
 @stop
@@ -115,6 +109,7 @@
 
     <script type="text/javascript">
         makeRecordPresetURL = '{{action('RecordPresetController@presetRecord')}}';
+        revAssocDataURL = '{{action('RecordController@getAssociatedRecordData', ['pid' => $form->project_id, 'fid' => $form->id, 'rid' => $record->id])}}';
         ridForPreset = '{{$record->kid}}';
         revAssocCount = {{$record->getAssociatedRecordsCount()}}
         csrfToken = '{{csrf_token()}}';

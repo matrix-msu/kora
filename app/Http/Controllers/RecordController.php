@@ -65,8 +65,7 @@ class RecordController extends Controller {
           'static' => false
         );
         $prevUrlArray = $request->session()->get('_previous');
-        $prevUrl = reset($prevUrlArray);
-        if ($prevUrl !== url()->current()) {
+        if(!is_null($prevUrlArray) && reset($prevUrlArray) !== url()->current()) {
           $session = $request->session()->get('k3_global_success');
 
           if ($session == 'record_created')
@@ -315,8 +314,7 @@ class RecordController extends Controller {
           'static' => false
         );
         $prevUrlArray = $request->session()->get('_previous');
-        $prevUrl = reset($prevUrlArray);
-        if($prevUrl !== url()->current()) {
+        if(!is_null($prevUrlArray) && reset($prevUrlArray) !== url()->current()) {
           $session = $request->session()->get('k3_global_success');
 
           if($session == 'record_updated')
@@ -325,6 +323,25 @@ class RecordController extends Controller {
 
         return view('records.show', compact('record', 'form', 'owner', 'numRevisions', 'alreadyPreset', 'notification'));
 	}
+
+	public function getAssociatedRecordData($pid, $fid, $rid, Request $request) {
+        if(!self::validProjFormRecord($pid, $fid, $rid))
+            return response()->json(['k3_global_error' => 'record_invalid'], 500);
+
+        if(!FieldController::checkPermissions($fid))
+            return response()->json(['k3_global_error' => 'cant_view_form'], 500);
+
+        $kid = "$pid-$fid-$rid";
+        $record = self::getRecord($kid);
+
+        $html = '';
+        foreach($record->getAssociatedRecordData() as $aRecord) {
+            $url = url('projects/'.$aRecord["project_id"].'/forms/'.$aRecord["form_id"].'/records/'.$aRecord["id"]);
+            $html .= '<div><a class="meta-link underline-middle-hover" href="'.$url.'">'.$aRecord["kid"].' </a> | '.$aRecord["preview"].'</div>';
+        }
+
+        return response()->json(["status"=>true,"revDataHtml"=>$html],200);
+    }
 
     /**
      * Get the edit record view.
@@ -615,34 +632,40 @@ class RecordController extends Controller {
         $recMod = new Record(array(),$fid);
         $existingRIDS = $recMod->newQuery()->where('form_id','=',$fid)->pluck('id')->toArray();
 
-        $basePath = storage_path('app/files/'.$pid.'/'.$fid);
+        switch(config('filesystems.kora_storage')) {
+            case FileTypeField::_LaravelStorage:
+                $basePath = storage_path('app/files/'.$pid.'/'.$fid);
 
-        //for each 'r###' directory in $basePath
-        foreach(new \DirectoryIterator($basePath) as $rDir) {
-            if($rDir->isDot()) continue;
+                //for each 'r###' directory in $basePath
+                foreach(new \DirectoryIterator($basePath) as $rDir) {
+                    if($rDir->isDot()) continue;
 
-            $rid = $rDir->getFilename();
+                    $rid = $rDir->getFilename();
 
-            //if record does not exist in $existingRIDS
-            if(!in_array($rid,$existingRIDS)) {
-                //recursively delete record files
-                $path = $basePath . $rid;
-                if(is_dir($path)) {
-                    $it = new RecursiveDirectoryIterator($path, RecursiveDirectoryIterator::SKIP_DOTS);
-                    $files = new RecursiveIteratorIterator($it,
-                        RecursiveIteratorIterator::CHILD_FIRST);
-                    foreach($files as $file) {
-                        if($file->isDir())
-                            rmdir($file->getRealPath());
-                        else
-                            unlink($file->getRealPath());
+                    //if record does not exist in $existingRIDS
+                    if(!in_array($rid,$existingRIDS)) {
+                        //recursively delete record files
+                        $path = $basePath . $rid;
+                        if(is_dir($path)) {
+                            $it = new RecursiveDirectoryIterator($path, RecursiveDirectoryIterator::SKIP_DOTS);
+                            $files = new RecursiveIteratorIterator($it,
+                                RecursiveIteratorIterator::CHILD_FIRST);
+                            foreach($files as $file) {
+                                if($file->isDir())
+                                    rmdir($file->getRealPath());
+                                else
+                                    unlink($file->getRealPath());
+                            }
+                            rmdir($path);
+                        }
+
+                        //prevent rollback revisions for that record if any exist
+                        Revision::where('record_kid','=',$pid.'-'.$fid.'-'.$rid)->update(['rollback' => 0]);
                     }
-                    rmdir($path);
                 }
-
-                //prevent rollback revisions for that record if any exist
-                Revision::where('record_kid','=',$pid.'-'.$fid.'-'.$rid)->update(['rollback' => 0]);
-            }
+                break;
+            default:
+                break;
         }
 
         return redirect()->action('FormController@show', ['pid' => $pid, 'fid' => $fid])->with('k3_global_success', 'old_records_deleted');
@@ -932,7 +955,7 @@ class RecordController extends Controller {
      */
     public function validateMassRecord($pid, $fid, Request $request) {
         if(!FormController::validProjForm($pid, $fid))
-            return response()->json(['k3_global_error' => 'form_invalid']);
+            return response()->json(['k3_global_error' => 'form_invalid'], 500);
 
         $errors = [];
 

@@ -99,9 +99,8 @@ class ProjectController extends Controller {
         }
 
         $prevUrlArray = $request->session()->get('_previous');
-        $prevUrl = reset($prevUrlArray);
         // we do not need to see notification every time we reload the page
-        if($prevUrl !== url()->current()) {
+        if(!is_null($prevUrlArray) && reset($prevUrlArray) !== url()->current()) {
           $session = $request->session()->get('k3_global_success');
           if($session) {
             if($session == 'project_deleted')
@@ -297,9 +296,8 @@ class ProjectController extends Controller {
           'static' => false
         );
         $prevUrlArray = $request->session()->get('_previous');
-        $prevUrl = reset($prevUrlArray);
         // we do not need to see notification every time we reload the page
-        if($prevUrl !== url()->current()) {
+        if(!is_null($prevUrlArray) && reset($prevUrlArray) !== url()->current()) {
           $session = $request->session()->get('k3_global_success');
           if($session) {
             if($session == 'project_updated')
