@@ -2,8 +2,8 @@
 
 namespace Illuminate\Hashing;
 
-use Illuminate\Support\Manager;
 use Illuminate\Contracts\Hashing\Hasher;
+use Illuminate\Support\Manager;
 
 class HashManager extends Manager implements Hasher
 {
@@ -14,17 +14,27 @@ class HashManager extends Manager implements Hasher
      */
     public function createBcryptDriver()
     {
-        return new BcryptHasher($this->app['config']['hashing.bcrypt'] ?? []);
+        return new BcryptHasher($this->config->get('hashing.bcrypt') ?? []);
     }
 
     /**
-     * Create an instance of the Argon2 hash Driver.
+     * Create an instance of the Argon2i hash Driver.
      *
      * @return \Illuminate\Hashing\ArgonHasher
      */
     public function createArgonDriver()
     {
-        return new ArgonHasher($this->app['config']['hashing.argon'] ?? []);
+        return new ArgonHasher($this->config->get('hashing.argon') ?? []);
+    }
+
+    /**
+     * Create an instance of the Argon2id hash Driver.
+     *
+     * @return \Illuminate\Hashing\Argon2IdHasher
+     */
+    public function createArgon2idDriver()
+    {
+        return new Argon2IdHasher($this->config->get('hashing.argon') ?? []);
     }
 
     /**
@@ -82,6 +92,6 @@ class HashManager extends Manager implements Hasher
      */
     public function getDefaultDriver()
     {
-        return $this->app['config']['hashing.driver'] ?? 'bcrypt';
+        return $this->config->get('hashing.driver', 'bcrypt');
     }
 }

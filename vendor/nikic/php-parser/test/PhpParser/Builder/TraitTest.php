@@ -5,9 +5,14 @@ namespace PhpParser\Builder;
 use PhpParser\Comment;
 use PhpParser\Node\Name;
 use PhpParser\Node\Stmt;
-use PHPUnit\Framework\TestCase;
+use PhpParser\Node\Stmt\Class_;
+use PhpParser\Node\Stmt\ClassConst;
+use PhpParser\Node\Stmt\ClassMethod;
+use PhpParser\Node\Stmt\Property;
+use PhpParser\Node\Stmt\PropertyProperty;
+use PhpParser\Node\Stmt\TraitUse;
 
-class TraitTest extends TestCase
+class TraitTest extends \PHPUnit\Framework\TestCase
 {
     protected function createTraitBuilder($class) {
         return new Trait_($class);
@@ -37,13 +42,50 @@ class TraitTest extends TestCase
         ]), $trait);
     }
 
-    /**
-     * @expectedException \LogicException
-     * @expectedExceptionMessage Unexpected node of type "Stmt_Echo"
-     */
     public function testInvalidStmtError() {
+        $this->expectException(\LogicException::class);
+        $this->expectExceptionMessage('Unexpected node of type "Stmt_Echo"');
         $this->createTraitBuilder('Test')
             ->addStmt(new Stmt\Echo_([]))
         ;
+    }
+
+    public function testGetMethods() {
+        $methods = [
+            new ClassMethod('foo'),
+            new ClassMethod('bar'),
+            new ClassMethod('fooBar'),
+        ];
+        $trait = new Stmt\Trait_('Foo', [
+            'stmts' => [
+                new TraitUse([]),
+                $methods[0],
+                new ClassConst([]),
+                $methods[1],
+                new Property(0, []),
+                $methods[2],
+            ]
+        ]);
+
+        $this->assertSame($methods, $trait->getMethods());
+    }
+
+    public function testGetProperties()
+    {
+        $properties = [
+            new Property(Class_::MODIFIER_PUBLIC, [new PropertyProperty('foo')]),
+            new Property(Class_::MODIFIER_PUBLIC, [new PropertyProperty('bar')]),
+        ];
+        $trait = new Stmt\Trait_('Foo', [
+            'stmts' => [
+                new TraitUse([]),
+                $properties[0],
+                new ClassConst([]),
+                $properties[1],
+                new ClassMethod('fooBar'),
+            ]
+        ]);
+
+        $this->assertSame($properties, $trait->getProperties());
     }
 }

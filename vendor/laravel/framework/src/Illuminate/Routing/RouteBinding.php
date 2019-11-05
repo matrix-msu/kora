@@ -3,8 +3,8 @@
 namespace Illuminate\Routing;
 
 use Closure;
-use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Support\Str;
 
 class RouteBinding
 {
@@ -37,11 +37,11 @@ class RouteBinding
             // If the binding has an @ sign, we will assume it's being used to delimit
             // the class name from the bind method name. This allows for bindings
             // to run multiple bind methods in a single class for convenience.
-            list($class, $method) = Str::parseCallback($binding, 'bind');
+            [$class, $method] = Str::parseCallback($binding, 'bind');
 
             $callable = [$container->make($class), $method];
 
-            return call_user_func($callable, $value, $route);
+            return $callable($value, $route);
         };
     }
 
@@ -73,7 +73,7 @@ class RouteBinding
             // what we should do when the model is not found. This just gives these
             // developer a little greater flexibility to decide what will happen.
             if ($callback instanceof Closure) {
-                return call_user_func($callback, $value);
+                return $callback($value);
             }
 
             throw (new ModelNotFoundException)->setModel($class);

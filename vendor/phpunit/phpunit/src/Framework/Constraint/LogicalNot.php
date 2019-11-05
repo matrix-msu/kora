@@ -33,7 +33,7 @@ class LogicalNot extends Constraint
             'starts with ',
             'ends with ',
             'reference ',
-            'not not '
+            'not not ',
         ];
 
         $negatives = [
@@ -46,7 +46,7 @@ class LogicalNot extends Constraint
             'starts not with ',
             'ends not with ',
             'don\'t reference ',
-            'not '
+            'not ',
         ];
 
         \preg_match('/(\'[\w\W]*\')([\w\W]*)("[\w\W]*")/i', $string, $matches);
@@ -104,8 +104,6 @@ class LogicalNot extends Constraint
      *
      * @throws ExpectationFailedException
      * @throws \SebastianBergmann\RecursionContext\InvalidArgumentException
-     *
-     * @return mixed
      */
     public function evaluate($other, $description = '', $returnResult = false)
     {

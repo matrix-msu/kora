@@ -162,7 +162,7 @@ class XmlResultPrinter extends Printer implements TestListener
         $node->setAttribute('className', \get_class($test));
         $node->setAttribute('methodName', $test->getName());
         $node->setAttribute('prettifiedClassName', $this->prettifier->prettifyTestClass(\get_class($test)));
-        $node->setAttribute('prettifiedMethodName', $this->prettifier->prettifyTestMethod($test->getName()));
+        $node->setAttribute('prettifiedMethodName', $this->prettifier->prettifyTestCase($test));
         $node->setAttribute('status', $test->getStatus());
         $node->setAttribute('time', $time);
         $node->setAttribute('size', $test->getSize());
@@ -170,13 +170,13 @@ class XmlResultPrinter extends Printer implements TestListener
 
         $inlineAnnotations = \PHPUnit\Util\Test::getInlineAnnotations(\get_class($test), $test->getName());
 
-        if (isset($inlineAnnotations['given']) && isset($inlineAnnotations['when']) && isset($inlineAnnotations['then'])) {
+        if (isset($inlineAnnotations['given'], $inlineAnnotations['when'], $inlineAnnotations['then'])) {
             $node->setAttribute('given', $inlineAnnotations['given']['value']);
-            $node->setAttribute('givenStartLine', $inlineAnnotations['given']['line']);
+            $node->setAttribute('givenStartLine', (string) $inlineAnnotations['given']['line']);
             $node->setAttribute('when', $inlineAnnotations['when']['value']);
-            $node->setAttribute('whenStartLine', $inlineAnnotations['when']['line']);
+            $node->setAttribute('whenStartLine', (string) $inlineAnnotations['when']['line']);
             $node->setAttribute('then', $inlineAnnotations['then']['value']);
-            $node->setAttribute('thenStartLine', $inlineAnnotations['then']['line']);
+            $node->setAttribute('thenStartLine', (string) $inlineAnnotations['then']['line']);
         }
 
         if ($this->exception !== null) {

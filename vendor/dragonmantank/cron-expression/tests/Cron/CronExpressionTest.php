@@ -3,7 +3,9 @@
 namespace Cron\Tests;
 
 use Cron\CronExpression;
+use Cron\MonthField;
 use DateTime;
+use DateTimeImmutable;
 use DateTimeZone;
 use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
@@ -227,6 +229,7 @@ class CronExpressionTest extends TestCase
         $this->assertTrue($cron->isDue('now'));
         $this->assertTrue($cron->isDue(new DateTime('now')));
         $this->assertTrue($cron->isDue(date('Y-m-d H:i')));
+        $this->assertTrue($cron->isDue(new DateTimeImmutable('now')));
     }
 
     /**
@@ -409,6 +412,18 @@ class CronExpressionTest extends TestCase
     /**
      * @covers \Cron\CronExpression::getRunDate
      */
+    public function testGetRunDateHandlesDifferentDates()
+    {
+        $cron = CronExpression::factory('@weekly');
+        $date = new DateTime("2019-03-10 00:00:00");
+        $this->assertEquals($date, $cron->getNextRunDate("2019-03-03 08:00:00"));
+        $this->assertEquals($date, $cron->getNextRunDate(new DateTime("2019-03-03 08:00:00")));
+        $this->assertEquals($date, $cron->getNextRunDate(new DateTimeImmutable("2019-03-03 08:00:00")));
+    }
+
+    /**
+     * @covers \Cron\CronExpression::getRunDate
+     */
     public function testSkipsCurrentDateByDefault()
     {
         $cron = CronExpression::factory('* * * * *');
@@ -507,5 +522,65 @@ class CronExpressionTest extends TestCase
 
         // see https://github.com/dragonmantank/cron-expression/issues/5
         $this->assertTrue(CronExpression::isValidExpression('2,17,35,47 5-7,11-13 * * *'));
+    }
+
+    /**
+     * Makes sure that 00 is considered a valid value for 0-based fields
+     * cronie allows numbers with a leading 0, so adding support for this as well
+     *
+     * @see https://github.com/dragonmantank/cron-expression/issues/12
+     */
+    public function testDoubleZeroIsValid()
+    {
+        $this->assertTrue(CronExpression::isValidExpression('00 * * * *'));
+        $this->assertTrue(CronExpression::isValidExpression('01 * * * *'));
+        $this->assertTrue(CronExpression::isValidExpression('* 00 * * *'));
+        $this->assertTrue(CronExpression::isValidExpression('* 01 * * *'));
+
+        $e = CronExpression::factory('00 * * * *');
+        $this->assertTrue($e->isDue(new DateTime('2014-04-07 00:00:00')));
+        $e = CronExpression::factory('01 * * * *');
+        $this->assertTrue($e->isDue(new DateTime('2014-04-07 00:01:00')));
+
+        $e = CronExpression::factory('* 00 * * *');
+        $this->assertTrue($e->isDue(new DateTime('2014-04-07 00:00:00')));
+        $e = CronExpression::factory('* 01 * * *');
+        $this->assertTrue($e->isDue(new DateTime('2014-04-07 01:00:00')));
+    }
+
+
+    /**
+     * Ranges with large steps should "wrap around" to the appropriate value
+     * cronie allows for steps that are larger than the range of a field, with it wrapping around like a ring buffer. We
+     * should do the same.
+     *
+     * @see https://github.com/dragonmantank/cron-expression/issues/6
+     */
+    public function testRangesWrapAroundWithLargeSteps()
+    {
+        $f = new MonthField();
+        $this->assertTrue($f->validate('*/123'));
+        $this->assertSame([4], $f->getRangeForExpression('*/123', 12));
+
+        $e = CronExpression::factory('* * * */123 *');
+        $this->assertTrue($e->isDue(new DateTime('2014-04-07 00:00:00')));
+
+        $nextRunDate = $e->getNextRunDate(new DateTime('2014-04-07 00:00:00'));
+        $this->assertSame('2014-04-07 00:01:00', $nextRunDate->format('Y-m-d H:i:s'));
+
+        $nextRunDate = $e->getNextRunDate(new DateTime('2014-05-07 00:00:00'));
+        $this->assertSame('2015-04-01 00:00:00', $nextRunDate->format('Y-m-d H:i:s'));
+    }
+
+    /**
+     * When there is an issue with a field, we should report the human readable position
+     *
+     * @see https://github.com/dragonmantank/cron-expression/issues/29
+     */
+    public function testFieldPositionIsHumanAdjusted()
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage("6 is not a valid position");
+        $e = CronExpression::factory('0 * * * * ? *');
     }
 }

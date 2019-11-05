@@ -40,8 +40,16 @@ class ExampleNode
      */
     public function __construct(string $title, ReflectionFunctionAbstract $function)
     {
-        $this->title    = $title;
+        $this->setTitle($title);
         $this->function = $function;
+    }
+
+    /**
+     * @param string $title
+     */
+    public function setTitle(string $title)
+    {
+      $this->title = $title;
     }
 
     /**
@@ -55,7 +63,7 @@ class ExampleNode
     /**
      * @param bool $isPending
      */
-    public function markAsPending(bool $isPending = true)
+    public function markAsPending(bool $isPending = true): void
     {
         $this->isPending = $isPending;
     }
@@ -79,7 +87,7 @@ class ExampleNode
     /**
      * @param SpecificationNode $specification
      */
-    public function setSpecification(SpecificationNode $specification)
+    public function setSpecification(SpecificationNode $specification): void
     {
         $this->specification = $specification;
     }

@@ -37,9 +37,7 @@ class AppServiceProvider extends ServiceProvider {
 	 */
 	public function register()
 	{
-		if (config('app.env') === 'production') {	
-            $this->app['url']->forceScheme('https');	
-        }
+        $this->app['url']->forceScheme('https');
         
 		$this->app->bind(
 			'Illuminate\Contracts\Auth\Registrar',

@@ -30,12 +30,12 @@ class DemeterChainTest extends MockeryTestCase
     /** @var  Mockery\Mock $this->mock */
     private $mock;
 
-    public function setUp()
+    public function mockeryTestSetUp()
     {
         $this->mock = $this->mock = Mockery::mock()->shouldIgnoreMissing();
     }
 
-    public function tearDown()
+    public function mockeryTestTearDown()
     {
         $this->mock->mockery_getContainer()->mockery_close();
     }
@@ -200,5 +200,19 @@ class DemeterChainTest extends MockeryTestCase
         $result = $m->callDemeter($a);
 
         $this->assertInstanceOf(stdClass::class, $result);
+    }
+
+    /**
+     * @requires PHP 7.0.0
+     */
+    public function testMultipleDemeterChainsWithClassReturnTypeHints()
+    {
+        $bar = new \DemeterChain\C;
+        $qux = new \DemeterChain\C;
+        $a = \Mockery::mock(\DemeterChain\A::class);
+        $a->shouldReceive('foo->bar')->andReturn($bar);
+        $a->shouldReceive('foo->qux')->andReturn($qux);
+        $this->assertEquals($bar, $a->foo()->bar());
+        $this->assertEquals($qux, $a->foo()->qux());
     }
 }

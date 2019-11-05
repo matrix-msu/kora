@@ -7,7 +7,6 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-
 namespace PHPUnit\TextUI;
 
 use PharIo\Manifest\ApplicationName;
@@ -55,7 +54,7 @@ class Command
         'loader'                  => null,
         'useDefaultConfiguration' => true,
         'loadedExtensions'        => [],
-        'notLoadedExtensions'     => []
+        'notLoadedExtensions'     => [],
     ];
 
     /**
@@ -68,7 +67,10 @@ class Command
      */
     protected $longOptions = [
         'atleast-version='          => null,
+        'prepend='                  => null,
         'bootstrap='                => null,
+        'cache-result'              => null,
+        'cache-result-file='        => null,
         'check-version'             => null,
         'colors=='                  => null,
         'columns='                  => null,
@@ -83,6 +85,7 @@ class Command
         'disallow-test-output'      => null,
         'disallow-resource-usage'   => null,
         'disallow-todo-tests'       => null,
+        'default-time-limit='       => null,
         'enforce-time-limit'        => null,
         'exclude-group='            => null,
         'filter='                   => null,
@@ -104,6 +107,7 @@ class Command
         'no-coverage'               => null,
         'no-logging'                => null,
         'no-extensions'             => null,
+        'order-by='                 => null,
         'printer='                  => null,
         'process-isolation'         => null,
         'repeat='                   => null,
@@ -114,6 +118,7 @@ class Command
         'reverse-list'              => null,
         'static-backup'             => null,
         'stderr'                    => null,
+        'stop-on-defect'            => null,
         'stop-on-error'             => null,
         'stop-on-failure'           => null,
         'stop-on-warning'           => null,
@@ -136,7 +141,8 @@ class Command
         'testsuite='                => null,
         'verbose'                   => null,
         'version'                   => null,
-        'whitelist='                => null
+        'whitelist='                => null,
+        'dump-xdebug-filter='       => null,
     ];
 
     /**
@@ -194,15 +200,12 @@ class Command
             return $this->handleListTestsXml($suite, $this->arguments['listTestsXml'], $exit);
         }
 
-        unset(
-            $this->arguments['test'],
-            $this->arguments['testFile']
-        );
+        unset($this->arguments['test'], $this->arguments['testFile']);
 
         try {
             $result = $runner->doRun($suite, $this->arguments, $exit);
         } catch (Exception $e) {
-            print $e->getMessage() . PHP_EOL;
+            print $e->getMessage() . \PHP_EOL;
         }
 
         $return = TestRunner::FAILURE_EXIT;
@@ -297,6 +300,16 @@ class Command
 
                     break;
 
+                case '--cache-result':
+                    $this->arguments['cacheResult'] = true;
+
+                    break;
+
+                case '--cache-result-file':
+                    $this->arguments['cacheResultFile'] = $option[1];
+
+                    break;
+
                 case '--columns':
                     if (\is_numeric($option[1])) {
                         $this->arguments['columns'] = (int) $option[1];
@@ -386,16 +399,16 @@ class Command
                 case '--generate-configuration':
                     $this->printVersionString();
 
-                    print 'Generating phpunit.xml in ' . \getcwd() . PHP_EOL . PHP_EOL;
+                    print 'Generating phpunit.xml in ' . \getcwd() . \PHP_EOL . \PHP_EOL;
 
                     print 'Bootstrap script (relative to path shown above; default: vendor/autoload.php): ';
-                    $bootstrapScript = \trim(\fgets(STDIN));
+                    $bootstrapScript = \trim(\fgets(\STDIN));
 
                     print 'Tests directory (relative to path shown above; default: tests): ';
-                    $testsDirectory = \trim(\fgets(STDIN));
+                    $testsDirectory = \trim(\fgets(\STDIN));
 
                     print 'Source directory (relative to path shown above; default: src): ';
-                    $src = \trim(\fgets(STDIN));
+                    $src = \trim(\fgets(\STDIN));
 
                     if ($bootstrapScript === '') {
                         $bootstrapScript = 'vendor/autoload.php';
@@ -421,7 +434,7 @@ class Command
                         )
                     );
 
-                    print PHP_EOL . 'Generated phpunit.xml in ' . \getcwd() . PHP_EOL;
+                    print \PHP_EOL . 'Generated phpunit.xml in ' . \getcwd() . \PHP_EOL;
 
                     exit(TestRunner::SUCCESS_EXIT);
 
@@ -493,6 +506,11 @@ class Command
 
                     break;
 
+                case '--order-by':
+                    $this->handleOrderByOption($option[1]);
+
+                    break;
+
                 case '--process-isolation':
                     $this->arguments['processIsolation'] = true;
 
@@ -505,6 +523,11 @@ class Command
 
                 case '--stderr':
                     $this->arguments['stderr'] = true;
+
+                    break;
+
+                case '--stop-on-defect':
+                    $this->arguments['stopOnDefect'] = true;
 
                     break;
 
@@ -670,6 +693,11 @@ class Command
 
                     break;
 
+                case '--default-time-limit':
+                    $this->arguments['defaultTimeLimit'] = (int) $option[1];
+
+                    break;
+
                 case '--enforce-time-limit':
                     $this->arguments['enforceTimeLimit'] = true;
 
@@ -696,7 +724,7 @@ class Command
                     break;
 
                 case '--random-order':
-                    $this->arguments['executionOrder'] = TestSuiteSorter::ORDER_RANDOMIZED;
+                    $this->handleOrderByOption('random');
 
                     break;
 
@@ -706,7 +734,7 @@ class Command
                     break;
 
                 case '--resolve-dependencies':
-                    $this->arguments['resolveDependencies'] = true;
+                    $this->handleOrderByOption('depends');
 
                     break;
 
@@ -716,7 +744,12 @@ class Command
                     break;
 
                 case '--reverse-order':
-                    $this->arguments['executionOrder'] = TestSuiteSorter::ORDER_REVERSED;
+                    $this->handleOrderByOption('reverse');
+
+                    break;
+
+                case '--dump-xdebug-filter':
+                    $this->arguments['xdebugFilterFile'] = $option[1];
 
                     break;
 
@@ -745,7 +778,17 @@ class Command
             }
 
             if (isset($this->options[1][1])) {
-                $this->arguments['testFile'] = \realpath($this->options[1][1]);
+                $testFile = \realpath($this->options[1][1]);
+
+                if ($testFile === false) {
+                    $this->exitWithErrorMessage(
+                        \sprintf(
+                            'Cannot open file "%s".',
+                            $this->options[1][1]
+                        )
+                    );
+                }
+                $this->arguments['testFile'] = $testFile;
             } else {
                 $this->arguments['testFile'] = '';
             }
@@ -765,7 +808,7 @@ class Command
         if (isset($includePath)) {
             \ini_set(
                 'include_path',
-                $includePath . PATH_SEPARATOR . \ini_get('include_path')
+                $includePath . \PATH_SEPARATOR . \ini_get('include_path')
             );
         }
 
@@ -803,7 +846,7 @@ class Command
                     $this->arguments['configuration']
                 );
             } catch (Throwable $t) {
-                print $t->getMessage() . PHP_EOL;
+                print $t->getMessage() . \PHP_EOL;
                 exit(TestRunner::FAILURE_EXIT);
             }
 
@@ -1027,12 +1070,12 @@ class Command
 
         if ($isOutdated) {
             \printf(
-                'You are not using the latest version of PHPUnit.' . PHP_EOL .
-                'The latest version is PHPUnit %s.' . PHP_EOL,
+                'You are not using the latest version of PHPUnit.' . \PHP_EOL .
+                'The latest version is PHPUnit %s.' . \PHP_EOL,
                 $latestVersion
             );
         } else {
-            print 'You are using the latest version of PHPUnit.' . PHP_EOL;
+            print 'You are using the latest version of PHPUnit.' . \PHP_EOL;
         }
 
         exit(TestRunner::SUCCESS_EXIT);
@@ -1060,6 +1103,8 @@ Code Coverage Options:
   --coverage-xml <dir>        Generate code coverage report in PHPUnit XML format
   --whitelist <dir>           Whitelist <dir> for code coverage analysis
   --disable-coverage-ignore   Disable annotations for ignoring code coverage
+  --no-coverage               Ignore code coverage configuration
+  --dump-xdebug-filter <file> Generate script to set Xdebug code coverage filter
 
 Logging Options:
 
@@ -1091,6 +1136,7 @@ Test Execution Options:
   --disallow-test-output      Be strict about output during tests
   --disallow-resource-usage   Be strict about resource usage during small tests
   --enforce-time-limit        Enforce time limit based on test size
+  --default-time-limit=<sec>  Timeout in seconds for tests without @small, @medium or @large
   --disallow-todo-tests       Disallow @todo-annotated tests
 
   --process-isolation         Run each test in a separate PHP process
@@ -1101,6 +1147,7 @@ Test Execution Options:
   --columns <n>               Number of columns to use for progress output
   --columns max               Use maximum number of columns for progress output
   --stderr                    Write to STDERR instead of STDOUT
+  --stop-on-defect            Stop execution upon first not-passed test
   --stop-on-error             Stop execution upon first error
   --stop-on-failure           Stop execution upon first error or failure
   --stop-on-warning           Stop execution upon first warning
@@ -1121,21 +1168,22 @@ Test Execution Options:
   --printer <printer>         TestListener implementation to use
 
   --resolve-dependencies      Resolve dependencies between tests
-  --random-order              Run tests in random order
+  --order-by=<order>          Run tests in order: default|reverse|random|defects|depends
   --random-order-seed=<N>     Use a specific random seed <N> for random order
-  --reverse-order             Run tests last-to-first
+  --cache-result              Write run result to cache to enable ordering tests defects-first
 
 Configuration Options:
 
-  --bootstrap <file>          A "bootstrap" PHP file that is run before the tests
+  --prepend <file>            A PHP script that is included as early as possible
+  --bootstrap <file>          A PHP script that is included before the tests run
   -c|--configuration <file>   Read configuration from XML file
   --no-configuration          Ignore default configuration file (phpunit.xml)
-  --no-coverage               Ignore code coverage configuration
   --no-logging                Ignore logging configuration
   --no-extensions             Do not load PHPUnit extensions
   --include-path <path(s)>    Prepend PHP's include_path with given path(s)
   -d key[=value]              Sets a php.ini value
   --generate-configuration    Generate configuration file with suggested settings
+  --cache-result-file=<file>  Specify result cache path and filename
 
 Miscellaneous Options:
 
@@ -1160,7 +1208,7 @@ EOT;
             return;
         }
 
-        print Version::getVersionString() . PHP_EOL . PHP_EOL;
+        print Version::getVersionString() . \PHP_EOL . \PHP_EOL;
 
         $this->versionStringPrinted = true;
     }
@@ -1169,7 +1217,7 @@ EOT;
     {
         $this->printVersionString();
 
-        print $message . PHP_EOL;
+        print $message . \PHP_EOL;
 
         exit(TestRunner::FAILURE_EXIT);
     }
@@ -1217,14 +1265,14 @@ EOT;
     {
         $this->printVersionString();
 
-        print 'Available test group(s):' . PHP_EOL;
+        print 'Available test group(s):' . \PHP_EOL;
 
         $groups = $suite->getGroups();
         \sort($groups);
 
         foreach ($groups as $group) {
             \printf(
-                ' - %s' . PHP_EOL,
+                ' - %s' . \PHP_EOL,
                 $group
             );
         }
@@ -1240,7 +1288,7 @@ EOT;
     {
         $this->printVersionString();
 
-        print 'Available test suite(s):' . PHP_EOL;
+        print 'Available test suite(s):' . \PHP_EOL;
 
         $configuration = Configuration::getInstance(
             $this->arguments['configuration']
@@ -1250,7 +1298,7 @@ EOT;
 
         foreach ($suiteNames as $suiteName) {
             \printf(
-                ' - %s' . PHP_EOL,
+                ' - %s' . \PHP_EOL,
                 $suiteName
             );
         }
@@ -1295,5 +1343,42 @@ EOT;
         }
 
         return TestRunner::SUCCESS_EXIT;
+    }
+
+    private function handleOrderByOption(string $value): void
+    {
+        foreach (\explode(',', $value) as $order) {
+            switch ($order) {
+                case 'default':
+                    $this->arguments['executionOrder']        = TestSuiteSorter::ORDER_DEFAULT;
+                    $this->arguments['executionOrderDefects'] = TestSuiteSorter::ORDER_DEFAULT;
+                    $this->arguments['resolveDependencies']   = false;
+
+                    break;
+
+                case 'reverse':
+                    $this->arguments['executionOrder'] = TestSuiteSorter::ORDER_REVERSED;
+
+                    break;
+
+                case 'random':
+                    $this->arguments['executionOrder'] = TestSuiteSorter::ORDER_RANDOMIZED;
+
+                    break;
+
+                case 'defects':
+                    $this->arguments['executionOrderDefects'] = TestSuiteSorter::ORDER_DEFECTS_FIRST;
+
+                    break;
+
+                case 'depends':
+                    $this->arguments['resolveDependencies'] = true;
+
+                    break;
+
+                default:
+                    $this->exitWithErrorMessage("unrecognized --order-by option: $order");
+            }
+        }
     }
 }

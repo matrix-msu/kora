@@ -25,7 +25,7 @@ class UserRequest extends FormRequest
                 return [
                     'username' => 'required|max:20|unique:users',
                     'email' => 'required|email|max:60|unique:users',
-                    'password' => 'required|max:60|confirmed|min:6',
+                    'password' => 'required|max:60|confirmed|min:8',
                     'language'=> 'required|alpha|max:2',
                     'first_name'=> 'required',
                     'last_name'=> 'required',
@@ -35,7 +35,7 @@ class UserRequest extends FormRequest
                 return [
                     'username' => 'required|max:60|unique:users,id,'.$this->uid,
                     'email' => 'required|email|max:60|unique:users,id,'.$this->uid,
-                    'password' => 'max:60|confirmed|min:6',
+                    'password' => 'max:60|confirmed|min:8',
                     'language'=> 'required|alpha|max:2',
                     'first_name'=> 'required',
                     'last_name'=> 'required',

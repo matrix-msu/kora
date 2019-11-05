@@ -2,8 +2,8 @@
 
 namespace Illuminate\Database\Eloquent\Relations;
 
-use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Str;
 
 class MorphPivot extends Pivot
 {
@@ -124,7 +124,7 @@ class MorphPivot extends Pivot
     /**
      * Get a new query to restore multiple models by their queueable IDs.
      *
-     * @param  array|int  $ids
+     * @param  array  $ids
      * @return \Illuminate\Database\Eloquent\Builder
      */
     protected function newQueryForCollectionRestoration(array $ids)

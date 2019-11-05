@@ -1,5 +1,11 @@
 <?php
 
+try {
+    $url = url('').'/';
+} catch (Error $e) {
+    $url = '/';
+}
+
 return [
 
 	/*
@@ -33,5 +39,12 @@ return [
 		'model'  => 'User',
 		'secret' => '',
 	],
+
+    'gitlab' => [
+        'client' => env('GITLAB_CLIENT','https://gitlab.com'),
+        'client_id' => env('GITLAB_CLIENT_ID',''),
+        'client_secret' => env('GITLAB_CLIENT_SECRET',''),
+        'redirect' => $url.'login/gitlab/callback',
+    ],
 
 ];

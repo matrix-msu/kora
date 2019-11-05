@@ -3,9 +3,9 @@
 namespace Illuminate\Foundation\Http\Middleware;
 
 use Closure;
-use Symfony\Component\HttpFoundation\IpUtils;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Foundation\Http\Exceptions\MaintenanceModeException;
+use Symfony\Component\HttpFoundation\IpUtils;
 
 class CheckForMaintenanceMode
 {
@@ -15,6 +15,13 @@ class CheckForMaintenanceMode
      * @var \Illuminate\Contracts\Foundation\Application
      */
     protected $app;
+
+    /**
+     * The URIs that should be accessible while maintenance mode is enabled.
+     *
+     * @var array
+     */
+    protected $except = [];
 
     /**
      * Create a new middleware instance.
@@ -45,9 +52,34 @@ class CheckForMaintenanceMode
                 return $next($request);
             }
 
+            if ($this->inExceptArray($request)) {
+                return $next($request);
+            }
+
             throw new MaintenanceModeException($data['time'], $data['retry'], $data['message']);
         }
 
         return $next($request);
+    }
+
+    /**
+     * Determine if the request has a URI that should be accessible in maintenance mode.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return bool
+     */
+    protected function inExceptArray($request)
+    {
+        foreach ($this->except as $except) {
+            if ($except !== '/') {
+                $except = trim($except, '/');
+            }
+
+            if ($request->fullUrlIs($except) || $request->is($except)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

@@ -84,6 +84,10 @@
     }
   }
 
+  &.center {
+    text-align: center;
+  }
+
   &.inline-form-group {
       align-items: stretch;
       display: flex;

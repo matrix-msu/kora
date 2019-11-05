@@ -27,6 +27,8 @@ use SebastianBergmann\FileIterator\Facade as FileIteratorFacade;
  * <phpunit backupGlobals="false"
  *          backupStaticAttributes="false"
  *          bootstrap="/path/to/bootstrap.php"
+ *          cacheResult="false"
+ *          cacheResultFile=".phpunit.result.cache"
  *          cacheTokens="false"
  *          columns="80"
  *          colors="false"
@@ -38,6 +40,7 @@ use SebastianBergmann\FileIterator\Facade as FileIteratorFacade;
  *          disableCodeCoverageIgnore="false"
  *          forceCoversAnnotation="false"
  *          processIsolation="false"
+ *          stopOnDefect="false"
  *          stopOnError="false"
  *          stopOnFailure="false"
  *          stopOnWarning="false"
@@ -56,6 +59,7 @@ use SebastianBergmann\FileIterator\Facade as FileIteratorFacade;
  *          beStrictAboutResourceUsageDuringSmallTests="false"
  *          beStrictAboutTestsThatDoNotTestAnything="false"
  *          beStrictAboutTodoAnnotatedTests="false"
+ *          defaultTimeLimit="0"
  *          enforceTimeLimit="false"
  *          ignoreDeprecatedCodeUnitsFromCodeCoverage="false"
  *          timeoutForSmallTests="1"
@@ -65,6 +69,7 @@ use SebastianBergmann\FileIterator\Facade as FileIteratorFacade;
  *          reverseDefectList="false"
  *          registerMockObjectsFromTestArgumentsRecursively="false"
  *          executionOrder="default"
+ *          executionOrderDefects="default"
  *          resolveDependencies="false">
  *   <testsuites>
  *     <testsuite name="My Test Suite">
@@ -271,7 +276,7 @@ final class Configuration
             $result[] = [
                 'class'     => $class,
                 'file'      => $file,
-                'arguments' => $arguments
+                'arguments' => $arguments,
             ];
         }
 
@@ -334,13 +339,13 @@ final class Configuration
                 'processUncoveredFilesFromWhitelist' => $processUncoveredFilesFromWhitelist,
                 'include'                            => [
                     'directory' => $includeDirectory,
-                    'file'      => $includeFile
+                    'file'      => $includeFile,
                 ],
                 'exclude' => [
                     'directory' => $excludeDirectory,
-                    'file'      => $excludeFile
-                ]
-            ]
+                    'file'      => $excludeFile,
+                ],
+            ],
         ];
     }
 
@@ -383,7 +388,7 @@ final class Configuration
             $result[] = [
                 'class'     => $class,
                 'file'      => $file,
-                'arguments' => $arguments
+                'arguments' => $arguments,
             ];
         }
 
@@ -467,7 +472,7 @@ final class Configuration
             'cookie'       => [],
             'server'       => [],
             'files'        => [],
-            'request'      => []
+            'request'      => [],
         ];
 
         foreach ($this->xpath->query('php/includePath') as $includePath) {
@@ -532,8 +537,8 @@ final class Configuration
         if (!empty($configuration['include_path'])) {
             \ini_set(
                 'include_path',
-                \implode(PATH_SEPARATOR, $configuration['include_path']) .
-                PATH_SEPARATOR .
+                \implode(\PATH_SEPARATOR, $configuration['include_path']) .
+                \PATH_SEPARATOR .
                 \ini_get('include_path')
             );
         }
@@ -589,6 +594,8 @@ final class Configuration
             if ($force || \getenv($name) === false) {
                 \putenv("{$name}={$value}");
             }
+
+            $value = \getenv($name);
 
             if (!isset($_ENV[$name])) {
                 $_ENV[$name] = $value;
@@ -710,6 +717,13 @@ final class Configuration
         if ($root->hasAttribute('processIsolation')) {
             $result['processIsolation'] = $this->getBoolean(
                 (string) $root->getAttribute('processIsolation'),
+                false
+            );
+        }
+
+        if ($root->hasAttribute('stopOnDefect')) {
+            $result['stopOnDefect'] = $this->getBoolean(
+                (string) $root->getAttribute('stopOnDefect'),
                 false
             );
         }
@@ -842,6 +856,13 @@ final class Configuration
             );
         }
 
+        if ($root->hasAttribute('defaultTimeLimit')) {
+            $result['defaultTimeLimit'] = $this->getInteger(
+                (string) $root->getAttribute('defaultTimeLimit'),
+                1
+            );
+        }
+
         if ($root->hasAttribute('enforceTimeLimit')) {
             $result['enforceTimeLimit'] = $this->getBoolean(
                 (string) $root->getAttribute('enforceTimeLimit'),
@@ -906,21 +927,45 @@ final class Configuration
             );
         }
 
+        if ($root->hasAttribute('cacheResult')) {
+            $result['cacheResult'] = $this->getBoolean(
+                (string) $root->getAttribute('cacheResult'),
+                false
+            );
+        }
+
+        if ($root->hasAttribute('cacheResultFile')) {
+            $result['cacheResultFile'] = $this->toAbsolutePath(
+                (string) $root->getAttribute('cacheResultFile')
+            );
+        }
+
         if ($root->hasAttribute('executionOrder')) {
-            switch ((string) $root->getAttribute('executionOrder')) {
-                case 'random':
-                    $result['executionOrder'] = TestSuiteSorter::ORDER_RANDOMIZED;
+            foreach (\explode(',', $root->getAttribute('executionOrder')) as $order) {
+                switch ($order) {
+                    case 'default':
+                        $result['executionOrder']        = TestSuiteSorter::ORDER_DEFAULT;
+                        $result['executionOrderDefects'] = TestSuiteSorter::ORDER_DEFAULT;
+                        $result['resolveDependencies']   = false;
 
-                    break;
+                        break;
+                    case 'reverse':
+                        $result['executionOrder'] = TestSuiteSorter::ORDER_REVERSED;
 
-                case 'reverse':
-                    $result['executionOrder'] = TestSuiteSorter::ORDER_REVERSED;
+                        break;
+                    case 'random':
+                        $result['executionOrder'] = TestSuiteSorter::ORDER_RANDOMIZED;
 
-                    break;
+                        break;
+                    case 'defects':
+                        $result['executionOrderDefects'] = TestSuiteSorter::ORDER_DEFECTS_FIRST;
 
-                default:
-                    $result['executionOrder'] = TestSuiteSorter::ORDER_DEFAULT;
+                        break;
+                    case 'depends':
+                        $result['resolveDependencies'] = true;
 
+                        break;
+                }
             }
         }
 
@@ -988,6 +1033,7 @@ final class Configuration
 
         $this->document->schemaValidate($xsdFilename);
         $this->errors = \libxml_get_errors();
+        \libxml_clear_errors();
         \libxml_use_internal_errors($original);
     }
 
@@ -1066,20 +1112,10 @@ final class Configuration
                 continue;
             }
 
-            $phpVersion         = PHP_VERSION;
-            $phpVersionOperator = '>=';
-            $prefix             = '';
-            $suffix             = 'Test.php';
+            $prefix = '';
+            $suffix = 'Test.php';
 
-            if ($directoryNode->hasAttribute('phpVersion')) {
-                $phpVersion = (string) $directoryNode->getAttribute('phpVersion');
-            }
-
-            if ($directoryNode->hasAttribute('phpVersionOperator')) {
-                $phpVersionOperator = (string) $directoryNode->getAttribute('phpVersionOperator');
-            }
-
-            if (!\version_compare(PHP_VERSION, $phpVersion, $phpVersionOperator)) {
+            if (!$this->satisfiesPhpVersion($directoryNode)) {
                 continue;
             }
 
@@ -1121,19 +1157,9 @@ final class Configuration
                 continue;
             }
 
-            $file               = $file[0];
-            $phpVersion         = PHP_VERSION;
-            $phpVersionOperator = '>=';
+            $file = $file[0];
 
-            if ($fileNode->hasAttribute('phpVersion')) {
-                $phpVersion = (string) $fileNode->getAttribute('phpVersion');
-            }
-
-            if ($fileNode->hasAttribute('phpVersionOperator')) {
-                $phpVersionOperator = (string) $fileNode->getAttribute('phpVersionOperator');
-            }
-
-            if (!\version_compare(PHP_VERSION, $phpVersion, $phpVersionOperator)) {
+            if (!$this->satisfiesPhpVersion($fileNode)) {
                 continue;
             }
 
@@ -1143,12 +1169,27 @@ final class Configuration
         return $suite;
     }
 
+    private function satisfiesPhpVersion(DOMElement $node): bool
+    {
+        $phpVersion         = \PHP_VERSION;
+        $phpVersionOperator = '>=';
+
+        if ($node->hasAttribute('phpVersion')) {
+            $phpVersion = (string) $node->getAttribute('phpVersion');
+        }
+
+        if ($node->hasAttribute('phpVersionOperator')) {
+            $phpVersionOperator = (string) $node->getAttribute('phpVersionOperator');
+        }
+
+        return \version_compare(\PHP_VERSION, $phpVersion, $phpVersionOperator);
+    }
+
     /**
      * if $value is 'false' or 'true', this returns the value that $value represents.
      * Otherwise, returns $default, which may be a string in rare cases.
      * See PHPUnit\Util\ConfigurationTest::testPHPConfigurationIsReadCorrectly
      *
-     * @param string      $value
      * @param bool|string $default
      *
      * @return bool|string
@@ -1207,7 +1248,7 @@ final class Configuration
                 'path'   => $this->toAbsolutePath($directoryPath),
                 'prefix' => $prefix,
                 'suffix' => $suffix,
-                'group'  => $group
+                'group'  => $group,
             ];
         }
 
@@ -1257,7 +1298,7 @@ final class Configuration
             return $path;
         }
 
-        $file = \dirname($this->filename) . DIRECTORY_SEPARATOR . $path;
+        $file = \dirname($this->filename) . \DIRECTORY_SEPARATOR . $path;
 
         if ($useIncludePath && !\file_exists($file)) {
             $includePathFile = \stream_resolve_include_path($path);
@@ -1274,7 +1315,7 @@ final class Configuration
     {
         $groups = [
             'include' => [],
-            'exclude' => []
+            'exclude' => [],
         ];
 
         foreach ($this->xpath->query($root . '/include/group') as $group) {

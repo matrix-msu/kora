@@ -1,20 +1,23 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Http\Client\Curl;
 
 use Http\Client\Exception;
 use Http\Client\HttpAsyncClient;
 use Http\Client\HttpClient;
-use Http\Discovery\MessageFactoryDiscovery;
-use Http\Discovery\StreamFactoryDiscovery;
-use Http\Message\MessageFactory;
-use Http\Message\StreamFactory;
+use Http\Discovery\Exception\NotFoundException;
+use Http\Discovery\Psr17FactoryDiscovery;
 use Http\Promise\Promise;
 use Psr\Http\Message\RequestInterface;
+use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\StreamFactoryInterface;
+use Symfony\Component\OptionsResolver\OptionsResolver;
 
 /**
- * PSR-7 compatible cURL based HTTP client.
+ * PSR-18 and HTTPlug Async client based on lib-curl.
  *
  * @license http://opensource.org/licenses/MIT MIT
  * @author  Михаил Красильников <m.krasilnikov@yandex.ru>
@@ -31,19 +34,19 @@ class Client implements HttpClient, HttpAsyncClient
      *
      * @var array
      */
-    private $options;
+    private $curlOptions;
 
     /**
-     * PSR-7 message factory.
+     * PSR-17 response factory.
      *
-     * @var MessageFactory
+     * @var ResponseFactoryInterface
      */
-    private $messageFactory;
+    private $responseFactory;
 
     /**
-     * PSR-7 stream factory.
+     * PSR-17 stream factory.
      *
-     * @var StreamFactory
+     * @var StreamFactoryInterface
      */
     private $streamFactory;
 
@@ -52,34 +55,60 @@ class Client implements HttpClient, HttpAsyncClient
      *
      * @var resource|null
      */
-    private $handle = null;
+    private $handle;
 
     /**
      * Simultaneous requests runner.
      *
      * @var MultiRunner|null
      */
-    private $multiRunner = null;
+    private $multiRunner;
 
     /**
-     * Create new client.
+     * Create HTTP client.
      *
-     * @param MessageFactory|null $messageFactory HTTP Message factory
-     * @param StreamFactory|null  $streamFactory  HTTP Stream factory
-     * @param array               $options        cURL options (see http://php.net/curl_setopt)
+     * @param ResponseFactoryInterface|null $responseFactory PSR-17 HTTP response factory.
+     * @param StreamFactoryInterface|null   $streamFactory   PSR-17 HTTP stream factory.
+     * @param array                         $options         cURL options
+     *                                                       {@link http://php.net/curl_setopt}.
      *
-     * @throws \Http\Discovery\Exception\NotFoundException If factory discovery failed
+     * @throws NotFoundException If factory discovery failed.
      *
-     * @since 1.0
+     * @since 2.0 Accepts PSR-17 factories instead of HTTPlug ones.
      */
     public function __construct(
-        MessageFactory $messageFactory = null,
-        StreamFactory $streamFactory = null,
+        ResponseFactoryInterface $responseFactory = null,
+        StreamFactoryInterface $streamFactory = null,
         array $options = []
     ) {
-        $this->messageFactory = $messageFactory ?: MessageFactoryDiscovery::find();
-        $this->streamFactory = $streamFactory ?: StreamFactoryDiscovery::find();
-        $this->options = $options;
+        $this->responseFactory = $responseFactory ?: Psr17FactoryDiscovery::findResponseFactory();
+        $this->streamFactory = $streamFactory ?: Psr17FactoryDiscovery::findStreamFactory();
+        $resolver = new OptionsResolver();
+        $resolver->setDefaults(
+            [
+                CURLOPT_HEADER => false,
+                CURLOPT_RETURNTRANSFER => false,
+                CURLOPT_FOLLOWLOCATION => false
+            ]
+        );
+
+        // Our parsing will fail if this is set to true.
+        $resolver->setAllowedValues(
+            CURLOPT_HEADER,
+            [false]
+        );
+
+        // Our parsing will fail if this is set to true.
+        $resolver->setAllowedValues(
+            CURLOPT_RETURNTRANSFER,
+            [false]
+        );
+
+        // We do not know what everything curl supports and might support in the future.
+        // Make sure that we accept everything that is in the options.
+        $resolver->setDefined(array_keys($options));
+
+        $this->curlOptions = $resolver->resolve($options);
     }
 
     /**
@@ -93,25 +122,25 @@ class Client implements HttpClient, HttpAsyncClient
     }
 
     /**
-     * Sends a PSR-7 request.
+     * Sends a PSR-7 request and returns a PSR-7 response.
      *
      * @param RequestInterface $request
      *
      * @return ResponseInterface
      *
-     * @throws \Http\Client\Exception\NetworkException In case of network problems
-     * @throws \Http\Client\Exception\RequestException On invalid request
-     * @throws \InvalidArgumentException               For invalid header names or values
-     * @throws \RuntimeException                       If creating the body stream fails
+     * @throws \InvalidArgumentException  For invalid header names or values.
+     * @throws \RuntimeException          If creating the body stream fails.
+     * @throws Exception\NetworkException In case of network problems.
+     * @throws Exception\RequestException On invalid request.
      *
      * @since 1.6 \UnexpectedValueException replaced with RequestException
      * @since 1.6 Throw NetworkException on network errors
      * @since 1.0
      */
-    public function sendRequest(RequestInterface $request)
+    public function sendRequest(RequestInterface $request): ResponseInterface
     {
         $responseBuilder = $this->createResponseBuilder();
-        $options = $this->createCurlOptions($request, $responseBuilder);
+        $requestOptions = $this->prepareRequestOptions($request, $responseBuilder);
 
         if (is_resource($this->handle)) {
             curl_reset($this->handle);
@@ -119,7 +148,7 @@ class Client implements HttpClient, HttpAsyncClient
             $this->handle = curl_init();
         }
 
-        curl_setopt_array($this->handle, $options);
+        curl_setopt_array($this->handle, $requestOptions);
         curl_exec($this->handle);
 
         $errno = curl_errno($this->handle);
@@ -144,77 +173,59 @@ class Client implements HttpClient, HttpAsyncClient
     }
 
     /**
-     * Sends a PSR-7 request in an asynchronous way.
+     * Create builder to use for building response object.
      *
-     * @param RequestInterface $request
-     *
-     * @return Promise
-     *
-     * @throws \Http\Client\Exception\RequestException On invalid request
-     * @throws \InvalidArgumentException               For invalid header names or values
-     * @throws \RuntimeException                       If creating the body stream fails
-     *
-     * @since 1.6 \UnexpectedValueException replaced with RequestException
-     * @since 1.0
+     * @return ResponseBuilder
      */
-    public function sendAsyncRequest(RequestInterface $request)
+    private function createResponseBuilder(): ResponseBuilder
     {
-        if (!$this->multiRunner instanceof MultiRunner) {
-            $this->multiRunner = new MultiRunner();
-        }
+        $body = $this->streamFactory->createStreamFromFile('php://temp', 'w+b');
 
-        $handle = curl_init();
-        $responseBuilder = $this->createResponseBuilder();
-        $options = $this->createCurlOptions($request, $responseBuilder);
-        curl_setopt_array($handle, $options);
+        $response = $this->responseFactory
+            ->createResponse(200)
+            ->withBody($body);
 
-        $core = new PromiseCore($request, $handle, $responseBuilder);
-        $promise = new CurlPromise($core, $this->multiRunner);
-        $this->multiRunner->add($core);
-
-        return $promise;
+        return new ResponseBuilder($response);
     }
 
     /**
-     * Generates cURL options.
+     * Update cURL options for given request and hook in the response builder.
      *
-     * @param RequestInterface $request
-     * @param ResponseBuilder  $responseBuilder
+     * @param RequestInterface $request         Request on which to create options.
+     * @param ResponseBuilder  $responseBuilder Builder to use for building response.
      *
-     * @throws \Http\Client\Exception\RequestException On invalid request
-     * @throws \InvalidArgumentException               For invalid header names or values
-     * @throws \RuntimeException                       if can not read body
+     * @return array cURL options based on request.
      *
-     * @return array
+     * @throws \InvalidArgumentException  For invalid header names or values.
+     * @throws \RuntimeException          If can not read body.
+     * @throws Exception\RequestException On invalid request.
      */
-    private function createCurlOptions(RequestInterface $request, ResponseBuilder $responseBuilder)
-    {
-        $options = $this->options;
-
-        $options[CURLOPT_HEADER] = false;
-        $options[CURLOPT_RETURNTRANSFER] = false;
-        $options[CURLOPT_FOLLOWLOCATION] = false;
+    private function prepareRequestOptions(
+        RequestInterface $request,
+        ResponseBuilder $responseBuilder
+    ): array {
+        $curlOptions = $this->curlOptions;
 
         try {
-            $options[CURLOPT_HTTP_VERSION]
+            $curlOptions[CURLOPT_HTTP_VERSION]
                 = $this->getProtocolVersion($request->getProtocolVersion());
         } catch (\UnexpectedValueException $e) {
             throw new Exception\RequestException($e->getMessage(), $request);
         }
-        $options[CURLOPT_URL] = (string) $request->getUri();
+        $curlOptions[CURLOPT_URL] = (string)$request->getUri();
 
-        $options = $this->addRequestBodyOptions($request, $options);
+        $curlOptions = $this->addRequestBodyOptions($request, $curlOptions);
 
-        $options[CURLOPT_HTTPHEADER] = $this->createHeaders($request, $options);
+        $curlOptions[CURLOPT_HTTPHEADER] = $this->createHeaders($request, $curlOptions);
 
         if ($request->getUri()->getUserInfo()) {
-            $options[CURLOPT_USERPWD] = $request->getUri()->getUserInfo();
+            $curlOptions[CURLOPT_USERPWD] = $request->getUri()->getUserInfo();
         }
 
-        $options[CURLOPT_HEADERFUNCTION] = function ($ch, $data) use ($responseBuilder) {
+        $curlOptions[CURLOPT_HEADERFUNCTION] = function ($ch, $data) use ($responseBuilder) {
             $str = trim($data);
             if ('' !== $str) {
-                if (strpos(strtolower($str), 'http/') === 0) {
+                if (stripos($str, 'http/') === 0) {
                     $responseBuilder->setStatus($str)->getResponse();
                 } else {
                     $responseBuilder->addHeader($str);
@@ -224,23 +235,23 @@ class Client implements HttpClient, HttpAsyncClient
             return strlen($data);
         };
 
-        $options[CURLOPT_WRITEFUNCTION] = function ($ch, $data) use ($responseBuilder) {
+        $curlOptions[CURLOPT_WRITEFUNCTION] = function ($ch, $data) use ($responseBuilder) {
             return $responseBuilder->getResponse()->getBody()->write($data);
         };
 
-        return $options;
+        return $curlOptions;
     }
 
     /**
      * Return cURL constant for specified HTTP version.
      *
-     * @param string $requestVersion
+     * @param string $requestVersion HTTP version ("1.0", "1.1" or "2.0").
      *
-     * @throws \UnexpectedValueException if unsupported version requested
+     * @return int Respective CURL_HTTP_VERSION_x_x constant.
      *
-     * @return int
+     * @throws \UnexpectedValueException If unsupported version requested.
      */
-    private function getProtocolVersion($requestVersion)
+    private function getProtocolVersion(string $requestVersion): int
     {
         switch ($requestVersion) {
             case '1.0':
@@ -260,12 +271,12 @@ class Client implements HttpClient, HttpAsyncClient
     /**
      * Add request body related cURL options.
      *
-     * @param RequestInterface $request
-     * @param array            $options
+     * @param RequestInterface $request     Request on which to create options.
+     * @param array            $curlOptions Options created by prepareRequestOptions().
      *
-     * @return array
+     * @return array cURL options based on request.
      */
-    private function addRequestBodyOptions(RequestInterface $request, array $options)
+    private function addRequestBodyOptions(RequestInterface $request, array $curlOptions): array
     {
         /*
          * Some HTTP methods cannot have payload:
@@ -286,40 +297,40 @@ class Client implements HttpClient, HttpAsyncClient
                 // Message has non empty body.
                 if (null === $bodySize || $bodySize > 1024 * 1024) {
                     // Avoid full loading large or unknown size body into memory
-                    $options[CURLOPT_UPLOAD] = true;
+                    $curlOptions[CURLOPT_UPLOAD] = true;
                     if (null !== $bodySize) {
-                        $options[CURLOPT_INFILESIZE] = $bodySize;
+                        $curlOptions[CURLOPT_INFILESIZE] = $bodySize;
                     }
-                    $options[CURLOPT_READFUNCTION] = function ($ch, $fd, $length) use ($body) {
+                    $curlOptions[CURLOPT_READFUNCTION] = function ($ch, $fd, $length) use ($body) {
                         return $body->read($length);
                     };
                 } else {
                     // Small body can be loaded into memory
-                    $options[CURLOPT_POSTFIELDS] = (string) $body;
+                    $curlOptions[CURLOPT_POSTFIELDS] = (string)$body;
                 }
             }
         }
 
         if ($request->getMethod() === 'HEAD') {
             // This will set HTTP method to "HEAD".
-            $options[CURLOPT_NOBODY] = true;
+            $curlOptions[CURLOPT_NOBODY] = true;
         } elseif ($request->getMethod() !== 'GET') {
             // GET is a default method. Other methods should be specified explicitly.
-            $options[CURLOPT_CUSTOMREQUEST] = $request->getMethod();
+            $curlOptions[CURLOPT_CUSTOMREQUEST] = $request->getMethod();
         }
 
-        return $options;
+        return $curlOptions;
     }
 
     /**
      * Create headers array for CURLOPT_HTTPHEADER.
      *
-     * @param RequestInterface $request
-     * @param array            $options cURL options
+     * @param RequestInterface $request     Request on which to create headers.
+     * @param array            $curlOptions Options created by prepareRequestOptions().
      *
      * @return string[]
      */
-    private function createHeaders(RequestInterface $request, array $options)
+    private function createHeaders(RequestInterface $request, array $curlOptions): array
     {
         $curlHeaders = [];
         $headers = $request->getHeaders();
@@ -330,16 +341,16 @@ class Client implements HttpClient, HttpAsyncClient
                 continue;
             }
             if ('content-length' === $header) {
-                if (array_key_exists(CURLOPT_POSTFIELDS, $options)) {
+                if (array_key_exists(CURLOPT_POSTFIELDS, $curlOptions)) {
                     // Small body content length can be calculated here.
-                    $values = [strlen($options[CURLOPT_POSTFIELDS])];
-                } elseif (!array_key_exists(CURLOPT_READFUNCTION, $options)) {
+                    $values = [strlen($curlOptions[CURLOPT_POSTFIELDS])];
+                } elseif (!array_key_exists(CURLOPT_READFUNCTION, $curlOptions)) {
                     // Else if there is no body, forcing "Content-length" to 0
                     $values = [0];
                 }
             }
             foreach ($values as $value) {
-                $curlHeaders[] = $name.': '.$value;
+                $curlHeaders[] = $name . ': ' . $value;
             }
         }
         /*
@@ -352,21 +363,36 @@ class Client implements HttpClient, HttpAsyncClient
     }
 
     /**
-     * Create new ResponseBuilder instance.
+     * Sends a PSR-7 request in an asynchronous way.
      *
-     * @return ResponseBuilder
+     * Exceptions related to processing the request are available from the returned Promise.
      *
-     * @throws \RuntimeException If creating the stream from $body fails
+     * @param RequestInterface $request
+     *
+     * @return Promise Resolves a PSR-7 Response or fails with an Http\Client\Exception.
+     *
+     * @throws \InvalidArgumentException  For invalid header names or values.
+     * @throws \RuntimeException          If creating the body stream fails.
+     * @throws Exception\RequestException On invalid request.
+     *
+     * @since 1.6 \UnexpectedValueException replaced with RequestException
+     * @since 1.0
      */
-    private function createResponseBuilder()
+    public function sendAsyncRequest(RequestInterface $request)
     {
-        try {
-            $body = $this->streamFactory->createStream(fopen('php://temp', 'w+b'));
-        } catch (\InvalidArgumentException $e) {
-            throw new \RuntimeException('Can not create "php://temp" stream.');
+        if (!$this->multiRunner instanceof MultiRunner) {
+            $this->multiRunner = new MultiRunner();
         }
-        $response = $this->messageFactory->createResponse(200, null, [], $body);
 
-        return new ResponseBuilder($response);
+        $handle = curl_init();
+        $responseBuilder = $this->createResponseBuilder();
+        $requestOptions = $this->prepareRequestOptions($request, $responseBuilder);
+        curl_setopt_array($handle, $requestOptions);
+
+        $core = new PromiseCore($request, $handle, $responseBuilder);
+        $promise = new CurlPromise($core, $this->multiRunner);
+        $this->multiRunner->add($core);
+
+        return $promise;
     }
 }

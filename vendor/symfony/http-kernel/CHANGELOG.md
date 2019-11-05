@@ -1,12 +1,46 @@
 CHANGELOG
 =========
 
+4.3.0
+-----
+
+ * renamed `Client` to `HttpKernelBrowser`
+ * `KernelInterface` doesn't extend `Serializable` anymore
+ * deprecated the `Kernel::serialize()` and `unserialize()` methods
+ * increased the priority of `Symfony\Component\HttpKernel\EventListener\AddRequestFormatsListener`
+ * made `Symfony\Component\HttpKernel\EventListener\LocaleListener` set the default locale early
+ * deprecated `TranslatorListener` in favor of `LocaleAwareListener`
+ * added the registration of all `LocaleAwareInterface` implementations into the `LocaleAwareListener`
+ * made `FileLinkFormatter` final and not implement `Serializable` anymore
+ * the base `DataCollector` doesn't implement `Serializable` anymore, you should
+   store all the serialized state in the data property instead
+ * `DumpDataCollector` has been marked as `final`
+ * added an event listener to prevent search engines from indexing applications in debug mode.
+ * renamed `FilterControllerArgumentsEvent` to `ControllerArgumentsEvent`
+ * renamed `FilterControllerEvent` to `ControllerEvent`
+ * renamed `FilterResponseEvent` to `ResponseEvent`
+ * renamed `GetResponseEvent` to `RequestEvent`
+ * renamed `GetResponseForControllerResultEvent` to `ViewEvent`
+ * renamed `GetResponseForExceptionEvent` to `ExceptionEvent`
+ * renamed `PostResponseEvent` to `TerminateEvent`
+ * added `HttpClientKernel` for handling requests with an `HttpClientInterface` instance
+ * added `trace_header` and `trace_level` configuration options to `HttpCache`
+
+4.2.0
+-----
+
+ * deprecated `KernelInterface::getRootDir()` and the `kernel.root_dir` parameter
+ * deprecated `KernelInterface::getName()` and the `kernel.name` parameter
+ * deprecated the first and second constructor argument of `ConfigDataCollector` 
+ * deprecated `ConfigDataCollector::getApplicationName()` 
+ * deprecated `ConfigDataCollector::getApplicationVersion()`
+
 4.1.0
 -----
 
  * added orphaned events support to `EventDataCollector`
- * `ExceptionListener` now logs and collects exceptions at priority `2048` (previously logged at `-128` and collected at `0`)
- * Deprecated `service:action` syntax with a single colon to reference controllers. Use `service::method` instead.
+ * `ExceptionListener` now logs exceptions at priority `0` (previously logged at `-128`)
+ * Added support for using `service::method` to reference controllers, making it consistent with other cases. It is recommended over the `service:action` syntax with a single colon, which will be deprecated in the future.
  * Added the ability to profile individual argument value resolvers via the
    `Symfony\Component\HttpKernel\Controller\ArgumentResolver\TraceableValueResolver`
 

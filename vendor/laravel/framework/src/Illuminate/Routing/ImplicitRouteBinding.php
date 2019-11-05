@@ -2,9 +2,9 @@
 
 namespace Illuminate\Routing;
 
-use Illuminate\Support\Str;
 use Illuminate\Contracts\Routing\UrlRoutable;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Support\Str;
 
 class ImplicitRouteBinding
 {
@@ -14,6 +14,8 @@ class ImplicitRouteBinding
      * @param  \Illuminate\Container\Container  $container
      * @param  \Illuminate\Routing\Route  $route
      * @return void
+     *
+     * @throws \Illuminate\Database\Eloquent\ModelNotFoundException
      */
     public static function resolveForRoute($container, $route)
     {
@@ -33,7 +35,7 @@ class ImplicitRouteBinding
             $instance = $container->make($parameter->getClass()->name);
 
             if (! $model = $instance->resolveRouteBinding($parameterValue)) {
-                throw (new ModelNotFoundException)->setModel(get_class($instance));
+                throw (new ModelNotFoundException)->setModel(get_class($instance), [$parameterValue]);
             }
 
             $route->setParameter($parameterName, $model);

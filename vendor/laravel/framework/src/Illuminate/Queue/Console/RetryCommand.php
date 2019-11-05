@@ -2,8 +2,8 @@
 
 namespace Illuminate\Queue\Console;
 
-use Illuminate\Support\Arr;
 use Illuminate\Console\Command;
+use Illuminate\Support\Arr;
 
 class RetryCommand extends Command
 {
@@ -12,7 +12,7 @@ class RetryCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'queue:retry {id* : The ID of the failed job or "all" to retry all jobs.}';
+    protected $signature = 'queue:retry {id* : The ID of the failed job or "all" to retry all jobs}';
 
     /**
      * The console command description.

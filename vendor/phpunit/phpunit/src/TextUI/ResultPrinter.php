@@ -7,7 +7,6 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-
 namespace PHPUnit\TextUI;
 
 use PHPUnit\Framework\AssertionFailedError;
@@ -31,13 +30,19 @@ use SebastianBergmann\Timer\Timer;
 class ResultPrinter extends Printer implements TestListener
 {
     public const EVENT_TEST_START      = 0;
+
     public const EVENT_TEST_END        = 1;
+
     public const EVENT_TESTSUITE_START = 2;
+
     public const EVENT_TESTSUITE_END   = 3;
 
     public const COLOR_NEVER   = 'never';
+
     public const COLOR_AUTO    = 'auto';
+
     public const COLOR_ALWAYS  = 'always';
+
     public const COLOR_DEFAULT = self::COLOR_NEVER;
 
     private const AVAILABLE_COLORS = [self::COLOR_NEVER, self::COLOR_AUTO, self::COLOR_ALWAYS];
@@ -62,7 +67,7 @@ class ResultPrinter extends Printer implements TestListener
         'bg-blue'    => 44,
         'bg-magenta' => 45,
         'bg-cyan'    => 46,
-        'bg-white'   => 47
+        'bg-white'   => 47,
     ];
 
     /**
@@ -133,12 +138,9 @@ class ResultPrinter extends Printer implements TestListener
     /**
      * Constructor.
      *
-     * @param mixed      $out
-     * @param bool       $verbose
      * @param string     $colors
-     * @param bool       $debug
      * @param int|string $numberOfColumns
-     * @param bool       $reverse
+     * @param null|mixed $out
      *
      * @throws Exception
      */

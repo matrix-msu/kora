@@ -15,6 +15,8 @@ namespace PhpSpec\Wrapper\Subject;
 
 use PhpSpec\CodeAnalysis\AccessInspector;
 use PhpSpec\Exception\ExceptionFactory;
+use PhpSpec\Exception\Fracture\NamedConstructorNotFoundException;
+use PhpSpec\Factory\ObjectFactory;
 use PhpSpec\Loader\Node\ExampleNode;
 use PhpSpec\Wrapper\Subject;
 use PhpSpec\Wrapper\Wrapper;
@@ -87,7 +89,7 @@ class Caller
      */
     public function call(string $method, array $arguments = array()): Subject
     {
-        if (null === $this->getWrappedObject()) {
+        if (!is_object($this->getWrappedObject())) {
             throw $this->callingMethodOnNonObject($method);
         }
 
@@ -111,7 +113,7 @@ class Caller
      * @throws \PhpSpec\Exception\Wrapper\SubjectException
      * @throws \PhpSpec\Exception\Fracture\PropertyNotFoundException
      */
-    public function set(string $property, $value = null)
+    public function set(string $property, $value = null): void
     {
         if (null === $this->getWrappedObject()) {
             throw $this->settingPropertyOnNonObject($property);
@@ -121,7 +123,9 @@ class Caller
         $value = $unwrapper->unwrapOne($value);
 
         if ($this->isObjectPropertyWritable($property)) {
-            return $this->getWrappedObject()->$property = $value;
+            $this->getWrappedObject()->$property = $value;
+
+            return;
         }
 
         throw $this->propertyNotFound($property);
@@ -297,13 +301,14 @@ class Caller
     /**
      * @return mixed
      * @throws \PhpSpec\Exception\Fracture\MethodNotFoundException
+     * @throws \PhpSpec\Exception\Fracture\FactoryDoesNotReturnObjectException
      */
     private function newInstanceWithFactoryMethod()
     {
         $method = $this->wrappedObject->getFactoryMethod();
+        $className = $this->wrappedObject->getClassName();
 
         if (!\is_array($method)) {
-            $className = $this->wrappedObject->getClassName();
 
             if (\is_string($method) && !method_exists($className, $method)) {
                 throw $this->namedConstructorNotFound(
@@ -313,7 +318,10 @@ class Caller
             }
         }
 
-        return \call_user_func_array($method, $this->wrappedObject->getArguments());
+        return (new ObjectFactory())->instantiateFromCallable(
+            $method,
+            $this->wrappedObject->getArguments()
+        );
     }
 
     /**
@@ -337,13 +345,7 @@ class Caller
         return $this->exceptionFactory->classNotFound($this->wrappedObject->getClassName());
     }
 
-    /**
-     * @param string $method
-     * @param array  $arguments
-     *
-     * @return \PhpSpec\Exception\Fracture\MethodNotFoundException|\PhpSpec\Exception\Fracture\MethodNotVisibleException
-     */
-    private function namedConstructorNotFound(string $method, array $arguments = array())
+    private function namedConstructorNotFound(string $method, array $arguments = array()) : NamedConstructorNotFoundException
     {
         $className = $this->wrappedObject->getClassName();
 

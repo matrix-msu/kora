@@ -6,7 +6,6 @@ use App\Revision;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Input;
 use Illuminate\View\View;
 
 class RevisionController extends Controller {
@@ -85,10 +84,8 @@ class RevisionController extends Controller {
           'static' => false
         );
 
-        //dd($revisions);
-
         return view('revisions.index', compact('revisions', 'records', 'selected_records', 'selected_users', 'form', 'notification', [
-            'revisions' => $revisions->appends(Input::except('page'))
+            'revisions' => $revisions->appends(request()->except('page'))
         ]));
     }
 

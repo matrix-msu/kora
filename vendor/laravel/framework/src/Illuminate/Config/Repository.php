@@ -3,8 +3,8 @@
 namespace Illuminate\Config;
 
 use ArrayAccess;
-use Illuminate\Support\Arr;
 use Illuminate\Contracts\Config\Repository as ConfigContract;
+use Illuminate\Support\Arr;
 
 class Repository implements ArrayAccess, ConfigContract
 {
@@ -65,7 +65,7 @@ class Repository implements ArrayAccess, ConfigContract
 
         foreach ($keys as $key => $default) {
             if (is_numeric($key)) {
-                list($key, $default) = [$default, null];
+                [$key, $default] = [$default, null];
             }
 
             $config[$key] = Arr::get($this->items, $key, $default);

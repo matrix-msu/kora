@@ -5,6 +5,7 @@ language: php
 matrix:
   allow_failures:
     - php: hhvm
+    - php: 7.4snapshot
     - php: nightly
   fast_finish: true
   include:
@@ -34,6 +35,18 @@ matrix:
       env:
         - DEPS=lowest
     - php: 7.2
+      env:
+        - DEPS=latest
+    - php: 7.3
+      env:
+        - DEPS=lowest
+    - php: 7.3
+      env:
+        - DEPS=latest
+    - php: 7.4snapshot
+      env:
+        - DEPS=lowest
+    - php: 7.4snapshot
       env:
         - DEPS=latest
     - php: nightly
@@ -72,13 +85,18 @@ before_script:
     fi
 
 script:
-  - vendor/bin/phpunit --coverage-text --coverage-clover=${clover=build/logs/clover.xml}
+- |
+    if [[ $TRAVIS_PHP_VERSION = 5.* ]]; then
+      ./vendor/bin/phpunit --coverage-text --coverage-clover="build/logs/clover.xml" --testsuite="Mockery Test Suite PHP56";
+    else
+      ./vendor/bin/phpunit --coverage-text --coverage-clover="build/logs/clover.xml" --testsuite="Mockery Test Suite";
+    fi
 
 after_success:
   - composer require satooshi/php-coveralls
   - vendor/bin/coveralls -v
   - wget https://scrutinizer-ci.com/ocular.phar
-  - php ocular.phar code-coverage:upload --format=php-clover "$clover"
+  - php ocular.phar code-coverage:upload --format=php-clover "build/logs/clover.xml"
   - make apidocs
 
 notifications:

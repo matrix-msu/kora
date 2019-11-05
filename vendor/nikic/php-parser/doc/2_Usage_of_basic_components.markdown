@@ -77,7 +77,7 @@ A parser instance can be reused to parse multiple files.
 Node dumping
 ------------
 
-To dump the abstact syntax tree in human readable form, a `NodeDumper` can be used:
+To dump the abstract syntax tree in human readable form, a `NodeDumper` can be used:
 
 ```php
 <?php
@@ -339,7 +339,8 @@ All four methods can either return the changed node or not return at all (i.e. `
 case the current node is not changed.
 
 The `enterNode()` method can additionally return the value `NodeTraverser::DONT_TRAVERSE_CHILDREN`,
-which instructs the traverser to skip all children of the current node.
+which instructs the traverser to skip all children of the current node. To furthermore prevent subsequent
+visitors from visiting the current node, `NodeTraverser::DONT_TRAVERSE_CURRENT_AND_CHILDREN` can be used instead.
 
 The `leaveNode()` method can additionally return the value `NodeTraverser::REMOVE_NODE`, in which
 case the current node will be removed from the parent array. Furthermore it is possible to return
