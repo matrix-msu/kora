@@ -597,6 +597,9 @@ class ExodusHelperController extends Controller {
                                     $info = ['name' => $newname, 'size' => filesize($newPath.$timestamp.'.'.$newname), 'type' => $type,
                                         'url' => $dataURL.urlencode($newname), 'checksum' => $checksum, 'timestamp' => $timestamp, 'caption' => ''];
                                     break;
+                                case FileTypeField::_JoyentManta:
+                                    //TODO::MANTA
+                                    break;
                                 default:
                                     break;
                             }

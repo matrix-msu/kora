@@ -26,6 +26,7 @@ abstract class FileTypeField extends BaseField {
      * @var string - The available storage types
      */
     const _LaravelStorage = "LaravelStorage";
+    const _JoyentManta = "JoyentManta";
 
     /**
      * Gets the default options string for a new field.
@@ -179,13 +180,16 @@ abstract class FileTypeField extends BaseField {
                             'url' => $dataURL.urlencode($fileName), 'checksum' => $checksum, 'timestamp' => $timestamp];
 
                         switch(config('filesystems.kora_storage')) {
-                            case FileTypeField::_LaravelStorage:
+                            case self::_LaravelStorage:
                                 $newPath = storage_path('app/files/' . $request->pid . '/' . $request->fid . '/' . $request->rid);
                                 if(!file_exists($newPath))
                                     mkdir($newPath, 0775, true);
 
                                 //Move the file to its new home
                                 copy(storage_path($tmpPath . '/' . $fileName), $newPath . '/' . "$timestamp.$fileName");
+                                break;
+                            case self::_JoyentManta:
+                                //TODO::MANTA
                                 break;
                             default:
                                 break;
@@ -683,7 +687,7 @@ abstract class FileTypeField extends BaseField {
 
         //Need to get the actual local name of the file if it has a timestamp
         foreach($form->layout['fields'] as $flid => $field) {
-            if($form->getFieldModel($field['type']) instanceof FileTypeField && !is_null($record->{$flid})) {
+            if($form->getFieldModel($field['type']) instanceof self && !is_null($record->{$flid})) {
                 $files = json_decode($record->{$flid}, true);
                 foreach($files as $recordFile) {
                     if($recordFile['name'] == $filename) {
@@ -712,7 +716,7 @@ abstract class FileTypeField extends BaseField {
         }
 
         switch(config('filesystems.kora_storage')) {
-            case FileTypeField::_LaravelStorage:
+            case self::_LaravelStorage:
                 // Check if file exists in app/storage/file folder
                 $filePath = storage_path('app/files/'.$record->project_id.'/'.$record->form_id.'/'.$record->id.'/'.$filename);
                 if(file_exists($filePath)) {
@@ -740,6 +744,9 @@ abstract class FileTypeField extends BaseField {
                     readfile($filePath);
                 }
                 break;
+            case self::_JoyentManta:
+                //TODO::MANTA
+                break;
             default:
                 break;
         }
@@ -760,7 +767,7 @@ abstract class FileTypeField extends BaseField {
 
         //Need to get the actual local name of the file if it has a timestamp
         foreach($form->layout['fields'] as $flid => $field) {
-            if($form->getFieldModel($field['type']) instanceof FileTypeField && !is_null($record->{$flid})) {
+            if($form->getFieldModel($field['type']) instanceof self && !is_null($record->{$flid})) {
                 $files = json_decode($record->{$flid}, true);
                 foreach($files as $recordFile) {
                     if($recordFile['name'] == $filename) {
@@ -772,7 +779,7 @@ abstract class FileTypeField extends BaseField {
         }
 
         switch(config('filesystems.kora_storage')) {
-            case FileTypeField::_LaravelStorage:
+            case self::_LaravelStorage:
                 // Check if file exists in app/storage/file folder
                 $filePath = storage_path('app/files/'.$record->project_id.'/'.$record->form_id.'/'.$record->id.'/'.$filename);
                 if(file_exists($filePath)) {
@@ -781,6 +788,9 @@ abstract class FileTypeField extends BaseField {
                         'Content-Length: '. filesize($filePath)
                     ]);
                 }
+                break;
+            case self::_JoyentManta:
+                //TODO::MANTA
                 break;
             default:
                 break;
@@ -804,7 +814,7 @@ abstract class FileTypeField extends BaseField {
         //Also builds an array of local file names to original names to compensate for timestamps
         $fileArray = [];
         foreach($form->layout['fields'] as $flid => $field) {
-            if($form->getFieldModel($field['type']) instanceof FileTypeField && !is_null($record->{$flid})) {
+            if($form->getFieldModel($field['type']) instanceof self && !is_null($record->{$flid})) {
                 $files = json_decode($record->{$flid}, true);
                 foreach($files as $recordFile) {
                     $localName = isset($recordFile['timestamp']) ? $recordFile['timestamp'].'.'.$recordFile['name'] : $recordFile['name'];
@@ -814,7 +824,7 @@ abstract class FileTypeField extends BaseField {
         }
 
         switch(config('filesystems.kora_storage')) {
-            case FileTypeField::_LaravelStorage:
+            case self::_LaravelStorage:
                 // Check if file exists in app/storage/file folder
                 $dir_path = storage_path('app/files/'.$record->project_id.'/'.$record->form_id.'/'.$record->id);
                 if(file_exists($dir_path)) {
@@ -841,6 +851,9 @@ abstract class FileTypeField extends BaseField {
                     if(file_exists($filetopath))
                         return response()->download($filetopath, $zip_name, $headers);
                 }
+                break;
+            case self::_JoyentManta:
+                //TODO::MANTA
                 break;
             default:
                 break;

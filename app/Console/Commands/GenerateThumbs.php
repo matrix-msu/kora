@@ -77,6 +77,11 @@ class GenerateThumbs extends Command
                                 $tImage->writeImage($thumbPath);
                             }
                             break;
+                        case FileTypeField::_JoyentManta:
+                            //TODO::MANTA
+                            break;
+                        default:
+                            break;
                     }
                 }
             }

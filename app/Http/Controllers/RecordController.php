@@ -390,6 +390,9 @@ class RecordController extends Controller {
                             if(file_exists($file_path . '/' . $filename))
                                 copy($file_path . '/' . $filename, $dirTmp . '/' . $recordFile['name']);
                             break;
+                        case FileTypeField::_JoyentManta:
+                            //TODO::MANTA
+                            break;
                         default:
                             break;
                     }
@@ -527,6 +530,9 @@ class RecordController extends Controller {
                             if(file_exists($file_path . '/' . $filename))
                                 copy($file_path . '/' . $filename, $dirTmp . '/' . $recordFile['name']);
                             break;
+                        case FileTypeField::_JoyentManta:
+                            //TODO::MANTA
+                            break;
                         default:
                             break;
                     }
@@ -663,6 +669,9 @@ class RecordController extends Controller {
                         Revision::where('record_kid','=',$pid.'-'.$fid.'-'.$rid)->update(['rollback' => 0]);
                     }
                 }
+                break;
+            case FileTypeField::_JoyentManta:
+                //TODO::MANTA
                 break;
             default:
                 break;

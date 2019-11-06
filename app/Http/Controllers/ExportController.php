@@ -210,6 +210,9 @@ class ExportController extends Controller {
                 if(file_exists($filetopath))
                     return response()->download($filetopath, $zip_name, $headers);
                 break;
+            case FileTypeField::_JoyentManta:
+                //TODO::MANTA
+                break;
             default:
                 break;
         }
@@ -303,6 +306,9 @@ class ExportController extends Controller {
                         readfile($filetopath);
                         exit;
                     }
+                    break;
+                case FileTypeField::_JoyentManta:
+                    //TODO::MANTA
                     break;
                 default:
                     break;

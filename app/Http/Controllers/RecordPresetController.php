@@ -111,6 +111,9 @@ class RecordPresetController extends Controller {
                             copy($filePath.'/'.$filename, $dir.'/'.$recordFile['name']);
                         }
                         break;
+                    case FileTypeField::_JoyentManta:
+                        //TODO::MANTA
+                        break;
                     default:
                         break;
                 }
@@ -223,6 +226,9 @@ class RecordPresetController extends Controller {
                     }
                 }
 
+                break;
+            case FileTypeField::_JoyentManta:
+                //TODO::MANTA
                 break;
             default:
                 break;
