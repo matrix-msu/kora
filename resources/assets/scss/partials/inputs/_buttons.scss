@@ -205,6 +205,13 @@ a.btn {
       width: 100%;
       max-width: none;
     }
+
+    @media screen and (max-width: $max-mobile-l-width) {
+      &.extend-mobile {
+        width: 100%;
+        max-width: none;
+      }
+    }
   }
 
   &.hidden {
