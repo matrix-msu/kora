@@ -41,7 +41,7 @@ return [
 	],
 
     'gitlab' => [
-        'client' => env('GITLAB_CLIENT','https://gitlab.com'),
+        'client' => env('GITLAB_CLIENT',''),
         'client_id' => env('GITLAB_CLIENT_ID',''),
         'client_secret' => env('GITLAB_CLIENT_SECRET',''),
         'redirect' => $url.'login/gitlab/callback',

@@ -83,7 +83,7 @@
          id="password_confirmation" name="password_confirmation" placeholder="Enter password here">
 </div>
 
-@if(\Auth::user()->id == $user->id)
+@if(\Auth::user()->id == $user->id && config('services.gitlab.client')!='')
 <h2 class="mt-xxxl mb-xl">Assign OAuth Account</h2>
 <div class="form-group mt-xl">
     @if(is_null($user->gitlab_token))
