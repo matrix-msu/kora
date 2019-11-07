@@ -47,13 +47,6 @@
         </div>
     </div>
 
-    {{--<section class="form-group">TODO::CASTLE--}}
-        {{--<div><a href="#" class="field-preset-link open-location-modal-js">Use a Value Preset for these Locations</a></div>--}}
-        {{--<div class="open-create-regex"><a href="#" class="field-preset-link open-create-location-modal-js right--}}
-            {{--@if(empty(\App\GeolocatorField::getLocationList($field))) disabled tooltip @endif" tooltip="You must submit or update the field before creating a New Value Preset">--}}
-                {{--Create a New Value Preset from these Locations</a></div>--}}
-    {{--</section>--}}
-
     <div class="form-group mt-xxxl">
         {!! Form::label('map','Map Display') !!}
         {!! Form::select('map', [0 => 'No', 1 => 'Yes'], $field['options']['Map'], ['class' => 'single-select']) !!}

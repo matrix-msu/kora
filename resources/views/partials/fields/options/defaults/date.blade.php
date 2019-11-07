@@ -4,8 +4,6 @@
     else
         $seq = '';
 @endphp
-{{-- TODO::@andrew.joye might do mt-xxl instead for combo list --}}
-{{-- {{ $seq ? 'mt-xxl' : 'mt-xl' }} --}}
 <div class="form-group mt-xl">
     {!! Form::label('format' . $seq,'Date Format') !!}
     {!! Form::select('format' . $seq, ['MMDDYYYY' => 'MM DD, YYYY','DDMMYYYY' => 'DD MM YYYY','YYYYMMDD' => 'YYYY MM DD'], $field['options']['Format'], ['class' => 'single-select']) !!}

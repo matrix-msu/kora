@@ -285,7 +285,7 @@ class ProjectGroupController extends Controller {
      *
      * @param  Request $request
      */
-    public function updatePermissions(Request $request) { //TODO::CASTLE
+    public function updatePermissions(Request $request) {
         $instance = ProjectGroup::where('id', '=', $request->projectGroup)->first();
 
         if($request->permCreate)

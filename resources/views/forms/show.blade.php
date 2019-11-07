@@ -183,7 +183,7 @@
 
   <script type="text/javascript">
     var modifyFormPageRoute = "{{ action('PageController@modifyFormPage', ['pid' => $form->project_id, 'fid' => $form->id]) }}";
-    var saveFullFormLayoutRoute = "{{ action('PageController@saveFullFormLayout', ['pid' => $form->project_id, 'fid' => $form->id]) }}"; //TODO::CASTLE
+    var saveFullFormLayoutRoute = "{{ action('PageController@saveFullFormLayout', ['pid' => $form->project_id, 'fid' => $form->id]) }}";
     var addMethod = "{{\App\Http\Controllers\PageController::_ADD}}";
     var delMethod = "{{\App\Http\Controllers\PageController::_DELETE}}";
     var renameMethod = "{{\App\Http\Controllers\PageController::_RENAME}}";

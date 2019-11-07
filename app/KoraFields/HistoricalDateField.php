@@ -498,7 +498,7 @@ class HistoricalDateField extends BaseField {
         $dbQuery = $recordMod->newQuery()
             ->select("id");
 
-        if($negative) { //TODO::This may have to be rethought later
+        if($negative) {
             $dbQuery->where($flid, $param, "%\"month\": \"$arg\"%");
             $dbQuery->where($flid, $param, "%\"day\": \"$arg\"%");
             $dbQuery->where($flid, $param, "%\"year\": \"$arg\"%");
@@ -522,7 +522,7 @@ class HistoricalDateField extends BaseField {
      * @param  array $data - Data from the search
      * @return array - The update request
      */
-    public function setRestfulAdvSearch($data) { //TODO::CIRCA+PRE+POST
+    public function setRestfulAdvSearch($data) {
         $request = [];
 
         if(isset($data->begin_month) && is_int($data->begin_month))
@@ -556,7 +556,7 @@ class HistoricalDateField extends BaseField {
      * @param  boolean $negative - Get opposite results of the search
      * @return array - The RIDs that match search
      */
-    public function advancedSearchTyped($flid, $query, $recordMod, $form, $negative = false) { //TODO::CIRCA+PRE+POST
+    public function advancedSearchTyped($flid, $query, $recordMod, $form, $negative = false) {
         $beginEra = isset($query['begin_era']) ? $query['begin_era'] : 'CE';
         $endEra = isset($query['end_era']) ? $query['end_era'] : 'CE';
 

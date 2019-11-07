@@ -934,8 +934,7 @@ Kora.Records.Create = function() {
                 type = fields[flid]['type'];
 
                 if(value != null) {
-                    switch (type) {
-                        //TODO:: modular?
+                    switch (type) { //TODO::NEWFIELD
                         case 'Text':
                             $('[name=' + flid + ']').val(value);
                             break;
