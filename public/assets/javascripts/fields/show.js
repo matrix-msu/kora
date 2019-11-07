@@ -285,7 +285,7 @@ Kora.Fields.Show = function() {
         });
     }
 
-    function initializeComboPresetModals() { //TODO::CASTLE
+    function initializeComboPresetModals() { //TODO::COMBO
         let option = '';
 
         $('.open-regex-modal-js').click(function (e) {

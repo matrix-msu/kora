@@ -155,7 +155,7 @@ class FieldController extends Controller {
 
         return view($form->getFieldModel($field['type'])->getFieldOptionsView(), compact('flid', 'field', 'form', 'proj', 'presets'));
 
-        //Combo has two presets so we make an exception //TODO::CASTLE
+        //Combo has two presets so we make an exception //TODO::COMBO
 //        if($field->type == Field::_COMBO_LIST) {
 //            //we are building an array about the association permissions to populate the layout
 //            $opt_layout_one = array();

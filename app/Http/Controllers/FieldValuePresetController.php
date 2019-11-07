@@ -257,7 +257,7 @@ class FieldValuePresetController extends Controller {
 
         return $all_presets;
 
-        //TODO::CASTLE Combo list and field value presets
+        //TODO::COMBO
 //        if($field->type == "Combo List") {
 //            $oneType = $field['one']['type'];
 //            $twoType = $field['two']['type'];

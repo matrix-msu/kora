@@ -1078,7 +1078,7 @@ Kora.Records.Create = function() {
                             });
 
                             break;
-                        // case 'Combo List': //TODO::CASTLE
+                        // case 'Combo List': //TODO::COMBO
                         //     break;
                     }
                 }

@@ -2,7 +2,6 @@
 
 use App\Form;
 use App\Record;
-use App\Search;
 use App\Http\Controllers\FieldController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -18,10 +17,6 @@ class ComboListField extends BaseField {
     |
     */
 
-    /**
-     * @var string - Support table name
-     */
-    const SUPPORT_NAME = "combo_support";
     /**
      * @var string - Views for the typed field options
      */
@@ -338,7 +333,7 @@ class ComboListField extends BaseField {
      * @param  Request $request
      * @param  bool $overwrite - Overwrite if data exists
      */
-    public function massAssignRecordField($form, $flid, $formFieldValue, $request, $overwrite=0) { //TODO::CASTLE
+    public function massAssignRecordField($form, $flid, $formFieldValue, $request, $overwrite=0) { //TODO::COMBO
 
     }
 
@@ -351,7 +346,7 @@ class ComboListField extends BaseField {
      * @param  Request $request
      * @param  array $kids - The KIDs to update
      */
-    public function massAssignSubsetRecordField($form, $flid, $formFieldValue, $request, $kids) { //TODO::CASTLE
+    public function massAssignSubsetRecordField($form, $flid, $formFieldValue, $request, $kids) { //TODO::COMBO
 
     }
 
@@ -405,7 +400,7 @@ class ComboListField extends BaseField {
      *
      * @return mixed - Processed data
      */
-    public function processRevisionData($data) { // TODO::CASTLE
+    public function processRevisionData($data) { // TODO::COMBO
         $return = '';
         foreach($data as $d) {
             $return .= '<div>'.$d['cfOne'].' --- '.$d['cfTwo'].'</div>';

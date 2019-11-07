@@ -1,6 +1,6 @@
 @extends('fields.show')
 
-{{-- TODO::CASTLE --}}
+{{-- TODO::COMBO --}}
 {{-- @section('presetModal')
 	@include('partials.fields.fieldValuePresetModals.addComboRegexPresetModal', ['presets' => $presets])
 @stop --}}
