@@ -281,6 +281,15 @@ class RestfulController extends Controller {
                     return response()->json(["status"=>false,"error"=>"'sort' is not allowed in a form search query when using the global sort variable.","warnings"=>$this->minorErrors],500);
             }
 
+            //Check returned fields for illegal fields
+            if(is_array($filters['fields'])) {
+                foreach($filters['fields'] as $field) {
+                    $flid = fieldMapper($field, $form->project_id, $form->id);
+                    if(!isset($form->layout['fields'][$flid]))
+                        return response()->json(["status"=>false,"error"=>"The following return field is not apart of the requested form: " . $this->cleanseOutput($flid),"warnings"=>$this->minorErrors],500);
+                }
+            }
+
             //parse the query
             if(!isset($f->queries)) {
                 //return all records
