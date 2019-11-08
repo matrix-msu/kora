@@ -337,6 +337,13 @@ class AdvancedSearchController extends Controller {
                             if(isset($request[$flid.'_input']) && $request[$flid.'_input'] == '1')
                                 $processed[$flid]['input'] = true;
                             break;
+                        case 'Associator':
+                            if(isset($request[$flid.'_input']) && !empty($request[$flid.'_input'])) {
+                                $processed[$flid]['input'] = $request[$flid . '_input'];
+
+                                $processed[$flid]['any'] = isset($request[$flid . '_any']) ? true : false;
+                            }
+                            break;
                         default:
                             if(isset($request[$flid.'_input']) && $request[$flid.'_input'] != '')
                                 $processed[$flid]['input'] = $request[$flid.'_input'];

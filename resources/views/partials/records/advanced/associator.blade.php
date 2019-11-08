@@ -15,3 +15,11 @@
     ?>
     {!! Form::select($flid . "_input[]", $rids, '', ["class" => "multi-select", "Multiple"]) !!}
 </div>
+<div class="form-group mt-sm">
+    <div class="check-box-half">
+        <input type="checkbox" value="1" id="active" class="check-box-input" name="{{$flid}}_any" />
+        <span class="check"></span>
+        <span class="placeholder">Any</span>
+        <span class="sub-text">(“Any” Returns records with at least one provided KID, instead of all)</span>
+    </div>
+</div>

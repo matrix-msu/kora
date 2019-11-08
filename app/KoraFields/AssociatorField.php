@@ -341,10 +341,14 @@ class AssociatorField extends BaseField {
      * @return array - The update request
      */
     public function setRestfulAdvSearch($data) {
+        $request = [];
+
         if(isset($data->input) && is_array($data->input))
-            return ['input' => $data->input];
-        else
-            return [];
+            $request['input'] = $data->input;
+
+        $request['any'] = (isset($data->any) && is_bool($data->any)) ? $data->any : false;
+
+        return $request;
     }
 
     /**
@@ -358,18 +362,27 @@ class AssociatorField extends BaseField {
      */
     public function advancedSearchTyped($flid, $query, $recordMod, $form, $negative = false) {
         $arg = $query['input'];
+        $any = $query['any'];
         $args = Search::prepare($arg);
 
         $query = $recordMod->newQuery()
             ->select("id");
 
-        if($negative) {
+        if($negative && !$any) {
             foreach($args as $a) {
                 $query->orWhereRaw("JSON_SEARCH(`$flid`,'one','$a') IS NULL");
             }
-        } else {
+        } else if(!$negative && !$any) {
             foreach($args as $a) {
                 $query->whereRaw("JSON_SEARCH(`$flid`,'one','$a') IS NOT NULL");
+            }
+        } else if($negative && $any) {
+            foreach($args as $a) {
+                $query->whereRaw("JSON_SEARCH(`$flid`,'one','$a') IS NULL");
+            }
+        } else if(!$negative && $any) {
+            foreach($args as $a) {
+                $query->orWhereRaw("JSON_SEARCH(`$flid`,'one','$a') IS NOT NULL");
             }
         }
 
