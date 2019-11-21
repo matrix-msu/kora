@@ -65,7 +65,7 @@ class FormSearchController extends Controller {
 
         $form = FormController::getForm($fid);
 
-        return view('records.results', compact("form", "records", "total", "ignored"));
+        return view('records.results', compact("form", "records", "total"));
     }
 
     /**

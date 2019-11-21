@@ -320,7 +320,7 @@ class GeneratedListField extends BaseField {
 
         return $recordMod->newQuery()
             ->select("id")
-            ->where($flid, $param,"$arg")
+            ->whereRaw("LOWER($flid) $param ?", [strtolower($arg)])
             ->pluck('id')
             ->toArray();
     }
