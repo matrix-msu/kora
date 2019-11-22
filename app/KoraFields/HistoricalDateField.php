@@ -502,14 +502,16 @@ class HistoricalDateField extends BaseField {
             $dbQuery->where($flid, $param, "%\"month\": \"$arg\"%");
             $dbQuery->where($flid, $param, "%\"day\": \"$arg\"%");
             $dbQuery->where($flid, $param, "%\"year\": \"$arg\"%");
-            $dbQuery->where($flid, $param, "%\"era\": \"$arg\"%");
-            $dbQuery->where($flid, $param, "%\"prefix\": \"$arg\"%");
+            $arg = strtolower($arg); //Solves the JSON mysql case-insensitive issue
+            $dbQuery->whereRaw("LOWER($flid) $param ?", ["%\"era\": \"$arg\"%"]);
+            $dbQuery->whereRaw("LOWER($flid) $param ?", ["%\"prefix\": \"$arg\"%"]);
         } else {
             $dbQuery->orWhere($flid, $param, "%\"month\": \"$arg\"%");
             $dbQuery->orWhere($flid, $param, "%\"day\": \"$arg\"%");
             $dbQuery->orWhere($flid, $param, "%\"year\": \"$arg\"%");
-            $dbQuery->orWhere($flid, $param, "%\"era\": \"$arg\"%");
-            $dbQuery->orWhere($flid, $param, "%\"prefix\": \"$arg\"%");
+            $arg = strtolower($arg); //Solves the JSON mysql case-insensitive issue
+            $dbQuery->orWhereRaw("LOWER($flid) $param ?", ["%\"era\": \"$arg\"%"]);
+            $dbQuery->orWhereRaw("LOWER($flid) $param ?", ["%\"prefix\": \"$arg\"%"]);
         }
 
         return $dbQuery->pluck('id')

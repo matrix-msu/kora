@@ -307,7 +307,7 @@ class MultiSelectListField extends BaseField {
 
         return $recordMod->newQuery()
             ->select("id")
-            ->whereRaw("LOWER($flid) $param ?", [strtolower($arg)])
+            ->whereRaw("LOWER($flid) $param ?", [strtolower($arg)]) //Solves the JSON mysql case-insensitive issue
             ->pluck('id')
             ->toArray();
     }

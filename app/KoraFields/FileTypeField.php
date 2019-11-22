@@ -508,12 +508,13 @@ abstract class FileTypeField extends BaseField {
         $dbQuery = $recordMod->newQuery()
             ->select("id");
 
+        $arg = strtolower($arg); //Solves the JSON mysql case-insensitive issue
         if($negative) {
-            $dbQuery->whereRaw("`$flid`->\"$[*].name\" $param \"$arg\"");
-            $dbQuery->whereRaw("`$flid`->\"$[*].caption\" $param \"$arg\"");
+            $dbQuery->whereRaw("LOWER(`$flid`->\"$[*].name\") $param \"$arg\"");
+            $dbQuery->whereRaw("LOWER(`$flid`->\"$[*].caption\") $param \"$arg\"");
         } else {
-            $dbQuery->orWhereRaw("`$flid`->\"$[*].name\" $param \"$arg\"");
-            $dbQuery->orWhereRaw("`$flid`->\"$[*].caption\" $param \"$arg\"");
+            $dbQuery->orWhereRaw("LOWER(`$flid`->\"$[*].name\") $param \"$arg\"");
+            $dbQuery->orWhereRaw("LOWER(`$flid`->\"$[*].caption\") $param \"$arg\"");
         }
 
         return $dbQuery->pluck('id')

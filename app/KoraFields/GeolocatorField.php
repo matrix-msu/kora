@@ -381,12 +381,13 @@ class GeolocatorField extends BaseField {
         $dbQuery = $recordMod->newQuery()
             ->select("id");
 
+        $arg = strtolower($arg); //Solves the JSON mysql case-insensitive issue
         if($negative) {
-            $dbQuery->whereRaw("`$flid`->\"$[*].formatted_address\" $param \"$arg\"");
-            $dbQuery->whereRaw("`$flid`->\"$[*].description\" $param \"$arg\"");
+            $dbQuery->whereRaw("LOWER(`$flid`->\"$[*].formatted_address\") $param \"$arg\"");
+            $dbQuery->whereRaw("LOWER(`$flid`->\"$[*].description\") $param \"$arg\"");
         } else {
-            $dbQuery->orWhereRaw("`$flid`->\"$[*].formatted_address\" $param \"$arg\"");
-            $dbQuery->orWhereRaw("`$flid`->\"$[*].description\" $param \"$arg\"");
+            $dbQuery->orWhereRaw("LOWER(`$flid`->\"$[*].formatted_address\") $param \"$arg\"");
+            $dbQuery->orWhereRaw("LOWER(`$flid`->\"$[*].description\") $param \"$arg\"");
         }
 
         return $dbQuery->pluck('id')
