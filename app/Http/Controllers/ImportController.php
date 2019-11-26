@@ -3,7 +3,7 @@
 use App\FieldValuePreset;
 use App\Form;
 use App\FormGroup;
-use App\KoraFields\FileTypeField;
+use App\KoraFields\ComboListField;
 use App\Project;
 use App\ProjectGroup;
 use App\Record;
@@ -594,7 +594,14 @@ class ImportController extends Controller {
             $newFieldsArray[$newFlid] = $field;
             //Create column for field in records table
             $fieldMod = $form->getFieldModel($field['type']);
-            $fieldMod->addDatabaseColumn($form->id, $newFlid);
+
+            if($fieldMod instanceof ComboListField) {
+                $fieldMod->addDatabaseColumn($form->id, $newFlid, [
+                    'one' => ['type' => $field['one']['type'], 'name' => $field['one']['name']],
+                    'two' => ['type' => $field['two']['type'], 'name' => $field['two']['name']],
+                ]);
+            } else
+                $fieldMod->addDatabaseColumn($form->id, $newFlid);
         }
 
         //Copy page layout, adding new field
@@ -661,7 +668,14 @@ class ImportController extends Controller {
             $newFieldsArray[$newFlid] = $field;
             //Create column for field in records table
             $fieldMod = $form->getFieldModel($field['type']);
-            $fieldMod->addDatabaseColumn($form->id, $newFlid);
+
+            if($fieldMod instanceof ComboListField) {
+                $fieldMod->addDatabaseColumn($form->id, $newFlid, [
+                    'one' => ['type' => $field['one']['type'], 'name' => $field['one']['name']],
+                    'two' => ['type' => $field['two']['type'], 'name' => $field['two']['name']],
+                ]);
+            } else
+                $fieldMod->addDatabaseColumn($form->id, $newFlid);
         }
 
         //Copy page layout, adding new field
