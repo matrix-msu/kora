@@ -98,8 +98,8 @@ class ConvertField extends Command
                             $rec->{$tmpName} = (double)$rec->{$flid};
                             $rec->save();
                         }
-                        $this->info("Preserving old record data at column: $tmpName-$flid");
-                        $crt->renameColumn($fid,$flid,"$tmpName-$flid");
+                        $this->info("Preserving old record data at column: $tmpName$flid");
+                        $crt->renameColumn($fid,$flid,"$tmpName$flid");
                         $crt->renameColumn($fid,$tmpName,$flid);
                     } else
                         $status = 'bad_requested_type';
@@ -117,8 +117,8 @@ class ConvertField extends Command
                             $rec->{$tmpName} = intval(round($rec->{$flid}));
                             $rec->save();
                         }
-                        $this->info("Preserving old record data at column: $tmpName-$flid");
-                        $crt->renameColumn($fid,$flid,"$tmpName-$flid");
+                        $this->info("Preserving old record data at column: $tmpName$flid");
+                        $crt->renameColumn($fid,$flid,"$tmpName$flid");
                         $crt->renameColumn($fid,$tmpName,$flid);
                     } else
                         $status = 'bad_requested_type';
@@ -133,8 +133,8 @@ class ConvertField extends Command
                             $rec->{$tmpName} = json_encode([$rec->{$flid}]);
                             $rec->save();
                         }
-                        $this->info("Preserving old record data at column: $tmpName-$flid");
-                        $crt->renameColumn($fid,$flid,"$tmpName-$flid");
+                        $this->info("Preserving old record data at column: $tmpName$flid");
+                        $crt->renameColumn($fid,$flid,"$tmpName$flid");
                         $crt->renameColumn($fid,$tmpName,$flid);
                     } else if($newType == Form::_GENERATED_LIST) {
                         $field['options'] = ['Regex' => '', 'Options' => []];
@@ -145,8 +145,8 @@ class ConvertField extends Command
                             $rec->{$tmpName} = json_encode([$rec->{$flid}]);
                             $rec->save();
                         }
-                        $this->info("Preserving old record data at column: $tmpName-$flid");
-                        $crt->renameColumn($fid,$flid,"$tmpName-$flid");
+                        $this->info("Preserving old record data at column: $tmpName$flid");
+                        $crt->renameColumn($fid,$flid,"$tmpName$flid");
                         $crt->renameColumn($fid,$tmpName,$flid);
                     } else
                         $status = 'bad_requested_type';
@@ -159,8 +159,8 @@ class ConvertField extends Command
                             $rec->{$tmpName} = json_encode($rec->{$flid})[0];
                             $rec->save();
                         }
-                        $this->info("Preserving old record data at column: $tmpName-$flid");
-                        $crt->renameColumn($fid,$flid,"$tmpName-$flid");
+                        $this->info("Preserving old record data at column: $tmpName$flid");
+                        $crt->renameColumn($fid,$flid,"$tmpName$flid");
                         $crt->renameColumn($fid,$tmpName,$flid);
                     } else if($newType == Form::_GENERATED_LIST) {
                         $field['options'] = ['Regex' => '', 'Options' => []];
@@ -184,8 +184,8 @@ class ConvertField extends Command
                             $rec->{$tmpName} = json_encode($rec->{$flid})[0];
                             $rec->save();
                         }
-                        $this->info("Preserving old record data at column: $tmpName-$flid");
-                        $crt->renameColumn($fid,$flid,"$tmpName-$flid");
+                        $this->info("Preserving old record data at column: $tmpName$flid");
+                        $crt->renameColumn($fid,$flid,"$tmpName$flid");
                         $crt->renameColumn($fid,$tmpName,$flid);
                     } else if($newType == Form::_MULTI_SELECT_LIST) {
                         $records = $recModel->newQuery()->whereNotNull($flid)->get();
