@@ -1,7 +1,6 @@
 <?php namespace App\Http\Controllers;
 
 use App\Form;
-use App\Http\Requests\FieldRequest;
 use App\User;
 use App\FormGroup;
 use Illuminate\Http\JsonResponse;

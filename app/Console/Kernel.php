@@ -11,7 +11,7 @@ class Kernel extends ConsoleKernel {
 	 * @var array
 	 */
 	protected $commands = [
-        'App\Console\Commands\AddOptionsToList',
+        'App\Console\Commands\ConvertField',
 		'App\Console\Commands\ExodusScript',
 		'App\Console\Commands\FileUrlFix',
         'App\Console\Commands\GenerateThumbs',

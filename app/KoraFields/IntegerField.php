@@ -86,7 +86,7 @@ class IntegerField extends BaseField {
     /**
      * Gets the default options string for a new field.
      *
-     * @return string - The default options
+     * @return array - The default options
      */
     public function getDefaultOptions($type = null) {
         return ['Max' => '', 'Min' => '', 'Unit' => ''];
@@ -147,13 +147,13 @@ class IntegerField extends BaseField {
 
 
         if(($req==1 | $forceReq) && ($value==null | $value==""))
-            return [$field->flid => $field['name'].' is required'];
+            return [$flid => $field['name'].' is required'];
 
         if($min!='' && $value!="" && $value<$min)
-            return [$field->flid => $field['name'].' can not be less than '.$min];
+            return [$flid => $field['name'].' can not be less than '.$min];
 
         if($max!='' && $value!="" && $value>$max)
-            return [$field->flid => $field['name'].' can not be more than '.$max];
+            return [$flid => $field['name'].' can not be more than '.$max];
 
         return array();
     }

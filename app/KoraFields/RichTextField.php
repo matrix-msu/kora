@@ -86,10 +86,10 @@ class RichTextField extends BaseField {
     /**
      * Gets the default options string for a new field.
      *
-     * @return string - The default options
+     * @return array - The default options
      */
     public function getDefaultOptions($type = null) {
-        return '';
+        return [];
     }
 
     /**
