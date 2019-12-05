@@ -81,7 +81,16 @@ class ConvertField extends Command
                 case Form::_RICH_TEXT:
                     if($newType == Form::_TEXT) {
                         $field['options'] = ['Regex' => '', 'MultiLine' => 0];
-                        //TODO::DATABASE
+
+                        $crt->addTextColumn($fid, $tmpName);
+                        $records = $recModel->newQuery()->whereNotNull($flid)->get();
+                        foreach($records as $rec) {
+                            $rec->{$tmpName} = strip_tags($rec->{$flid});
+                            $rec->save();
+                        }
+                        $this->info("Preserving old record data at column: $tmpName$flid");
+                        $crt->renameColumn($fid,$flid,"$tmpName$flid");
+                        $crt->renameColumn($fid,$tmpName,$flid);
                     } else
                         $status = 'bad_requested_type';
                     break;
