@@ -202,12 +202,31 @@ class ConvertField extends Command
                     if($newType == Form::_DATETIME) {
                         //No Field Options Modifications
 
-                        //TODO::DATABASE
+                        $crt->addDateTimeColumn($fid, $tmpName);
+                        $records = $recModel->newQuery()->whereNotNull($flid)->get();
+                        foreach($records as $rec) {
+                            $rec->{$tmpName} = $rec->{$flid}.' 00:00:00';
+                            $rec->save();
+                        }
+                        $this->info("Preserving old record data at column: $tmpName$flid");
+                        $crt->renameColumn($fid,$flid,"$tmpName$flid");
+                        $crt->renameColumn($fid,$tmpName,$flid);
                     } else if($newType == Form::_HISTORICAL_DATE) {
                         $field['options']['ShowPrefix'] = 0;
                         $field['options']['ShowEra'] = 0;
 
-                        //TODO::DATABASE
+                        $crt->addJSONColumn($fid, $tmpName);
+                        $records = $recModel->newQuery()->whereNotNull($flid)->get();
+                        foreach($records as $rec) {
+                            $dateInfo = explode('-',$rec->{$flid});
+                            $date = ['month' => $dateInfo[1], 'day' => $dateInfo[2], 'year' => $dateInfo[0],
+                                'prefix' => '','era' => 'CE'];
+                            $rec->{$tmpName} = json_encode($date);
+                            $rec->save();
+                        }
+                        $this->info("Preserving old record data at column: $tmpName$flid");
+                        $crt->renameColumn($fid,$flid,"$tmpName$flid");
+                        $crt->renameColumn($fid,$tmpName,$flid);
                     } else
                         $status = 'bad_requested_type';
                     break;
@@ -215,12 +234,33 @@ class ConvertField extends Command
                     if($newType == Form::_DATE) {
                         //No Field Options Modifications
 
-                        //TODO::DATABASE
+                        $crt->addDateColumn($fid, $tmpName);
+                        $records = $recModel->newQuery()->whereNotNull($flid)->get();
+                        foreach($records as $rec) {
+                            $parts = explode(' ', $rec->{$flid});
+                            $rec->{$tmpName} = $parts[0];
+                            $rec->save();
+                        }
+                        $this->info("Preserving old record data at column: $tmpName$flid");
+                        $crt->renameColumn($fid,$flid,"$tmpName$flid");
+                        $crt->renameColumn($fid,$tmpName,$flid);
                     } else if($newType == Form::_HISTORICAL_DATE) {
                         $field['options']['ShowPrefix'] = 0;
                         $field['options']['ShowEra'] = 0;
 
-                        //TODO::DATABASE
+                        $crt->addJSONColumn($fid, $tmpName);
+                        $records = $recModel->newQuery()->whereNotNull($flid)->get();
+                        foreach($records as $rec) {
+                            $parts = explode(' ', $rec->{$flid});
+                            $dateInfo = explode('-',$parts[0]);
+                            $date = ['month' => $dateInfo[1], 'day' => $dateInfo[2], 'year' => $dateInfo[0],
+                                'prefix' => '','era' => 'CE'];
+                            $rec->{$tmpName} = json_encode($date);
+                            $rec->save();
+                        }
+                        $this->info("Preserving old record data at column: $tmpName$flid");
+                        $crt->renameColumn($fid,$flid,"$tmpName$flid");
+                        $crt->renameColumn($fid,$tmpName,$flid);
                     } else
                         $status = 'bad_requested_type';
                     break;
@@ -242,57 +282,56 @@ class ConvertField extends Command
                     if($newType == Form::_GALLERY) {
                         $field['options']['FileTypes'] = GalleryField::SUPPORTED_TYPES;
 
-                        //TODO::DATABASE
+                        //No Database Record Modifications
                     } else if($newType == Form::_PLAYLIST) {
                         $field['options']['FileTypes'] = PlaylistField::SUPPORTED_TYPES;
 
-                        //TODO::DATABASE
+                        //No Database Record Modifications
                     } else if($newType == Form::_VIDEO) {
                         $field['options']['FileTypes'] = VideoField::SUPPORTED_TYPES;
 
-                        //TODO::DATABASE
+                        //No Database Record Modifications
                     } else if($newType == Form::_3D_MODEL) {
                         $field['options']['FileTypes'] = ModelField::SUPPORTED_TYPES;
                         $field['options']['ModelColor'] = '#ddd';
                         $field['options']['BackColorOne'] = '#2E4F5E';
                         $field['options']['BackColorTwo'] = '#152730';
 
-                        //TODO::DATABASE
+                        //No Database Record Modifications
                     } else
                         $status = 'bad_requested_type';
                     break;
                 case Form::_GALLERY:
                     if($newType == Form::_DOCUMENTS) {
-                        $field['options']['FileTypes'] = [];
+                        //No Field Options Modifications
 
-                        //TODO::DATABASE
+                        //No Database Record Modifications
                     } else
                         $status = 'bad_requested_type';
                     break;
                 case Form::_PLAYLIST:
                     if($newType == Form::_DOCUMENTS) {
-                        $field['options']['FileTypes'] = [];
+                        //No Field Options Modifications
 
-                        //TODO::DATABASE
+                        //No Database Record Modifications
                     } else
                         $status = 'bad_requested_type';
                     break;
                 case Form::_VIDEO:
                     if($newType == Form::_DOCUMENTS) {
-                        $field['options']['FileTypes'] = [];
+                        //No Field Options Modifications
 
-                        //TODO::DATABASE
+                        //No Database Record Modifications
                     } else
                         $status = 'bad_requested_type';
                     break;
                 case Form::_3D_MODEL:
                     if($newType == Form::_DOCUMENTS) {
-                        $field['options']['FileTypes'] = [];
                         unset($field['options']['ModelColor']);
                         unset($field['options']['BackColorOne']);
                         unset($field['options']['BackColorTwo']);
 
-                        //TODO::DATABASE
+                        //No Database Record Modifications
                     } else
                         $status = 'bad_requested_type';
                     break;
