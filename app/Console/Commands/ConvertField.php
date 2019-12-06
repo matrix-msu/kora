@@ -81,7 +81,8 @@ class ConvertField extends Command
                 case Form::_RICH_TEXT:
                     if($newType == Form::_TEXT) {
                         $field['options'] = ['Regex' => '', 'MultiLine' => 0];
-                        $field['default'] = strip_tags($field['default']);
+                        if(!is_null($field['default']) && $field['default']!='')
+                            $field['default'] = strip_tags($field['default']);
 
                         $crt->addTextColumn($fid, $tmpName);
                         $records = $recModel->newQuery()->whereNotNull($flid)->get();
@@ -101,7 +102,8 @@ class ConvertField extends Command
                             $field['options']['Max'] = (double)$field['options']['Max'];
                         if($field['options']['Min'] != '')
                             $field['options']['Min'] = (double)$field['options']['Min'];
-                        $field['default'] = (double)$field['default'];
+                        if(!is_null($field['default']) && $field['default']!='')
+                            $field['default'] = (double)$field['default'];
 
                         $crt->addDoubleColumn($fid, $tmpName);
                         $records = $recModel->newQuery()->whereNotNull($flid)->get();
@@ -121,7 +123,8 @@ class ConvertField extends Command
                             $field['options']['Max'] = intval(ceil($field['options']['Max']));
                         if($field['options']['Min'] != '')
                             $field['options']['Min'] = intval(floor($field['options']['Min']));
-                        $field['default'] = intval(round($field['default']));
+                        if(!is_null($field['default']) && $field['default']!='')
+                            $field['default'] = intval(round($field['default']));
 
                         $crt->addIntegerColumn($fid, $tmpName);
                         $records = $recModel->newQuery()->whereNotNull($flid)->get();
@@ -137,7 +140,8 @@ class ConvertField extends Command
                     break;
                 case Form::_LIST:
                     if($newType == Form::_MULTI_SELECT_LIST) {
-                        $field['default'] = [$field['default']];
+                        if(!is_null($field['default']) && $field['default']!='')
+                            $field['default'] = [$field['default']];
 
                         $crt->addJSONColumn($fid, $tmpName);
                         $records = $recModel->newQuery()->whereNotNull($flid)->get();
@@ -149,8 +153,12 @@ class ConvertField extends Command
                         $crt->renameColumn($fid,$flid,"$tmpName$flid");
                         $crt->renameColumn($fid,$tmpName,$flid);
                     } else if($newType == Form::_GENERATED_LIST) {
-                        $field['options'] = ['Regex' => '', 'Options' => [$field['default']]];
-                        $field['default'] = [$field['default']];
+                        if(is_null($field['default']) || $field['default']=='')
+                            $newDef = [];
+                        else
+                            $newDef = [$field['default']];
+                        $field['options'] = ['Regex' => '', 'Options' => $newDef];
+                        $field['default'] = $newDef;
 
                         $crt->addJSONColumn($fid, $tmpName);
                         $records = $recModel->newQuery()->whereNotNull($flid)->get();
@@ -166,7 +174,8 @@ class ConvertField extends Command
                     break;
                 case Form::_MULTI_SELECT_LIST:
                     if($newType == Form::_LIST) {
-                        $field['default'] = $field['default'][0];
+                        if(!is_null($field['default']) && $field['default']!='' && !empty($field['default']))
+                            $field['default'] = $field['default'][0];
 
                         $crt->addEnumColumn($fid, $tmpName, $field['options']['Options']);
                         $records = $recModel->newQuery()->whereNotNull($flid)->get();
@@ -178,6 +187,8 @@ class ConvertField extends Command
                         $crt->renameColumn($fid,$flid,"$tmpName$flid");
                         $crt->renameColumn($fid,$tmpName,$flid);
                     } else if($newType == Form::_GENERATED_LIST) {
+                        if(is_null($field['default']))
+                            $field['default'] = [];
                         $field['options'] = ['Regex' => '', 'Options' => $field['default']];
 
                         //No Database Record Modifications
@@ -218,9 +229,11 @@ class ConvertField extends Command
                     break;
                 case Form::_DATE:
                     if($newType == Form::_DATETIME) {
-                        $field['default']['hour'] = '';
-                        $field['default']['minute'] = '';
-                        $field['default']['second'] = '';
+                        if(!is_null($field['default'])) {
+                            $field['default']['hour'] = '';
+                            $field['default']['minute'] = '';
+                            $field['default']['second'] = '';
+                        }
 
                         $crt->addDateTimeColumn($fid, $tmpName);
                         $records = $recModel->newQuery()->whereNotNull($flid)->get();
@@ -234,8 +247,10 @@ class ConvertField extends Command
                     } else if($newType == Form::_HISTORICAL_DATE) {
                         $field['options']['ShowPrefix'] = 0;
                         $field['options']['ShowEra'] = 0;
-                        $field['default']['prefix'] = '';
-                        $field['default']['era'] = 'CE';
+                        if(!is_null($field['default'])) {
+                            $field['default']['prefix'] = '';
+                            $field['default']['era'] = 'CE';
+                        }
 
                         $crt->addJSONColumn($fid, $tmpName);
                         $records = $recModel->newQuery()->whereNotNull($flid)->get();
@@ -254,9 +269,11 @@ class ConvertField extends Command
                     break;
                 case Form::_DATETIME:
                     if($newType == Form::_DATE) {
-                        unset($field['default']['hour']);
-                        unset($field['default']['minute']);
-                        unset($field['default']['second']);
+                        if(!is_null($field['default'])) {
+                            unset($field['default']['hour']);
+                            unset($field['default']['minute']);
+                            unset($field['default']['second']);
+                        }
 
                         $crt->addDateColumn($fid, $tmpName);
                         $records = $recModel->newQuery()->whereNotNull($flid)->get();
@@ -271,11 +288,13 @@ class ConvertField extends Command
                     } else if($newType == Form::_HISTORICAL_DATE) {
                         $field['options']['ShowPrefix'] = 0;
                         $field['options']['ShowEra'] = 0;
-                        unset($field['default']['hour']);
-                        unset($field['default']['minute']);
-                        unset($field['default']['second']);
-                        $field['default']['prefix'] = '';
-                        $field['default']['era'] = 'CE';
+                        if(!is_null($field['default'])) {
+                            unset($field['default']['hour']);
+                            unset($field['default']['minute']);
+                            unset($field['default']['second']);
+                            $field['default']['prefix'] = '';
+                            $field['default']['era'] = 'CE';
+                        }
 
                         $crt->addJSONColumn($fid, $tmpName);
                         $records = $recModel->newQuery()->whereNotNull($flid)->get();
@@ -297,8 +316,10 @@ class ConvertField extends Command
                     if($newType == Form::_DATE) {
                         unset($field['options']['ShowPrefix']);
                         unset($field['options']['ShowEra']);
-                        unset($field['default']['prefix']);
-                        unset($field['default']['era']);
+                        if(!is_null($field['default'])) {
+                            unset($field['default']['prefix']);
+                            unset($field['default']['era']);
+                        }
 
                         $crt->addDateColumn($fid, $tmpName);
                         $records = $recModel->newQuery()->whereNotNull($flid)->get();
@@ -329,11 +350,13 @@ class ConvertField extends Command
                     } else if($newType == Form::_DATETIME) {
                         unset($field['options']['ShowPrefix']);
                         unset($field['options']['ShowEra']);
-                        unset($field['default']['prefix']);
-                        unset($field['default']['era']);
-                        $field['default']['hour'] = '';
-                        $field['default']['minute'] = '';
-                        $field['default']['second'] = '';
+                        if(!is_null($field['default'])) {
+                            unset($field['default']['prefix']);
+                            unset($field['default']['era']);
+                            $field['default']['hour'] = '';
+                            $field['default']['minute'] = '';
+                            $field['default']['second'] = '';
+                        }
 
                         $crt->addDateTimeColumn($fid, $tmpName);
                         $records = $recModel->newQuery()->whereNotNull($flid)->get();
