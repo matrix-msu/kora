@@ -1164,7 +1164,7 @@ Kora.Records.Create = function() {
         //The one that matters during execution
         $('.duplicate-check-js').click(function() {
             var duplicateDiv = $('.duplicate-record-js');
-            var input = duplicateDiv.children('input').first();
+            var input = duplicateDiv.find('input').first();
             if(this.checked) {
                 duplicateDiv.fadeIn();
                 input.removeAttr('disabled');
