@@ -3,6 +3,7 @@
 use App\Form;
 use App\Http\Controllers\FormController;
 use App\KoraFields\GalleryField;
+use App\KoraFields\HistoricalDateField;
 use App\KoraFields\ModelField;
 use App\KoraFields\PlaylistField;
 use App\KoraFields\VideoField;
@@ -55,7 +56,7 @@ class ConvertField extends Command
         $newType = $this->argument('type');
 
         $status = '';
-        if($this->confirm('Changing field types may alter data unintentionally. Do you wish to continue?')) {
+        if($this->confirm('Changing field types may result in loss of incompatible data. Do you wish to continue?')) {
             $field['type'] = $newType;
             $field['default'] = null; //Default always goes away? TODO::CONVERT
 
@@ -278,12 +279,62 @@ class ConvertField extends Command
                         unset($field['options']['ShowPrefix']);
                         unset($field['options']['ShowEra']);
 
-                        //TODO::DATABASE
+                        $crt->addDateColumn($fid, $tmpName);
+                        $records = $recModel->newQuery()->whereNotNull($flid)->get();
+                        foreach($records as $rec) {
+                            $date = json_decode($rec->{$flid},true);
+                            if($date['era']=='CE') {
+                                $dateParts = [$date['year'],'01','01'];
+                                if($date['month']!='')
+                                    $dateParts[1] = $date['month'];
+                                if($date['day']!='')
+                                    $dateParts[2] = $date['day'];
+
+                                $rec->{$tmpName} = implode('-', $dateParts);
+                            } else if($date['era']=='BP' && HistoricalDateField::BEFORE_PRESENT_REFERENCE-$date['year'] > 0) {
+                                $dateParts = [$date['year'],'01','01'];
+                                if($date['month']!='')
+                                    $dateParts[1] = $date['month'];
+                                if($date['day']!='')
+                                    $dateParts[2] = $date['day'];
+
+                                $rec->{$tmpName} = implode('-', $dateParts);
+                            }
+                            $rec->save();
+                        }
+                        $this->info("Preserving old record data at column: $tmpName$flid");
+                        $crt->renameColumn($fid,$flid,"$tmpName$flid");
+                        $crt->renameColumn($fid,$tmpName,$flid);
                     } else if($newType == Form::_DATETIME) {
                         unset($field['options']['ShowPrefix']);
                         unset($field['options']['ShowEra']);
 
-                        //TODO::DATABASE
+                        $crt->addDateTimeColumn($fid, $tmpName);
+                        $records = $recModel->newQuery()->whereNotNull($flid)->get();
+                        foreach($records as $rec) {
+                            $date = json_decode($rec->{$flid},true);
+                            if($date['era']=='CE') {
+                                $dateParts = [$date['year'],'01','01'];
+                                if($date['month']!='')
+                                    $dateParts[1] = $date['month'];
+                                if($date['day']!='')
+                                    $dateParts[2] = $date['day'];
+
+                                $rec->{$tmpName} = implode('-', $dateParts).' 00:00:00';
+                            } else if($date['era']=='BP' && HistoricalDateField::BEFORE_PRESENT_REFERENCE-$date['year'] > 0) {
+                                $dateParts = [$date['year'],'01','01'];
+                                if($date['month']!='')
+                                    $dateParts[1] = $date['month'];
+                                if($date['day']!='')
+                                    $dateParts[2] = $date['day'];
+
+                                $rec->{$tmpName} = implode('-', $dateParts).' 00:00:00';
+                            }
+                            $rec->save();
+                        }
+                        $this->info("Preserving old record data at column: $tmpName$flid");
+                        $crt->renameColumn($fid,$flid,"$tmpName$flid");
+                        $crt->renameColumn($fid,$tmpName,$flid);
                     } else
                         $status = 'bad_requested_type';
                     break;
