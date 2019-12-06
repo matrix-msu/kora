@@ -61,5 +61,5 @@
     </div>
 </div>
 <script>
-    window.onload = function () { Kora.Fields.Options('Generated List'); }
+    window.onload = function () { Kora.Fields.Options('Generated List Record'); }
 </script>

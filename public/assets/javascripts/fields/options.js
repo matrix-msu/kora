@@ -369,7 +369,7 @@ Kora.Fields.Options = function(fieldType) {
                 if(newListOptions !== undefined && newListOptions.length > 0) {
                     // Prevent duplicate entries
 
-                    // If generated list, name of hidden input needs to be field name
+                    // If generated list, name of hidden input needs to be field name when creating records cause it shares this option code
                     var optionName = "options[]";
                     if (listType == 'GenList') {
                       optionName = $newListOptionInput.data('flid') + "[]";
@@ -1497,6 +1497,9 @@ Kora.Fields.Options = function(fieldType) {
             initializeDateOptions();
             break;
         case 'Generated List':
+            initializeList();
+            break;
+        case 'Generated List Record':
             initializeList('GenList');
             break;
         case 'List':

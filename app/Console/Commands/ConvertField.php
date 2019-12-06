@@ -58,7 +58,6 @@ class ConvertField extends Command
         $status = '';
         if($this->confirm('Changing field types may result in loss of incompatible data. Do you wish to continue?')) {
             $field['type'] = $newType;
-            $field['default'] = null; //Default always goes away? TODO::CONVERT
 
             $crt = new \CreateRecordsTable(); //Need this for table modifications
             $recModel = new Record(array(),$fid);
@@ -82,6 +81,7 @@ class ConvertField extends Command
                 case Form::_RICH_TEXT:
                     if($newType == Form::_TEXT) {
                         $field['options'] = ['Regex' => '', 'MultiLine' => 0];
+                        $field['default'] = strip_tags($field['default']);
 
                         $crt->addTextColumn($fid, $tmpName);
                         $records = $recModel->newQuery()->whereNotNull($flid)->get();
@@ -101,6 +101,7 @@ class ConvertField extends Command
                             $field['options']['Max'] = (double)$field['options']['Max'];
                         if($field['options']['Min'] != '')
                             $field['options']['Min'] = (double)$field['options']['Min'];
+                        $field['default'] = (double)$field['default'];
 
                         $crt->addDoubleColumn($fid, $tmpName);
                         $records = $recModel->newQuery()->whereNotNull($flid)->get();
@@ -120,6 +121,7 @@ class ConvertField extends Command
                             $field['options']['Max'] = intval(ceil($field['options']['Max']));
                         if($field['options']['Min'] != '')
                             $field['options']['Min'] = intval(floor($field['options']['Min']));
+                        $field['default'] = intval(round($field['default']));
 
                         $crt->addIntegerColumn($fid, $tmpName);
                         $records = $recModel->newQuery()->whereNotNull($flid)->get();
@@ -135,7 +137,7 @@ class ConvertField extends Command
                     break;
                 case Form::_LIST:
                     if($newType == Form::_MULTI_SELECT_LIST) {
-                        //No Field Options Modifications
+                        $field['default'] = [$field['default']];
 
                         $crt->addJSONColumn($fid, $tmpName);
                         $records = $recModel->newQuery()->whereNotNull($flid)->get();
@@ -147,7 +149,8 @@ class ConvertField extends Command
                         $crt->renameColumn($fid,$flid,"$tmpName$flid");
                         $crt->renameColumn($fid,$tmpName,$flid);
                     } else if($newType == Form::_GENERATED_LIST) {
-                        $field['options'] = ['Regex' => '', 'Options' => []];
+                        $field['options'] = ['Regex' => '', 'Options' => [$field['default']]];
+                        $field['default'] = [$field['default']];
 
                         $crt->addJSONColumn($fid, $tmpName);
                         $records = $recModel->newQuery()->whereNotNull($flid)->get();
@@ -163,6 +166,8 @@ class ConvertField extends Command
                     break;
                 case Form::_MULTI_SELECT_LIST:
                     if($newType == Form::_LIST) {
+                        $field['default'] = $field['default'][0];
+
                         $crt->addEnumColumn($fid, $tmpName, $field['options']['Options']);
                         $records = $recModel->newQuery()->whereNotNull($flid)->get();
                         foreach($records as $rec) {
@@ -173,7 +178,7 @@ class ConvertField extends Command
                         $crt->renameColumn($fid,$flid,"$tmpName$flid");
                         $crt->renameColumn($fid,$tmpName,$flid);
                     } else if($newType == Form::_GENERATED_LIST) {
-                        $field['options'] = ['Regex' => '', 'Options' => []];
+                        $field['options'] = ['Regex' => '', 'Options' => $field['default']];
 
                         //No Database Record Modifications
                     } else
@@ -182,12 +187,13 @@ class ConvertField extends Command
                 case Form::_GENERATED_LIST:
                     $newOpts = []; //Since Gen List doesn't keep track of option set, but other lists do, we capture and populate them
                     if($newType == Form::_LIST) {
-                        $field['options'] = ['Options' => []];
                         $records = $recModel->newQuery()->whereNotNull($flid)->get();
                         foreach($records as $rec) {
                             $newOpts[] = json_encode($rec->{$flid});
                         }
+                        $newOpts = array_merge($newOpts,$field['options']);
                         $field['options']['Options'] = array_unique($newOpts);
+                        $field['default'] = [];
 
                         $crt->addEnumColumn($fid, $tmpName, $field['options']['Options']);
                         foreach($records as $rec) {
@@ -202,7 +208,9 @@ class ConvertField extends Command
                         foreach($records as $rec) {
                             $newOpts[] = json_encode($rec->{$flid});
                         }
+                        $newOpts = array_merge($newOpts,$field['options']);
                         $field['options']['Options'] = array_unique($newOpts);
+                        $field['default'] = [];
 
                         //No Database Record Modifications
                     } else
@@ -211,6 +219,7 @@ class ConvertField extends Command
                 case Form::_DATE:
                     if($newType == Form::_DATETIME) {
                         //No Field Options Modifications
+                        //TODO::DEFAULT
 
                         $crt->addDateTimeColumn($fid, $tmpName);
                         $records = $recModel->newQuery()->whereNotNull($flid)->get();
@@ -224,6 +233,7 @@ class ConvertField extends Command
                     } else if($newType == Form::_HISTORICAL_DATE) {
                         $field['options']['ShowPrefix'] = 0;
                         $field['options']['ShowEra'] = 0;
+                        //TODO::DEFAULT
 
                         $crt->addJSONColumn($fid, $tmpName);
                         $records = $recModel->newQuery()->whereNotNull($flid)->get();
@@ -243,6 +253,7 @@ class ConvertField extends Command
                 case Form::_DATETIME:
                     if($newType == Form::_DATE) {
                         //No Field Options Modifications
+                        //TODO::DEFAULT
 
                         $crt->addDateColumn($fid, $tmpName);
                         $records = $recModel->newQuery()->whereNotNull($flid)->get();
@@ -257,6 +268,7 @@ class ConvertField extends Command
                     } else if($newType == Form::_HISTORICAL_DATE) {
                         $field['options']['ShowPrefix'] = 0;
                         $field['options']['ShowEra'] = 0;
+                        //TODO::DEFAULT
 
                         $crt->addJSONColumn($fid, $tmpName);
                         $records = $recModel->newQuery()->whereNotNull($flid)->get();
@@ -278,6 +290,7 @@ class ConvertField extends Command
                     if($newType == Form::_DATE) {
                         unset($field['options']['ShowPrefix']);
                         unset($field['options']['ShowEra']);
+                        //TODO::DEFAULT
 
                         $crt->addDateColumn($fid, $tmpName);
                         $records = $recModel->newQuery()->whereNotNull($flid)->get();
@@ -308,6 +321,7 @@ class ConvertField extends Command
                     } else if($newType == Form::_DATETIME) {
                         unset($field['options']['ShowPrefix']);
                         unset($field['options']['ShowEra']);
+                        //TODO::DEFAULT
 
                         $crt->addDateTimeColumn($fid, $tmpName);
                         $records = $recModel->newQuery()->whereNotNull($flid)->get();

@@ -113,7 +113,7 @@ class GeneratedListField extends BaseField {
             $request->options = array();
         }
 
-        $field['default'] = $request->default;
+        $field['default'] = $request->options;
         $field['options']['Regex'] = $request->regex;
         $field['options']['Options'] = $request->options;
 
