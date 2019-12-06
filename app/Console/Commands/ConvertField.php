@@ -63,20 +63,22 @@ class ConvertField extends Command
             $recModel = new Record(array(),$fid);
             $tmpName = uniqid();
 
-            switch($oldType) { //TODO::NEWFIELD
-                case Form::_TEXT: //TODO::CONVERT
-//                Form::_BOOLEAN,
-//                Form::_RICH_TEXT,
-//                Form::_INTEGER,
-//                Form::_FLOAT,
-//                Form::_LIST,
-//                Form::_MULTI_SELECT_LIST,
-//                Form::_GENERATED_LIST,
-//                Form::_DATE,
-//                Form::_DATETIME,
-//                Form::_HISTORICAL_DATE,
-//                Form::_GEOLOCATOR,
-//                Form::_ASSOCIATOR,
+            switch($oldType) {
+                case Form::_TEXT:
+                    if($newType == Form::_RICH_TEXT) {
+                        $field['options'] = [];
+
+                        $crt->addMediumTextColumn($fid, $tmpName);
+                        $records = $recModel->newQuery()->whereNotNull($flid)->get();
+                        foreach($records as $rec) {
+                            $rec->{$tmpName} = $rec->{$flid};
+                            $rec->save();
+                        }
+                        $this->info("Preserving old record data at column: $tmpName$flid");
+                        $crt->renameColumn($fid,$flid,"$tmpName$flid");
+                        $crt->renameColumn($fid,$tmpName,$flid);
+                    } else
+                        $status = 'bad_requested_type';
                     break;
                 case Form::_RICH_TEXT:
                     if($newType == Form::_TEXT) {
