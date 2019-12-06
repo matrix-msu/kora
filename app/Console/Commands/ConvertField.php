@@ -218,8 +218,9 @@ class ConvertField extends Command
                     break;
                 case Form::_DATE:
                     if($newType == Form::_DATETIME) {
-                        //No Field Options Modifications
-                        //TODO::DEFAULT
+                        $field['default']['hour'] = '';
+                        $field['default']['minute'] = '';
+                        $field['default']['second'] = '';
 
                         $crt->addDateTimeColumn($fid, $tmpName);
                         $records = $recModel->newQuery()->whereNotNull($flid)->get();
@@ -233,7 +234,8 @@ class ConvertField extends Command
                     } else if($newType == Form::_HISTORICAL_DATE) {
                         $field['options']['ShowPrefix'] = 0;
                         $field['options']['ShowEra'] = 0;
-                        //TODO::DEFAULT
+                        $field['default']['prefix'] = '';
+                        $field['default']['era'] = 'CE';
 
                         $crt->addJSONColumn($fid, $tmpName);
                         $records = $recModel->newQuery()->whereNotNull($flid)->get();
@@ -252,8 +254,9 @@ class ConvertField extends Command
                     break;
                 case Form::_DATETIME:
                     if($newType == Form::_DATE) {
-                        //No Field Options Modifications
-                        //TODO::DEFAULT
+                        unset($field['default']['hour']);
+                        unset($field['default']['minute']);
+                        unset($field['default']['second']);
 
                         $crt->addDateColumn($fid, $tmpName);
                         $records = $recModel->newQuery()->whereNotNull($flid)->get();
@@ -268,7 +271,11 @@ class ConvertField extends Command
                     } else if($newType == Form::_HISTORICAL_DATE) {
                         $field['options']['ShowPrefix'] = 0;
                         $field['options']['ShowEra'] = 0;
-                        //TODO::DEFAULT
+                        unset($field['default']['hour']);
+                        unset($field['default']['minute']);
+                        unset($field['default']['second']);
+                        $field['default']['prefix'] = '';
+                        $field['default']['era'] = 'CE';
 
                         $crt->addJSONColumn($fid, $tmpName);
                         $records = $recModel->newQuery()->whereNotNull($flid)->get();
@@ -290,7 +297,8 @@ class ConvertField extends Command
                     if($newType == Form::_DATE) {
                         unset($field['options']['ShowPrefix']);
                         unset($field['options']['ShowEra']);
-                        //TODO::DEFAULT
+                        unset($field['default']['prefix']);
+                        unset($field['default']['era']);
 
                         $crt->addDateColumn($fid, $tmpName);
                         $records = $recModel->newQuery()->whereNotNull($flid)->get();
@@ -321,7 +329,11 @@ class ConvertField extends Command
                     } else if($newType == Form::_DATETIME) {
                         unset($field['options']['ShowPrefix']);
                         unset($field['options']['ShowEra']);
-                        //TODO::DEFAULT
+                        unset($field['default']['prefix']);
+                        unset($field['default']['era']);
+                        $field['default']['hour'] = '';
+                        $field['default']['minute'] = '';
+                        $field['default']['second'] = '';
 
                         $crt->addDateTimeColumn($fid, $tmpName);
                         $records = $recModel->newQuery()->whereNotNull($flid)->get();
