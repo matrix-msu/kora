@@ -1,7 +1,7 @@
 @extends('app', ['page_title' => 'Update kora', 'page_class' => 'update'])
 
 @section('aside-content')
-    <?php $openManagement = true ?>
+    @php $openManagement = true; @endphp
     @include('partials.sideMenu.dashboard', ['openDashboardDrawer' => false, 'openProjectDrawer' => false])
 @stop
 

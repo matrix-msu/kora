@@ -24,7 +24,7 @@
 @endsection
 
 @section('aside-content')
-    <?php $openManagement = false; ?>
+	@php $openManagement = false; @endphp
     @include('partials.sideMenu.dashboard', ['openDashboardDrawer' => false, 'openProjectDrawer' => false])
 @stop
 
