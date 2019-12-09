@@ -216,16 +216,6 @@ Route::group(['middleware' => 'web'], function () {
 	Route::patch('/toggleOnboarding', 'Auth\UserController@toggleOnboarding');
 	Route::patch('/user/validateEditProfile', 'Auth\UserController@validateEditProfile');
 
-//metadata routes
-    Route::get('/projects/{pid}/forms/{fid}/metadata/setup', 'MetadataController@index');
-    Route::post('/projects/{pid}/forms/{fid}/metadata/setup', 'MetadataController@store');
-    Route::post('/projects/{pid}/forms/{fid}/metadata/setup/resource', 'MetadataController@updateResource');
-    Route::post('/projects/{pid}/forms/{fid}/metadata/setup/primary', 'MetadataController@makePrimary');
-    Route::delete('/projects/{pid}/forms/{fid}/metadata/setup', 'MetadataController@destroy');
-    Route::get('/projects/{pid}/forms/{fid}/metadata/public', 'MetadataController@records2');
-    Route::get('/projects/{pid}/forms/{fid}/metadata/public/{resource}', 'MetadataController@singleRecord');
-    Route::post('/projects/{pid}/forms/{fid}/metadata/massassign', 'MetadataController@massAssign');
-
 //install routes
     Route::get('/helloworld', 'InstallController@helloworld');
     Route::get('/install', 'InstallController@index');

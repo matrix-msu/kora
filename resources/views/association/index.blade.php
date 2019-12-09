@@ -135,7 +135,7 @@
 
     <script type="text/javascript">
         var CSRFToken = '{{ csrf_token() }}';
-        var pid = '{{ $project->pid }}';
+        var pid = '{{ $project->id }}';
         var createAssociationPath = '{{ action('AssociationController@create', ["pid" => $form->project_id, "fid" => $form->id]) }}';
         var requestAssociationPath = '{{ action('AssociationController@requestAccess', ["pid" => $form->project_id, "fid" => $form->id]) }}';
         var destroyAssociationPath = '{{ action('AssociationController@destroy', ["pid" => $form->project_id, "fid" => $form->id]) }}';

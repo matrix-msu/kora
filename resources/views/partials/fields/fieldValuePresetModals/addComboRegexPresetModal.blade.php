@@ -12,7 +12,7 @@
             }
         } else if($index=="Shared") {
             foreach($sets as $preset) {
-                $presetFormattedOne[$preset->preset] = $preset->name." [PID:".$preset->pid."]";
+                $presetFormattedOne[$preset->preset] = $preset->name." [PID:".$preset->project_id."]";
             }
         }
     }
@@ -29,7 +29,7 @@
 		}
 	} else if ($index=="Shared") {
 		foreach($sets as $preset) {
-			$presetFormattedTwo[$preset->preset] = $preset->name." [PID:".$preset->pid."]";
+			$presetFormattedTwo[$preset->preset] = $preset->name." [PID:".$preset->project_id."]";
 		}
     	}
     }

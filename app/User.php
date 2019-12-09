@@ -715,7 +715,7 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
      */
     public function removeCustomForm($fid) {
         $form = FormController::getForm($fid);
-        $pid = $form->pid;
+        $pid = $form->project_id;
 
         $check = DB::table("form_custom")->where("user_id", "=", $this->id)
             ->where("project_id", "=", $pid)->first();

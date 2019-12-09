@@ -203,7 +203,7 @@ class FieldValuePresetController extends Controller {
         $preset = FieldValuePreset::find($id);
 
         //If Stock preset
-        if($preset->pid == null) {
+        if($preset->project_id == null) {
             if(Auth::user()->id != 1) {
                 return response()->json(["status"=>false,"message"=>"preset_not_admin"],500);
             } else {
