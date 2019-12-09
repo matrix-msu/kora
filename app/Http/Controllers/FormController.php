@@ -205,7 +205,7 @@ class FormController extends Controller {
 
         flash()->overlay("Your form has been successfully updated!","Good Job!");
 
-        return redirect('projects/'.$form->project_id.'/forms/'.$form->fid)->with('k3_global_success', 'form_updated');
+        return redirect('projects/'.$form->project_id.'/forms/'.$form->id)->with('k3_global_success', 'form_updated');
 	}
 
     /**

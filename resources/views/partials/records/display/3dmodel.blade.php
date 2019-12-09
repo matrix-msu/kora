@@ -20,7 +20,7 @@
       </div>
       <div class="field-sidebar model-sidebar-js">
         <div class="top">
-            <a href="{{ action('FieldController@singleModel', ['pid' => $form->project_id, 'fid' => $form->id, 'rid' => $record->rid, 'flid' => $flid]) }}" target="_blank" class="field-btn tooltip" tooltip="Open in New Tab">
+            <a href="{{ action('FieldController@singleModel', ['pid' => $form->project_id, 'fid' => $form->id, 'rid' => $record->id, 'flid' => $flid]) }}" target="_blank" class="field-btn tooltip" tooltip="Open in New Tab">
                 <i class="icon icon-external-link"></i>
             </a>
             <a href="{{$model_link}}" class="field-btn tooltip" tooltip="Download Model">
