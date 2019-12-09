@@ -1,4 +1,4 @@
-<?php $url = action('RevisionController@rollback'); ?>
+@php $url = action('RevisionController@rollback'); @endphp
 <div class="modal modal-js modal-mask restore-fields-modal-js">
     <div class="content small">
         <div class="header">

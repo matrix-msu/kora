@@ -1,4 +1,4 @@
-<?php
+@php
 $oneName = $field['one']['name'];
 $twoName = $field['two']['name'];
 $oneType = $field['one']['type'];
@@ -7,7 +7,7 @@ $oneFlid = $field['one']['flid'];
 $twoFlid = $field['two']['flid'];
 
 $items = $typedField->retrieve($flid, $form->id, $value);
-?>
+@endphp
 <div class="combo-list-display">
     <div>
         <span class="combo-column combo-title">{{$oneName}}</span>
@@ -47,11 +47,11 @@ $items = $typedField->retrieve($flid, $form->id, $value);
                 @endphp
                 <span class="combo-column">{{ $date }}</span>
             @elseif($oneType=='Integer' | $oneType=='Float')
-                <?php
+                @php
                 $unit = App\KoraFields\ComboListField::getComboFieldOption($field,'Unit','one');
                 if($unit!=null && $unit!='')
                     $valueOne .= ' '.$unit;
-                ?>
+                @endphp
                 <span class="combo-column">{{$valueOne}}</span>
             @elseif($oneType=='Multi-Select List' | $oneType=='Generated List')
                 <span class="combo-column">
@@ -89,12 +89,12 @@ $items = $typedField->retrieve($flid, $form->id, $value);
                 @endphp
                 <span class="combo-column">{{ $date }}</span>
             @elseif($twoType=='Integer' | $twoType=='Float')
-                <?php
+                @php
                 $unit = App\KoraFields\ComboListField::getComboFieldOption($field,'Unit','two');
                 if($unit!=null && $unit!=''){
                     $valueTwo .= ' '.$unit;
                 }
-                ?>
+                @endphp
                 <span class="combo-column">{{$valueTwo}}</span>
             @elseif($twoType=='Multi-Select List' | $twoType=='Generated List')
                 <span class="combo-column">

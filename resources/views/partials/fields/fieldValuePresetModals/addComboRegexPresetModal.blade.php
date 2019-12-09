@@ -1,4 +1,4 @@
-<?php
+@php
     dd($presets);
     $presetFormattedOne = array(''=>'');
     foreach($presets['one'] as $index => $sets) {
@@ -19,21 +19,21 @@
 
     $presetFormattedTwo = array(''=>'');
     foreach($presets['two'] as $index => $sets) {
-	if($index=="Stock") {
-		foreach($sets as $preset) {
-			$presetFormattedTwo[$preset->preset] = $preset->name." [Stock]";
-		}
-	} else if($index=="Project") {
-		foreach($sets as $preset) {
-			$presetFormattedTwo[$preset->preset] = $preset->name;
-		}
-	} else if ($index=="Shared") {
-		foreach($sets as $preset) {
-			$presetFormattedTwo[$preset->preset] = $preset->name." [PID:".$preset->project_id."]";
-		}
+        if($index=="Stock") {
+            foreach($sets as $preset) {
+                $presetFormattedTwo[$preset->preset] = $preset->name." [Stock]";
+            }
+        } else if($index=="Project") {
+            foreach($sets as $preset) {
+                $presetFormattedTwo[$preset->preset] = $preset->name;
+            }
+        } else if ($index=="Shared") {
+            foreach($sets as $preset) {
+                $presetFormattedTwo[$preset->preset] = $preset->name." [PID:".$preset->project_id."]";
+            }
     	}
     }
-?>
+@endphp
 
 <div class="modal modal-js modal-mask add-regex-preset-modal-js">
     <div class="content">

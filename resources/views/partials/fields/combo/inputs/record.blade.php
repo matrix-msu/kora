@@ -43,25 +43,25 @@
 
                     <select id="default_day_{{$fnum}}_{{$flid}}" name="default_day_{{$fnum}}" class="single-select" data-placeholder="Select a Day">
                         <option value=""></option>
-                        <?php
+                        @php
                         $i = 1;
                         while ($i <= 31) {
                             echo "<option value=" . $i . ">" . $i . "</option>";
                             $i++;
                         }
-                        ?>
+                        @endphp
                     </select>
 
                     <select id="default_year_{{$fnum}}_{{$flid}}" name="default_year_{{$fnum}}" class="single-select preset-clear-chosen-js" data-placeholder="Select a Year">
                         <option value=""></option>
-                        <?php
+                        @php
                         $i = $field[$fnum]['options']['Start'];
                         $j = $field[$fnum]['options']['End'];
                         while ($i <= $j) {
                             echo "<option value=" . $i . ">" . $i . "</option>";
                             $i++;
                         }
-                        ?>
+                        @endphp
                     </select>
                 </div>
                 @if($type=='Historical Date')

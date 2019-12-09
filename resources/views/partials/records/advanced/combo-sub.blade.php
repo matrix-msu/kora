@@ -39,27 +39,27 @@
     <div class="form-group {{ $cfnum != 'one' ? 'mt-sm' : null }}">
         <select name="{{$field[$cfnum]['flid']}}_{{$cfnum}}_day" class="single-select" data-placeholder="Select a Start Day">
             <option value=""></option>
-            <?php
+            @php
             $i = 1;
             while ($i <= 31) {
                 echo "<option value=" . $i . ">" . $i . "</option>";
                 $i++;
             }
-            ?>
+            @endphp
         </select>
     </div>
 
     <div class="form-group {{ $cfnum != 'one' ? 'mt-sm' : null }}">
         <select name="{{$field[$cfnum]['flid']}}_{{$cfnum}}_year" class="single-select" data-placeholder="Select a Start Year">
             <option value=""></option>
-            <?php
+            @php
             $i = \App\KoraFields\ComboListField::getComboFieldOption($field,'Start',$cfnum);
             $j = \App\KoraFields\ComboListField::getComboFieldOption($field,'End',$cfnum);
             while ($i <= $j) {
                 echo "<option value=" . $i . ">" . $i . "</option>";
                 $i++;
             }
-            ?>
+            @endphp
         </select>
     </div>
     @break
@@ -84,7 +84,7 @@
     @case('Associator')
     <div class="form-group {{ $cfnum != 'one' ? 'mt-sm' : null }}">
         {!! Form::label($field[$cfnum]['flid']."_".$cfnum."_input[]",$cftitle) !!}
-        <?php
+        @php
         $asc = new \App\Http\Controllers\AssociatorSearchController();
         $request = new \Illuminate\Http\Request();
         $request->replace(['keyword' => '']);
@@ -95,7 +95,7 @@
             $preview = implode(" | ", $prevArray);
             $rids[$kid] = "$kid: $preview";
         }
-        ?>
+        @endphp
         {!! Form::select($field[$cfnum]['flid'] . "_".$cfnum."_input[]", $rids, '', ["class" => "multi-select", "Multiple"]) !!}
     </div>
     @break

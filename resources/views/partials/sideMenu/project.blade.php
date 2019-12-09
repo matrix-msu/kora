@@ -15,9 +15,9 @@
       </a>
     </li>
     @if (\Auth::user()->admin ||  \Auth::user()->isProjectAdmin(\App\Http\Controllers\ProjectController::getProject($pid)))
-      <?php
+      @php
       $allowed_forms = \Auth::user()->allowedForms($pid);
-      ?>
+      @endphp
       <li class="content-link content-link-js" data-page="form-create">
         <a href="{{action('FormController@create', ['pid'=>$pid])}}">Create New Form</a>
       </li>
@@ -33,7 +33,7 @@
             <i class="icon icon-plus"></i>
           </a>
 
-		  <?php
+		  @php
 		  // Sort forms by name
 		  $name_fid_forms = [];
 
@@ -43,7 +43,7 @@
 		  }
 
 		  asort($name_fid_forms, SORT_NATURAL | SORT_FLAG_CASE);
-		  ?>
+          @endphp
 
           <ul class="drawer-deep-menu drawer-deep-menu-js">
             @foreach($name_fid_forms as $form_fid => $form_name)

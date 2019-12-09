@@ -6,7 +6,7 @@
 @stop --}}
 
 @section('fieldOptions')
-    <?php
+    @php
     $oneType = $field['one']['type'];
     $twoType = $field['two']['type'];
     $oneName = $field['one']['name'];
@@ -16,7 +16,7 @@
     $defsTwo = $field['two']['default'];
 
     $supportedViews = App\KoraFields\ComboListField::$supportedViews;
-    ?>
+    @endphp
 
     {!! Form::hidden('typeone',$oneType) !!}
     {!! Form::hidden('typetwo',$twoType) !!}

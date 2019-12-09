@@ -1,4 +1,4 @@
-<?php
+@php
     //This being done on-the-fly on a per token basis
     //This section formats display strings for the token types
     $typesHyphen = array();
@@ -23,7 +23,7 @@
 
     $typesHyphen = implode(' - ', $typesHyphen);
     $typesDesc = implode(', ', $typesDesc);
-?>
+@endphp
 
 <div class="token card all {{ $index == 0 ? 'active' : '' }}
     {{ $token->search ? 'search' : '' }}

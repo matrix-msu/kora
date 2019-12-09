@@ -3,7 +3,7 @@
     <span class="error-message"></span>
     {!! Form::hidden($flid, true, ['id' => $flid]) !!}
 
-    <?php
+    @php
     $oneType = $field['one']['type'];
     $twoType = $field['two']['type'];
     $oneName = $field['one']['name'];
@@ -14,7 +14,7 @@
     } else {
         $items = $field['one']['default'];
     }
-    ?>
+    @endphp
 
     <div class="combo-list-display combo-list-display-js preset-clear-combo-js">
         <div class="mb-sm">

@@ -1,4 +1,4 @@
-<?php
+@php
     if($editRecord && !is_null($record->{$flid})) {
         $locations = json_decode($record->{$flid},true);
     } else {
@@ -6,7 +6,7 @@
     }
 
     $dataView = $field['options']['DataView'];
-?>
+@endphp
 
 <div class="form-group geolocator-form-group geolocator-form-group-js geolocator-{{$flid}}-js mt-xxxl">
     <label>@if($field['required'])<span class="oval-icon"></span> @endif{{$field['name']}}</label>

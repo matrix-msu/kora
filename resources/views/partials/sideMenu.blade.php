@@ -1,9 +1,9 @@
-<?php
+@php
   $sidebarCookie = false;
   if(isset($_COOKIE['sidebar']) && $_COOKIE['sidebar'] == "1") { $sidebarCookie = true; }
-?>
+@endphp
 
-<div class="side-menu side-menu-js <?php if ($sidebarCookie) { echo 'active'; } ?>">
+<div class="side-menu side-menu-js @php if ($sidebarCookie) { echo 'active'; } @endphp">
   <div class="blanket blanket-js"></div>
   <aside class="aside-content">
     <div class="header-elements">
