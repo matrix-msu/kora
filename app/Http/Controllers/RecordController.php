@@ -445,12 +445,14 @@ class RecordController extends Controller {
         $kid = "$pid-$fid-$rid";
         $record = self::getRecord($kid);
         $oldRecordCopy = $record->replicate();
+        $notNulls = [];
 
         foreach($request->all() as $key => $value) {
             //Skip request variables that are not fields
             if(!array_key_exists($key,$fieldsArray))
                 continue;
 
+            $notNulls[] = $key;
             $field = $fieldsArray[$key];
             $field['flid'] = $key;
             $request->rid = $record->id;
@@ -461,6 +463,14 @@ class RecordController extends Controller {
               $processedData = $form->getFieldModel($field['type'])->save(array('fid'=>$fid,'rid'=>$request->rid,'field' => $field, 'values'=>$processedData));
             }
             $record->{$key} = $processedData;
+        }
+
+        //We need to see what fields were not provided data, to make sure not we are nulling out fields properly
+        if(!isset($request->api) || !$request->api) {
+            foreach($fieldsArray as $flid => $field) {
+                if(!in_array($flid, $notNulls))
+                    $record->{$flid} = null;
+            }
         }
 
         $record->save();
