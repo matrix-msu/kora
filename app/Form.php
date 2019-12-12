@@ -32,7 +32,7 @@ class Form extends Model {
     ];
 
     /**
-     * @var string - These are the possible field types at the moment  //TODO::NEWFIELD
+     * @var string - These are the possible field types at the moment
      */
     const _TEXT = "Text";
     const _BOOLEAN = "Boolean";
@@ -57,7 +57,7 @@ class Form extends Model {
     /**
      * @var array - This is an array of field type values for creation
      */
-    static public $validFieldTypes = [ //TODO::NEWFIELD
+    static public $validFieldTypes = [
         'Text Fields' => array(
             self::_TEXT => self::_TEXT,
             self::_RICH_TEXT => self::_RICH_TEXT
@@ -96,7 +96,7 @@ class Form extends Model {
      *
      * NOTE: We currently support filter types of simple values, and JSON types that are simply an array of values
      */
-    static public $validFilterFields = [ //TODO::NEWFIELD
+    static public $validFilterFields = [
         self::_TEXT,
         self::_BOOLEAN,
         self::_LIST,
@@ -112,7 +112,7 @@ class Form extends Model {
     /**
      * @var array - This is an array of field types that can be previewed in assoc
      */
-    static public $validAssocFields = [ //TODO::NEWFIELD
+    static public $validAssocFields = [
         self::_TEXT,
         self::_LIST,
         self::_INTEGER,
@@ -125,7 +125,7 @@ class Form extends Model {
     /**
      * @var array - Maps field constant names to model name
      */
-    public static $fieldModelMap = [ //TODO::NEWFIELD
+    public static $fieldModelMap = [
         self::_TEXT => "TextField",
         self::_BOOLEAN => "BooleanField",
         self::_RICH_TEXT => "RichTextField",
@@ -150,7 +150,7 @@ class Form extends Model {
     /**
      * @var array - Fields that need to be decoded coming out of the DB.
      */
-    static public $jsonFields = [ //TODO::NEWFIELD
+    static public $jsonFields = [
         self::_DOCUMENTS,
         self::_GALLERY,
         self::_PLAYLIST,
@@ -166,7 +166,7 @@ class Form extends Model {
     /**
      * @var array - Fields that need their table updated when options updated.
      */
-    static public $enumFields = [ //TODO::NEWFIELD
+    static public $enumFields = [
         self::_LIST
     ];
 

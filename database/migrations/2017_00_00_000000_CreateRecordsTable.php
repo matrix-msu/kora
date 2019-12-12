@@ -70,7 +70,6 @@ class CreateRecordsTable extends Migration {
         Schema::rename($this->tablePrefix . $fid, $newSlug . $fid);
     }
 
-    //TODO::NEWFIELD
     public function addTextColumn($fid, $slug) {
         Schema::table($this->tablePrefix . $fid, function(Blueprint $table) use ($slug) {
             $table->text($slug)->nullable();

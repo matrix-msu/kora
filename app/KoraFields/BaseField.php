@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 
 abstract class BaseField extends Model {
 
-    /* //TODO::NEWFIELD
+    /*
     |--------------------------------------------------------------------------
     | Base Field
     |--------------------------------------------------------------------------
@@ -91,7 +91,6 @@ abstract class BaseField extends Model {
      */
     abstract public function validateField($flid, $field, $request, $forceReq = false);
 
-    //TODO::NEWFIELD formerly createNewRecordField
     //Must be in format of JSON export in kora
     /**
      * Formats data for record entry.
