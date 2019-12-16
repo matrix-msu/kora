@@ -37,7 +37,7 @@
         var firstLoc = $geolocator.children('.geolocator-location-js').first();
         var mapRecord = L.map('map'+mapID).setView([firstLoc.attr('loc-x'), firstLoc.attr('loc-y')], 13);
         mapRecord.scrollWheelZoom.disable();
-        L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png?{foo}', {foo: 'bar'}).addTo(mapRecord);
+        L.tileLayer('https://{s}.tile.osm.org/{z}/{x}/{y}.png').addTo(mapRecord);
 
         var markers = [];
         $geolocator.children('.geolocator-location-js').each(function() {
@@ -48,8 +48,10 @@
         });
 
         // Zoom map to fit all locations
-        var group = new L.featureGroup(markers);
-        mapRecord.fitBounds(group.getBounds());
-        mapRecord.zoomOut();
+        if(markers.length>1) {
+            var group = new L.featureGroup(markers);
+            mapRecord.fitBounds(group.getBounds());
+            mapRecord.zoomOut();
+        }
     </script>
 @stop

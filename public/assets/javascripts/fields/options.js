@@ -1499,7 +1499,7 @@ Kora.Fields.Options = function(fieldType) {
         case 'Generated List':
             initializeList();
             break;
-        case 'Generated List Record':
+        case 'Generated List Record': //Rare exception to handle gen list interactions that share code between field options inputs and record creation inputs
             initializeList('GenList');
             break;
         case 'List':

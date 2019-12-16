@@ -453,7 +453,7 @@ class AssociatorField extends BaseField {
             array_push($preview, "No Preview Field Available");
         }
 
-        $html = "<div class='header'><a class='mt-xxxs documents-link underline-middle-hover' href='".url("projects/".$pid."/forms/".$fid."/records/".$rid)."'>".$kid."</a><div class='card-toggle-wrap'><a class='card-toggle assoc-card-toggle-js'><i class='icon icon-chevron active'></i></a></div></div><div class='body'><div class='overlay'></div>";
+        $html = "<div class='header'><a class='mt-xxxs associator-link underline-middle-hover' href='".url("projects/".$pid."/forms/".$fid."/records/".$rid)."'>".$kid."</a><div class='card-toggle-wrap'><a class='card-toggle assoc-card-toggle-js'><i class='icon icon-chevron active'></i></a></div></div><div class='body'><div class='overlay'></div>";
 
         foreach($preview as $i=>$val) {
             if(isset($prevField[$i]))

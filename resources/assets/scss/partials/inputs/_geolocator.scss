@@ -96,3 +96,81 @@
     }
   }
 }
+
+.geolocator-map {
+  border-radius: 5px;
+  box-shadow: 0 3px 5px 0 rgba(57,67,89,0.05);
+  height: 270px;
+  overflow: hidden;
+
+  .leaflet-bar {
+    box-shadow: 0 3px 5px 0 palette('box-shadow', base, .05);
+  }
+
+  .lower-right-corner {
+    bottom: 0;
+    position: absolute;
+    right: 0;
+  }
+
+  .modal {
+    .content {
+      display: block;
+      overflow-y: unset;
+    }
+  }
+
+  .upper-right-corner {
+    position: absolute;
+    right: 0;
+    top: 0;
+  }
+}
+
+.geolocator-map-modal {
+  .content {
+    max-width: none;
+    padding: 0;
+    height: 90vh;
+    width: 100vw;
+
+    .body {
+      height: 100%;
+      padding: 0;
+    }
+  }
+
+  .geolocator-modal-map {
+    height: 100%;
+  }
+
+  .modal-toggle {
+    background: palette('white', base);
+    border: 1px solid palette('gray', slate, .1);
+    border-radius: 5px;
+    box-shadow: 0 3px 5px 0 palette('gray', slate, .05);
+    cursor: pointer;
+    display: flex;
+    height: 32px;
+    position: absolute;
+    right: 10px;
+    top: 10px;
+    @include transition();
+    width: 32px;
+    z-index: 1;
+
+    .icon {
+      margin: auto;
+    }
+
+    &:hover {
+      background: #f4f4f4;
+    }
+
+    &-circle {
+      border-radius: 18px;
+      height: 36px;
+      width: 36px;
+    }
+  }
+}

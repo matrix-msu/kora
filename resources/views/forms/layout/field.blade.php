@@ -16,7 +16,7 @@
         </div>
       @endif
 
-      @if($field['type']=='Associator' and sizeof(\App\Http\Controllers\AssociationController::getAvailableAssociations($fid))==0)
+      @if($field['type']==\App\Form::_ASSOCIATOR and sizeof(\App\Http\Controllers\AssociationController::getAvailableAssociations($fid))==0)
         {{-- TODO: Change this to indicate action needs to be taken --}}
         <a class="title underline-middle-hover" href="{{ action('FieldController@show', ['pid' => $pid, 'fid' => $fid, 'flid' => $flid]) }}">
           <span class="name">{{$field['name']}}</span>

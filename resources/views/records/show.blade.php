@@ -32,7 +32,6 @@
                 @endif
                 <span>Record: {{$record->kid}}</span>
             </h1>
-            {{--TODO--}}
             <p class="description">
                 @if(\Auth::user()->canModifyRecords($form) || \Auth::user()->isOwner($record))
                     <a class="underline-middle-hover" href="{{ action('RecordController@edit',

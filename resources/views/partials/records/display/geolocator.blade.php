@@ -12,7 +12,7 @@
     @endforeach
 @else
     <div class="sidebar-container">
-        <div class="field-sidebar">
+        <div class="field-sidebar field-sidebar-js">
             <div class="top">
                 <a target="_blank" href="{{ action('FieldAjaxController@singleGeolocator', ['pid' => $form->project_id, 'fid' => $form->id, 'rid' => $record->id, 'flid' => $flid]) }}" class="field-btn external-button-js tooltip" tooltip="Open in New Tab">
                     <i class="icon icon-external-link"></i>

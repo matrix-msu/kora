@@ -104,13 +104,4 @@
       box-shadow: 0 7px 10px 0 palette('gray', slate, .05);
     }
   }
-
-  // Document specific
-  &.document-input-form-group {
-    .file-card {
-      .tooltip:hover::after {
-        left: -57px;
-      }
-    }
-  }
 }

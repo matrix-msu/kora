@@ -1,0 +1,94 @@
+.audio-field-display {
+  .audio-container {
+    margin: 0 10px 7px;
+
+    .audio-button {
+      color: palette('green', accent);
+      cursor: pointer;
+      display: none;
+      font-size: 32px;
+      height: 32px;
+      transform-origin: center;
+      @include transition();
+      vertical-align: middle;
+      width: 32px;
+
+      &:hover {
+        transform: scale(1.25);
+      }
+
+      &.active {
+        display: inline-block;
+      }
+    }
+
+    .slider {
+      display: inline-block;
+      position: relative;
+      vertical-align: middle;
+      width: calc(100% - 60px);
+
+      .current-time,
+      .duration-time {
+        display: inline-block;
+        vertical-align: middle;
+      }
+
+      .slider-bar {
+        background: palette('gray', slate, .05);
+        display: inline-block;
+        height: 4px;
+        width: calc(100% - 120px);
+        vertical-align: middle;
+      }
+
+      .slider-button {
+        cursor: pointer;
+        left: calc(0% + 25px);
+        padding: 10px;
+        position: absolute;
+        top: -6px;
+        transition: .2s padding ease-in-out;
+        z-index: 1;
+
+        .inner-button {
+          background: palette('green', accent);
+          border-radius: 100%;
+          height: 14px;
+          transition: .2s height ease-in-out, .2s width ease-in-out;
+          width: 14px;
+        }
+
+        &:hover {
+          padding: 8px;
+
+          .inner-button {
+            height: 18px;
+            width: 18px;
+          }
+        }
+      }
+
+      .slider-button-container {
+        padding: 10px;
+      }
+
+      .slider-progress-bar {
+        background: palette('green', accent, .3);
+        height: 4px;
+        left: 45px;
+        position: absolute;
+        top: 9px;
+        width: 0;
+      }
+    }
+  }
+
+  .audio-info {
+    margin: 5px 0 5px 10px;
+  }
+
+  .audio-info:last-of-type {
+    margin: 5px 0 15px 10px;
+  }
+}
