@@ -43,7 +43,7 @@ class FieldController extends Controller {
 
         $form = FormController::getForm($fid);
         $validFieldTypes = Form::$validFieldTypes;
-        $validComboListFieldTypes = \App\KoraFields\ComboListField::$validComboListFieldTypes;
+        $validComboListFieldTypes = Form::$validComboListFieldTypes;
 
         return view('fields.create', compact('form','pageIndex', 'validFieldTypes', 'validComboListFieldTypes'));
 	}
@@ -105,10 +105,10 @@ class FieldController extends Controller {
 
         //Field Specific Stuff
         $fieldMod = $form->getFieldModel($request->type);
-        $fieldMod->addDatabaseColumn($form->id, $flid, $options);
+        $fieldMod->addDatabaseColumn($form->id, $flid, $fieldMod::FIELD_DATABASE_METHOD, $options);
         if(!$request->advanced) {
             if($request->type == Form::_COMBO_LIST) {
-                foreach (['one', 'two'] as $seq) {
+                foreach(['one', 'two'] as $seq) {
                     $field[$seq]['options'] = $fieldMod->getDefaultOptions($options[$seq]['type']);
                 }
             } else {
@@ -244,7 +244,7 @@ class FieldController extends Controller {
         if($request->type == Form::_COMBO_LIST) {
             $comboPrefix['tablePrefix'] = $flid;
 
-            foreach (['one' => 1, 'two' => 2] as $seq => $num) {
+            foreach(['one' => 1, 'two' => 2] as $seq => $num) {
                 $cFlid = slugFormat($field[$seq]['name'], $form->project_id, $form->id);
                 $cNewFlid = slugFormat($request->{'cfname' . $num}, $form->project_id, $form->id);
                 if($cFlid != $cNewFlid) {
@@ -260,7 +260,6 @@ class FieldController extends Controller {
         //Need to reindex the field if the name has changed. This will also update the column name.
         if($newFlid!=$flid) {
             $form->updateField($flid, $field, $newFlid, $comboPrefix);
-            $flid = $newFlid;
         } else {
             $form->updateField($flid, $field);
         }

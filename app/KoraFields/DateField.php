@@ -25,6 +25,11 @@ class DateField extends BaseField {
     const FIELD_DISPLAY_VIEW = "partials.records.display.date";
 
     /**
+     * @var string - Method from CreateRecordsTable() for adding to DB
+     */
+    const FIELD_DATABASE_METHOD = 'addDateColumn';
+
+    /**
      * Get the field options view.
      *
      * @return string - The view
@@ -67,19 +72,6 @@ class DateField extends BaseField {
      */
     public function getFieldDisplayView() {
         return self::FIELD_DISPLAY_VIEW;
-    }
-
-    /**
-     * Gets the default options string for a new field.
-     *
-     * @param  int $fid - Form ID
-     * @param  string $slug - Name of database column based on field internal name
-     * @param  array $options - Extra information we may need to set up about the field
-     * @return array - The default options
-     */
-    public function addDatabaseColumn($fid, $slug, $options = null) {
-        $table = new \CreateRecordsTable();
-        $table->addDateColumn($fid, $slug);
     }
 
     /**

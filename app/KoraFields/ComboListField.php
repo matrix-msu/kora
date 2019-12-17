@@ -1,6 +1,7 @@
 <?php namespace App\KoraFields;
 
 use App\Form;
+use App\Http\Controllers\FormController;
 use App\Record;
 use App\Http\Controllers\FieldController;
 use Illuminate\Http\Request;
@@ -27,67 +28,22 @@ class ComboListField extends BaseField {
     const FIELD_DISPLAY_VIEW = "partials.records.display.combolist";
 
     /**
-     * @var array - This is an array of combo list field type values for creation
+     * @var string - Method from CreateRecordsTable() for adding to DB
      */
-    static public $validComboListFieldTypes = [
-        'Text Fields' => array(
-            'Text' => 'Text',
-            'Integer' => 'Integer',
-            'Float' => 'Float'
-        ),
-        'Date Fields' => array(
-            'Date' => 'Date',
-            'Historical Date' => 'Historical Date'
-        ),
-        'List Fields' => array(
-            'List' => 'List',
-            'Multi-Select List' => 'Multi-Select List',
-            'Generated List' => 'Generated List'
-        ),
-        'Specialty Fields' => array(
-            'Boolean' => 'Boolean',
-            'Associator' => 'Associator'
-        )
-    ];
+    const FIELD_DATABASE_METHOD = 'addJSONColumn';
 
-    static public $supportedViews = [
-        'Text' => 'text',
-        'List' => 'list',
-        'Integer' => 'integer',
-        'Float' => 'float',
-        'Date' => 'date',
-        'Historical Date' => 'historicdate',
-        'Multi-Select List' => 'mslist',
-        'Generated List' => 'genlist',
-        'Associator' => 'associator',
-        'Boolean' => 'boolean'
-    ];
-
-    private $fieldToDBFuncAssoc = [
-        'Text' => 'addTextColumn',
-        'List' => 'addEnumColumn',
-        'Integer' => 'addIntegerColumn',
-        'Float' => 'addDoubleColumn',
-        'Date' => 'addDateColumn',
-        'Historical Date' => 'addJSONColumn',
-        'Multi-Select List' => 'addJSONColumn',
-        'Generated List' => 'addJSONColumn',
-        'Associator' => 'addJSONColumn',
-        'Boolean' => 'addBooleanColumn'
-    ];
-
-    private $fieldModel = [
-        'Text' => 'App\KoraFields\TextField',
-        'List' => 'App\KoraFields\ListField',
-        'Integer' => 'App\KoraFields\IntegerField',
-        'Float' => 'App\KoraFields\FloatField',
-        'Date' => 'App\KoraFields\DateField',
-        'Historical Date' => 'App\KoraFields\HistoricalDateField',
-        'Multi-Select List' => 'App\KoraFields\MultiSelectListField',
-        'Generated List' => 'App\KoraFields\GeneratedListField',
-        'Associator' => 'App\KoraFields\AssociatorField',
-        'Boolean' => 'App\KoraFields\BooleanField'
-    ];
+//    static public $supportedViews = [ //TODO::COMBO
+//        Form::_TEXT => 'text',
+//        Form::_LIST => 'list',
+//        Form::_INTEGER => 'integer',
+//        Form::_FLOAT => 'float',
+//        Form::_DATE => 'date',
+//        Form::_HISTORICAL_DATE => 'historicdate',
+//        Form::_MULTI_SELECT_LIST => 'mslist',
+//        Form::_GENERATED_LIST => 'genlist',
+//        Form::_ASSOCIATOR => 'associator',
+//        Form::_BOOLEAN => 'boolean'
+//    ];
 
     /**
      * Get the field options view.
@@ -135,25 +91,25 @@ class ComboListField extends BaseField {
     }
 
     /**
-     * Gets the default options string for a new field.
+     * Create DB column for this field. Combo overwrites parent to add sub field columns to combo table
      *
      * @param  int $fid - Form ID
      * @param  string $slug - Name of database column based on field internal name
+     * @param  string $method - The add column function from CreateRecordsTable to be used
      * @param  array $options - Extra information we may need to set up about the field
-     * @return array - The default options
      */
-    public function addDatabaseColumn($fid, $slug, $options = null) {
-        $table = new \CreateRecordsTable();
-        $table->addJSONColumn($fid, $slug);
+    public function addDatabaseColumn($fid, $slug, $method, $options = null) {
+        parent::addDatabaseColumn($fid, $slug, $method, $options);
 
         $ctable = new \CreateRecordsTable(
             ['tablePrefix' => $slug]
         );
         $ctable->createComboListTable($fid);
 
-        foreach ($options as $option) {
-            $method = $this->fieldToDBFuncAssoc[$option['type']];
-            $ctable->{$method}($fid, $option['name']);
+        $form = FormController::getForm($fid);
+        foreach($options as $option) {
+            $fieldMod = $form->getFieldModel($option['type']);
+            $ctable->{$fieldMod::FIELD_DATABASE_METHOD}($fid, $option['name']);
         }
     }
 
@@ -164,8 +120,8 @@ class ComboListField extends BaseField {
      * @return array - The default options
      */
     public function getDefaultOptions($type = null) {
-        $className = $this->fieldModel[$type];
-        $object = new $className;
+        $modName = 'App\\KoraFields\\'.Form::$fieldModelMap[$type];
+        $object = new $modName();
         return $object->getDefaultOptions();
     }
 
@@ -177,7 +133,7 @@ class ComboListField extends BaseField {
      * @param  int $flid - The field internal name
      * @return array - The updated field array
      */
-    public function updateOptions($field, Request $request, $flid = null, $prefix = 'records_') {
+    public function updateOptions($field, Request $request, $flid = null, $prefix = 'records_') { //TODO::COMBO
         foreach (['one', 'two'] as $seq) {
             $defaults = $parts = array();
             $type = $request->{'type' . $seq};
@@ -379,13 +335,13 @@ class ComboListField extends BaseField {
      */
     public function processRecordData($field, $value, $request) {
         // Assume formatted values
-        if (is_array($value))
+        if(is_array($value))
             return $value;
 
         $values = array();
         foreach(['_combo_one' => 'one', '_combo_two' => 'two'] as $suffix => $seq) {
             $value = $request->{$field['flid'] . $suffix};
-            if ($value == '')
+            if($value == '')
                 $value = null;
             $values[$seq] = $value;
         }
@@ -418,7 +374,7 @@ class ComboListField extends BaseField {
      *
      * @return Request - Processed data
      */
-    public function processImportData($flid, $field, $value, $request) {
+    public function processImportData($flid, $field, $value, $request) { //TODO::COMBO
         $request[$flid] = $flid;
 
         // Setting up for return request
@@ -460,7 +416,7 @@ class ComboListField extends BaseField {
      *
      * @return Request - Processed data
      */
-    public function processImportDataXML($flid, $field, $value, $request) {
+    public function processImportDataXML($flid, $field, $value, $request) { //TODO::COMBO
         $request[$flid] = $flid;
 
         // Setting up for return request
@@ -501,7 +457,7 @@ class ComboListField extends BaseField {
      *
      * @return Request - Processed data
      */
-    public function processImportDataCSV($flid, $field, $value, $request) {
+    public function processImportDataCSV($flid, $field, $value, $request) { //TODO::COMBO
         $request[$flid] = $flid;
 
         // Setting up for return request
@@ -541,7 +497,7 @@ class ComboListField extends BaseField {
      *
      * @return mixed - Processed data
      */
-    public function processDisplayData($field, $value) {
+    public function processDisplayData($field, $value) { //TODO::COMBO
         // See retrieve()
         return $value;
     }
@@ -555,7 +511,7 @@ class ComboListField extends BaseField {
      *
      * @return mixed - Processed data
      */
-    public function processXMLData($field, $value, $fid = null) {
+    public function processXMLData($field, $value, $fid = null) { //TODO::COMBO
         $form = FieldController::getField($field, '1');
         $records = $this->retrieve($field, $fid, $value);
         $xml = "<$field>";
@@ -594,7 +550,7 @@ class ComboListField extends BaseField {
      * @param  array $data - Data from the search
      * @return array - The update request
      */
-    public function setRestfulAdvSearch($data) {
+    public function setRestfulAdvSearch($data) { //TODO::COMBO
         $return = [];
 
         $flid = $data->{$flid};
@@ -620,7 +576,7 @@ class ComboListField extends BaseField {
      * @param  boolean $negative - Get opposite results of the search
      * @return array - The RIDs that match search
      */
-    public function keywordSearchTyped($flid, $arg, $recordMod, $form, $negative = false) {
+    public function keywordSearchTyped($flid, $arg, $recordMod, $form, $negative = false) { //TODO::COMBO
         if($negative)
             $param = 'NOT LIKE';
         else
@@ -659,7 +615,7 @@ class ComboListField extends BaseField {
      * @param  boolean $negative - Get opposite results of the search
      * @return array - The RIDs that match search
      */
-    public function advancedSearchTyped($flid, $query, $recordMod, $form, $negative = false) {
+    public function advancedSearchTyped($flid, $query, $recordMod, $form, $negative = false) { //TODO::COMBO
         $layout = $form->layout['fields'][$flid];
 
         return DB::table($flid . $form->id)
@@ -728,7 +684,7 @@ class ComboListField extends BaseField {
      * @param  bool $blankOpt - Has blank option as first array element
      * @return array - The list options
      */
-    public static function getComboList($field, $blankOpt=false, $fnum) {
+    public static function getComboList($field, $blankOpt=false, $fnum) { //TODO::COMBO
         $options = array();
         foreach (self::getComboFieldOption($field, 'Options', $fnum) as $option) {
             $options[$option] = $option;
@@ -744,11 +700,11 @@ class ComboListField extends BaseField {
      * @param  int $seq - Sequence of sub field
      * @return array - The option
      */
-    public static function getComboFieldOption($field, $key, $seq) {
+    public static function getComboFieldOption($field, $key, $seq) { //TODO::COMBO
         return $field[$seq]['options'][$key];
     }
 
-    public function save(array $options = array()) {
+    public function save(array $options = array()) { //TODO::COMBO
         $field = $options['field'];
         $values = $options['values'];
         $table = $field['flid'] . $options['fid'];
@@ -774,7 +730,7 @@ class ComboListField extends BaseField {
         }
     }
 
-    public function retrieve($flid, $fid, $ids) {
+    public function retrieve($flid, $fid, $ids) { //TODO::COMBO
         $this->setTable($flid . $fid);
         return $this->findMany(json_decode($ids));
     }

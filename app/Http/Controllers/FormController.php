@@ -408,7 +408,7 @@ class FormController extends Controller {
 
                 //Field Specific Stuff
                 $fieldMod = $form->getFieldModel($field['type']);
-                $fieldMod->addDatabaseColumn($form->id, $flid, $options);
+                $fieldMod->addDatabaseColumn($form->id, $flid, $fieldMod::FIELD_DATABASE_METHOD, $options);
 
                 //The HARD part about field specific options
                 if(in_array($field['type'],Form::$enumFields)) {

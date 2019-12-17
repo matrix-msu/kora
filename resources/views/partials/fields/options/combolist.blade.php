@@ -7,15 +7,13 @@
 
 @section('fieldOptions')
     @php
-    $oneType = $field['one']['type'];
-    $twoType = $field['two']['type'];
-    $oneName = $field['one']['name'];
-    $twoName = $field['two']['name'];
+        $oneType = $field['one']['type'];
+        $twoType = $field['two']['type'];
+        $oneName = $field['one']['name'];
+        $twoName = $field['two']['name'];
 
-    $defsOne = $field['one']['default'];
-    $defsTwo = $field['two']['default'];
-
-    $supportedViews = App\KoraFields\ComboListField::$supportedViews;
+        $defsOne = $field['one']['default'];
+        $defsTwo = $field['two']['default'];
     @endphp
 
     {!! Form::hidden('typeone',$oneType) !!}
@@ -36,15 +34,15 @@
             <label>Field Options for "{{ $oneName }}"</label>
             <div class="spacer"></div>
         </div>
-        @foreach($supportedViews as $type => $view)
-            @if($oneType == $type)
-                @include(
-                    'partials.fields.options.defaults.' . $view,
-                    ['field'=>$field['one'], 'seq' => 'one']
-                )
-                @break
-            @endif
-        @endforeach
+        @php
+            $optView = $form->getFieldModel($oneType)::FIELD_OPTIONS_VIEW;
+            $optParts = explode('.',$optView);
+            $subView = end($optParts);
+        @endphp
+        @include(
+            'partials.fields.options.defaults.' . $subView,
+            ['field'=>$field['one'], 'seq' => 'one']
+        )
     </section>
 
     <section class="combo-list-options-two">
@@ -52,15 +50,15 @@
             <label>Field Options for "{{ $twoName }}"</label>
             <div class="spacer"></div>
         </div>
-        @foreach($supportedViews as $type => $view)
-            @if($twoType == $type)
-                @include(
-                    'partials.fields.options.defaults.' . $view,
-                    ['field'=>$field['two'], 'seq' => 'two']
-                )
-                @break
-            @endif
-        @endforeach
+        @php
+            $optView = $form->getFieldModel($twoType)::FIELD_OPTIONS_VIEW;
+            $optParts = explode('.',$optView);
+            $subView = end($optParts);
+        @endphp
+        @include(
+            'partials.fields.options.defaults.' . $subView,
+            ['field'=>$field['two'], 'seq' => 'two']
+        )
     </section>
 
     <div class="form-group mt-xxxl">

@@ -29,17 +29,9 @@ abstract class FileTypeField extends BaseField {
     const _JoyentManta = "JoyentManta";
 
     /**
-     * Gets the default options string for a new field.
-     *
-     * @param  int $fid - Form ID
-     * @param  string $slug - Name of database column based on field internal name
-     * @param  array $options - Extra information we may need to set up about the field
-     * @return array - The default options
+     * @var string - Method from CreateRecordsTable() for adding to DB
      */
-    public function addDatabaseColumn($fid, $slug, $options = null) {
-        $table = new \CreateRecordsTable();
-        $table->addJSONColumn($fid, $slug);
-    }
+    const FIELD_DATABASE_METHOD = 'addJSONColumn';
 
     /**
      * Update the options for a field

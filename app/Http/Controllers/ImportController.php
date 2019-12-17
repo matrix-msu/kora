@@ -596,12 +596,12 @@ class ImportController extends Controller {
             $fieldMod = $form->getFieldModel($field['type']);
 
             if($fieldMod instanceof ComboListField) {
-                $fieldMod->addDatabaseColumn($form->id, $newFlid, [
+                $fieldMod->addDatabaseColumn($form->id, $newFlid, $fieldMod::FIELD_DATABASE_METHOD, [
                     'one' => ['type' => $field['one']['type'], 'name' => $field['one']['name']],
                     'two' => ['type' => $field['two']['type'], 'name' => $field['two']['name']],
                 ]);
             } else
-                $fieldMod->addDatabaseColumn($form->id, $newFlid);
+                $fieldMod->addDatabaseColumn($form->id, $newFlid, $fieldMod::FIELD_DATABASE_METHOD);
         }
 
         //Copy page layout, adding new field
@@ -670,12 +670,12 @@ class ImportController extends Controller {
             $fieldMod = $form->getFieldModel($field['type']);
 
             if($fieldMod instanceof ComboListField) {
-                $fieldMod->addDatabaseColumn($form->id, $newFlid, [
+                $fieldMod->addDatabaseColumn($form->id, $newFlid, $fieldMod::FIELD_DATABASE_METHOD, [
                     'one' => ['type' => $field['one']['type'], 'name' => $field['one']['name']],
                     'two' => ['type' => $field['two']['type'], 'name' => $field['two']['name']],
                 ]);
             } else
-                $fieldMod->addDatabaseColumn($form->id, $newFlid);
+                $fieldMod->addDatabaseColumn($form->id, $newFlid, $fieldMod::FIELD_DATABASE_METHOD);
         }
 
         //Copy page layout, adding new field

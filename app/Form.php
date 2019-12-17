@@ -123,6 +123,34 @@ class Form extends Model {
     ];
 
     /**
+     * @var array - This is an array of combo list field type values for creation
+     */
+    static public $validComboListFieldTypes = [
+        'Text Fields' => array(
+            self::_TEXT => self::_TEXT,
+            self::_RICH_TEXT => self::_RICH_TEXT
+        ),
+        'Number Fields' => array(
+            self::_INTEGER => self::_INTEGER,
+            self::_FLOAT => self::_FLOAT
+        ),
+        'List Fields' => array(
+            self::_LIST => self::_LIST,
+            self::_MULTI_SELECT_LIST => self::_MULTI_SELECT_LIST,
+            self::_GENERATED_LIST => self::_GENERATED_LIST,
+        ),
+        'Date Fields' => array(
+            self::_DATE => self::_DATE,
+            self::_DATETIME => self::_DATETIME,
+            self::_HISTORICAL_DATE => self::_HISTORICAL_DATE
+        ),
+        'Specialty Fields' => array(
+            self::_BOOLEAN => self::_BOOLEAN,
+            self::_ASSOCIATOR => self::_ASSOCIATOR
+        )
+    ];
+
+    /**
      * @var array - Maps field constant names to model name
      */
     public static $fieldModelMap = [
@@ -266,7 +294,7 @@ class Form extends Model {
         //Update column name in DB and page structure
         if(!is_null($newFlid)) {
             $rTable = new \CreateRecordsTable();
-            if ($comboPrefix) {
+            if($comboPrefix) {
                 $cTable = new \CreateRecordsTable($comboPrefix);
                 $cTable->renameTable($this->id, $newFlid);
             }
@@ -296,7 +324,6 @@ class Form extends Model {
      * Updates a field within a form within a combo list.
      */
     public function updateSubField($baseFlid, $flid, $newFlid=null) {
-
         //Update column name in DB
         if(!is_null($newFlid)) {
             $rTable = new \CreateRecordsTable(['tablePrefix' => $baseFlid]);
