@@ -161,8 +161,8 @@
         </div>
     </div>
 @elseif($type=='Associator')
-<div class="associator-section">
-    <div class="form-group mt-xl">
+<div class="associator-input form-group">
+    <div>
         {!! Form::label('search','Search Associations') !!}
         <input type="text" data-combo="{{$fnum}}" class="text-input assoc-search-records-js" placeholder="Enter search term or KID to find associated records (populated below)">
         <p class="sub-text mt-sm">
@@ -170,7 +170,7 @@
 	   </p>
     </div>
 
-    <div class="form-group mt-xs">
+    <div class="mt-xs">
         {!! Form::label('search','Association Results') !!}
         {!! Form::select('search[]', [], null, ['class' => 'multi-select assoc-select-records-js', 'multiple', "data-placeholder" => "Select a record association to add to defaults"]) !!}
         <p class="sub-text mt-sm">
@@ -178,7 +178,7 @@
 	   </p>
     </div>
 
-    <div class="form-group mt-xs">
+    <div class="mt-xs">
         {!! Form::label('default_'.$fnum, $cfName) !!}
         {!! Form::select('default_'.$fnum.'[]', [], null, ['id' => 'default_'.$fnum, 'class' => 'multi-select assoc-default-records-js default-input-js',
 	    'multiple', "data-placeholder" => "Search below to add associated records"]) !!}

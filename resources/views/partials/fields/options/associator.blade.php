@@ -5,8 +5,8 @@
         {!! Form::label('','Default Associations') !!}
     </div>
 
-    <div class="associator-section">
-        <div class="form-group mt-xl">
+    <div class="form-group associator-input mt-xl">
+        <div>
             {!! Form::label('search','Search Associations') !!}
             <input type="text" class="text-input assoc-search-records-js" placeholder="Enter search term or KID to find associated records (populated below)">
 
@@ -15,7 +15,7 @@
             </p>
         </div>
 
-        <div class="form-group mt-xl">
+        <div class="mt-xl">
             {!! Form::label('search','Association Results') !!}
             {!! Form::select('search[]', [], null, ['class' => 'multi-select assoc-select-records-js', 'multiple',
                 "data-placeholder" => "Select a record association to add to defaults"]) !!}
@@ -25,7 +25,7 @@
             </p>
         </div>
 
-        <div class="form-group mt-xl">
+        <div class="mt-xl">
             @php
                 $defaultArray = [];
                 if(!is_null($field['default']) && $field['default']!=''){

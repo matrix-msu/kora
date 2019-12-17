@@ -6,36 +6,42 @@
     }
     $assocLayout = [];
     $associations = \App\Http\Controllers\AssociationController::getAvailableAssociations($form->id);
+    $firstConfig = true;
 @endphp
 <div class="form-group mt-xxxl">Association Search Configuration</div>
 
-<div class="associator-section {{count($associations) == 0 ? 'search-config-empty-state' : ''}}">
+<div class="form-group associator-input {{count($associations) == 0 ? 'search-config-empty-state' : ''}}">
     @foreach($associations as $a)
         @php
-        $f = \App\Http\Controllers\FormController::getForm($a->data_form);
-        $formFieldsData = $f->layout['fields'];
-        $formFields = array();
-        foreach($formFieldsData as $aflid => $data) {
-            $formFields[$aflid] = $data['name'];
-        }
+            $f = \App\Http\Controllers\FormController::getForm($a->data_form);
+            $formFieldsData = $f->layout['fields'];
+            $formFields = array();
+            foreach($formFieldsData as $aflid => $data) {
+                $formFields[$aflid] = $data['name'];
+            }
 
-        // building an array about the association permissions
-        $options = $field['options']['SearchForms'];
-        foreach ($options as $opt) {
-            $assocLayout[$opt['form_id']] = ['flids' => $opt['flids']];
-        }
+            // building an array about the association permissions
+            $options = $field['options']['SearchForms'];
+            foreach ($options as $opt) {
+                $assocLayout[$opt['form_id']] = ['flids' => $opt['flids']];
+            }
 
-        // get layout info for this form
-        $f_check = false;
-        $f_flids = null;
+            // get layout info for this form
+            $f_check = false;
+            $f_flids = null;
 
-        if(array_key_exists($f->id,$assocLayout)){
-            $f_check = true;
-            $f_flids = $assocLayout[$f->id]['flids'];
-        }
-
+            if(array_key_exists($f->id,$assocLayout)){
+                $f_check = true;
+                $f_flids = $assocLayout[$f->id]['flids'];
+            }
         @endphp
-        <div class="form-group mt-xl">
+        <div class="form-group
+            @if(!$firstConfig)
+               mt-xl
+            @else
+                @php $firstConfig = false; @endphp
+            @endif
+            ">
             <div class="check-box-half">
                 <input type="checkbox" value="1" id="active" class="check-box-input association-check-js" name="checkbox_{{$f->id}}{{$seq}}"
                 @if($f_check)

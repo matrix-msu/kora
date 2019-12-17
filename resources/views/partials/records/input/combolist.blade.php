@@ -16,7 +16,7 @@
     }
     @endphp
 
-    <div class="combo-list-display combo-list-display-js preset-clear-combo-js">
+    <div class="combo-list-input combo-list-display-js preset-clear-combo-js">
         <div class="mb-sm">
             <span class="combo-column combo-title">{{$oneName}}</span>
             <span class="combo-column combo-title">{{$twoName}}</span>

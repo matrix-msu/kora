@@ -14,7 +14,7 @@
 <div class="form-group mt-xxxl">
     <label>@if($field['required'])<span class="oval-icon"></span> @endif{{$field['name']}}</label>
 </div>
-<div class="form-group associator">
+<div class="form-group associator-input">
     <div class="form-group mb-xl">
         {!! Form::label('search','Search Associations') !!}
         <input type="text" class="text-input assoc-search-records-js" placeholder="Enter search term or KID to find associated records (populated below)"
