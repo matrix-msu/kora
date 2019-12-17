@@ -279,7 +279,6 @@ Kora.Fields.TypedFieldDisplays.Initialize = function() {
 
             var markers = [];
             $geolocator.children('.geolocator-location-js').each(function() {
-                console.log("test2");
                 var marker = L.marker([$(this).attr('loc-x'), $(this).attr('loc-y')]).addTo(mapRecord);
                 var modalmarker = L.marker([$(this).attr('loc-x'), $(this).attr('loc-y')]).addTo(modalMapRecord);
                 marker.bindPopup($(this).attr('loc-desc'));

@@ -578,6 +578,7 @@ i {
     content: $icon-projects;
   }
 }
+/* If .icon-arrow changes its :before block, up date the arrows at the bottom to match*/
 .icon-arrow {
   &:before {
     content: $icon-arrow;
@@ -684,10 +685,11 @@ i {
   }
 }
 
-/* DO NOT OVERWRITE */
+/* If .icon-arrow changes its :before block, up date these to match */
+/* Can no longer use extend because it became deprecated */
 .icon-arrow-right {
   &:before {
-    @extend .icon-arrow:before;
+    content: $icon-arrow;
   }
 }
 
@@ -695,7 +697,7 @@ i {
   transform: rotate(90deg);
 
   &:before {
-    @extend .icon-arrow:before;
+    content: $icon-arrow;
   }
 }
 
@@ -703,7 +705,7 @@ i {
   transform: rotate(180deg);
 
   &:before {
-    @extend .icon-arrow:before;
+    content: $icon-arrow;
   }
 }
 
@@ -711,6 +713,6 @@ i {
   transform: rotate(-90deg);
 
   &:before {
-    @extend .icon-arrow:before;
+    content: $icon-arrow;
   }
 }

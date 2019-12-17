@@ -68,6 +68,7 @@
     width: $max-site-width;
 
     @import 'record-show/page-card';
+    @import 'record-show/page-typed-fields';
 
     .meta-title {
       font-family: $ubuntu-medium;

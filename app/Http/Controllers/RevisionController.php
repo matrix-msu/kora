@@ -157,7 +157,7 @@ class RevisionController extends Controller {
           'static' => false
         );
 
-        return view('revisions.index', compact('revisions', 'records', 'selected_records', 'selected_users', 'form', 'message', 'record', 'rid', 'notification'));
+        return view('revisions.index', compact('revisions', 'records', 'selected_records', 'selected_users', 'form', 'record', 'rid', 'notification'));
     }
 
     /**
