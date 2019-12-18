@@ -34,43 +34,43 @@
                                 if($editRecord) {
                                     $value = $display = $items[$i]->{$field[$seq]['flid']};
 
-                                    if($type == 'Historical Date') {
-                                        $tmp = json_decode($value, true);
-                                        $display = implode(
-                                            '-',
-                                            array_filter([
-                                                $tmp['year'],
-                                                $tmp['month'],
-                                                $tmp['day']
-                                            ])
-                                        );
-                                    }
+                                    //if($type == 'Historical Date') { //TODO::COMBO_FINISH
+                                    //    $tmp = json_decode($value, true);
+                                    //    $display = implode(
+                                    //        '-',
+                                    //        array_filter([
+                                    //            $tmp['year'],
+                                    //            $tmp['month'],
+                                    //            $tmp['day']
+                                    //        ])
+                                    //    );
+                                    //}
                                 } else {
                                     $value = $display = $field[$seq]['default'][$i];
 
-                                    if(in_array($type, ['Date', 'Historical Date'])) {
-                                        $display = implode(
-                                            '-',
-                                            array_filter([
-                                                $value['year'],
-                                                $value['month'],
-                                                $value['day']
-                                            ])
-                                        );
-
-                                        if($type == 'Historical Date') {
-                                            $value = json_encode($value);
-                                        } else {
-                                            $value = $display;
-                                        }
-                                    }
+                                    //if(in_array($type, ['Date', 'Historical Date'])) { //TODO::COMBO_FINISH
+                                    //    $display = implode(
+                                    //        '-',
+                                    //        array_filter([
+                                    //            $value['year'],
+                                    //            $value['month'],
+                                    //            $value['day']
+                                    //        ])
+                                    //    );
+                                    //
+                                    //    if($type == 'Historical Date') {
+                                    //        $value = json_encode($value);
+                                    //    } else {
+                                    //        $value = $display;
+                                    //    }
+                                    //}
                                 }
 
-                                if(in_array($type, ['Multi-Select List', 'Generated List', 'Associator'])) {
-                                    if(is_array($value))
-                                        $value = json_encode($value);
-                                    $display = implode(', ', json_decode($value));
-                                }
+                                //if(in_array($type, ['Multi-Select List', 'Generated List', 'Associator'])) { //TODO::COMBO_FINISH
+                                //    if(is_array($value))
+                                //        $value = json_encode($value);
+                                //    $display = implode(', ', json_decode($value));
+                                //}
                             @endphp
                             {!! Form::hidden($flid."_combo_".$seq."[]",$value) !!}
                             <span class="combo-column combo-value">{{$display}}</span>
@@ -98,6 +98,7 @@
                 </div>
                 <div class="body">
                     <span class="error-message combo-error-{{$flid}}-js"></span>
+                    {{--TODO::COMBO--}}
                     @foreach(['one', 'two'] as $seq)
                         <section class="combo-list-input-{{$seq}}" cfType="{{$field[$seq]['type']}}">
                             @include('partials.fields.combo.inputs.record',['field'=>$field, 'type'=>$field[$seq]['type'],'cfName'=>$field[$seq]['name'],  'fnum'=>$seq, 'flid'=>$flid])

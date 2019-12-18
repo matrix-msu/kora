@@ -14,6 +14,14 @@
 
         $defsOne = $field['one']['default'];
         $defsTwo = $field['two']['default'];
+
+        $optView = $form->getFieldModel($oneType)::FIELD_OPTIONS_VIEW;
+        $optParts = explode('.',$optView);
+        $subViewOne = end($optParts);
+
+        $optView = $form->getFieldModel($twoType)::FIELD_OPTIONS_VIEW;
+        $optParts = explode('.',$optView);
+        $subViewTwo = end($optParts);
     @endphp
 
     {!! Form::hidden('typeone',$oneType) !!}
@@ -29,19 +37,14 @@
         {!! Form::text('cfname2',$twoName, ['class' => 'text-input']) !!}
     </div>
 
-    {{-- TODO::COMBO --}}
+    {{-- TODO::COMBO_FINISH --}}
     <section class="combo-list-options-one">
         <div class="label-spacer">
             <label>Field Options for "{{ $oneName }}"</label>
             <div class="spacer"></div>
         </div>
-        @php
-            $optView = $form->getFieldModel($oneType)::FIELD_OPTIONS_VIEW;
-            $optParts = explode('.',$optView);
-            $subView = end($optParts);
-        @endphp
         @include(
-            'partials.fields.options.config.' . $subView,
+            'partials.fields.options.config.' . $subViewOne,
             ['field'=>$field['one'], 'seq' => 'one']
         )
     </section>
@@ -51,13 +54,8 @@
             <label>Field Options for "{{ $twoName }}"</label>
             <div class="spacer"></div>
         </div>
-        @php
-            $optView = $form->getFieldModel($twoType)::FIELD_OPTIONS_VIEW;
-            $optParts = explode('.',$optView);
-            $subView = end($optParts);
-        @endphp
         @include(
-            'partials.fields.options.config.' . $subView,
+            'partials.fields.options.config.' . $subViewTwo,
             ['field'=>$field['two'], 'seq' => 'two']
         )
     </section>
@@ -66,7 +64,7 @@
         <div class="spacer"></div>
     </div>
 
-    {{-- TODO::COMBO --}}
+    {{-- TODO::COMBO_FINISH --}}
     @include('partials.fields.modals.addDefaultValue')
     <section class="combo-list-defaults">
         {!! Form::label('default', 'Default Combo List Values') !!}
@@ -84,72 +82,76 @@
                             $valueTwo = $defsTwo[$i];
                         @endphp
                         <div class="card combo-value-item-js">
-                            @if($oneType=='Text' | $oneType=='List' | $oneType=='Integer'| $oneType=='Float' | $oneType=='Boolean')
-                                {!! Form::hidden("default_combo_one[]",$valueOne) !!}
-                                @php
-                                    if($oneType=='Boolean')
-                                        if($valueOne == 1)
-                                            $valueOne = 'true';
-                                        else if($valueOne == 0)
-                                            $valueOne = 'false';
-                                @endphp
-                                <span class="combo-column">{{$valueOne}}</span>
-                            @elseif($oneType=='Date' | $oneType=='Historical Date')
-                                @php
-                                $date = [$valueOne['month'], $valueOne['day'], $valueOne['year']];
-                                @endphp
-                                {!! Form::hidden("default_day_combo_one[]",$valueOne['day']) !!}
-                                {!! Form::hidden("default_month_combo_one[]",$valueOne['month']) !!}
-                                {!! Form::hidden("default_year_combo_one[]",$valueOne['year']) !!}
-                                @if($oneType=='Historical Date')
-                                    @php
-                                        array_push(
-                                            $date,
-                                            $valueOne['prefix'],
-                                            $valueOne['era']
-                                        );
-                                    @endphp
-                                    {!! Form::hidden("default_prefix_combo_one[]",$valueOne['prefix']) !!}
-                                    {!! Form::hidden("default_era_combo_one[]",$valueOne['era']) !!}
-                                @endif
-                                <span class="combo-column">{{implode('/', array_filter($date))}}</span>
-                            @elseif($oneType=='Multi-Select List' | $oneType=='Generated List' | $oneType=='Associator')
-                                {!! Form::hidden("default_combo_one[]",json_encode($valueOne)) !!}
-                                <span class="combo-column">{{implode(' | ',$valueOne)}}</span>
-                            @endif
-                            @if($twoType=='Text' | $twoType=='List' | $oneType=='Integer'| $oneType=='Float' | $twoType=='Boolean')
-                                {!! Form::hidden("default_combo_two[]",$valueTwo) !!}
-                                @php
-                                    if($twoType=='Boolean')
-                                        if($valueTwo == 1)
-                                            $valueTwo = 'true';
-                                        else if($valueTwo == 0)
-                                            $valueTwo = 'false';
-                                @endphp
-                                <span class="combo-column">{{$valueTwo}}</span>
-                            @elseif($twoType=='Date' | $twoType=='Historical Date')
-                                @php
-                                    $date = [$valueTwo['month'], $valueTwo['day'], $valueTwo['year']];
-                                @endphp
-                                {!! Form::hidden("default_day_combo_two[]",$valueTwo['day']) !!}
-                                {!! Form::hidden("default_month_combo_two[]",$valueTwo['month']) !!}
-                                {!! Form::hidden("default_year_combo_two[]",$valueTwo['year']) !!}
-                                @if($twoType=='Historical Date')
-                                    @php
-                                        array_push(
-                                            $date,
-                                            $valueTwo['prefix'],
-                                            $valueTwo['era']
-                                        );
-                                    @endphp
-                                    {!! Form::hidden("default_prefix_combo_two[]",$valueTwo['prefix']) !!}
-                                    {!! Form::hidden("default_era_combo_two[]",$valueTwo['era']) !!}
-                                @endif
-                                <span class="combo-column">{{implode('/', array_filter($date))}}</span>
-                            @elseif($twoType=='Multi-Select List' | $twoType=='Generated List' | $twoType=='Associator')
-                                {!! Form::hidden("default_combo_two[]",json_encode($valueTwo)) !!}
-                                <span class="combo-column">{{implode(' | ', $valueTwo)}}</span>
-                            @endif
+                            {!! Form::hidden("default_combo_one[]",$valueOne) !!}
+                            <span class="combo-column">{{$valueOne}}</span>
+                            {!! Form::hidden("default_combo_two[]",$valueTwo) !!}
+                            <span class="combo-column">{{$valueTwo}}</span>
+{{--                            @if($oneType=='Text' | $oneType=='List' | $oneType=='Integer'| $oneType=='Float' | $oneType=='Boolean')--}}
+{{--                                {!! Form::hidden("default_combo_one[]",$valueOne) !!}--}}
+{{--                                @php--}}
+{{--                                    if($oneType=='Boolean')--}}
+{{--                                        if($valueOne == 1)--}}
+{{--                                            $valueOne = 'true';--}}
+{{--                                        else if($valueOne == 0)--}}
+{{--                                            $valueOne = 'false';--}}
+{{--                                @endphp--}}
+{{--                                <span class="combo-column">{{$valueOne}}</span>--}}
+{{--                            @elseif($oneType=='Date' | $oneType=='Historical Date')--}}
+{{--                                @php--}}
+{{--                                $date = [$valueOne['month'], $valueOne['day'], $valueOne['year']];--}}
+{{--                                @endphp--}}
+{{--                                {!! Form::hidden("default_day_combo_one[]",$valueOne['day']) !!}--}}
+{{--                                {!! Form::hidden("default_month_combo_one[]",$valueOne['month']) !!}--}}
+{{--                                {!! Form::hidden("default_year_combo_one[]",$valueOne['year']) !!}--}}
+{{--                                @if($oneType=='Historical Date')--}}
+{{--                                    @php--}}
+{{--                                        array_push(--}}
+{{--                                            $date,--}}
+{{--                                            $valueOne['prefix'],--}}
+{{--                                            $valueOne['era']--}}
+{{--                                        );--}}
+{{--                                    @endphp--}}
+{{--                                    {!! Form::hidden("default_prefix_combo_one[]",$valueOne['prefix']) !!}--}}
+{{--                                    {!! Form::hidden("default_era_combo_one[]",$valueOne['era']) !!}--}}
+{{--                                @endif--}}
+{{--                                <span class="combo-column">{{implode('/', array_filter($date))}}</span>--}}
+{{--                            @elseif($oneType=='Multi-Select List' | $oneType=='Generated List' | $oneType=='Associator')--}}
+{{--                                {!! Form::hidden("default_combo_one[]",json_encode($valueOne)) !!}--}}
+{{--                                <span class="combo-column">{{implode(' | ',$valueOne)}}</span>--}}
+{{--                            @endif--}}
+{{--                            @if($twoType=='Text' | $twoType=='List' | $oneType=='Integer'| $oneType=='Float' | $twoType=='Boolean')--}}
+{{--                                {!! Form::hidden("default_combo_two[]",$valueTwo) !!}--}}
+{{--                                @php--}}
+{{--                                    if($twoType=='Boolean')--}}
+{{--                                        if($valueTwo == 1)--}}
+{{--                                            $valueTwo = 'true';--}}
+{{--                                        else if($valueTwo == 0)--}}
+{{--                                            $valueTwo = 'false';--}}
+{{--                                @endphp--}}
+{{--                                <span class="combo-column">{{$valueTwo}}</span>--}}
+{{--                            @elseif($twoType=='Date' | $twoType=='Historical Date')--}}
+{{--                                @php--}}
+{{--                                    $date = [$valueTwo['month'], $valueTwo['day'], $valueTwo['year']];--}}
+{{--                                @endphp--}}
+{{--                                {!! Form::hidden("default_day_combo_two[]",$valueTwo['day']) !!}--}}
+{{--                                {!! Form::hidden("default_month_combo_two[]",$valueTwo['month']) !!}--}}
+{{--                                {!! Form::hidden("default_year_combo_two[]",$valueTwo['year']) !!}--}}
+{{--                                @if($twoType=='Historical Date')--}}
+{{--                                    @php--}}
+{{--                                        array_push(--}}
+{{--                                            $date,--}}
+{{--                                            $valueTwo['prefix'],--}}
+{{--                                            $valueTwo['era']--}}
+{{--                                        );--}}
+{{--                                    @endphp--}}
+{{--                                    {!! Form::hidden("default_prefix_combo_two[]",$valueTwo['prefix']) !!}--}}
+{{--                                    {!! Form::hidden("default_era_combo_two[]",$valueTwo['era']) !!}--}}
+{{--                                @endif--}}
+{{--                                <span class="combo-column">{{implode('/', array_filter($date))}}</span>--}}
+{{--                            @elseif($twoType=='Multi-Select List' | $twoType=='Generated List' | $twoType=='Associator')--}}
+{{--                                {!! Form::hidden("default_combo_two[]",json_encode($valueTwo)) !!}--}}
+{{--                                <span class="combo-column">{{implode(' | ', $valueTwo)}}</span>--}}
+{{--                            @endif--}}
 
                             <span class="combo-delete delete-combo-value-js">
 								<a class="quick-action delete-option delete-default-js tooltip" tooltip="Delete Default Value">

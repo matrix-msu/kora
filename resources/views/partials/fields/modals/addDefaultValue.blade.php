@@ -8,10 +8,16 @@
         </div>
         <div class="body">
             <section class="combo-list-input-one">
-                @include('partials.fields.combo.inputs.defaults',['field'=>$field, 'type'=>$oneType, 'cfName'=>$oneName, 'fnum'=>'one'])
+                @include(
+                    "partials.fields.options.defaults.$subViewOne",
+                    ['field'=>$field['one'], 'seq' => 'one', 'cfName'=>$oneName]
+                )
             </section>
             <section class="combo-list-input-two mt-xxl">
-                @include('partials.fields.combo.inputs.defaults',['field'=>$field, 'type'=>$twoType, 'cfName'=>$twoName, 'fnum'=>'two'])
+                @include(
+                    "partials.fields.options.defaults.$subViewTwo",
+                    ['field'=>$field['two'], 'seq' => 'two', 'cfName'=>$twoName]
+                )
             </section>
             <section class="form-group mt-xxl">
                 <input class="btn add-combo-value-js disabled" type="button" value="Create Default Combo Value">        

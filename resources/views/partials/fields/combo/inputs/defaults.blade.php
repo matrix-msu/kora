@@ -1,9 +1,5 @@
-@if($type=='Text')
-    <div class="form-group">
-        {!! Form::label('default_'.$fnum, $cfName) !!}
-        {!! Form::text('default_'.$fnum, null, ['id' => 'default_'.$fnum, 'class' => 'text-input default-input-js', 'placeholder' => 'Enter text value here']) !!}
-    </div>
-@elseif($type=='Date' | $type=='Historical Date')
+{{-- TODO::COMBO_FINISH --}}
+@if($type=='Date' | $type=='Historical Date')
     <div class="form-group date-input-form-group date-input-form-group-js mt-xs">
         {!! Form::label('default_'.$fnum, $cfName) !!}
         <div class="form-input-container">

@@ -32,19 +32,6 @@ class ComboListField extends BaseField {
      */
     const FIELD_DATABASE_METHOD = 'addJSONColumn';
 
-//    static public $supportedViews = [ //TODO::COMBO
-//        Form::_TEXT => 'text',
-//        Form::_LIST => 'list',
-//        Form::_INTEGER => 'integer',
-//        Form::_FLOAT => 'float',
-//        Form::_DATE => 'date',
-//        Form::_HISTORICAL_DATE => 'historicdate',
-//        Form::_MULTI_SELECT_LIST => 'mslist',
-//        Form::_GENERATED_LIST => 'genlist',
-//        Form::_ASSOCIATOR => 'associator',
-//        Form::_BOOLEAN => 'boolean'
-//    ];
-
     /**
      * Get the field options view.
      *
@@ -134,147 +121,64 @@ class ComboListField extends BaseField {
      * @return array - The updated field array
      */
     public function updateOptions($field, Request $request, $flid = null, $prefix = 'records_') { //TODO::COMBO
+        $requestData = array_keys($request->all());
+        //dd($request->all());
         foreach (['one', 'two'] as $seq) {
-            $defaults = $parts = array();
+            $updateIndices = preg_grep('/\w+_'.$seq.'/',$requestData);
             $type = $request->{'type' . $seq};
 
-            switch($type) {
-                case Form::_TEXT:
-                    $defaults = array(
-                        'default',
-                        'regex',
-                        'multi'
-                    );
-                    break;
-                case Form::_INTEGER:
-                case Form::_FLOAT:
-                    $defaults = array(
-                        'default',
-                        'min',
-                        'max',
-                        'unit'
-                    );
-                    break;
-                case Form::_MULTI_SELECT_LIST:
-                case Form::_LIST:
-                    $defaults = array(
-                        'default',
-                        'options'
-                    );
-                    break;
-                case Form::_GENERATED_LIST:
-                    $defaults = array(
-                        'default',
-                        'options',
-                        'regex'
-                    );
-                    break;
-                case Form::_DATE:
-                    $defaults = array(
-                        'default_month',
-                        'default_day',
-                        'default_year',
-                        'start',
-                        'end',
-                        'format'
-                    );
-                    $parts = array(
-                        'day',
-                        'month',
-                        'year'
-                    );
-                    break;
-                case Form::_HISTORICAL_DATE:
-                    $defaults = array(
-                        'default_month',
-                        'default_day',
-                        'default_year',
-                        'prefix',
-                        'era',
-                        'start',
-                        'end',
-                        'format'
-                    );
-                    $parts = array(
-                        'day',
-                        'month',
-                        'year',
-                        'prefix',
-                        'era'
-                    );
-                    break;
-                case Form::_ASSOCIATOR:
-                    $defaults = array(
-                        'default'
-                    );
-                    foreach(array_keys($request->all()) as $key) {
-                        if(substr( $key, 0, 8 ) === "checkbox") {
-                            $fidParts = explode('_',$key);
-                            if($fidParts[2]==$seq) {
-                                $defaults[] = 'checkbox_' . $fidParts[1];
-                                $defaults[] = 'preview_' . $fidParts[1];
-                            }
-                        }
-                    }
-                    break;
-                case Form::_BOOLEAN:
-                    $defaults = array(
-                        'default'
-                    );
-                    break;
-            }
+//            if (
+//                (
+//                    $type == Form::_GENERATED_LIST ||
+//                    $type == Form::_MULTI_SELECT_LIST ||
+//                    $type == Form::_ASSOCIATOR
+//                ) &&
+//                !is_null($request->{'default_combo_' . $seq})
+//            ) {
+//                $values = array();
+//                foreach ($request->{'default_combo_' . $seq} as $value) {
+//                    array_push($values, json_decode($value));
+//                }
+//                $request->{'default_combo_' . $seq} = $values;
+//            }
 
-            if (
-                (
-                    $type == Form::_GENERATED_LIST ||
-                    $type == Form::_MULTI_SELECT_LIST ||
-                    $type == Form::_ASSOCIATOR
-                ) &&
-                !is_null($request->{'default_combo_' . $seq})
-            ) {
-                $values = array();
-                foreach ($request->{'default_combo_' . $seq} as $value) {
-                    array_push($values, json_decode($value));
-                }
-                $request->{'default_combo_' . $seq} = $values;
-            }
-
-            $className = $this->fieldModel[$request->{'type' . $seq}];
+            $form = new Form();
+            $fieldRequest = new Request();
+            $className = $form->getFieldModel($type);
             $object = new $className;
-            foreach($defaults as $default) {
-                $request->merge(
-                    [$default => $request->{$default . '_' . $seq}]
-                );
-
+            foreach($updateIndices as $index) {
+                $fieldRequest->{str_replace("_$seq",'',$index)} = $request->{$index};
             }
             $field[$seq] = $object->updateOptions(
                 $field[$seq],
-                $request,
+                $fieldRequest,
                 $field[$seq]['flid'],
                 $flid
             );
 
-            if ($type == Form::_DATE || $type == Form::_HISTORICAL_DATE) {
-                $size = 0;
-                $field[$seq]['default'] = [];
+//            if ($type == Form::_DATE || $type == Form::_HISTORICAL_DATE) {
+//                $size = 0;
+//                $field[$seq]['default'] = [];
+//
+//                // Determine the largest size of default
+//                foreach ($parts as $part) {
+//                    if ($request->{'default_' . $part .'_combo_' . $seq} && count($request->{'default_' . $part .'_combo_' . $seq}) > $size)
+//                        $size = count($request->{'default_' . $part .'_combo_' . $seq});
+//                }
+//
+//                // Build and add default date
+//                for ($i=0; $i < $size; $i++) {
+//                    $defaultDate = [];
+//                    foreach ($parts as $part) {
+//                        $defaultDate[$part] = $request->{'default_' . $part .'_combo_' . $seq}[$i];
+//                    }
+//                    array_push($field[$seq]['default'], $defaultDate);
+//                }
+//            } else {
+//                $field[$seq]['default'] = $request->{'default_combo_' . $seq};
+//            }
 
-                // Determine the largest size of default
-                foreach ($parts as $part) {
-                    if ($request->{'default_' . $part .'_combo_' . $seq} && count($request->{'default_' . $part .'_combo_' . $seq}) > $size)
-                        $size = count($request->{'default_' . $part .'_combo_' . $seq});
-                }
-
-                // Build and add default date
-                for ($i=0; $i < $size; $i++) {
-                    $defaultDate = [];
-                    foreach ($parts as $part) {
-                        $defaultDate[$part] = $request->{'default_' . $part .'_combo_' . $seq}[$i];
-                    }
-                    array_push($field[$seq]['default'], $defaultDate);
-                }
-            } else {
-                $field[$seq]['default'] = $request->{'default_combo_' . $seq};
-            }
+            $field[$seq]['default'] = $request->{'default_combo_' . $seq};
         }
 
         return $field;

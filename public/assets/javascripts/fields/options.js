@@ -890,67 +890,75 @@ Kora.Fields.Options = function(fieldType) {
         });
 
         $('.add-combo-value-js').click(function() {
-            if(type1=='Date' | type1=='Historical Date') {
-                monthOne = $('#default_month_one');
-                dayOne = $('#default_day_one');
-                yearOne = $('#default_year_one');
-                if(type1=='Historical Date') {
-                    $('[id^=default_era_one]').each(function () {
-                        if ($(this).is(':checked')) {
-                            eraOne = $(this);
-                        }
-                    });
-                    prefixOne = '';
-                    $(`[id^=default_prefix_one]`).each(function () {
-                        if ($(this).is(':checked')) {
-                            prefixOne = $(this);
-                        }
-                    });
-                }
-                val1 = [monthOne.val(), dayOne.val(), yearOne.val(), prefixOne!='' ? prefixOne.val() : '', eraOne.val()].filter(Boolean).join('/');
-            } else {
-                inputOne = $('#default_one');
-                val1 = inputOne.val();
-            }
+            inputOne = $('#default_one');
+            val1 = inputOne.val();
 
-            if(type1=='Boolean') {
-                if (inputOne.prop('checked') != true) {
-                    val1 = 0;
-                }
-            }
+            inputTwo = $('#default_two');
+            val2 = inputTwo.val();
 
-            if(type2=='Date' | type2=='Historical Date') {
-                monthTwo = $('#default_month_two');
-                dayTwo = $('#default_day_two');
-                yearTwo = $('#default_year_two');
-                if(type2=='Historical Date') {
-                    $('[id^=default_era_two]').each(function () {
-                        if ($(this).is(':checked')) {
-                            eraTwo = $(this);
-                        }
-                    });
-                    prefixTwo = '';
-                    $(`[id^=default_prefix_two]`).each(function () {
-                        if ($(this).is(':checked')) {
-                            prefixTwo = $(this);
-                        }
-                    });
-                }
-                val2 = [monthTwo.val(), dayTwo.val(), yearTwo.val(), prefixTwo!='' ? prefixTwo.val() : '', eraTwo.val()].filter(Boolean).join('/');
-            } else {
-                inputTwo = $('#default_two');
-                val2 = inputTwo.val();
-            }
+            //TODO::COMBO_FINISH
 
-            if(type2=='Boolean') {
-                if (inputTwo.prop('checked') != true) {
-                    val2 = 0;
-                }
-            }
+            // if(type1=='Date' | type1=='Historical Date') {
+            //     monthOne = $('#default_month_one');
+            //     dayOne = $('#default_day_one');
+            //     yearOne = $('#default_year_one');
+            //     if(type1=='Historical Date') {
+            //         $('[id^=default_era_one]').each(function () {
+            //             if ($(this).is(':checked')) {
+            //                 eraOne = $(this);
+            //             }
+            //         });
+            //         prefixOne = '';
+            //         $(`[id^=default_prefix_one]`).each(function () {
+            //             if ($(this).is(':checked')) {
+            //                 prefixOne = $(this);
+            //             }
+            //         });
+            //     }
+            //     val1 = [monthOne.val(), dayOne.val(), yearOne.val(), prefixOne!='' ? prefixOne.val() : '', eraOne.val()].filter(Boolean).join('/');
+            // } else {
+            //     inputOne = $('#default_one');
+            //     val1 = inputOne.val();
+            // }
+            //
+            // if(type1=='Boolean') {
+            //     if (inputOne.prop('checked') != true) {
+            //         val1 = 0;
+            //     }
+            // }
+
+            // if(type2=='Date' | type2=='Historical Date') {
+            //     monthTwo = $('#default_month_two');
+            //     dayTwo = $('#default_day_two');
+            //     yearTwo = $('#default_year_two');
+            //     if(type2=='Historical Date') {
+            //         $('[id^=default_era_two]').each(function () {
+            //             if ($(this).is(':checked')) {
+            //                 eraTwo = $(this);
+            //             }
+            //         });
+            //         prefixTwo = '';
+            //         $(`[id^=default_prefix_two]`).each(function () {
+            //             if ($(this).is(':checked')) {
+            //                 prefixTwo = $(this);
+            //             }
+            //         });
+            //     }
+            //     val2 = [monthTwo.val(), dayTwo.val(), yearTwo.val(), prefixTwo!='' ? prefixTwo.val() : '', eraTwo.val()].filter(Boolean).join('/');
+            // } else {
+            //     inputTwo = $('#default_two');
+            //     val2 = inputTwo.val();
+            // }
+            //
+            // if(type2=='Boolean') {
+            //     if (inputTwo.prop('checked') != true) {
+            //         val2 = 0;
+            //     }
+            // }
 
             defaultDiv = $('.combo-value-div-js');
 
-            if(val1==null | val2==null | val1=='//'| val2=='//') {
+            if(val1==null | val2==null) {// | val1=='//'| val2=='//') { //TODO::COMBO_FINISH
                 $('.combo-error-js').text('Both fields must be filled out');
             } else {
                 $('.combo-error-js').text('');
@@ -964,55 +972,63 @@ Kora.Fields.Options = function(fieldType) {
 
                 div = '<div class="card combo-value-item-js">';
 
-                if(type1=='Text' | type1=='List' | type1=='Integer' | type1=='Float' | type1=='Boolean') {
-                    div += '<input type="hidden" name="default_combo_one[]" value="'+val1+'">';
-                    if(type1=='Boolean') {
-                        if (val1 == 1) {
-                            val1 = 'true';
-                        } else if (val1 == 0)
-                            val1 = 'false';
-                    }
-                    div += '<span class="combo-column">'+val1+'</span>';
-                } else if(type1=='Date' | type1=='Historical Date') {
-                    div += '<input type="hidden" name="default_day_combo_one[]" value="'+dayOne.val()+'">';
-                    div += '<input type="hidden" name="default_month_combo_one[]" value="'+monthOne.val()+'">';
-                    div += '<input type="hidden" name="default_year_combo_one[]" value="'+yearOne.val()+'">';
-                    if(type1=='Historical Date') {
-                        div += '<input type="hidden" name="default_prefix_combo_one[]" value="';
-                        div += prefixOne!='' ? prefixOne.val() : '';
-                        div += '">';
-                        div += '<input type="hidden" name="default_era_combo_one[]" value="'+eraOne.val()+'">';
-                    }
-                    div += '<span class="combo-column">'+val1+'</span>';
-                } else if(type1=='Multi-Select List' | type1=='Generated List' | type1=='Associator') {
-                    div += '<input type="hidden" name="default_combo_one[]" value='+JSON.stringify(val1)+'>';
-                    div += '<span class="combo-column">'+val1.join(' | ')+'</span>';
-                }
+                div += '<input type="hidden" name="default_combo_one[]" value="'+val1+'">';
+                div += '<span class="combo-column">'+val1+'</span>';
 
-                if(type2=='Text' | type2=='List' | type2=='Integer' | type2=='Float' | type2=='Boolean') {
-                    div += '<input type="hidden" name="default_combo_two[]" value="'+val2+'">';
-                    if(type2=='Boolean') {
-                        if (val2 == 1)
-                            val2 = 'true';
-                        if (val2 == 0)
-                            val2 = 'false';
-                    }
-                    div += '<span class="combo-column">'+val2+'</span>';
-                } else if(type2=='Date' | type2=='Historical Date') {
-                    div += '<input type="hidden" name="default_day_combo_two[]" value="'+dayTwo.val()+'">';
-                    div += '<input type="hidden" name="default_month_combo_two[]" value="'+monthTwo.val()+'">';
-                    div += '<input type="hidden" name="default_year_combo_two[]" value="'+yearTwo.val()+'">';
-                    if(type2=='Historical Date') {
-                        div += '<input type="hidden" name="default_prefix_combo_two[]" value="';
-                        div += prefixTwo!='' ? prefixTwo.val() : '';
-                        div += '">';
-                        div += '<input type="hidden" name="default_era_combo_two[]" value="'+eraTwo.val()+'">';
-                    }
-                    div += '<span class="combo-column">'+val2+'</span>';
-                } else if(type2=='Multi-Select List' | type2=='Generated List' | type2=='Associator') {
-                    div += '<input type="hidden" name="default_combo_two[]" value='+JSON.stringify(val2)+'>';
-                    div += '<span class="combo-column">'+val2.join(' | ')+'</span>';
-                }
+                div += '<input type="hidden" name="default_combo_two[]" value="'+val2+'">';
+                div += '<span class="combo-column">'+val2+'</span>';
+
+                //TODO::COMBO_FINISH
+
+                // if(type1=='Text' | type1=='List' | type1=='Integer' | type1=='Float' | type1=='Boolean') {
+                //     div += '<input type="hidden" name="default_combo_one[]" value="'+val1+'">';
+                //     if(type1=='Boolean') {
+                //         if (val1 == 1) {
+                //             val1 = 'true';
+                //         } else if (val1 == 0)
+                //             val1 = 'false';
+                //     }
+                //     div += '<span class="combo-column">'+val1+'</span>';
+                // } else if(type1=='Date' | type1=='Historical Date') {
+                //     div += '<input type="hidden" name="default_day_combo_one[]" value="'+dayOne.val()+'">';
+                //     div += '<input type="hidden" name="default_month_combo_one[]" value="'+monthOne.val()+'">';
+                //     div += '<input type="hidden" name="default_year_combo_one[]" value="'+yearOne.val()+'">';
+                //     if(type1=='Historical Date') {
+                //         div += '<input type="hidden" name="default_prefix_combo_one[]" value="';
+                //         div += prefixOne!='' ? prefixOne.val() : '';
+                //         div += '">';
+                //         div += '<input type="hidden" name="default_era_combo_one[]" value="'+eraOne.val()+'">';
+                //     }
+                //     div += '<span class="combo-column">'+val1+'</span>';
+                // } else if(type1=='Multi-Select List' | type1=='Generated List' | type1=='Associator') {
+                //     div += '<input type="hidden" name="default_combo_one[]" value='+JSON.stringify(val1)+'>';
+                //     div += '<span class="combo-column">'+val1.join(' | ')+'</span>';
+                // }
+                //
+                // if(type2=='Text' | type2=='List' | type2=='Integer' | type2=='Float' | type2=='Boolean') {
+                //     div += '<input type="hidden" name="default_combo_two[]" value="'+val2+'">';
+                //     if(type2=='Boolean') {
+                //         if (val2 == 1)
+                //             val2 = 'true';
+                //         if (val2 == 0)
+                //             val2 = 'false';
+                //     }
+                //     div += '<span class="combo-column">'+val2+'</span>';
+                // } else if(type2=='Date' | type2=='Historical Date') {
+                //     div += '<input type="hidden" name="default_day_combo_two[]" value="'+dayTwo.val()+'">';
+                //     div += '<input type="hidden" name="default_month_combo_two[]" value="'+monthTwo.val()+'">';
+                //     div += '<input type="hidden" name="default_year_combo_two[]" value="'+yearTwo.val()+'">';
+                //     if(type2=='Historical Date') {
+                //         div += '<input type="hidden" name="default_prefix_combo_two[]" value="';
+                //         div += prefixTwo!='' ? prefixTwo.val() : '';
+                //         div += '">';
+                //         div += '<input type="hidden" name="default_era_combo_two[]" value="'+eraTwo.val()+'">';
+                //     }
+                //     div += '<span class="combo-column">'+val2+'</span>';
+                // } else if(type2=='Multi-Select List' | type2=='Generated List' | type2=='Associator') {
+                //     div += '<input type="hidden" name="default_combo_two[]" value='+JSON.stringify(val2)+'>';
+                //     div += '<span class="combo-column">'+val2.join(' | ')+'</span>';
+                // }
 
                 div += '<span class="combo-delete delete-combo-value-js"><a class="quick-action delete-option delete-default-js tooltip" tooltip="Delete Default Value"><i class="icon icon-trash"></i></a></span>';
 
@@ -1023,58 +1039,63 @@ Kora.Fields.Options = function(fieldType) {
                 $('.combo-value-div-js').removeClass('hidden');
                 $('.combolist-add-new-list-value-modal-js').addClass('mt-xxl');
 
-                if(type1=='Multi-Select List' | type1=='Generated List' | type1=='List' | type1=='Associator') {
-                    inputOne.val('');
-                    inputOne.trigger("chosen:updated");
-                } else if(type1=='Date' | type1=='Historical Date') {
-                    monthOne.val(''); dayOne.val(''); yearOne.val('');
-                    monthOne.trigger("chosen:updated"); dayOne.trigger("chosen:updated"); yearOne.trigger("chosen:updated");
-                    if(type1=='Historical Date') {
-                        eraOne.prop("checked", false);
-                        $("#default_era_one_ce").prop("checked", true);
-                        $('[id^=default_era_one]').each(function () {
-                            $(this).trigger("chosen:updated");
-                        });
-                        if(prefixOne!='') {
-                            prefixOne.prop("checked", false);
-                            $(`[id^=default_prefix_one_${flid}]`).each(function () {
-                                $(this).trigger("chosen:updated");
-                            });
-                        }
-                    }
-                } else {
-                    inputOne.val('');
-                }
+                inputOne.val('');
+                inputTwo.val('');
 
-                if(type2=='Multi-Select List' | type2=='Generated List' | type2=='List' | type2=='Associator') {
-                    inputTwo.val('');
-                    inputTwo.trigger("chosen:updated");
-                } else if(type2=='Date' | type2=='Historical Date') {
-                    monthTwo.val(''); dayTwo.val(''); yearTwo.val('');
-                    monthTwo.trigger("chosen:updated"); dayTwo.trigger("chosen:updated"); yearTwo.trigger("chosen:updated");
-                    if(type2=='Historical Date') {
-                        eraTwo.prop("checked", false);
-                        $("#default_era_two_ce").prop("checked", true);
-                        $('[id^=default_era_two]').each(function () {
-                            $(this).trigger("chosen:updated");
-                        });
-                        if(prefixTwo!='') {
-                            prefixTwo.prop("checked", false);
-                            $(`[id^=default_prefix_two_${flid}]`).each(function () {
-                                $(this).trigger("chosen:updated");
-                            });
-                        }
-                    }
-                } else {
-                    inputTwo.val('');
-                }
+                //TODO::COMBO_FINISH
+
+                // if(type1=='Multi-Select List' | type1=='Generated List' | type1=='List' | type1=='Associator') {
+                //     inputOne.val('');
+                //     inputOne.trigger("chosen:updated");
+                // } else if(type1=='Date' | type1=='Historical Date') {
+                //     monthOne.val(''); dayOne.val(''); yearOne.val('');
+                //     monthOne.trigger("chosen:updated"); dayOne.trigger("chosen:updated"); yearOne.trigger("chosen:updated");
+                //     if(type1=='Historical Date') {
+                //         eraOne.prop("checked", false);
+                //         $("#default_era_one_ce").prop("checked", true);
+                //         $('[id^=default_era_one]').each(function () {
+                //             $(this).trigger("chosen:updated");
+                //         });
+                //         if(prefixOne!='') {
+                //             prefixOne.prop("checked", false);
+                //             $(`[id^=default_prefix_one_${flid}]`).each(function () {
+                //                 $(this).trigger("chosen:updated");
+                //             });
+                //         }
+                //     }
+                // } else {
+                //     inputOne.val('');
+                // }
+                //
+                // if(type2=='Multi-Select List' | type2=='Generated List' | type2=='List' | type2=='Associator') {
+                //     inputTwo.val('');
+                //     inputTwo.trigger("chosen:updated");
+                // } else if(type2=='Date' | type2=='Historical Date') {
+                //     monthTwo.val(''); dayTwo.val(''); yearTwo.val('');
+                //     monthTwo.trigger("chosen:updated"); dayTwo.trigger("chosen:updated"); yearTwo.trigger("chosen:updated");
+                //     if(type2=='Historical Date') {
+                //         eraTwo.prop("checked", false);
+                //         $("#default_era_two_ce").prop("checked", true);
+                //         $('[id^=default_era_two]').each(function () {
+                //             $(this).trigger("chosen:updated");
+                //         });
+                //         if(prefixTwo!='') {
+                //             prefixTwo.prop("checked", false);
+                //             $(`[id^=default_prefix_two_${flid}]`).each(function () {
+                //                 $(this).trigger("chosen:updated");
+                //             });
+                //         }
+                //     }
+                // } else {
+                //     inputTwo.val('');
+                // }
             }
         });
 
-        $('.combo-value-div-js').on('click', '.delete-default-js', function(e){
+        $('.combo-value-div-js').on('click', '.delete-default-js', function(e) {
             e.preventDefault();
 
-            if ($('.combo-value-div-js .card').length == 1) {
+            if($('.combo-value-div-js .card').length == 1) {
                 $('.combo-value-div-js').addClass('hidden');
                 $('.combolist-add-new-list-value-modal-js').removeClass('mt-xxl');
             }
@@ -1082,7 +1103,7 @@ Kora.Fields.Options = function(fieldType) {
 
 	    //ASSOCIATOR OPTIONS
         //Sets up association configurations
-        $('.association-check-js').click(function() {
+        $('.association-check-js').click(function() { //TODO::COMBO
             var assocDiv = $(this).closest('.form-group').next();
             var input = assocDiv.children('select').first();
             if(this.checked) {
@@ -1094,7 +1115,7 @@ Kora.Fields.Options = function(fieldType) {
             }
         });
 
-        $('.assoc-search-records-js').on('keypress', function(e) {
+        $('.assoc-search-records-js').on('keypress', function(e) { //TODO::COMBO
             var keyCode = e.keyCode || e.which;
             if(keyCode === 13) {
                 e.preventDefault();
@@ -1127,7 +1148,7 @@ Kora.Fields.Options = function(fieldType) {
             }
         });
 
-        $('.assoc-select-records-js').change(function() {
+        $('.assoc-select-records-js').change(function() { //TODO::COMBO
             defaultBox = $(this).parent().next().children('.assoc-default-records-js');
 
             $(this).children('option').each(function() {
@@ -1146,7 +1167,7 @@ Kora.Fields.Options = function(fieldType) {
         });
 
         //LIST OPTIONS
-        function setCardTitleWidth() {
+        function setCardTitleWidth() { //TODO::COMBO
             var $cards = $('.list-option-card-js');
 
             $cards.each(function() {
@@ -1159,7 +1180,7 @@ Kora.Fields.Options = function(fieldType) {
         }
 
         // Function to add list options and the respective cards
-        function initializeListAddOption(fnum) {
+        function initializeListAddOption(fnum) { //TODO::COMBO
             var $addButton = $('.list-option-add-'+fnum+'-js');
             var $newListOptionInput = $('.new-list-option-'+fnum+'-js');
             var $cardContainer = $('.list-option-card-container-'+fnum+'-js');
@@ -1225,7 +1246,7 @@ Kora.Fields.Options = function(fieldType) {
             });
         }
 
-        function initializeListSort() {
+        function initializeListSort() { //TODO::COMBO
             $('.move-action-js').click(function(e) {
                 e.preventDefault();
 
@@ -1286,7 +1307,7 @@ Kora.Fields.Options = function(fieldType) {
             });
         }
 
-        function initializeListOptionDelete() {
+        function initializeListOptionDelete() { //TODO::COMBO
             var $listOptionCards = $('.list-option-card-js');
 
             $listOptionCards.each(function() {
@@ -1301,7 +1322,7 @@ Kora.Fields.Options = function(fieldType) {
             });
         }
 
-        function initializeMassListOptions(fnum) {
+        function initializeMassListOptions(fnum) { //TODO::COMBO
             $('.list-option-mass-copy-'+fnum+'-js').click(function(e) {
                 e.preventDefault();
 
@@ -1370,7 +1391,7 @@ Kora.Fields.Options = function(fieldType) {
             }
         }
 
-        function initializeDateOptions() {
+        function initializeDateOptions() { //TODO::COMBO
             $eraCheckboxes = $('.era-check-js');
             $prefixCheckboxes = $('.prefix-check-js');
 
