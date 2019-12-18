@@ -6,7 +6,7 @@
 @stop
 
 @section('fieldOptions')
-    @include('partials.fields.options.defaults.mslist')
+    @include('partials.fields.options.config.mslist')
     <div class="form-group mt-xxxl">
         {!! Form::label('default','Default') !!}
         {!! Form::select('default[]', App\KoraFields\MultiSelectListField::getList($field), $field['default'],

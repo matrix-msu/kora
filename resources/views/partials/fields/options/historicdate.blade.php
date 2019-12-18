@@ -125,7 +125,7 @@
         </div>
     </div>
 
-	@include('partials.fields.options.defaults.historicdate')
+	@include('partials.fields.options.config.historicdate')
 @stop
 
 @section('fieldOptionsJS')

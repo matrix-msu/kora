@@ -6,7 +6,7 @@
 @stop
 
 @section('fieldOptions')
-    @include('partials.fields.options.defaults.list')
+    @include('partials.fields.options.config.list')
     <div class="form-group mt-70-xl">
         {!! Form::label('default','Default') !!}
         {!! Form::select('default',[null=>'']+\App\KoraFields\ListField::getList($field), $field['default'],

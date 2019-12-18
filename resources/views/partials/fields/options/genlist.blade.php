@@ -8,7 +8,7 @@
 @stop
 
 @section('fieldOptions')
-    @include('partials.fields.options.defaults.genlist')
+    @include('partials.fields.options.config.genlist')
 @stop
 
 @section('fieldOptionsJS')

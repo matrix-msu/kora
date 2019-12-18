@@ -44,7 +44,7 @@
         </div>
     </div>
 
-    @include('partials.fields.options.defaults.associator')
+    @include('partials.fields.options.config.associator')
 
     <input name="flids" type="hidden" value="">
 

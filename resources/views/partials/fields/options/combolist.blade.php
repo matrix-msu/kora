@@ -29,6 +29,7 @@
         {!! Form::text('cfname2',$twoName, ['class' => 'text-input']) !!}
     </div>
 
+    {{-- TODO::COMBO --}}
     <section class="combo-list-options-one">
         <div class="label-spacer">
             <label>Field Options for "{{ $oneName }}"</label>
@@ -40,7 +41,7 @@
             $subView = end($optParts);
         @endphp
         @include(
-            'partials.fields.options.defaults.' . $subView,
+            'partials.fields.options.config.' . $subView,
             ['field'=>$field['one'], 'seq' => 'one']
         )
     </section>
@@ -56,7 +57,7 @@
             $subView = end($optParts);
         @endphp
         @include(
-            'partials.fields.options.defaults.' . $subView,
+            'partials.fields.options.config.' . $subView,
             ['field'=>$field['two'], 'seq' => 'two']
         )
     </section>
@@ -65,6 +66,7 @@
         <div class="spacer"></div>
     </div>
 
+    {{-- TODO::COMBO --}}
     @include('partials.fields.modals.addDefaultValue')
     <section class="combo-list-defaults">
         {!! Form::label('default', 'Default Combo List Values') !!}

@@ -66,7 +66,7 @@
         </div>
     </div>
     
-    @include('partials.fields.options.defaults.date')
+    @include('partials.fields.options.config.date')
 @stop
 
 @section('fieldOptionsJS')

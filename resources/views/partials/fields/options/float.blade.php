@@ -15,7 +15,7 @@
         </div>
     </div>
 
-    @include('partials.fields.options.defaults.float')
+    @include('partials.fields.options.config.float')
 @stop
 
 @section('fieldOptionsJS')

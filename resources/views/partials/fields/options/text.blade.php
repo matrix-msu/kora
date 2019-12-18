@@ -17,7 +17,7 @@
         <span class="error-message multi-line"></span>
         {!! Form::textarea('default', $field['default'], ['class' => 'text-area text-area-default text-area-default-js', 'placeholder' => "Enter default value here", 'disabled' => 'disabled']) !!}
     </div>
-    @include('partials.fields.options.defaults.text')
+    @include('partials.fields.options.config.text')
 @stop
 
 @section('fieldOptionsJS')
