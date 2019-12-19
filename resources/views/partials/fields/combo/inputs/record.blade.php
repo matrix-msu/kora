@@ -1,15 +1,5 @@
-@if($type=='Text')
-    <div class="form-group
-        @if($fnum=='two')
-            mt-xxxl
-        @else
-            mt-xl
-        @endif
-            ">
-        {!! Form::label('default_'.$fnum, $cfName) !!}
-        {!! Form::text('default_'.$fnum, null, ['id' => 'default_'.$fnum.'_'.$flid, 'class' => 'text-input', 'placeholder' => 'Enter text value here']) !!}
-    </div>
-@elseif($type=='Integer' | $type=='Float')
+{{--TODO::COMBO_FINISH--}}
+@if($type=='Integer' | $type=='Float')
     <div class="form-group
         @if($fnum=='two')
             mt-xxxl

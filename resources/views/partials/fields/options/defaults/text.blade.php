@@ -1,5 +1,5 @@
 @php
-    if(isset($seq)) {
+    if(isset($seq)) { //Combo List
         $seq = '_' . $seq;
         $title = $cfName;
         $default = null;

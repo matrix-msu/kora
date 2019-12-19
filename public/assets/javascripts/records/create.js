@@ -226,7 +226,7 @@ Kora.Records.Create = function() {
     function initializeComboListOptions() {
         var flid, type1, type2, $comboValueDiv, $modal;
 
-        $('.combo-list-display').on('click', '.delete-combo-value-js', function() {
+        $('.combo-list-display-js').on('click', '.delete-combo-value-js', function() {
             parentDiv = $(this).parent();
             parentDiv.remove();
         });

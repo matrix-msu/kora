@@ -9,6 +9,9 @@
     $oneName = $field['one']['name'];
     $twoName = $field['two']['name'];
 
+    $recInputone = $form->getFieldModel($oneType)::FIELD_INPUT_VIEW;
+    $recInputtwo = $form->getFieldModel($twoType)::FIELD_INPUT_VIEW;
+
     if($editRecord) {
         $items = $typedField->retrieve($flid, $form->id, $record->{$flid});
     } else {
@@ -98,10 +101,11 @@
                 </div>
                 <div class="body">
                     <span class="error-message combo-error-{{$flid}}-js"></span>
-                    {{--TODO::COMBO--}}
                     @foreach(['one', 'two'] as $seq)
                         <section class="combo-list-input-{{$seq}}" cfType="{{$field[$seq]['type']}}">
-                            @include('partials.fields.combo.inputs.record',['field'=>$field, 'type'=>$field[$seq]['type'],'cfName'=>$field[$seq]['name'],  'fnum'=>$seq, 'flid'=>$flid])
+                            @include(
+                                ${'recInput'.$seq}, ['field'=>$field[$seq], 'seq'=>$seq, 'flid'=>$flid]
+                            )
                         </section>
                     @endforeach
                     <input class="btn mt-xs add-combo-value-js" type="button" value="Create Combo Value">

@@ -120,7 +120,7 @@ class ComboListField extends BaseField {
      * @param  int $flid - The field internal name
      * @return array - The updated field array
      */
-    public function updateOptions($field, Request $request, $flid = null, $prefix = 'records_') { //TODO::COMBO
+    public function updateOptions($field, Request $request, $flid = null, $prefix = 'records_') { //TODO::COMBO_FINISH
         $requestData = array_keys($request->all());
         //dd($request->all());
         foreach (['one', 'two'] as $seq) {
@@ -193,8 +193,8 @@ class ComboListField extends BaseField {
      * @param  Request $request
      * @param  bool $overwrite - Overwrite if data exists
      */
-    public function massAssignRecordField($form, $flid, $formFieldValue, $request, $overwrite=0) { //TODO::COMBO
-
+    public function massAssignRecordField($form, $flid, $formFieldValue, $request, $overwrite=0) {
+        null;
     }
 
     /**
@@ -206,8 +206,8 @@ class ComboListField extends BaseField {
      * @param  Request $request
      * @param  array $kids - The KIDs to update
      */
-    public function massAssignSubsetRecordField($form, $flid, $formFieldValue, $request, $kids) { //TODO::COMBO
-
+    public function massAssignSubsetRecordField($form, $flid, $formFieldValue, $request, $kids) {
+        null;
     }
 
     /**
@@ -260,7 +260,7 @@ class ComboListField extends BaseField {
      *
      * @return mixed - Processed data
      */
-    public function processRevisionData($data) { // TODO::COMBO
+    public function processRevisionData($data) {
         $return = '';
         foreach($data as $d) {
             $return .= '<div>'.$d['cfOne'].' --- '.$d['cfTwo'].'</div>';
@@ -415,18 +415,18 @@ class ComboListField extends BaseField {
      *
      * @return mixed - Processed data
      */
-    public function processXMLData($field, $value, $fid = null) { //TODO::COMBO
-        $form = FieldController::getField($field, '1');
+    public function processXMLData($field, $value, $fid = null) {
+        $fieldData = FieldController::getField($field, $fid);
+        $form = FormController::getForm($fid);
         $records = $this->retrieve($field, $fid, $value);
         $xml = "<$field>";
         foreach($records as $record) {
             $value = '<Value>';
             foreach (['one', 'two'] as $seq) {
-                $className = $this->fieldModel[$form[$seq]['type']];
-                $object = new $className;
+                $object = $form->getFieldModel($fieldData[$seq]['type']);
                 $value .= $object->processXMLData(
-                    $form[$seq]['name'],
-                    $record->{$form[$seq]['flid']}
+                    $fieldData[$seq]['name'],
+                    $record->{$fieldData[$seq]['flid']}
                 );
             }
             $value .= '</Value>';
@@ -588,7 +588,7 @@ class ComboListField extends BaseField {
      * @param  bool $blankOpt - Has blank option as first array element
      * @return array - The list options
      */
-    public static function getComboList($field, $blankOpt=false, $fnum) { //TODO::COMBO
+    public static function getComboList($field, $blankOpt=false, $fnum) { //TODO::COMBO_FINISH
         $options = array();
         foreach (self::getComboFieldOption($field, 'Options', $fnum) as $option) {
             $options[$option] = $option;
@@ -604,11 +604,11 @@ class ComboListField extends BaseField {
      * @param  int $seq - Sequence of sub field
      * @return array - The option
      */
-    public static function getComboFieldOption($field, $key, $seq) { //TODO::COMBO
+    public static function getComboFieldOption($field, $key, $seq) { //TODO::COMBO_FINISH
         return $field[$seq]['options'][$key];
     }
 
-    public function save(array $options = array()) { //TODO::COMBO
+    public function save(array $options = array()) { //TODO::COMBO_FINISH
         $field = $options['field'];
         $values = $options['values'];
         $table = $field['flid'] . $options['fid'];
@@ -634,7 +634,7 @@ class ComboListField extends BaseField {
         }
     }
 
-    public function retrieve($flid, $fid, $ids) { //TODO::COMBO
+    public function retrieve($flid, $fid, $ids) { //TODO::COMBO_FINISH
         $this->setTable($flid . $fid);
         return $this->findMany(json_decode($ids));
     }

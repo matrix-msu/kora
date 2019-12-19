@@ -106,7 +106,7 @@ Kora.Fields.TypedFieldInputs.Initialize = function() {
         });
     }
 
-    function initializeComboSubLists(fnum) { //TODO::COMBO
+    function initializeComboSubLists(fnum) { //TODO::COMBO_FINISH
         $('.list-input-form-group-combo').each(function() {
             var $listFormGroup = $(this);
             var $cardOptionsContainer = $listFormGroup.find('.list-option-card-container-'+fnum+'-js');

@@ -1103,7 +1103,7 @@ Kora.Fields.Options = function(fieldType) {
 
 	    //ASSOCIATOR OPTIONS
         //Sets up association configurations
-        $('.association-check-js').click(function() { //TODO::COMBO
+        $('.association-check-js').click(function() { //TODO::COMBO_FINISH
             var assocDiv = $(this).closest('.form-group').next();
             var input = assocDiv.children('select').first();
             if(this.checked) {
@@ -1115,7 +1115,7 @@ Kora.Fields.Options = function(fieldType) {
             }
         });
 
-        $('.assoc-search-records-js').on('keypress', function(e) { //TODO::COMBO
+        $('.assoc-search-records-js').on('keypress', function(e) { //TODO::COMBO_FINISH
             var keyCode = e.keyCode || e.which;
             if(keyCode === 13) {
                 e.preventDefault();
@@ -1148,7 +1148,7 @@ Kora.Fields.Options = function(fieldType) {
             }
         });
 
-        $('.assoc-select-records-js').change(function() { //TODO::COMBO
+        $('.assoc-select-records-js').change(function() { //TODO::COMBO_FINISH
             defaultBox = $(this).parent().next().children('.assoc-default-records-js');
 
             $(this).children('option').each(function() {
@@ -1167,7 +1167,7 @@ Kora.Fields.Options = function(fieldType) {
         });
 
         //LIST OPTIONS
-        function setCardTitleWidth() { //TODO::COMBO
+        function setCardTitleWidth() { //TODO::COMBO_FINISH
             var $cards = $('.list-option-card-js');
 
             $cards.each(function() {
@@ -1180,7 +1180,7 @@ Kora.Fields.Options = function(fieldType) {
         }
 
         // Function to add list options and the respective cards
-        function initializeListAddOption(fnum) { //TODO::COMBO
+        function initializeListAddOption(fnum) { //TODO::COMBO_FINISH
             var $addButton = $('.list-option-add-'+fnum+'-js');
             var $newListOptionInput = $('.new-list-option-'+fnum+'-js');
             var $cardContainer = $('.list-option-card-container-'+fnum+'-js');
@@ -1246,7 +1246,7 @@ Kora.Fields.Options = function(fieldType) {
             });
         }
 
-        function initializeListSort() { //TODO::COMBO
+        function initializeListSort() { //TODO::COMBO_FINISH
             $('.move-action-js').click(function(e) {
                 e.preventDefault();
 
@@ -1307,7 +1307,7 @@ Kora.Fields.Options = function(fieldType) {
             });
         }
 
-        function initializeListOptionDelete() { //TODO::COMBO
+        function initializeListOptionDelete() { //TODO::COMBO_FINISH
             var $listOptionCards = $('.list-option-card-js');
 
             $listOptionCards.each(function() {
@@ -1322,7 +1322,7 @@ Kora.Fields.Options = function(fieldType) {
             });
         }
 
-        function initializeMassListOptions(fnum) { //TODO::COMBO
+        function initializeMassListOptions(fnum) { //TODO::COMBO_FINISH
             $('.list-option-mass-copy-'+fnum+'-js').click(function(e) {
                 e.preventDefault();
 
@@ -1391,7 +1391,7 @@ Kora.Fields.Options = function(fieldType) {
             }
         }
 
-        function initializeDateOptions() { //TODO::COMBO
+        function initializeDateOptions() { //TODO::COMBO_FINISH
             $eraCheckboxes = $('.era-check-js');
             $prefixCheckboxes = $('.prefix-check-js');
 
