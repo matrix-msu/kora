@@ -50,7 +50,6 @@ class AdvancedSearchController extends Controller {
      * @return View
      */
     public function search($pid, $fid, Request $request) {
-
         if(!FormController::validProjForm($pid, $fid))
             return redirect('projects/'.$pid)->with('k3_global_error', 'form_invalid');
 

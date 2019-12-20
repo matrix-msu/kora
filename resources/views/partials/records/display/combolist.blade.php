@@ -1,12 +1,15 @@
 @php
-$oneName = $field['one']['name'];
-$twoName = $field['two']['name'];
-$oneType = $field['one']['type'];
-$twoType = $field['two']['type'];
-$oneFlid = $field['one']['flid'];
-$twoFlid = $field['two']['flid'];
+    $oneName = $field['one']['name'];
+    $twoName = $field['two']['name'];
+    $oneType = $field['one']['type'];
+    $twoType = $field['two']['type'];
+    $oneFlid = $field['one']['flid'];
+    $twoFlid = $field['two']['flid'];
 
-$items = $typedField->retrieve($flid, $form->id, $value);
+    $items = $typedField->retrieve($flid, $form->id, $value);
+
+    $recDisplayOne = $form->getFieldModel($oneType)::FIELD_DISPLAY_VIEW;
+    $recDisplayTwo = $form->getFieldModel($twoType)::FIELD_DISPLAY_VIEW;
 @endphp
 <div class="combo-list-display">
     <div>
@@ -27,8 +30,8 @@ $items = $typedField->retrieve($flid, $form->id, $value);
                 <span class="combo-border-small"> </span>
             @endif
 
-            <span class="combo-column">{{ $valueOne }}</span>
-            <span class="combo-column">{{ $valueTwo }}</span>
+            <span class="combo-column">@include($recDisplayOne, ['field'=>$field['one'], 'value'=>$valueOne])</span>
+            <span class="combo-column">@include($recDisplayTwo, ['field'=>$field['two'], 'value'=>$valueTwo])</span>
 
             {{--TODO::COMBO_FINISH--}}
 {{--            @if($oneType=='Text' | $oneType=='Date' | $oneType=='List' | $oneType=='Boolean')--}}

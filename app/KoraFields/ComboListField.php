@@ -144,8 +144,7 @@ class ComboListField extends BaseField {
 
             $form = new Form();
             $fieldRequest = new Request();
-            $className = $form->getFieldModel($type);
-            $object = new $className;
+            $object = $form->getFieldModel($type);
             foreach($updateIndices as $index) {
                 $fieldRequest->{str_replace("_$seq",'',$index)} = $request->{$index};
             }
@@ -222,7 +221,7 @@ class ComboListField extends BaseField {
     public function validateField($flid, $field, $request, $forceReq = false) {
         $req = $field['required'];
 
-        if(($req==1 | $forceReq) && !isset($request[$flid.'_combo_one']))
+        if(($req==1 | $forceReq) && !isset($request->{$flid.'_combo_one'}))
             return [$flid => $field['name'].' is required'];
 
         return array();
@@ -278,11 +277,11 @@ class ComboListField extends BaseField {
      *
      * @return Request - Processed data
      */
-    public function processImportData($flid, $field, $value, $request) { //TODO::COMBO
+    public function processImportData($flid, $field, $value, $request) {
         $request[$flid] = $flid;
 
         // Setting up for return request
-        foreach (['_combo_one', '_combo_two'] as $suffix) {
+        foreach(['_combo_one', '_combo_two'] as $suffix) {
             $request[$flid . $suffix] = [];
         }
 
@@ -296,8 +295,8 @@ class ComboListField extends BaseField {
                         $subSeq = $seq;
                     }
                 }
-                $className = $this->fieldModel[$type];
-                $object = new $className;
+                $form = new Form();
+                $object = $form->getFieldModel($type);
                 $request = $object->processImportData($subFlid, $field, $subValue, $request);
                 $values = $request->{$flid . '_combo_' . $subSeq};
                 $processedData = $object->processRecordData($field[$subSeq], $request->{$subFlid}, $request);
@@ -320,11 +319,11 @@ class ComboListField extends BaseField {
      *
      * @return Request - Processed data
      */
-    public function processImportDataXML($flid, $field, $value, $request) { //TODO::COMBO
+    public function processImportDataXML($flid, $field, $value, $request) {
         $request[$flid] = $flid;
 
         // Setting up for return request
-        foreach (['_combo_one', '_combo_two'] as $suffix) {
+        foreach(['_combo_one', '_combo_two'] as $suffix) {
             $request[$flid . $suffix] = [];
         }
 
@@ -338,8 +337,8 @@ class ComboListField extends BaseField {
                         $subSeq = $seq;
                     }
                 }
-                $className = $this->fieldModel[$type];
-                $object = new $className;
+                $form = new Form();
+                $object = $form->getFieldModel($type);
                 $request = $object->processImportDataXML($subFlid, $field, $subValue, $request);
                 $values = $request->{$flid . '_combo_' . $subSeq};
                 $processedData = $object->processRecordData($field[$subSeq], $request->{$subFlid}, $request);
@@ -361,11 +360,11 @@ class ComboListField extends BaseField {
      *
      * @return Request - Processed data
      */
-    public function processImportDataCSV($flid, $field, $value, $request) { //TODO::COMBO
+    public function processImportDataCSV($flid, $field, $value, $request) {
         $request[$flid] = $flid;
 
         // Setting up for return request
-        foreach (['_combo_one', '_combo_two'] as $suffix) {
+        foreach(['_combo_one', '_combo_two'] as $suffix) {
             $request[$flid . $suffix] = [];
         }
         $value = simplexml_load_string('<?xml version="1.0" encoding="utf-8"?><document>'. $value . '</document>');
@@ -380,8 +379,8 @@ class ComboListField extends BaseField {
                         $subSeq = $seq;
                     }
                 }
-                $className = $this->fieldModel[$type];
-                $object = new $className;
+                $form = new Form();
+                $object = $form->getFieldModel($type);
                 $request = $object->processImportDataXML($subFlid, $field, $subValue, $request);
                 $values = $request->{$flid . '_combo_' . $subSeq};
                 $processedData = $object->processRecordData($field[$subSeq], $request->{$subFlid}, $request);
@@ -401,7 +400,7 @@ class ComboListField extends BaseField {
      *
      * @return mixed - Processed data
      */
-    public function processDisplayData($field, $value) { //TODO::COMBO
+    public function processDisplayData($field, $value) {
         // See retrieve()
         return $value;
     }
@@ -480,7 +479,7 @@ class ComboListField extends BaseField {
      * @param  boolean $negative - Get opposite results of the search
      * @return array - The RIDs that match search
      */
-    public function keywordSearchTyped($flid, $arg, $recordMod, $form, $negative = false) { //TODO::COMBO
+    public function keywordSearchTyped($flid, $arg, $recordMod, $form, $negative = false) {
         if($negative)
             $param = 'NOT LIKE';
         else
@@ -519,64 +518,40 @@ class ComboListField extends BaseField {
      * @param  boolean $negative - Get opposite results of the search
      * @return array - The RIDs that match search
      */
-    public function advancedSearchTyped($flid, $query, $recordMod, $form, $negative = false) { //TODO::COMBO
+    public function advancedSearchTyped($flid, $query, $recordMod, $form, $negative = false) {
         $layout = $form->layout['fields'][$flid];
+        //We need to point at the combo table instead of the Form's record table
+        $formTable = $recordMod->getTable();
+        $recordMod->setTable($flid . $form->id);
 
-        return DB::table($flid . $form->id)
-            ->select("record_id")
-            ->where(function($db_query) use ($query, $layout, $negative) {
-                foreach(['one', 'two'] as $field_num) {
-                    $flid = $layout[$field_num]['flid'];
-                    if (!array_key_exists($flid . "_" . $field_num, $query)) {
-                        continue;
-                    }
-                    $type = $layout[$field_num]['type'];
-                    $values = $query[$flid . "_" . $field_num];
-                    switch($type){
-                        case Form::_INTEGER:
-                        case Form::_FLOAT:
-                            IntegerField::buildAdvancedNumberQuery(
-                                $db_query,
-                                $values['left'],
-                                $values['right'],
-                                isset($values['invert'])
-                            );
-                            break;
-                        case Form::_DATE:
-                            $from = date($values['begin_year'].'-'.$values['begin_month'].'-'.$values['begin_day']);
-                            $to = date($values['end_year'].'-'.$values['end_month'].'-'.$values['end_day']);
+        $typeone = $layout['one']['type'];
+        $typetwo = $layout['two']['type'];
+        $modelone = $form->getFieldModel($typeone);
+        $modeltwo = $form->getFieldModel($typetwo);
+        $flidone = $layout['one']['flid'];
+        $flidtwo = $layout['two']['flid'];
 
-                            if($negative)
-                                $db_query->whereNotBetween($flid, [$from, $to]);
-                            else
-                                $db_query->whereBetween($flid, [$from, $to]);
-                            break;
-                        case Form::_MULTI_SELECT_LIST:
-                        case Form::_GENERATED_LIST:
-                        case Form::_ASSOCIATOR:
-                            $inputs = $values['input'];
-                            if($negative) {
-                                foreach($inputs as $a)
-                                    $db_query->orWhereRaw("JSON_SEARCH(`$flid`,'one','$a') IS NULL");
-                            } else {
-                                foreach($inputs as $a)
-                                    $db_query->whereRaw("JSON_SEARCH(`$flid`,'one','$a') IS NOT NULL");
-                            }
-                            break;
-                        default: //Text, List, and Bool
-                            if($negative)
-                                $param = '!=';
-                            else
-                                $param = '=';
+        $resOne = $resTwo = [];
+        if(array_key_exists($flidone . "_one", $query[$flid])) {
+            $values = $query[$flid][$flidone . "_one"];
+            $resOne = $modelone->advancedSearchTyped($flidone, $values, $recordMod, $form);
+        }
+        if(array_key_exists($flidtwo . "_two", $query[$flid])) {
+            $values = $query[$flid][$flidtwo . "_two"];
+            $resTwo = $modeltwo->advancedSearchTyped($flidtwo, $values, $recordMod, $form);
+        }
 
-                            $input = $values['input'];
-                            $db_query->orWhere($flid, $param, "$input");
-                            break;
-                    }
-                }
-            })
+        $this->imitateMerge($resOne, $resTwo);
+
+        $final = $recordMod->newQuery()
+            ->select('record_id')
+            ->whereIn('id',$resOne)
             ->pluck('record_id')
             ->toArray();
+
+        //Reset the connection table
+        $recordMod->setTable($formTable);
+        return $final;
     }
 
     ///////////////////////////////////////////////END ABSTRACT FUNCTIONS///////////////////////////////////////////////
@@ -637,5 +612,11 @@ class ComboListField extends BaseField {
     public function retrieve($flid, $fid, $ids) { //TODO::COMBO_FINISH
         $this->setTable($flid . $fid);
         return $this->findMany(json_decode($ids));
+    }
+
+    private function imitateMerge(&$array1, &$array2) {
+        foreach($array2 as $i) {
+            $array1[] = $i;
+        }
     }
 }

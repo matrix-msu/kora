@@ -1,10 +1,5 @@
+{{--TODO::COMBO_FINISH--}}
 @switch($cftype)
-    @case('Text')
-    <div class="form-group {{ $cfnum != 'one' ? 'mt-sm' : null }}">
-        {!! Form::label($field[$cfnum]['flid']."_".$cfnum."_input",$cftitle) !!}
-        {!! Form::text($field[$cfnum]['flid']."_".$cfnum."_input", null, ['class' => 'text-input', 'placeholder' => 'Enter search text']) !!}
-    </div>
-    @break
     @case('Float')
     @case('Integer')
     <div class="form-group {{ $cfnum != 'one' ? 'mt-sm' : null }}">
