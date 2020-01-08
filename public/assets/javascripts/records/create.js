@@ -1099,8 +1099,23 @@ Kora.Records.Create = function() {
                             });
 
                             break;
-                        // case 'Combo List': //TODO::COMBO
-                        //     break;
+                        case 'Combo List': //TODO::COMBO_FINISH
+                            var comboDiv = $('.combo-value-div-js-' + flid + ' .combo-value-item-container-js');
+                            comboDiv.html('');
+
+                            value.forEach(function (cVal, index) {
+                                comboDiv.append(
+                                    '<div class="combo-value-item combo-value-item-js">' +
+                                    '<span class="combo-delete delete-combo-value-js tooltip" tooltip="Delete Combo Value"><i class="icon icon-trash"></i></span>' +
+                                    '<input type="hidden" name="' + flid + '_combo_one[]" value="' + cVal[0] + '">' +
+                                    '<span class="combo-column combo-value">' + cVal[0] + '</span>' +
+                                    '<input type="hidden" name="' + flid + '_combo_two[]" value="' + cVal[1] + '">' +
+                                    '<span class="combo-column combo-value">' + cVal[1] + '</span>' +
+                                    '</div>'
+                                );
+                            });
+
+                            break;
                     }
                 }
             }

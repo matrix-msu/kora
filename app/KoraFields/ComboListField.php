@@ -259,7 +259,7 @@ class ComboListField extends BaseField {
      *
      * @return mixed - Processed data
      */
-    public function processRevisionData($data) {
+    public function processRevisionData($data) { //TODO::COMBO_FINISH
         $return = '';
         foreach($data as $d) {
             $return .= '<div>'.$d['cfOne'].' --- '.$d['cfTwo'].'</div>';

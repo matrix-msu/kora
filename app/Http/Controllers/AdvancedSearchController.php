@@ -247,7 +247,7 @@ class AdvancedSearchController extends Controller {
                     );
                 }
 
-                foreach ($fields as $tmpField) {
+                foreach ($fields as $tmpField) { //TODO::NEWFIELD
                     $flid = $tmpField['flid'];
                     switch($tmpField['type']) {
                         case 'Integer':

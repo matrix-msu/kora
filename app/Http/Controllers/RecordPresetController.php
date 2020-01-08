@@ -1,5 +1,6 @@
 <?php namespace App\Http\Controllers;
 
+use App\KoraFields\ComboListField;
 use App\KoraFields\FileTypeField;
 use App\Record;
 use App\RecordPreset;
@@ -117,6 +118,15 @@ class RecordPresetController extends Controller {
                     default:
                         break;
                 }
+            } else if(!is_null($record->{$flid}) && $form->getFieldModel($field['type']) instanceof ComboListField) {
+                //TODO::COMBO_FINISH
+                $subField1 = $field['one']['flid'];
+                $subField2 = $field['two']['flid'];
+                $comboVal = [];
+                foreach($form->getFieldModel($field['type'])->retrieve($flid, $form->id, $dataArray[$flid]) as $comboRow) {
+                    $comboVal[] = [$comboRow->{$subField1},$comboRow->{$subField2}];
+                }
+                $dataArray[$flid] = $comboVal;
             }
         }
 

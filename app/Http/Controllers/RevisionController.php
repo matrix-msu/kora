@@ -191,7 +191,7 @@ class RevisionController extends Controller {
             case Revision::EDIT:
             case Revision::ROLLBACK:
                 $revArray['data'] = self::buildDataArray($record);
-                $revArray['oldData'] = self::buildDataArray($oldRecord);
+                $revArray['oldData'] = self::buildDataArray($oldRecord, true);
                 break;
             case Revision::DELETE:
                 $revArray['data'] = null;
@@ -210,14 +210,16 @@ class RevisionController extends Controller {
      * Builds the data array for the revision.
      *
      * @param  Record $record - Record to pull data from
+     * @param  boolean $old - Are we storing the old version of a record
      * @return array - The data for DB storage
      */
-    public static function buildDataArray(Record $record) {
+    public static function buildDataArray(Record $record, $old=false) {
         $data = [];
         $form = FormController::getForm($record->form_id);
 
         foreach(array_keys($form->layout['fields']) as $flid) {
-            if($form->layout['fields'][$flid]['type']==Form::_COMBO_LIST && !is_null($record->{$flid})) {
+            //NOTE::For edits, we've already processed the combo-data for the record, pre-edit.
+            if(!$old && $form->layout['fields'][$flid]['type']==Form::_COMBO_LIST && !is_null($record->{$flid})) {
                 $typedField = $form->getFieldModel(Form::_COMBO_LIST);
                 $cflid1 = $form->layout['fields'][$flid]['one']['flid'];
                 $cflid2 = $form->layout['fields'][$flid]['two']['flid'];

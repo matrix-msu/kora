@@ -445,6 +445,15 @@ class RecordController extends Controller {
         $kid = "$pid-$fid-$rid";
         $record = self::getRecord($kid);
         $oldRecordCopy = $record->replicate();
+        foreach($oldRecordCopy->attributesToArray() as $key => $value) {
+            if(isset($fieldsArray[$key]) && $fieldsArray[$key]['type']==Form::_COMBO_LIST) {
+                $typedField = $form->getFieldModel(Form::_COMBO_LIST);
+                $cflid1 = $fieldsArray[$key]['one']['flid'];
+                $cflid2 = $fieldsArray[$key]['two']['flid'];
+                //This is one thing we can't capture later so we need to process it now
+                $oldRecordCopy->{$key} = $typedField->setTable($key . $fid)->select(["$cflid1 as cfOne", "$cflid2 as cfTwo"])->findMany(json_decode($oldRecordCopy->{$key}));
+            }
+        }
         $notNulls = [];
 
         foreach($request->all() as $key => $value) {
