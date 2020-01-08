@@ -1,10 +1,5 @@
 @extends('fields.show')
 
-{{-- TODO::COMBO --}}
-{{-- @section('presetModal')
-	@include('partials.fields.fieldValuePresetModals.addComboRegexPresetModal', ['presets' => $presets])
-@stop --}}
-
 @section('fieldOptions')
     @php
         $oneType = $field['one']['type'];

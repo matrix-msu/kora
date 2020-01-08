@@ -154,45 +154,6 @@ class FieldController extends Controller {
         $presets = FieldValuePresetController::getPresetsSupported($pid,$field);
 
         return view($form->getFieldModel($field['type'])->getFieldOptionsView(), compact('flid', 'field', 'form', 'proj', 'presets'));
-
-        //Combo has two presets so we make an exception //TODO::COMBO
-//        if($field->type == Field::_COMBO_LIST) {
-//            //we are building an array about the association permissions to populate the layout
-//            $opt_layout_one = array();
-//            if(ComboListField::getComboFieldType($field,'one') == 'Associator') {
-//                $option1 = ComboListField::getComboFieldOption($field, 'SearchForms', 'one');
-//                if ($option1 != '') {
-//                    $options = explode('[!]', $option1);
-//
-//                    foreach ($options as $opt) {
-//                        $opt_fid = explode('[fid]', $opt)[1];
-//                        $opt_search = explode('[search]', $opt)[1];
-//                        $opt_flids = explode('[flids]', $opt)[1];
-//                        $opt_flids = explode('-', $opt_flids);
-//
-//                        $opt_layout_one[$opt_fid] = ['search' => $opt_search, 'flids' => $opt_flids];
-//                    }
-//                }
-//            }
-//            $opt_layout_two = array();
-//            if(ComboListField::getComboFieldType($field,'two') == 'Associator') {
-//                $option2 = ComboListField::getComboFieldOption($field, 'SearchForms', 'two');
-//                if ($option2 != '') {
-//                    $options = explode('[!]', $option2);
-//
-//                    foreach ($options as $opt) {
-//                        $opt_fid = explode('[fid]', $opt)[1];
-//                        $opt_search = explode('[search]', $opt)[1];
-//                        $opt_flids = explode('[flids]', $opt)[1];
-//                        $opt_flids = explode('-', $opt_flids);
-//
-//                        $opt_layout_two[$opt_fid] = ['search' => $opt_search, 'flids' => $opt_flids];
-//                    }
-//                }
-//            }
-//
-//            return view(ComboListField::FIELD_OPTIONS_VIEW, compact('field', 'form', 'proj', 'presets', 'opt_layout_one', 'opt_layout_two'));
-//        }
 	}
 
     /**

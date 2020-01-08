@@ -285,59 +285,6 @@ Kora.Fields.Show = function() {
         });
     }
 
-    function initializeComboPresetModals() { //TODO::COMBO
-        let option = '';
-
-        $('.open-regex-modal-js').click(function (e) {
-            e.preventDefault();
-
-            option = $(this).parent().parent().find('label').attr('for');
-            if (option.includes('one')) {
-                $('.add-regex-one').next().show();
-                $('.add-regex-two').next().hide();
-            } else {
-                $('.add-regex-one').next().hide();
-                $('.add-regex-two').next().show();
-            }
-        });
-
-        $('.add-combo-preset-js').click(function (e) {
-            e.preventDefault();
-
-            let select = $('.add-regex-preset-modal-js select');
-            let value = '';
-            if (option.includes('one')) {
-                value = select[0].value;
-            } else {
-                value = select[1].value;
-            }
-
-            if (option.includes('regex')) {
-                $('[name="'+option+'"]').val(value);
-            } else {
-                let listVal = value;
-                listValArray = listVal.split('[!]');
-
-                //clear old values
-                let optDiv = $('[name="'+option+'\[\]"]');
-                optDiv.html('');
-
-                //Loop through results to
-                for(let i = 0; i < listValArray.length; i++) {
-                    let option = $("<option>").val(listValArray[i]).text(listValArray[i]);
-
-                    optDiv.append(option.clone());
-                }
-
-                //refresh chosen
-                optDiv.find($('option')).prop('selected', true);
-                optDiv.trigger("chosen:updated");
-            }
-
-            Kora.Modal.close();
-        });
-    }
-
     function scrollTop (allScrolls) {
       var scrollTo = Math.min(...allScrolls);
       var scrollTo = scrollTo - 100;
@@ -421,7 +368,7 @@ Kora.Fields.Show = function() {
         });
     }
 
-    function validateAdvancedOptions(currType) {
+    function validateAdvancedOptions(currType) { //TODO::NEWFIELD
         var valid = true;
 
         switch(currType) {
@@ -559,6 +506,5 @@ Kora.Fields.Show = function() {
     initializeCleanUpModals();
     initializeRegexPresetModals();
     initializeListPresetModals();
-    initializeComboPresetModals();
     initializeValidation();
 }
