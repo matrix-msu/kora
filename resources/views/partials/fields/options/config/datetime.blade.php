@@ -50,13 +50,3 @@
 </div>
 
 @include("partials.fields.modals.changeDefaultYearModal")
-
-<div class="form-group mt-xl">
-    {!! Form::label('prefix' . $seq,'Show Prefixes?') !!}
-    {!! Form::select('prefix' . $seq, [0 => 'No', 1 => 'Yes'], $field['options']['ShowPrefix'], ['class' => 'single-select']) !!}
-</div>
-
-<div class="form-group mt-xl">
-    {!! Form::label('era' . $seq,'Show Calendar/Date Notation?') !!}
-    {!! Form::select('era' . $seq, [0 => 'No', 1 => 'Yes'], $field['options']['ShowEra'], ['class' => 'single-select']) !!}
-</div>

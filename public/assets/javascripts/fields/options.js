@@ -285,47 +285,6 @@ Kora.Fields.Options = function(fieldType) {
         }
     }
 
-    function initializeGeneratedListOptions() {
-        var listOpt = $('.genlist-options-js');
-        var listDef = $('.genlist-default-js');
-
-        var inputOpt = listOpt.siblings('.chosen-container');
-        var childCheckOpt = inputOpt.children('.chosen-drop').children('.chosen-results');
-        var inputDef = listDef.siblings('.chosen-container');
-        var childCheck = inputDef.children('.chosen-drop').children('.chosen-results');
-
-        listOpt.find('option').prop('selected', true);
-        listOpt.trigger("chosen:updated");
-
-        listOpt.chosen().change(function() {
-            //When option de-selected, we delete it from list
-            listOpt.find('option').not(':selected').remove();
-            listOpt.trigger("chosen:updated");
-        });
-
-        listOpt.bind("DOMSubtreeModified",function(){
-            var options = listOpt.html();
-            listDef.html(options);
-            listDef.trigger("chosen:updated");
-        });
-
-        inputOpt.on('click', function () {
-          if (childCheckOpt.children().length === 0) {
-            childCheckOpt.append('<li class="no-results">No options to select!</li>');
-          } else if (childCheckOpt.children('.active-result').length === 0 && childCheckOpt.children('.no-results').length === 0) {
-            childCheckOpt.append('<li class="no-results">No more options to select!</li>');
-          }
-        });
-
-        inputDef.on('click', function () {
-          if (childCheck.children().length === 0) {
-            childCheck.append('<li class="no-results">No options to select!</li>');
-          } else if (childCheck.children('.active-result').length === 0 && childCheck.children('.no-results').length === 0) {
-            childCheck.append('<li class="no-results">No more options to select!</li>');
-          }
-        });
-    }
-
     function initializeList(listType = '') {
         Kora.Modal.initialize();
 
@@ -371,9 +330,10 @@ Kora.Fields.Options = function(fieldType) {
 
                     // If generated list, name of hidden input needs to be field name when creating records cause it shares this option code
                     var optionName = "options[]";
-                    if (listType == 'GenList') {
-                      optionName = $newListOptionInput.data('flid') + "[]";
-                    }
+                    if(listType == 'GenList')
+                        optionName = "default[]";
+                    if(listType == 'GenListRecord')
+                        optionName = $newListOptionInput.data('flid') + "[]";
 
                     //Foreach option
                     for(newOpt in newListOptions) {
@@ -1518,10 +1478,10 @@ Kora.Fields.Options = function(fieldType) {
             initializeDateOptions();
             break;
         case 'Generated List':
-            initializeList();
-            break;
-        case 'Generated List Record': //Rare exception to handle gen list interactions that share code between field options inputs and record creation inputs
             initializeList('GenList');
+            break;
+        case 'Generated List Record': //Exception to handle gen list interactions that share code between field options inputs and record creation inputs
+            initializeList('GenListRecord');
             break;
         case 'List':
             initializeList();

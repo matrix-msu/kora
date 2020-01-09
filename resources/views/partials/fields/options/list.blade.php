@@ -7,11 +7,8 @@
 
 @section('fieldOptions')
     @include('partials.fields.options.config.list')
-    <div class="form-group mt-70-xl">
-        {!! Form::label('default','Default') !!}
-        {!! Form::select('default',[null=>'']+\App\KoraFields\ListField::getList($field), $field['default'],
-        ['class' => 'single-select list-default-js', 'data-placeholder' => 'Select the default value here (Value must be added above in order to select)']) !!}
-    </div>
+
+    @include('partials.fields.options.defaults.list')
 @stop
 
 @section('fieldOptionsJS')

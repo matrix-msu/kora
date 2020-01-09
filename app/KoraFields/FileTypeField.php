@@ -735,6 +735,7 @@ abstract class FileTypeField extends BaseField {
                     // Send file, but define type for browsers sake
                     header('Content-Type: '. mime_content_type($filePath));
                     readfile($filePath);
+                    exit;
                 }
                 break;
             case self::_JoyentManta:

@@ -81,7 +81,7 @@ class GeneratedListField extends BaseField {
      * @return array - The default options
      */
     public function getDefaultOptions($type = null) {
-        return ['Regex' => '', 'Options' => ['Please Modify List Values']];
+        return ['Regex' => ''];
     }
 
     /**
@@ -101,13 +101,12 @@ class GeneratedListField extends BaseField {
             $request->regex = null;
         }
 
-        if(is_null($request->options)) {
-            $request->options = array();
+        if(is_null($request->default)) {
+            $request->default = array();
         }
 
-        $field['default'] = $request->options;
+        $field['default'] = $request->default;
         $field['options']['Regex'] = $request->regex;
-        $field['options']['Options'] = $request->options;
 
         return $field;
     }
@@ -370,8 +369,10 @@ class GeneratedListField extends BaseField {
      */
     public static function getList($field) {
         $options = ['Options' => array()];
-        foreach ($field['options']['Options'] as $option) {
-            $options['Options'][$option] = $option;
+        if(!is_null($field['default'])) {
+            foreach($field['default'] as $option) {
+                $options['Options'][$option] = $option;
+            }
         }
         return $options;
     }

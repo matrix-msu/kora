@@ -8,16 +8,20 @@
         </div>
         <div class="body">
             <section class="combo-list-input-one">
-                @include(
-                    "partials.fields.options.defaults.$subViewOne",
-                    ['field'=>$field['one'], 'seq' => 'one', 'cfName'=>$oneName]
-                )
+                @if(\Illuminate\Support\Facades\View::exists('partials.fields.options.defaults.' . $subViewOne))
+                    @include(
+                        "partials.fields.options.defaults.$subViewOne",
+                        ['field'=>$field['one'], 'seq' => 'one', 'cfName'=>$oneName]
+                    )
+                @endif
             </section>
             <section class="combo-list-input-two mt-xxl">
-                @include(
-                    "partials.fields.options.defaults.$subViewTwo",
-                    ['field'=>$field['two'], 'seq' => 'two', 'cfName'=>$twoName]
-                )
+                @if(\Illuminate\Support\Facades\View::exists('partials.fields.options.defaults.' . $subViewTwo))
+                    @include(
+                        "partials.fields.options.defaults.$subViewTwo",
+                        ['field'=>$field['two'], 'seq' => 'two', 'cfName'=>$twoName]
+                    )
+                @endif
             </section>
             <section class="form-group mt-xxl">
                 <input class="btn add-combo-value-js disabled" type="button" value="Create Default Combo Value">        

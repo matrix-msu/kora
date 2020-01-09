@@ -64,3 +64,11 @@
     @endforeach
     @if(count($associations) == 0) No Forms Associated @endif
 </div>
+
+<input name="flids{{$seq}}" type="hidden" value="">
+
+<div class="form-group mt-sm">
+    <p class="sub-text">
+        If no forms are available, have a Form Admin request permission to forms by using the Association Permissions page.
+    </p>
+</div>

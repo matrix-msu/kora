@@ -38,10 +38,12 @@
             <label>Field Options for "{{ $oneName }}"</label>
             <div class="spacer"></div>
         </div>
-        @include(
-            'partials.fields.options.config.' . $subViewOne,
-            ['field'=>$field['one'], 'seq' => 'one']
-        )
+        @if(\Illuminate\Support\Facades\View::exists('partials.fields.options.config.' . $subViewOne))
+            @include(
+                'partials.fields.options.config.' . $subViewOne,
+                ['field'=>$field['one'], 'seq' => 'one']
+            )
+        @endif
     </section>
 
     <section class="combo-list-options-two">
@@ -49,10 +51,12 @@
             <label>Field Options for "{{ $twoName }}"</label>
             <div class="spacer"></div>
         </div>
-        @include(
-            'partials.fields.options.config.' . $subViewTwo,
-            ['field'=>$field['two'], 'seq' => 'two']
-        )
+        @if(\Illuminate\Support\Facades\View::exists('partials.fields.options.config.' . $subViewTwo))
+            @include(
+                'partials.fields.options.config.' . $subViewTwo,
+                ['field'=>$field['two'], 'seq' => 'two']
+            )
+        @endif
     </section>
 
     <div class="form-group mt-xxxl">

@@ -20,5 +20,5 @@
 <div class="form-group multi-line-js hidden">
     {!! Form::label('default' . $seq, $title) !!}
     <span class="error-message multi-line"></span>
-    {!! Form::textarea('default' . $seq, $default, ['class' => 'text-area text-area-default text-area-default-js', 'placeholder' => "Enter default value here", 'disabled' => 'disabled']) !!}
+    {!! Form::textarea('default' . $seq, $default, ['class' => 'text-area text-area-default text-area-default-js '.$defClass, 'placeholder' => "Enter default value here", 'disabled' => 'disabled']) !!}
 </div>
