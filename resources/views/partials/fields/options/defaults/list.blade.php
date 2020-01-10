@@ -11,7 +11,7 @@
         $defClass = '';
     }
 @endphp
-<div class="form-group mt-70-xl">
+<div class="form-group mt-xxxl">
     {!! Form::label('default' . $seq, $title) !!}
     {!! Form::select('default' . $seq,[null=>'']+\App\KoraFields\ListField::getList($field), $default,
     ['class' => 'single-select list-default-js '.$defClass, 'data-placeholder' => 'Select the default value here (Value must be added above in order to select)']) !!}

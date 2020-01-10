@@ -18,6 +18,7 @@
         <input
                 type="number"
                 name="default{{$seq}}"
+                id="default{{$seq}}"
                 class="text-input number-default-js {{$defClass}}"
                 value="{{ $default }}"
                 placeholder="Enter number here"

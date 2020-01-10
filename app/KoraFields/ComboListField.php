@@ -122,7 +122,6 @@ class ComboListField extends BaseField {
      */
     public function updateOptions($field, Request $request, $flid = null, $prefix = 'records_') { //TODO::COMBO_FINISH
         $requestData = array_keys($request->all());
-        //dd($request->all());
         foreach (['one', 'two'] as $seq) {
             $updateIndices = preg_grep('/\w+_'.$seq.'/',$requestData);
             $type = $request->{'type' . $seq};
@@ -146,8 +145,9 @@ class ComboListField extends BaseField {
             $fieldRequest = new Request();
             $object = $form->getFieldModel($type);
             foreach($updateIndices as $index) {
-                $fieldRequest->{str_replace("_$seq",'',$index)} = $request->{$index};
+                $fieldRequest->merge([str_replace("_$seq",'',$index) => $request->{$index}]);// ->{str_replace("_$seq",'',$index)} = $request->{$index};
             }
+            $fieldRequest->fid = $request->fid;
             $field[$seq] = $object->updateOptions(
                 $field[$seq],
                 $fieldRequest,

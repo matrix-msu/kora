@@ -71,10 +71,14 @@ class GenerateThumbs extends Command
                             $thumbPath = storage_path('app/files/' . $form->project_id . '/' . $form->id . '/' . $record->id . '/' . $thumbFilename);
 
                             //Check if we already made the thumb
-                            if (!file_exists($thumbPath)) {
-                                $tImage = new \Imagick($filePath);
-                                $tImage->thumbnailImage($thumbParts[0], $thumbParts[1], true);
-                                $tImage->writeImage($thumbPath);
+                            if(!file_exists($thumbPath)) {
+                                try {
+                                    $tImage = new \Imagick($filePath);
+                                    $tImage->thumbnailImage($thumbParts[0], $thumbParts[1], true);
+                                    $tImage->writeImage($thumbPath);
+                                } catch(\Exception $e) {
+                                    $this->info("File $filePath failed\n");
+                                }
                             }
                             break;
                         case FileTypeField::_JoyentManta:

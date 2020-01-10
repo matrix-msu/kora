@@ -1,11 +1,12 @@
 @php
     if(isset($seq)) { //Combo List
+        $jseq = $seq . '-';
         $seq = '_' . $seq;
         $title = $cfName.' ';
         $default = null;
         $defClass = 'default-input-js';
     } else {
-        $seq = '';
+        $seq = $jseq = '';
         $title = '';
         $default = $field['default'];
         $defClass = '';
@@ -48,7 +49,7 @@
 
     <div class="form-group">
         <label>{{$title}}Default Year</label>
-        <select name="default_year{{$seq}}" class="single-select default-year-js {{$defClass}}" data-placeholder="Select a Year">
+        <select name="default_year{{$seq}}" id="default_year{{$seq}}" class="single-select default-year-{{$jseq}}js {{$defClass}}" data-placeholder="Select a Year">
             <option value=""></option>
             @php
                 if(!is_null($default) && $default['year'] === 0)

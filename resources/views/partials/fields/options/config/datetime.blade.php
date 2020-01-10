@@ -1,8 +1,9 @@
 @php
-    if(isset($seq))
+    if(isset($seq)) {
+        $jseq = $seq . '-';
         $seq = '_' . $seq;
-    else
-        $seq = '';
+    } else
+        $seq = $jseq = '';
 @endphp
 <div class="form-group mt-xl">
     {!! Form::label('format' . $seq,'Date Format') !!}
@@ -18,12 +19,12 @@
             if ($start == 0)
                 $start = date("Y");
         @endphp
-        {!! Form::input('number', 'start' . $seq, $start, ['class' => 'text-input start-year-js', 'placeholder' => 'Enter start year here', 'data-current-year-id' => 'start']) !!}
-        {!! Form::input('hidden', 'start' . $seq, 0, ['class' => 'hidden-current-year-js', 'disabled']) !!}
+        {!! Form::input('number', 'start' . $seq, $start, ['class' => 'text-input start-year-'.$jseq.'js', 'placeholder' => 'Enter start year here', 'data-current-year-id' => 'start']) !!}
+        {!! Form::input('hidden', 'start' . $seq, 0, ['class' => 'hidden-current-year-'.$jseq.'js', 'disabled']) !!}
     </div>
 
     <div class="check-box-half mt-m">
-        {!! Form::input('checkbox', 'start-current-year' . $seq, null, ['class' => 'check-box-input current-year-js', 'data-current-year-id' => 'start', ($field['options']['Start'] == 0 ? 'checked' : '')]) !!}
+        {!! Form::input('checkbox', 'start-current-year' . $seq, null, ['class' => 'check-box-input current-year-'.$jseq.'js', 'data-current-year-id' => 'start', ($field['options']['Start'] == 0 ? 'checked' : '')]) !!}
         <span class="check"></span>
         <span class="placeholder">Use Current Year as Start Year</span>
     </div>
@@ -38,12 +39,12 @@
             if ($end == 0)
                 $end = date("Y");
         @endphp
-        {!! Form::input('number', 'end' . $seq, $end, ['class' => 'text-input end-year-js', 'placeholder' => 'Enter end year here', 'data-current-year-id' => 'end', ]) !!}
-        {!! Form::input('hidden', 'end' . $seq, 0, ['class' => 'hidden-current-year-js', 'disabled']) !!}
+        {!! Form::input('number', 'end' . $seq, $end, ['class' => 'text-input end-year-'.$jseq.'js', 'placeholder' => 'Enter end year here', 'data-current-year-id' => 'end', ]) !!}
+        {!! Form::input('hidden', 'end' . $seq, 0, ['class' => 'hidden-current-year-'.$jseq.'js', 'disabled']) !!}
     </div>
 
     <div class="check-box-half mt-m">
-        {!! Form::input('checkbox', 'end-current-year' . $seq, null, ['class' => 'check-box-input current-year-js', 'data-current-year-id' => 'end', ($field['options']['End'] == 0 ? 'checked' : '')]) !!}
+        {!! Form::input('checkbox', 'end-current-year' . $seq, null, ['class' => 'check-box-input current-year-'.$jseq.'js', 'data-current-year-id' => 'end', ($field['options']['End'] == 0 ? 'checked' : '')]) !!}
         <span class="check"></span>
         <span class="placeholder">Use Current Year as End Year</span>
     </div>
