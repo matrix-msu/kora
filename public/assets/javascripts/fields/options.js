@@ -835,6 +835,10 @@ Kora.Fields.Options = function(fieldType) {
             Kora.Modal.open($('.combolist-add-list-value-modal-js'));
         });
 
+        console.log($('.default-input-js'));
+        if($('.default-input-js').length==0)
+            $('.add-combo-value-js').removeClass('disabled');
+
         $('.default-input-js').on('blur change', function(e) {
             e.preventDefault();
 
@@ -852,6 +856,17 @@ Kora.Fields.Options = function(fieldType) {
         $('.add-combo-value-js').click(function() {
             //Grab the default values entered
             switch(type1) {
+                case 'Rich Text':
+                    val1 = CKEDITOR.instances['default_one'].getData();
+                    break;
+                case 'Boolean':
+                    val1 = 0;
+                    if($('[name="default_one"]').prop('checked') == true)
+                        val1 = 1;
+                    break;
+                case 'Generated List':
+                    val1 = $('[name="default_one[]"]').map((x, elm) => elm.value).get().join(',');
+                    break;
                 case 'Date':
                     monthOne = $('#default_month_one').val(); dayOne = $('#default_day_one').val(); yearOne = $('#default_year_one').val();
                     val1 = pad(yearOne,4) + '-' + pad(monthOne,2) + '-' + pad(dayOne,2);
@@ -862,12 +877,45 @@ Kora.Fields.Options = function(fieldType) {
                     val1 = pad(yearOne,4) + '-' + pad(monthOne,2) + '-' + pad(dayOne,2) + ' '
                         + pad(hourOne,2) + ':' + pad(minuteOne,2) + ':' + pad(secondOne,2);
                     break;
+                case 'Historical Date':
+                    monthOne = $('#default_month_one').val(); dayOne = $('#default_day_one').val(); yearOne = $('#default_year_one').val();
+                    dateArray = [pad(yearOne,4)];
+                    if(monthOne != '' && !$('#default_month_one').is(":disabled")) {
+                        dateArray.push(pad(monthOne,2));
+                        if(dayOne != '' && !$('#default_day_one').is(":disabled"))
+                            dateArray.push(pad(dayOne,2));
+                    }
+                    dateOne = dateArray.join('-');
+
+                    eraOne = ''
+                    $('[name="default_era_one"]').each(function () {
+                        if($(this).is(':checked'))
+                            eraOne = ' ' + $(this).val();
+                    });
+                    prefixOne = '';
+                    $('[name="default_prefix_one"]').each(function () {
+                        if($(this).is(':checked'))
+                            prefixOne = $(this).val() + ' ';
+                    });
+                    val1 = prefixOne + dateOne + eraOne;
+                    break;
                 default:
                     val1 = $('#default_one').val();
                     break;
             }
 
             switch(type2) {
+                case 'Rich Text':
+                    val2 = CKEDITOR.instances['default_two'].getData();
+                    break;
+                case 'Boolean':
+                    val2 = 0;
+                    if($('[name="default_two').prop('checked') == true)
+                        val2 = 1;
+                    break;
+                case 'Generated List':
+                    val2 = $('[name="default_two[]"]').map((x, elm) => elm.value).get().join(',');
+                    break;
                 case 'Date':
                     monthTwo = $('#default_month_two').val(); dayTwo = $('#default_day_two').val(); yearTwo = $('#default_year_two').val();
                     val2 = pad(yearTwo,4) + '-' + pad(monthTwo,2) + '-' + pad(dayTwo,2);
@@ -878,6 +926,28 @@ Kora.Fields.Options = function(fieldType) {
                     val2 = pad(yearTwo,4) + '-' + pad(monthTwo,2) + '-' + pad(dayTwo,2) + ' '
                         + pad(hourTwo,2) + ':' + pad(minuteTwo,2) + ':' + pad(secondTwo,2);
                     break;
+                case 'Historical Date':
+                    monthTwo = $('#default_month_two').val(); dayTwo = $('#default_day_two').val(); yearTwo = $('#default_year_two').val();
+                    dateArray = [pad(yearTwo,4)];
+                    if(monthTwo != '' && !$('#default_month_two').is(":disabled")) {
+                        dateArray.push(pad(monthTwo,2));
+                        if(dayTwo != '' && !$('#default_day_two').is(":disabled"))
+                            dateArray.push(pad(dayTwo,2));
+                    }
+                    dateTwo = dateArray.join('-');
+
+                    eraTwo = ''
+                    $('[name="default_era_two"]').each(function () {
+                        if($(this).is(':checked'))
+                            eraTwo = ' ' + $(this).val();
+                    });
+                    prefixTwo = '';
+                    $('[name="default_prefix_two"]').each(function () {
+                        if($(this).is(':checked'))
+                            prefixTwo = $(this).val() + ' ';
+                    });
+                    val2 = prefixTwo + dateTwo + eraTwo;
+                    break;
                 default:
                     val2 = $('#default_two').val();
                     break;
@@ -885,19 +955,6 @@ Kora.Fields.Options = function(fieldType) {
 
             console.log(val1);
             console.log(val2);
-
-            //TODO::COMBO_FINISH
-
-            // if(type1=='Boolean') {
-            //     if (inputOne.prop('checked') != true) {
-            //         val1 = 0;
-            //     }
-            // }
-            // if(type2=='Boolean') {
-            //     if (inputTwo.prop('checked') != true) {
-            //         val2 = 0;
-            //     }
-            // }
 
             defaultDiv = $('.combo-value-div-js');
 
@@ -931,10 +988,14 @@ Kora.Fields.Options = function(fieldType) {
                 $('.combolist-add-new-list-value-modal-js').addClass('mt-xxl');
 
                 //Clear out entered default values
-                // TODO::COMBO_FINISH
                 switch(type1) {
+                    case 'Boolean':
+                        $('[name="default_one"]').prop('checked', false);
+                    case 'Generated List':
+                        $('.list-option-card-container-one-js').html('');
                     case 'Date':
                     case 'DateTime':
+                    case 'Historical Date':
                         $('#default_month_one').val('');
                         $('#default_day_one').val('');
                         $('#default_year_one').val('');
@@ -942,20 +1003,33 @@ Kora.Fields.Options = function(fieldType) {
                         $('#default_day_one').trigger("chosen:updated");
                         $('#default_year_one').trigger("chosen:updated");
                         break;
+                    case 'Associator':
+                        $('#default_one').val('');
+                        $('#default_one').trigger("chosen:updated");
+                        break;
                     default:
                         $('#default_one').val('');
                         break;
                 }
 
                 switch(type2) {
+                    case 'Boolean':
+                        $('[name="default_two"]').prop('checked', false);
+                    case 'Generated List':
+                        $('.list-option-card-container-two-js').html('');
                     case 'Date':
                     case 'DateTime':
+                    case 'Historical Date':
                         $('#default_month_two').val('');
                         $('#default_day_two').val('');
                         $('#default_year_two').val('');
                         $('#default_month_two').trigger("chosen:updated");
                         $('#default_day_two').trigger("chosen:updated");
                         $('#default_year_two').trigger("chosen:updated");
+                        break;
+                    case 'Associator':
+                        $('#default_two').val('');
+                        $('#default_two').trigger("chosen:updated");
                         break;
                     default:
                         $('#default_two').val('');
@@ -984,7 +1058,7 @@ Kora.Fields.Options = function(fieldType) {
 
 	    //ASSOCIATOR OPTIONS
         //Sets up association configurations
-        $('.association-check-js').click(function() { //TODO::COMBO_FINISH
+        $('.association-check-js').click(function() {
             var assocDiv = $(this).closest('.form-group').next();
             var input = assocDiv.children('select').first();
             if(this.checked) {
@@ -996,13 +1070,13 @@ Kora.Fields.Options = function(fieldType) {
             }
         });
 
-        $('.assoc-search-records-js').on('keypress', function(e) { //TODO::COMBO_FINISH
+        $('.assoc-search-records-js').on('keypress', function(e) {
             var keyCode = e.keyCode || e.which;
             if(keyCode === 13) {
                 e.preventDefault();
 
                 var keyword = $(this).val();
-                var combo = $(this).data('combo');
+                var combo = $(this).attr('combo');
                 var resultsBox = $(this).parent().next().children('.assoc-select-records-js').first();
                 //Clear old values
                 resultsBox.html('');
@@ -1023,13 +1097,17 @@ Kora.Fields.Options = function(fieldType) {
 
                             resultsBox.append(opt);
                             resultsBox.trigger("chosen:updated");
+
+                            resultInput = resultsBox.next().find('.chosen-search-input').first();
+                            resultInput.val('');
+                            resultInput.click();
                         }
                     }
                 });
             }
         });
 
-        $('.assoc-select-records-js').change(function() { //TODO::COMBO_FINISH
+        $('.assoc-select-records-js').change(function() {
             defaultBox = $(this).parent().next().children('.assoc-default-records-js');
 
             $(this).children('option').each(function() {
@@ -1092,7 +1170,7 @@ Kora.Fields.Options = function(fieldType) {
 
                         // Create and display new card
                         var newCardHtml = '<div class="card list-option-card list-option-card-js" data-list-value="' + newListOption + '">' +
-                            '<input type="hidden" class="list-option-js" name="options_'+fnum+'[]" value="' + newListOption + '">' +
+                            '<input type="hidden" class="list-option-js" name="default_'+fnum+'[]" value="' + newListOption + '">' +
                             '<div class="header">' +
                             '<div class="left">' +
                             '<div class="move-actions">' +
@@ -1292,30 +1370,27 @@ Kora.Fields.Options = function(fieldType) {
             var currentYear = new Date().getFullYear();
             var scrollBarWidth = 17;
 
-            $eraCheckboxes = $('.era-check-'+fnum+'-js');
-            $prefixCheckboxes = $('.prefix-check-'+fnum+'-js');
-
-            $prefixCheckboxes.click(function() {
+            $('.prefix-check-'+fnum+'-js').click(function() {
                 var $selected = $(this);
                 $isChecked = $selected.prop('checked');
 
-                $prefixCheckboxes.prop('checked', false);
+                $('.prefix-check-'+fnum+'-js').prop('checked', false);
                 if($isChecked)
                     $selected.prop('checked', true);
             });
-            $eraCheckboxes.click(function() {
+            $('.era-check-'+fnum+'-js').click(function() {
                 var $selected = $(this);
 
-                $eraCheckboxes.prop('checked', false);
+                $('.era-check-'+fnum+'-js').prop('checked', false);
                 $selected.prop('checked', true);
 
                 currEra = $selected.val();
-                $month = $('[id^=default_month_]');
-                $day = $('[id^=default_day_]');
+                $month = $('#default_month_'+fnum);
+                $day = $('#default_day_'+fnum);
 
                 if(currEra=='BP' | currEra=='KYA BP') {
-                    $month.attr('disabled','disabled').val('');
-                    $day.attr('disabled','disabled').val('');
+                    $month.attr('disabled','disabled');
+                    $day.attr('disabled','disabled');
                     $month.trigger("chosen:updated");
                     $day.trigger("chosen:updated");
                 } else {

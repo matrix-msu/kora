@@ -1,10 +1,12 @@
 @php
     if(isset($seq)) { //Combo List
+        $assocNum = $seq;
         $seq = '_' . $seq;
         $title = $cfName.' ';
         $default = null;
         $defClass = 'default-input-js';
     } else {
+        $assocNum = '';
         $seq = '';
         $title = '';
         $default = $field['default'];
@@ -18,7 +20,7 @@
 <div class="form-group associator-input mt-xl">
     <div>
         {!! Form::label('search','Search Associations') !!}
-        <input type="text" class="text-input assoc-search-records-js" placeholder="Enter search term or KID to find associated records (populated below)">
+        <input type="text" class="text-input assoc-search-records-js" placeholder="Enter search term or KID to find associated records (populated below)" {{$assocNum != '' ? "combo=$assocNum" : ''}}>
 
         <p class="sub-text mt-sm">
             Enter a search term or KID and hit enter to search. Results will then be populated in the "Association Results" field below.
@@ -46,7 +48,7 @@
         @endphp
         {!! Form::label('default'.$seq,'Select Default Associations') !!}
         {!! Form::select('default'.$seq.'[]', $defaultArray, $defaultArray, ['class' => 'multi-select assoc-default-records-js '.$defClass, 'multiple',
-            "data-placeholder" => "Search below to add associated records"]) !!}
+            "data-placeholder" => "Search below to add associated records", 'id'=>'default'.$seq]) !!}
 
         <p class="sub-text mt-sm">
             To add associated records, Start a search for records in the "Search Associations" field above.

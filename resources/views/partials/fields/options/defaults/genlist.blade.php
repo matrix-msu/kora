@@ -4,12 +4,10 @@
         $seq = '_' . $seq;
         $title = $cfName;
         $default = array();
-        $defClass = 'default-input-js';
     } else {
         $seq = $jseq = '';
         $title = 'Default';
         $default = !is_null($field['default']) ? $field['default'] : array();
-        $defClass = '';
     }
 @endphp
 <div class="form-group specialty-field-group list-input-form-group {{$seq ? 'list-input-form-group-combo mt-xxl' : ''}}">
@@ -19,7 +17,7 @@
         <p class="directions">Add List Options below, and order them via drag & drop or their arrow icons.</p>
 
         <!-- Cards of list options -->
-        <div class="list-option-card-container list-option-card-container-{{$jseq}}js {{$defClass}}">
+        <div class="list-option-card-container list-option-card-container-{{$jseq}}js">
             @foreach($default as $option)
                 <div class="card list-option-card list-option-card-js" data-list-value="{{ $option }}">
                     <input type="hidden" class="list-option-js" name="default{{$seq}}[]" value="{{ $option }}">

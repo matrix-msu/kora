@@ -1,11 +1,12 @@
 @php
     if(isset($seq)) { //Combo List
+        $jseq = $seq . '-';
         $seq = '_' . $seq;
         $title = $cfName.' ';
         $default = null;
         $defClass = 'default-input-js';
     } else {
-        $seq = '';
+        $seq = $jseq = '';
         $title = '';
         $default = $field['default'];
         $defClass = '';
@@ -25,12 +26,12 @@
             '07' => '07 - '.date("F", mktime(0, 0, 0, 7, 10)), '08' => '08 - '.date("F", mktime(0, 0, 0, 8, 10)),
             '09' => '09 - '.date("F", mktime(0, 0, 0, 9, 10)), '10' => '10 - '.date("F", mktime(0, 0, 0, 10, 10)),
             '11' => '11 - '.date("F", mktime(0, 0, 0, 11, 10)), '12' => '12 - '.date("F", mktime(0, 0, 0, 12, 10))],
-            (!is_null($default) ? sprintf('%02d', $default['month']) : null), ['class' => 'single-select '.$defClass, 'data-placeholder'=>"Select a Month", 'id' => 'default_month'.$seq, 'disabled' => $preDisabled]) !!}
+            (!is_null($default) ? sprintf('%02d', $default['month']) : null), ['class' => 'single-select', 'data-placeholder'=>"Select a Month", 'id' => 'default_month'.$seq, 'disabled' => $preDisabled]) !!}
     </div>
 
     <div class="form-group">
         <label>{{$title}}Default Day</label>
-        <select name="default_day{{$seq}}" id='default_day{{$seq}}' class="single-select {{$defClass}}" data-placeholder="Select a Day" {{ $preDisabled ? 'disabled' : '' }}>
+        <select name="default_day{{$seq}}" id='default_day{{$seq}}' class="single-select" data-placeholder="Select a Day" {{ $preDisabled ? 'disabled' : '' }}>
             <option value=""></option>
             @php
                 if(!is_null($default) && $default['day'] === 0)
@@ -52,7 +53,7 @@
 
     <div class="form-group">
         <label>{{$title}}Default Year</label>
-        <select name="default_year{{$seq}}" class="single-select default-year-js {{$defClass}}" data-placeholder="Select a Year">
+        <select name="default_year{{$seq}}" id="default_year{{$seq}}" class="single-select default-year-{{$jseq}}js {{$defClass}}" data-placeholder="Select a Year">
             <option value=""></option>
             @php
                 if(!is_null($default) && $default['year'] === 0)
@@ -83,21 +84,21 @@
 <div class="form-group inline-checkbox-form-group mt-xl">
     <label>Select Prefix (Optional)</label>
     <div class="check-box-half mr-m">
-        <input type="checkbox" value="circa" class="check-box-input prefix-check-js {{$defClass}}" name="default_prefix{{$seq}}"
+        <input type="checkbox" value="circa" class="check-box-input prefix-check-{{$jseq}}js {{$defClass}}" name="default_prefix{{$seq}}"
                 {{ ((!is_null($default) && $default['prefix']=='circa') ? 'checked' : '') }}>
         <span class="check"></span>
         <span class="placeholder">Circa</span>
     </div>
 
     <div class="check-box-half mr-m">
-        <input type="checkbox" value="pre" class="check-box-input prefix-check-js {{$defClass}}" name="default_prefix{{$seq}}"
+        <input type="checkbox" value="pre" class="check-box-input prefix-check-{{$jseq}}js {{$defClass}}" name="default_prefix{{$seq}}"
                 {{ ((!is_null($default) && $default['prefix']=='pre') ? 'checked' : '') }}>
         <span class="check"></span>
         <span class="placeholder">Pre</span>
     </div>
 
     <div class="check-box-half mr-m">
-        <input type="checkbox" value="post" class="check-box-input prefix-check-js {{$defClass}}" name="default_prefix{{$seq}}"
+        <input type="checkbox" value="post" class="check-box-input prefix-check-{{$jseq}}js {{$defClass}}" name="default_prefix{{$seq}}"
                 {{ ((!is_null($default) && $default['prefix']=='post') ? 'checked' : '') }}>
         <span class="check"></span>
         <span class="placeholder">Post</span>
@@ -107,28 +108,28 @@
 <div class="form-group inline-checkbox-form-group mt-xl">
     <label>Select Calendar/Date Notation</label>
     <div class="check-box-half mr-m">
-        <input type="checkbox" value="CE" class="check-box-input era-check-js {{$defClass}}" name="default_era{{$seq}}"
+        <input type="checkbox" value="CE" class="check-box-input era-check-{{$jseq}}js {{$defClass}}" name="default_era{{$seq}}"
                 {{ ((is_null($default) || $default['era'] == 'CE') ? 'checked' : '') }}>
         <span class="check"></span>
         <span class="placeholder">CE</span>
     </div>
 
     <div class="check-box-half mr-m">
-        <input type="checkbox" value="BCE" class="check-box-input era-check-js {{$defClass}}" name="default_era{{$seq}}"
+        <input type="checkbox" value="BCE" class="check-box-input era-check-{{$jseq}}js {{$defClass}}" name="default_era{{$seq}}"
                 {{ ((!is_null($default) && $default['era'] == 'BCE') ? 'checked' : '') }}>
         <span class="check"></span>
         <span class="placeholder">BCE</span>
     </div>
 
     <div class="check-box-half mr-m">
-        <input type="checkbox" value="BP" class="check-box-input era-check-js {{$defClass}}" name="default_era{{$seq}}"
+        <input type="checkbox" value="BP" class="check-box-input era-check-{{$jseq}}js {{$defClass}}" name="default_era{{$seq}}"
                 {{ ((!is_null($default) && $default['era'] == 'BP') ? 'checked' : '') }}>
         <span class="check"></span>
         <span class="placeholder">BP</span>
     </div>
 
     <div class="check-box-half">
-        <input type="checkbox" value="KYA BP" class="check-box-input era-check-js {{$defClass}}" name="default_era{{$seq}}"
+        <input type="checkbox" value="KYA BP" class="check-box-input era-check-{{$jseq}}js {{$defClass}}" name="default_era{{$seq}}"
                 {{ ((!is_null($default) && $default['era'] == 'KYA BP') ? 'checked' : '') }}>
         <span class="check"></span>
         <span class="placeholder">KYA BP</span>
