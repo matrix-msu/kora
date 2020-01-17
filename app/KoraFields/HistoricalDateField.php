@@ -357,9 +357,8 @@ class HistoricalDateField extends BaseField {
 
             $request['month_'.$flid] = $value[1];
 
-            if(count($value) == 3) {
+            if(count($value) == 3)
                 $request['day_'.$flid] = $value[2];
-            }
         }
 
         $request['year_'.$flid] = $year;

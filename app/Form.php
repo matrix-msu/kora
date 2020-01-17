@@ -598,8 +598,11 @@ class Form extends Model {
             $orderBy = ' ORDER BY ';
             foreach($filters['sort'] as $sortRule) {
                 foreach($sortRule as $flid => $order) {
+                    if(strtolower($flid) == 'kid')
+                        $field = 'kid';
+                    else
+                        $field = fieldMapper($flid,$this->project_id,$this->id);
                     //Used to protect SQL
-                    $field = fieldMapper($flid,$this->project_id,$this->id);
                     $field = preg_replace("/[^A-Za-z0-9_]/", '', $field);
                     $orderBy .= "$field IS NULL, $field $order,";
                 }
@@ -1162,8 +1165,11 @@ class Form extends Model {
             $orderBy = ' ORDER BY ';
             foreach($filters['sort'] as $sortRule) {
                 foreach($sortRule as $flid => $order) {
+                    if(strtolower($flid) == 'kid')
+                        $field = 'kid';
+                    else
+                        $field = fieldMapper($flid,$this->project_id,$this->id);
                     //Used to protect SQL
-                    $field = fieldMapper($flid,$this->project_id,$this->id);
                     $field = preg_replace("/[^A-Za-z0-9_]/", '', $field);
                     $orderBy .= "$field IS NULL, $field $order,";
                 }

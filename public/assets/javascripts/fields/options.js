@@ -835,7 +835,6 @@ Kora.Fields.Options = function(fieldType) {
             Kora.Modal.open($('.combolist-add-list-value-modal-js'));
         });
 
-        console.log($('.default-input-js'));
         if($('.default-input-js').length==0)
             $('.add-combo-value-js').removeClass('disabled');
 
@@ -910,7 +909,7 @@ Kora.Fields.Options = function(fieldType) {
                     break;
                 case 'Boolean':
                     val2 = 0;
-                    if($('[name="default_two').prop('checked') == true)
+                    if($('[name="default_two"]').prop('checked') == true)
                         val2 = 1;
                     break;
                 case 'Generated List':
@@ -952,9 +951,6 @@ Kora.Fields.Options = function(fieldType) {
                     val2 = $('#default_two').val();
                     break;
             }
-
-            console.log(val1);
-            console.log(val2);
 
             defaultDiv = $('.combo-value-div-js');
 
@@ -1003,6 +999,8 @@ Kora.Fields.Options = function(fieldType) {
                         $('#default_day_one').trigger("chosen:updated");
                         $('#default_year_one').trigger("chosen:updated");
                         break;
+                    case 'List':
+                    case 'Multi-Select List':
                     case 'Associator':
                         $('#default_one').val('');
                         $('#default_one').trigger("chosen:updated");
@@ -1027,6 +1025,8 @@ Kora.Fields.Options = function(fieldType) {
                         $('#default_day_two').trigger("chosen:updated");
                         $('#default_year_two').trigger("chosen:updated");
                         break;
+                    case 'List':
+                    case 'Multi-Select List':
                     case 'Associator':
                         $('#default_two').val('');
                         $('#default_two').trigger("chosen:updated");
@@ -1626,10 +1626,10 @@ Kora.Fields.Options = function(fieldType) {
         case 'Date':
             initializeDateOptions();
             break;
-        case 'Generated List':
+        case 'Generated List': //Code for gen list on options page
             initializeList('GenList');
             break;
-        case 'Generated List Record': //Exception to handle gen list interactions that share code between field options inputs and record creation inputs
+        case 'Generated List Record': //Code for gen list on create record page
             initializeList('GenListRecord');
             break;
         case 'List':

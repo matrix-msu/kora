@@ -130,6 +130,7 @@ class RecordController extends Controller {
      * @return Redirect
      */
 	public function store($pid, $fid, Request $request) {
+	    dd($request->all());
 	    //These are the values in $request that we can ignore and assume are not field names
 	    $form = FormController::getForm($fid);
 	    $fieldsArray = $form->layout['fields'];

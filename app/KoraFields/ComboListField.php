@@ -120,32 +120,17 @@ class ComboListField extends BaseField {
      * @param  int $flid - The field internal name
      * @return array - The updated field array
      */
-    public function updateOptions($field, Request $request, $flid = null, $prefix = 'records_') { //TODO::COMBO_FINISH
+    public function updateOptions($field, Request $request, $flid = null, $prefix = 'records_') {
         $requestData = array_keys($request->all());
         foreach (['one', 'two'] as $seq) {
             $updateIndices = preg_grep('/\w+_'.$seq.'/',$requestData);
             $type = $request->{'type' . $seq};
 
-//            if (
-//                (
-//                    $type == Form::_GENERATED_LIST ||
-//                    $type == Form::_MULTI_SELECT_LIST ||
-//                    $type == Form::_ASSOCIATOR
-//                ) &&
-//                !is_null($request->{'default_combo_' . $seq})
-//            ) {
-//                $values = array();
-//                foreach ($request->{'default_combo_' . $seq} as $value) {
-//                    array_push($values, json_decode($value));
-//                }
-//                $request->{'default_combo_' . $seq} = $values;
-//            }
-
             $form = new Form();
             $fieldRequest = new Request();
             $object = $form->getFieldModel($type);
             foreach($updateIndices as $index) {
-                $fieldRequest->merge([str_replace("_$seq",'',$index) => $request->{$index}]);// ->{str_replace("_$seq",'',$index)} = $request->{$index};
+                $fieldRequest->merge([str_replace("_$seq",'',$index) => $request->{$index}]);
             }
             $fieldRequest->fid = $request->fid;
             $field[$seq] = $object->updateOptions(
@@ -154,28 +139,6 @@ class ComboListField extends BaseField {
                 $field[$seq]['flid'],
                 $flid
             );
-
-//            if ($type == Form::_DATE || $type == Form::_HISTORICAL_DATE) {
-//                $size = 0;
-//                $field[$seq]['default'] = [];
-//
-//                // Determine the largest size of default
-//                foreach ($parts as $part) {
-//                    if ($request->{'default_' . $part .'_combo_' . $seq} && count($request->{'default_' . $part .'_combo_' . $seq}) > $size)
-//                        $size = count($request->{'default_' . $part .'_combo_' . $seq});
-//                }
-//
-//                // Build and add default date
-//                for ($i=0; $i < $size; $i++) {
-//                    $defaultDate = [];
-//                    foreach ($parts as $part) {
-//                        $defaultDate[$part] = $request->{'default_' . $part .'_combo_' . $seq}[$i];
-//                    }
-//                    array_push($field[$seq]['default'], $defaultDate);
-//                }
-//            } else {
-//                $field[$seq]['default'] = $request->{'default_combo_' . $seq};
-//            }
 
             $field[$seq]['default'] = $request->{'default_combo_' . $seq};
         }

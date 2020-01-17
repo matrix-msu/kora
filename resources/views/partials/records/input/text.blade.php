@@ -1,6 +1,6 @@
 @php
     if(isset($seq)) { //Combo List
-        $fieldLabel = 'default_'.$seq;
+        $fieldLabel = '';
         $fieldDivID = 'default_'.$seq.'_'.$flid;
         $textValue = null;
     } else if($editRecord) {

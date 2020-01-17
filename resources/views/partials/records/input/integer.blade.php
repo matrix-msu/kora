@@ -1,14 +1,23 @@
 @php
-    if($editRecord)
+    if(isset($seq)) { //Combo List
+        $fieldLabel = '';
+        $fieldDivID = 'default_'.$seq.'_'.$flid;
+        $numVal = null;
+    } else if($editRecord) {
+        $fieldLabel = $flid;
+        $fieldDivID = $flid;
         $numVal = $record->{$flid};
-    else
+    } else {
+        $fieldLabel = $flid;
+        $fieldDivID = $flid;
         $numVal = $field['default'];
+    }
 
     $unit = $field['options']['Unit'];
 @endphp
 <div class="form-group mt-xxxl">
     <label>
-        @if($field['required'])
+        @if(!isset($seq) && $field['required'])
             <span class="oval-icon"></span>
         @endif
 		{{ strlen($unit) > 0 ? $field['name'] . ' (' . $unit . ')' : $field['name'] }}
@@ -17,8 +26,8 @@
     <div class="number-input-container">
         <input
             type="number"
-            id="{{ $flid }}"
-            name="{{ $flid }}"
+            id="{{ $fieldDivID }}"
+            name="{{ $fieldLabel }}"
             class="text-input preset-clear-text-js"
             value="{{ $numVal }}"
             placeholder="Enter number here"
