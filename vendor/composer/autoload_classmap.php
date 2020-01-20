@@ -11,7 +11,7 @@ return array(
     'App\\Commands\\MailCommand' => $baseDir . '/app/Commands/MailCommand.php',
     'App\\Commands\\ProjectEmails' => $baseDir . '/app/Commands/ProjectEmails.php',
     'App\\Commands\\UserEmails' => $baseDir . '/app/Commands/UserEmails.php',
-    'App\\Console\\Commands\\AddOptionsToList' => $baseDir . '/app/Console/Commands/AddOptionsToList.php',
+    'App\\Console\\Commands\\ConvertField' => $baseDir . '/app/Console/Commands/ConvertField.php',
     'App\\Console\\Commands\\ExodusScript' => $baseDir . '/app/Console/Commands/ExodusScript.php',
     'App\\Console\\Commands\\FileUrlFix' => $baseDir . '/app/Console/Commands/FileUrlFix.php',
     'App\\Console\\Commands\\GenerateThumbs' => $baseDir . '/app/Console/Commands/GenerateThumbs.php',

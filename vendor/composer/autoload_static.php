@@ -621,7 +621,7 @@ class ComposerStaticInit23979a8a3fb78b4f78e5f7913c5439a2
         'App\\Commands\\MailCommand' => __DIR__ . '/../..' . '/app/Commands/MailCommand.php',
         'App\\Commands\\ProjectEmails' => __DIR__ . '/../..' . '/app/Commands/ProjectEmails.php',
         'App\\Commands\\UserEmails' => __DIR__ . '/../..' . '/app/Commands/UserEmails.php',
-        'App\\Console\\Commands\\AddOptionsToList' => __DIR__ . '/../..' . '/app/Console/Commands/AddOptionsToList.php',
+        'App\\Console\\Commands\\ConvertField' => __DIR__ . '/../..' . '/app/Console/Commands/ConvertField.php',
         'App\\Console\\Commands\\ExodusScript' => __DIR__ . '/../..' . '/app/Console/Commands/ExodusScript.php',
         'App\\Console\\Commands\\FileUrlFix' => __DIR__ . '/../..' . '/app/Console/Commands/FileUrlFix.php',
         'App\\Console\\Commands\\GenerateThumbs' => __DIR__ . '/../..' . '/app/Console/Commands/GenerateThumbs.php',

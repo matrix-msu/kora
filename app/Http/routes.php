@@ -76,15 +76,6 @@ Route::group(['middleware' => 'web'], function () {
     Route::patch('/tokens/addProject', 'TokenController@addProject');
     Route::delete('/tokens/deleteToken', 'TokenController@deleteToken');
 
-//plugin routes
-    Route::get('/plugins', 'PluginController@index');
-    Route::post('/plugins/install/{name}', 'PluginController@install');
-    Route::patch('/plugins/update', 'PluginController@update');
-    Route::post('/plugins/activate', 'PluginController@activate');
-    Route::delete('/plugins/{plid}', 'PluginController@destroy');
-    Route::get('/plugins/{name}/loadView/{view}', 'PluginController@loadView');
-    Route::post('/plugins/{name}/{action}', 'PluginController@action');
-
 //association routes
     Route::get('/projects/{pid}/forms/{fid}/assoc', 'AssociationController@index');
     Route::post('/projects/{pid}/forms/{fid}/assoc', 'AssociationController@create');
@@ -228,20 +219,6 @@ Route::group(['middleware' => 'web'], function () {
     Route::get('/update', 'UpdateController@index');
     Route::get('/update/runScripts', 'UpdateController@runScripts');
 
-//backup routes
-    Route::get('/backup', 'BackupController@index'); //
-    Route::post('/backup/start', 'BackupController@create'); //
-    Route::post('/backup/finish', 'BackupController@finishBackup'); //
-    Route::get('/backup/download/{path}', 'BackupController@download'); //
-    Route::post('/backup/restore/start', 'BackupController@restoreData');
-    Route::post('/backup', 'BackupController@startBackup'); //
-    Route::post('/backup/restore', 'BackupController@startRestore');
-    Route::post('/backup/restore/finish', 'BackupController@finishRestore');
-    Route::post('/backup/user/unlock', 'BackupController@unlockUsers');
-    Route::delete('/backup/delete', 'BackupController@delete');
-    Route::get('/backup/progress', 'BackupController@checkProgress');
-    Route::get('/backup/restore/progress', 'BackupController@checkRestoreProgress');
-
 //form search routes
     Route::get('/keywordSearch/project/{pid}/forms/{fid}', 'FormSearchController@keywordSearch');
     Route::get('/keywordSearch/project/{pid}/forms/{fid}/delete', 'FormSearchController@deleteSubset');
@@ -259,9 +236,6 @@ Route::group(['middleware' => 'web'], function () {
     Route::get("/projects/{pid}/forms/{fid}/advancedSearch", "AdvancedSearchController@index");
     Route::get("/projects/{pid}/forms/{fid}/advancedSearch/results", "AdvancedSearchController@recent");
     Route::post("/projects/{pid}/forms/{fid}/advancedSearch/results", "AdvancedSearchController@search");
-
-//twitter routes
-    Route::get("/twitter", "TwitterController@index");
 
 //reset password routes
 	Route::post("/reset/email/validate", "Auth\ResetPasswordController@preValidateEmail");
