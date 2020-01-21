@@ -4,19 +4,15 @@
     {!! Form::hidden($flid, true, ['id' => $flid]) !!}
 
     @php
-    $oneType = $field['one']['type'];
-    $twoType = $field['two']['type'];
-    $oneName = $field['one']['name'];
-    $twoName = $field['two']['name'];
+        $oneType = $field['one']['type'];
+        $twoType = $field['two']['type'];
+        $oneName = $field['one']['name'];
+        $twoName = $field['two']['name'];
 
-    $recInputone = $form->getFieldModel($oneType)::FIELD_INPUT_VIEW;
-    $recInputtwo = $form->getFieldModel($twoType)::FIELD_INPUT_VIEW;
+        $recInputone = $form->getFieldModel($oneType)::FIELD_INPUT_VIEW;
+        $recInputtwo = $form->getFieldModel($twoType)::FIELD_INPUT_VIEW;
 
-    if($editRecord) {
-        $items = $typedField->retrieve($flid, $form->id, $record->{$flid});
-    } else {
-        $items = $field['one']['default'];
-    }
+        $items = $editRecord ? $typedField->retrieve($flid, $form->id, $record->{$flid}) : $field['one']['default'];
     @endphp
 
     <div class="combo-list-input combo-list-display-js preset-clear-combo-js">
@@ -34,10 +30,39 @@
                                 $value = $display = null;
                                 $type = $field[$seq]['type'];
 
-                                if($editRecord) { //TODO::COMBO_FINISH
+                                if($editRecord) {
+                                    $value = $items[$i]->{$field[$seq]['flid']};
+
                                     switch($type) {
+                                        case \App\Form::_BOOLEAN:
+                                            $display = $value ? 'true' : 'false';
+                                            break;
+                                        case \App\Form::_MULTI_SELECT_LIST:
+                                        case \App\Form::_GENERATED_LIST:
+                                        case \App\Form::_ASSOCIATOR:
+                                            $vals = json_decode($value);
+                                            $display = implode(',',$vals);
+                                            break;
+                                        case \App\Form::_HISTORICAL_DATE:
+                                            $dateParts = json_decode($value,true);
+                                            $dateArray = [$dateParts['year']];
+
+                                            if(!is_null($dateParts['month']) && $dateParts['month']!='') {
+                                                $dateArray[] = $dateParts['month'];
+                                                if(!is_null($dateParts['day']) && $dateParts['day']!='')
+                                                    $dateArray[] = $dateParts['day'];
+                                            }
+
+                                            $display = implode('-',$dateArray);
+
+                                            if(!is_null($dateParts['prefix']) && $dateParts['prefix']!='')
+                                                $display = $dateParts['prefix'].' '.$display;
+
+                                            if(!is_null($dateParts['era']) && $dateParts['era']!='')
+                                                $display .= ' '.$dateParts['era'];
+                                            break;
                                         default:
-                                            $value = $display = $items[$i]->{$field[$seq]['flid']};
+                                            $display = $value;
                                             break;
                                     }
                                 } else {
