@@ -76,7 +76,7 @@
               @include('partials.records.no-records')
             @endif
 
-            @if (count($records) > 0)
+            @if(count($records) > 0)
               <section class="filters">
                   <div class="pagination-options pagination-options-js">
                       <select class="page-count option-dropdown-js" id="page-count-dropdown">

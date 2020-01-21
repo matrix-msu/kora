@@ -1162,7 +1162,11 @@ Kora.Fields.Options = function(fieldType) {
                 var newListOptions = $newListOptionInput.val().split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
 
                 if(newListOptions !== undefined && newListOptions.length > 0) {
-                    // Prevent duplicate entries
+                    var label = 'options_';
+                    if(fnum=='one' && type1=='Generated List')
+                        label = 'default_';
+                    else if(fnum=='two' && type2=='Generated List')
+                        label = 'default_';
 
                     for(newOpt in newListOptions) {
                         //Trim whitespace, and remove surrounding quotes
@@ -1170,7 +1174,7 @@ Kora.Fields.Options = function(fieldType) {
 
                         // Create and display new card
                         var newCardHtml = '<div class="card list-option-card list-option-card-js" data-list-value="' + newListOption + '">' +
-                            '<input type="hidden" class="list-option-js" name="default_'+fnum+'[]" value="' + newListOption + '">' +
+                            '<input type="hidden" class="list-option-js" name="'+label+fnum+'[]" value="' + newListOption + '">' +
                             '<div class="header">' +
                             '<div class="left">' +
                             '<div class="move-actions">' +

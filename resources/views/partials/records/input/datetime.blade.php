@@ -46,7 +46,7 @@
         <div class="form-group inline-form-group">
             <div class="form-group">
                 <label>Select DateTime</label>
-                {!! Form::select('month_'.$fieldLabel,['' => '',
+                {!! Form::select(!isset($seq) ? 'month_'.$fieldLabel : '',['' => '',
                     '01' => '01 - '.date("F", mktime(0, 0, 0, 1, 10)), '02' => '02 - '.date("F", mktime(0, 0, 0, 2, 10)),
                     '03' => '03 - '.date("F", mktime(0, 0, 0, 3, 10)), '04' => '04 - '.date("F", mktime(0, 0, 0, 4, 10)),
                     '05' => '05 - '.date("F", mktime(0, 0, 0, 5, 10)), '06' => '06 - '.date("F", mktime(0, 0, 0, 6, 10)),
@@ -58,7 +58,7 @@
 
             <div class="form-group">
                 <label class="invisible">Select Day</label>
-                <select id="day_{{$fieldDivID}}" name="day_{{$fieldLabel}}" class="single-select preset-clear-chosen-js" data-placeholder="Select a Day">
+                <select id="day_{{$fieldDivID}}" @if(!isset($seq))name="day_{{$fieldLabel}}"@endif class="single-select preset-clear-chosen-js" data-placeholder="Select a Day">
                     <option value=""></option>
                     @php
                         $i = 1;
@@ -75,7 +75,7 @@
 
             <div class="form-group">
                 <label class="invisible">Select Year</label>
-                <select id="year_{{$fieldDivID}}" name="year_{{$fieldLabel}}" class="single-select preset-clear-chosen-js" data-placeholder="Select a Year">
+                <select id="year_{{$fieldDivID}}" @if(!isset($seq))name="year_{{$fieldLabel}}"@endif class="single-select preset-clear-chosen-js" data-placeholder="Select a Year">
                     <option value=""></option>
                     @php
                         $i = $field['options']['Start'];
@@ -101,7 +101,7 @@
         <div class="form-group inline-form-group">
             <div class="form-group">
                 <label class="invisible">Select Hour</label>
-                <select id="hour_{{$fieldDivID}}" name="hour_{{$fieldLabel}}" class="single-select" data-placeholder="Select an Hour">
+                <select id="hour_{{$fieldDivID}}" @if(!isset($seq))name="hour_{{$fieldLabel}}"@endif class="single-select" data-placeholder="Select an Hour">
                     @php
                         for($i=0;$i<24;$i++) {
                             if($i==$dateObj['hour'])
@@ -115,7 +115,7 @@
 
             <div class="form-group">
                 <label class="invisible">Select Minute</label>
-                <select id="minute_{{$fieldDivID}}" name="minute_{{$fieldLabel}}" class="single-select" data-placeholder="Select a Minute">
+                <select id="minute_{{$fieldDivID}}" @if(!isset($seq))name="minute_{{$fieldLabel}}"@endif class="single-select" data-placeholder="Select a Minute">
                     @php
                         for($i=0;$i<60;$i++) {
                             if($i==$dateObj['minute'])
@@ -129,7 +129,7 @@
 
             <div class="form-group">
                 <label class="invisible">Select Second</label>
-                <select id="second_{{$fieldDivID}}" name="second_{{$fieldLabel}}" class="single-select" data-placeholder="Select a Second">
+                <select id="second_{{$fieldDivID}}" @if(!isset($seq))name="second_{{$fieldLabel}}"@endif class="single-select" data-placeholder="Select a Second">
                     @php
                         for($i=0;$i<60;$i++) {
                             if($i==$dateObj['second'])

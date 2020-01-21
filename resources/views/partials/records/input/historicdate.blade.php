@@ -41,7 +41,7 @@
 
             <div class="form-group">
                 <label>Select Date</label>
-                {!! Form::select('month_'.$fieldLabel,['' => '',
+                {!! Form::select(!isset($seq) ? 'month_'.$fieldLabel : '',['' => '',
                     '01' => '01 - '.date("F", mktime(0, 0, 0, 1, 10)), '02' => '02 - '.date("F", mktime(0, 0, 0, 2, 10)),
                     '03' => '03 - '.date("F", mktime(0, 0, 0, 3, 10)), '04' => '04 - '.date("F", mktime(0, 0, 0, 4, 10)),
                     '05' => '05 - '.date("F", mktime(0, 0, 0, 5, 10)), '06' => '06 - '.date("F", mktime(0, 0, 0, 6, 10)),
@@ -53,7 +53,7 @@
 
             <div class="form-group">
                 <label class="invisible">Select Day</label>
-                <select id="day_{{$fieldDivID}}" name="day_{{$fieldLabel}}" class="single-select preset-clear-chosen-js" data-placeholder="Select a Day" {{ $preDisabled ? 'disabled' : '' }}>
+                <select id="day_{{$fieldDivID}}" @if(!isset($seq))name="day_{{$fieldLabel}}"@endif class="single-select preset-clear-chosen-js" data-placeholder="Select a Day" {{ $preDisabled ? 'disabled' : '' }}>
                     <option value=""></option>
                     @php
                         $i = 1;
@@ -70,7 +70,7 @@
 
             <div class="form-group">
                 <label class="invisible">Select Year</label>
-                <select id="year_{{$fieldDivID}}" name="year_{{$fieldLabel}}" class="single-select preset-clear-chosen-js" data-placeholder="Select a Year">
+                <select id="year_{{$fieldDivID}}" @if(!isset($seq))name="year_{{$fieldLabel}}"@endif class="single-select preset-clear-chosen-js" data-placeholder="Select a Year">
                     <option value=""></option>
                     @php
                         $i = $field['options']['Start'];
@@ -97,19 +97,22 @@
             <div class="form-group mt-xl">
                 <label>Select Prefix (Optional)</label>
                 <div class="check-box-half mr-m">
-                    <input type="checkbox" value="circa" class="check-box-input prefix-check-js prefix-check-{{$flid}}-js" name="prefix_{{$fieldDivID}}" {{ ($histDate['prefix'] == 'circa' ? 'checked' : '') }} flid="{{$fieldDivID}}">
+                    <input type="checkbox" value="circa" class="check-box-input prefix-check-js prefix-check-{{$flid}}-js prefix_{{$fieldDivID}}"
+                           @if(!isset($seq))name="prefix_{{$fieldDivID}}"@endif {{ ($histDate['prefix'] == 'circa' ? 'checked' : '') }} flid="{{$flid}}">
                     <span class="check"></span>
                     <span class="placeholder">Circa</span>
                 </div>
 
                 <div class="check-box-half mr-m">
-                    <input type="checkbox" value="pre" class="check-box-input prefix-check-js prefix-check-{{$flid}}-js" name="prefix_{{$fieldDivID}}" {{ ($histDate['prefix'] == 'pre' ? 'checked' : '') }} flid="{{$fieldDivID}}">
+                    <input type="checkbox" value="pre" class="check-box-input prefix-check-js prefix-check-{{$flid}}-js prefix_{{$fieldDivID}}"
+                           @if(!isset($seq))name="prefix_{{$fieldDivID}}"@endif {{ ($histDate['prefix'] == 'pre' ? 'checked' : '') }} flid="{{$flid}}">
                     <span class="check"></span>
                     <span class="placeholder">Pre</span>
                 </div>
 
                 <div class="check-box-half mr-m">
-                    <input type="checkbox" value="post" class="check-box-input prefix-check-js prefix-check-{{$flid}}-js" name="prefix_{{$fieldDivID}}" {{ ($histDate['prefix'] == 'post' ? 'checked' : '') }} flid="{{$fieldDivID}}">
+                    <input type="checkbox" value="post" class="check-box-input prefix-check-js prefix-check-{{$flid}}-js prefix_{{$fieldDivID}}"
+                           @if(!isset($seq))name="prefix_{{$fieldDivID}}"@endif {{ ($histDate['prefix'] == 'post' ? 'checked' : '') }} flid="{{$flid}}">
                     <span class="check"></span>
                     <span class="placeholder">Post</span>
                 </div>
@@ -120,25 +123,29 @@
             <div class="form-group mt-xl">
                 <label>Select Calendar/Date Notation</label>
                 <div class="check-box-half mr-m">
-                    <input type="checkbox" value="CE" class="check-box-input era-check-js era-check-{{$flid}}-js" name="era_{{$fieldDivID}}" {{ ($histDate['era'] == 'CE' ? 'checked' : '') }} flid="{{$fieldDivID}}">
+                    <input type="checkbox" value="CE" class="check-box-input era-check-js era-check-{{$flid}}-js era_{{$fieldDivID}}"
+                           @if(!isset($seq))name="era_{{$fieldDivID}}"@endif {{ ($histDate['era'] == 'CE' ? 'checked' : '') }} flid="{{$flid}}">
                     <span class="check"></span>
                     <span class="placeholder">CE</span>
                 </div>
 
                 <div class="check-box-half mr-m">
-                    <input type="checkbox" value="BCE" class="check-box-input era-check-js era-check-{{$flid}}-js" name="era_{{$fieldDivID}}" {{ ($histDate['era'] == 'BCE' ? 'checked' : '') }} flid="{{$fieldDivID}}">
+                    <input type="checkbox" value="BCE" class="check-box-input era-check-js era-check-{{$flid}}-js era_{{$fieldDivID}}"
+                           @if(!isset($seq))name="era_{{$fieldDivID}}"@endif {{ ($histDate['era'] == 'BCE' ? 'checked' : '') }} flid="{{$flid}}">
                     <span class="check"></span>
                     <span class="placeholder">BCE</span>
                 </div>
 
                 <div class="check-box-half mr-m">
-                    <input type="checkbox" value="BP" class="check-box-input era-check-js era-check-{{$flid}}-js" name="era_{{$fieldDivID}}" {{ ($histDate['era'] == 'BP' ? 'checked' : '') }} flid="{{$fieldDivID}}">
+                    <input type="checkbox" value="BP" class="check-box-input era-check-js era-check-{{$flid}}-js era_{{$fieldDivID}}"
+                           @if(!isset($seq))name="era_{{$fieldDivID}}"@endif {{ ($histDate['era'] == 'BP' ? 'checked' : '') }} flid="{{$flid}}">
                     <span class="check"></span>
                     <span class="placeholder">BP</span>
                 </div>
 
                 <div class="check-box-half">
-                    <input type="checkbox" value="KYA BP" class="check-box-input era-check-js era-check-{{$flid}}-js" name="era_{{$fieldDivID}}" {{ ($histDate['era'] == 'KYA BP' ? 'checked' : '') }} flid="{{$fieldDivID}}">
+                    <input type="checkbox" value="KYA BP" class="check-box-input era-check-js era-check-{{$flid}}-js era_{{$fieldDivID}}"
+                           @if(!isset($seq))name="era_{{$fieldDivID}}"@endif {{ ($histDate['era'] == 'KYA BP' ? 'checked' : '') }} flid="{{$flid}}">
                     <span class="check"></span>
                     <span class="placeholder">KYA BP</span>
                 </div>

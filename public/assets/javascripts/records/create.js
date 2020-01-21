@@ -231,17 +231,19 @@ Kora.Records.Create = function() {
                         'month': monthOne,
                         'day': dayOne,
                         'year': yearOne,
+                        'era': '',
+                        'prefix': ''
                     };
 
                     eraDisplayOne = ''
-                    $('[name="era_default_one_'+flid+'"]').each(function () {
+                    $('.era_default_one_'+flid).each(function () {
                         if($(this).is(':checked')) {
                             eraDisplayOne = ' ' + $(this).val();
                             val1['era'] = $(this).val();
                         }
                     });
                     prefixDisplayOne = '';
-                    $('[name="prefix_default_one_'+flid+'"]').each(function () {
+                    $('.prefix_default_one_'+flid).each(function () {
                         if($(this).is(':checked')) {
                             prefixDisplayOne = $(this).val() + ' ';
                             val1['prefix'] = $(this).val();
@@ -298,17 +300,19 @@ Kora.Records.Create = function() {
                         'month': monthTwo,
                         'day': dayTwo,
                         'year': yearTwo,
+                        'era': '',
+                        'prefix': ''
                     };
 
                     eraDisplayTwo = ''
-                    $('[name="era_default_two_'+flid+'"]').each(function () {
+                    $('.era_default_two_'+flid).each(function () {
                         if($(this).is(':checked')) {
                             eraDisplayTwo = ' ' + $(this).val();
                             val2['era'] = $(this).val();
                         }
                     });
                     prefixDisplayTwo = '';
-                    $('[name="prefix_default_two_'+flid+'"]').each(function () {
+                    $('.prefix_default_two_'+flid).each(function () {
                         if($(this).is(':checked')) {
                             prefixDisplayTwo = $(this).val() + ' ';
                             val2['prefix'] = $(this).val();
@@ -321,9 +325,6 @@ Kora.Records.Create = function() {
                     val2 = dis2 = $('#default_two_'+flid).val();
                     break;
             }
-
-            console.log(val1);
-            console.log(val2);
 
             if(val1==null | val2==null) {
                 $('.combo-error-'+flid+'-js').text('Both fields must be filled out');

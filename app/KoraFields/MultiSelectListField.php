@@ -3,7 +3,6 @@
 use App\Form;
 use App\Record;
 use App\Search;
-use App\Http\Controllers\FormController;
 use Illuminate\Http\Request;
 
 class MultiSelectListField extends BaseField {
