@@ -222,7 +222,7 @@ class ComboListField extends BaseField {
      *
      * @return mixed - Processed data
      */
-    public function processRevisionData($data) { //TODO::COMBO_FINISH
+    public function processRevisionData($data) {
         $return = '';
         foreach($data as $d) {
             $return .= '<div>'.$d['cfOne'].' --- '.$d['cfTwo'].'</div>';
@@ -380,7 +380,8 @@ class ComboListField extends BaseField {
     public function processXMLData($field, $value, $fid = null) {
         $fieldData = FieldController::getField($field, $fid);
         $form = FormController::getForm($fid);
-        $records = $this->retrieve($field, $fid, $value);
+        $records = $this->
+        retrieve($field, $fid, $value);
         $xml = "<$field>";
         foreach($records as $record) {
             $value = '<Value>';
@@ -520,33 +521,13 @@ class ComboListField extends BaseField {
     ///////////////////////////////////////////////END ABSTRACT FUNCTIONS///////////////////////////////////////////////
 
     /**
-     * Gets the list options for a combo list field.
+     * Overwrites the eloquent model save function to save actual data to the combo table, and the indices of those rows
+     * into the records table.
      *
-     * @param  array $field - Field to pull options from
-     * @param  bool $blankOpt - Has blank option as first array element
-     * @return array - The list options
+     * @param  array $options - Options to determine how to appropriately save data to combo table
+     * @return string - The ids of data rows from the combo table
      */
-    public static function getComboList($field, $blankOpt=false, $fnum) { //TODO::COMBO_FINISH
-        $options = array();
-        foreach (self::getComboFieldOption($field, 'Options', $fnum) as $option) {
-            $options[$option] = $option;
-        }
-        return $options;
-    }
-
-    /**
-     * Gets an option of a combo list sub field
-     *
-     * @param  array $field - Combo field to inspect
-     * @param  string $key - The option we want
-     * @param  int $seq - Sequence of sub field
-     * @return array - The option
-     */
-    public static function getComboFieldOption($field, $key, $seq) { //TODO::COMBO_FINISH
-        return $field[$seq]['options'][$key];
-    }
-
-    public function save(array $options = array()) { //TODO::COMBO_FINISH
+    public function save(array $options = array()) {
         $field = $options['field'];
         $values = $options['values'];
         $table = $field['flid'] . $options['fid'];
@@ -569,10 +550,20 @@ class ComboListField extends BaseField {
             $ids = DB::table($table)->where('record_id', $rid)->pluck('id');
 
             return $ids->toJson();
+        } else {
+            return null;
         }
     }
 
-    public function retrieve($flid, $fid, $ids) { //TODO::COMBO_FINISH
+    /**
+     * Takes the ids from the records table combo value, and fetches the actual data from the combo table.
+     *
+     * @param  array $flid - Field ID
+     * @param  array $fid - Form ID
+     * @param  array $ids - Row ids for combo table
+     * @return array - The combo data
+     */
+    public function retrieve($flid, $fid, $ids) {
         $this->setTable($flid . $fid);
         return $this->findMany(json_decode($ids));
     }

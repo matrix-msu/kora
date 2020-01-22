@@ -42,7 +42,7 @@ class AssociatorSearchController extends Controller {
         $activeForms = array();
 
         if($request->has('combo'))
-            $options = ComboListField::getComboFieldOption($field, 'SearchForms', $request->combo);
+            $options = $field[$request->combo]['options']['SearchForms'];
         else
             $options = $field['options']['SearchForms'];
 

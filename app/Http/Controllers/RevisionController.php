@@ -358,8 +358,19 @@ class RevisionController extends Controller {
      * @param  bool $is_rollback - Basically is this revision type Edit or Rollback, or are we reversing a Delete revision
      */
     public function rollback_routine(Form $form, Record $record, Revision $revision, $is_rollback = true) {
-        if($is_rollback)
+        if($is_rollback) {
             $oldRecordCopy = $record->replicate();
+
+            foreach($oldRecordCopy->attributesToArray() as $key => $value) {
+                if(isset($form->layout['fields'][$key]) && $form->layout['fields'][$key]['type']==Form::_COMBO_LIST) {
+                    $typedField = $form->getFieldModel(Form::_COMBO_LIST);
+                    $cflid1 = $form->layout['fields'][$key]['one']['flid'];
+                    $cflid2 = $form->layout['fields'][$key]['two']['flid'];
+                    //This is one thing we can't capture later so we need to process it now
+                    $oldRecordCopy->{$key} = $typedField->setTable($key . $form->id)->select(["$cflid1 as cfOne", "$cflid2 as cfTwo"])->findMany(json_decode($oldRecordCopy->{$key}));
+                }
+            }
+        }
 
         foreach($revision->revision['oldData'] as $flid => $data) {
             if($form->layout['fields'][$flid]['type']==Form::_COMBO_LIST) {
