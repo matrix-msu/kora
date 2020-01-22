@@ -12,11 +12,13 @@ class Kernel extends ConsoleKernel {
 	 */
 	protected $commands = [
         'App\Console\Commands\ConvertField',
+        'App\Console\Commands\DisableRollbacks',
 		'App\Console\Commands\ExodusScript',
 		'App\Console\Commands\FileUrlFix',
         'App\Console\Commands\GenerateThumbs',
         'App\Console\Commands\Inspire',
 		'App\Console\Commands\InstallKora',
+		'App\Console\Commands\RebuildRecordPresets',
 		'App\Console\Commands\RecordFileZipExport',
 		'App\Console\Commands\ReverseAssocCache',
 		'App\Console\Commands\UpdateKora',

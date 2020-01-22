@@ -119,12 +119,81 @@ class RecordPresetController extends Controller {
                         break;
                 }
             } else if(!is_null($record->{$flid}) && $form->getFieldModel($field['type']) instanceof ComboListField) {
-                //TODO::COMBO_FINISH
                 $subField1 = $field['one']['flid'];
                 $subField2 = $field['two']['flid'];
+                $subType1 = $field['one']['type'];
+                $subType2 = $field['two']['type'];
                 $comboVal = [];
                 foreach($form->getFieldModel($field['type'])->retrieve($flid, $form->id, $dataArray[$flid]) as $comboRow) {
-                    $comboVal[] = [$comboRow->{$subField1},$comboRow->{$subField2}];
+                    $valOne = $comboRow->{$subField1};
+                    switch($subType1) {
+                        case \App\Form::_BOOLEAN:
+                            $displayOne = $valOne ? 'true' : 'false';
+                            break;
+                        case \App\Form::_MULTI_SELECT_LIST:
+                        case \App\Form::_GENERATED_LIST:
+                        case \App\Form::_ASSOCIATOR:
+                            $vals = json_decode($valOne);
+                            $displayOne = implode(',',$vals);
+                            break;
+                        case \App\Form::_HISTORICAL_DATE:
+                            $dateParts = json_decode($valOne,true);
+                            $dateArray = [$dateParts['year']];
+
+                            if(!is_null($dateParts['month']) && $dateParts['month']!='') {
+                                $dateArray[] = $dateParts['month'];
+                                if(!is_null($dateParts['day']) && $dateParts['day']!='')
+                                    $dateArray[] = $dateParts['day'];
+                            }
+
+                            $displayOne = implode('-',$dateArray);
+
+                            if(!is_null($dateParts['prefix']) && $dateParts['prefix']!='')
+                                $displayOne = $dateParts['prefix'].' '.$displayOne;
+
+                            if(!is_null($dateParts['era']) && $dateParts['era']!='')
+                                $displayOne .= ' '.$dateParts['era'];
+                            break;
+                        default:
+                            $displayOne = $valOne;
+                            break;
+                    }
+
+                    $valTwo = $comboRow->{$subField2};
+                    switch($subType2) {
+                        case \App\Form::_BOOLEAN:
+                            $displayTwo = $valTwo ? 'true' : 'false';
+                            break;
+                        case \App\Form::_MULTI_SELECT_LIST:
+                        case \App\Form::_GENERATED_LIST:
+                        case \App\Form::_ASSOCIATOR:
+                            $vals = json_decode($valTwo);
+                            $displayTwo = implode(',',$vals);
+                            break;
+                        case \App\Form::_HISTORICAL_DATE:
+                            $dateParts = json_decode($valTwo,true);
+                            $dateArray = [$dateParts['year']];
+
+                            if(!is_null($dateParts['month']) && $dateParts['month']!='') {
+                                $dateArray[] = $dateParts['month'];
+                                if(!is_null($dateParts['day']) && $dateParts['day']!='')
+                                    $dateArray[] = $dateParts['day'];
+                            }
+
+                            $displayTwo = implode('-',$dateArray);
+
+                            if(!is_null($dateParts['prefix']) && $dateParts['prefix']!='')
+                                $displayTwo = $dateParts['prefix'].' '.$displayTwo;
+
+                            if(!is_null($dateParts['era']) && $dateParts['era']!='')
+                                $displayTwo .= ' '.$dateParts['era'];
+                            break;
+                        default:
+                            $displayTwo = $valTwo;
+                            break;
+                    }
+
+                    $comboVal[] = ['cfOne'=>$valOne, 'cfDisOne'=>$displayOne, 'cfTwo'=>$valTwo, 'cfDisTwo'=>$displayTwo];
                 }
                 $dataArray[$flid] = $comboVal;
             }
