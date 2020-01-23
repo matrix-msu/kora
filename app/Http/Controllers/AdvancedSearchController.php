@@ -226,15 +226,17 @@ class AdvancedSearchController extends Controller {
             if(array_key_exists($key,$layout['fields'])) {
                 $field = $layout['fields'][$key];
                 if($field['type'] == 'Combo List') {
-                    foreach (array_keys($request) as $tmpKey) {
+                    $alreadyFound = [];
+                    foreach(array_keys($request) as $tmpKey) {
                         foreach(['one', 'two'] as $seq) {
-                            if (Str::contains($tmpKey, '_' . $seq)) {
+                            if(Str::contains($tmpKey, $field[$seq]['flid'] . '_' . $seq) && !in_array($field[$seq]['flid'] . '_' . $seq, $alreadyFound)) {
                                 array_push($fields,
                                     [
                                         'flid' => $field[$seq]['flid'] . '_' . $seq,
                                         'type' => $field[$seq]['type']
                                     ]
                                 );
+                                $alreadyFound[] = $field[$seq]['flid'] . '_' . $seq;
                             }
                         }
                     }
@@ -247,7 +249,7 @@ class AdvancedSearchController extends Controller {
                     );
                 }
 
-                foreach ($fields as $tmpField) { //TODO::NEWFIELD
+                foreach($fields as $tmpField) { //TODO::NEWFIELD
                     $flid = $tmpField['flid'];
                     switch($tmpField['type']) {
                         case 'Integer':
@@ -359,8 +361,16 @@ class AdvancedSearchController extends Controller {
                         $processed[$flid]['empty'] = $request[$flid.'_empty'];
 
                     if($field['type'] == 'Combo List') {
-                        $processed[$key] = $processed;
-                        unset($processed[$flid]);
+                        if(isset($processed[$flid])) {
+                            $processed[$key][$flid] = $processed[$flid];
+                            unset($processed[$flid]);
+                        }
+
+                        if(isset($request[$key.'_negative']))
+                            $processed[$key]['negative'] = $request[$key.'_negative'];
+
+                        if(isset($request[$key.'_empty']))
+                            $processed[$key]['empty'] = $request[$key.'_empty'];
                     }
                 }
             }

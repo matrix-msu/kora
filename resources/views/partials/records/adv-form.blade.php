@@ -4,8 +4,8 @@
         @php $typedField = $form->getFieldModel($field['type']); @endphp
         @if($field['advanced_search'])
             <input type="hidden" name="{{$flid}}" value="{{$flid}}">
-            @if ($typedField->getAdvancedSearchInputView() != "")
-              @include($typedField->getAdvancedSearchInputView(), ['flid' => $flid, 'field' => $field])
+            @if($typedField->getAdvancedSearchInputView() != "")
+                @include($typedField->getAdvancedSearchInputView(), ['flid' => $flid, 'field' => $field])
             @endif
             <div class="form-group mt-sm">
                 <div class="check-box-half">

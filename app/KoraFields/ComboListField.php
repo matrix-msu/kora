@@ -460,7 +460,7 @@ class ComboListField extends BaseField {
                     if(is_numeric($tmpArg)) {
                         // Dealing with numbers
                         $tmpArg = [$tmpArg - self::EPSILON, $tmpArg + self::EPSILON];
-                        if ($negative)
+                        if($negative)
                             $query->whereNotBetween($flid, $tmpArg);
                         else
                             $query->whereBetween($flid, $tmpArg);
@@ -496,22 +496,30 @@ class ComboListField extends BaseField {
         $flidtwo = $layout['two']['flid'];
 
         $resOne = $resTwo = [];
-        if(array_key_exists($flidone . "_one", $query[$flid])) {
-            $values = $query[$flid][$flidone . "_one"];
+        if(array_key_exists($flidone . "_one", $query)) {
+            $values = $query[$flidone . "_one"];
             $resOne = $modelone->advancedSearchTyped($flidone, $values, $recordMod, $form);
         }
-        if(array_key_exists($flidtwo . "_two", $query[$flid])) {
-            $values = $query[$flid][$flidtwo . "_two"];
+        if(array_key_exists($flidtwo . "_two", $query)) {
+            $values = $query[$flidtwo . "_two"];
             $resTwo = $modeltwo->advancedSearchTyped($flidtwo, $values, $recordMod, $form);
         }
 
         $this->imitateMerge($resOne, $resTwo);
 
-        $final = $recordMod->newQuery()
-            ->select('record_id')
-            ->whereIn('id',$resOne)
-            ->pluck('record_id')
-            ->toArray();
+        if(!$negative) {
+            $final = $recordMod->newQuery()
+                ->select('record_id')
+                ->whereIn('id', $resOne)
+                ->pluck('record_id')
+                ->toArray();
+        } else {
+            $final = $recordMod->newQuery()
+                ->select('record_id')
+                ->whereNotIn('id', $resOne)
+                ->pluck('record_id')
+                ->toArray();
+        }
 
         //Reset the connection table
         $recordMod->setTable($formTable);
