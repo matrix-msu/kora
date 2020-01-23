@@ -53,25 +53,25 @@
             <div class="form-group mt-xl">
                 <label>Select Calendar/Date Notation</label>
                 <div class="check-box-half mr-m">
-                    <input type="checkbox" value="CE" class="check-box-input era-check-js era-check-{{$flid}}-begin-js" name="{{$inputID}}_begin_era" checked flid="{{$inputID}}" range="begin">
+                    <input type="checkbox" value="CE" class="check-box-input era-check-js era-check-{{$inputID}}-begin-js" name="{{$inputID}}_begin_era" checked flid="{{$inputID}}" range="begin">
                     <span class="check"></span>
                     <span class="placeholder">CE</span>
                 </div>
 
                 <div class="check-box-half mr-m">
-                    <input type="checkbox" value="BCE" class="check-box-input era-check-js era-check-{{$flid}}-begin-js" name="{{$inputID}}_begin_era" flid="{{$inputID}}" range="begin">
+                    <input type="checkbox" value="BCE" class="check-box-input era-check-js era-check-{{$inputID}}-begin-js" name="{{$inputID}}_begin_era" flid="{{$inputID}}" range="begin">
                     <span class="check"></span>
                     <span class="placeholder">BCE</span>
                 </div>
 
                 <div class="check-box-half mr-m">
-                    <input type="checkbox" value="BP" class="check-box-input era-check-js era-check-{{$flid}}-begin-js" name="{{$inputID}}_begin_era" flid="{{$inputID}}" range="begin">
+                    <input type="checkbox" value="BP" class="check-box-input era-check-js era-check-{{$inputID}}-begin-js" name="{{$inputID}}_begin_era" flid="{{$inputID}}" range="begin">
                     <span class="check"></span>
                     <span class="placeholder">BP</span>
                 </div>
 
                 <div class="check-box-half">
-                    <input type="checkbox" value="KYA BP" class="check-box-input era-check-js era-check-{{$flid}}-begin-js" name="{{$inputID}}_begin_era" flid="{{$inputID}}" range="begin">
+                    <input type="checkbox" value="KYA BP" class="check-box-input era-check-js era-check-{{$inputID}}-begin-js" name="{{$inputID}}_begin_era" flid="{{$inputID}}" range="begin">
                     <span class="check"></span>
                     <span class="placeholder">KYA BP</span>
                 </div>
@@ -120,25 +120,25 @@
             <div class="form-group mt-xl">
                 <label>Select Calendar/Date Notation</label>
                 <div class="check-box-half mr-m">
-                    <input type="checkbox" value="CE" class="check-box-input era-check-js era-check-{{$flid}}-end-js" name="{{$inputID}}_end_era" checked flid="{{$inputID}}" range="end">
+                    <input type="checkbox" value="CE" class="check-box-input era-check-js era-check-{{$inputID}}-end-js" name="{{$inputID}}_end_era" checked flid="{{$inputID}}" range="end">
                     <span class="check"></span>
                     <span class="placeholder">CE</span>
                 </div>
 
                 <div class="check-box-half mr-m">
-                    <input type="checkbox" value="BCE" class="check-box-input era-check-js era-check-{{$flid}}-end-js" name="{{$inputID}}_end_era" flid="{{$inputID}}" range="end">
+                    <input type="checkbox" value="BCE" class="check-box-input era-check-js era-check-{{$inputID}}-end-js" name="{{$inputID}}_end_era" flid="{{$inputID}}" range="end">
                     <span class="check"></span>
                     <span class="placeholder">BCE</span>
                 </div>
 
                 <div class="check-box-half mr-m">
-                    <input type="checkbox" value="BP" class="check-box-input era-check-js era-check-{{$flid}}-end-js" name="{{$inputID}}_end_era" flid="{{$inputID}}" range="end">
+                    <input type="checkbox" value="BP" class="check-box-input era-check-js era-check-{{$inputID}}-end-js" name="{{$inputID}}_end_era" flid="{{$inputID}}" range="end">
                     <span class="check"></span>
                     <span class="placeholder">BP</span>
                 </div>
 
                 <div class="check-box-half">
-                    <input type="checkbox" value="KYA BP" class="check-box-input era-check-js era-check-{{$flid}}-end-js" name="{{$inputID}}_end_era" flid="{{$inputID}}" range="end">
+                    <input type="checkbox" value="KYA BP" class="check-box-input era-check-js era-check-{{$inputID}}-end-js" name="{{$inputID}}_end_era" flid="{{$inputID}}" range="end">
                     <span class="check"></span>
                     <span class="placeholder">KYA BP</span>
                 </div>
