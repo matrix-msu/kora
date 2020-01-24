@@ -1,5 +1,6 @@
 <?php namespace App\Http\Controllers;
 
+use App\Form;
 use App\Record;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
@@ -249,19 +250,19 @@ class AdvancedSearchController extends Controller {
                     );
                 }
 
-                foreach($fields as $tmpField) { //TODO::NEWFIELD
+                foreach($fields as $tmpField) {
                     $flid = $tmpField['flid'];
                     switch($tmpField['type']) {
-                        case 'Integer':
-                        case 'Float':
+                        case Form::_INTEGER:
+                        case Form::_FLOAT:
                             if($request[$flid.'_left'] != '' | $request[$flid.'_right'] != '') {
                                 $processed[$flid]['left'] = $request[$flid . '_left'];
                                 $processed[$flid]['right'] = $request[$flid . '_right'];
                                 $processed[$flid]['invert'] = isset($request[$flid . '_invert']) ? (bool)$request[$flid . '_invert'] : false;
                             }
                             break;
-                        case 'Date':
-                        case 'DateTime':
+                        case Form::_DATE:
+                        case Form::_DATETIME:
                             if(
                                 isset($request[$flid.'_begin_month']) && $request[$flid.'_begin_month'] != '' &&
                                 isset($request[$flid.'_begin_day']) && $request[$flid.'_begin_day'] != '' &&
@@ -292,7 +293,7 @@ class AdvancedSearchController extends Controller {
                                     $processed[$flid]['end_second'] = $request[$flid.'_end_second'];
                             }
                             break;
-                        case 'Historical Date':
+                        case Form::_HISTORICAL_DATE:
                             $beginEra = isset($request[$flid.'_begin_era']) ? $request[$flid.'_begin_era'] : 'CE';
                             $endEra = isset($request[$flid.'_end_era']) ? $request[$flid.'_end_era'] : 'CE';
 
@@ -327,18 +328,18 @@ class AdvancedSearchController extends Controller {
                                 $processed[$flid]['end_year'] = $request[$flid.'_end_year'];
                             }
                             break;
-                        case 'Geolocator':
+                        case Form::_GEOLOCATOR:
                             if($request[$flid.'_lat'] != '' && $request[$flid.'_lng'] != '' && $request[$flid.'_range'] != '') {
                                 $processed[$flid]['lat'] = $request[$flid . '_lat'];
                                 $processed[$flid]['lng'] = $request[$flid . '_lng'];
                                 $processed[$flid]['range'] = $request[$flid . '_range'];
                             }
                             break;
-                        case 'Boolean':
+                        case Form::_BOOLEAN:
                             if(isset($request[$flid.'_input']) && $request[$flid.'_input'] == '1')
                                 $processed[$flid]['input'] = true;
                             break;
-                        case 'Associator':
+                        case Form::_ASSOCIATOR:
                             if(isset($request[$flid.'_input']) && !empty($request[$flid.'_input'])) {
                                 $processed[$flid]['input'] = $request[$flid . '_input'];
 
@@ -360,7 +361,7 @@ class AdvancedSearchController extends Controller {
                     if(isset($request[$flid.'_empty']))
                         $processed[$flid]['empty'] = $request[$flid.'_empty'];
 
-                    if($field['type'] == 'Combo List') {
+                    if($field['type'] == Form::_COMBO_LIST) {
                         if(isset($processed[$flid])) {
                             $processed[$key][$flid] = $processed[$flid];
                             unset($processed[$flid]);

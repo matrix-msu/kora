@@ -6,7 +6,6 @@
 @stop
 
 @section('fieldOptions')
-    {{-- TODO::COMBO_FINISH --}}
     @include('partials.fields.options.defaults.text')
 
     @include('partials.fields.options.config.text')

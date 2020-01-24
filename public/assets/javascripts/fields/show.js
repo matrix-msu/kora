@@ -368,7 +368,7 @@ Kora.Fields.Show = function() {
         });
     }
 
-    function validateAdvancedOptions(currType) { //TODO::NEWFIELD
+    function validateAdvancedOptions(currType) {
         var valid = true;
 
         switch(currType) {

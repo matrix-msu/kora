@@ -417,7 +417,7 @@ class ComboListField extends BaseField {
      * @param  array $data - Data from the search
      * @return array - The update request
      */
-    public function setRestfulAdvSearch($data) { //TODO::COMBO
+    public function setRestfulAdvSearch($data) {
         $return = [];
         $field = $data->field_info;
         $form = $data->form_info;
