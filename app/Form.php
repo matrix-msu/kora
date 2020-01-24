@@ -1036,7 +1036,7 @@ class Form extends Model {
                             $result[$column]['value'][$aKid] = $this->getBetaAssocRecord($parts[2], $aForm, $con, $prefix);
                         }
                     }
-                } else if(array_key_exists($column,$comboFields)) { //TODO
+                } else if(array_key_exists($column,$comboFields)) {
                     $comboIds = json_decode($data, true);
                     if(!is_null($comboIds))
                         $result[$column]['value'] = $this->getComboRecord($column, $comboIds, $comboInfo[$column], $con, $prefix, null);
