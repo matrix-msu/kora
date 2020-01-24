@@ -419,16 +419,17 @@ class ComboListField extends BaseField {
      */
     public function setRestfulAdvSearch($data) { //TODO::COMBO
         $return = [];
+        $field = $data->field_info;
+        $form = $data->form_info;
 
-        $flid = $data->{$flid};
-
-        $field = FieldController::getField($data->{$flid}, $data->{$fid});
-
-        foreach (['one', 'two'] as $seq) {
+        foreach(['one', 'two'] as $seq) {
             $type = $field[$seq]['type'];
-            $className = $this->fieldModel[$type];
-            $object = new $className;
-            $return[$seq] = $object->setRestfulAdvSearch($data->{$seq});
+            $subName = $field[$seq]['name'];
+            $flid = $field[$seq]['flid'];
+            if(isset($data->{$subName})) {
+                $object = $form->getFieldModel($type);
+                $return[$flid.'_'.$seq] = $object->setRestfulAdvSearch($data->{$subName});
+            }
         }
 
         return $return;

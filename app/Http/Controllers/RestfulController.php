@@ -510,6 +510,8 @@ class RestfulController extends Controller {
                         continue;
                     }
                     $fieldModel = $form->layout['fields'][$flid];
+                    $data->field_info = $fieldModel; //Only combo deals with this
+                    $data->form_info = $form; //Only combo deals with this
 
                     //Check permission to search externally
                     if(!$fieldModel['external_search']) {
@@ -517,11 +519,11 @@ class RestfulController extends Controller {
                         continue;
                     }
 
-                    $processed[$flid] = $form->getFieldModel($fieldModel['type'])->setRestfulAdvSearch($data);
+                    $processed[$advfield] = $form->getFieldModel($fieldModel['type'])->setRestfulAdvSearch($data);
                     if(isset($data->negative) && is_bool($data->negative))
-                        $processed[$flid]['negative'] = true;
+                        $processed[$advfield]['negative'] = true;
                     if(isset($data->empty) && is_bool($data->empty))
-                        $processed[$flid]['empty'] = true;
+                        $processed[$advfield]['empty'] = true;
                 }
                 $negative = isset($query->not) && is_bool($query->not) ? $query->not : false;
                 $advSearch = new AdvancedSearchController();
