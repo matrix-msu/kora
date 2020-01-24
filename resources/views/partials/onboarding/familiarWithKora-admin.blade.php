@@ -19,7 +19,6 @@
 				<li>Improved global search to get to everything you need quicker</li>
 				<li>Revamped breadcrumb menu-bar system, and a new robust, persistent side-bar</li>
 				<li>Receive the latest update quickly and easily</li>
-				<li>Full backup system to create restore points for kora</li>
 				<li>Powerful tools to import your kora 2 data into kora</li>
 			</ul>
 			<p>But wait, there's more!  To read about all of kora's new features, feel free to <a href="#" class="green">read our post about it here</a>.</p>
