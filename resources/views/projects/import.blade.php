@@ -62,7 +62,7 @@
 
         <div class="form-group mt-xl">
             {!! Form::label('description', 'Description') !!}
-            {!! Form::textarea('description', null, ['class' => 'text-area', 'placeholder' => "Enter the projects description here (max. 500 characters)"]) !!}
+            {!! Form::textarea('description', null, ['class' => 'text-area', 'placeholder' => "Enter the projects description here (max. 1000 characters)"]) !!}
             <p class="sub-text mt-xs">Leave blank to use description from file</p>
         </div>
 

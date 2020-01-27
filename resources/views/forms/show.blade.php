@@ -28,7 +28,7 @@
         <span>Unique Form ID:</span>
         <span>{{ $form->internal_name }}</span>
       </p>
-      <p class="description">{{ $form->description }}</p>
+      <p class="description">{!! nl2br(e($form->description)) !!}</p>
 
       <div class="form-group">
         <div class="form-quick-options">

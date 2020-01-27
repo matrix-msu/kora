@@ -60,8 +60,17 @@ class FormController extends Controller {
 		natcasesort($userNames);
 
         $presets = array();
-        foreach(Form::where('preset', '=', 1, 'and', 'pid', '=', $pid)->get() as $form)
-            $presets[$form->id] = $form->project->name.' - '.$form->name;
+        $defaultPresetIndex = 0;
+        foreach(Form::where('preset', '=', 1, 'and', 'pid', '=', $pid)->get() as $form) {
+            $presets[$form->id] = $form->project->name . ' - ' . $form->name;
+        }
+        foreach(new \DirectoryIterator(public_path('formPresets')) as $file) {
+            if($file->isFile()) {
+                $pureName = str_replace('.kForm','',$file->getFilename());
+                $presets['default_'.$pureName] = $pureName;
+                $defaultPresetIndex++;
+            }
+        }
 
         return view('forms.create', compact('project', 'userNames', 'presets')); //pass in
 	}
@@ -343,8 +352,15 @@ class FormController extends Controller {
      */
     private function addPresets(Form $form, $fid) {
         //Copy layout with new IDs
-        $preset = Form::where('id', '=', $fid)->first();
-        foreach($preset->layout['pages'] as $pageNum => $data) {
+        if(strpos($fid, 'default_') !== false) {
+            $filename = str_replace('default_','',$fid).'.kForm';
+            $fullpath = public_path('formPresets/'.$filename);
+            $contents = json_decode(file_get_contents($fullpath),true);
+            $presetLayout = $contents['layout'];
+        } else {
+            $presetLayout = Form::where('id', '=', $fid)->first()->layout;
+        }
+        foreach($presetLayout['pages'] as $pageNum => $data) {
             //create page on new form
             $pageArray = [];
             $pageArray['title'] = $data['title'];
@@ -362,7 +378,7 @@ class FormController extends Controller {
 
             foreach($data['flids'] as $preFlid) {
                 //build out  and create field
-                $oldField = $preset->layout['fields'][$preFlid];
+                $oldField = $presetLayout['fields'][$preFlid];
 
                 $field = [];
                 $flid = slugFormat($oldField['name'], $form->project_id, $form->id);
