@@ -5,9 +5,9 @@
         $seq = '';
 @endphp
 <div class="form-group mt-xl">
-    {!! Form::label('min' . $seq,'Minimum Value') !!}
-    <span class="error-message"></span>
     <div class="number-input-container">
+        {!! Form::label('min' . $seq,'Minimum Value') !!}
+        <span class="error-message"></span>
         <input
             type="number"
             name="min{{$seq}}"
@@ -20,9 +20,9 @@
 </div>
 
 <div class="form-group mt-xl">
-    {!! Form::label('max' . $seq,'Max Value') !!}
-    <span class="error-message"></span>
     <div class="number-input-container">
+        {!! Form::label('max' . $seq,'Max Value') !!}
+        <span class="error-message"></span>
         <input
             type="number"
             name="max{{$seq}}"

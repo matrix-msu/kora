@@ -16,14 +16,14 @@
     $unit = $field['options']['Unit'];
 @endphp
 <div class="form-group mt-xxxl">
-    <label>
-        @if(!isset($seq) && $field['required'])
-            <span class="oval-icon"></span>
-        @endif
-		{{ strlen($unit) > 0 ? $field['name'] . ' (' . $unit . ')' : $field['name'] }}
-    </label>
-    <span class="error-message"></span>
     <div class="number-input-container">
+        <label>
+            @if(!isset($seq) && $field['required'])
+                <span class="oval-icon"></span>
+            @endif
+            {{ strlen($unit) > 0 ? $field['name'] . ' (' . $unit . ')' : $field['name'] }}
+        </label>
+        <span class="error-message"></span>
         <input
             type="number"
             id="{{ $fieldDivID }}"

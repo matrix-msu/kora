@@ -20,16 +20,16 @@
 
             <section class="lat-lon-switch-js">
                 <div class="form-group mt-xl half pr-m">
-                    <span class="error-message"></span>
-                    {!! Form::label('latVal', 'Latitude') !!}
                     <div class="number-input-container number-input-container-js">
+                        {!! Form::label('latVal', 'Latitude') !!}
+                        <span class="error-message"></span>
                         <input type="number" class="text-input location-lat-js" value="0" min=-90 max=90 step=".000001">
                     </div>
                 </div>
                 <div class="form-group mt-xl half pr-l">
-                    <span class="error-message"></span>
-                    {!! Form::label('lonVal', 'Longitude') !!}
                     <div class="number-input-container number-input-container-js">
+                        {!! Form::label('lonVal', 'Longitude') !!}
+                        <span class="error-message"></span>
                         <input type="number" class="text-input location-lon-js" value="0" min=-180 max=180 step=".000001">
                     </div>
                 </div>

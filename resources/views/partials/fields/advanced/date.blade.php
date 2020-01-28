@@ -49,9 +49,9 @@
 </div>
 
 <div class="form-group mt-xl half pr-m">
-    {!! Form::label('start','Start Year') !!}
-    <span class="error-message"></span>
     <div class="number-input-container number-input-container-js">
+        {!! Form::label('start','Start Year') !!}
+        <span class="error-message"></span>
         {!! Form::input('number', 'start', 1900, ['class' => 'text-input start-year-js', 'placeholder' => 'Enter start year here', 'data-current-year-id' => 'start']) !!}
         {!! Form::input('hidden', 'start', 0, ['class' => 'hidden-current-year-js', 'disabled']) !!}
     </div>
@@ -64,9 +64,9 @@
 </div>
 
 <div class="form-group mt-xl half pl-m">
-    {!! Form::label('end','End Year') !!}
-    <span class="error-message"></span>
     <div class="number-input-container number-input-container-js">
+        {!! Form::label('end','End Year') !!}
+        <span class="error-message"></span>
         {!! Form::input('number', 'end', 2030, ['class' => 'text-input end-year-js', 'placeholder' => 'Enter end year here', 'data-current-year-id' => 'end']) !!}
         {!! Form::input('hidden', 'end', 0, ['class' => 'hidden-current-year-js', 'disabled']) !!}
     </div>

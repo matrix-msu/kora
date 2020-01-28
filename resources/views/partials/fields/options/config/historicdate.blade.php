@@ -11,9 +11,9 @@
 </div>
 
 <div class="form-group mt-xl half pr-m">
-    {!! Form::label('start' . $seq,'Start Year') !!}
-    <span class="error-message"></span>
     <div class="number-input-container number-input-container-js">
+        {!! Form::label('start' . $seq,'Start Year') !!}
+        <span class="error-message"></span>
         @php
             $start = $field['options']['Start'];
             if ($start == 0)
@@ -31,9 +31,9 @@
 </div>
 
 <div class="form-group mt-xl half pl-m">
-    {!! Form::label('end' . $seq,'End Year') !!}
-    <span class="error-message"></span>
     <div class="number-input-container number-input-container-js">
+        {!! Form::label('end' . $seq,'End Year') !!}
+        <span class="error-message"></span>
         @php
             $end = $field['options']['End'];
             if ($end == 0)

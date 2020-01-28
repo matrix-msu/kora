@@ -12,9 +12,9 @@
     }
 @endphp
 <div class="form-group">
-    {!! Form::label('default' . $seq, $title) !!}
-    <span class="error-message"></span>
     <div class="number-input-container">
+        {!! Form::label('default' . $seq, $title) !!}
+        <span class="error-message"></span>
         <input
                 type="number"
                 name="default{{$seq}}"
