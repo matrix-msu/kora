@@ -22,7 +22,7 @@ class UpdateController extends Controller {
     /**
      * @var string - The URL for checking for new versions of kora
      */
-    const UPDATE_PAGE = 'http://matrix-msu.github.io/kora/';
+    const UPDATE_PAGE = 'https://matrix-msu.github.io/kora/';
 
     /**
      * Constructs controller and makes sure user is authenticated and is a system admin.
