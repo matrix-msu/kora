@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Http\Client\Curl;
 
 use Http\Message\Builder\ResponseBuilder as OriginalResponseBuilder;
@@ -15,7 +17,7 @@ class ResponseBuilder extends OriginalResponseBuilder
      *
      * @param ResponseInterface $response
      */
-    public function setResponse(ResponseInterface $response)
+    public function setResponse(ResponseInterface $response): void
     {
         $this->response = $response;
     }

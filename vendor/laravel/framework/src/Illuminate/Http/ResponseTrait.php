@@ -3,8 +3,8 @@
 namespace Illuminate\Http;
 
 use Exception;
-use Symfony\Component\HttpFoundation\HeaderBag;
 use Illuminate\Http\Exceptions\HttpResponseException;
+use Symfony\Component\HttpFoundation\HeaderBag;
 
 trait ResponseTrait
 {
@@ -114,6 +114,16 @@ trait ResponseTrait
         $this->headers->setCookie($cookie);
 
         return $this;
+    }
+
+    /**
+     * Get the callback of the response.
+     *
+     * @return string|null
+     */
+    public function getCallback()
+    {
+        return $this->callback ?? null;
     }
 
     /**

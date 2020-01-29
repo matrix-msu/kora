@@ -26,19 +26,12 @@ abstract class FileTypeField extends BaseField {
      * @var string - The available storage types
      */
     const _LaravelStorage = "LaravelStorage";
+    const _JoyentManta = "JoyentManta";
 
     /**
-     * Gets the default options string for a new field.
-     *
-     * @param  int $fid - Form ID
-     * @param  string $slug - Name of database column based on field internal name
-     * @param  array $options - Extra information we may need to set up about the field
-     * @return array - The default options
+     * @var string - Method from CreateRecordsTable() for adding to DB
      */
-    public function addDatabaseColumn($fid, $slug, $options = null) {
-        $table = new \CreateRecordsTable();
-        $table->addJSONColumn($fid, $slug);
-    }
+    const FIELD_DATABASE_METHOD = 'addJSONColumn';
 
     /**
      * Update the options for a field
@@ -179,13 +172,16 @@ abstract class FileTypeField extends BaseField {
                             'url' => $dataURL.urlencode($fileName), 'checksum' => $checksum, 'timestamp' => $timestamp];
 
                         switch(config('filesystems.kora_storage')) {
-                            case FileTypeField::_LaravelStorage:
+                            case self::_LaravelStorage:
                                 $newPath = storage_path('app/files/' . $request->pid . '/' . $request->fid . '/' . $request->rid);
                                 if(!file_exists($newPath))
                                     mkdir($newPath, 0775, true);
 
                                 //Move the file to its new home
                                 copy(storage_path($tmpPath . '/' . $fileName), $newPath . '/' . "$timestamp.$fileName");
+                                break;
+                            case self::_JoyentManta:
+                                //TODO::MANTA
                                 break;
                             default:
                                 break;
@@ -504,12 +500,13 @@ abstract class FileTypeField extends BaseField {
         $dbQuery = $recordMod->newQuery()
             ->select("id");
 
+        $arg = strtolower($arg); //Solves the JSON mysql case-insensitive issue
         if($negative) {
-            $dbQuery->whereRaw("`$flid`->\"$[*].name\" $param \"$arg\"");
-            $dbQuery->whereRaw("`$flid`->\"$[*].caption\" $param \"$arg\"");
+            $dbQuery->whereRaw("LOWER(`$flid`->\"$[*].name\") $param \"$arg\"");
+            $dbQuery->whereRaw("LOWER(`$flid`->\"$[*].caption\") $param \"$arg\"");
         } else {
-            $dbQuery->orWhereRaw("`$flid`->\"$[*].name\" $param \"$arg\"");
-            $dbQuery->orWhereRaw("`$flid`->\"$[*].caption\" $param \"$arg\"");
+            $dbQuery->orWhereRaw("LOWER(`$flid`->\"$[*].name\") $param \"$arg\"");
+            $dbQuery->orWhereRaw("LOWER(`$flid`->\"$[*].caption\") $param \"$arg\"");
         }
 
         return $dbQuery->pluck('id')
@@ -683,7 +680,7 @@ abstract class FileTypeField extends BaseField {
 
         //Need to get the actual local name of the file if it has a timestamp
         foreach($form->layout['fields'] as $flid => $field) {
-            if($form->getFieldModel($field['type']) instanceof FileTypeField && !is_null($record->{$flid})) {
+            if($form->getFieldModel($field['type']) instanceof self && !is_null($record->{$flid})) {
                 $files = json_decode($record->{$flid}, true);
                 foreach($files as $recordFile) {
                     if($recordFile['name'] == $filename) {
@@ -712,7 +709,7 @@ abstract class FileTypeField extends BaseField {
         }
 
         switch(config('filesystems.kora_storage')) {
-            case FileTypeField::_LaravelStorage:
+            case self::_LaravelStorage:
                 // Check if file exists in app/storage/file folder
                 $filePath = storage_path('app/files/'.$record->project_id.'/'.$record->form_id.'/'.$record->id.'/'.$filename);
                 if(file_exists($filePath)) {
@@ -731,14 +728,26 @@ abstract class FileTypeField extends BaseField {
                     }
 
                     //This allows the thumbs to display properly
-                    while (ob_get_level()) {
+                    while(ob_get_level()) {
                         ob_end_clean();
                     }
 
-                    // Send file, but define type for browsers sake
-                    header('Content-Type: '. mime_content_type($filePath));
-                    readfile($filePath);
+                    $filetype =mime_content_type($filePath);
+                    $filesize = filesize($filePath);
+
+                    //Helps us handle video streaming
+                    header("Content-type: $filetype");
+                    if(isset($_SERVER['HTTP_RANGE'])){ // do it for any device that supports byte-ranges not only iPhone
+                        self::rangeDownload($filePath);
+                    } else {
+                        header("Content-length: $filesize");
+                        readfile($filePath);
+                    }
+                    exit;
                 }
+                break;
+            case self::_JoyentManta:
+                //TODO::MANTA
                 break;
             default:
                 break;
@@ -760,7 +769,7 @@ abstract class FileTypeField extends BaseField {
 
         //Need to get the actual local name of the file if it has a timestamp
         foreach($form->layout['fields'] as $flid => $field) {
-            if($form->getFieldModel($field['type']) instanceof FileTypeField && !is_null($record->{$flid})) {
+            if($form->getFieldModel($field['type']) instanceof self && !is_null($record->{$flid})) {
                 $files = json_decode($record->{$flid}, true);
                 foreach($files as $recordFile) {
                     if($recordFile['name'] == $filename) {
@@ -772,7 +781,7 @@ abstract class FileTypeField extends BaseField {
         }
 
         switch(config('filesystems.kora_storage')) {
-            case FileTypeField::_LaravelStorage:
+            case self::_LaravelStorage:
                 // Check if file exists in app/storage/file folder
                 $filePath = storage_path('app/files/'.$record->project_id.'/'.$record->form_id.'/'.$record->id.'/'.$filename);
                 if(file_exists($filePath)) {
@@ -781,6 +790,9 @@ abstract class FileTypeField extends BaseField {
                         'Content-Length: '. filesize($filePath)
                     ]);
                 }
+                break;
+            case self::_JoyentManta:
+                //TODO::MANTA
                 break;
             default:
                 break;
@@ -804,7 +816,7 @@ abstract class FileTypeField extends BaseField {
         //Also builds an array of local file names to original names to compensate for timestamps
         $fileArray = [];
         foreach($form->layout['fields'] as $flid => $field) {
-            if($form->getFieldModel($field['type']) instanceof FileTypeField && !is_null($record->{$flid})) {
+            if($form->getFieldModel($field['type']) instanceof self && !is_null($record->{$flid})) {
                 $files = json_decode($record->{$flid}, true);
                 foreach($files as $recordFile) {
                     $localName = isset($recordFile['timestamp']) ? $recordFile['timestamp'].'.'.$recordFile['name'] : $recordFile['name'];
@@ -814,7 +826,7 @@ abstract class FileTypeField extends BaseField {
         }
 
         switch(config('filesystems.kora_storage')) {
-            case FileTypeField::_LaravelStorage:
+            case self::_LaravelStorage:
                 // Check if file exists in app/storage/file folder
                 $dir_path = storage_path('app/files/'.$record->project_id.'/'.$record->form_id.'/'.$record->id);
                 if(file_exists($dir_path)) {
@@ -842,6 +854,9 @@ abstract class FileTypeField extends BaseField {
                         return response()->download($filetopath, $zip_name, $headers);
                 }
                 break;
+            case self::_JoyentManta:
+                //TODO::MANTA
+                break;
             default:
                 break;
         }
@@ -852,7 +867,7 @@ abstract class FileTypeField extends BaseField {
     /**
      * Searches standard list of MIME file types.
      *
-     * @param  array - The MIME types
+     * @return array - The MIME types
      */
     public static function getMimeTypes() {
         $types=array();
@@ -866,7 +881,7 @@ abstract class FileTypeField extends BaseField {
     /**
      * Searches standard list of MIME file types. Makes a clean list for html selects.
      *
-     * @param  array - The MIME types
+     * @return array - The MIME types
      */
     public static function getMimeTypesClean() {
         $types=array();
@@ -875,5 +890,101 @@ abstract class FileTypeField extends BaseField {
                 for($i=1;$i<$c;$i++)
                     $types[$out[1][0]]=$out[1][0];
         return $types;
+    }
+
+    /**
+     * Gets the resource file by byte range. Primarily allows for video streaming.
+     *
+     * @param  string $file - The file to grab
+     */
+    private static function rangeDownload($file){
+        $fp = @fopen($file, 'rb');
+
+        $size   = filesize($file); // File size
+        $length = $size;           // Content length
+        $start  = 0;               // Start byte
+        $end    = $size - 1;       // End byte
+        // Now that we've gotten so far without errors we send the accept range header
+        /* At the moment we only support single ranges.
+         * Multiple ranges requires some more work to ensure it works correctly
+         * and comply with the spesifications: http://www.w3.org/Protocols/rfc2616/rfc2616-sec19.html#sec19.2
+         *
+         * Multirange support annouces itself with:
+         * header('Accept-Ranges: bytes');
+         *
+         * Multirange content must be sent with multipart/byteranges mediatype,
+         * (mediatype = mimetype)
+         * as well as a boundry header to indicate the various chunks of data.
+         */
+        header("Accept-Ranges: 0-$length");
+        // header('Accept-Ranges: bytes');
+        // multipart/byteranges
+        // http://www.w3.org/Protocols/rfc2616/rfc2616-sec19.html#sec19.2
+        if (isset($_SERVER['HTTP_RANGE'])){
+            $c_start = $start;
+            $c_end   = $end;
+
+            // Extract the range string
+            list(, $range) = explode('=', $_SERVER['HTTP_RANGE'], 2);
+            // Make sure the client hasn't sent us a multibyte range
+            if (strpos($range, ',') !== false){
+                // (?) Shoud this be issued here, or should the first
+                // range be used? Or should the header be ignored and
+                // we output the whole content?
+                header('HTTP/1.1 416 Requested Range Not Satisfiable');
+                header("Content-Range: bytes $start-$end/$size");
+                // (?) Echo some info to the client?
+                exit;
+            } // fim do if
+            // If the range starts with an '-' we start from the beginning
+            // If not, we forward the file pointer
+            // And make sure to get the end byte if spesified
+            if ($range{0} == '-'){
+                // The n-number of the last bytes is requested
+                $c_start = $size - substr($range, 1);
+            } else {
+                $range  = explode('-', $range);
+                $c_start = $range[0];
+                $c_end   = (isset($range[1]) && is_numeric($range[1])) ? $range[1] : $size;
+            } // fim do if
+            /* Check the range and make sure it's treated according to the specs.
+             * http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html
+             */
+            // End bytes can not be larger than $end.
+            $c_end = ($c_end > $end) ? $end : $c_end;
+            // Validate the requested range and return an error if it's not correct.
+            if ($c_start > $c_end || $c_start > $size - 1 || $c_end >= $size){
+                header('HTTP/1.1 416 Requested Range Not Satisfiable');
+                header("Content-Range: bytes $start-$end/$size");
+                // (?) Echo some info to the client?
+                exit;
+            } // fim do if
+
+            $start  = $c_start;
+            $end    = $c_end;
+            $length = $end - $start + 1; // Calculate new content length
+            fseek($fp, $start);
+            header('HTTP/1.1 206 Partial Content');
+        } // fim do if
+
+        // Notify the client the byte range we'll be outputting
+        header("Content-Range: bytes $start-$end/$size");
+        header("Content-Length: $length");
+
+        // Start buffered download
+        $buffer = 1024 * 8;
+        while(!feof($fp) && ($p = ftell($fp)) <= $end){
+            if ($p + $buffer > $end){
+                // In case we're only outputtin a chunk, make sure we don't
+                // read past the length
+                $buffer = $end - $p + 1;
+            } // fim do if
+
+            set_time_limit(0); // Reset time limit for big files
+            echo fread($fp, $buffer);
+            flush(); // Free up memory. Otherwise large files will trigger PHP's memory limit.
+        } // fim do while
+
+        fclose($fp);
     }
 }

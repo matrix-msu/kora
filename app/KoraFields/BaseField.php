@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 
 abstract class BaseField extends Model {
 
-    /* //TODO::NEWFIELD
+    /*
     |--------------------------------------------------------------------------
     | Base Field
     |--------------------------------------------------------------------------
@@ -52,14 +52,17 @@ abstract class BaseField extends Model {
     abstract public function getFieldDisplayView();
 
     /**
-     * Gets the default options string for a new field.
+     * Create DB column for this field.
      *
      * @param  int $fid - Form ID
      * @param  string $slug - Name of database column based on field internal name
+     * @param  string $method - The add column function from CreateRecordsTable to be used
      * @param  array $options - Extra information we may need to set up about the field
-     * @return array - The default options
      */
-    abstract public function addDatabaseColumn($fid, $slug, $options = null);
+    public function addDatabaseColumn($fid, $slug, $method, $options = null) {
+        $table = new \CreateRecordsTable();
+        $table->{$method}($fid, $slug);
+    }
 
     /**
      * Gets the default options string for a new field.
@@ -91,7 +94,6 @@ abstract class BaseField extends Model {
      */
     abstract public function validateField($flid, $field, $request, $forceReq = false);
 
-    //TODO::NEWFIELD formerly createNewRecordField
     //Must be in format of JSON export in kora
     /**
      * Formats data for record entry.

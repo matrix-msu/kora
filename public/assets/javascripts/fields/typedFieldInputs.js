@@ -106,41 +106,10 @@ Kora.Fields.TypedFieldInputs.Initialize = function() {
         });
     }
 
-    function initializeComboSubLists(fnum) {
-        $('.list-input-form-group-combo').each(function() {
-            var $listFormGroup = $(this);
-            var $cardOptionsContainer = $listFormGroup.find('.list-option-card-container-'+fnum+'-js');
-            var $newOptionCard = $('.new-list-option-card-'+fnum+'-js');
-            var $newOptionInput = $newOptionCard.find('.new-list-option-'+fnum+'-js');
-            var $newOptionAddButton = $newOptionCard.find('.list-option-add-'+fnum+'-js');
-            var addButtonWidth = $newOptionAddButton.outerWidth() + 40;
-
-            // Drag cards into position
-            function initializeListOptionDrag() {
-                $cardOptionsContainer.sortable();
-            }
-
-            // New option input doesn't push 'Add' button outside of input
-            function sizeNewOptionInput() {
-                var newOptionCardWidth = $newOptionCard.outerWidth();
-                $newOptionInput.css('max-width', newOptionCardWidth - addButtonWidth);
-            }
-
-            initializeListOptionDrag();
-            sizeNewOptionInput();
-
-            $(window).resize(function() {
-                sizeNewOptionInput();
-            });
-        });
-    }
-
     initializeGallery();
     initializeGeolocator();
     intializeAudio();
     initializeVideo();
     initalize3DModel();
     initializeList();
-    initializeComboSubLists('one');
-    initializeComboSubLists('two');
 };

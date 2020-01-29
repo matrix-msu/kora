@@ -16,18 +16,19 @@
         }
     ],
     "require": {
-        "php": ">=5.3.9"
-    },
-    "require-dev": {
-        "symfony/phpunit-bridge": "~2.7"
+        "php": "^7.1.3",
+        "symfony/polyfill-ctype": "~1.8"
     },
     "autoload": {
-        "psr-4": { "Symfony\\Component\\Filesystem\\": "" }
+        "psr-4": { "Symfony\\Component\\Filesystem\\": "" },
+        "exclude-from-classmap": [
+            "/Tests/"
+        ]
     },
     "minimum-stability": "dev",
     "extra": {
         "branch-alias": {
-            "dev-master": "2.7-dev"
+            "dev-master": "4.3-dev"
         }
     }
 }

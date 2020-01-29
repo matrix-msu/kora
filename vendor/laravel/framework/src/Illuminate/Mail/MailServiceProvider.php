@@ -2,21 +2,15 @@
 
 namespace Illuminate\Mail;
 
-use Swift_Mailer;
+use Illuminate\Contracts\Support\DeferrableProvider;
 use Illuminate\Support\Arr;
+use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
 use Swift_DependencyContainer;
-use Illuminate\Support\ServiceProvider;
+use Swift_Mailer;
 
-class MailServiceProvider extends ServiceProvider
+class MailServiceProvider extends ServiceProvider implements DeferrableProvider
 {
-    /**
-     * Indicates if loading of the provider is deferred.
-     *
-     * @var bool
-     */
-    protected $defer = true;
-
     /**
      * Register the service provider.
      *
@@ -25,9 +19,7 @@ class MailServiceProvider extends ServiceProvider
     public function register()
     {
         $this->registerSwiftMailer();
-
         $this->registerIlluminateMailer();
-
         $this->registerMarkdownRenderer();
     }
 

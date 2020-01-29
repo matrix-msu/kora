@@ -3,10 +3,10 @@
     {!! Form::label('','Association Search Configuration') !!}
 </div>
 
-<?php $associations = \App\Http\Controllers\AssociationController::getAvailableAssociations($fid); ?>
+@php $associations = \App\Http\Controllers\AssociationController::getAvailableAssociations($fid); @endphp
 <div class="advanced-options-associator {{count($associations) == 0 ? 'search-config-empty-state' : ''}}">
     @foreach($associations as $a)
-        <?php
+        @php
         $f = \App\Http\Controllers\FormController::getForm($a->data_form);
         $formFieldsData = $f->layout['fields'];
         $formFields = array();
@@ -15,7 +15,7 @@
         }
 
         $selectArray = ['class' => 'single-select', "data-placeholder" => "Select field preview value", 'disabled'];
-        ?>
+        @endphp
         <div class="form-group mb-m">
             <div class="check-box-half">
                 <input type="checkbox" value="1" id="active" class="check-box-input association-check-js" name="checkbox_{{$f->id}}"/>

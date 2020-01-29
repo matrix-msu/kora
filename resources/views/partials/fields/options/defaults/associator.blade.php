@@ -1,60 +1,57 @@
 @php
-    if(isset($seq)) {
+    if(isset($seq)) { //Combo List
+        $assocNum = $seq;
         $seq = '_' . $seq;
+        $title = $cfName.' ';
+        $default = null;
+        $defClass = 'default-input-js';
     } else {
+        $assocNum = '';
         $seq = '';
+        $title = '';
+        $default = $field['default'];
+        $defClass = '';
     }
-    $assocLayout = [];
-    $associations = \App\Http\Controllers\AssociationController::getAvailableAssociations($form->id);
 @endphp
-<div class="form-group mt-xxxl">Association Search Configuration</div>
+<div class="form-group">
+    {!! Form::label('',$title.'Default Associations') !!}
+</div>
 
-<div class="associator-section {{count($associations) == 0 ? 'search-config-empty-state' : ''}}">
-    @foreach($associations as $a)
+<div class="form-group associator-input mt-xl">
+    <div>
+        {!! Form::label('search','Search Associations') !!}
+        <input type="text" class="text-input assoc-search-records-js" placeholder="Enter search term or KID to find associated records (populated below)" {{$assocNum != '' ? "combo=$assocNum" : ''}}>
+
+        <p class="sub-text mt-sm">
+            Enter a search term or KID and hit enter to search. Results will then be populated in the "Association Results" field below.
+        </p>
+    </div>
+
+    <div class="mt-xl">
+        {!! Form::label('search','Association Results') !!}
+        {!! Form::select('search[]', [], null, ['class' => 'multi-select assoc-select-records-js', 'multiple',
+            "data-placeholder" => "Select a record association to add to defaults"]) !!}
+
+        <p class="sub-text mt-sm">
+            Once records are populated, they will appear in this fields dropdown. Selecting records will then add them to the "Default Associations" field below.
+        </p>
+    </div>
+
+    <div class="mt-xl">
         @php
-        $f = \App\Http\Controllers\FormController::getForm($a->data_form);
-        $formFieldsData = $f->layout['fields'];
-        $formFields = array();
-        foreach($formFieldsData as $aflid => $data) {
-            $formFields[$aflid] = $data['name'];
-        }
-
-        // building an array about the association permissions
-        $options = $field['options']['SearchForms'];
-        foreach ($options as $opt) {
-            $assocLayout[$opt['form_id']] = ['flids' => $opt['flids']];
-        }
-
-        // get layout info for this form
-        $f_check = false;
-        $f_flids = null;
-
-        if(array_key_exists($f->id,$assocLayout)){
-            $f_check = true;
-            $f_flids = $assocLayout[$f->id]['flids'];
-        }
-
+            $defaultArray = [];
+            if(!is_null($default) && $default!=''){
+                foreach($default as $akid) {
+                    $defaultArray[$akid] = $akid;
+                }
+            }
         @endphp
-        <div class="form-group mt-xl">
-            <div class="check-box-half">
-                <input type="checkbox" value="1" id="active" class="check-box-input association-check-js" name="checkbox_{{$f->id}}{{$seq}}"
-                @if($f_check)
-                    checked
-                @endif
-                />
-                <span class="check"></span>
-                <span class="placeholder">Search through {{$f->name}}?</span>
-            </div>
-        </div>
+        {!! Form::label('default'.$seq,'Select Default Associations') !!}
+        {!! Form::select('default'.$seq.'[]', $defaultArray, $defaultArray, ['class' => 'multi-select assoc-default-records-js '.$defClass, 'multiple',
+            "data-placeholder" => "Search below to add associated records", 'id'=>'default'.$seq]) !!}
 
-        <div class="form-group mt-m
-        @if(!$f_check)
-            hidden
-        @endif
-        ">
-            {!! Form::label('preview_' . $f->id . $seq . '[]', 'Preview Value') !!}
-            {!! Form::select('preview_' . $f->id . $seq . '[]', $formFields, $f_flids, ['class' => 'multi-select assoc-preview-js', 'multiple', 'data-placeholder' => 'Select field preview value']) !!}
-        </div>
-    @endforeach
-    @if(count($associations) == 0) No Forms Associated @endif
+        <p class="sub-text mt-sm">
+            To add associated records, Start a search for records in the "Search Associations" field above.
+        </p>
+    </div>
 </div>

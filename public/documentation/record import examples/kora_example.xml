@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Records>
+	<Record>
+		<Text>Your text value</Text>
+		 NOTE: This rich text is a bad example, because we can not use html tags in XML. Please utf8_encode this value!
+		<Rich_Text>Your <b>rich</b> text value</Rich_Text>
+		<Integer>3</Integer>
+		<Float>3.21</Float>
+		<List>List value</List>
+		<Multi_Select_List>
+			<value>List value</value>
+			<value>Another value</value>
+			...
+		</Multi_Select_List>
+		<Generated_List>
+			<value>List value</value>
+			<value>Another value</value>
+			...
+		</Generated_List>
+		<Date>2012-12-21</Date>
+		<DateTime>2012-12-21 11:11:11</DateTime>
+		<Historical_Date>
+			<Prefix>circa</Prefix> NOTE: Prefix tag is optional. Defaults to "".
+			<Year>2012</Year> NOTE: Always required.
+			<Month>12</Month> NOTE: Required when Day tag is specified.
+			<Day>21</Day> NOTE: Not required.
+			<Era>CE</Era> NOTE: Era tag is optional. Defaults to CE.
+		</Historical_Date>
+		<Boolean>1</Boolean>
+		<Geolocator>
+			<Location>
+				<Description>Matrix</Description>
+				<Lat>42.7314094</Lat>
+				<Lon>-84.476258</Lon>
+				<Address>288 Farm Ln, East Lansing, MI 48823</Address>
+			</Location>
+			...
+		</Geolocator>
+		<File Fields>
+			<File>
+				<Name>filename.ext</Name> NOTE: If the file in the zip is nested in a folder, include the directories in front (i.e. someFolder/etc/filename.ext)
+				<Caption>Caption to explain file</Caption> NOTE: Only supported by Gallery Fields
+			</File>
+			...
+		</File Fields>
+		<Combo_List>
+			<Value>
+				<Boolean>1</Boolean>
+				<Geolocator>
+					<Location>
+						<Description>Matrix</Description>
+						<Lat>42.7314094</Lat>
+						<Lon>-84.476258</Lon>
+						<Address>288 Farm Ln, East Lansing, MI 48823</Address>
+					</Location>
+					...
+				</Geolocator>
+			</Value>
+			...
+		</Combo_List>
+		<Associator>
+			<record>1-23-4</record>
+			<record>5-67-8</record>
+			<record>9-10-11</record>
+			<record>customTmpName</record> NOTE: See kidConnection in the next Record below.
+			...
+		</Associator>
+		NOTE: reverseAssociations will connect the current record's KID to an existing record(s) in kora.
+		<reverseAssociations> 
+			NOTE: For example, this will add the current KID to the associator field, 'Outside Associator', in record 1-3-77.
+			<Record field="Outside Associator">1-3-77</Record>
+			<Record field="Outside Associator">1-3-78</Record>
+			...
+		</reverseAssociations>
+	</Record>
+	<Record>
+		NOTE: kidConnection will assign this record a nickname so that other imported records, like the one above, can point to it in their associator fields.
+		<kidConnection>customTmpName</kidConnection>
+	</Record>
+	...
+</Records>

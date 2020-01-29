@@ -32,7 +32,7 @@ class Form extends Model {
     ];
 
     /**
-     * @var string - These are the possible field types at the moment  //TODO::NEWFIELD
+     * @var string - These are the possible field types at the moment
      */
     const _TEXT = "Text";
     const _BOOLEAN = "Boolean";
@@ -57,7 +57,7 @@ class Form extends Model {
     /**
      * @var array - This is an array of field type values for creation
      */
-    static public $validFieldTypes = [ //TODO::NEWFIELD
+    static public $validFieldTypes = [
         'Text Fields' => array(
             self::_TEXT => self::_TEXT,
             self::_RICH_TEXT => self::_RICH_TEXT
@@ -96,7 +96,7 @@ class Form extends Model {
      *
      * NOTE: We currently support filter types of simple values, and JSON types that are simply an array of values
      */
-    static public $validFilterFields = [ //TODO::NEWFIELD
+    static public $validFilterFields = [
         self::_TEXT,
         self::_BOOLEAN,
         self::_LIST,
@@ -112,7 +112,7 @@ class Form extends Model {
     /**
      * @var array - This is an array of field types that can be previewed in assoc
      */
-    static public $validAssocFields = [ //TODO::NEWFIELD
+    static public $validAssocFields = [
         self::_TEXT,
         self::_LIST,
         self::_INTEGER,
@@ -123,9 +123,37 @@ class Form extends Model {
     ];
 
     /**
+     * @var array - This is an array of combo list field type values for creation
+     */
+    static public $validComboListFieldTypes = [
+        'Text Fields' => array(
+            self::_TEXT => self::_TEXT,
+            self::_RICH_TEXT => self::_RICH_TEXT
+        ),
+        'Number Fields' => array(
+            self::_INTEGER => self::_INTEGER,
+            self::_FLOAT => self::_FLOAT
+        ),
+        'List Fields' => array(
+            self::_LIST => self::_LIST,
+            self::_MULTI_SELECT_LIST => self::_MULTI_SELECT_LIST,
+            self::_GENERATED_LIST => self::_GENERATED_LIST,
+        ),
+        'Date Fields' => array(
+            self::_DATE => self::_DATE,
+            self::_DATETIME => self::_DATETIME,
+            self::_HISTORICAL_DATE => self::_HISTORICAL_DATE
+        ),
+        'Specialty Fields' => array(
+            self::_BOOLEAN => self::_BOOLEAN,
+            self::_ASSOCIATOR => self::_ASSOCIATOR
+        )
+    ];
+
+    /**
      * @var array - Maps field constant names to model name
      */
-    public static $fieldModelMap = [ //TODO::NEWFIELD
+    public static $fieldModelMap = [
         self::_TEXT => "TextField",
         self::_BOOLEAN => "BooleanField",
         self::_RICH_TEXT => "RichTextField",
@@ -150,7 +178,7 @@ class Form extends Model {
     /**
      * @var array - Fields that need to be decoded coming out of the DB.
      */
-    static public $jsonFields = [ //TODO::NEWFIELD
+    static public $jsonFields = [
         self::_DOCUMENTS,
         self::_GALLERY,
         self::_PLAYLIST,
@@ -166,7 +194,7 @@ class Form extends Model {
     /**
      * @var array - Fields that need their table updated when options updated.
      */
-    static public $enumFields = [ //TODO::NEWFIELD
+    static public $enumFields = [
         self::_LIST
     ];
 
@@ -266,7 +294,7 @@ class Form extends Model {
         //Update column name in DB and page structure
         if(!is_null($newFlid)) {
             $rTable = new \CreateRecordsTable();
-            if ($comboPrefix) {
+            if($comboPrefix) {
                 $cTable = new \CreateRecordsTable($comboPrefix);
                 $cTable->renameTable($this->id, $newFlid);
             }
@@ -296,7 +324,6 @@ class Form extends Model {
      * Updates a field within a form within a combo list.
      */
     public function updateSubField($baseFlid, $flid, $newFlid=null) {
-
         //Update column name in DB
         if(!is_null($newFlid)) {
             $rTable = new \CreateRecordsTable(['tablePrefix' => $baseFlid]);
@@ -571,8 +598,11 @@ class Form extends Model {
             $orderBy = ' ORDER BY ';
             foreach($filters['sort'] as $sortRule) {
                 foreach($sortRule as $flid => $order) {
+                    if(strtolower($flid) == 'kid')
+                        $field = 'kid';
+                    else
+                        $field = fieldMapper($flid,$this->project_id,$this->id);
                     //Used to protect SQL
-                    $field = fieldMapper($flid,$this->project_id,$this->id);
                     $field = preg_replace("/[^A-Za-z0-9_]/", '', $field);
                     $orderBy .= "$field IS NULL, $field $order,";
                 }
@@ -1006,7 +1036,7 @@ class Form extends Model {
                             $result[$column]['value'][$aKid] = $this->getBetaAssocRecord($parts[2], $aForm, $con, $prefix);
                         }
                     }
-                } else if(array_key_exists($column,$comboFields)) { //TODO
+                } else if(array_key_exists($column,$comboFields)) {
                     $comboIds = json_decode($data, true);
                     if(!is_null($comboIds))
                         $result[$column]['value'] = $this->getComboRecord($column, $comboIds, $comboInfo[$column], $con, $prefix, null);
@@ -1135,8 +1165,11 @@ class Form extends Model {
             $orderBy = ' ORDER BY ';
             foreach($filters['sort'] as $sortRule) {
                 foreach($sortRule as $flid => $order) {
+                    if(strtolower($flid) == 'kid')
+                        $field = 'kid';
+                    else
+                        $field = fieldMapper($flid,$this->project_id,$this->id);
                     //Used to protect SQL
-                    $field = fieldMapper($flid,$this->project_id,$this->id);
                     $field = preg_replace("/[^A-Za-z0-9_]/", '', $field);
                     $orderBy .= "$field IS NULL, $field $order,";
                 }

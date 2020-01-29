@@ -1,3 +1,31 @@
+# 2.5.0
+
+* Automatically configure xdebug if available.
+
+# 2.4.1
+
+* Try harder to close all output buffers
+
+# 2.4.0
+
+* Allow to prepend and append handlers.
+
+# 2.3.2
+
+* Various fixes from the community.
+
+# 2.3.1
+
+* Prevent exception in Whoops when caught exception frame is not related to real file
+
+# 2.3.0
+
+* Show previous exception messages.
+
+# 2.2.0
+
+* Support PHP 7.2
+
 # 2.1.0
 
 * Add a `SystemFacade` to allow clients to override Whoops behavior.

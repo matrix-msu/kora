@@ -76,15 +76,6 @@ Route::group(['middleware' => 'web'], function () {
     Route::patch('/tokens/addProject', 'TokenController@addProject');
     Route::delete('/tokens/deleteToken', 'TokenController@deleteToken');
 
-//plugin routes
-    Route::get('/plugins', 'PluginController@index');
-    Route::post('/plugins/install/{name}', 'PluginController@install');
-    Route::patch('/plugins/update', 'PluginController@update');
-    Route::post('/plugins/activate', 'PluginController@activate');
-    Route::delete('/plugins/{plid}', 'PluginController@destroy');
-    Route::get('/plugins/{name}/loadView/{view}', 'PluginController@loadView');
-    Route::post('/plugins/{name}/{action}', 'PluginController@action');
-
 //association routes
     Route::get('/projects/{pid}/forms/{fid}/assoc', 'AssociationController@index');
     Route::post('/projects/{pid}/forms/{fid}/assoc', 'AssociationController@create');
@@ -200,6 +191,7 @@ Route::group(['middleware' => 'web'], function () {
     Route::get('/user/invitedactivate/{token}', 'Auth\UserController@activateFromInvite');
     Route::get('/user/{uid}/edit', 'Auth\UserController@editProfile');
     Route::get('/user/{uid}/preferences', 'Auth\UserController@preferences'); // get all user prefs
+    Route::get('user/{uid}/removeGitlab', 'Auth\UserController@removeGitlab');
     Route::get('/user/{uid}/{section?}', 'Auth\UserController@index');
     Route::get('/returnUserPrefs/{pref}', 'Auth\UserController@returnUserPrefs'); // get individual user pref
 	Route::get('/getOnboardingProjects/{user}', 'Auth\UserController@getOnboardingProjects');
@@ -215,16 +207,6 @@ Route::group(['middleware' => 'web'], function () {
 	Route::patch('/toggleOnboarding', 'Auth\UserController@toggleOnboarding');
 	Route::patch('/user/validateEditProfile', 'Auth\UserController@validateEditProfile');
 
-//metadata routes
-    Route::get('/projects/{pid}/forms/{fid}/metadata/setup', 'MetadataController@index');
-    Route::post('/projects/{pid}/forms/{fid}/metadata/setup', 'MetadataController@store');
-    Route::post('/projects/{pid}/forms/{fid}/metadata/setup/resource', 'MetadataController@updateResource');
-    Route::post('/projects/{pid}/forms/{fid}/metadata/setup/primary', 'MetadataController@makePrimary');
-    Route::delete('/projects/{pid}/forms/{fid}/metadata/setup', 'MetadataController@destroy');
-    Route::get('/projects/{pid}/forms/{fid}/metadata/public', 'MetadataController@records2');
-    Route::get('/projects/{pid}/forms/{fid}/metadata/public/{resource}', 'MetadataController@singleRecord');
-    Route::post('/projects/{pid}/forms/{fid}/metadata/massassign', 'MetadataController@massAssign');
-
 //install routes
     Route::get('/helloworld', 'InstallController@helloworld');
     Route::get('/install', 'InstallController@index');
@@ -236,20 +218,6 @@ Route::group(['middleware' => 'web'], function () {
 //update routes
     Route::get('/update', 'UpdateController@index');
     Route::get('/update/runScripts', 'UpdateController@runScripts');
-
-//backup routes
-    Route::get('/backup', 'BackupController@index'); //
-    Route::post('/backup/start', 'BackupController@create'); //
-    Route::post('/backup/finish', 'BackupController@finishBackup'); //
-    Route::get('/backup/download/{path}', 'BackupController@download'); //
-    Route::post('/backup/restore/start', 'BackupController@restoreData');
-    Route::post('/backup', 'BackupController@startBackup'); //
-    Route::post('/backup/restore', 'BackupController@startRestore');
-    Route::post('/backup/restore/finish', 'BackupController@finishRestore');
-    Route::post('/backup/user/unlock', 'BackupController@unlockUsers');
-    Route::delete('/backup/delete', 'BackupController@delete');
-    Route::get('/backup/progress', 'BackupController@checkProgress');
-    Route::get('/backup/restore/progress', 'BackupController@checkRestoreProgress');
 
 //form search routes
     Route::get('/keywordSearch/project/{pid}/forms/{fid}', 'FormSearchController@keywordSearch');
@@ -269,14 +237,13 @@ Route::group(['middleware' => 'web'], function () {
     Route::get("/projects/{pid}/forms/{fid}/advancedSearch/results", "AdvancedSearchController@recent");
     Route::post("/projects/{pid}/forms/{fid}/advancedSearch/results", "AdvancedSearchController@search");
 
-//twitter routes
-    Route::get("/twitter", "TwitterController@index");
-
 //reset password routes
 	Route::post("/reset/email/validate", "Auth\ResetPasswordController@preValidateEmail");
 
 //user auth
     Auth::routes(); // generates user authentication routes
+    Route::get('login/gitlab', 'Auth\LoginController@redirectToGitlab');
+    Route::get('login/gitlab/callback', 'Auth\LoginController@handleGitlabCallback');
 
     Route::post("/user/projectCustom", "Auth\UserController@saveProjectCustomOrder");
     Route::post("/user/formCustom/{pid}", "Auth\UserController@saveFormCustomOrder");

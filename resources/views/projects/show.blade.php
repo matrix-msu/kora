@@ -47,7 +47,7 @@
                   </p>
               @endif
           @endif
-        <p class="description">{{ $project->description }}</p>
+        <p class="description">{!! nl2br(e($project->description)) !!}</p>
       </div>
   </section>
 @stop

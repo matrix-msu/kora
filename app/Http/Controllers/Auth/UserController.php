@@ -14,8 +14,6 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\View\View;
 
@@ -120,6 +118,23 @@ class UserController extends Controller {
             } else {
               $notification['message'] = 'Profile Successfully Updated!';
             }
+          } else if($session == 'gitlab_user_created') {
+              $notification['message'] = 'Gitlab user created! Please update profile with proper name and organization.';
+              $notification['static'] = true;
+          } else if($session == 'gitlab_user_assigned') {
+              $notification['message'] ='Gitlab Account Successfully Assigned!';
+          } else if($session == 'gitlab_user_removed') {
+              $notification['message'] ='Gitlab Account Successfully Removed!';
+          } else if($session == 'gitlab_user_exists') {
+              $notification['message'] ='Gitlab Assign Error';
+              $notification['description'] ='It looks like your user already has Gitlab authentication.';
+              $notification['warning'] = true;
+              $notification['static'] = true;
+          } else if($session == 'gitlab_user_used') {
+              $notification['message'] ='Gitlab Already In Use';
+              $notification['description'] ='The provided Gitlab account has already been assigned.';
+              $notification['warning'] = true;
+              $notification['static'] = true;
           }
         }
 
@@ -384,6 +399,24 @@ class UserController extends Controller {
             return redirect('admin/users')->with('k3_global_success', 'user_deleted');
         else
             return redirect('/')->with('k3_global_success', 'account_deleted');
+    }
+
+    /**
+     * Removes gitlab authentication from an account.
+     *
+     * @param  int $uid - User's Id
+     * @return Redirect
+     */
+    public function removeGitlab($uid) {
+        $user = \Auth::user();
+
+        if($user->id != $uid)
+            return redirect('user')->with('k3_global_error', 'cannot_update_user');
+
+        $user->gitlab_token = null;
+        $user->save();
+
+        return redirect('/user/' . $user->id)->with('k3_global_success', 'gitlab_user_removed');
     }
 
     /**

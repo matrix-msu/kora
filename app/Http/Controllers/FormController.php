@@ -1,7 +1,6 @@
 <?php namespace App\Http\Controllers;
 
 use App\Form;
-use App\Http\Requests\FieldRequest;
 use App\User;
 use App\FormGroup;
 use Illuminate\Http\JsonResponse;
@@ -61,8 +60,17 @@ class FormController extends Controller {
 		natcasesort($userNames);
 
         $presets = array();
-        foreach(Form::where('preset', '=', 1, 'and', 'pid', '=', $pid)->get() as $form)
-            $presets[$form->id] = $form->project->name.' - '.$form->name;
+        $defaultPresetIndex = 0;
+        foreach(Form::where('preset', '=', 1, 'and', 'pid', '=', $pid)->get() as $form) {
+            $presets[$form->id] = $form->project->name . ' - ' . $form->name;
+        }
+        foreach(new \DirectoryIterator(public_path('formPresets')) as $file) {
+            if($file->isFile()) {
+                $pureName = str_replace('.kForm','',$file->getFilename());
+                $presets['default_'.$pureName] = $pureName;
+                $defaultPresetIndex++;
+            }
+        }
 
         return view('forms.create', compact('project', 'userNames', 'presets')); //pass in
 	}
@@ -206,7 +214,7 @@ class FormController extends Controller {
 
         flash()->overlay("Your form has been successfully updated!","Good Job!");
 
-        return redirect('projects/'.$form->pid.'/forms/'.$form->fid)->with('k3_global_success', 'form_updated');
+        return redirect('projects/'.$form->project_id.'/forms/'.$form->id)->with('k3_global_success', 'form_updated');
 	}
 
     /**
@@ -344,8 +352,15 @@ class FormController extends Controller {
      */
     private function addPresets(Form $form, $fid) {
         //Copy layout with new IDs
-        $preset = Form::where('id', '=', $fid)->first();
-        foreach($preset->layout['pages'] as $pageNum => $data) {
+        if(strpos($fid, 'default_') !== false) {
+            $filename = str_replace('default_','',$fid).'.kForm';
+            $fullpath = public_path('formPresets/'.$filename);
+            $contents = json_decode(file_get_contents($fullpath),true);
+            $presetLayout = $contents['layout'];
+        } else {
+            $presetLayout = Form::where('id', '=', $fid)->first()->layout;
+        }
+        foreach($presetLayout['pages'] as $pageNum => $data) {
             //create page on new form
             $pageArray = [];
             $pageArray['title'] = $data['title'];
@@ -363,7 +378,7 @@ class FormController extends Controller {
 
             foreach($data['flids'] as $preFlid) {
                 //build out  and create field
-                $oldField = $preset->layout['fields'][$preFlid];
+                $oldField = $presetLayout['fields'][$preFlid];
 
                 $field = [];
                 $flid = slugFormat($oldField['name'], $form->project_id, $form->id);
@@ -409,7 +424,7 @@ class FormController extends Controller {
 
                 //Field Specific Stuff
                 $fieldMod = $form->getFieldModel($field['type']);
-                $fieldMod->addDatabaseColumn($form->id, $flid, $options);
+                $fieldMod->addDatabaseColumn($form->id, $flid, $fieldMod::FIELD_DATABASE_METHOD, $options);
 
                 //The HARD part about field specific options
                 if(in_array($field['type'],Form::$enumFields)) {

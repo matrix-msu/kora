@@ -2,7 +2,6 @@
 
 use App\Form;
 use App\Record;
-use App\Search;
 use App\Http\Controllers\FormController;
 use Illuminate\Http\Request;
 
@@ -25,6 +24,11 @@ class ListField extends BaseField {
     const FIELD_ADV_INPUT_VIEW = "partials.records.advanced.list";
     const FIELD_INPUT_VIEW = "partials.records.input.list";
     const FIELD_DISPLAY_VIEW = "partials.records.display.list";
+
+    /**
+     * @var string - Method from CreateRecordsTable() for adding to DB
+     */
+    const FIELD_DATABASE_METHOD = 'addEnumColumn';
 
     /**
      * Get the field options view.
@@ -72,14 +76,14 @@ class ListField extends BaseField {
     }
 
     /**
-     * Gets the default options string for a new field.
+     * Create DB column for this field. Overwriting parent to handle ENUM case.
      *
      * @param  int $fid - Form ID
      * @param  string $slug - Name of database column based on field internal name
+     * @param  string $method - The add column function from CreateRecordsTable to be used
      * @param  array $options - Extra information we may need to set up about the field
-     * @return array - The default options
      */
-    public function addDatabaseColumn($fid, $slug, $options = null) {
+    public function addDatabaseColumn($fid, $slug, $method, $options = null) {
         $table = new \CreateRecordsTable();
         if(is_null($options) || empty($options))
             $table->addEnumColumn($fid, $slug);
@@ -90,7 +94,7 @@ class ListField extends BaseField {
     /**
      * Gets the default options string for a new field.
      *
-     * @return string - The default options
+     * @return array - The default options
      */
     public function getDefaultOptions($type = null) {
         return ['Options' => ['Please Modify List Values']];
@@ -99,10 +103,10 @@ class ListField extends BaseField {
     /**
      * Update the options for a field
      *
-     * @param  Field $field - Field to update options
+     * @param  array $field - Field to update options
      * @param  Request $request
      * @param  int $flid - The field internal name
-     * @return Redirect
+     * @return array - The updated field array
      */
     public function updateOptions($field, Request $request, $flid = null, $prefix = 'records_') {
         if(is_null($request->options)) {

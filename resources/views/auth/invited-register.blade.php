@@ -43,7 +43,7 @@
         <label for="username">Your Username</label>
           <span class="error-message">{{array_key_exists("username", $errors->messages()) ? $errors->messages()["username"][0] : ''}}</span>
         <input type="text" class="text-input {{(array_key_exists("username", $errors->messages()) ? ' error' : '')}}"
-               id="username" name="username" placeholder="Enter your username here" value="">
+               id="username" name="username" placeholder="Enter your username here" value="{{ $user->username }}">
       </div>
 
       <div class="form-group mt-xl">

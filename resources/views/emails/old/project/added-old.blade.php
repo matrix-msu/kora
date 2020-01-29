@@ -19,14 +19,14 @@
 @endsection
 
 @section('post-action-text')
-    <?php
+    @php
         if($group->name == $project->name. ' Default Group')
             $gName = 'Default Group';
         else if($group->name == $project->name. ' Admin Group')
             $gName = 'Admin Group';
         else
             $gName = $group->name;
-    ?>
+    @endphp
     Alright! You have been added to the “{{ $gName }}” permissions group. This means you can now:
     <div class="top-list-item">&bull; View Project</div>
     @if($group->create)<div>&bull; Create new Forms</div>@endif

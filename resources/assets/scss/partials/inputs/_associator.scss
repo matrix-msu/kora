@@ -1,0 +1,66 @@
+.associator {
+  border: 1px solid rgba(21,39,48,0.1);
+  border-radius: 5px;
+  box-shadow: 0 3px 5px 0 rgba(21,39,48,0.05);
+  margin-top: 10px;
+
+  .header {
+    margin: 13px 0;
+    padding: 0 20px;
+
+    .associator-link {
+      color: palette('green', accent);
+      font-family: $ubuntu-medium;
+      padding-bottom: #{ $underline-padding };
+      float: left;
+    }
+
+    .card-toggle-wrap:hover {
+      cursor: pointer;
+    }
+
+    .icon-chevron {
+      padding: 7px 6px;
+    }
+  }
+
+  .body {
+    margin-top: 15px;
+    padding: 0 20px 6px;
+    position: relative;
+
+    .overlay {
+      background: linear-gradient(to bottom, rgba(255,255,255,0) 0%, #FFFFFF 100%);
+      border-radius: 5px;
+      height: 100%;
+      left: 0;
+      position: absolute;
+      width: 100%;
+    }
+
+    div:nth-child(2n):not(.overlay) {
+      font-family: $ubuntu-medium;
+    }
+
+    div:nth-child(2n + 1):not(.overlay) {
+      margin-bottom: 15px;
+    }
+
+    div:last-of-type {
+      margin-bottom: 7px;
+    }
+  }
+}
+
+&.associator-input {
+  background-color: palette('gray', page, 1);
+  border: 1px solid palette('box-shadow', base, 0.05);
+  border-radius: 5px;
+  box-shadow: 0 5px 15px 0 palette('box-shadow', base, 0.03);
+  margin-bottom: 10px;
+  padding: 40px 40px 20px;
+
+  > div:last-of-type {
+    margin-bottom: 20px;
+  }
+}

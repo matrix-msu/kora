@@ -1,5 +1,5 @@
 @php
-$number = $typedField->processDisplayData($field, $value);
+  $number = $typedField->processDisplayData($field, $value);
 @endphp
 
 {{ $number }}

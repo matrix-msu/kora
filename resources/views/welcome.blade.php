@@ -40,6 +40,12 @@
           <button type="submit" class="btn btn-primary">Login</button>
         </div>
 
+          @if(config('services.gitlab.client')!='')
+          <div class="form-group center mt-xxxl">
+              <a href="{{ action('Auth\LoginController@redirectToGitlab') }}" class="btn half-sub-btn extend-mobile" data-unsp-sanitized="clean">Login with Gitlab</a>
+          </div>
+          @endif
+
         <p class="mt-xxxl mb-0"><a class="text underline-middle-hover" href="{{ url('/register') }}">Need to Sign Up?</a></p>
       </form>
     </div>

@@ -113,7 +113,7 @@ Kora.Fields.Options = function(fieldType) {
         var oldStartVal = $start.val();
         var oldEndVal = $end.val();
         var oldStartCheck = $startCheck.is(':checked');
-        var oldStartCheck = $endCheck.is(':checked');
+        var oldEndCheck = $endCheck.is(':checked');
         var currentYear = new Date().getFullYear();
         var scrollBarWidth = 17;
 
@@ -285,47 +285,6 @@ Kora.Fields.Options = function(fieldType) {
         }
     }
 
-    function initializeGeneratedListOptions() {
-        var listOpt = $('.genlist-options-js');
-        var listDef = $('.genlist-default-js');
-
-        var inputOpt = listOpt.siblings('.chosen-container');
-        var childCheckOpt = inputOpt.children('.chosen-drop').children('.chosen-results');
-        var inputDef = listDef.siblings('.chosen-container');
-        var childCheck = inputDef.children('.chosen-drop').children('.chosen-results');
-
-        listOpt.find('option').prop('selected', true);
-        listOpt.trigger("chosen:updated");
-
-        listOpt.chosen().change(function() {
-            //When option de-selected, we delete it from list
-            listOpt.find('option').not(':selected').remove();
-            listOpt.trigger("chosen:updated");
-        });
-
-        listOpt.bind("DOMSubtreeModified",function(){
-            var options = listOpt.html();
-            listDef.html(options);
-            listDef.trigger("chosen:updated");
-        });
-
-        inputOpt.on('click', function () {
-          if (childCheckOpt.children().length === 0) {
-            childCheckOpt.append('<li class="no-results">No options to select!</li>');
-          } else if (childCheckOpt.children('.active-result').length === 0 && childCheckOpt.children('.no-results').length === 0) {
-            childCheckOpt.append('<li class="no-results">No more options to select!</li>');
-          }
-        });
-
-        inputDef.on('click', function () {
-          if (childCheck.children().length === 0) {
-            childCheck.append('<li class="no-results">No options to select!</li>');
-          } else if (childCheck.children('.active-result').length === 0 && childCheck.children('.no-results').length === 0) {
-            childCheck.append('<li class="no-results">No more options to select!</li>');
-          }
-        });
-    }
-
     function initializeList(listType = '') {
         Kora.Modal.initialize();
 
@@ -369,11 +328,12 @@ Kora.Fields.Options = function(fieldType) {
                 if(newListOptions !== undefined && newListOptions.length > 0) {
                     // Prevent duplicate entries
 
-                    // If generated list, name of hidden input needs to be field name
+                    // If generated list, name of hidden input needs to be field name when creating records cause it shares this option code
                     var optionName = "options[]";
-                    if (listType == 'GenList') {
-                      optionName = $newListOptionInput.data('flid') + "[]";
-                    }
+                    if(listType == 'GenList')
+                        optionName = "default[]";
+                    if(listType == 'GenListRecord')
+                        optionName = $newListOptionInput.data('flid') + "[]";
 
                     //Foreach option
                     for(newOpt in newListOptions) {
@@ -863,7 +823,7 @@ Kora.Fields.Options = function(fieldType) {
         });
     }
 
-    function initializeComboListOptions(){
+    function initializeComboListOptions() {
         $('.combo-value-div-js').on('click', '.delete-combo-value-js', function() {
             parentDiv = $(this).parent();
             parentDiv.remove();
@@ -875,12 +835,15 @@ Kora.Fields.Options = function(fieldType) {
             Kora.Modal.open($('.combolist-add-list-value-modal-js'));
         });
 
+        if($('.default-input-js').length==0)
+            $('.add-combo-value-js').removeClass('disabled');
+
         $('.default-input-js').on('blur change', function(e) {
             e.preventDefault();
 
-			$.each($('.default-input-js'), function(){
-				if ($(this).val() == '' || $(this).val() == null) {
-					if (!$('.add-combo-value-js').hasClass('disabled'))
+			$.each($('.default-input-js'), function() {
+				if($(this).val() == '' || $(this).val() == null) {
+					if(!$('.add-combo-value-js').hasClass('disabled'))
 						$('.add-combo-value-js').addClass('disabled');
 					return false;
 				} else {
@@ -890,67 +853,108 @@ Kora.Fields.Options = function(fieldType) {
         });
 
         $('.add-combo-value-js').click(function() {
-            if(type1=='Date' | type1=='Historical Date') {
-                monthOne = $('#default_month_one');
-                dayOne = $('#default_day_one');
-                yearOne = $('#default_year_one');
-                if(type1=='Historical Date') {
-                    $('[id^=default_era_one]').each(function () {
-                        if ($(this).is(':checked')) {
-                            eraOne = $(this);
-                        }
+            //Grab the default values entered
+            switch(type1) {
+                case 'Rich Text':
+                    val1 = CKEDITOR.instances['default_one'].getData();
+                    break;
+                case 'Boolean':
+                    val1 = 0;
+                    if($('[name="default_one"]').prop('checked') == true)
+                        val1 = 1;
+                    break;
+                case 'Generated List':
+                    val1 = $('[name="default_one[]"]').map((x, elm) => elm.value).get().join(',');
+                    break;
+                case 'Date':
+                    monthOne = $('#default_month_one').val(); dayOne = $('#default_day_one').val(); yearOne = $('#default_year_one').val();
+                    val1 = pad(yearOne,4) + '-' + pad(monthOne,2) + '-' + pad(dayOne,2);
+                    break;
+                case 'DateTime':
+                    monthOne = $('#default_month_one').val(); dayOne = $('#default_day_one').val(); yearOne = $('#default_year_one').val();
+                    hourOne = $('#default_hour_one').val(); minuteOne = $('#default_minute_one').val(); secondOne = $('#default_second_one').val();
+                    val1 = pad(yearOne,4) + '-' + pad(monthOne,2) + '-' + pad(dayOne,2) + ' '
+                        + pad(hourOne,2) + ':' + pad(minuteOne,2) + ':' + pad(secondOne,2);
+                    break;
+                case 'Historical Date':
+                    monthOne = $('#default_month_one').val(); dayOne = $('#default_day_one').val(); yearOne = $('#default_year_one').val();
+                    dateArray = [pad(yearOne,4)];
+                    if(monthOne != '' && !$('#default_month_one').is(":disabled")) {
+                        dateArray.push(pad(monthOne,2));
+                        if(dayOne != '' && !$('#default_day_one').is(":disabled"))
+                            dateArray.push(pad(dayOne,2));
+                    }
+                    dateOne = dateArray.join('-');
+
+                    eraOne = ''
+                    $('[name="default_era_one"]').each(function () {
+                        if($(this).is(':checked'))
+                            eraOne = ' ' + $(this).val();
                     });
                     prefixOne = '';
-                    $(`[id^=default_prefix_one]`).each(function () {
-                        if ($(this).is(':checked')) {
-                            prefixOne = $(this);
-                        }
+                    $('[name="default_prefix_one"]').each(function () {
+                        if($(this).is(':checked'))
+                            prefixOne = $(this).val() + ' ';
                     });
-                }
-                val1 = [monthOne.val(), dayOne.val(), yearOne.val(), prefixOne!='' ? prefixOne.val() : '', eraOne.val()].filter(Boolean).join('/');
-            } else {
-                inputOne = $('#default_one');
-                val1 = inputOne.val();
+                    val1 = prefixOne + dateOne + eraOne;
+                    break;
+                default:
+                    val1 = $('#default_one').val();
+                    break;
             }
 
-            if(type1=='Boolean') {
-                if (inputOne.prop('checked') != true) {
-                    val1 = 0;
-                }
-            }
+            switch(type2) {
+                case 'Rich Text':
+                    val2 = CKEDITOR.instances['default_two'].getData();
+                    break;
+                case 'Boolean':
+                    val2 = 0;
+                    if($('[name="default_two"]').prop('checked') == true)
+                        val2 = 1;
+                    break;
+                case 'Generated List':
+                    val2 = $('[name="default_two[]"]').map((x, elm) => elm.value).get().join(',');
+                    break;
+                case 'Date':
+                    monthTwo = $('#default_month_two').val(); dayTwo = $('#default_day_two').val(); yearTwo = $('#default_year_two').val();
+                    val2 = pad(yearTwo,4) + '-' + pad(monthTwo,2) + '-' + pad(dayTwo,2);
+                    break;
+                case 'DateTime':
+                    monthTwo = $('#default_month_two').val(); dayTwo = $('#default_day_two').val(); yearTwo = $('#default_year_two').val();
+                    hourTwo = $('#default_hour_two').val(); minuteTwo = $('#default_minute_two').val(); secondTwo = $('#default_second_two').val();
+                    val2 = pad(yearTwo,4) + '-' + pad(monthTwo,2) + '-' + pad(dayTwo,2) + ' '
+                        + pad(hourTwo,2) + ':' + pad(minuteTwo,2) + ':' + pad(secondTwo,2);
+                    break;
+                case 'Historical Date':
+                    monthTwo = $('#default_month_two').val(); dayTwo = $('#default_day_two').val(); yearTwo = $('#default_year_two').val();
+                    dateArray = [pad(yearTwo,4)];
+                    if(monthTwo != '' && !$('#default_month_two').is(":disabled")) {
+                        dateArray.push(pad(monthTwo,2));
+                        if(dayTwo != '' && !$('#default_day_two').is(":disabled"))
+                            dateArray.push(pad(dayTwo,2));
+                    }
+                    dateTwo = dateArray.join('-');
 
-            if(type2=='Date' | type2=='Historical Date') {
-                monthTwo = $('#default_month_two');
-                dayTwo = $('#default_day_two');
-                yearTwo = $('#default_year_two');
-                if(type2=='Historical Date') {
-                    $('[id^=default_era_two]').each(function () {
-                        if ($(this).is(':checked')) {
-                            eraTwo = $(this);
-                        }
+                    eraTwo = ''
+                    $('[name="default_era_two"]').each(function () {
+                        if($(this).is(':checked'))
+                            eraTwo = ' ' + $(this).val();
                     });
                     prefixTwo = '';
-                    $(`[id^=default_prefix_two]`).each(function () {
-                        if ($(this).is(':checked')) {
-                            prefixTwo = $(this);
-                        }
+                    $('[name="default_prefix_two"]').each(function () {
+                        if($(this).is(':checked'))
+                            prefixTwo = $(this).val() + ' ';
                     });
-                }
-                val2 = [monthTwo.val(), dayTwo.val(), yearTwo.val(), prefixTwo!='' ? prefixTwo.val() : '', eraTwo.val()].filter(Boolean).join('/');
-            } else {
-                inputTwo = $('#default_two');
-                val2 = inputTwo.val();
-            }
-
-            if(type2=='Boolean') {
-                if (inputTwo.prop('checked') != true) {
-                    val2 = 0;
-                }
+                    val2 = prefixTwo + dateTwo + eraTwo;
+                    break;
+                default:
+                    val2 = $('#default_two').val();
+                    break;
             }
 
             defaultDiv = $('.combo-value-div-js');
 
-            if(val1==null | val2==null | val1=='//'| val2=='//') {
+            if(val1==null | val2==null) {
                 $('.combo-error-js').text('Both fields must be filled out');
             } else {
                 $('.combo-error-js').text('');
@@ -964,55 +968,11 @@ Kora.Fields.Options = function(fieldType) {
 
                 div = '<div class="card combo-value-item-js">';
 
-                if(type1=='Text' | type1=='List' | type1=='Integer' | type1=='Float' | type1=='Boolean') {
-                    div += '<input type="hidden" name="default_combo_one[]" value="'+val1+'">';
-                    if(type1=='Boolean') {
-                        if (val1 == 1) {
-                            val1 = 'true';
-                        } else if (val1 == 0)
-                            val1 = 'false';
-                    }
-                    div += '<span class="combo-column">'+val1+'</span>';
-                } else if(type1=='Date' | type1=='Historical Date') {
-                    div += '<input type="hidden" name="default_day_combo_one[]" value="'+dayOne.val()+'">';
-                    div += '<input type="hidden" name="default_month_combo_one[]" value="'+monthOne.val()+'">';
-                    div += '<input type="hidden" name="default_year_combo_one[]" value="'+yearOne.val()+'">';
-                    if(type1=='Historical Date') {
-                        div += '<input type="hidden" name="default_prefix_combo_one[]" value="';
-                        div += prefixOne!='' ? prefixOne.val() : '';
-                        div += '">';
-                        div += '<input type="hidden" name="default_era_combo_one[]" value="'+eraOne.val()+'">';
-                    }
-                    div += '<span class="combo-column">'+val1+'</span>';
-                } else if(type1=='Multi-Select List' | type1=='Generated List' | type1=='Associator') {
-                    div += '<input type="hidden" name="default_combo_one[]" value='+JSON.stringify(val1)+'>';
-                    div += '<span class="combo-column">'+val1.join(' | ')+'</span>';
-                }
+                div += '<input type="hidden" name="default_combo_one[]" value="'+val1+'">';
+                div += '<span class="combo-column">'+val1+'</span>';
 
-                if(type2=='Text' | type2=='List' | type2=='Integer' | type2=='Float' | type2=='Boolean') {
-                    div += '<input type="hidden" name="default_combo_two[]" value="'+val2+'">';
-                    if(type2=='Boolean') {
-                        if (val2 == 1)
-                            val2 = 'true';
-                        if (val2 == 0)
-                            val2 = 'false';
-                    }
-                    div += '<span class="combo-column">'+val2+'</span>';
-                } else if(type2=='Date' | type2=='Historical Date') {
-                    div += '<input type="hidden" name="default_day_combo_two[]" value="'+dayTwo.val()+'">';
-                    div += '<input type="hidden" name="default_month_combo_two[]" value="'+monthTwo.val()+'">';
-                    div += '<input type="hidden" name="default_year_combo_two[]" value="'+yearTwo.val()+'">';
-                    if(type2=='Historical Date') {
-                        div += '<input type="hidden" name="default_prefix_combo_two[]" value="';
-                        div += prefixTwo!='' ? prefixTwo.val() : '';
-                        div += '">';
-                        div += '<input type="hidden" name="default_era_combo_two[]" value="'+eraTwo.val()+'">';
-                    }
-                    div += '<span class="combo-column">'+val2+'</span>';
-                } else if(type2=='Multi-Select List' | type2=='Generated List' | type2=='Associator') {
-                    div += '<input type="hidden" name="default_combo_two[]" value='+JSON.stringify(val2)+'>';
-                    div += '<span class="combo-column">'+val2.join(' | ')+'</span>';
-                }
+                div += '<input type="hidden" name="default_combo_two[]" value="'+val2+'">';
+                div += '<span class="combo-column">'+val2+'</span>';
 
                 div += '<span class="combo-delete delete-combo-value-js"><a class="quick-action delete-option delete-default-js tooltip" tooltip="Delete Default Value"><i class="icon icon-trash"></i></a></span>';
 
@@ -1023,62 +983,78 @@ Kora.Fields.Options = function(fieldType) {
                 $('.combo-value-div-js').removeClass('hidden');
                 $('.combolist-add-new-list-value-modal-js').addClass('mt-xxl');
 
-                if(type1=='Multi-Select List' | type1=='Generated List' | type1=='List' | type1=='Associator') {
-                    inputOne.val('');
-                    inputOne.trigger("chosen:updated");
-                } else if(type1=='Date' | type1=='Historical Date') {
-                    monthOne.val(''); dayOne.val(''); yearOne.val('');
-                    monthOne.trigger("chosen:updated"); dayOne.trigger("chosen:updated"); yearOne.trigger("chosen:updated");
-                    if(type1=='Historical Date') {
-                        eraOne.prop("checked", false);
-                        $("#default_era_one_ce").prop("checked", true);
-                        $('[id^=default_era_one]').each(function () {
-                            $(this).trigger("chosen:updated");
-                        });
-                        if(prefixOne!='') {
-                            prefixOne.prop("checked", false);
-                            $(`[id^=default_prefix_one_${flid}]`).each(function () {
-                                $(this).trigger("chosen:updated");
-                            });
-                        }
-                    }
-                } else {
-                    inputOne.val('');
+                //Clear out entered default values
+                switch(type1) {
+                    case 'Boolean':
+                        $('[name="default_one"]').prop('checked', false);
+                    case 'Generated List':
+                        $('.list-option-card-container-one-js').html('');
+                    case 'Date':
+                    case 'DateTime':
+                    case 'Historical Date':
+                        $('#default_month_one').val('');
+                        $('#default_day_one').val('');
+                        $('#default_year_one').val('');
+                        $('#default_month_one').trigger("chosen:updated");
+                        $('#default_day_one').trigger("chosen:updated");
+                        $('#default_year_one').trigger("chosen:updated");
+                        break;
+                    case 'List':
+                    case 'Multi-Select List':
+                    case 'Associator':
+                        $('#default_one').val('');
+                        $('#default_one').trigger("chosen:updated");
+                        break;
+                    default:
+                        $('#default_one').val('');
+                        break;
                 }
 
-                if(type2=='Multi-Select List' | type2=='Generated List' | type2=='List' | type2=='Associator') {
-                    inputTwo.val('');
-                    inputTwo.trigger("chosen:updated");
-                } else if(type2=='Date' | type2=='Historical Date') {
-                    monthTwo.val(''); dayTwo.val(''); yearTwo.val('');
-                    monthTwo.trigger("chosen:updated"); dayTwo.trigger("chosen:updated"); yearTwo.trigger("chosen:updated");
-                    if(type2=='Historical Date') {
-                        eraTwo.prop("checked", false);
-                        $("#default_era_two_ce").prop("checked", true);
-                        $('[id^=default_era_two]').each(function () {
-                            $(this).trigger("chosen:updated");
-                        });
-                        if(prefixTwo!='') {
-                            prefixTwo.prop("checked", false);
-                            $(`[id^=default_prefix_two_${flid}]`).each(function () {
-                                $(this).trigger("chosen:updated");
-                            });
-                        }
-                    }
-                } else {
-                    inputTwo.val('');
+                switch(type2) {
+                    case 'Boolean':
+                        $('[name="default_two"]').prop('checked', false);
+                    case 'Generated List':
+                        $('.list-option-card-container-two-js').html('');
+                    case 'Date':
+                    case 'DateTime':
+                    case 'Historical Date':
+                        $('#default_month_two').val('');
+                        $('#default_day_two').val('');
+                        $('#default_year_two').val('');
+                        $('#default_month_two').trigger("chosen:updated");
+                        $('#default_day_two').trigger("chosen:updated");
+                        $('#default_year_two').trigger("chosen:updated");
+                        break;
+                    case 'List':
+                    case 'Multi-Select List':
+                    case 'Associator':
+                        $('#default_two').val('');
+                        $('#default_two').trigger("chosen:updated");
+                        break;
+                    default:
+                        $('#default_two').val('');
+                        break;
                 }
             }
         });
 
-        $('.combo-value-div-js').on('click', '.delete-default-js', function(e){
+        $('.combo-value-div-js').on('click', '.delete-default-js', function(e) {
             e.preventDefault();
 
-            if ($('.combo-value-div-js .card').length == 1) {
+            if($('.combo-value-div-js .card').length == 1) {
                 $('.combo-value-div-js').addClass('hidden');
                 $('.combolist-add-new-list-value-modal-js').removeClass('mt-xxl');
             }
         });
+
+        function pad(num, size) {
+            var s = num+"";
+            while (s.length < size) s = "0" + s;
+            return s;
+        }
+
+        //RICH TEXT OPTIONS
+        initializeRichTextFields();
 
 	    //ASSOCIATOR OPTIONS
         //Sets up association configurations
@@ -1100,7 +1076,7 @@ Kora.Fields.Options = function(fieldType) {
                 e.preventDefault();
 
                 var keyword = $(this).val();
-                var combo = $(this).data('combo');
+                var combo = $(this).attr('combo');
                 var resultsBox = $(this).parent().next().children('.assoc-select-records-js').first();
                 //Clear old values
                 resultsBox.html('');
@@ -1121,6 +1097,10 @@ Kora.Fields.Options = function(fieldType) {
 
                             resultsBox.append(opt);
                             resultsBox.trigger("chosen:updated");
+
+                            resultInput = resultsBox.next().find('.chosen-search-input').first();
+                            resultInput.val('');
+                            resultInput.click();
                         }
                     }
                 });
@@ -1182,7 +1162,11 @@ Kora.Fields.Options = function(fieldType) {
                 var newListOptions = $newListOptionInput.val().split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
 
                 if(newListOptions !== undefined && newListOptions.length > 0) {
-                    // Prevent duplicate entries
+                    var label = 'options_';
+                    if(fnum=='one' && type1=='Generated List')
+                        label = 'default_';
+                    else if(fnum=='two' && type2=='Generated List')
+                        label = 'default_';
 
                     for(newOpt in newListOptions) {
                         //Trim whitespace, and remove surrounding quotes
@@ -1190,7 +1174,7 @@ Kora.Fields.Options = function(fieldType) {
 
                         // Create and display new card
                         var newCardHtml = '<div class="card list-option-card list-option-card-js" data-list-value="' + newListOption + '">' +
-                            '<input type="hidden" class="list-option-js" name="options_'+fnum+'[]" value="' + newListOption + '">' +
+                            '<input type="hidden" class="list-option-js" name="'+label+fnum+'[]" value="' + newListOption + '">' +
                             '<div class="header">' +
                             '<div class="left">' +
                             '<div class="move-actions">' +
@@ -1370,31 +1354,47 @@ Kora.Fields.Options = function(fieldType) {
             }
         }
 
-        function initializeDateOptions() {
-            $eraCheckboxes = $('.era-check-js');
-            $prefixCheckboxes = $('.prefix-check-js');
+        //DATE OPTIONS
+        function initializeDateOptions(fnum) {
+            Kora.Modal.initialize();
 
-            $prefixCheckboxes.click(function() {
+            var $start = $('.start-year-'+fnum+'-js');
+            var $end = $('.end-year-'+fnum+'-js');
+            var $default = $('.default-year-'+fnum+'-js');
+            var $startCheck = $('.current-year-'+fnum+'-js[data-current-year-id="start"]');
+            var $endCheck = $('.current-year-'+fnum+'-js[data-current-year-id="end"]');
+            var $changeDefaultYearModal = $('.change-default-year-modal-js').first();
+            var $continueButton = $changeDefaultYearModal.find('.change-default-year-js');
+            var $closeModalButton = $changeDefaultYearModal.find('.modal-toggle-js');
+
+            var oldStartVal = $start.val();
+            var oldEndVal = $end.val();
+            var oldStartCheck = $startCheck.is(':checked');
+            var oldEndCheck = $endCheck.is(':checked');
+            var currentYear = new Date().getFullYear();
+            var scrollBarWidth = 17;
+
+            $('.prefix-check-'+fnum+'-js').click(function() {
                 var $selected = $(this);
                 $isChecked = $selected.prop('checked');
 
-                $prefixCheckboxes.prop('checked', false);
+                $('.prefix-check-'+fnum+'-js').prop('checked', false);
                 if($isChecked)
                     $selected.prop('checked', true);
             });
-            $eraCheckboxes.click(function() {
+            $('.era-check-'+fnum+'-js').click(function() {
                 var $selected = $(this);
 
-                $eraCheckboxes.prop('checked', false);
+                $('.era-check-'+fnum+'-js').prop('checked', false);
                 $selected.prop('checked', true);
 
                 currEra = $selected.val();
-                $month = $('[id^=default_month_]');
-                $day = $('[id^=default_day_]');
+                $month = $('#default_month_'+fnum);
+                $day = $('#default_day_'+fnum);
 
                 if(currEra=='BP' | currEra=='KYA BP') {
-                    $month.attr('disabled','disabled').val('');
-                    $day.attr('disabled','disabled').val('');
+                    $month.attr('disabled','disabled');
+                    $day.attr('disabled','disabled');
                     $month.trigger("chosen:updated");
                     $day.trigger("chosen:updated");
                 } else {
@@ -1404,6 +1404,139 @@ Kora.Fields.Options = function(fieldType) {
                     $day.trigger("chosen:updated");
                 }
             });
+
+            // Setting year value to the current year
+            var $currentYearCheckboxes = $('.current-year-'+fnum+'-js');
+            setCurrentYearInput($currentYearCheckboxes, fnum);
+
+            $currentYearCheckboxes.click(function() {
+                setCurrentYearInput($(this), fnum);
+            });
+
+            // Clicking arrows on numbers sets Default Year options
+            $('.arrow-js').click(function() {
+                printYears();
+            });
+
+            // Changing start and end dates sets Default Year options
+            $start.change(printYears);
+            $end.change(printYears);
+
+            function printYears() {
+                var start = $start.val();
+                var end = $end.val();
+                var defaultYear = $default.children("option:selected").val();
+
+                // Set start and end years
+                if (start == '' || start < 0) {start = 1;}
+                if (start == 0) {start = currentYear}
+                if (end == '' || end > 9999) {end = 9999;}
+                if (end == 0) {end = currentYear}
+
+                // Switch start and end if necessary
+                if (start > end) {
+                    pivot = start;
+                    start = end;
+                    end = pivot;
+                }
+
+                if (defaultYear != "" &&
+                    ((defaultYear != 0 && (defaultYear < start || defaultYear > end)) ||
+                        (defaultYear == 0 && (currentYear < start || currentYear > end)))) {
+                    // User must approve of clearing default date if set outside range of dates
+                    Kora.Modal.open($changeDefaultYearModal);
+
+                    $continueButton.unbind();
+                    $continueButton.click(function(e) {
+                        e.preventDefault();
+                        createOptions();
+                        Kora.Modal.close($changeDefaultYearModal);
+                    });
+
+                    $closeModalButton.unbind();
+                    $closeModalButton.click(function(e) {
+                        e.preventDefault();
+
+                        // Reset Values
+                        $start.val(oldStartVal);
+                        $startCheck.prop('checked', oldStartCheck);
+                        $start.prop('disabled', oldStartCheck);
+                        if (oldStartCheck) {
+                            $start.siblings('.num-arrows-js').hide();
+                        } else {
+                            $start.siblings('.num-arrows-js').show();
+                        }
+
+                        $end.val(oldEndVal);
+                        $endCheck.prop('checked', oldEndCheck);
+                        $end.prop('disabled', oldEndCheck);
+                        if (oldEndCheck) {
+                            $end.siblings('.num-arrows-js').hide();
+                        } else {
+                            $end.siblings('.num-arrows-js').show();
+                        }
+
+                        Kora.Modal.close($changeDefaultYearModal);
+                    })
+                } else {
+                    createOptions();
+                }
+
+                function createOptions() {
+                    // New options between start and end years
+                    var val = '<option></option>';
+
+                    if (defaultYear != "" && defaultYear == 0  && currentYear >= start && currentYear <= end) {
+                        val += '<option value="0" selected>Current Year</option>';
+                    } else {
+                        val += '<option value="0">Current Year</option>';
+                    }
+
+                    for (var i=start;i<+end+1;i++) {
+                        if (i == defaultYear) {
+                            val += "<option value=" + i + " selected>" + i + "</option>";
+                        } else {
+                            val += "<option value=" + i + ">" + i + "</option>";
+                        }
+                    }
+
+                    oldStartVal = $start.val();
+                    oldEndVal = $end.val();
+                    oldStartCheck = $startCheck.is(':checked');
+                    oldEndCheck = $endCheck.is(':checked');
+
+                    $default.html(val); $default.trigger("chosen:updated");
+                }
+            }
+
+            // Clicking on a 'Current Year' checkbox
+            function setCurrentYearInput($sel, fnum) {
+                $sel.each(function() {
+                    var $selected = $(this);
+                    var $yearInput = $('[data-current-year-id="'+$selected.data('current-year-id')+'"]').not('[type="checkbox"]');
+                    var $yearInputHidden = $yearInput.siblings('.hidden-current-year-'+fnum+'-js');
+                    var $arrows = $yearInput.siblings('.num-arrows-js');
+
+                    if ($selected.is(":checked")) {
+                        // Current Year now selected
+                        // Set input to current year
+                        $yearInput.val(new Date().getFullYear());
+
+                        // Disable input, enable hidden current year input
+                        $yearInputHidden.prop('disabled', false);
+                        $yearInput.prop('disabled', true);
+                        $arrows.hide();
+                    } else {
+                        // Current Year now unselected
+                        // Enable input, disable hidden current year input
+                        $yearInputHidden.prop('disabled', true);
+                        $yearInput.prop('disabled', false);
+                        $arrows.show();
+                    }
+                });
+
+                printYears();
+            }
         }
 
         setCardTitleWidth();
@@ -1413,7 +1546,8 @@ Kora.Fields.Options = function(fieldType) {
         initializeListOptionDelete();
         initializeMassListOptions('one');
         initializeMassListOptions('two');
-        initializeDateOptions();
+        initializeDateOptions('one');
+        initializeDateOptions('two');
         Kora.Fields.TypedFieldInputs.Initialize();
     }
 
@@ -1496,8 +1630,11 @@ Kora.Fields.Options = function(fieldType) {
         case 'Date':
             initializeDateOptions();
             break;
-        case 'Generated List':
+        case 'Generated List': //Code for gen list on options page
             initializeList('GenList');
+            break;
+        case 'Generated List Record': //Code for gen list on create record page
+            initializeList('GenListRecord');
             break;
         case 'List':
             initializeList();

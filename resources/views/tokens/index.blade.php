@@ -1,7 +1,7 @@
 @extends('app', ['page_title' => 'Tokens', 'page_class' => 'tokens'])
 
 @section('aside-content')
-  <?php $openManagement = true ?>
+    @php $openManagement = true; @endphp
   @include('partials.sideMenu.dashboard', ['openDashboardDrawer' => false, 'openProjectDrawer' => false])
 @stop
 

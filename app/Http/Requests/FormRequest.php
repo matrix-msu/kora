@@ -29,7 +29,7 @@ class FormRequest extends Request {
         return [
             'project_id' => 'required|numeric',
             'name' => 'required|min:3|max:60|regex:/^[a-zA-Z0-9\s]+$/',
-            'description' => 'required|max:500',
+            'description' => 'required|max:1000',
         ];
     }
 

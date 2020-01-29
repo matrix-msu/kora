@@ -26,6 +26,11 @@ class RichTextField extends BaseField {
     const FIELD_DISPLAY_VIEW = "partials.records.display.richtext";
 
     /**
+     * @var string - Method from CreateRecordsTable() for adding to DB
+     */
+    const FIELD_DATABASE_METHOD = 'addMediumTextColumn';
+
+    /**
      * Get the field options view.
      *
      * @return string - The view
@@ -73,23 +78,10 @@ class RichTextField extends BaseField {
     /**
      * Gets the default options string for a new field.
      *
-     * @param  int $fid - Form ID
-     * @param  string $slug - Name of database column based on field internal name
-     * @param  array $options - Extra information we may need to set up about the field
      * @return array - The default options
      */
-    public function addDatabaseColumn($fid, $slug, $options = null) {
-        $table = new \CreateRecordsTable();
-        $table->addMediumTextColumn($fid, $slug);
-    }
-
-    /**
-     * Gets the default options string for a new field.
-     *
-     * @return string - The default options
-     */
     public function getDefaultOptions($type = null) {
-        return '';
+        return [];
     }
 
     /**

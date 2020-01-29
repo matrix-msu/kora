@@ -1,6 +1,7 @@
 <?php namespace App\Http\Controllers;
 
 use App\Form;
+use App\KoraFields\ComboListField;
 use App\Record;
 use App\Search;
 use Illuminate\Http\Request;
@@ -39,10 +40,9 @@ class AssociatorSearchController extends Controller {
         $keyword = $request->keyword;
 
         $activeForms = array();
-        $results = array();
 
         if($request->has('combo'))
-            $options = \App\KoraFields\ComboListField::getComboFieldOption($field, 'SearchForms', $request->combo);
+            $options = $field[$request->combo]['options']['SearchForms'];
         else
             $options = $field['options']['SearchForms'];
 

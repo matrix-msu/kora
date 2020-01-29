@@ -6,7 +6,6 @@ use App\Revision;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Input;
 use Illuminate\View\View;
 
 class RevisionController extends Controller {
@@ -85,10 +84,8 @@ class RevisionController extends Controller {
           'static' => false
         );
 
-        //dd($revisions);
-
         return view('revisions.index', compact('revisions', 'records', 'selected_records', 'selected_users', 'form', 'notification', [
-            'revisions' => $revisions->appends(Input::except('page'))
+            'revisions' => $revisions->appends(request()->except('page'))
         ]));
     }
 
@@ -160,7 +157,7 @@ class RevisionController extends Controller {
           'static' => false
         );
 
-        return view('revisions.index', compact('revisions', 'records', 'selected_records', 'selected_users', 'form', 'message', 'record', 'rid', 'notification'));
+        return view('revisions.index', compact('revisions', 'records', 'selected_records', 'selected_users', 'form', 'record', 'rid', 'notification'));
     }
 
     /**
@@ -194,7 +191,7 @@ class RevisionController extends Controller {
             case Revision::EDIT:
             case Revision::ROLLBACK:
                 $revArray['data'] = self::buildDataArray($record);
-                $revArray['oldData'] = self::buildDataArray($oldRecord);
+                $revArray['oldData'] = self::buildDataArray($oldRecord, true);
                 break;
             case Revision::DELETE:
                 $revArray['data'] = null;
@@ -213,14 +210,16 @@ class RevisionController extends Controller {
      * Builds the data array for the revision.
      *
      * @param  Record $record - Record to pull data from
+     * @param  boolean $old - Are we storing the old version of a record
      * @return array - The data for DB storage
      */
-    public static function buildDataArray(Record $record) {
+    public static function buildDataArray(Record $record, $old=false) {
         $data = [];
         $form = FormController::getForm($record->form_id);
 
         foreach(array_keys($form->layout['fields']) as $flid) {
-            if($form->layout['fields'][$flid]['type']==Form::_COMBO_LIST && !is_null($record->{$flid})) {
+            //NOTE::For edits, we've already processed the combo-data for the record, pre-edit.
+            if(!$old && $form->layout['fields'][$flid]['type']==Form::_COMBO_LIST && !is_null($record->{$flid})) {
                 $typedField = $form->getFieldModel(Form::_COMBO_LIST);
                 $cflid1 = $form->layout['fields'][$flid]['one']['flid'];
                 $cflid2 = $form->layout['fields'][$flid]['two']['flid'];
@@ -359,8 +358,19 @@ class RevisionController extends Controller {
      * @param  bool $is_rollback - Basically is this revision type Edit or Rollback, or are we reversing a Delete revision
      */
     public function rollback_routine(Form $form, Record $record, Revision $revision, $is_rollback = true) {
-        if($is_rollback)
+        if($is_rollback) {
             $oldRecordCopy = $record->replicate();
+
+            foreach($oldRecordCopy->attributesToArray() as $key => $value) {
+                if(isset($form->layout['fields'][$key]) && $form->layout['fields'][$key]['type']==Form::_COMBO_LIST) {
+                    $typedField = $form->getFieldModel(Form::_COMBO_LIST);
+                    $cflid1 = $form->layout['fields'][$key]['one']['flid'];
+                    $cflid2 = $form->layout['fields'][$key]['two']['flid'];
+                    //This is one thing we can't capture later so we need to process it now
+                    $oldRecordCopy->{$key} = $typedField->setTable($key . $form->id)->select(["$cflid1 as cfOne", "$cflid2 as cfTwo"])->findMany(json_decode($oldRecordCopy->{$key}));
+                }
+            }
+        }
 
         foreach($revision->revision['oldData'] as $flid => $data) {
             if($form->layout['fields'][$flid]['type']==Form::_COMBO_LIST) {

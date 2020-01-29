@@ -1,8 +1,8 @@
 <?php namespace App\KoraFields;
 
 use App\Form;
+use App\Http\Controllers\FormController;
 use App\Record;
-use App\Search;
 use App\Http\Controllers\FieldController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -19,10 +19,6 @@ class ComboListField extends BaseField {
     */
 
     /**
-     * @var string - Support table name
-     */
-    const SUPPORT_NAME = "combo_support";
-    /**
      * @var string - Views for the typed field options
      */
     const FIELD_OPTIONS_VIEW = "partials.fields.options.combolist";
@@ -32,67 +28,9 @@ class ComboListField extends BaseField {
     const FIELD_DISPLAY_VIEW = "partials.records.display.combolist";
 
     /**
-     * @var array - This is an array of combo list field type values for creation
+     * @var string - Method from CreateRecordsTable() for adding to DB
      */
-    static public $validComboListFieldTypes = [
-        'Text Fields' => array(
-            'Text' => 'Text',
-            'Integer' => 'Integer',
-            'Float' => 'Float'
-        ),
-        'Date Fields' => array(
-            'Date' => 'Date',
-            'Historical Date' => 'Historical Date'
-        ),
-        'List Fields' => array(
-            'List' => 'List',
-            'Multi-Select List' => 'Multi-Select List',
-            'Generated List' => 'Generated List'
-        ),
-        'Specialty Fields' => array(
-            'Boolean' => 'Boolean',
-            'Associator' => 'Associator'
-        )
-    ];
-
-    static public $supportedViews = [
-        'Text' => 'text',
-        'List' => 'list',
-        'Integer' => 'integer',
-        'Float' => 'float',
-        'Date' => 'date',
-        'Historical Date' => 'historicdate',
-        'Multi-Select List' => 'mslist',
-        'Generated List' => 'genlist',
-        'Associator' => 'associator',
-        'Boolean' => 'boolean'
-    ];
-
-    private $fieldToDBFuncAssoc = [
-        'Text' => 'addTextColumn',
-        'List' => 'addEnumColumn',
-        'Integer' => 'addIntegerColumn',
-        'Float' => 'addDoubleColumn',
-        'Date' => 'addDateColumn',
-        'Historical Date' => 'addJSONColumn',
-        'Multi-Select List' => 'addJSONColumn',
-        'Generated List' => 'addJSONColumn',
-        'Associator' => 'addJSONColumn',
-        'Boolean' => 'addBooleanColumn'
-    ];
-
-    private $fieldModel = [
-        'Text' => 'App\KoraFields\TextField',
-        'List' => 'App\KoraFields\ListField',
-        'Integer' => 'App\KoraFields\IntegerField',
-        'Float' => 'App\KoraFields\FloatField',
-        'Date' => 'App\KoraFields\DateField',
-        'Historical Date' => 'App\KoraFields\HistoricalDateField',
-        'Multi-Select List' => 'App\KoraFields\MultiSelectListField',
-        'Generated List' => 'App\KoraFields\GeneratedListField',
-        'Associator' => 'App\KoraFields\AssociatorField',
-        'Boolean' => 'App\KoraFields\BooleanField'
-    ];
+    const FIELD_DATABASE_METHOD = 'addJSONColumn';
 
     /**
      * Get the field options view.
@@ -140,25 +78,25 @@ class ComboListField extends BaseField {
     }
 
     /**
-     * Gets the default options string for a new field.
+     * Create DB column for this field. Combo overwrites parent to add sub field columns to combo table
      *
      * @param  int $fid - Form ID
      * @param  string $slug - Name of database column based on field internal name
+     * @param  string $method - The add column function from CreateRecordsTable to be used
      * @param  array $options - Extra information we may need to set up about the field
-     * @return array - The default options
      */
-    public function addDatabaseColumn($fid, $slug, $options = null) {
-        $table = new \CreateRecordsTable();
-        $table->addJSONColumn($fid, $slug);
+    public function addDatabaseColumn($fid, $slug, $method, $options = null) {
+        parent::addDatabaseColumn($fid, $slug, $method, $options);
 
         $ctable = new \CreateRecordsTable(
             ['tablePrefix' => $slug]
         );
         $ctable->createComboListTable($fid);
 
-        foreach ($options as $option) {
-            $method = $this->fieldToDBFuncAssoc[$option['type']];
-            $ctable->{$method}($fid, $option['name']);
+        $form = FormController::getForm($fid);
+        foreach($options as $option) {
+            $fieldMod = $form->getFieldModel($option['type']);
+            $ctable->{$fieldMod::FIELD_DATABASE_METHOD}($fid, $option['name']);
         }
     }
 
@@ -169,8 +107,8 @@ class ComboListField extends BaseField {
      * @return array - The default options
      */
     public function getDefaultOptions($type = null) {
-        $className = $this->fieldModel[$type];
-        $object = new $className;
+        $modName = 'App\\KoraFields\\'.Form::$fieldModelMap[$type];
+        $object = new $modName();
         return $object->getDefaultOptions();
     }
 
@@ -183,147 +121,26 @@ class ComboListField extends BaseField {
      * @return array - The updated field array
      */
     public function updateOptions($field, Request $request, $flid = null, $prefix = 'records_') {
+        $requestData = array_keys($request->all());
         foreach (['one', 'two'] as $seq) {
-            $defaults = $parts = array();
+            $updateIndices = preg_grep('/\w+_'.$seq.'/',$requestData);
             $type = $request->{'type' . $seq};
 
-            switch($type) {
-                case Form::_TEXT:
-                    $defaults = array(
-                        'default',
-                        'regex',
-                        'multi'
-                    );
-                    break;
-                case Form::_INTEGER:
-                case Form::_FLOAT:
-                    $defaults = array(
-                        'default',
-                        'min',
-                        'max',
-                        'unit'
-                    );
-                    break;
-                case Form::_MULTI_SELECT_LIST:
-                case Form::_LIST:
-                    $defaults = array(
-                        'default',
-                        'options'
-                    );
-                    break;
-                case Form::_GENERATED_LIST:
-                    $defaults = array(
-                        'default',
-                        'options',
-                        'regex'
-                    );
-                    break;
-                case Form::_DATE:
-                    $defaults = array(
-                        'default_month',
-                        'default_day',
-                        'default_year',
-                        'start',
-                        'end',
-                        'format'
-                    );
-                    $parts = array(
-                        'day',
-                        'month',
-                        'year'
-                    );
-                    break;
-                case Form::_HISTORICAL_DATE:
-                    $defaults = array(
-                        'default_month',
-                        'default_day',
-                        'default_year',
-                        'prefix',
-                        'era',
-                        'start',
-                        'end',
-                        'format'
-                    );
-                    $parts = array(
-                        'day',
-                        'month',
-                        'year',
-                        'prefix',
-                        'era'
-                    );
-                    break;
-                case Form::_ASSOCIATOR:
-                    $defaults = array(
-                        'default'
-                    );
-                    foreach(array_keys($request->all()) as $key) {
-                        if(substr( $key, 0, 8 ) === "checkbox") {
-                            $fidParts = explode('_',$key);
-                            if($fidParts[2]==$seq) {
-                                $defaults[] = 'checkbox_' . $fidParts[1];
-                                $defaults[] = 'preview_' . $fidParts[1];
-                            }
-                        }
-                    }
-                    break;
-                case Form::_BOOLEAN:
-                    $defaults = array(
-                        'default'
-                    );
-                    break;
+            $form = new Form();
+            $fieldRequest = new Request();
+            $object = $form->getFieldModel($type);
+            foreach($updateIndices as $index) {
+                $fieldRequest->merge([str_replace("_$seq",'',$index) => $request->{$index}]);
             }
-
-            if (
-                (
-                    $type == Form::_GENERATED_LIST ||
-                    $type == Form::_MULTI_SELECT_LIST ||
-                    $type == Form::_ASSOCIATOR
-                ) &&
-                !is_null($request->{'default_combo_' . $seq})
-            ) {
-                $values = array();
-                foreach ($request->{'default_combo_' . $seq} as $value) {
-                    array_push($values, json_decode($value));
-                }
-                $request->{'default_combo_' . $seq} = $values;
-            }
-
-            $className = $this->fieldModel[$request->{'type' . $seq}];
-            $object = new $className;
-            foreach($defaults as $default) {
-                $request->merge(
-                    [$default => $request->{$default . '_' . $seq}]
-                );
-
-            }
+            $fieldRequest->fid = $request->fid;
             $field[$seq] = $object->updateOptions(
                 $field[$seq],
-                $request,
+                $fieldRequest,
                 $field[$seq]['flid'],
                 $flid
             );
 
-            if ($type == Form::_DATE || $type == Form::_HISTORICAL_DATE) {
-                $size = 0;
-                $field[$seq]['default'] = [];
-
-                // Determine the largest size of default
-                foreach ($parts as $part) {
-                    if ($request->{'default_' . $part .'_combo_' . $seq} && count($request->{'default_' . $part .'_combo_' . $seq}) > $size)
-                        $size = count($request->{'default_' . $part .'_combo_' . $seq});
-                }
-
-                // Build and add default date
-                for ($i=0; $i < $size; $i++) {
-                    $defaultDate = [];
-                    foreach ($parts as $part) {
-                        $defaultDate[$part] = $request->{'default_' . $part .'_combo_' . $seq}[$i];
-                    }
-                    array_push($field[$seq]['default'], $defaultDate);
-                }
-            } else {
-                $field[$seq]['default'] = $request->{'default_combo_' . $seq};
-            }
+            $field[$seq]['default'] = $request->{'default_combo_' . $seq};
         }
 
         return $field;
@@ -338,8 +155,8 @@ class ComboListField extends BaseField {
      * @param  Request $request
      * @param  bool $overwrite - Overwrite if data exists
      */
-    public function massAssignRecordField($form, $flid, $formFieldValue, $request, $overwrite=0) { //TODO::CASTLE
-
+    public function massAssignRecordField($form, $flid, $formFieldValue, $request, $overwrite=0) {
+        null;
     }
 
     /**
@@ -351,8 +168,8 @@ class ComboListField extends BaseField {
      * @param  Request $request
      * @param  array $kids - The KIDs to update
      */
-    public function massAssignSubsetRecordField($form, $flid, $formFieldValue, $request, $kids) { //TODO::CASTLE
-
+    public function massAssignSubsetRecordField($form, $flid, $formFieldValue, $request, $kids) {
+        null;
     }
 
     /**
@@ -367,7 +184,7 @@ class ComboListField extends BaseField {
     public function validateField($flid, $field, $request, $forceReq = false) {
         $req = $field['required'];
 
-        if(($req==1 | $forceReq) && !isset($request[$flid.'_combo_one']))
+        if(($req==1 | $forceReq) && !isset($request->{$flid.'_combo_one'}))
             return [$flid => $field['name'].' is required'];
 
         return array();
@@ -384,13 +201,13 @@ class ComboListField extends BaseField {
      */
     public function processRecordData($field, $value, $request) {
         // Assume formatted values
-        if (is_array($value))
+        if(is_array($value))
             return $value;
 
         $values = array();
         foreach(['_combo_one' => 'one', '_combo_two' => 'two'] as $suffix => $seq) {
             $value = $request->{$field['flid'] . $suffix};
-            if ($value == '')
+            if($value == '')
                 $value = null;
             $values[$seq] = $value;
         }
@@ -405,7 +222,7 @@ class ComboListField extends BaseField {
      *
      * @return mixed - Processed data
      */
-    public function processRevisionData($data) { // TODO::CASTLE
+    public function processRevisionData($data) {
         $return = '';
         foreach($data as $d) {
             $return .= '<div>'.$d['cfOne'].' --- '.$d['cfTwo'].'</div>';
@@ -427,7 +244,7 @@ class ComboListField extends BaseField {
         $request[$flid] = $flid;
 
         // Setting up for return request
-        foreach (['_combo_one', '_combo_two'] as $suffix) {
+        foreach(['_combo_one', '_combo_two'] as $suffix) {
             $request[$flid . $suffix] = [];
         }
 
@@ -441,8 +258,8 @@ class ComboListField extends BaseField {
                         $subSeq = $seq;
                     }
                 }
-                $className = $this->fieldModel[$type];
-                $object = new $className;
+                $form = new Form();
+                $object = $form->getFieldModel($type);
                 $request = $object->processImportData($subFlid, $field, $subValue, $request);
                 $values = $request->{$flid . '_combo_' . $subSeq};
                 $processedData = $object->processRecordData($field[$subSeq], $request->{$subFlid}, $request);
@@ -469,7 +286,7 @@ class ComboListField extends BaseField {
         $request[$flid] = $flid;
 
         // Setting up for return request
-        foreach (['_combo_one', '_combo_two'] as $suffix) {
+        foreach(['_combo_one', '_combo_two'] as $suffix) {
             $request[$flid . $suffix] = [];
         }
 
@@ -483,8 +300,8 @@ class ComboListField extends BaseField {
                         $subSeq = $seq;
                     }
                 }
-                $className = $this->fieldModel[$type];
-                $object = new $className;
+                $form = new Form();
+                $object = $form->getFieldModel($type);
                 $request = $object->processImportDataXML($subFlid, $field, $subValue, $request);
                 $values = $request->{$flid . '_combo_' . $subSeq};
                 $processedData = $object->processRecordData($field[$subSeq], $request->{$subFlid}, $request);
@@ -510,7 +327,7 @@ class ComboListField extends BaseField {
         $request[$flid] = $flid;
 
         // Setting up for return request
-        foreach (['_combo_one', '_combo_two'] as $suffix) {
+        foreach(['_combo_one', '_combo_two'] as $suffix) {
             $request[$flid . $suffix] = [];
         }
         $value = simplexml_load_string('<?xml version="1.0" encoding="utf-8"?><document>'. $value . '</document>');
@@ -525,8 +342,8 @@ class ComboListField extends BaseField {
                         $subSeq = $seq;
                     }
                 }
-                $className = $this->fieldModel[$type];
-                $object = new $className;
+                $form = new Form();
+                $object = $form->getFieldModel($type);
                 $request = $object->processImportDataXML($subFlid, $field, $subValue, $request);
                 $values = $request->{$flid . '_combo_' . $subSeq};
                 $processedData = $object->processRecordData($field[$subSeq], $request->{$subFlid}, $request);
@@ -561,17 +378,18 @@ class ComboListField extends BaseField {
      * @return mixed - Processed data
      */
     public function processXMLData($field, $value, $fid = null) {
-        $form = FieldController::getField($field, '1');
-        $records = $this->retrieve($field, $fid, $value);
+        $fieldData = FieldController::getField($field, $fid);
+        $form = FormController::getForm($fid);
+        $records = $this->
+        retrieve($field, $fid, $value);
         $xml = "<$field>";
         foreach($records as $record) {
             $value = '<Value>';
             foreach (['one', 'two'] as $seq) {
-                $className = $this->fieldModel[$form[$seq]['type']];
-                $object = new $className;
+                $object = $form->getFieldModel($fieldData[$seq]['type']);
                 $value .= $object->processXMLData(
-                    $form[$seq]['name'],
-                    $record->{$form[$seq]['flid']}
+                    $fieldData[$seq]['name'],
+                    $record->{$fieldData[$seq]['flid']}
                 );
             }
             $value .= '</Value>';
@@ -601,16 +419,17 @@ class ComboListField extends BaseField {
      */
     public function setRestfulAdvSearch($data) {
         $return = [];
+        $field = $data->field_info;
+        $form = $data->form_info;
 
-        $flid = $data->{$flid};
-
-        $field = FieldController::getField($data->{$flid}, $data->{$fid});
-
-        foreach (['one', 'two'] as $seq) {
+        foreach(['one', 'two'] as $seq) {
             $type = $field[$seq]['type'];
-            $className = $this->fieldModel[$type];
-            $object = new $className;
-            $return[$seq] = $object->setRestfulAdvSearch($data->{$seq});
+            $subName = $field[$seq]['name'];
+            $flid = $field[$seq]['flid'];
+            if(isset($data->{$subName})) {
+                $object = $form->getFieldModel($type);
+                $return[$flid.'_'.$seq] = $object->setRestfulAdvSearch($data->{$subName});
+            }
         }
 
         return $return;
@@ -642,7 +461,7 @@ class ComboListField extends BaseField {
                     if(is_numeric($tmpArg)) {
                         // Dealing with numbers
                         $tmpArg = [$tmpArg - self::EPSILON, $tmpArg + self::EPSILON];
-                        if ($negative)
+                        if($negative)
                             $query->whereNotBetween($flid, $tmpArg);
                         else
                             $query->whereBetween($flid, $tmpArg);
@@ -666,93 +485,57 @@ class ComboListField extends BaseField {
      */
     public function advancedSearchTyped($flid, $query, $recordMod, $form, $negative = false) {
         $layout = $form->layout['fields'][$flid];
+        //We need to point at the combo table instead of the Form's record table
+        $formTable = $recordMod->getTable();
+        $recordMod->setTable($flid . $form->id);
 
-        return DB::table($flid . $form->id)
-            ->select("record_id")
-            ->where(function($db_query) use ($query, $layout, $negative) {
-                foreach(['one', 'two'] as $field_num) {
-                    $flid = $layout[$field_num]['flid'];
-                    if (!array_key_exists($flid . "_" . $field_num, $query)) {
-                        continue;
-                    }
-                    $type = $layout[$field_num]['type'];
-                    $values = $query[$flid . "_" . $field_num];
-                    switch($type){
-                        case Form::_INTEGER:
-                        case Form::_FLOAT:
-                            IntegerField::buildAdvancedNumberQuery(
-                                $db_query,
-                                $values['left'],
-                                $values['right'],
-                                isset($values['invert'])
-                            );
-                            break;
-                        case Form::_DATE:
-                            $from = date($values['begin_year'].'-'.$values['begin_month'].'-'.$values['begin_day']);
-                            $to = date($values['end_year'].'-'.$values['end_month'].'-'.$values['end_day']);
+        $typeone = $layout['one']['type'];
+        $typetwo = $layout['two']['type'];
+        $modelone = $form->getFieldModel($typeone);
+        $modeltwo = $form->getFieldModel($typetwo);
+        $flidone = $layout['one']['flid'];
+        $flidtwo = $layout['two']['flid'];
 
-                            if($negative)
-                                $db_query->whereNotBetween($flid, [$from, $to]);
-                            else
-                                $db_query->whereBetween($flid, [$from, $to]);
-                            break;
-                        case Form::_MULTI_SELECT_LIST:
-                        case Form::_GENERATED_LIST:
-                        case Form::_ASSOCIATOR:
-                            $inputs = $values['input'];
-                            if($negative) {
-                                foreach($inputs as $a)
-                                    $db_query->orWhereRaw("JSON_SEARCH(`$flid`,'one','$a') IS NULL");
-                            } else {
-                                foreach($inputs as $a)
-                                    $db_query->whereRaw("JSON_SEARCH(`$flid`,'one','$a') IS NOT NULL");
-                            }
-                            break;
-                        default: //Text, List, and Bool
-                            if($negative)
-                                $param = '!=';
-                            else
-                                $param = '=';
+        $resOne = $resTwo = [];
+        if(array_key_exists($flidone . "_one", $query)) {
+            $values = $query[$flidone . "_one"];
+            $resOne = $modelone->advancedSearchTyped($flidone, $values, $recordMod, $form);
+        }
+        if(array_key_exists($flidtwo . "_two", $query)) {
+            $values = $query[$flidtwo . "_two"];
+            $resTwo = $modeltwo->advancedSearchTyped($flidtwo, $values, $recordMod, $form);
+        }
 
-                            $input = $values['input'];
-                            $db_query->orWhere($flid, $param, "$input");
-                            break;
-                    }
-                }
-            })
-            ->pluck('record_id')
-            ->toArray();
+        $this->imitateMerge($resOne, $resTwo);
+
+        if(!$negative) {
+            $final = $recordMod->newQuery()
+                ->select('record_id')
+                ->whereIn('id', $resOne)
+                ->pluck('record_id')
+                ->toArray();
+        } else {
+            $final = $recordMod->newQuery()
+                ->select('record_id')
+                ->whereNotIn('id', $resOne)
+                ->pluck('record_id')
+                ->toArray();
+        }
+
+        //Reset the connection table
+        $recordMod->setTable($formTable);
+        return $final;
     }
 
     ///////////////////////////////////////////////END ABSTRACT FUNCTIONS///////////////////////////////////////////////
 
     /**
-     * Gets the list options for a combo list field.
+     * Overwrites the eloquent model save function to save actual data to the combo table, and the indices of those rows
+     * into the records table.
      *
-     * @param  array $field - Field to pull options from
-     * @param  bool $blankOpt - Has blank option as first array element
-     * @return array - The list options
+     * @param  array $options - Options to determine how to appropriately save data to combo table
+     * @return string - The ids of data rows from the combo table
      */
-    public static function getComboList($field, $blankOpt=false, $fnum) {
-        $options = array();
-        foreach (self::getComboFieldOption($field, 'Options', $fnum) as $option) {
-            $options[$option] = $option;
-        }
-        return $options;
-    }
-
-    /**
-     * Gets an option of a combo list sub field
-     *
-     * @param  array $field - Combo field to inspect
-     * @param  string $key - The option we want
-     * @param  int $seq - Sequence of sub field
-     * @return array - The option
-     */
-    public static function getComboFieldOption($field, $key, $seq) {
-        return $field[$seq]['options'][$key];
-    }
-
     public function save(array $options = array()) {
         $field = $options['field'];
         $values = $options['values'];
@@ -776,11 +559,27 @@ class ComboListField extends BaseField {
             $ids = DB::table($table)->where('record_id', $rid)->pluck('id');
 
             return $ids->toJson();
+        } else {
+            return null;
         }
     }
 
+    /**
+     * Takes the ids from the records table combo value, and fetches the actual data from the combo table.
+     *
+     * @param  array $flid - Field ID
+     * @param  array $fid - Form ID
+     * @param  array $ids - Row ids for combo table
+     * @return array - The combo data
+     */
     public function retrieve($flid, $fid, $ids) {
         $this->setTable($flid . $fid);
         return $this->findMany(json_decode($ids));
+    }
+
+    private function imitateMerge(&$array1, &$array2) {
+        foreach($array2 as $i) {
+            $array1[] = $i;
+        }
     }
 }

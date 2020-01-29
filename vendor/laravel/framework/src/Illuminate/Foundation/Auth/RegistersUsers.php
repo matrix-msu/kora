@@ -2,9 +2,9 @@
 
 namespace Illuminate\Foundation\Auth;
 
+use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Auth\Events\Registered;
 
 trait RegistersUsers
 {
@@ -28,6 +28,8 @@ trait RegistersUsers
      */
     public function register(Request $request)
     {
+        $this->validator($request->all())->validate();
+
         if(!\App\User::verifyRegisterRecaptcha($request)) {
             $notification = array(
                 'message' => 'ReCaptcha validation error',
@@ -39,8 +41,6 @@ trait RegistersUsers
             return redirect("/register")->withInput()->with('notification', $notification)->send();
         }
 
-        $this->validator($request->all())->validate();
-
         event(new Registered($user = $this->create($request->all())));
 
         $this->guard()->login($user);
@@ -50,9 +50,8 @@ trait RegistersUsers
         else
             $status = 'activation_email_failed';
 
-
         return $this->registered($request, $user)
-                        ?: redirect($this->redirectPath())->with('status', $status);
+                        ?: redirect($this->redirectPath())->with('status', $status)->send();
     }
 
     /**

@@ -21,7 +21,7 @@ class LockableTraitTest extends TestCase
 {
     protected static $fixturesPath;
 
-    public static function setUpBeforeClass()
+    public static function setUpBeforeClass(): void
     {
         self::$fixturesPath = __DIR__.'/../Fixtures/';
         require_once self::$fixturesPath.'/FooLockCommand.php';
@@ -33,8 +33,8 @@ class LockableTraitTest extends TestCase
         $command = new \FooLockCommand();
 
         $tester = new CommandTester($command);
-        $this->assertSame(2, $tester->execute(array()));
-        $this->assertSame(2, $tester->execute(array()));
+        $this->assertSame(2, $tester->execute([]));
+        $this->assertSame(2, $tester->execute([]));
     }
 
     public function testLockReturnsFalseIfAlreadyLockedByAnotherCommand()
@@ -51,10 +51,10 @@ class LockableTraitTest extends TestCase
         $lock->acquire();
 
         $tester = new CommandTester($command);
-        $this->assertSame(1, $tester->execute(array()));
+        $this->assertSame(1, $tester->execute([]));
 
         $lock->release();
-        $this->assertSame(2, $tester->execute(array()));
+        $this->assertSame(2, $tester->execute([]));
     }
 
     public function testMultipleLockCallsThrowLogicException()
@@ -62,6 +62,6 @@ class LockableTraitTest extends TestCase
         $command = new \FooLock2Command();
 
         $tester = new CommandTester($command);
-        $this->assertSame(1, $tester->execute(array()));
+        $this->assertSame(1, $tester->execute([]));
     }
 }

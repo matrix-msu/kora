@@ -1,0 +1,195 @@
+.gallery-controls {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+  padding: map-get($spacing, sm) 0 map-get($spacing, xxs);
+  width: calc(100% - 44px);
+
+  .dot {
+    background: palette('gray', slate, .1);
+    border-radius: 6px;
+    cursor: pointer;
+    display: inline-block;
+    height: 11px;
+    margin: 0 3px;
+    @include transition();
+    width: 11px;
+
+    &:hover {
+      background: palette('gray', slate, .8);
+    }
+
+    &.active {
+      background: palette('gray', slate);
+    }
+  }
+
+  .dots {
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+
+  .field-btn {
+    .icon {
+      font-size: 6px;
+    }
+  }
+
+  .next-button {
+    .icon {
+      left: 48%;
+      margin: 0;
+      position: absolute;
+      top: 50%;
+      transform: translate(-38%, -50%) rotate(270deg);
+    }
+  }
+
+  .prev-button {
+    .icon {
+      left: 52%;
+      margin: 0;
+      position: absolute;
+      top: 50%;
+      transform: translate(-60%, -50%) rotate(90deg);
+    }
+  }
+}
+
+.gallery-field-display {
+  background: palette('gray', slate);
+  border-radius: 5px;
+  box-shadow: 0 3px 5px 0 palette('gray', slate, .05);
+  height: 300px;
+  overflow: hidden;
+  position: relative;
+  width: calc(100% - 44px);
+
+  .slide-img {
+    margin: auto;
+    max-height: 75vh; // Will be overwritten by javascript
+    max-width: 100%;
+    object-fit: contain;
+  }
+
+  .slide {
+    bottom: 0;
+    cursor: pointer;
+    display: flex;
+    left: 2000px;
+    position: absolute;
+    right: 0;
+    text-align: center;
+    top: 0;
+    width: 100%;
+
+    &:first-child {
+      left: 0;
+    }
+  }
+}
+
+.gallery-caption-container {
+  margin: 10px;
+  max-height: 225px;
+  overflow: hidden;
+  position: relative;
+
+  .caption {
+    color: palette('gray', text, .8);
+    font-size: 13px;
+    left: calc(100% + 40px);
+    margin: 0;
+    position: absolute;
+    top: 0;
+    width: 100%;
+
+    &.active {
+      position: relative;
+      left: 0;
+    }
+  }
+
+  + .caption-more {
+    color: palette('green', accent);
+    display: none;
+    font-family: $ubuntu-medium;
+    margin: 10px;
+
+    &.more {
+      display: inline-block;
+    }
+  }
+
+  &.more {
+    max-height: initial;
+  }
+}
+
+.gallery-modal {
+  .gallery-caption-container {
+    margin: auto;
+    padding: 0 0 20px;
+    width: 90%;
+  }
+
+  .content {
+    display: block;
+    height: auto;
+    max-height: 90vh;
+    max-width: none;
+    overflow-y: unset;
+    padding: 0;
+    width: 90vw;
+
+    .body {
+      height: 100%;
+      padding: 0;
+      width: 100%;
+    }
+
+    .gallery-field-display {
+      border-radius: 0;
+      height: 75%;
+      min-height: 400px;
+      width: 100%;
+
+      + .gallery-caption-container {
+        padding: 20px 0;
+      }
+
+      &.full-height {
+        height: 100%;
+      }
+
+      .slide-img {
+        display: block;
+      }
+
+      .currentSlide {
+        display: block;
+        position: static;
+
+        &.small {
+          display: flex;
+          position: absolute;
+
+          .slide-img {
+            height: 100%;
+          }
+        }
+      }
+    }
+  }
+
+  .gallery-controls {
+    margin: auto;
+    padding: 20px 0;
+    width: 90%;
+  }
+}
+
+.gallery-sidebar {
+  box-sizing: initial;
+  height: 300px;
+}

@@ -77,6 +77,7 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
             return false;
 
         //NOTE::When you re-implement this function in the laravel Register system, use this fail state:
+        //For more information, check out the Laravel Upgrade Documentation
 //        if(!\App\User::verifyRegisterRecaptcha($request,$this)) {
 //            $notification = array(
 //                'message' => 'ReCaptcha validation error',
@@ -138,6 +139,7 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
         return true;
 
         //NOTE::When you re-implement this function in the laravel Register system, use this fail state:
+        //For more information, check out the Laravel Upgrade Documentation
 //        if(\App\User::finishRegistration($request))
 //            $status = 'activation_email_sent';
 //        else
@@ -713,7 +715,7 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
      */
     public function removeCustomForm($fid) {
         $form = FormController::getForm($fid);
-        $pid = $form->pid;
+        $pid = $form->project_id;
 
         $check = DB::table("form_custom")->where("user_id", "=", $this->id)
             ->where("project_id", "=", $pid)->first();

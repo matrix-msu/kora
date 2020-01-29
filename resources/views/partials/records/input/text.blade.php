@@ -1,15 +1,24 @@
 @php
-    if($editRecord)
+    if(isset($seq)) { //Combo List
+        $fieldLabel = '';
+        $fieldDivID = 'default_'.$seq.'_'.$flid;
+        $textValue = null;
+    } else if($editRecord) {
+        $fieldLabel = $flid;
+        $fieldDivID = $flid;
         $textValue = $record->{$flid};
-    else
+    } else {
+        $fieldLabel = $flid;
+        $fieldDivID = $flid;
         $textValue = $field['default'];
+    }
 @endphp
 <div class="form-group mt-xxxl">
-    <label>@if($field['required'])<span class="oval-icon"></span> @endif{{$field['name']}}</label>
+    <label>@if(!isset($seq) && $field['required'])<span class="oval-icon"></span> @endif{{$field['name']}}</label>
     <span class="error-message"></span>
 	
     @if(!$field['options']['MultiLine'])
-        {!! Form::text($flid, $textValue, ['class' => 'text-input preset-clear-text-js', 'id' => $flid, 'placeholder' => 'Enter text here']) !!}
+        {!! Form::text($fieldLabel, $textValue, ['class' => 'text-input preset-clear-text-js', 'id' => $fieldDivID, 'placeholder' => 'Enter text here']) !!}
     @elseif($field['options']['MultiLine'])
         @php
             $newLineCnt = substr_count($textValue, "\n");
@@ -17,6 +26,6 @@
             if($taHeight < 100)
                 $taHeight = 100;
         @endphp
-        {!! Form::textarea($flid, $textValue, ['class' => 'text-area preset-clear-text-js', 'style' => 'height:'.$taHeight.'px', 'id' => $flid, 'placeholder' => 'Enter text here']) !!}
+        {!! Form::textarea($fieldLabel, $textValue, ['class' => 'text-area preset-clear-text-js', 'style' => 'height:'.$taHeight.'px', 'id' => $fieldDivID, 'placeholder' => 'Enter text here']) !!}
     @endif
 </div>

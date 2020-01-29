@@ -10,7 +10,7 @@ class StaticCall extends Expr
 {
     /** @var Node\Name|Expr Class name */
     public $class;
-    /** @var string|Identifier|Expr Method name */
+    /** @var Identifier|Expr Method name */
     public $name;
     /** @var Node\Arg[] Arguments */
     public $args;
@@ -24,7 +24,7 @@ class StaticCall extends Expr
      * @param array                  $attributes Additional attributes
      */
     public function __construct($class, $name, array $args = [], array $attributes = []) {
-        parent::__construct($attributes);
+        $this->attributes = $attributes;
         $this->class = $class;
         $this->name = \is_string($name) ? new Identifier($name) : $name;
         $this->args = $args;

@@ -1,0 +1,26 @@
+.video-field-display {
+  background: palette('gray', slate);
+  border-radius: 5px;
+  overflow: hidden;
+  width: calc(100% - 44px);
+
+  video {
+    display: block;
+    margin: auto;
+    max-height: 100%;
+    max-width: 100%;
+  }
+}
+
+.video-info {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+  padding: 15px 0 5px;
+  width: calc(100% - 44px);
+}
+
+.video-sidebar {
+  box-sizing: initial;
+  height: 300px;
+}

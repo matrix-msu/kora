@@ -13,7 +13,7 @@
     resize: none;
     width: calc(100% - 44px);
 
-    &:placeholder {
+    &::placeholder {
       color: palette('gray', text, .6);
       font-style: italic;
     }
@@ -99,18 +99,22 @@
       }
     }
 
+    .progress-bar-div {
+      background: palette('gray', slate, .05);
+      border-radius: 5px;
+      box-shadow: 0 3px 5px 0 palette('box-shadow', base, .05);
+
+      .file-upload-progress {
+        background: palette('green', accent, 1);
+        border-radius: 5px;
+        height: 0;
+        width: 0;
+      }
+    }
+
     &:hover {
       border: 1px dashed palette('green', accent, .5);
       box-shadow: 0 7px 10px 0 palette('gray', slate, .05);
-    }
-  }
-
-  // Document specific
-  &.document-input-form-group {
-    .file-card {
-      .tooltip:hover::after {
-        left: -57px;
-      }
     }
   }
 }

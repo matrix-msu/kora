@@ -112,11 +112,6 @@ h2 {
   .fixed-bottom-slide {
     max-width: calc(100% - #{$tablet-margin-total});
   }
-  //
-  // .fixed-bottom.pre-fixed-with-aside,
-  // .fixed-bottom-slide.pre-fixed-with-aside, {
-  //   max-width: calc(#{ $max-site-width } - 850px);
-  // }
 }
 
 @media screen and (max-width: $max-mobile-xs-width) {

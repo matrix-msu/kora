@@ -32,7 +32,7 @@
     @include('partials.recordPresets.modals.deleteRecordPresetModal')
 
     <section class="manage-presets center">
-        @if (count($presets) > 0)
+        @if(count($presets) > 0)
           @foreach($presets as $index => $preset)
               @include('partials.recordPresets.card')
           @endforeach

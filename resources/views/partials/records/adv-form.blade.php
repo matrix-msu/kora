@@ -1,11 +1,11 @@
 <form method="POST" class="adv-search-js" action="{{action("AdvancedSearchController@search", ["pid" => $form->project_id, "fid" => $form->id])}}">
     <input type="hidden" name="_token" value="{{ csrf_token() }}">
     @foreach($form->layout['fields'] as $flid => $field)
-        <?php $typedField = $form->getFieldModel($field['type']); ?>
+        @php $typedField = $form->getFieldModel($field['type']); @endphp
         @if($field['advanced_search'])
             <input type="hidden" name="{{$flid}}" value="{{$flid}}">
-            @if ($typedField->getAdvancedSearchInputView() != "")
-              @include($typedField->getAdvancedSearchInputView(), ['flid' => $flid, 'field' => $field])
+            @if($typedField->getAdvancedSearchInputView() != "")
+                @include($typedField->getAdvancedSearchInputView(), ['flid' => $flid, 'field' => $field])
             @endif
             <div class="form-group mt-sm">
                 <div class="check-box-half">

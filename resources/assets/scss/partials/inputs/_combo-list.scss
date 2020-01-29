@@ -1,0 +1,146 @@
+.combo-list-display {
+  border: 1px solid palette('gray', slate, 0.1);
+  border-radius: 5px;
+  box-shadow: 0 3px 5px 0 palette('gray', slate, 0.05);
+  margin-top: 10px;
+  overflow: hidden; /* this affects the individual record view page */
+  padding-bottom: 6px;
+  padding-left: 20px;
+  padding-right: 20px;
+
+  .combo-border-large {
+    border: 1px solid palette('gray', slate, 0.05);
+    float: left;
+    margin-top: 6px;
+    margin-left:-20px;
+    padding-right: 40px;
+    width: 100%;
+  }
+
+  .combo-border-small {
+    border: 1px solid palette('gray', slate, 0.05);
+    float: left;
+    margin-top: 6px;
+    width: 100%;
+  }
+
+  .combo-column {
+    float: left;
+    margin-bottom: 10px;
+    margin-top: 13px;
+    width: 50%;
+  }
+
+  .combo-title {
+    font-family: $ubuntu-medium;
+    font-size: 14px;
+    line-height: 19px;
+  }
+}
+
+.combo-list-input {
+  background: palette('gray', page, 1);
+  border: 1px solid palette('box-shadow', base, 0.05);
+  border-radius: 5px;
+  box-shadow: 0 5px 15px 0 palette('box-shadow', base, 0.03);
+  box-sizing: border-box;
+  overflow: auto;
+  padding: 25px 30px 30px;
+
+  .combo-column {
+    display: inline-block;
+    margin-right: 30px;
+    vertical-align: top;
+    width: 40%;
+  }
+
+  .combo-title {
+    font-family: $ubuntu-medium;
+    font-size: 14px;
+    line-height: 19px;
+  }
+
+  .combo-delete {
+    cursor: pointer;
+    display: inline-block;
+    position: absolute;
+    right: 20px;
+    text-align: right;
+    top: 15px;
+
+    .icon-trash {
+      color: palette('red', base);
+      display: inline-block;
+      font-size: 12px;
+      @include transition();
+    }
+
+    &:hover {
+      .icon-trash {
+        transform: scale(1.25);
+        transform-origin: center center;
+      }
+
+      &.tooltip {
+        &:after {
+          left: -62px;
+        }
+      }
+    }
+  }
+
+  .combo-border-large {
+    border: 1px solid palette('gray', slate, 0.05);
+    float: left;
+    margin-top: 6px;
+    margin-left:-20px;
+    padding-right: 40px;
+    width: 100%;
+  }
+
+  .combo-border-small {
+    border: 1px solid palette('gray', slate, 0.05);
+    float: left;
+    margin-top: 6px;
+    width: 100%;
+  }
+
+  .combo-value-item {
+    background: palette('white', base);
+    border-radius: 5px;
+    box-shadow: 0 3px 5px 0 palette('gray', slate, 0.05);
+    margin-bottom: 15px;
+    padding: 15px 20px;
+    position: relative;
+
+    .combo-column {
+      font-size: 13px;
+      font-weight: normal;
+    }
+  }
+
+  .modal {
+    .form-group {
+      margin-bottom: 30px;
+      margin-top: 0;
+    }
+  }
+
+  @media screen and (max-width: $max-mobile-med-width) {
+    .combo-column {
+      margin-bottom: 10px;
+      margin-right: 0;
+      width: 81%;
+
+      &:last-child {
+        margin-bottom: 0;
+      }
+    }
+  }
+}
+
+.combo-list-empty {
+  color: palette('gray', text, .4);
+  font-family: $ubuntu-italic;
+  font-size: 14px;
+}

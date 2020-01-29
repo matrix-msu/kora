@@ -3,12 +3,12 @@
 namespace Illuminate\Log;
 
 use Closure;
-use RuntimeException;
-use Psr\Log\LoggerInterface;
-use Illuminate\Log\Events\MessageLogged;
-use Illuminate\Contracts\Support\Jsonable;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Contracts\Support\Arrayable;
+use Illuminate\Contracts\Support\Jsonable;
+use Illuminate\Log\Events\MessageLogged;
+use Psr\Log\LoggerInterface;
+use RuntimeException;
 
 class Logger implements LoggerInterface
 {
@@ -22,7 +22,7 @@ class Logger implements LoggerInterface
     /**
      * The event dispatcher instance.
      *
-     * @var \Illuminate\Contracts\Events\Dispatcher
+     * @var \Illuminate\Contracts\Events\Dispatcher|null
      */
     protected $dispatcher;
 
@@ -36,10 +36,7 @@ class Logger implements LoggerInterface
     public function __construct(LoggerInterface $logger, Dispatcher $dispatcher = null)
     {
         $this->logger = $logger;
-
-        if (isset($dispatcher)) {
-            $this->dispatcher = $dispatcher;
-        }
+        $this->dispatcher = $dispatcher;
     }
 
     /**

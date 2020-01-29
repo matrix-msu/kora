@@ -110,11 +110,16 @@ class InstallController extends Controller {
             "MAIL_USER=" . config('mail.username') . "\n" .
             "MAIL_PASSWORD=" . config('mail.password') . "\n\n" .
 
-            "CACHE_DRIVER=" . config('cache.default') . "\n".
-            "SESSION_DRIVER=" . config('session.driver') . "\n\n".
+            "CACHE_DRIVER=" . config('cache.default') . "\n" .
+            "SESSION_DRIVER=" . config('session.driver') . "\n" .
+            "STORAGE_TYPE=" . config('filesystems.kora_storage') . "\n\n" .
 
             "RECAPTCHA_PUBLIC_KEY=" . config('auth.recap_public') . "\n" .
-            "RECAPTCHA_PRIVATE_KEY=" . config('auth.recap_private');
+            "RECAPTCHA_PRIVATE_KEY=" . config('auth.recap_private') . "\n\n" .
+
+            "GITLAB_CLIENT=" . config('services.gitlab.client') . "\n" .
+            "GITLAB_CLIENT_ID=" . config('services.gitlab.client_id') . "\n" .
+            "GITLAB_CLIENT_SECRET=" . config('services.gitlab.client_secret');
 
         try {
             Log::info("Beginning ENV Write");
@@ -337,13 +342,16 @@ class InstallController extends Controller {
             return redirect("/");
 
         $configs = array(
-            ['title'=>'Recaptcha Private Key', 'slug'=>'recaptcha_private', 'value'=>config('auth.recap_private')],
-            ['title'=>'Recaptcha Public Key',  'slug'=>'recaptcha_public',  'value'=>config('auth.recap_public')],
-            ['title'=>'Mail Host',             'slug'=>'mail_host',         'value'=>config('mail.host')],
-            ['title'=>'Mail From Address',     'slug'=>'mail_address',      'value'=>config('mail.from.address')],
-            ['title'=>'Mail From Name',        'slug'=>'mail_name',         'value'=>config('mail.from.name')],
-            ['title'=>'Mail User',             'slug'=>'mail_user',         'value'=>config('mail.username')],
-            ['title'=>'Mail Password',         'slug'=>'mail_password',     'value'=>config('mail.password')],
+            ['title'=>'Recaptcha Private Key', 'slug'=>'recaptcha_private',    'value'=>config('auth.recap_private')],
+            ['title'=>'Recaptcha Public Key',  'slug'=>'recaptcha_public',     'value'=>config('auth.recap_public')],
+            ['title'=>'Gitlab Client',         'slug'=>'gitlab_client',        'value'=>config('services.gitlab.client')],
+            ['title'=>'Gitlab Client ID',      'slug'=>'gitlab_client_id',     'value'=>config('services.gitlab.client_id')],
+            ['title'=>'Gitlab Client Secret',  'slug'=>'gitlab_client_secret', 'value'=>config('services.gitlab.client_secret')],
+            ['title'=>'Mail Host',             'slug'=>'mail_host',            'value'=>config('mail.host')],
+            ['title'=>'Mail From Address',     'slug'=>'mail_address',         'value'=>config('mail.from.address')],
+            ['title'=>'Mail From Name',        'slug'=>'mail_name',            'value'=>config('mail.from.name')],
+            ['title'=>'Mail User',             'slug'=>'mail_user',            'value'=>config('mail.username')],
+            ['title'=>'Mail Password',         'slug'=>'mail_password',        'value'=>config('mail.password')],
         );
 
         return view('install.config',compact('configs'));
@@ -382,10 +390,15 @@ class InstallController extends Controller {
             "MAIL_PASSWORD=" . $request->mail_password . "\n\n" .
 
             "CACHE_DRIVER=" . config('cache.default') . "\n".
-            "SESSION_DRIVER=" . config('session.driver') . "\n\n".
+            "SESSION_DRIVER=" . config('session.driver') . "\n" .
+            "STORAGE_TYPE=" . config('filesystems.kora_storage') . "\n\n" .
 
             "RECAPTCHA_PUBLIC_KEY=" . $request->recaptcha_public . "\n" .
-            "RECAPTCHA_PRIVATE_KEY=" . $request->recaptcha_private;
+            "RECAPTCHA_PRIVATE_KEY=" . $request->recaptcha_private . "\n\n" .
+
+            "GITLAB_CLIENT=" . $request->gitlab_client . "\n" .
+            "GITLAB_CLIENT_ID=" . $request->gitlab_client_id . "\n" .
+            "GITLAB_CLIENT_SECRET=" . $request->gitlab_client_secret;
 
         try {
             Log::info("Beginning ENV Write");

@@ -30,7 +30,7 @@
         </div>
     @endif
 
-    <div class="caption-container caption-container-js">
+    <div class="gallery-caption-container caption-container-js">
         @foreach($images as $index => $img)
             <div class="caption caption-js {{ ($index == 0 ? 'active' : '') }}">
                 {{ $img['caption'] }}
@@ -99,7 +99,7 @@
                 </div>
             @endif
 
-            <div class="caption-container caption-container-js">
+            <div class="gallery-caption-container caption-container-js">
                 @foreach($images as $index => $img)
                     <div class="caption caption-js modal-caption-js {{ ($index == 0 ? 'active' : '') }}">
                         {{ $img['caption'] }}

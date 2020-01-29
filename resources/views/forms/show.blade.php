@@ -28,14 +28,14 @@
         <span>Unique Form ID:</span>
         <span>{{ $form->internal_name }}</span>
       </p>
-      <p class="description">{{ $form->description }}</p>
+      <p class="description">{!! nl2br(e($form->description)) !!}</p>
 
       <div class="form-group">
         <div class="form-quick-options">
           <div class="button-container">
-			<?php
+			@php
               $count = $form->getRecordCount();
-            ?>
+            @endphp
             <a href="{{ url('/projects/'.$form->project_id).'/forms/'.$form->id.'/records'}}" class="btn half-sub-btn">Form Records & Search ({{ $count }})</a>
             <a href="@if ($hasFields) {{ action('RecordController@create',['pid' => $form->project_id, 'fid' => $form->id]) }} @endif" class="btn half-sub-btn
                 @if(!$hasFields) disabled tooltip @endif" tooltip="Whoops, you can’t create a new record when the form has no fields.">Create New Record</a>
@@ -183,7 +183,7 @@
 
   <script type="text/javascript">
     var modifyFormPageRoute = "{{ action('PageController@modifyFormPage', ['pid' => $form->project_id, 'fid' => $form->id]) }}";
-    var saveFullFormLayoutRoute = "{{ action('PageController@saveFullFormLayout', ['pid' => $form->project_id, 'fid' => $form->id]) }}"; //TODO::CASTLE
+    var saveFullFormLayoutRoute = "{{ action('PageController@saveFullFormLayout', ['pid' => $form->project_id, 'fid' => $form->id]) }}";
     var addMethod = "{{\App\Http\Controllers\PageController::_ADD}}";
     var delMethod = "{{\App\Http\Controllers\PageController::_DELETE}}";
     var renameMethod = "{{\App\Http\Controllers\PageController::_RENAME}}";

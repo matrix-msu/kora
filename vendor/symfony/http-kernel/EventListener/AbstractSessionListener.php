@@ -12,12 +12,13 @@
 namespace Symfony\Component\HttpKernel\EventListener;
 
 use Psr\Container\ContainerInterface;
+use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\HttpKernel\Event\FilterResponseEvent;
+use Symfony\Component\HttpKernel\Event\FinishRequestEvent;
 use Symfony\Component\HttpKernel\Event\GetResponseEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
-use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
  * Sets the session onto the request on the "kernel.request" event and saves
@@ -31,12 +32,15 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  *
  * @author Johannes M. Schmitt <schmittjoh@gmail.com>
  * @author Tobias Schultze <http://tobion.de>
+ *
+ * @internal since Symfony 4.3
  */
 abstract class AbstractSessionListener implements EventSubscriberInterface
 {
     const NO_AUTO_CACHE_CONTROL_HEADER = 'Symfony-Session-NoAutoCacheControl';
 
     protected $container;
+    private $sessionUsageStack = [];
 
     public function __construct(ContainerInterface $container = null)
     {
@@ -49,6 +53,7 @@ abstract class AbstractSessionListener implements EventSubscriberInterface
             return;
         }
 
+        $session = null;
         $request = $event->getRequest();
         if ($request->hasSession()) {
             // no-op
@@ -57,6 +62,9 @@ abstract class AbstractSessionListener implements EventSubscriberInterface
         } elseif ($session = $this->getSession()) {
             $request->setSession($session);
         }
+
+        $session = $session ?? ($this->container && $this->container->has('initialized_session') ? $this->container->get('initialized_session') : null);
+        $this->sessionUsageStack[] = $session instanceof Session ? $session->getUsageIndex() : 0;
     }
 
     public function onKernelResponse(FilterResponseEvent $event)
@@ -65,23 +73,24 @@ abstract class AbstractSessionListener implements EventSubscriberInterface
             return;
         }
 
+        $response = $event->getResponse();
+        $autoCacheControl = !$response->headers->has(self::NO_AUTO_CACHE_CONTROL_HEADER);
+        // Always remove the internal header if present
+        $response->headers->remove(self::NO_AUTO_CACHE_CONTROL_HEADER);
+
         if (!$session = $this->container && $this->container->has('initialized_session') ? $this->container->get('initialized_session') : $event->getRequest()->getSession()) {
             return;
         }
 
-        $response = $event->getResponse();
-
-        if ($session->isStarted() || ($session instanceof Session && $session->hasBeenStarted())) {
-            if (!$response->headers->has(self::NO_AUTO_CACHE_CONTROL_HEADER)) {
+        if ($session instanceof Session ? $session->getUsageIndex() !== end($this->sessionUsageStack) : $session->isStarted()) {
+            if ($autoCacheControl) {
                 $response
+                    ->setExpires(new \DateTime())
                     ->setPrivate()
                     ->setMaxAge(0)
                     ->headers->addCacheControlDirective('must-revalidate');
             }
         }
-
-        // Always remove the internal header if present
-        $response->headers->remove(self::NO_AUTO_CACHE_CONTROL_HEADER);
 
         if ($session->isStarted()) {
             /*
@@ -98,7 +107,7 @@ abstract class AbstractSessionListener implements EventSubscriberInterface
              *    the one above. But by saving the session before long-running things in the terminate event,
              *    we ensure the session is not blocked longer than needed.
              *  * When regenerating the session ID no locking is involved in PHPs session design. See
-             *    https://bugs.php.net/bug.php?id=61470 for a discussion. So in this case, the session must
+             *    https://bugs.php.net/61470 for a discussion. So in this case, the session must
              *    be saved anyway before sending the headers with the new session ID. Otherwise session
              *    data could get lost again for concurrent requests with the new ID. One result could be
              *    that you get logged out after just logging in.
@@ -113,13 +122,24 @@ abstract class AbstractSessionListener implements EventSubscriberInterface
         }
     }
 
+    /**
+     * @internal
+     */
+    public function onFinishRequest(FinishRequestEvent $event)
+    {
+        if ($event->isMasterRequest()) {
+            array_pop($this->sessionUsageStack);
+        }
+    }
+
     public static function getSubscribedEvents()
     {
-        return array(
-            KernelEvents::REQUEST => array('onKernelRequest', 128),
+        return [
+            KernelEvents::REQUEST => ['onKernelRequest', 128],
             // low priority to come after regular response listeners, but higher than StreamedResponseListener
-            KernelEvents::RESPONSE => array('onKernelResponse', -1000),
-        );
+            KernelEvents::RESPONSE => ['onKernelResponse', -1000],
+            KernelEvents::FINISH_REQUEST => ['onFinishRequest'],
+        ];
     }
 
     /**

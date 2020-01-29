@@ -23,7 +23,7 @@
         <a href="{{action('FormController@importFormView', ['pid'=>$pid])}}">Import Form Setup</a>
       </li>
 
-      <?php $allowed_forms = \Auth::user()->allowedForms($pid) ?>
+      @php $allowed_forms = \Auth::user()->allowedForms($pid) @endphp
       @if(sizeof($allowed_forms) > 0 )
         <li class="link" id="project-submenu">
           <a href='#' class="navigation-sub-menu-toggle navigation-sub-menu-toggle-js" data-toggle="dropdown">
@@ -33,7 +33,7 @@
 
           <ul class="navigation-deep-menu navigation-deep-menu-js">
 
-			<?php
+			@php
 			// Sort forms by name
 			$name_fid_forms = [];
 
@@ -43,7 +43,7 @@
 			}
 
 			asort($name_fid_forms, SORT_NATURAL | SORT_FLAG_CASE);
-			?>
+            @endphp
 
             @foreach($name_fid_forms as $form_fid => $form_name)
               <li class="deep-menu-item">

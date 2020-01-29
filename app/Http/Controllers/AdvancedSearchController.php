@@ -1,5 +1,6 @@
 <?php namespace App\Http\Controllers;
 
+use App\Form;
 use App\Record;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
@@ -50,7 +51,6 @@ class AdvancedSearchController extends Controller {
      * @return View
      */
     public function search($pid, $fid, Request $request) {
-
         if(!FormController::validProjForm($pid, $fid))
             return redirect('projects/'.$pid)->with('k3_global_error', 'form_invalid');
 
@@ -227,15 +227,17 @@ class AdvancedSearchController extends Controller {
             if(array_key_exists($key,$layout['fields'])) {
                 $field = $layout['fields'][$key];
                 if($field['type'] == 'Combo List') {
-                    foreach (array_keys($request) as $tmpKey) {
+                    $alreadyFound = [];
+                    foreach(array_keys($request) as $tmpKey) {
                         foreach(['one', 'two'] as $seq) {
-                            if (Str::contains($tmpKey, '_' . $seq)) {
+                            if(Str::contains($tmpKey, $field[$seq]['flid'] . '_' . $seq) && !in_array($field[$seq]['flid'] . '_' . $seq, $alreadyFound)) {
                                 array_push($fields,
                                     [
                                         'flid' => $field[$seq]['flid'] . '_' . $seq,
                                         'type' => $field[$seq]['type']
                                     ]
                                 );
+                                $alreadyFound[] = $field[$seq]['flid'] . '_' . $seq;
                             }
                         }
                     }
@@ -248,19 +250,19 @@ class AdvancedSearchController extends Controller {
                     );
                 }
 
-                foreach ($fields as $tmpField) {
+                foreach($fields as $tmpField) {
                     $flid = $tmpField['flid'];
                     switch($tmpField['type']) {
-                        case 'Integer':
-                        case 'Float':
+                        case Form::_INTEGER:
+                        case Form::_FLOAT:
                             if($request[$flid.'_left'] != '' | $request[$flid.'_right'] != '') {
                                 $processed[$flid]['left'] = $request[$flid . '_left'];
                                 $processed[$flid]['right'] = $request[$flid . '_right'];
                                 $processed[$flid]['invert'] = isset($request[$flid . '_invert']) ? (bool)$request[$flid . '_invert'] : false;
                             }
                             break;
-                        case 'Date':
-                        case 'DateTime':
+                        case Form::_DATE:
+                        case Form::_DATETIME:
                             if(
                                 isset($request[$flid.'_begin_month']) && $request[$flid.'_begin_month'] != '' &&
                                 isset($request[$flid.'_begin_day']) && $request[$flid.'_begin_day'] != '' &&
@@ -291,7 +293,7 @@ class AdvancedSearchController extends Controller {
                                     $processed[$flid]['end_second'] = $request[$flid.'_end_second'];
                             }
                             break;
-                        case 'Historical Date':
+                        case Form::_HISTORICAL_DATE:
                             $beginEra = isset($request[$flid.'_begin_era']) ? $request[$flid.'_begin_era'] : 'CE';
                             $endEra = isset($request[$flid.'_end_era']) ? $request[$flid.'_end_era'] : 'CE';
 
@@ -326,16 +328,23 @@ class AdvancedSearchController extends Controller {
                                 $processed[$flid]['end_year'] = $request[$flid.'_end_year'];
                             }
                             break;
-                        case 'Geolocator':
+                        case Form::_GEOLOCATOR:
                             if($request[$flid.'_lat'] != '' && $request[$flid.'_lng'] != '' && $request[$flid.'_range'] != '') {
                                 $processed[$flid]['lat'] = $request[$flid . '_lat'];
                                 $processed[$flid]['lng'] = $request[$flid . '_lng'];
                                 $processed[$flid]['range'] = $request[$flid . '_range'];
                             }
                             break;
-                        case 'Boolean':
+                        case Form::_BOOLEAN:
                             if(isset($request[$flid.'_input']) && $request[$flid.'_input'] == '1')
                                 $processed[$flid]['input'] = true;
+                            break;
+                        case Form::_ASSOCIATOR:
+                            if(isset($request[$flid.'_input']) && !empty($request[$flid.'_input'])) {
+                                $processed[$flid]['input'] = $request[$flid . '_input'];
+
+                                $processed[$flid]['any'] = isset($request[$flid . '_any']) ? true : false;
+                            }
                             break;
                         default:
                             if(isset($request[$flid.'_input']) && $request[$flid.'_input'] != '')
@@ -352,9 +361,17 @@ class AdvancedSearchController extends Controller {
                     if(isset($request[$flid.'_empty']))
                         $processed[$flid]['empty'] = $request[$flid.'_empty'];
 
-                    if($field['type'] == 'Combo List') {
-                        $processed[$key] = $processed;
-                        unset($processed[$flid]);
+                    if($field['type'] == Form::_COMBO_LIST) {
+                        if(isset($processed[$flid])) {
+                            $processed[$key][$flid] = $processed[$flid];
+                            unset($processed[$flid]);
+                        }
+
+                        if(isset($request[$key.'_negative']))
+                            $processed[$key]['negative'] = $request[$key.'_negative'];
+
+                        if(isset($request[$key.'_empty']))
+                            $processed[$key]['empty'] = $request[$key.'_empty'];
                     }
                 }
             }

@@ -30,7 +30,7 @@
           </li>
         @endif
 
-        <?php $allowed_projects = \Auth::user()->allowedProjects() ?>
+        @php $allowed_projects = \Auth::user()->allowedProjects() @endphp
         @if(sizeof($allowed_projects) > 1)
 			@if(\Auth::user()->admin==1)
 		<li class="link">
@@ -42,7 +42,7 @@
              <i class="icon sub-menu-icon icon-plus"></i>
            </a>
 
-		   <?php
+		   @php
 		   // Sort projects by name
 		   $name_pid_projects = [];
 		   foreach ($allowed_projects as $project)
@@ -50,7 +50,7 @@
 		     $name_pid_projects[$project->id] = $project->name;
 		   }
 		   asort($name_pid_projects, SORT_NATURAL | SORT_FLAG_CASE);
-		   ?>
+           @endphp
 
            <ul class="navigation-deep-menu navigation-deep-menu-js">
              @foreach($name_pid_projects as $project_pid => $project_name)

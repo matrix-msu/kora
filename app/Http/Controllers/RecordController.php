@@ -390,6 +390,9 @@ class RecordController extends Controller {
                             if(file_exists($file_path . '/' . $filename))
                                 copy($file_path . '/' . $filename, $dirTmp . '/' . $recordFile['name']);
                             break;
+                        case FileTypeField::_JoyentManta:
+                            //TODO::MANTA
+                            break;
                         default:
                             break;
                     }
@@ -442,12 +445,23 @@ class RecordController extends Controller {
         $kid = "$pid-$fid-$rid";
         $record = self::getRecord($kid);
         $oldRecordCopy = $record->replicate();
+        foreach($oldRecordCopy->attributesToArray() as $key => $value) {
+            if(isset($fieldsArray[$key]) && $fieldsArray[$key]['type']==Form::_COMBO_LIST) {
+                $typedField = $form->getFieldModel(Form::_COMBO_LIST);
+                $cflid1 = $fieldsArray[$key]['one']['flid'];
+                $cflid2 = $fieldsArray[$key]['two']['flid'];
+                //This is one thing we can't capture later so we need to process it now
+                $oldRecordCopy->{$key} = $typedField->setTable($key . $fid)->select(["$cflid1 as cfOne", "$cflid2 as cfTwo"])->findMany(json_decode($oldRecordCopy->{$key}));
+            }
+        }
+        $notNulls = [];
 
         foreach($request->all() as $key => $value) {
             //Skip request variables that are not fields
             if(!array_key_exists($key,$fieldsArray))
                 continue;
 
+            $notNulls[] = $key;
             $field = $fieldsArray[$key];
             $field['flid'] = $key;
             $request->rid = $record->id;
@@ -458,6 +472,14 @@ class RecordController extends Controller {
               $processedData = $form->getFieldModel($field['type'])->save(array('fid'=>$fid,'rid'=>$request->rid,'field' => $field, 'values'=>$processedData));
             }
             $record->{$key} = $processedData;
+        }
+
+        //We need to see what fields were not provided data, to make sure not we are nulling out fields properly
+        if(!isset($request->api) || !$request->api) {
+            foreach($fieldsArray as $flid => $field) {
+                if(!in_array($flid, $notNulls))
+                    $record->{$flid} = null;
+            }
         }
 
         $record->save();
@@ -526,6 +548,9 @@ class RecordController extends Controller {
                             $file_path = storage_path('app/files/' . $pid . '/' . $fid . '/' . $rid);
                             if(file_exists($file_path . '/' . $filename))
                                 copy($file_path . '/' . $filename, $dirTmp . '/' . $recordFile['name']);
+                            break;
+                        case FileTypeField::_JoyentManta:
+                            //TODO::MANTA
                             break;
                         default:
                             break;
@@ -663,6 +688,9 @@ class RecordController extends Controller {
                         Revision::where('record_kid','=',$pid.'-'.$fid.'-'.$rid)->update(['rollback' => 0]);
                     }
                 }
+                break;
+            case FileTypeField::_JoyentManta:
+                //TODO::MANTA
                 break;
             default:
                 break;
@@ -873,6 +901,7 @@ class RecordController extends Controller {
         $fields = array();
         foreach($all_fields as $flid => $field) {
             //We don't want File Fields to be mass assignable because of the processing expense with large data sets
+            //Combo lists are already complex enough that this feature would not be useful
             if($form->getFieldModel($field['type']) instanceof FileTypeField || $field['type']==Form::_COMBO_LIST)
                 continue;
             else

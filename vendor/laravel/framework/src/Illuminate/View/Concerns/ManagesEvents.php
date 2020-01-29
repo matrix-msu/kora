@@ -3,8 +3,8 @@
 namespace Illuminate\View\Concerns;
 
 use Closure;
-use Illuminate\Support\Str;
 use Illuminate\Contracts\View\View as ViewContract;
+use Illuminate\Support\Str;
 
 trait ManagesEvents
 {
@@ -115,7 +115,7 @@ trait ManagesEvents
      */
     protected function buildClassEventCallback($class, $prefix)
     {
-        list($class, $method) = $this->parseClassEvent($class, $prefix);
+        [$class, $method] = $this->parseClassEvent($class, $prefix);
 
         // Once we have the class and method name, we can build the Closure to resolve
         // the instance out of the IoC container and call the method on it with the

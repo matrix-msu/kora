@@ -27,6 +27,11 @@ class HistoricalDateField extends BaseField {
     const FIELD_DISPLAY_VIEW = "partials.records.display.historicdate";
 
     /**
+     * @var string - Method from CreateRecordsTable() for adding to DB
+     */
+    const FIELD_DATABASE_METHOD = 'addJSONColumn';
+
+    /**
      * @var string - The year that represent 0 BP/KYA BP
      */
     const BEFORE_PRESENT_REFERENCE = 1950;
@@ -74,19 +79,6 @@ class HistoricalDateField extends BaseField {
      */
     public function getFieldDisplayView() {
         return self::FIELD_DISPLAY_VIEW;
-    }
-
-    /**
-     * Gets the default options string for a new field.
-     *
-     * @param  int $fid - Form ID
-     * @param  string $slug - Name of database column based on field internal name
-     * @param  array $options - Extra information we may need to set up about the field
-     * @return array - The default options
-     */
-    public function addDatabaseColumn($fid, $slug, $options = null) {
-        $table = new \CreateRecordsTable();
-        $table->addJSONColumn($fid, $slug);
     }
 
     /**
@@ -365,9 +357,8 @@ class HistoricalDateField extends BaseField {
 
             $request['month_'.$flid] = $value[1];
 
-            if(count($value) == 3) {
+            if(count($value) == 3)
                 $request['day_'.$flid] = $value[2];
-            }
         }
 
         $request['year_'.$flid] = $year;
@@ -498,18 +489,20 @@ class HistoricalDateField extends BaseField {
         $dbQuery = $recordMod->newQuery()
             ->select("id");
 
-        if($negative) { //TODO::This may have to be rethought later
+        if($negative) {
             $dbQuery->where($flid, $param, "%\"month\": \"$arg\"%");
             $dbQuery->where($flid, $param, "%\"day\": \"$arg\"%");
             $dbQuery->where($flid, $param, "%\"year\": \"$arg\"%");
-            $dbQuery->where($flid, $param, "%\"era\": \"$arg\"%");
-            $dbQuery->where($flid, $param, "%\"prefix\": \"$arg\"%");
+            $arg = strtolower($arg); //Solves the JSON mysql case-insensitive issue
+            $dbQuery->whereRaw("LOWER($flid) $param ?", ["%\"era\": \"$arg\"%"]);
+            $dbQuery->whereRaw("LOWER($flid) $param ?", ["%\"prefix\": \"$arg\"%"]);
         } else {
             $dbQuery->orWhere($flid, $param, "%\"month\": \"$arg\"%");
             $dbQuery->orWhere($flid, $param, "%\"day\": \"$arg\"%");
             $dbQuery->orWhere($flid, $param, "%\"year\": \"$arg\"%");
-            $dbQuery->orWhere($flid, $param, "%\"era\": \"$arg\"%");
-            $dbQuery->orWhere($flid, $param, "%\"prefix\": \"$arg\"%");
+            $arg = strtolower($arg); //Solves the JSON mysql case-insensitive issue
+            $dbQuery->orWhereRaw("LOWER($flid) $param ?", ["%\"era\": \"$arg\"%"]);
+            $dbQuery->orWhereRaw("LOWER($flid) $param ?", ["%\"prefix\": \"$arg\"%"]);
         }
 
         return $dbQuery->pluck('id')
@@ -522,7 +515,7 @@ class HistoricalDateField extends BaseField {
      * @param  array $data - Data from the search
      * @return array - The update request
      */
-    public function setRestfulAdvSearch($data) { //TODO::CIRCA+PRE+POST
+    public function setRestfulAdvSearch($data) {
         $request = [];
 
         if(isset($data->begin_month) && is_int($data->begin_month))
@@ -556,7 +549,7 @@ class HistoricalDateField extends BaseField {
      * @param  boolean $negative - Get opposite results of the search
      * @return array - The RIDs that match search
      */
-    public function advancedSearchTyped($flid, $query, $recordMod, $form, $negative = false) { //TODO::CIRCA+PRE+POST
+    public function advancedSearchTyped($flid, $query, $recordMod, $form, $negative = false) {
         $beginEra = isset($query['begin_era']) ? $query['begin_era'] : 'CE';
         $endEra = isset($query['end_era']) ? $query['end_era'] : 'CE';
 

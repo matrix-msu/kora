@@ -26,6 +26,11 @@ class GeneratedListField extends BaseField {
     const FIELD_DISPLAY_VIEW = "partials.records.display.genlist";
 
     /**
+     * @var string - Method from CreateRecordsTable() for adding to DB
+     */
+    const FIELD_DATABASE_METHOD = 'addJSONColumn';
+
+    /**
      * Get the field options view.
      *
      * @return string - The view
@@ -73,23 +78,10 @@ class GeneratedListField extends BaseField {
     /**
      * Gets the default options string for a new field.
      *
-     * @param  int $fid - Form ID
-     * @param  string $slug - Name of database column based on field internal name
-     * @param  array $options - Extra information we may need to set up about the field
-     * @return array - The default options
-     */
-    public function addDatabaseColumn($fid, $slug, $options = null) {
-        $table = new \CreateRecordsTable();
-        $table->addJSONColumn($fid, $slug);
-    }
-
-    /**
-     * Gets the default options string for a new field.
-     *
      * @return array - The default options
      */
     public function getDefaultOptions($type = null) {
-        return ['Regex' => '', 'Options' => ['Please Modify List Values']];
+        return ['Regex' => ''];
     }
 
     /**
@@ -109,13 +101,12 @@ class GeneratedListField extends BaseField {
             $request->regex = null;
         }
 
-        if(is_null($request->options)) {
-            $request->options = array();
+        if(is_null($request->default)) {
+            $request->default = array();
         }
 
         $field['default'] = $request->default;
         $field['options']['Regex'] = $request->regex;
-        $field['options']['Options'] = $request->options;
 
         return $field;
     }
@@ -135,12 +126,12 @@ class GeneratedListField extends BaseField {
         $regex = $field['options']['Regex'];
 
         if(($req==1 | $forceReq) && ($value==null | $value==""))
-            return [$flid->$field['name'].' is required'];
+            return [$flid => $field['name'].' is required'];
 
 		if($value!=null) {
 	        foreach($value as $opt) {
 	            if(($regex!=null | $regex!="") && !preg_match($regex,$opt))
-	                return [$flid->$field['name'].' match the regex pattern: '.$regex];
+	                return [$flid => $field['name'].' must match the regex pattern: '.$regex];
         	}
         }
 
@@ -320,7 +311,7 @@ class GeneratedListField extends BaseField {
 
         return $recordMod->newQuery()
             ->select("id")
-            ->where($flid, $param,"$arg")
+            ->whereRaw("LOWER($flid) $param ?", [strtolower($arg)]) //Solves the JSON mysql case-insensitive issue
             ->pluck('id')
             ->toArray();
     }
@@ -378,8 +369,10 @@ class GeneratedListField extends BaseField {
      */
     public static function getList($field) {
         $options = ['Options' => array()];
-        foreach ($field['options']['Options'] as $option) {
-            $options['Options'][$option] = $option;
+        if(!is_null($field['default'])) {
+            foreach($field['default'] as $option) {
+                $options['Options'][$option] = $option;
+            }
         }
         return $options;
     }

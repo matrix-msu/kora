@@ -2,11 +2,12 @@
 
 namespace Illuminate\Http\Resources\Json;
 
-use IteratorAggregate;
-use Illuminate\Pagination\AbstractPaginator;
+use Countable;
 use Illuminate\Http\Resources\CollectsResources;
+use Illuminate\Pagination\AbstractPaginator;
+use IteratorAggregate;
 
-class ResourceCollection extends JsonResource implements IteratorAggregate
+class ResourceCollection extends JsonResource implements Countable, IteratorAggregate
 {
     use CollectsResources;
 
@@ -35,6 +36,16 @@ class ResourceCollection extends JsonResource implements IteratorAggregate
         parent::__construct($resource);
 
         $this->resource = $this->collectResource($resource);
+    }
+
+    /**
+     * Return the count of items in the resource collection.
+     *
+     * @return int
+     */
+    public function count()
+    {
+        return $this->collection->count();
     }
 
     /**

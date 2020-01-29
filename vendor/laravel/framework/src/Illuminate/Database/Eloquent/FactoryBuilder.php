@@ -3,8 +3,8 @@
 namespace Illuminate\Database\Eloquent;
 
 use Faker\Generator as Faker;
-use InvalidArgumentException;
 use Illuminate\Support\Traits\Macroable;
+use InvalidArgumentException;
 
 class FactoryBuilder
 {
@@ -115,6 +115,17 @@ class FactoryBuilder
         $this->amount = $amount;
 
         return $this;
+    }
+
+    /**
+     * Set the state to be applied to the model.
+     *
+     * @param  string  $state
+     * @return $this
+     */
+    public function state($state)
+    {
+        return $this->states([$state]);
     }
 
     /**
@@ -295,6 +306,8 @@ class FactoryBuilder
      * @param  array  $definition
      * @param  array  $attributes
      * @return array
+     *
+     * @throws \InvalidArgumentException
      */
     protected function applyStates(array $definition, array $attributes = [])
     {
@@ -331,10 +344,7 @@ class FactoryBuilder
             return $stateAttributes;
         }
 
-        return call_user_func(
-            $stateAttributes,
-            $this->faker, $attributes
-        );
+        return $stateAttributes($this->faker, $attributes);
     }
 
     /**

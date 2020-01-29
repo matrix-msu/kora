@@ -23,7 +23,7 @@ use Throwable;
 /**
  * A TestSuite is a composite of Tests. It runs a collection of test cases.
  */
-class TestSuite implements Test, SelfDescribing, IteratorAggregate
+class TestSuite implements IteratorAggregate, SelfDescribing, Test
 {
     /**
      * Enable or disable the backup and restoration of the $GLOBALS array.
@@ -61,7 +61,7 @@ class TestSuite implements Test, SelfDescribing, IteratorAggregate
     /**
      * The tests in the test suite.
      *
-     * @var TestCase[]
+     * @var Test[]
      */
     protected $tests = [];
 
@@ -81,6 +81,7 @@ class TestSuite implements Test, SelfDescribing, IteratorAggregate
      * @var array
      */
     protected $foundClasses = [];
+
     /**
      * Last count of tests in this suite.
      *
@@ -104,8 +105,7 @@ class TestSuite implements Test, SelfDescribing, IteratorAggregate
     private $declaredClasses;
 
     /**
-     * @param ReflectionClass $theClass
-     * @param string          $name
+     * @param string $name
      *
      * @throws Exception
      */
@@ -141,135 +141,126 @@ class TestSuite implements Test, SelfDescribing, IteratorAggregate
 
         $constructor = $theClass->getConstructor();
 
-        if ($constructor !== null) {
-            $parameters = $constructor->getParameters();
-
-            // TestCase() or TestCase($name)
-            if (\count($parameters) < 2) {
-                $test = new $className;
-            } // TestCase($name, $data)
-            else {
-                try {
-                    $data = \PHPUnit\Util\Test::getProvidedData(
-                        $className,
-                        $name
-                    );
-                } catch (IncompleteTestError $e) {
-                    $message = \sprintf(
-                        'Test for %s::%s marked incomplete by data provider',
-                        $className,
-                        $name
-                    );
-
-                    $_message = $e->getMessage();
-
-                    if (!empty($_message)) {
-                        $message .= "\n" . $_message;
-                    }
-
-                    $data = self::incompleteTest($className, $name, $message);
-                } catch (SkippedTestError $e) {
-                    $message = \sprintf(
-                        'Test for %s::%s skipped by data provider',
-                        $className,
-                        $name
-                    );
-
-                    $_message = $e->getMessage();
-
-                    if (!empty($_message)) {
-                        $message .= "\n" . $_message;
-                    }
-
-                    $data = self::skipTest($className, $name, $message);
-                } catch (Throwable $_t) {
-                    $t = $_t;
-                } catch (Exception $_t) {
-                    $t = $_t;
-                }
-
-                if (isset($t)) {
-                    $message = \sprintf(
-                        'The data provider specified for %s::%s is invalid.',
-                        $className,
-                        $name
-                    );
-
-                    $_message = $t->getMessage();
-
-                    if (!empty($_message)) {
-                        $message .= "\n" . $_message;
-                    }
-
-                    $data = self::warning($message);
-                }
-
-                // Test method with @dataProvider.
-                if (isset($data)) {
-                    $test = new DataProviderTestSuite(
-                        $className . '::' . $name
-                    );
-
-                    if (empty($data)) {
-                        $data = self::warning(
-                            \sprintf(
-                                'No tests found in suite "%s".',
-                                $test->getName()
-                            )
-                        );
-                    }
-
-                    $groups = \PHPUnit\Util\Test::getGroups($className, $name);
-
-                    if ($data instanceof WarningTestCase ||
-                        $data instanceof SkippedTestCase ||
-                        $data instanceof IncompleteTestCase) {
-                        $test->addTest($data, $groups);
-                    } else {
-                        foreach ($data as $_dataName => $_data) {
-                            $_test = new $className($name, $_data, $_dataName);
-
-                            /* @var TestCase $_test */
-
-                            if ($runTestInSeparateProcess) {
-                                $_test->setRunTestInSeparateProcess(true);
-
-                                if ($preserveGlobalState !== null) {
-                                    $_test->setPreserveGlobalState($preserveGlobalState);
-                                }
-                            }
-
-                            if ($runClassInSeparateProcess) {
-                                $_test->setRunClassInSeparateProcess(true);
-
-                                if ($preserveGlobalState !== null) {
-                                    $_test->setPreserveGlobalState($preserveGlobalState);
-                                }
-                            }
-
-                            if ($backupSettings['backupGlobals'] !== null) {
-                                $_test->setBackupGlobals(
-                                    $backupSettings['backupGlobals']
-                                );
-                            }
-
-                            if ($backupSettings['backupStaticAttributes'] !== null) {
-                                $_test->setBackupStaticAttributes(
-                                    $backupSettings['backupStaticAttributes']
-                                );
-                            }
-
-                            $test->addTest($_test, $groups);
-                        }
-                    }
-                } else {
-                    $test = new $className;
-                }
-            }
-        }
-
-        if (!isset($test)) {
+        if ($constructor === null) {
             throw new Exception('No valid test provided.');
+        }
+        $parameters = $constructor->getParameters();
+
+        // TestCase() or TestCase($name)
+        if (\count($parameters) < 2) {
+            $test = new $className;
+        } // TestCase($name, $data)
+        else {
+            try {
+                $data = \PHPUnit\Util\Test::getProvidedData(
+                    $className,
+                    $name
+                );
+            } catch (IncompleteTestError $e) {
+                $message = \sprintf(
+                    'Test for %s::%s marked incomplete by data provider',
+                    $className,
+                    $name
+                );
+
+                $_message = $e->getMessage();
+
+                if (!empty($_message)) {
+                    $message .= "\n" . $_message;
+                }
+
+                $data = self::incompleteTest($className, $name, $message);
+            } catch (SkippedTestError $e) {
+                $message = \sprintf(
+                    'Test for %s::%s skipped by data provider',
+                    $className,
+                    $name
+                );
+
+                $_message = $e->getMessage();
+
+                if (!empty($_message)) {
+                    $message .= "\n" . $_message;
+                }
+
+                $data = self::skipTest($className, $name, $message);
+            } catch (Throwable $t) {
+                $message = \sprintf(
+                    'The data provider specified for %s::%s is invalid.',
+                    $className,
+                    $name
+                );
+
+                $_message = $t->getMessage();
+
+                if (!empty($_message)) {
+                    $message .= "\n" . $_message;
+                }
+
+                $data = self::warning($message);
+            }
+
+            // Test method with @dataProvider.
+            if (isset($data)) {
+                $test = new DataProviderTestSuite(
+                    $className . '::' . $name
+                );
+
+                if (empty($data)) {
+                    $data = self::warning(
+                        \sprintf(
+                            'No tests found in suite "%s".',
+                            $test->getName()
+                        )
+                    );
+                }
+
+                $groups = \PHPUnit\Util\Test::getGroups($className, $name);
+
+                if ($data instanceof WarningTestCase ||
+                    $data instanceof SkippedTestCase ||
+                    $data instanceof IncompleteTestCase) {
+                    $test->addTest($data, $groups);
+                } else {
+                    foreach ($data as $_dataName => $_data) {
+                        $_test = new $className($name, $_data, $_dataName);
+
+                        /* @var TestCase $_test */
+
+                        if ($runTestInSeparateProcess) {
+                            $_test->setRunTestInSeparateProcess(true);
+
+                            if ($preserveGlobalState !== null) {
+                                $_test->setPreserveGlobalState($preserveGlobalState);
+                            }
+                        }
+
+                        if ($runClassInSeparateProcess) {
+                            $_test->setRunClassInSeparateProcess(true);
+
+                            if ($preserveGlobalState !== null) {
+                                $_test->setPreserveGlobalState($preserveGlobalState);
+                            }
+                        }
+
+                        if ($backupSettings['backupGlobals'] !== null) {
+                            $_test->setBackupGlobals(
+                                $backupSettings['backupGlobals']
+                            );
+                        }
+
+                        if ($backupSettings['backupStaticAttributes'] !== null) {
+                            $_test->setBackupStaticAttributes(
+                                $backupSettings['backupStaticAttributes']
+                            );
+                        }
+
+                        $test->addTest($_test, $groups);
+                    }
+                }
+            } else {
+                $test = new $className;
+            }
         }
 
         if ($test instanceof TestCase) {
@@ -305,9 +296,6 @@ class TestSuite implements Test, SelfDescribing, IteratorAggregate
         return $test;
     }
 
-    /**
-     * @param ReflectionMethod $method
-     */
     public static function isTestMethod(ReflectionMethod $method): bool
     {
         if (\strpos($method->name, 'test') === 0) {
@@ -336,7 +324,6 @@ class TestSuite implements Test, SelfDescribing, IteratorAggregate
      *     name of an existing class) or constructs an empty TestSuite
      *     with the given name.
      *
-     * @param mixed  $theClass
      * @param string $name
      *
      * @throws Exception
@@ -352,7 +339,7 @@ class TestSuite implements Test, SelfDescribing, IteratorAggregate
             $argumentsValid = true;
         } elseif (\is_string($theClass) &&
             $theClass !== '' &&
-            \class_exists($theClass, false)) {
+            \class_exists($theClass, true)) {
             $argumentsValid = true;
 
             if ($name == '') {
@@ -371,9 +358,9 @@ class TestSuite implements Test, SelfDescribing, IteratorAggregate
         }
 
         if (!$theClass->isSubclassOf(TestCase::class)) {
-            throw new Exception(
-                'Class "' . $theClass->name . '" does not extend PHPUnit\Framework\TestCase.'
-            );
+            $this->setName($theClass);
+
+            return;
         }
 
         if ($name != '') {
@@ -451,7 +438,6 @@ class TestSuite implements Test, SelfDescribing, IteratorAggregate
     /**
      * Adds a test to the suite.
      *
-     * @param Test  $test
      * @param array $groups
      */
     public function addTest(Test $test, $groups = []): void
@@ -486,8 +472,6 @@ class TestSuite implements Test, SelfDescribing, IteratorAggregate
 
     /**
      * Adds the tests from the given class to the suite.
-     *
-     * @param mixed $testClass
      *
      * @throws Exception
      */
@@ -538,8 +522,6 @@ class TestSuite implements Test, SelfDescribing, IteratorAggregate
      * If the named file cannot be read or there are no new tests that can be
      * added, a <code>PHPUnit\Framework\WarningTestCase</code> will be created instead,
      * leaving the current test run untouched.
-     *
-     * @param string $filename
      *
      * @throws Exception
      */
@@ -682,8 +664,6 @@ class TestSuite implements Test, SelfDescribing, IteratorAggregate
 
     /**
      * Set tests groups of the test case
-     *
-     * @param array $groups
      */
     public function setGroupDetails(array $groups): void
     {
@@ -717,42 +697,32 @@ class TestSuite implements Test, SelfDescribing, IteratorAggregate
                     \class_exists($this->name, false) &&
                     \method_exists($this->name, $beforeClassMethod)) {
                     if ($missingRequirements = \PHPUnit\Util\Test::getMissingRequirements($this->name, $beforeClassMethod)) {
-                        $this->markTestSuiteSkipped(\implode(PHP_EOL, $missingRequirements));
+                        $this->markTestSuiteSkipped(\implode(\PHP_EOL, $missingRequirements));
                     }
 
                     \call_user_func([$this->name, $beforeClassMethod]);
                 }
             }
-        } catch (SkippedTestSuiteError $e) {
-            $numTests = \count($this);
-
-            for ($i = 0; $i < $numTests; $i++) {
-                $result->startTest($this);
-                $result->addFailure($this, $e, 0);
-                $result->endTest($this, 0);
+        } catch (SkippedTestSuiteError $error) {
+            foreach ($this->tests() as $test) {
+                $result->startTest($test);
+                $result->addFailure($test, $error, 0);
+                $result->endTest($test, 0);
             }
 
             $this->tearDown();
             $result->endTestSuite($this);
 
             return $result;
-        } catch (Throwable $_t) {
-            $t = $_t;
-        } catch (Exception $_t) {
-            $t = $_t;
-        }
-
-        if (isset($t)) {
-            $numTests = \count($this);
-
-            for ($i = 0; $i < $numTests; $i++) {
+        } catch (Throwable $t) {
+            foreach ($this->tests() as $test) {
                 if ($result->shouldStop()) {
                     break;
                 }
 
-                $result->startTest($this);
-                $result->addError($this, $t, 0);
-                $result->endTest($this, 0);
+                $result->startTest($test);
+                $result->addError($test, $t, 0);
+                $result->endTest($test, 0);
             }
 
             $this->tearDown();
@@ -776,10 +746,25 @@ class TestSuite implements Test, SelfDescribing, IteratorAggregate
             $test->run($result);
         }
 
-        foreach ($hookMethods['afterClass'] as $afterClassMethod) {
-            if ($this->testCase === true && \class_exists($this->name, false) && \method_exists($this->name, $afterClassMethod)) {
-                \call_user_func([$this->name, $afterClassMethod]);
+        try {
+            foreach ($hookMethods['afterClass'] as $afterClassMethod) {
+                if ($this->testCase === true && \class_exists($this->name, false) && \method_exists(
+                    $this->name,
+                    $afterClassMethod
+                )) {
+                    \call_user_func([$this->name, $afterClassMethod]);
+                }
             }
+        } catch (Throwable $t) {
+            $message = "Exception in {$this->name}::$afterClassMethod" . \PHP_EOL . $t->getMessage();
+            $error   = new SyntheticError($message, 0, $t->getFile(), $t->getLine(), $t->getTrace());
+
+            $placeholderTest = clone $test;
+            $placeholderTest->setName($afterClassMethod);
+
+            $result->startTest($placeholderTest);
+            $result->addFailure($placeholderTest, $error, 0);
+            $result->endTest($placeholderTest, 0);
         }
 
         $this->tearDown();
@@ -815,6 +800,8 @@ class TestSuite implements Test, SelfDescribing, IteratorAggregate
 
     /**
      * Returns the tests as an enumeration.
+     *
+     * @return Test[]
      */
     public function tests(): array
     {
@@ -824,7 +811,7 @@ class TestSuite implements Test, SelfDescribing, IteratorAggregate
     /**
      * Set tests of the test suite
      *
-     * @param array $tests
+     * @param Test[] $tests
      */
     public function setTests(array $tests): void
     {
@@ -907,9 +894,6 @@ class TestSuite implements Test, SelfDescribing, IteratorAggregate
     }
 
     /**
-     * @param ReflectionClass  $class
-     * @param ReflectionMethod $method
-     *
      * @throws Exception
      */
     protected function addTestMethod(ReflectionClass $class, ReflectionMethod $method): void

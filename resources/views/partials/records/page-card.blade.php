@@ -1,4 +1,4 @@
-<div class="page card all active">
+<div class="record page card all active form-group">
     <div class="header active">
         <div class="left pl-m">
             <a class="title">

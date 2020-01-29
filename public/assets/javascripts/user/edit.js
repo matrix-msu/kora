@@ -191,59 +191,6 @@ Kora.User.Edit = function() {
 
         drop = true;
       });
-
-      // for ( var pair of ajaxData.entries() ) {
-        // console.log(pair[0] + ', ' + pair[1]);
-        // //console.log(typeof pair[1]);
-        // if (typeof pair[1] === 'object') {
-          // console.log(pair[1]);
-        // }
-      // }
-
-      // form.submit(function(e) { // this has the same run condition as the initializeValidation() function below, which is probably why uncommenting this function prevents us from even uploading a picture normally - though the console.log loop of 'values' below does not log anything about an uploaded photo
-        // e.preventDefault();
-
-        // var ajaxData = new FormData(form.get(0));
-
-        // if (droppedFile) {
-          // // This solution does not work with drag and drop, possibly need to change the file type
-          // ajaxData.append("profile", droppedFile);
-          // //console.log('droppedFile: ' + droppedFile);
-        // }
-
-        // $.ajax({
-          // url: form.attr('action'),
-          // type: form.attr('method'),
-          // data: ajaxData,
-          // dataType: 'json',
-          // cache: false,
-          // contentType: false,
-          // processData: false,
-          // success: function(response) {
-            // if (response.status) {
-              // // Updated successfully
-              // location.reload();
-            // } else {
-              // console.log('success: ' + response.message);
-            // }
-          // },
-          // error: function(error) {
-            // // TODO: Handle errors. Currently can get all errors, just need to display them
-
-            // if (error.status == 200) {
-              // //location.reload();
-              // console.log(error);
-              // console.log(error.status);
-            // } else {
-              // console.log(error);
-              // var responseJson = error.responseJSON;
-              // $.each(responseJson, function() {
-                // console.log('error: ' + this[0]);
-              // });
-            // }
-          // }
-        // });
-      // });
     }
   }
 

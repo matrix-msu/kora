@@ -3,20 +3,19 @@
     <span class="error-message"></span>
     {!! Form::hidden($flid, true, ['id' => $flid]) !!}
 
-    <?php
-    $oneType = $field['one']['type'];
-    $twoType = $field['two']['type'];
-    $oneName = $field['one']['name'];
-    $twoName = $field['two']['name'];
+    @php
+        $oneType = $field['one']['type'];
+        $twoType = $field['two']['type'];
+        $oneName = $field['one']['name'];
+        $twoName = $field['two']['name'];
 
-    if($editRecord) {
-        $items = $typedField->retrieve($flid, $form->id, $record->{$flid});
-    } else {
-        $items = $field['one']['default'];
-    }
-    ?>
+        $recInputone = $form->getFieldModel($oneType)::FIELD_INPUT_VIEW;
+        $recInputtwo = $form->getFieldModel($twoType)::FIELD_INPUT_VIEW;
 
-    <div class="combo-list-display combo-list-display-js preset-clear-combo-js">
+        $items = $editRecord ? $typedField->retrieve($flid, $form->id, $record->{$flid}) : $field['one']['default'];
+    @endphp
+
+    <div class="combo-list-input combo-list-display-js preset-clear-combo-js">
         <div class="mb-sm">
             <span class="combo-column combo-title">{{$oneName}}</span>
             <span class="combo-column combo-title">{{$twoName}}</span>
@@ -26,50 +25,91 @@
                 @for($i=0;$i<count($items);$i++)
                     <div class="combo-value-item combo-value-item-js">
                         <span class="combo-delete delete-combo-value-js tooltip" tooltip="Delete Combo Value"><i class="icon icon-trash"></i></span>
-                        @foreach (['one', 'two'] as $seq)
+                        @foreach(['one', 'two'] as $seq)
                             @php
                                 $value = $display = null;
                                 $type = $field[$seq]['type'];
 
                                 if($editRecord) {
-                                    $value = $display = $items[$i]->{$field[$seq]['flid']};
+                                    $value = $items[$i]->{$field[$seq]['flid']};
 
-                                    if($type == 'Historical Date') {
-                                        $tmp = json_decode($value, true);
-                                        $display = implode(
-                                            '-',
-                                            array_filter([
-                                                $tmp['year'],
-                                                $tmp['month'],
-                                                $tmp['day']
-                                            ])
-                                        );
+                                    switch($type) {
+                                        case \App\Form::_BOOLEAN:
+                                            $display = $value ? 'true' : 'false';
+                                            break;
+                                        case \App\Form::_MULTI_SELECT_LIST:
+                                        case \App\Form::_GENERATED_LIST:
+                                        case \App\Form::_ASSOCIATOR:
+                                            $vals = json_decode($value);
+                                            $display = implode(',',$vals);
+                                            break;
+                                        case \App\Form::_HISTORICAL_DATE:
+                                            $dateParts = json_decode($value,true);
+                                            $dateArray = [$dateParts['year']];
+
+                                            if(!is_null($dateParts['month']) && $dateParts['month']!='') {
+                                                $dateArray[] = $dateParts['month'];
+                                                if(!is_null($dateParts['day']) && $dateParts['day']!='')
+                                                    $dateArray[] = $dateParts['day'];
+                                            }
+
+                                            $display = implode('-',$dateArray);
+
+                                            if(!is_null($dateParts['prefix']) && $dateParts['prefix']!='')
+                                                $display = $dateParts['prefix'].' '.$display;
+
+                                            if(!is_null($dateParts['era']) && $dateParts['era']!='')
+                                                $display .= ' '.$dateParts['era'];
+                                            break;
+                                        default:
+                                            $display = $value;
+                                            break;
                                     }
                                 } else {
-                                    $value = $display = $field[$seq]['default'][$i];
-
-                                    if(in_array($type, ['Date', 'Historical Date'])) {
-                                        $display = implode(
-                                            '-',
-                                            array_filter([
-                                                $value['year'],
-                                                $value['month'],
-                                                $value['day']
-                                            ])
-                                        );
-
-                                        if($type == 'Historical Date') {
+                                    switch($type) {
+                                        case \App\Form::_BOOLEAN:
+                                            $value = $field[$seq]['default'][$i];
+                                            $display = $value ? 'true' : 'false';
+                                            break;
+                                        case \App\Form::_MULTI_SELECT_LIST:
+                                        case \App\Form::_GENERATED_LIST:
+                                        case \App\Form::_ASSOCIATOR:
+                                            $display = $field[$seq]['default'][$i];
+                                            $vals = explode(',',$display);
+                                            $value = json_encode($vals);
+                                            break;
+                                        case \App\Form::_HISTORICAL_DATE:
+                                            $display = $tmpValue = $field[$seq]['default'][$i];
+                                            $value = array();
+                                            if(\Illuminate\Support\Str::startsWith($tmpValue, 'circa')) {
+                                                $value['prefix'] = 'circa'; $tmpValue = trim(explode('circa', $tmpValue)[1]);
+                                            } else if(\Illuminate\Support\Str::startsWith($tmpValue, 'pre')) {
+                                                $value['prefix'] = 'pre'; $tmpValue = trim(explode('pre', $tmpValue)[1]);
+                                            } else if(\Illuminate\Support\Str::startsWith($tmpValue, 'post')) {
+                                                $value['prefix'] = 'post'; $tmpValue = trim(explode('post', $tmpValue)[1]);
+                                            }
+                                            // Era order matters here
+                                            foreach(['BCE', 'KYA BP', 'CE', 'BP'] as $era) {
+                                                if(\Illuminate\Support\Str::endsWith($tmpValue, $era)) {
+                                                    $value['era'] = $era; $tmpValue = trim(explode($era, $tmpValue)[0]);
+                                                    break;
+                                                }
+                                            }
+                                            $year = $tmpValue;
+                                            if(\Illuminate\Support\Str::contains($tmpValue, '-')) {
+                                                $tmpValue = explode('-', $tmpValue);
+                                                $year = $tmpValue[0];
+                                                $value['month'] = $tmpValue[1];
+                                                if(count($tmpValue) == 3)
+                                                    $request['day'] = $tmpValue[2];
+                                            }
+                                            $value['year'] = $year;
                                             $value = json_encode($value);
-                                        } else {
-                                            $value = $display;
-                                        }
+                                            break;
+                                        default:
+                                            $value = $display = $field[$seq]['default'][$i];
+                                            break;
                                     }
-                                }
-
-                                if(in_array($type, ['Multi-Select List', 'Generated List', 'Associator'])) {
-                                    if(is_array($value))
-                                        $value = json_encode($value);
-                                    $display = implode(', ', json_decode($value));
                                 }
                             @endphp
                             {!! Form::hidden($flid."_combo_".$seq."[]",$value) !!}
@@ -100,7 +140,9 @@
                     <span class="error-message combo-error-{{$flid}}-js"></span>
                     @foreach(['one', 'two'] as $seq)
                         <section class="combo-list-input-{{$seq}}" cfType="{{$field[$seq]['type']}}">
-                            @include('partials.fields.combo.inputs.record',['field'=>$field, 'type'=>$field[$seq]['type'],'cfName'=>$field[$seq]['name'],  'fnum'=>$seq, 'flid'=>$flid])
+                            @include(
+                                ${'recInput'.$seq}, ['field'=>$field[$seq], 'seq'=>$seq, 'flid'=>$flid]
+                            )
                         </section>
                     @endforeach
                     <input class="btn mt-xs add-combo-value-js" type="button" value="Create Combo Value">

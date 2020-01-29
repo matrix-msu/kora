@@ -265,20 +265,20 @@ Kora.Fields.TypedFieldDisplays.Initialize = function() {
         $('.geolocator-map-js').each(function() {
             var $geolocator = $(this);
             var $geolocatorModal = $geolocator.find('.geolocator-map-modal-js');
-            var mapID = $(this).attr('map-id');
+            var mapID = $geolocator.attr('map-id');
 
-            var firstLoc = $(this).children('.geolocator-location-js').first();
+            var firstLoc = $geolocator.children('.geolocator-location-js').first();
             var mapRecord = L.map('map'+mapID).setView([firstLoc.attr('loc-x'), firstLoc.attr('loc-y')], 13);
             mapRecord.scrollWheelZoom.disable();
-            L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png?{foo}', {foo: 'bar'}).addTo(mapRecord);
+            L.tileLayer('https://{s}.tile.osm.org/{z}/{x}/{y}.png').addTo(mapRecord);
 
             // Set map for modal
             var modalMapRecord = L.map('modalmap'+mapID).setView([firstLoc.attr('loc-x'), firstLoc.attr('loc-y')], 13);
             modalMapRecord.scrollWheelZoom.disable();
-            L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png?{foo}', {foo: 'bar'}).addTo(modalMapRecord);
+            L.tileLayer('https://{s}.tile.osm.org/{z}/{x}/{y}.png').addTo(modalMapRecord);
 
             var markers = [];
-            $(this).children('.geolocator-location-js').each(function() {
+            $geolocator.children('.geolocator-location-js').each(function() {
                 var marker = L.marker([$(this).attr('loc-x'), $(this).attr('loc-y')]).addTo(mapRecord);
                 var modalmarker = L.marker([$(this).attr('loc-x'), $(this).attr('loc-y')]).addTo(modalMapRecord);
                 marker.bindPopup($(this).attr('loc-desc'));
@@ -289,19 +289,16 @@ Kora.Fields.TypedFieldDisplays.Initialize = function() {
             });
 
             // Zoom map to fit all locations
-            var group = new L.featureGroup(markers);
-            mapRecord.fitBounds(group.getBounds());
-            mapRecord.zoomOut();
-            modalMapRecord.fitBounds(group.getBounds());
-            modalMapRecord.zoomOut();
-
-            // External Button Clicked
-            $geolocator.find('.external-button-js').click(function() {
-                console.log('external');
-            });
+            if(markers.length>1) {
+                var group = new L.featureGroup(markers);
+                mapRecord.fitBounds(group.getBounds());
+                mapRecord.zoomOut();
+                modalMapRecord.fitBounds(group.getBounds());
+                modalMapRecord.zoomOut();
+            }
 
             // Full Screen Button Clicked
-            $geolocator.find('.full-screen-button-js').click(function() {
+            $geolocator.siblings('.field-sidebar-js').find('.full-screen-button-js').click(function() {
                 Kora.Modal.close();
                 Kora.Modal.open($geolocatorModal);
             });

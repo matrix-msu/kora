@@ -84,6 +84,10 @@
     }
   }
 
+  &.center {
+    text-align: center;
+  }
+
   &.inline-form-group {
       align-items: stretch;
       display: flex;
@@ -187,12 +191,19 @@
   @import 'inputs/selects';
   @import 'inputs/text';
 
-
   // Specialty Field Inputs
+  @import 'inputs/3d-model';
+  @import 'inputs/associator';
+  @import 'inputs/combo-list';
   @import 'inputs/date';
+  @import 'inputs/documents';
   @import 'inputs/file';
+  @import 'inputs/gallery';
   @import 'inputs/geolocator';
   @import 'inputs/list';
+  @import 'inputs/playlist';
+  @import 'inputs/rich-text';
+  @import 'inputs/video';
 }
 
 @import 'inputs/datepicker'; // Placed within body by jQuery

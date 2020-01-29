@@ -11,9 +11,9 @@
 
 namespace Symfony\Component\HttpKernel;
 
+use Symfony\Component\Config\Loader\LoaderInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpKernel\Bundle\BundleInterface;
-use Symfony\Component\Config\Loader\LoaderInterface;
 
 /**
  * The Kernel is the heart of the Symfony system.
@@ -21,8 +21,10 @@ use Symfony\Component\Config\Loader\LoaderInterface;
  * It manages an environment made of application kernel and bundles.
  *
  * @author Fabien Potencier <fabien@symfony.com>
+ *
+ * @method string getProjectDir() Gets the project dir (path of the project's composer file) - not defining it is deprecated since Symfony 4.2
  */
-interface KernelInterface extends HttpKernelInterface, \Serializable
+interface KernelInterface extends HttpKernelInterface
 {
     /**
      * Returns an array of bundles to register.
@@ -100,6 +102,8 @@ interface KernelInterface extends HttpKernelInterface, \Serializable
      * Gets the name of the kernel.
      *
      * @return string The kernel name
+     *
+     * @deprecated since Symfony 4.2
      */
     public function getName();
 
@@ -121,20 +125,22 @@ interface KernelInterface extends HttpKernelInterface, \Serializable
      * Gets the application root dir (path of the project's Kernel class).
      *
      * @return string The Kernel root dir
+     *
+     * @deprecated since Symfony 4.2
      */
     public function getRootDir();
 
     /**
      * Gets the current container.
      *
-     * @return ContainerInterface A ContainerInterface instance
+     * @return ContainerInterface|null A ContainerInterface instance or null when the Kernel is shutdown
      */
     public function getContainer();
 
     /**
      * Gets the request start time (not available if debug is disabled).
      *
-     * @return int The request start timestamp
+     * @return float The request start timestamp
      */
     public function getStartTime();
 

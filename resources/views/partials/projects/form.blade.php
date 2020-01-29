@@ -11,7 +11,7 @@
 <div class="form-group mt-xl">
     {!! Form::label('description', 'Description') !!}
     <span class="error-message">{{array_key_exists("description", $errors->messages()) ? $errors->messages()["description"][0] : ''}}</span>
-    {!! Form::textarea('description', null, ['class' => 'text-area' . (array_key_exists("description", $errors->messages()) ? ' error' : ''), 'placeholder' => "Enter the projects description here (max. 500 characters)"]) !!}
+    {!! Form::textarea('description', null, ['class' => 'text-area' . (array_key_exists("description", $errors->messages()) ? ' error' : ''), 'placeholder' => "Enter the projects description here (max. 1000 characters)"]) !!}
 </div>
 
 @if($projectMode == 'project_create')
@@ -45,17 +45,6 @@
   <div class="spacer"></div>
 </div>
 @endif
-
-<!-- <div class="form-group">
-  <label>Activate Project?</label>
-  <div class="check-box">
-    <input type="checkbox" value="1" id="active" class="check-box-input" name="active" />
-    <div class="check-box-background"></div>
-    <span class="check"></span>
-    <span class="placeholder">Project is set to "inactive"</span>
-    <span class="placeholder-alt">Project is set to "active"</span>
-  </div>
-</div> -->
 
 @if($projectMode == 'project_create')
 <div class="form-group mt-100-xl">

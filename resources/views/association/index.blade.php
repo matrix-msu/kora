@@ -48,7 +48,7 @@
         <section class="permission-association-selection center permission-association-js create">
             <p class="description create-description-js {{count($assocs) === 0 ? 'hidden' : ''}}">The following forms are allowed to associate with and can search within this form:</p>
             @foreach ($assocs as $index=>$a)
-                <?php $f = \App\Form::where('id', '=', $a->assoc_form)->first() ?>
+                @php $f = \App\Form::where('id', '=', $a->assoc_form)->first() @endphp
                 <div class="association association-js card" id="create-{{$f->id}}">
                     <div class="header">
                         <div class="left pl-m">
@@ -95,7 +95,7 @@
             <section class="permission-association-selection center permission-association-js request">
                 <p class="description request-description-js {{count($available_associations) === 0 ? 'hidden' : ''}}">{{$form->name}} is allowed to associate with and can search within the following forms:</p>
                 @foreach ($available_associations as $index=>$a)
-                    <?php $f = \App\Form::where('id', '=', $a->data_form)->first() ?>
+                    @php $f = \App\Form::where('id', '=', $a->data_form)->first() @endphp
                     <div class="association association-js card" id="request-{{$f->id}}">
                         <div class="header {{ $index == 0 ? 'active' : '' }}">
                             <div class="left pl-m">
@@ -135,7 +135,7 @@
 
     <script type="text/javascript">
         var CSRFToken = '{{ csrf_token() }}';
-        var pid = '{{ $project->pid }}';
+        var pid = '{{ $project->id }}';
         var createAssociationPath = '{{ action('AssociationController@create', ["pid" => $form->project_id, "fid" => $form->id]) }}';
         var requestAssociationPath = '{{ action('AssociationController@requestAccess', ["pid" => $form->project_id, "fid" => $form->id]) }}';
         var destroyAssociationPath = '{{ action('AssociationController@destroy', ["pid" => $form->project_id, "fid" => $form->id]) }}';

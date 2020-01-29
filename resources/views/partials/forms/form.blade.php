@@ -13,7 +13,7 @@
 <div class="form-group mt-xl">
   {!! Form::label('description', 'Description') !!}
     <span class="error-message">{{array_key_exists("description", $errors->messages()) ? $errors->messages()["description"][0] : ''}}</span>
-  {!! Form::textarea('description', null, ['class' => 'text-area' . (array_key_exists("description", $errors->messages()) ? ' error' : ''), 'placeholder' => "Enter the form's description here (max. 500 characters)"]) !!}
+  {!! Form::textarea('description', null, ['class' => 'text-area' . (array_key_exists("description", $errors->messages()) ? ' error' : ''), 'placeholder' => "Enter the form's description here (max. 1000 characters)"]) !!}
 </div>
 
 @if($submitButtonText == 'Create Form')
@@ -30,7 +30,7 @@
     </p>
   </div>
 
-  @if (count($presets) > 0)
+  @if(count($presets) > 0)
     <div class="form-group mt-xxxl">
       <div class="check-box-half">
         <input type="checkbox" value="1" id="active" class="check-box-input preset-input-js" name="active" />

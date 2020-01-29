@@ -34,6 +34,11 @@ class AssociatorField extends BaseField {
     const FIELD_DISPLAY_VIEW = "partials.records.display.associator";
 
     /**
+     * @var string - Method from CreateRecordsTable() for adding to DB
+     */
+    const FIELD_DATABASE_METHOD = 'addJSONColumn';
+
+    /**
      * Get the field options view.
      *
      * @return string - The view
@@ -76,19 +81,6 @@ class AssociatorField extends BaseField {
      */
     public function getFieldDisplayView() {
         return self::FIELD_DISPLAY_VIEW;
-    }
-
-    /**
-     * Gets the default options string for a new field.
-     *
-     * @param  int $fid - Form ID
-     * @param  string $slug - Name of database column based on field internal name
-     * @param  array $options - Extra information we may need to set up about the field
-     * @return array - The default options
-     */
-    public function addDatabaseColumn($fid, $slug, $options = null) {
-        $table = new \CreateRecordsTable();
-        $table->addJSONColumn($fid, $slug);
     }
 
     /**
@@ -341,10 +333,14 @@ class AssociatorField extends BaseField {
      * @return array - The update request
      */
     public function setRestfulAdvSearch($data) {
+        $request = [];
+
         if(isset($data->input) && is_array($data->input))
-            return ['input' => $data->input];
-        else
-            return [];
+            $request['input'] = $data->input;
+
+        $request['any'] = (isset($data->any) && is_bool($data->any)) ? $data->any : false;
+
+        return $request;
     }
 
     /**
@@ -358,18 +354,27 @@ class AssociatorField extends BaseField {
      */
     public function advancedSearchTyped($flid, $query, $recordMod, $form, $negative = false) {
         $arg = $query['input'];
+        $any = $query['any'];
         $args = Search::prepare($arg);
 
         $query = $recordMod->newQuery()
             ->select("id");
 
-        if($negative) {
+        if($negative && !$any) {
             foreach($args as $a) {
                 $query->orWhereRaw("JSON_SEARCH(`$flid`,'one','$a') IS NULL");
             }
-        } else {
+        } else if(!$negative && !$any) {
             foreach($args as $a) {
                 $query->whereRaw("JSON_SEARCH(`$flid`,'one','$a') IS NOT NULL");
+            }
+        } else if($negative && $any) {
+            foreach($args as $a) {
+                $query->whereRaw("JSON_SEARCH(`$flid`,'one','$a') IS NULL");
+            }
+        } else if(!$negative && $any) {
+            foreach($args as $a) {
+                $query->orWhereRaw("JSON_SEARCH(`$flid`,'one','$a') IS NOT NULL");
             }
         }
 
@@ -440,7 +445,7 @@ class AssociatorField extends BaseField {
             array_push($preview, "No Preview Field Available");
         }
 
-        $html = "<div class='header'><a class='mt-xxxs documents-link underline-middle-hover' href='".url("projects/".$pid."/forms/".$fid."/records/".$rid)."'>".$kid."</a><div class='card-toggle-wrap'><a class='card-toggle assoc-card-toggle-js'><i class='icon icon-chevron active'></i></a></div></div><div class='body'><div class='overlay'></div>";
+        $html = "<div class='header'><a class='mt-xxxs associator-link underline-middle-hover' href='".url("projects/".$pid."/forms/".$fid."/records/".$rid)."'>".$kid."</a><div class='card-toggle-wrap'><a class='card-toggle assoc-card-toggle-js'><i class='icon icon-chevron active'></i></a></div></div><div class='body'><div class='overlay'></div>";
 
         foreach($preview as $i=>$val) {
             if(isset($prevField[$i]))

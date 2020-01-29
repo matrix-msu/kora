@@ -30,7 +30,8 @@ class ExcludeDirectoryFilterIteratorTest extends RealIteratorTestCase
 
     public function getAcceptData()
     {
-        $foo = array(
+        $foo = [
+            '.gitignore',
             '.bar',
             '.foo',
             '.foo/.bar',
@@ -41,9 +42,19 @@ class ExcludeDirectoryFilterIteratorTest extends RealIteratorTestCase
             'toto',
             'toto/.git',
             'foo bar',
-        );
+            'qux',
+            'qux/baz_100_1.py',
+            'qux/baz_1_2.py',
+            'qux_0_1.php',
+            'qux_1000_1.php',
+            'qux_1002_0.php',
+            'qux_10_2.php',
+            'qux_12_0.php',
+            'qux_2_0.php',
+        ];
 
-        $fo = array(
+        $fo = [
+            '.gitignore',
             '.bar',
             '.foo',
             '.foo/.bar',
@@ -56,9 +67,19 @@ class ExcludeDirectoryFilterIteratorTest extends RealIteratorTestCase
             'toto',
             'toto/.git',
             'foo bar',
-        );
+            'qux',
+            'qux/baz_100_1.py',
+            'qux/baz_1_2.py',
+            'qux_0_1.php',
+            'qux_1000_1.php',
+            'qux_1002_0.php',
+            'qux_10_2.php',
+            'qux_12_0.php',
+            'qux_2_0.php',
+        ];
 
-        $toto = array(
+        $toto = [
+            '.gitignore',
             '.bar',
             '.foo',
             '.foo/.bar',
@@ -69,12 +90,21 @@ class ExcludeDirectoryFilterIteratorTest extends RealIteratorTestCase
             'foo/bar.tmp',
             'test.php',
             'foo bar',
-        );
+            'qux',
+            'qux/baz_100_1.py',
+            'qux/baz_1_2.py',
+            'qux_0_1.php',
+            'qux_1000_1.php',
+            'qux_1002_0.php',
+            'qux_10_2.php',
+            'qux_12_0.php',
+            'qux_2_0.php',
+        ];
 
-        return array(
-            array(array('foo'), $this->toAbsolute($foo)),
-            array(array('fo'), $this->toAbsolute($fo)),
-            array(array('toto/'), $this->toAbsolute($toto)),
-        );
+        return [
+            [['foo'], $this->toAbsolute($foo)],
+            [['fo'], $this->toAbsolute($fo)],
+            [['toto/'], $this->toAbsolute($toto)],
+        ];
     }
 }

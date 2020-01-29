@@ -203,7 +203,7 @@ class FieldValuePresetController extends Controller {
         $preset = FieldValuePreset::find($id);
 
         //If Stock preset
-        if($preset->pid == null) {
+        if($preset->project_id == null) {
             if(Auth::user()->id != 1) {
                 return response()->json(["status"=>false,"message"=>"preset_not_admin"],500);
             } else {
@@ -256,40 +256,5 @@ class FieldValuePresetController extends Controller {
         }
 
         return $all_presets;
-
-        //TODO::CASTLE Combo list and field value presets
-//        if($field->type == "Combo List") {
-//            $oneType = $field['one']['type'];
-//            $twoType = $field['two']['type'];
-//            //ComboList field one
-//            $onePresets = $project->fieldValuePresets();
-//            foreach($onePresets as $subset) {
-//                foreach($subset as $key => $preset) {
-//                    if($preset->type != $preset_field_compatibility->get($oneType))
-//                        $subset->forget($key);
-//                }
-//            }
-//            $comboPresets->put("one",$onePresets);
-//            //ComboList field two
-//            $twoPresets = $project->fieldValuePresets();
-//            foreach($twoPresets as $subset) {
-//                foreach($subset as $key => $preset) {
-//                    if($preset->type != $preset_field_compatibility->get($twoType))
-//                        $subset->forget($key);
-//                }
-//            }
-//            $comboPresets->put("two",$twoPresets);
-//
-//            return $comboPresets;
-//        } else {
-//            $all_presets = $project->fieldValuePresets();
-//            foreach($all_presets as $subset) {
-//                foreach($subset as $key => $preset) {
-//                    if($preset->type != $preset_field_compatibility->get($field->type))
-//                        $subset->forget($key);
-//                }
-//            }
-//            return $all_presets;
-//        }
     }
 }

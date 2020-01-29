@@ -3,8 +3,8 @@
 namespace Illuminate\Foundation\Testing\Concerns;
 
 use Exception;
-use Illuminate\Validation\ValidationException;
 use Illuminate\Contracts\Debug\ExceptionHandler;
+use Illuminate\Validation\ValidationException;
 use Symfony\Component\Console\Application as ConsoleApplication;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
@@ -13,7 +13,7 @@ trait InteractsWithExceptionHandling
     /**
      * The original exception handler.
      *
-     * @var ExceptionHandler|null
+     * @var \Illuminate\Contracts\Debug\ExceptionHandler|null
      */
     protected $originalExceptionHandler;
 
@@ -93,6 +93,17 @@ trait InteractsWithExceptionHandling
             }
 
             /**
+             * Determine if the exception should be reported.
+             *
+             * @param  \Exception  $e
+             * @return bool
+             */
+            public function shouldReport(Exception $e)
+            {
+                return false;
+            }
+
+            /**
              * Render the given exception.
              *
              * @param  \Illuminate\Http\Request  $request
@@ -103,16 +114,16 @@ trait InteractsWithExceptionHandling
              */
             public function render($request, Exception $e)
             {
-                if ($e instanceof NotFoundHttpException) {
-                    throw new NotFoundHttpException(
-                        "{$request->method()} {$request->url()}", null, $e->getCode()
-                    );
-                }
-
                 foreach ($this->except as $class) {
                     if ($e instanceof $class) {
                         return $this->originalHandler->render($request, $e);
                     }
+                }
+
+                if ($e instanceof NotFoundHttpException) {
+                    throw new NotFoundHttpException(
+                        "{$request->method()} {$request->url()}", null, $e->getCode()
+                    );
                 }
 
                 throw $e;

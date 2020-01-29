@@ -64,8 +64,8 @@ educational value of the objects.
 
 ## Contributing
 
-Thank you for considering contributing to kora! The contribution guide can be found in the 
-[Coming soon...]()
+Thank you for considering contributing to kora! The contribution guide can be found 
+[here](https://github.com/matrix-msu/kora/blob/master/CONTRIBUTING.md)
 
 ### License
 

@@ -3,7 +3,6 @@
 use App\Form;
 use App\Record;
 use App\Search;
-use App\Http\Controllers\FormController;
 use Illuminate\Http\Request;
 
 class MultiSelectListField extends BaseField {
@@ -25,6 +24,11 @@ class MultiSelectListField extends BaseField {
     const FIELD_ADV_INPUT_VIEW = "partials.records.advanced.mslist";
     const FIELD_INPUT_VIEW = "partials.records.input.mslist";
     const FIELD_DISPLAY_VIEW = "partials.records.display.mslist";
+
+    /**
+     * @var string - Method from CreateRecordsTable() for adding to DB
+     */
+    const FIELD_DATABASE_METHOD = 'addJSONColumn';
 
     /**
      * Get the field options view.
@@ -74,20 +78,7 @@ class MultiSelectListField extends BaseField {
     /**
      * Gets the default options string for a new field.
      *
-     * @param  int $fid - Form ID
-     * @param  string $slug - Name of database column based on field internal name
-     * @param  array $options - Extra information we may need to set up about the field
      * @return array - The default options
-     */
-    public function addDatabaseColumn($fid, $slug, $options = null) {
-        $table = new \CreateRecordsTable();
-        $table->addJSONColumn($fid, $slug);
-    }
-
-    /**
-     * Gets the default options string for a new field.
-     *
-     * @return string - The default options
      */
     public function getDefaultOptions($type = null) {
         return ['Options' => ['Please Modify List Values']];
@@ -307,7 +298,7 @@ class MultiSelectListField extends BaseField {
 
         return $recordMod->newQuery()
             ->select("id")
-            ->where($flid, $param,"$arg")
+            ->whereRaw("LOWER($flid) $param ?", [strtolower($arg)]) //Solves the JSON mysql case-insensitive issue
             ->pluck('id')
             ->toArray();
     }

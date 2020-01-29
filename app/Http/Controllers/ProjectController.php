@@ -243,7 +243,7 @@ class ProjectController extends Controller {
 
         $token->projects()->attach([$project->id]);
 
-        return redirect('projects/'.$project->pid)->with('k3_global_success', 'project_created');
+        return redirect('projects/'.$project->id)->with('k3_global_success', 'project_created');
 	}
 
     /**
@@ -283,7 +283,7 @@ class ProjectController extends Controller {
                 array_push($customseq,$form->id);
             }
 
-            $custom[array_search($form->id,$customseq)] = $project;
+            $custom[array_search($form->id,$customseq)] = $form;
         }
 
         //We need to sort the custom array

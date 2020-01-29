@@ -3,9 +3,11 @@
 @section('fieldOptions')
     <div class="form-group">
         {!! Form::label('filesize','Max File Size (kb)') !!}
-        <input type="number" name="filesize" class="text-input" step="1"
+        <div class="number-input-container number-input-container-js">
+            <input type="number" name="filesize" class="text-input" step="1"
                value="{{ $field['options']["FieldSize"] }}" min="0"
-			   placeholder="Enter max file size (kb) here">
+               placeholder="Enter max file size (kb) here">
+        </div>
     </div>
 
     <div class="form-group mt-xl">

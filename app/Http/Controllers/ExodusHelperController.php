@@ -392,11 +392,11 @@ class ExodusHelperController extends Controller {
                 //Save field
                 $layout['fields'][$newFlid] = $field;
                 $fieldMod = $newForm->getFieldModel($field['type']);
-                $fieldMod->addDatabaseColumn($newForm->id, $newFlid);
+                $fieldMod->addDatabaseColumn($newForm->id, $newFlid, $fieldMod::FIELD_DATABASE_METHOD);
 
                 //Makes legacy file field for
                 if($fieldMod instanceof FileTypeField) {
-                    $fieldMod->addDatabaseColumn($newForm->id, "legacy_$newFlid");
+                    $fieldMod->addDatabaseColumn($newForm->id, "legacy_$newFlid", $fieldMod::FIELD_DATABASE_METHOD);
                 }
 
                 //Builds out the opts for enum field
@@ -596,6 +596,9 @@ class ExodusHelperController extends Controller {
 
                                     $info = ['name' => $newname, 'size' => filesize($newPath.$timestamp.'.'.$newname), 'type' => $type,
                                         'url' => $dataURL.urlencode($newname), 'checksum' => $checksum, 'timestamp' => $timestamp, 'caption' => ''];
+                                    break;
+                                case FileTypeField::_JoyentManta:
+                                    //TODO::MANTA
                                     break;
                                 default:
                                     break;
