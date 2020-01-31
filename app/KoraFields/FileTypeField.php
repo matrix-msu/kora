@@ -7,6 +7,7 @@ use App\Http\Controllers\RecordController;
 use App\Record;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redirect;
 use ZipArchive;
 
@@ -718,9 +719,14 @@ abstract class FileTypeField extends BaseField {
 
                         //Check if we already made the thumb
                         if(!file_exists($thumbPath)) {
-                            $tImage = new \Imagick($filePath);
-                            $tImage->thumbnailImage($thumbParts[0], $thumbParts[1], true);
-                            $tImage->writeImage($thumbPath);
+                            try {
+                                $tImage = new \Imagick($filePath);
+                                $tImage->thumbnailImage($thumbParts[0], $thumbParts[1], true);
+                                $tImage->writeImage($thumbPath);
+                            } catch(\Exception $e) {
+                                Log::error($e);
+                                return response()->json(["status" => false, "message" => "thumb_generation_failed"], 500);
+                            }
                         }
 
                         //rename the file we are serving
