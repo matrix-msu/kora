@@ -304,15 +304,15 @@ class GeneratedListField extends BaseField {
      * @return array - The RIDs that match search
      */
     public function keywordSearchTyped($flid, $arg, $recordMod, $form, $negative = false) {
-        if($negative)
-            $param = 'NOT LIKE';
-        else
-            $param = 'LIKE';
+        $search = $recordMod->newQuery()
+            ->select("id");
 
-        return $recordMod->newQuery()
-            ->select("id")
-            ->whereRaw("LOWER($flid) $param ?", [strtolower($arg)]) //Solves the JSON mysql case-insensitive issue
-            ->pluck('id')
+        if($negative)
+            $search = $search->whereRaw("LOWER($flid) NOT LIKE ?", [strtolower($arg)])->orWhereNull($flid);
+        else
+            $search = $search->whereRaw("LOWER($flid) LIKE ?", [strtolower($arg)]);
+
+        return $search->pluck('id')
             ->toArray();
     }
 
