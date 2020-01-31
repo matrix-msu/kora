@@ -307,15 +307,15 @@ class ListField extends BaseField {
      * @return array - The RIDs that match search
      */
     public function keywordSearchTyped($flid, $arg, $recordMod, $form, $negative = false) {
-        if($negative)
-            $param = 'NOT LIKE';
-        else
-            $param = 'LIKE';
+        $search = $recordMod->newQuery()
+            ->select("id");
 
-        return $recordMod->newQuery()
-            ->select("id")
-            ->where($flid, $param,"$arg")
-            ->pluck('id')
+        if($negative)
+            $search = $search->where($flid, 'NOT LIKE',"$arg")->orWhereNull($flid);
+        else
+            $search = $search->where($flid, 'LIKE',"$arg");
+
+        return $search->pluck('id')
             ->toArray();
     }
 

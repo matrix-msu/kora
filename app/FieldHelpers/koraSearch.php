@@ -511,6 +511,13 @@ function MPF_Search($token,$pidList,$sidList,$koraClause,$fields,$order=array(),
     //Format sort array and map controls to fields
     $newOrder = array();
     $mergeRules = array();
+    if(isset($order['fields'])) {
+        $orderfix = array();
+        foreach($order['fields'] as $orderTerm) {
+            $orderfix[] = ['field'=>$orderTerm,'direction'=>$order['direction']];
+        }
+        $order = $orderfix;
+    }
     foreach($order as $o) {
         if($o["field"]=="systimestamp") {
             $sortField = "updated_at";
@@ -531,6 +538,12 @@ function MPF_Search($token,$pidList,$sidList,$koraClause,$fields,$order=array(),
 
         array_push($newOrder,[$sortField => $newDir]);
     }
+
+    //Format the start/number for legacy.
+    if($start==0)
+        $start=null;
+    if($number==0)
+        $number=null;
 
     // Build forms information for each project to be searched
     $output = array();
