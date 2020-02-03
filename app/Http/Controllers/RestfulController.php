@@ -406,6 +406,12 @@ class RestfulController extends Controller {
 
             //Add to final result array
             $resultsGlobal = $globalSortedResults;
+        } else {
+            if(isset($request->index) && !is_null($request->index) && is_numeric($request->index))
+                $resultsGlobal = array_slice($resultsGlobal,$request->index);
+
+            if(isset($request->count) && !is_null($request->count) && is_numeric($request->count))
+                $resultsGlobal = array_slice($resultsGlobal,0,$request->count);
         }
 
         $countArray["global"] = $countGlobal;

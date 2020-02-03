@@ -1188,6 +1188,7 @@ class Form extends Model {
         $selectRecords = "SELECT $fieldString FROM ".$prefix."records_".$this->id.$subset.$orderBy.$limitBy;
 
         $records = $con->query($selectRecords);
+        $checkArray = ['kid'=>1,'legacy_kid'=>1,'updated_at'=>1,'owner'=>1];
         while($row = $records->fetch_assoc()) {
             $kid = $row['kid'];
             $results[$kid] = [
@@ -1200,7 +1201,7 @@ class Form extends Model {
             ];
 
             foreach($row as $index => $value) {
-                if(!in_array($index,['kid','legacy_kid','updated_at','owner'])) {
+                if(!array_key_exists($index,$checkArray)) {
                     if(is_null($value) || $value=='')
                         $results[$kid][$fieldToRealName[$index]] = '';
                     else
@@ -1769,6 +1770,12 @@ class Form extends Model {
         $newOrderArray = array();
         $formSelects = array();
 
+        //Cause in_array is sloooooooooooww
+        $kidKeyArray = [];
+        foreach($kids as $kid) {
+            $kidKeyArray[$kid] = 1;
+        }
+
         //Doing this for pretty much the same reason as keyword search above
         $con = mysqli_connect(
             config('database.connections.mysql.host'),
@@ -1818,7 +1825,7 @@ class Form extends Model {
 
         $results = $con->query($masterSelect.$orderBy);
         while($row = $results->fetch_assoc()) {
-            if(in_array($row['kid'],$kids))
+            if(array_key_exists($row['kid'],$kidKeyArray))
                 $newOrderArray[] = $row['kid'];
         }
         $results->free();
