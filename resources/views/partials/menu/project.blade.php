@@ -61,7 +61,7 @@
       <li class="spacer"></li>
 
       <li class="link first">
-        <a href="{{ action('ProjectController@edit', ['pid'=>$pid]) }}">Edit Project Information</a>
+        <a href="{{ action('ProjectController@edit', ['projects'=>$pid]) }}">Edit Project Information</a>
       </li>
 
       <li class="link">

@@ -18,7 +18,7 @@
       <div class="inner-wrap center">
         <h1 class="title">
           <i class="icon icon-project"></i>
-          <a href="{{ action('ProjectController@edit',['pid' => $project->id]) }}" class="head-button tooltip" tooltip="Edit Project">
+          <a href="{{ action('ProjectController@edit',['projects' => $project->id]) }}" class="head-button tooltip" tooltip="Edit Project">
             <i class="icon icon-edit right"></i>
           </a>
           <span>{{ $project->name }}</span>

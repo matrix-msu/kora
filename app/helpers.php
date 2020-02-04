@@ -98,7 +98,7 @@ function getDashboardProjectBlockLink($block, $link_type) {
           return [
             'tooltip' => 'Edit Project',
             'icon-class' => 'icon-edit-little',
-            'href' => action('ProjectController@edit', ['pid'=>$options['pid']]),
+            'href' => action('ProjectController@edit', ['projects'=>$options['pid']]),
 			'type' => 'edit'
           ];
           break;
