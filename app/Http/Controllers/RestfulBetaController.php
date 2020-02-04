@@ -453,7 +453,7 @@ class RestfulBetaController extends Controller {
 
                 //Check for limiting fields
                 $searchFields = array();
-                if(isset($query->fields)) {
+                if(isset($query->fields) && !empty($query->fields)) {
                     if(!is_array($query->fields))
                         return response()->json(["status"=>false,"error"=>"Invalid fields array in keyword search for form: ". $form->name],500);
 
