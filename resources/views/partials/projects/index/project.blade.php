@@ -89,7 +89,7 @@
 
     @if (!$archived)
       <div class="footer">
-        <a class="quick-action underline-middle-hover" href="{{ action('ProjectController@edit',['pid' => $project->id]) }}">
+        <a class="quick-action underline-middle-hover" href="{{ action('ProjectController@edit',['projects' => $project->id]) }}">
           <i class="icon icon-edit-little"></i>
           <span>Edit Project Info</span>
         </a>
