@@ -86,7 +86,7 @@ class FieldController extends Controller {
         if($request->type == Form::_COMBO_LIST) {
             foreach(['one' => 1, 'two' => 2] as $seq => $num) {
                 $slug = slugFormat(
-                    $request->{'cfname' . $num},
+                    trim($request->{'cfname' . $num}),
                     $form->project_id,
                     $form->id
                 );
@@ -96,7 +96,7 @@ class FieldController extends Controller {
                 ];
                 $field[$seq] = [
                     'type' => $request->{'type' . $seq},
-                    'name' => $request->{'cfname' . $num},
+                    'name' => trim($request->{'cfname' . $num}),
                     'flid' => $slug,
                     'default' => null
                 ];
@@ -207,11 +207,11 @@ class FieldController extends Controller {
 
             foreach(['one' => 1, 'two' => 2] as $seq => $num) {
                 $cFlid = slugFormat($field[$seq]['name'], $form->project_id, $form->id);
-                $cNewFlid = slugFormat($request->{'cfname' . $num}, $form->project_id, $form->id);
+                $cNewFlid = slugFormat(trim($request->{'cfname' . $num}), $form->project_id, $form->id);
                 if($cFlid != $cNewFlid) {
                     $form->updateSubField($flid, $cFlid, $cNewFlid);
                     $field[$seq]['flid'] = $cNewFlid;
-                    $field[$seq]['name'] = $request->{'cfname' . $num};
+                    $field[$seq]['name'] = trim($request->{'cfname' . $num});
                 } else {
                     $form->updateSubField($flid, $cFlid);
                 }
