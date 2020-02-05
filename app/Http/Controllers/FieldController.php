@@ -86,7 +86,7 @@ class FieldController extends Controller {
         if($request->type == Form::_COMBO_LIST) {
             foreach(['one' => 1, 'two' => 2] as $seq => $num) {
                 $slug = slugFormat(
-                    $request->{'cfname' . $num},
+                    trim($request->{'cfname' . $num}),
                     $form->project_id,
                     $form->id
                 );
@@ -96,7 +96,7 @@ class FieldController extends Controller {
                 ];
                 $field[$seq] = [
                     'type' => $request->{'type' . $seq},
-                    'name' => $request->{'cfname' . $num},
+                    'name' => trim($request->{'cfname' . $num}),
                     'flid' => $slug,
                     'default' => null
                 ];
