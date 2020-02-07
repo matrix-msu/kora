@@ -441,7 +441,8 @@ class UserController extends Controller {
             'static' => false
         );
 
-        return view('user.preferences', compact('user', 'logoTargetOptions', 'projPageTabSelOptions', 'singleProjTabSelOptions', 'sideMenuOptions', 'notification'));
+        //sideMenuOptions
+        return view('user.preferences', compact('user', 'logoTargetOptions', 'projPageTabSelOptions', 'singleProjTabSelOptions', 'notification'));
     }
 
     /**
@@ -477,7 +478,7 @@ class UserController extends Controller {
             'static' => false
         );
 
-        return view('user.preferences', compact('user', 'logoTargetOptions', 'projPageTabSelOptions', 'singleProjTabSelOptions', 'sideMenuOptions', 'notification'));
+        return view('user.preferences', compact('user', 'logoTargetOptions', 'projPageTabSelOptions', 'singleProjTabSelOptions', 'notification'));
     }
 
 	 // triggered from onboarding.js and from 'replay kora intro' button on user preferences page

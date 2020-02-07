@@ -333,7 +333,7 @@ Kora.Fields.Options = function(fieldType) {
                     if(listType == 'GenList')
                         optionName = "default[]";
                     if(listType == 'GenListRecord')
-                        optionName = $newListOptionInput.data('flid') + "[]";
+                        optionName = $newListOptionInput.data('flid');
 
                     //Foreach option
                     for(newOpt in newListOptions) {
