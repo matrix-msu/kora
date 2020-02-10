@@ -322,6 +322,9 @@ Kora.Fields.Options = function(fieldType) {
             $addButton.click(function(e) {
                 e.preventDefault();
 
+                if($newListOptionInput.val() == '')
+                    return;
+
                 //Splits options up by comma, but ignores commas inside of double quotes
                 var newListOptions = $newListOptionInput.val().split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
 
@@ -1157,6 +1160,9 @@ Kora.Fields.Options = function(fieldType) {
             // Add new list option card after 'add' button pressed
             $addButton.click(function(e) {
                 e.preventDefault();
+
+                if($newListOptionInput.val() == '')
+                    return;
 
                 //Splits options up by comma, but ignores commas inside of double quotes
                 var newListOptions = $newListOptionInput.val().split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);

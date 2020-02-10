@@ -173,6 +173,9 @@ Kora.FieldValuePresets.Create = function() {
             $addButton.click(function(e) {
                 e.preventDefault();
 
+                if($newListOptionInput.val() == '')
+                    return;
+
                 //Splits options up by comma, but ignores commas inside of double quotes
                 var newListOptions = $newListOptionInput.val().split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
 
