@@ -107,6 +107,8 @@ class ProjectController extends Controller {
               $notification['message'] = 'Project Successfully Deleted';
             else if($session == 'project_archived')
               $notification['message'] = 'Project Successfully Archived!';
+            else if($session == 'project_restored')
+              $notification['message'] = 'Project Successfully Restored!';
             else if($session == 'project_imported')
               $notification['message'] = 'Project Successfully Imported!';
 		    else if($session == "password_reset")
@@ -451,9 +453,9 @@ class ProjectController extends Controller {
         $project->save();
 
         if($request->archive)
-            $message = 'project_archived';
-        else
             $message = 'project_restored';
+        else
+            $message = 'project_archived';
 
         return redirect()->action('ProjectController@index')->with('k3_global_success', $message);
     }
