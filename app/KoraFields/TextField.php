@@ -310,10 +310,14 @@ class TextField extends BaseField {
      * @return array - The update request
      */
     public function setRestfulAdvSearch($data) {
+        $request = [];
+
         if(isset($data->input) && is_string($data->input))
-            return ['input' => $data->input];
-        else
-            return [];
+            $request['input'] = $data->input;
+
+        $request['partial'] = (isset($data->partial) && is_bool($data->partial)) ? $data->partial : false;
+
+        return $request;
     }
 
     /**
@@ -327,11 +331,18 @@ class TextField extends BaseField {
      */
     public function advancedSearchTyped($flid, $query, $recordMod, $form, $negative = false) {
         $arg = $query['input'];
+        $partial = $query['partial'];
+        if($partial)
+            $arg = "%$arg%";
 
-        if($negative)
+        if($negative && !$partial)
             $param = '!=';
-        else
+        else if(!$negative && !$partial)
             $param = '=';
+        else if($negative && $partial)
+            $param = 'NOT LIKE';
+        else if(!$negative && $partial)
+            $param = 'LIKE';
 
         return $recordMod->newQuery()
             ->select("id")

@@ -253,6 +253,13 @@ class AdvancedSearchController extends Controller {
                 foreach($fields as $tmpField) {
                     $flid = $tmpField['flid'];
                     switch($tmpField['type']) {
+                        case Form::_TEXT:
+                            if(isset($request[$flid.'_input']) && $request[$flid.'_input'] != '') {
+                                $processed[$flid]['input'] = $request[$flid . '_input'];
+
+                                $processed[$flid]['partial'] = isset($request[$flid . '_partial']) ? true : false;
+                            }
+                            break;
                         case Form::_INTEGER:
                         case Form::_FLOAT:
                             if($request[$flid.'_left'] != '' | $request[$flid.'_right'] != '') {
