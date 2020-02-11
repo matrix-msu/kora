@@ -72,7 +72,8 @@ class LoginController extends Controller
                 if(Hash::check($user->token, $hashUser->gitlab_token)) {
                     Auth::login($hashUser);
 
-                    return redirect('/home');
+                    //This handles intended url redirects after login
+                    return redirect()->intended($this->redirectPath());
                 }
             }
 

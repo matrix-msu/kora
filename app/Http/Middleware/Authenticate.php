@@ -44,12 +44,20 @@ class Authenticate {
 			} else {
                 //Replicating guest function to force https in production
                 //This fixes the issue where user wasn't bounced to intended url after login in https
-                $secure = false;
-                if(config('app.env') === 'production')
-                    $secure = true;
-                Session::put('url.intended', redirect()->getUrlGenerator()->current());
+                $request = redirect()->getUrlGenerator()->getRequest();
 
-                return redirect()->to('/', 302, [], $secure);
+                $intended = $request->method() === 'GET' && $request->route() && ! $request->expectsJson()
+                    ? redirect()->getUrlGenerator()->full()
+                    : redirect()->getUrlGenerator()->previous();
+
+                //Force https
+                $intended = str_replace('http://','https://',$intended);
+
+                if($intended) {
+                    redirect()->setIntendedUrl($intended);
+                }
+
+                return redirect()->to('/home', 302, [], true);
 			}
 		}
 
