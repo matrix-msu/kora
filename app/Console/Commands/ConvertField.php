@@ -61,7 +61,7 @@ class ConvertField extends Command
 
             $crt = new \CreateRecordsTable(); //Need this for table modifications
             $recModel = new Record(array(),$fid);
-            $tmpName = uniqid();
+            $tmpName = "temp_".uniqid();
 
             switch($oldType) {
                 case Form::_TEXT:
@@ -71,7 +71,9 @@ class ConvertField extends Command
                         $crt->addMediumTextColumn($fid, $tmpName);
                         $records = $recModel->newQuery()->whereNotNull($flid)->get();
                         foreach($records as $rec) {
-                            $rec->{$tmpName} = $rec->{$flid};
+                            //Rich Text uses different line endings and we want to preserve paragraphs
+                            $textWithBreaks = str_replace("\r\n",'<br />', $rec->{$flid});
+                            $rec->{$tmpName} = $textWithBreaks;
                             $rec->save();
                         }
                         $this->info("Preserving old record data at column: $tmpName$flid");
@@ -82,7 +84,7 @@ class ConvertField extends Command
                     break;
                 case Form::_RICH_TEXT:
                     if($newType == Form::_TEXT) {
-                        $field['options'] = ['Regex' => '', 'MultiLine' => 0];
+                        $field['options'] = ['Regex' => '', 'MultiLine' => 1];
                         if(!is_null($field['default']) && $field['default']!='')
                             $field['default'] = strip_tags($field['default']);
 

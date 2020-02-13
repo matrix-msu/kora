@@ -132,12 +132,6 @@ class CreateRecordsTable extends Migration {
         });
     }
 
-    public function renameEnumColumn($fid, $slug, $newSlug) {
-        Schema::table($this->tablePrefix . $fid, function (Blueprint $table) use ($slug, $newSlug) {
-            $table->renameColumn($slug,$newSlug);
-        });
-    }
-
     public function dropColumn($fid, $slug) {
         Schema::table($this->tablePrefix . $fid, function (Blueprint $table) use ($slug) {
             $table->dropColumn($slug);
