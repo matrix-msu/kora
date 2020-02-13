@@ -290,6 +290,17 @@ class RestfulController extends Controller {
                 }
             }
 
+            //Check sort fields for illegal fields
+            if(!is_null($filters['sort'])) {
+                foreach($filters['sort'] as $rule) {
+                    foreach($rule as $field => $direction) {
+                        $flid = fieldMapper($field, $form->project_id, $form->id);
+                        if(!isset($form->layout['fields'][$flid]))
+                            return response()->json(["status" => false, "error" => "The following sort field is not apart of the requested form: " . $this->cleanseOutput($flid), "warnings" => $this->minorErrors], 500);
+                    }
+                }
+            }
+
             //parse the query
             if(!isset($f->queries)) {
                 //return all records
