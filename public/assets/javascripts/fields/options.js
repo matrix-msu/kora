@@ -306,7 +306,6 @@ Kora.Fields.Options = function(fieldType) {
         function initializeListAddOption() {
             var $addButton = $('.list-option-add-js');
             var $newListOptionInput = $('.new-list-option-js');
-            var $cardContainer = $('.list-option-card-container-js');
 
             $newListOptionInput.keypress(function(e) {
                 var keycode =  (e.keyCode ? e.keyCode : e.which);
@@ -314,7 +313,8 @@ Kora.Fields.Options = function(fieldType) {
                     e.preventDefault();
 
                     // Enter key pressed, trigger 'add' button click
-                    $addButton.click();
+                    // But only for this gen list
+                    $(this).closest('.new-list-option-card-js').find('.list-option-add-js').first().click();
                 }
             });
 
@@ -322,11 +322,15 @@ Kora.Fields.Options = function(fieldType) {
             $addButton.click(function(e) {
                 e.preventDefault();
 
-                if($newListOptionInput.val() == '')
+                //Get the specific list input so that we dont run into duplicate issues
+                $listValInput = $(this).closest('.new-list-option-card-js').find('.new-list-option-js').first();
+                $localCardContainer = $(this).closest('.new-list-option-card-js').siblings('.list-option-card-container-js').first();
+
+                if($listValInput.val() == '')
                     return;
 
                 //Splits options up by comma, but ignores commas inside of double quotes
-                var newListOptions = $newListOptionInput.val().split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
+                var newListOptions = $listValInput.val().split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
 
                 if(newListOptions !== undefined && newListOptions.length > 0) {
                     // Prevent duplicate entries
@@ -336,7 +340,7 @@ Kora.Fields.Options = function(fieldType) {
                     if(listType == 'GenList')
                         optionName = "default[]";
                     if(listType == 'GenListRecord')
-                        optionName = $newListOptionInput.data('flid');
+                        optionName = $listValInput.data('flid');
 
                     //Foreach option
                     for(newOpt in newListOptions) {
@@ -364,7 +368,7 @@ Kora.Fields.Options = function(fieldType) {
                             '</div>' +
                             '</div>';
 
-                        $cardContainer.append(newCardHtml);
+                        $localCardContainer.append(newCardHtml);
                     }
 
                     // Initialize functionality for all the cards again
@@ -376,7 +380,7 @@ Kora.Fields.Options = function(fieldType) {
                     Kora.Fields.TypedFieldInputs.Initialize();
 
                     // Clear input after everything is finished
-                    $newListOptionInput.val("");
+                    $listValInput.val("");
                 }
             });
         }
