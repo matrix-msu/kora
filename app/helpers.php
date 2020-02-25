@@ -336,7 +336,7 @@ function parseCSV($record) {
               foreach($pairs as $pair)
                   if(array_key_exists($id, $pair))
                       $value = $pair[$id];
-              $record[$field] = $value;
+              $record[trim($field)] = $value;
           }
           array_push($records, $record);
       }
