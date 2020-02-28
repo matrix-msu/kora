@@ -755,11 +755,16 @@ Kora.Dashboard.Index = function() {
                     //Set page to download URL
                     document.location.href = endURL;
                 },
-                error: function (error) {
+                error: function (error,status,err) {
+                    hide_loader();
+
                     $exportDiv.removeClass('disabled');
                     $exportDiv.text("Something went wrong :(");
 
-                    if(typeof error.responseJSON == 'undefined') {
+                    if(err=="Gateway Time-out") {
+                        $exportDiv.text("Request timed out :(");
+                        $('.export-files-desc-'+activeFid+'-js').text("Zip took too long to generate. Please use the php artisan command for exporting record files. If you do not have permission to run this command, please contact your administrator.");
+                    } else if(typeof error.responseJSON == 'undefined') {
                         $exportDiv.text("Error creating zip :(");
                         $('.export-files-desc-'+activeFid+'-js').text("Unable to create the zip. Please contact your administrator for more information. You may still export all form records in the formats of JSON or XML.");
                     } else if(error.responseJSON.message == 'no_record_files') {
@@ -767,7 +772,7 @@ Kora.Dashboard.Index = function() {
                         $('.export-files-desc-'+activeFid+'-js').text("There are no record files in this Form. You may still export all form records in the formats of JSON or XML.");
                     } else if(error.responseJSON.message == 'zip_too_big') {
                         $exportDiv.text("Zip too big :(");
-                        $('.export-files-desc-'+activeFid+'-js').text("Zipped file is too big. Please use the php artisan command for exporting record files. You may still export all form records in the formats of JSON or XML.");
+                        $('.export-files-desc-'+activeFid+'-js').text("Zipped file is too big. Please use the php artisan command for exporting record files. If you do not have permission to run this command, please contact your administrator.");
                     }
                 }
             });
