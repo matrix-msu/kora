@@ -304,18 +304,10 @@ class AdvancedSearchController extends Controller {
                             $beginEra = isset($request[$flid.'_begin_era']) ? $request[$flid.'_begin_era'] : 'CE';
                             $endEra = isset($request[$flid.'_end_era']) ? $request[$flid.'_end_era'] : 'CE';
 
-                            //Check for valid ERA combos, year must be set either way
+                            //Check year must be set either way
                             if(
-                                (
-                                    ($beginEra == 'CE' && $endEra == 'CE') |
-                                    ($beginEra == 'BCE' && ($endEra == 'BCE' | $endEra == 'CE')) |
-                                    ($beginEra == 'BP' && $endEra == 'BP') |
-                                    ($beginEra == 'KYA BP' && $endEra == 'KYA BP')
-                                ) &&
-                                (
-                                    isset($request[$flid.'_begin_year']) && $request[$flid.'_begin_year'] != '' &&
-                                    isset($request[$flid.'_end_year']) && $request[$flid.'_end_year'] != ''
-                                )
+                                isset($request[$flid.'_begin_year']) && $request[$flid.'_begin_year'] != '' &&
+                                isset($request[$flid.'_end_year']) && $request[$flid.'_end_year'] != ''
                             ) {
                                 $processed[$flid]['begin_era'] = $beginEra;
                                 $processed[$flid]['end_era'] = $endEra;

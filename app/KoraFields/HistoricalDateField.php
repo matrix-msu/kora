@@ -2,9 +2,9 @@
 
 use App\Form;
 use App\Record;
+use Illuminate\Database\Query\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
-use Illuminate\Support\Facades\DB;
 
 class HistoricalDateField extends BaseField {
 
@@ -35,6 +35,13 @@ class HistoricalDateField extends BaseField {
      * @var string - The year that represent 0 BP/KYA BP
      */
     const BEFORE_PRESENT_REFERENCE = 1950;
+
+    /**
+     * Epsilon value for comparison purposes. Used to match between values in MySQL.
+     *
+     * @type float
+     */
+    CONST EPSILON = 0.0001;
 
     /**
      * Get the field options view.
@@ -247,8 +254,10 @@ class HistoricalDateField extends BaseField {
         ];
         if(!self::validateDate($date['month'],$date['day'],$date['year']))
             return null;
-        else
+        else {
+            $date['sort'] = $this->getDateSortValue($date['era'], $date['year'], $date['month'], $date['day']);
             return json_encode($date);
+        }
     }
 
     /**
@@ -437,8 +446,11 @@ class HistoricalDateField extends BaseField {
             'prefix' => !is_null($request->{'prefix_'.$formFieldValue}) ? $request->{'prefix_'.$formFieldValue} : '',
             'era' => !is_null($request->{'era_'.$formFieldValue}) ? $request->{'era_'.$formFieldValue} : 'CE'
         ];
+
         if(!self::validateDate($date['month'],$date['day'],$date['year']))
             $date = null;
+        else
+            $date['sort'] = $this->getDateSortValue($date['era'],$date['year'],$date['month'],$date['day']);
 
         $recModel = new Record(array(),$form->id);
         if($overwrite)
@@ -464,8 +476,11 @@ class HistoricalDateField extends BaseField {
             'prefix' => !is_null($request->{'prefix_'.$formFieldValue}) ? $request->{'prefix_'.$formFieldValue} : '',
             'era' => !is_null($request->{'era_'.$formFieldValue}) ? $request->{'era_'.$formFieldValue} : 'CE'
         ];
+
         if(!self::validateDate($date['month'],$date['day'],$date['year']))
             $date = null;
+        else
+            $date['sort'] = $this->getDateSortValue($date['era'],$date['year'],$date['month'],$date['day']);
 
         $recModel = new Record(array(),$form->id);
         $recModel->newQuery()->whereIn('kid',$kids)->update([$flid => $date]);
@@ -553,101 +568,42 @@ class HistoricalDateField extends BaseField {
         $beginEra = isset($query['begin_era']) ? $query['begin_era'] : 'CE';
         $endEra = isset($query['end_era']) ? $query['end_era'] : 'CE';
 
-        //Verify era
-        if(
-            ($beginEra == 'CE' && $endEra == 'CE') |
-            ($beginEra == 'BCE' && ($endEra == 'BCE' | $endEra == 'CE')) |
-            ($beginEra == 'BP' && $endEra == 'BP') |
-            ($beginEra == 'KYA BP' && $endEra == 'KYA BP')
-        ) {
-            //We need to create a mathematical represenation of each date to make MYSQL comparisons
-            $beginMonth = isset($query['begin_month']) ? $query['begin_month'] : 1;
-            $endMonth = isset($query['end_month']) ? $query['end_month'] : 12;
-            $beginDay = isset($query['begin_day']) ? $query['begin_day'] : 1;
-            $endDay = isset($query['end_day']) ? $query['end_day'] : 31;
-            $beginYear = $query['begin_year'];
-            $endYear = $query['end_year'];
+        //We need to create a mathematical represenation of each date to make MYSQL comparisons
+        $beginMonth = isset($query['begin_month']) ? $query['begin_month'] : 1;
+        $endMonth = isset($query['end_month']) ? $query['end_month'] : 12;
+        $beginDay = isset($query['begin_day']) ? $query['begin_day'] : 1;
+        $endDay = isset($query['end_day']) ? $query['end_day'] : 31;
+        $beginYear = $query['begin_year'];
+        $endYear = $query['end_year'];
 
-            switch($beginEra) {
-                case 'CE':
-                    $beginValue = $beginYear + ($beginMonth*0.01) + ($beginDay*0.0001);
-                    break;
-                case 'BCE':
-                    $beginValue = -1*($beginYear + ($beginMonth*0.01) + ($beginDay*0.0001));
-                    break;
-                case 'BP':
-                    $beginValue = self::BEFORE_PRESENT_REFERENCE - $beginYear;
-                    break;
-                case 'KYA BP':
-                    $beginValue = self::BEFORE_PRESENT_REFERENCE - ($beginYear*1000);
-                    break;
-            }
+        $beginValue = $this->getDateSortValue($beginEra, $beginYear, $beginMonth, $beginDay);
+        $endValue = $this->getDateSortValue($endEra, $endYear, $endMonth, $endDay);
 
-            switch($endEra) {
-                case 'CE':
-                    $endValue = $endYear + ($endMonth*0.01) + ($endDay*0.0001);
-                    break;
-                case 'BCE':
-                    $endValue = -1*($endYear + ($endMonth*0.01) + ($endDay*0.0001));
-                    break;
-                case 'BP':
-                    $endValue = self::BEFORE_PRESENT_REFERENCE - $endYear;
-                    break;
-                case 'KYA BP':
-                    $endValue = self::BEFORE_PRESENT_REFERENCE - ($endYear*1000);
-                    break;
-            }
+        $query = $recordMod->newQuery()
+            ->select("id");
 
-            if($negative)
-                $param = 'middleVal > `end` OR middleVal < `begin`';
-            else
-                $param = 'middleVal <= `end` AND middleVal >= `begin`';
+        self::buildAdvancedHistoricalDateQuery($query, $flid, $beginValue, $endValue);
 
-            //This function determines if historical date is in between given date values
-            DB::unprepared("DROP FUNCTION IF EXISTS `inDateRange`;
-            CREATE FUNCTION `inDateRange`(`date` JSON, `begin` DOUBLE, `end` DOUBLE)
-            RETURNS BOOL
-            BEGIN
-                DECLARE result BOOL DEFAULT false;
-                DECLARE monthVal INT DEFAULT 1;
-                DECLARE dayVal INT DEFAULT 1;
-                DECLARE yearVal INT DEFAULT 1;
-                DECLARE eraVal TEXT;
-                DECLARE middleVal DOUBLE;
+        return $query->pluck('id')
+            ->toArray();
+    }
 
-                IF `date`->\"$.month\" != \"\" THEN SET monthVal = `date`->\"$.month\";
-                END IF;
-
-                IF `date`->\"$.day\" != \"\" THEN SET dayVal = `date`->\"$.day\";
-                END IF;
-
-                IF `date`->\"$.year\" != \"\" THEN SET yearVal = `date`->\"$.year\";
-                END IF;
-
-                SET eraVal = `date`->\"$.era\";
-
-                IF eraVal = '\"CE\"' THEN SET middleVal = (yearVal + (monthVal*0.01) + (dayVal*0.0001));
-                ELSEIF eraVal = '\"BCE\"' THEN SET middleVal = (-1*(yearVal + (monthVal*0.01) + (dayVal*0.0001)));
-                ELSEIF eraVal = '\"BP\"' THEN SET middleVal = (".self::BEFORE_PRESENT_REFERENCE." - yearVal);
-                ELSEIF eraVal = '\"KYA BP\"' THEN SET middleVal = (".self::BEFORE_PRESENT_REFERENCE." - (yearVal*1000));
-                END IF;
-
-                IF $param THEN SET result = TRUE;
-                END IF;
-
-                RETURN result;
-            END;");
-
-            $dbQuery = $recordMod->newQuery()
-                ->select("id")
-                ->whereRaw("inDateRange(`$flid`,?,?)")
-                ->setBindings([$beginValue, $endValue]);
-
-            return $dbQuery->pluck('id')
-                ->toArray();
-        } else {
-            return [];
-        }
+    /**
+     * Build an advanced search number field query.
+     *
+     * @param  Builder $query - Query to build upon
+     * @param  string $flid - Field ID
+     * @param  string $left - Input from the form, left index
+     * @param  string $right - Input from the form, right index
+     */
+    private static function buildAdvancedHistoricalDateQuery(&$query, $flid, $left, $right) {
+        // Determine the interval we should search over. With epsilons to account for float rounding.
+        if($left == "")
+            $query->whereRaw("`$flid`->\"$.sort\" <= ".(floatval($right) + self::EPSILON));
+        else if($right == "")
+            $query->whereRaw("`$flid`->\"$.sort\" >= ".(floatval($left) - self::EPSILON));
+        else
+            $query->whereRaw("`$flid`->\"$.sort\" BETWEEN ".(floatval($left) - self::EPSILON)." AND ".(floatval($right) + self::EPSILON));
     }
 
     ///////////////////////////////////////////////END ABSTRACT FUNCTIONS///////////////////////////////////////////////
@@ -683,5 +639,37 @@ class HistoricalDateField extends BaseField {
             $dateString .= ' '.$date['era'];
 
         return $dateString;
+    }
+
+    /**
+     * Takes a historical date value and generates a numerical representation to use in search and sort.
+     *
+     * @param  string $era - Takes date array and processes it for display
+     * @param  int $y - Field data
+     * @param  int $m - Field data
+     * @param  int $d - Field data
+     * @return float - The numerical representation
+     */
+    public function getDateSortValue($era, $y, $m=1, $d=1) {
+        //If month or date is blank, set to 1
+        $m = $m=="" ? 1 : $m;
+        $d = $d=="" ? 1 : $d;
+
+        switch($era) {
+            case 'CE':
+                return $y + ($m*0.01) + ($d*0.0001);
+                break;
+            case 'BCE':
+                return -1*($y + ($m*0.01) + ($d*0.0001));
+                break;
+            case 'BP':
+                return self::BEFORE_PRESENT_REFERENCE - $y;
+                break;
+            case 'KYA BP':
+                return self::BEFORE_PRESENT_REFERENCE - ($y*1000);
+                break;
+        }
+
+        return 0;
     }
 }
