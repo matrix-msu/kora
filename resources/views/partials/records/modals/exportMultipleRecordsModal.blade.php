@@ -7,11 +7,14 @@
             </a>
         </div>
         <div class="body exp-rec">
-            <div class="form-group">
+            <div class="form-group export-mult-files-desc-js">
                 Export <span class="count"></span> form records in the formats of JSON or XML. You may also export <span class="count"></span> record files as a zip.
             </div>
             <div class="form-group mt-m">
-                <a href="{{ action('ExportController@exportRecordFiles',['pid' => $form->project_id, 'fid' => $form->id]) }}" class="btn secondary">Export Record Files</a>
+                <a href="#" class="btn export-mult-begin-files-js" token="{{ csrf_token() }}"
+                   startURL="{{ action('ExportController@prepRecordFiles',['pid' => $form->project_id, 'fid' => $form->id]) }}"
+                   endURL="{{ action('ExportController@exportRecordFiles',['pid' => $form->project_id, 'fid' => $form->id]) }}"
+                >Export Record Files</a>
             </div>
             <div class="form-group mt-m">
                 <a href="{{ action('ExportController@exportSelectedRecords', ['pid' => $form->project_id, 'fid' => $form->id, 'type' => 'JSON', 'rid' => '']) }}" class="btn export-multiple-js">Export JSON</a>

@@ -11,7 +11,7 @@
                 Export all form records in the formats of JSON or XML. You may also export all record files as a zip.
             </div>
             <div class="form-group mt-m">
-                <a href="#" class="btn secondary export-dashboard-begin-files-js" token="{{ csrf_token() }}"
+                <a href="#" class="btn export-dashboard-begin-files-js" token="{{ csrf_token() }}"
                    startURL="{{ action('ExportController@prepRecordFiles',['pid' => $form->project_id, 'fid' => $form->id]) }}"
                    endURL="{{ action('ExportController@exportRecordFiles',['pid' => $form->project_id, 'fid' => $form->id]) }}"
                 >Export Record Files</a>
