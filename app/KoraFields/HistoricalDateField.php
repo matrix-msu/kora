@@ -651,9 +651,13 @@ class HistoricalDateField extends BaseField {
      * @return float - The numerical representation
      */
     public function getDateSortValue($era, $y, $m=1, $d=1) {
+        //Block bad dates
+        if($y=="")
+            return 0;
+
         //If month or date is blank, set to 1
-        $m = $m=="" ? 1 : $m;
-        $d = $d=="" ? 1 : $d;
+        $m = $m=="" ? 1 : (int)$m;
+        $d = $d=="" ? 1 : (int)$d;
 
         switch($era) {
             case 'CE':
