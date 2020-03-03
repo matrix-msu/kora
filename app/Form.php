@@ -604,7 +604,10 @@ class Form extends Model {
                         $field = fieldMapper($flid,$this->project_id,$this->id);
                     //Used to protect SQL
                     $field = preg_replace("/[^A-Za-z0-9_]/", '', $field);
-                    $orderBy .= "$field IS NULL, $field $order,";
+                    if(isset($this->layout['fields'][$field]) && $this->layout['fields'][$field]['type'] == Form::_HISTORICAL_DATE)
+                        $orderBy .= "$field IS NULL, $field->\"$.sort\" $order,";
+                    else
+                        $orderBy .= "$field IS NULL, $field $order,";
                 }
             }
             $orderBy = substr($orderBy, 0, -1); //Trim the last comma
@@ -1000,7 +1003,10 @@ class Form extends Model {
                     //Used to protect SQL
                     $field = RestfulBetaController::removeIllegalFieldCharacters($flid);
                     $field = preg_replace("/[^A-Za-z0-9_]/", '', $field);
-                    $orderBy .= "$field IS NULL, $field $order,";
+                    if(isset($this->layout['fields'][$field]) && $this->layout['fields'][$field]['type'] == Form::_HISTORICAL_DATE)
+                        $orderBy .= "$field IS NULL, $field->\"$.sort\" $order,";
+                    else
+                        $orderBy .= "$field IS NULL, $field $order,";
                 }
             }
             $orderBy = substr($orderBy, 0, -1); //Trim the last comma
@@ -1171,7 +1177,10 @@ class Form extends Model {
                         $field = fieldMapper($flid,$this->project_id,$this->id);
                     //Used to protect SQL
                     $field = preg_replace("/[^A-Za-z0-9_]/", '', $field);
-                    $orderBy .= "$field IS NULL, $field $order,";
+                    if(isset($this->layout['fields'][$field]) && $this->layout['fields'][$field]['type'] == Form::_HISTORICAL_DATE)
+                        $orderBy .= "$field IS NULL, $field->\"$.sort\" $order,";
+                    else
+                        $orderBy .= "$field IS NULL, $field $order,";
                 }
             }
             $orderBy = substr($orderBy, 0, -1); //Trim the last comma
@@ -1222,6 +1231,7 @@ class Form extends Model {
 
         return $results;
     }
+
     public function getRecordsForExportLegacyBeta($filters, $rids = null) {
         $results = [];
         $betaMappings = [];
@@ -1308,7 +1318,10 @@ class Form extends Model {
                     //Used to protect SQL
                     $field = RestfulBetaController::removeIllegalFieldCharacters($flid);
                     $field = preg_replace("/[^A-Za-z0-9_]/", '', $field);
-                    $orderBy .= "$field IS NULL, $field $order,";
+                    if(isset($this->layout['fields'][$field]) && $this->layout['fields'][$field]['type'] == Form::_HISTORICAL_DATE)
+                        $orderBy .= "$field IS NULL, $field->\"$.sort\" $order,";
+                    else
+                        $orderBy .= "$field IS NULL, $field $order,";
                 }
             }
             $orderBy = substr($orderBy, 0, -1); //Trim the last comma
@@ -1444,7 +1457,10 @@ class Form extends Model {
                     //Used to protect SQL
                     $field = fieldMapper($flid,$this->project_id,$this->id);
                     $field = preg_replace("/[^A-Za-z0-9_]/", '', $field);
-                    $orderBy .= "$field IS NULL, $field $order,";
+                    if(isset($this->layout['fields'][$field]) && $this->layout['fields'][$field]['type'] == Form::_HISTORICAL_DATE)
+                        $orderBy .= "$field IS NULL, $field->\"$.sort\" $order,";
+                    else
+                        $orderBy .= "$field IS NULL, $field $order,";
                 }
             }
             $orderBy = substr($orderBy, 0, -1); //Trim the last comma
@@ -1661,6 +1677,7 @@ class Form extends Model {
 
         return $filters;
     }
+
     public function getBetaDataFilters($count, $fields, $rids=null) {
         //Doing this for pretty much the same reason as keyword search above
         $con = mysqli_connect(
@@ -1805,18 +1822,23 @@ class Form extends Model {
                         $subField = preg_replace("/[^A-Za-z0-9_]/", '', $subField);
                         $ogFLID = preg_replace("/[^A-Za-z0-9_]/", '', $ogFLID);
                         $pieces .= ", `$ogFLID` as `$subField`";
+                        $histDateTest = $ogFLID;
                     } else {
                         $subField = $key;
                         //Used to protect SQL
                         $subField = preg_replace("/[^A-Za-z0-9_]/", '', $subField);
                         $pieces .= ", `$subField`";
+                        $histDateTest = $subField;
                     }
 
-                    $orderBy .= "`$subField` IS NULL, `$subField` $dir,";
+                    if(isset($form->layout['fields'][$histDateTest]) && $form->layout['fields'][$histDateTest]['type'] == Form::_HISTORICAL_DATE)
+                        $orderBy .= "`$subField` IS NULL, `$subField`->\"$.sort\" $dir,";
+                    else
+                        $orderBy .= "`$subField` IS NULL, `$subField` $dir,";
                 }
             }
 
-            $select = "SELECT $pieces from ".$prefix."records_$form->id";
+            $select = "SELECT $pieces from ".$prefix."records_".$form->id;
             $formSelects[] = $select;
         }
 

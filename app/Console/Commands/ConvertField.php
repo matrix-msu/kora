@@ -79,6 +79,19 @@ class ConvertField extends Command
                         $this->info("Preserving old record data at column: $tmpName$flid");
                         $crt->renameColumn($fid,$flid,"$tmpName$flid");
                         $crt->renameColumn($fid,$tmpName,$flid);
+                    } else if($newType == Form::_INTEGER) {
+                        $field['options'] = ['Min' => '', 'Max' => '', 'Unit' => ''];
+                        $field['default'] = '';
+
+                        $crt->addIntegerColumn($fid, $tmpName);
+                        $records = $recModel->newQuery()->whereNotNull($flid)->get();
+                        foreach($records as $rec) {
+                            $rec->{$tmpName} = (int)$rec->{$flid};
+                            $rec->save();
+                        }
+                        $this->info("Preserving old record data at column: $tmpName$flid");
+                        $crt->renameColumn($fid,$flid,"$tmpName$flid");
+                        $crt->renameColumn($fid,$tmpName,$flid);
                     } else
                         $status = 'bad_requested_type';
                     break;

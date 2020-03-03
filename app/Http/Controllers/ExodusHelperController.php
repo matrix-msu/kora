@@ -2,6 +2,7 @@
 
 use App\Form;
 use App\KoraFields\FileTypeField;
+use App\KoraFields\HistoricalDateField;
 use App\Record;
 use App\RecordPreset;
 use Carbon\Carbon;
@@ -474,6 +475,7 @@ class ExodusHelperController extends Controller {
         $recordDataToSave = array();
         $filePartNum = 1;
         $currRecordIndex = 1;
+        $histDateModel = new HistoricalDateField();
 
         while($r = $records->fetch_assoc()) {
             //Start by making the record if it doesn't exist yet
@@ -551,6 +553,7 @@ class ExodusHelperController extends Controller {
                             'prefix' => $prefix,
                             'era' => $era
                         ];
+                        $date['sort'] = $histDateModel->getDateSortValue($date['era'], $date['year'], $date['month'], $date['day']);
                         $recordDataToSave[$r['id']][$flid] = json_encode($date);
                         break;
                     case 'Documents':
