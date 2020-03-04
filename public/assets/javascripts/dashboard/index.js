@@ -733,9 +733,10 @@ Kora.Dashboard.Index = function() {
         $('.export-dashboard-begin-files-js').click(function(e) {
             e.preventDefault();
             $exportDiv = $(this);
+            $exportDivTitle = $('.export-records-title-'+activeFid+'-js');
 
             $exportDiv.addClass('disabled');
-            $exportDiv.text("Generating zip file...");
+            $exportDivTitle.text("Generating zip file...");
 
             startURL = $exportDiv.attr('startURL');
             endURL = $exportDiv.attr('endURL');
@@ -751,7 +752,7 @@ Kora.Dashboard.Index = function() {
                 success: function (data) {
                     //Change text back
                     $exportDiv.removeClass('disabled');
-                    $exportDiv.text("Export Record Files");
+                    $exportDivTitle.text("Export Record Files");
                     //Set page to download URL
                     document.location.href = endURL;
                 },
@@ -759,19 +760,19 @@ Kora.Dashboard.Index = function() {
                     hide_loader();
 
                     $exportDiv.removeClass('disabled');
-                    $exportDiv.text("Something went wrong :(");
+                    $exportDivTitle.text("Something went wrong :(");
 
                     if(err=="Gateway Time-out") {
-                        $exportDiv.text("Request timed out :(");
+                        $exportDivTitle.text("Request timed out :(");
                         $('.export-files-desc-'+activeFid+'-js').text("Zip took too long to generate. Please use the php artisan command for exporting record files. If you do not have permission to run this command, please contact your administrator.");
                     } else if(typeof error.responseJSON == 'undefined') {
-                        $exportDiv.text("Error creating zip :(");
+                        $exportDivTitle.text("Error creating zip :(");
                         $('.export-files-desc-'+activeFid+'-js').text("Unable to create the zip. Please contact your administrator for more information. You may still export all form records in the formats of JSON or XML.");
                     } else if(error.responseJSON.message == 'no_record_files') {
-                        $exportDiv.text("No record files :(");
+                        $exportDivTitle.text("No record files :(");
                         $('.export-files-desc-'+activeFid+'-js').text("There are no record files in this Form. You may still export all form records in the formats of JSON or XML.");
                     } else if(error.responseJSON.message == 'zip_too_big') {
-                        $exportDiv.text("Zip too big :(");
+                        $exportDivTitle.text("Zip too big :(");
                         $('.export-files-desc-'+activeFid+'-js').text("Zipped file is too big. Please use the php artisan command for exporting record files. If you do not have permission to run this command, please contact your administrator.");
                     }
                 }
