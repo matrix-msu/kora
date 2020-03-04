@@ -35,6 +35,8 @@
 
 @section('body')
     @include("partials.records.modals.deleteRecordModal", ['record' => null])
+    @include("partials.records.modals.deleteMultipleRecordsModal", ['record' => null])
+    @include("partials.records.modals.exportMultipleRecordsModal", ['record' => null])
     <section class="view-records center">
         <section class="search-records">
             <form method="GET" action="{{action('FormSearchController@keywordSearch',['pid' => $form->project_id, 'fid' => $form->id])}}" class="keyword-search-js">
