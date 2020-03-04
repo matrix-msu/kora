@@ -737,6 +737,23 @@ class RecordController extends Controller {
     }
 
     /**
+     * Get a record back by its kora 2 KID.
+     *
+     * @param  int $kid - Record kora ID
+     * @return Record - Requested record
+     */
+    public static function getRecordByLegacy($kid) {
+        if(!Record::isLegacyKIDPattern($kid))
+            return null;
+
+        $parts = explode('-',$kid);
+        $recordMod = new Record(array(),$parts[1]);
+        $record = $recordMod->newQuery()->where('legacy_kid', '=', $kid)->first();
+
+        return $record;
+    }
+
+    /**
      * Determines if record exists.
      *
      * @param  int $rid - Record ID

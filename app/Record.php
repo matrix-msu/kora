@@ -98,6 +98,18 @@ class Record extends Model {
     }
 
     /**
+     * Determines if a string is a kora 2 KID pattern.
+     * For reference, the KID pattern is PID-FID-RID, i.e. three sets of integers separated by hyphens.
+     *
+     * @param $string - Kora ID to validate
+     * @return bool - Matches pattern
+     */
+    public static function isLegacyKIDPattern($string) {
+        $pattern = "/^([A-Z0-9]+)-([A-Z0-9]+)-([A-Z0-9]+)/"; // Match exactly with KID pattern.
+        return preg_match($pattern, $string) != false;
+    }
+
+    /**
      * Gets a list of records that associate to this record along with preview data
      *
      * @return array - Records that associate it

@@ -91,6 +91,8 @@ class ProjectSearchController extends Controller {
             $total = 0;
             $ignored = [];
             $initial = true;
+            $page = 1;
+            $pageCount = 10;
         }
 
         $project = ProjectController::getProject($pid);
@@ -172,6 +174,8 @@ class ProjectSearchController extends Controller {
             $records = [];
             $total = 0;
             $ignored = [];
+            $page = 1;
+            $pageCount = 10;
         }
 
         $projects = array("ALL" => 'All Projects');

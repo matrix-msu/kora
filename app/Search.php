@@ -135,6 +135,11 @@ class Search {
                     if(!is_null($validRecord) && $validRecord->form_id == $this->fid)
                         $rids[] =  $validRecord->id;
                 }
+                if(Record::isLegacyKIDPattern($kid)) {
+                    $validRecord = RecordController::getRecordByLegacy($kid);
+                    if(!is_null($validRecord) && $validRecord->form_id == $this->fid)
+                        $rids[] =  $validRecord->id;
+                }
                 break;
             default:
                 break;
