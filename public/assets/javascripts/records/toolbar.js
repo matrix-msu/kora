@@ -32,20 +32,67 @@ Kora.Records.Toolbar = function() {
 
       var $modal = $('.export-mult-records-modal-js');
 
-      var selectedRIDs = [];
+      let rids = window.localStorage.getItem('selectedRecords');
+      let $form = $('.export-multiple-js');
 
-      $('.selected').each(function(){
-        var rid = $(this).find('.delete-record-js').attr('rid');
-        selectedRIDs.push(rid);
-      });
-
-      var _href = $('.export-multiple-js').attr('href');
-      var eq = _href.indexOf('=');
-      eq = eq + 1;
-      _href = _href.substring(0, eq);
-      $('.export-multiple-js').attr('href', _href + selectedRIDs);
+      if(rids) {
+        rids = rids.split(',');
+        $form.append('<input type="hidden" name="rids" value="' + rids + '">');
+      }
 
       Kora.Modal.open($modal);
+    });
+
+    $('.export-mult-begin-files-js').click(function(e) {
+      e.preventDefault();
+      $exportDiv = $(this);
+      $exportDivTitle = $('.export-mult-records-title-js');
+
+      $exportDiv.addClass('disabled');
+      $exportDivTitle.text("Generating zip file...");
+
+      startURL = $exportDiv.attr('startURL');
+      endURL = $exportDiv.attr('endURL');
+      token = $exportDiv.attr('token');
+
+      let rids = window.localStorage.getItem('selectedRecords');
+
+      //Ajax call to prep zip
+      $.ajax({
+        url: startURL,
+        type: 'POST',
+        data: {
+          "_token": token,
+          "rids": rids
+        },
+        success: function (data) {
+          //Change text back
+          $exportDiv.removeClass('disabled');
+          $exportDivTitle.text("Export Record Files");
+          //Set page to download URL
+          document.location.href = endURL;
+        },
+        error: function (error,status,err) {
+          hide_loader();
+
+          $exportDiv.removeClass('disabled');
+          $exportDivTitle.text("Something went wrong :(");
+
+          if(err=="Gateway Time-out") {
+            $exportDivTitle.text("Request timed out :(");
+            $('.export-mult-files-desc-js').text("Zip took too long to generate. Please use the php artisan command for exporting record files. If you do not have permission to run this command, please contact your administrator.");
+          } else if(typeof error.responseJSON == 'undefined') {
+            $exportDivTitle.text("Error creating zip :(");
+            $('.export-mult-files-desc-js').text("Unable to create the zip. Please contact your administrator for more information. You may still export all form records in the formats of JSON or XML.");
+          } else if(error.responseJSON.message == 'no_record_files') {
+            $exportDivTitle.text("No record files :(");
+            $('.export-mult-files-desc-js').text("There are no record files in this Form. You may still export all form records in the formats of JSON or XML.");
+          } else if(error.responseJSON.message == 'zip_too_big') {
+            $exportDivTitle.text("Zip too big :(");
+            $('.export-mult-files-desc-js').text("Zipped file is too big. Please use the php artisan command for exporting record files.  If you do not have permission to run this command, please contact your administrator.");
+          }
+        }
+      });
     });
   }
 

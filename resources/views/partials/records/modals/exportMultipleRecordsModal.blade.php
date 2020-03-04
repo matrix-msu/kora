@@ -1,7 +1,7 @@
 <div class="modal modal-js modal-mask export-mult-records-modal-js">
     <div class="content small">
         <div class="header">
-            <span class="title">Export <span class="count"></span> Records</span>
+            <span class="title export-mult-records-title-js">Export <span class="count"></span> Records</span>
             <a href="#" class="modal-toggle modal-toggle-js">
                 <i class="icon icon-cancel"></i>
             </a>
@@ -17,10 +17,20 @@
                 >Export Record Files</a>
             </div>
             <div class="form-group mt-m">
-                <a href="{{ action('ExportController@exportSelectedRecords', ['pid' => $form->project_id, 'fid' => $form->id, 'type' => 'JSON', 'rid' => '']) }}" class="btn export-multiple-js">Export JSON</a>
+                <form class="export-multiple-js" method="post" action="{{ action('ExportController@exportSelectedRecords', ['pid' => $form->project_id, 'fid' => $form->id, 'type' => 'JSON']) }}">
+                    <input type="hidden" name="_token" value="{{csrf_token()}}">
+                    <div>
+                        {!! Form::submit('Export JSON',['class' => 'btn']) !!}
+                    </div>
+                </form>
             </div>
             <div class="form-group mt-m">
-                <a href="{{ action('ExportController@exportSelectedRecords', ['pid' => $form->project_id, 'fid' => $form->id, 'type' => 'XML', 'rid' => '']) }}" class="btn export-multiple-js">Export XML</a>
+                <form class="export-multiple-js" method="post" action="{{ action('ExportController@exportSelectedRecords', ['pid' => $form->project_id, 'fid' => $form->id, 'type' => 'XML']) }}">
+                    <input type="hidden" name="_token" value="{{csrf_token()}}">
+                    <div>
+                        {!! Form::submit('Export XML',['class' => 'btn']) !!}
+                    </div>
+                </form>
             </div>
         </div>
     </div>

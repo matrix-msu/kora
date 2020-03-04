@@ -412,9 +412,10 @@ $( document ).ajaxComplete(function(event, xhr, options) {
 $('.export-begin-files-js').click(function(e) {
     e.preventDefault();
     $exportDiv = $(this);
+    $exportDivTitle = $('.export-records-title-js');
 
     $exportDiv.addClass('disabled');
-    $exportDiv.text("Generating zip file...");
+  $exportDivTitle.text("Generating zip file...");
 
     startURL = $exportDiv.attr('startURL');
     endURL = $exportDiv.attr('endURL');
@@ -430,7 +431,7 @@ $('.export-begin-files-js').click(function(e) {
         success: function (data) {
             //Change text back
             $exportDiv.removeClass('disabled');
-            $exportDiv.text("Export Record Files");
+          $exportDivTitle.text("Export Record Files");
             //Set page to download URL
             document.location.href = endURL;
         },
@@ -438,19 +439,19 @@ $('.export-begin-files-js').click(function(e) {
           hide_loader();
 
           $exportDiv.removeClass('disabled');
-          $exportDiv.text("Something went wrong :(");
+          $exportDivTitle.text("Something went wrong :(");
 
           if(err=="Gateway Time-out") {
-            $exportDiv.text("Request timed out :(");
+            $exportDivTitle.text("Request timed out :(");
             $('.export-files-desc-js').text("Zip took too long to generate. Please use the php artisan command for exporting record files. If you do not have permission to run this command, please contact your administrator.");
           } else if(typeof error.responseJSON == 'undefined') {
-            $exportDiv.text("Error creating zip :(");
+            $exportDivTitle.text("Error creating zip :(");
             $('.export-files-desc-js').text("Unable to create the zip. Please contact your administrator for more information. You may still export all form records in the formats of JSON or XML.");
           } else if(error.responseJSON.message == 'no_record_files') {
-            $exportDiv.text("No record files :(");
+            $exportDivTitle.text("No record files :(");
             $('.export-files-desc-js').text("There are no record files in this Form. You may still export all form records in the formats of JSON or XML.");
           } else if(error.responseJSON.message == 'zip_too_big') {
-            $exportDiv.text("Zip too big :(");
+            $exportDivTitle.text("Zip too big :(");
             $('.export-files-desc-js').text("Zipped file is too big. Please use the php artisan command for exporting record files.  If you do not have permission to run this command, please contact your administrator.");
           }
         }

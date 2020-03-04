@@ -105,7 +105,12 @@ class ExportController extends Controller {
             return redirect('projects/'.$pid.'/forms/'.$fid);
 
         //Get the data
-        $rids = array_map('intval', explode(',', $request->rid));
+        $kids = explode(',', $request->rids);
+        $rids = [];
+        foreach($kids as $kid) {
+            $parts = explode('-',$kid);
+            $rids[] = $parts[2];
+        }
         $filters = ["revAssoc" => true, "meta" => false, "fields" => 'ALL', "altNames" => false, "assoc" => false,
             "data" => true, "sort" => null, "count" => null, "index" => null];
         if($type==self::JSON) {
@@ -139,9 +144,10 @@ class ExportController extends Controller {
      *
      * @param  int $pid - Project ID
      * @param  int $fid - Form ID
+     * @param  Request $request
      */
-    public function prepRecordFiles($pid, $fid) {
-        if(!FormController::validProjForm($pid, $fid))
+    public function prepRecordFiles($pid, $fid, Request $request) {
+       if(!FormController::validProjForm($pid, $fid))
             return redirect('projects/'.$pid)->with('k3_global_error', 'form_invalid');
 
         $form = FormController::getForm($fid);
@@ -153,6 +159,11 @@ class ExportController extends Controller {
         $fileSizeCount = 0.0;
         $fileCount = 0;
 
+        if(isset($request->rids))
+            $kids = explode(',', $request->rids);
+        else
+            $kids = 'ALL';
+
         //Build an array of the files that actually need to be zipped from every file field
         //This will ignore old record files
         //Also builds an array of local file names to original names to compensate for timestamps
@@ -160,8 +171,11 @@ class ExportController extends Controller {
         $fileArray = [];
         foreach($form->layout['fields'] as $flid => $field) {
             if($form->getFieldModel($field['type']) instanceof FileTypeField) {
-                $records = $recMod->newQuery()->select(['id',$flid])->whereNotNull($flid)->get();
+                $records = $recMod->newQuery()->select(['id','kid',$flid])->whereNotNull($flid)->get();
                 foreach($records as $record) {
+                    if(is_array($kids) && !in_array($record->kid,$kids))
+                        continue;
+
                     if(!is_null($record->{$flid})) {
                         $files = json_decode($record->{$flid}, true);
                         foreach($files as $recordFile) {
@@ -188,7 +202,10 @@ class ExportController extends Controller {
                 $zip = new ZipArchive();
 
                 $dir_path = storage_path('app/files/'.$pid . '/' . $fid);
-                if($zip->open($zip_dir . '/' . $zip_name, ZipArchive::CREATE) === TRUE) {
+                if(
+                    $zip->open($zip_dir . '/' . $zip_name, ZipArchive::CREATE) === TRUE ||
+                    $zip->open($zip_dir . '/' . $zip_name, ZipArchive::OVERWRITE) === TRUE
+                ) {
                     foreach($fileArray as $rid => $recordFileArray) {
                         foreach(new \DirectoryIterator("$dir_path/$rid") as $file) {
                             if($file->isFile() && array_key_exists($file->getFilename(), $recordFileArray)) {

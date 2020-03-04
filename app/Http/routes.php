@@ -101,7 +101,7 @@ Route::group(['middleware' => 'web'], function () {
 
 //export routes
     Route::get('/projects/{pid}/forms/{fid}/exportRecords/{type}', 'ExportController@exportRecords');
-    Route::get('/projects/{pid}/forms/{fid}/exportSelectedRecords/{type}', 'ExportController@exportSelectedRecords');
+    Route::post('/projects/{pid}/forms/{fid}/exportSelectedRecords/{type}', 'ExportController@exportSelectedRecords');
     Route::post('/projects/{pid}/forms/{fid}/prepFiles', 'ExportController@prepRecordFiles');
     Route::get('/projects/{pid}/forms/{fid}/exportFiles', 'ExportController@exportRecordFiles');
     Route::get('/projects/{pid}/forms/{fid}/exportForm', 'ExportController@exportForm');

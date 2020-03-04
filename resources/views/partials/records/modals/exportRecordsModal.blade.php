@@ -1,7 +1,7 @@
 <div class="modal modal-js modal-mask export-records-modal-js">
     <div class="content small">
         <div class="header">
-            <span class="title">Export All Records</span>
+            <span class="title export-records-title-js">Export All Records</span>
             <a href="#" class="modal-toggle modal-toggle-js">
                 <i class="icon icon-cancel"></i>
             </a>
