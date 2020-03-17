@@ -47,12 +47,12 @@ class AdminController extends Controller {
         $userNameSort = [];
 
         foreach($users as $user) {
-            $userNameSort[$user->preferences['first_name']] = $user;
+            $userNameSort[$user->preferences['first_name'].'_'.$user->username] = $user;
         }
 
         ksort($userNameSort);
         $usersAz = $userNameSort;
-        ksort($userNameSort,SORT_DESC);
+        krsort($userNameSort);
         $usersZa = $userNameSort;
         $usersNto = User::latest()->get();
         $usersOtn = User::orderBy('created_at')->get();
