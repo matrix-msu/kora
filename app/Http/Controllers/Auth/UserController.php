@@ -232,74 +232,74 @@ class UserController extends Controller {
      * @return Redirect
      */
     public function update(Request $request) {
-      if(!\Auth::user()->admin && \Auth::user()->id != $request->uid)
-          return response()->json(["status" => false, "message" => "cannot_update_user"], 200);
+        if(!\Auth::user()->admin && \Auth::user()->id != $request->uid)
+            return response()->json(["status" => false, "message" => "cannot_update_user"], 200);
 
-      $message = array();
-      $user = User::where('id', '=', $request->uid)->first();
-      $newUsername = $request->username;
-      $newEmail = $request->email;
-      $newFirstName = $request->first_name;
-      $newLastName = $request->last_name;
-      $newProfilePic = $request->profile;
-      $newOrganization = $request->organization;
-      $newPass = $request->password;
-      $confirm = $request->password_confirmation;
+        $message = array();
+        $user = User::where('id', '=', $request->uid)->first();
+        $newUsername = $request->username;
+        $newEmail = $request->email;
+        $newFirstName = $request->first_name;
+        $newLastName = $request->last_name;
+        $newProfilePic = $request->profile;
+        $newOrganization = $request->organization;
+        $newPass = $request->password;
+        $confirm = $request->password_confirmation;
 
-	  $userPrefs = $user->preferences; // doesn't access property directly, uses __get
+        $userPrefs = $user->preferences; // doesn't access property directly, uses __get
 
-      $user->username = $newUsername;
-      $user->email = $newEmail;
+        $user->username = $newUsername;
+        $user->email = $newEmail;
 
-      // Look for changes, update what was changed
-      if(!empty($newEmail) && $newEmail != $user->email) {
-          $user->email = $newEmail;
-          array_push($message, 'email');
-      }
+        // Look for changes, update what was changed
+        if(!empty($newEmail) && $newEmail != $user->email) {
+            $user->email = $newEmail;
+            array_push($message, 'email');
+        }
       
-      if(!empty($newFirstName) && $newFirstName != $user->preferences['first_name']) {
-        $userPrefs['first_name'] = $newFirstName;
-        array_push($message, "first_name");
-      }
+        if(!empty($newFirstName) && $newFirstName != $user->preferences['first_name']) {
+            $userPrefs['first_name'] = $newFirstName;
+            array_push($message, "first_name");
+        }
 
-      if(!empty($newLastName) && $newLastName != $user->preferences['last_name']) {
-        $userPrefs['last_name'] = $newLastName;
-        array_push($message, "last_name");
-      }
+        if(!empty($newLastName) && $newLastName != $user->preferences['last_name']) {
+            $userPrefs['last_name'] = $newLastName;
+            array_push($message, "last_name");
+        }
 
-      if(!empty($newOrganization) && $newOrganization != $user->preferences['organization']) {
-        $userPrefs['organization'] = $newOrganization;
-        array_push($message, "organization");
-      }
+        if(!empty($newOrganization) && $newOrganization != $user->preferences['organization']) {
+            $userPrefs['organization'] = $newOrganization;
+            array_push($message, "organization");
+        }
 
-      // Handle password change cases.
-      if(!empty($newPass) || !empty($confirm)) {
-          // If passwords don't match.
-          if($newPass != $confirm)
-              return response()->json(["status" => false, "message" => "passwords_unmatched"], 200);
+        // Handle password change cases.
+        if(!empty($newPass) || !empty($confirm)) {
+            // If passwords don't match.
+            if($newPass != $confirm)
+                return response()->json(["status" => false, "message" => "passwords_unmatched"], 200);
 
-          // If password is less than 6 chars
-          if(strlen($newPass)<6)
-              return response()->json(["status" => false, "message" => "password_minimum"], 200);
+            // If password is less than 6 chars
+            if(strlen($newPass)<6)
+                return response()->json(["status" => false, "message" => "password_minimum"], 200);
 
-          // If password contains spaces
-          if(preg_match('/\s/',$newPass))
-              return response()->json(["status" => false, "message" => "password_whitespaces"], 200);
+            // If password contains spaces
+            if(preg_match('/\s/',$newPass))
+                return response()->json(["status" => false, "message" => "password_whitespaces"], 200);
 
-          $user->password = bcrypt($newPass);
-          array_push($message,"password");
-      }
+            $user->password = bcrypt($newPass);
+            array_push($message,"password");
+        }
 
-	  $user->preferences = $userPrefs; // __set
-      $user->save();
+        $user->preferences = $userPrefs; // __set
+        $user->save();
 
-      if(!empty($newProfilePic)) {
-        $changePicResponse = json_decode($this->changepicture($request, $user), true);
-        if($changePicResponse['status'])
-          array_push($message, $changePicResponse['message']);
-      }
+        if(!empty($newProfilePic)) {
+            $changePicResponse = json_decode($this->changepicture($request, $user), true);
+            if($changePicResponse['status'])
+                array_push($message, $changePicResponse['message']);
+        }
 
-      return redirect('user/'.Auth::user()->id)->with('k3_global_success', 'user_updated')->with('user_changes', $message);
+        return redirect('user/'.Auth::user()->id)->with('k3_global_success', 'user_updated')->with('user_changes', $message);
     }
 
     /**
@@ -307,25 +307,26 @@ class UserController extends Controller {
      * Since we 'create' the account when we invite the user, we are updating their things rather than creating them
      * Can't use the 'Update' function above since we need this function to send the activation email
      *
-     * What to return here?
+     * @param  Request $request
+     * @return Redirect
      */
     public function updateFromEmail(Request $request) {
-      if(!\Auth::user()->admin && \Auth::user()->id != $request->uid)
-        return response()->json(["status" => false, "message" => "cannot_update_user"], 200);
+        if(!\Auth::user()->admin && \Auth::user()->id != $request->uid)
+            return response()->json(["status" => false, "message" => "cannot_update_user"], 200);
 
-      $message = array();
-      $user = User::where('id', '=', $request->uid)->first();
-      $newFirstName = $request->first_name;
-      $newLastName = $request->last_name;
-      $newUsername = $request->username;
-      $newProfilePic = $request->profile;
-      $newOrganization = $request->organization;
-      $newPass = $request->password;
-      $confirm = $request->password_confirmation;
+        $message = array();
+        $user = User::where('id', '=', $request->uid)->first();
+        $newFirstName = $request->first_name;
+        $newLastName = $request->last_name;
+        $newUsername = $request->username;
+        $newProfilePic = $request->profile;
+        $newOrganization = $request->organization;
+        $newPass = $request->password;
+        $confirm = $request->password_confirmation;
 
-      $userPrefs = $user->preferences; // doesn't access property directly, uses __get
+        $userPrefs = $user->preferences; // doesn't access property directly, uses __get
 
-      $user->username = $newUsername;
+        $user->username = $newUsername;
 
         if(!empty($newFirstName) && $newFirstName != $user->preferences['first_name']) {
             $userPrefs['first_name'] = $newFirstName;
@@ -342,41 +343,35 @@ class UserController extends Controller {
             array_push($message, "organization");
         }
 
-      // Handle password change cases.
-      if(!empty($newPass) || !empty($confirm)) {
-          // If passwords don't match.
-          if($newPass != $confirm)
-              return response()->json(["status" => false, "message" => "passwords_unmatched"], 200);
-              //return redirect('user/'.$user->id.'/edit')->with('k3_global_error', 'passwords_unmatched');
+        // Handle password change cases.
+        if(!empty($newPass) || !empty($confirm)) {
+            // If passwords don't match.
+            if($newPass != $confirm)
+                return response()->json(["status" => false, "message" => "passwords_unmatched"], 200);
 
-          // If password is less than 6 chars
-          if(strlen($newPass)<6)
-              return response()->json(["status" => false, "message" => "password_minimum"], 200);
-              //return redirect('user/'.$user->id.'/edit')->with('k3_global_error', 'password_minimum');
+            // If password is less than 6 chars
+            if(strlen($newPass)<6)
+                return response()->json(["status" => false, "message" => "password_minimum"], 200);
 
-          // If password contains spaces
-          if(preg_match('/\s/',$newPass))
-              return response()->json(["status" => false, "message" => "password_whitespaces"], 200);
-              //return redirect('user/'.$user->id.'/edit')->with('k3_global_error', 'password_whitespaces');
+            // If password contains spaces
+            if(preg_match('/\s/',$newPass))
+                return response()->json(["status" => false, "message" => "password_whitespaces"], 200);
 
-          $user->password = bcrypt($newPass);
-          array_push($message,"password");
-      }
+            $user->password = bcrypt($newPass);
+            array_push($message,"password");
+        }
 
         $user->preferences = $userPrefs; // __set
+        $user->active = 1;
         $user->save();
 
-      if(!empty($newProfilePic)) {
-        $changePicResponse = json_decode($this->changepicture($request, $user), true);
-        if($changePicResponse['status'])
-          array_push($message, $changePicResponse['message']);
-      }
+        if(!empty($newProfilePic)) {
+            $changePicResponse = json_decode($this->changepicture($request, $user), true);
+            if($changePicResponse['status'])
+                array_push($message, $changePicResponse['message']);
+        }
 
-      // Send email
-        $job = new UserEmails('UserActivationRequest', ['token' => null, 'email' => \Auth::user()->email]);
-        $job->handle();
-
-      return redirect('user/'.Auth::user()->id)->with('k3_global_success', 'user_updated')->with('user_changes', $message);
+        return redirect('user/'.Auth::user()->id)->with('k3_global_success', 'user_updated')->with('user_changes', $message);
     }
 
     /**
