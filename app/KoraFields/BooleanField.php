@@ -260,13 +260,13 @@ class BooleanField extends BaseField {
     /**
      * Performs a keyword search on this field and returns any results.
      *
-     * @param  string $flid - Field ID
+     * @param  array $flids - Field ID
      * @param  string $arg - The keywords
      * @param  Record $recordMod - Model to search through
      * @param  boolean $negative - Get opposite results of the search
      * @return array - The RIDs that match search
      */
-    public function keywordSearchTyped($flid, $arg, $recordMod, $form, $negative = false) {
+    public function keywordSearchTyped($flids, $arg, $recordMod, $form, $negative = false) {
         if($negative)
             $param = '!=';
         else
@@ -281,10 +281,14 @@ class BooleanField extends BaseField {
         else
             return [];
 
-        return $recordMod->newQuery()
-            ->select("id")
-            ->where($flid, $param,"$tmpArg")
-            ->pluck('id')
+        $query = $recordMod->newQuery()
+            ->select("id");
+
+        foreach($flids as $f) {
+            $query = $query->orWhere($f, $param,"$tmpArg");
+        }
+
+        return $query->pluck('id')
             ->toArray();
     }
 

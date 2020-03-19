@@ -300,20 +300,22 @@ class ListField extends BaseField {
     /**
      * Performs a keyword search on this field and returns any results.
      *
-     * @param  string $flid - Field ID
+     * @param  array $flids - Field ID
      * @param  string $arg - The keywords
      * @param  Record $recordMod - Model to search through
      * @param  boolean $negative - Get opposite results of the search
      * @return array - The RIDs that match search
      */
-    public function keywordSearchTyped($flid, $arg, $recordMod, $form, $negative = false) {
+    public function keywordSearchTyped($flids, $arg, $recordMod, $form, $negative = false) {
         $search = $recordMod->newQuery()
             ->select("id");
 
-        if($negative)
-            $search = $search->where($flid, 'NOT LIKE',"$arg")->orWhereNull($flid);
-        else
-            $search = $search->where($flid, 'LIKE',"$arg");
+        foreach($flids as $f) {
+            if($negative)
+                $search = $search->orWhere($f, 'NOT LIKE',"$arg")->orWhereNull($f);
+            else
+                $search = $search->orWhere($f, 'LIKE',"$arg");
+        }
 
         return $search->pluck('id')
             ->toArray();

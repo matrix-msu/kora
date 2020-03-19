@@ -438,40 +438,48 @@ class ComboListField extends BaseField {
     /**
      * Performs a keyword search on this field and returns any results.
      *
-     * @param  string $flid - Field ID
+     * @param  array $flids - Field ID
      * @param  string $arg - The keywords
      * @param  Record $recordMod - Model to search through
      * @param  boolean $negative - Get opposite results of the search
      * @return array - The RIDs that match search
      */
-    public function keywordSearchTyped($flid, $arg, $recordMod, $form, $negative = false) {
+    public function keywordSearchTyped($flids, $arg, $recordMod, $form, $negative = false) {
         if($negative)
             $param = 'NOT LIKE';
         else
             $param = 'LIKE';
 
-        $layout = $form->layout['fields'][$flid];
+        $final = [];
 
-        return DB::table($flid . $form->id)
-            ->select("record_id")
-            ->where(function($query) use ($arg, $layout, $param, $negative) {
-                foreach(['one', 'two'] as $seq) {
-                    $tmpArg = str_replace("%","",$arg);
-                    $flid = $layout[$seq]['flid'];
-                    if(is_numeric($tmpArg)) {
-                        // Dealing with numbers
-                        $tmpArg = [$tmpArg - self::EPSILON, $tmpArg + self::EPSILON];
-                        if($negative)
-                            $query->whereNotBetween($flid, $tmpArg);
-                        else
-                            $query->whereBetween($flid, $tmpArg);
-                    } else {
-                        $query->orWhere($flid, $param,"$arg");
+        foreach($flids as $f) {
+            $layout = $form->layout['fields'][$f];
+
+            $res = DB::table($f . $form->id)
+                ->select("record_id")
+                ->where(function ($query) use ($arg, $layout, $param, $negative) {
+                    foreach (['one', 'two'] as $seq) {
+                        $tmpArg = str_replace("%", "", $arg);
+                        $flid = $layout[$seq]['flid'];
+                        if (is_numeric($tmpArg)) {
+                            // Dealing with numbers
+                            $tmpArg = [$tmpArg - self::EPSILON, $tmpArg + self::EPSILON];
+                            if ($negative)
+                                $query->whereNotBetween($flid, $tmpArg);
+                            else
+                                $query->whereBetween($flid, $tmpArg);
+                        } else {
+                            $query->orWhere($flid, $param, "$arg");
+                        }
                     }
-                }
-            })
-            ->pluck('record_id')
-            ->toArray();
+                })
+                ->pluck('record_id')
+                ->toArray();
+
+            $this->imitateMerge($final,$res);
+        }
+
+        return $final;
     }
 
     /**

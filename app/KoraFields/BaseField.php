@@ -207,13 +207,13 @@ abstract class BaseField extends Model {
     /**
      * Performs a keyword search on this field and returns any results.
      *
-     * @param  int $flid - Field ID
+     * @param  array $flids - Field ID
      * @param  string $arg - The keywords
      * @param  Record $recordMod - Model to search through
      * @param  boolean $negative - Get opposite results of the search
      * @return array - The RIDs that match search
      */
-    abstract public function keywordSearchTyped($flid, $arg, $recordMod, $form, $negative = false);
+    abstract public function keywordSearchTyped($flids, $arg, $recordMod, $form, $negative = false);
 
     /**
      * Updates the request for an API search to mimic the advanced search structure.

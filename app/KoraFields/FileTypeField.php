@@ -486,13 +486,13 @@ abstract class FileTypeField extends BaseField {
     /**
      * Performs a keyword search on this field and returns any results.
      *
-     * @param  string $flid - Field ID
+     * @param  array $flids - Field ID
      * @param  string $arg - The keywords
      * @param  Record $recordMod - Model to search through
      * @param  boolean $negative - Get opposite results of the search
      * @return array - The RIDs that match search
      */
-    public function keywordSearchTyped($flid, $arg, $recordMod, $form, $negative = false) {
+    public function keywordSearchTyped($flids, $arg, $recordMod, $form, $negative = false) {
         if($negative)
             $param = 'NOT LIKE';
         else
@@ -502,12 +502,19 @@ abstract class FileTypeField extends BaseField {
             ->select("id");
 
         $arg = strtolower($arg); //Solves the JSON mysql case-insensitive issue
-        if($negative) {
-            $dbQuery->whereRaw("LOWER(`$flid`->\"$[*].name\") $param \"$arg\"");
-            $dbQuery->whereRaw("LOWER(`$flid`->\"$[*].caption\") $param \"$arg\"");
-        } else {
-            $dbQuery->orWhereRaw("LOWER(`$flid`->\"$[*].name\") $param \"$arg\"");
-            $dbQuery->orWhereRaw("LOWER(`$flid`->\"$[*].caption\") $param \"$arg\"");
+
+        foreach($flids as $f) {
+            if($negative) {
+                $dbQuery = $dbQuery->orWhere(function($query) use ($f, $param, $arg) {
+                    $query = $query->whereRaw("LOWER(`$f`->\"$[*].name\") $param \"$arg\"");
+                    $query = $query->whereRaw("LOWER(`$f`->\"$[*].caption\") $param \"$arg\"");
+                });
+            } else {
+                $dbQuery = $dbQuery->orWhere(function($query) use ($f, $param, $arg) {
+                    $query = $query->orWhereRaw("LOWER(`$f`->\"$[*].name\") $param \"$arg\"");
+                    $query = $query->orWhereRaw("LOWER(`$f`->\"$[*].caption\") $param \"$arg\"");
+                });
+            }
         }
 
         return $dbQuery->pluck('id')

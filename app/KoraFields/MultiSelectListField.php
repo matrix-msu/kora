@@ -284,20 +284,22 @@ class MultiSelectListField extends BaseField {
     /**
      * Performs a keyword search on this field and returns any results.
      *
-     * @param  string $flid - Field ID
+     * @param  array $flids - Field ID
      * @param  string $arg - The keywords
      * @param  Record $recordMod - Model to search through
      * @param  boolean $negative - Get opposite results of the search
      * @return array - The RIDs that match search
      */
-    public function keywordSearchTyped($flid, $arg, $recordMod, $form, $negative = false) {
+    public function keywordSearchTyped($flids, $arg, $recordMod, $form, $negative = false) {
         $search = $recordMod->newQuery()
             ->select("id");
 
-        if($negative)
-            $search = $search->whereRaw("LOWER($flid) NOT LIKE ?", [strtolower($arg)])->orWhereNull($flid);
-        else
-            $search = $search->whereRaw("LOWER($flid) LIKE ?", [strtolower($arg)]);
+        foreach($flids as $f) {
+            if($negative)
+                $search = $search->orWhereRaw("LOWER($f) NOT LIKE ?", [strtolower($arg)])->orWhereNull($f);
+            else
+                $search = $search->orWhereRaw("LOWER($f) LIKE ?", [strtolower($arg)]);
+        }
 
         return $search->pluck('id')
             ->toArray();

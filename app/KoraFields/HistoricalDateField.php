@@ -489,13 +489,13 @@ class HistoricalDateField extends BaseField {
     /**
      * Performs a keyword search on this field and returns any results.
      *
-     * @param  string $flid - Field ID
+     * @param  array $flids - Field ID
      * @param  string $arg - The keywords
      * @param  Record $recordMod - Model to search through
      * @param  boolean $negative - Get opposite results of the search
      * @return array - The RIDs that match search
      */
-    public function keywordSearchTyped($flid, $arg, $recordMod, $form, $negative = false) {
+    public function keywordSearchTyped($flids, $arg, $recordMod, $form, $negative = false) {
         if($negative)
             $param = 'NOT LIKE';
         else
@@ -504,20 +504,26 @@ class HistoricalDateField extends BaseField {
         $dbQuery = $recordMod->newQuery()
             ->select("id");
 
-        if($negative) {
-            $dbQuery->where($flid, $param, "%\"month\": \"$arg\"%");
-            $dbQuery->where($flid, $param, "%\"day\": \"$arg\"%");
-            $dbQuery->where($flid, $param, "%\"year\": \"$arg\"%");
-            $arg = strtolower($arg); //Solves the JSON mysql case-insensitive issue
-            $dbQuery->whereRaw("LOWER($flid) $param ?", ["%\"era\": \"$arg\"%"]);
-            $dbQuery->whereRaw("LOWER($flid) $param ?", ["%\"prefix\": \"$arg\"%"]);
-        } else {
-            $dbQuery->orWhere($flid, $param, "%\"month\": \"$arg\"%");
-            $dbQuery->orWhere($flid, $param, "%\"day\": \"$arg\"%");
-            $dbQuery->orWhere($flid, $param, "%\"year\": \"$arg\"%");
-            $arg = strtolower($arg); //Solves the JSON mysql case-insensitive issue
-            $dbQuery->orWhereRaw("LOWER($flid) $param ?", ["%\"era\": \"$arg\"%"]);
-            $dbQuery->orWhereRaw("LOWER($flid) $param ?", ["%\"prefix\": \"$arg\"%"]);
+        foreach($flids as $f) {
+            if($negative) {
+                $dbQuery = $dbQuery->orWhere(function($query) use ($f, $param, $arg) {
+                    $query = $query->where($f, $param, "%\"month\": \"$arg\"%");
+                    $query = $query->where($f, $param, "%\"day\": \"$arg\"%");
+                    $query = $query->where($f, $param, "%\"year\": \"$arg\"%");
+                    $arg = strtolower($arg); //Solves the JSON mysql case-insensitive issue
+                    $query = $query->whereRaw("LOWER($f) $param ?", ["%\"era\": \"$arg\"%"]);
+                    $query = $query->whereRaw("LOWER($f) $param ?", ["%\"prefix\": \"$arg\"%"]);
+                });
+            } else {
+                $dbQuery = $dbQuery->orWhere(function($query) use ($f, $param, $arg) {
+                    $query = $query->orWhere($f, $param, "%\"month\": \"$arg\"%");
+                    $query = $query->orWhere($f, $param, "%\"day\": \"$arg\"%");
+                    $query = $query->orWhere($f, $param, "%\"year\": \"$arg\"%");
+                    $arg = strtolower($arg); //Solves the JSON mysql case-insensitive issue
+                    $query = $query->orWhereRaw("LOWER($f) $param ?", ["%\"era\": \"$arg\"%"]);
+                    $query = $query->orWhereRaw("LOWER($f) $param ?", ["%\"prefix\": \"$arg\"%"]);
+                });
+            }
         }
 
         return $dbQuery->pluck('id')
