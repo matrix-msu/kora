@@ -418,12 +418,14 @@ class AssociatorField extends BaseField {
             $opt_flids = $opt['flids'];
 
             $flids = [];
-            foreach($opt_flids as $flid) {
-                //Make sure there actually is a preview field
-                if($flid=="")
-                    continue;
-                $field = FieldController::getField($flid,$opt_fid);
-                $flids[$flid] = $field;
+            if(!is_null($opt_flids)) {
+                foreach($opt_flids as $flid) {
+                    //Make sure there actually is a preview field
+                    if($flid=="")
+                        continue;
+                    $field = FieldController::getField($flid,$opt_fid);
+                    $flids[$flid] = $field;
+                }
             }
             $activeForms[$opt_fid] = ['fields' => $flids];
         }
