@@ -94,6 +94,7 @@ class RecordFileZipExport extends Command {
                 $zip = new ZipArchive();
 
                 $dir_path = storage_path('app/files/'.$form->project_id . '/' . $form->id);
+                $count = 0;
                 if(
                     $zip->open($zip_dir . '/' . $zip_name, ZipArchive::CREATE) === TRUE ||
                     $zip->open($zip_dir . '/' . $zip_name, ZipArchive::OVERWRITE) === TRUE
@@ -103,6 +104,8 @@ class RecordFileZipExport extends Command {
                             if($file->isFile() && array_key_exists($file->getFilename(), $recordFileArray)) {
                                 $content = file_get_contents($file->getRealPath());
                                 $zip->addFromString($rid.'/'.$recordFileArray[$file->getFilename()], $content);
+                                $zip->setCompressionIndex($count, ZipArchive::CM_STORE);
+                                $count++;
                             }
                         }
                     }
