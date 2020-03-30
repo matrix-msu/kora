@@ -70,7 +70,7 @@ Kora.Records.Toolbar = function() {
           $exportDiv.removeClass('disabled');
           $exportDivTitle.text("Export Record Files");
           //Set page to download URL
-          document.location.href = endURL;
+          document.location.href = endURL+'/'+data.fileName;
         },
         error: function (error,status,err) {
           hide_loader();

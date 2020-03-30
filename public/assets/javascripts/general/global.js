@@ -431,9 +431,9 @@ $('.export-begin-files-js').click(function(e) {
         success: function (data) {
             //Change text back
             $exportDiv.removeClass('disabled');
-          $exportDivTitle.text("Export Record Files");
+            $exportDivTitle.text("Export Record Files");
             //Set page to download URL
-            document.location.href = endURL;
+            document.location.href = endURL+'/'+data.fileName;
         },
         error: function (error,status,err) {
           hide_loader();

@@ -6,6 +6,7 @@ use App\KoraFields\FileTypeField;
 use App\Record;
 use App\RecordPreset;
 use Carbon\Carbon;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Http\Request;
 use ZipArchive;
@@ -154,20 +155,29 @@ class ExportController extends Controller {
         if(!(\Auth::user()->isFormAdmin($form)))
             return redirect('projects/'.$pid)->with('k3_global_error', 'not_form_admin');
 
-        ini_set('max_execution_time',0);
-        ini_set('memory_limit', "6G");
-        $fileSizeCount = 0.0;
-        $fileCount = 0;
-
         if(isset($request->rids))
             $kids = explode(',', $request->rids);
         else
             $kids = 'ALL';
 
+        $build = $this->buildExportFileZip($form, $kids);
+
+        if($build instanceof JsonResponse)
+            return $build;
+        else
+            return response()->json(["status" => true, "message" => "success", "fileName" => $build], 200);
+    }
+
+    private function buildExportFileZip($form, $kids) {
+        ini_set('max_execution_time',0);
+        ini_set('memory_limit', "5000000000G");
+        $fileSizeCount = 0.0;
+        $fileCount = 0;
+
         //Build an array of the files that actually need to be zipped from every file field
         //This will ignore old record files
         //Also builds an array of local file names to original names to compensate for timestamps
-        $recMod = new Record(array(), $fid);
+        $recMod = new Record(array(), $form->id);
         $fileArray = [];
         foreach($form->layout['fields'] as $flid => $field) {
             if($form->getFieldModel($field['type']) instanceof FileTypeField) {
@@ -181,7 +191,7 @@ class ExportController extends Controller {
                         foreach($files as $recordFile) {
                             $fileCount++;
                             $fileSizeCount += number_format($recordFile['size'] / 1073741824, 2);
-                            if($fileSizeCount > 5)
+                            if($fileSizeCount > 5000000000)
                                 return response()->json(["status" => false, "message" => "zip_too_big"], 500);
 
                             $localName = isset($recordFile['timestamp']) ? $recordFile['timestamp'] . '.' . $recordFile['name'] : $recordFile['name'];
@@ -197,11 +207,11 @@ class ExportController extends Controller {
 
         switch(config('filesystems.kora_storage')) {
             case FileTypeField::_LaravelStorage:
-                $zip_name = $form->internal_name.'preppedZIP_user'.\Auth::user()->id.'.zip';
+                $zip_name = $form->internal_name.\Auth::user()->id.'_'.uniqid().'.zip';
                 $zip_dir = storage_path('app/tmpFiles');
                 $zip = new ZipArchive();
 
-                $dir_path = storage_path('app/files/'.$pid . '/' . $fid);
+                $dir_path = storage_path('app/files/'.$form->project_id . '/' . $form->id);
                 if(
                     $zip->open($zip_dir . '/' . $zip_name, ZipArchive::CREATE) === TRUE ||
                     $zip->open($zip_dir . '/' . $zip_name, ZipArchive::OVERWRITE) === TRUE
@@ -217,15 +227,10 @@ class ExportController extends Controller {
                     $zip->close();
                 }
 
-                // Set Header
-                $headers = array(
-                    'Content-Type' => 'application/octet-stream',
-                );
-
                 $filetopath = $zip_dir . '/' . $zip_name;
-                // Create Download Response
+
                 if(file_exists($filetopath))
-                    return response()->download($filetopath, $zip_name, $headers);
+                    return $zip_name;
                 break;
             case FileTypeField::_JoyentManta:
                 //TODO::MANTA
@@ -244,7 +249,7 @@ class ExportController extends Controller {
      * @param  int $fid - Form ID
      * @return string - The html to download the file
      */
-    public function exportRecordFiles($pid, $fid) {
+    public function exportRecordFiles($pid, $fid, $name) {
         if(!FormController::validProjForm($pid, $fid))
             return redirect('projects/'.$pid)->with('k3_global_error', 'form_invalid');
 
@@ -254,85 +259,29 @@ class ExportController extends Controller {
 
         ini_set('max_execution_time',0);
         ini_set('memory_limit', "6G");
-        $fileSizeCount = 0.0;
-        $fileCount = 0;
 
-        if(file_exists(storage_path('app/tmpFiles/').$form->internal_name.'preppedZIP_user'.\Auth::user()->id.'.zip')) {
-            $zip_name = $form->internal_name.'preppedZIP_user'.\Auth::user()->id.'.zip';
-            header('Content-Disposition: attachment; filename="' . $zip_name . '"');
+        if(file_exists(storage_path('app/tmpFiles/').$name)) {
+            header('Content-Disposition: attachment; filename="' . $name . '"');
             header('Content-Type: application/zip; ');
 
-            readfile(storage_path('app/tmpFiles/').$zip_name);
+            readfile(storage_path('app/tmpFiles/').$name);
+            exit;
+        } else if($name=='ALL') {
+            $build = $this->buildExportFileZip($form, "ALL");
+
+            if($build instanceof JsonResponse)
+                return $build;
+
+            // Set Header
+            header('Content-Disposition: attachment; filename="' . $build . '"');
+            header('Content-Type: application/zip; ');
+
+            $filetopath = storage_path('app/tmpFiles/').$build;
+            readfile($filetopath);
             exit;
         } else {
-            //Build an array of the files that actually need to be zipped from every file field
-            //This will ignore old record files
-            //Also builds an array of local file names to original names to compensate for timestamps
-            $recMod = new Record(array(), $fid);
-            $fileArray = [];
-            foreach ($form->layout['fields'] as $flid => $field) {
-                if ($form->getFieldModel($field['type']) instanceof FileTypeField) {
-                    $records = $recMod->newQuery()->select(['id', $flid])->whereNotNull($flid)->get();
-                    foreach ($records as $record) {
-                        if (!is_null($record->{$flid})) {
-                            $files = json_decode($record->{$flid}, true);
-                            foreach ($files as $recordFile) {
-                                $fileCount++;
-                                $fileSizeCount += number_format($recordFile['size'] / 1073741824, 2);
-                                if ($fileSizeCount > 5)
-                                    return redirect('projects/' . $pid . '/forms/' . $fid)->with('k3_global_error', 'zip_too_big');
-
-                                $localName = isset($recordFile['timestamp']) ? $recordFile['timestamp'] . '.' . $recordFile['name'] : $recordFile['name'];
-                                $fileArray[$record->id][$localName] = $recordFile['name'];
-                            }
-                        }
-                    }
-                }
-            }
-
-            if($fileCount == 0)
-                return redirect('projects/' . $pid . '/forms/' . $fid)->with('k3_global_error', 'no_record_files');
-
-            switch(config('filesystems.kora_storage')) {
-                case FileTypeField::_LaravelStorage:
-                    $time = Carbon::now();
-                    $zip_name = $form->internal_name . 'fileData_' . $time . '.zip';
-                    $zip_dir = storage_path('app/tmpFiles');
-                    $zip = new ZipArchive();
-
-                    $dir_path = storage_path('app/files/' . $pid . '/' . $fid);
-                    if($zip->open($zip_dir . '/' . $zip_name, ZipArchive::CREATE) === TRUE) {
-                        foreach($fileArray as $rid => $recordFileArray) {
-                            foreach(new \DirectoryIterator("$dir_path/$rid") as $file) {
-                                if($file->isFile() && array_key_exists($file->getFilename(), $recordFileArray)) {
-                                    $content = file_get_contents($file->getRealPath());
-                                    $zip->addFromString($rid.'/'.$recordFileArray[$file->getFilename()], $content);
-                                }
-                            }
-                        }
-                        $zip->close();
-                    }
-
-                    // Set Header
-                    header('Content-Disposition: attachment; filename="' . $zip_name . '"');
-                    header('Content-Type: application/zip; ');
-
-                    $filetopath = $zip_dir . '/' . $zip_name;
-                    // Create Download Response
-                    if(file_exists($filetopath)) {
-                        readfile($filetopath);
-                        exit;
-                    }
-                    break;
-                case FileTypeField::_JoyentManta:
-                    //TODO::MANTA
-                    break;
-                default:
-                    break;
-            }
+            return response()->json(["status" => false, "message" => "zip_not_found"], 500);
         }
-
-        return redirect('projects/' . $pid . '/forms/' . $fid)->with('k3_global_error', 'no_record_files');
     }
 
     /**
