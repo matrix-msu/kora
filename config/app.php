@@ -131,6 +131,7 @@ return [
 		 * Laravel Framework Service Providers...
 		 */
 		'Illuminate\Auth\AuthServiceProvider',
+		'Illuminate\Bus\BusServiceProvider',
 		'Illuminate\Cache\CacheServiceProvider',
 		'Illuminate\Foundation\Providers\ConsoleSupportServiceProvider',
 		'Illuminate\Cookie\CookieServiceProvider',
