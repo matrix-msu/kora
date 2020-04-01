@@ -64,7 +64,7 @@ class PrepRecordFileZip implements ShouldQueue {
      */
     public function handle() {
         ini_set('max_execution_time',0);
-        ini_set('memory_limit', "1000G");
+        ini_set('memory_limit', "51G");
         $query = DB::table('zip_progress')->where('id','=',$this->dbid);
         $fileSizeCount = 0.0;
         $fileCount = 0;
@@ -86,7 +86,7 @@ class PrepRecordFileZip implements ShouldQueue {
                         foreach($files as $recordFile) {
                             $fileCount++;
                             $fileSizeCount += number_format($recordFile['size'] / 1073741824, 2);
-                            if($fileSizeCount > 1000) {
+                            if($fileSizeCount > 50) {
                                 $query->update(["message" => "zip_too_big", "failed" => 1]);
                                 return null;
                             }

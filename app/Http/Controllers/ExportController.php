@@ -5,8 +5,6 @@ use App\FieldValuePreset;
 use App\Form;
 use App\RecordPreset;
 use Carbon\Carbon;
-use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Http\Request;
@@ -164,11 +162,6 @@ class ExportController extends Controller {
         $dbid = DB::table('zip_progress')->insertGetId(['filename' => $filename]);
 
         PrepRecordFileZip::dispatch($dbid, $filename, $form, $kids)->onQueue('zip_file');
-
-        Artisan::call('queue:work', [
-            '--queue' => 'zip_file',
-            '--timeout' => 0
-        ]);
 
         return response()->json(["status" => true, "message" => "success", "dbid" => $dbid], 200);
     }
