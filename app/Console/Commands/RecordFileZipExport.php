@@ -1,10 +1,9 @@
 <?php namespace App\Console\Commands;
 
+use App\Commands\PrepRecordFileZip;
 use App\Http\Controllers\FormController;
-use App\KoraFields\FileTypeField;
-use App\Record;
 use Illuminate\Console\Command;
-use ZipArchive;
+use Illuminate\Support\Facades\DB;
 
 class RecordFileZipExport extends Command {
 
@@ -52,78 +51,26 @@ class RecordFileZipExport extends Command {
 
         $form = FormController::getForm($fid);
 
-        $fileName = $this->buildExportFileZip($form);
+        $filename = $form->internal_name.uniqid().'.zip';
+        $dbid = DB::table('zip_progress')->insertGetId(['filename' => $filename]);
 
-        $this->info($fileName);
-    }
+        PrepRecordFileZip::dispatch($dbid, $filename, $form, "ALL")->onQueue('zip_file');
+        echo "Generating zip file...";
 
-    private function buildExportFileZip($form) {
-        ini_set('max_execution_time',0);
-        ini_set('memory_limit', "5000000000G");
-        $fileCount = 0;
-
-        //Build an array of the files that actually need to be zipped from every file field
-        //This will ignore old record files
-        //Also builds an array of local file names to original names to compensate for timestamps
-        $recMod = new Record(array(), $form->id);
-        $fileArray = [];
-        foreach($form->layout['fields'] as $flid => $field) {
-            if($form->getFieldModel($field['type']) instanceof FileTypeField) {
-                $records = $recMod->newQuery()->select(['id','kid',$flid])->whereNotNull($flid)->get();
-                foreach($records as $record) {
-                    if(!is_null($record->{$flid})) {
-                        $files = json_decode($record->{$flid}, true);
-                        foreach($files as $recordFile) {
-                            $fileCount++;
-
-                            $localName = isset($recordFile['timestamp']) ? $recordFile['timestamp'] . '.' . $recordFile['name'] : $recordFile['name'];
-                            $fileArray[$record->id][$localName] = $recordFile['name'];
-                        }
-                    }
-                }
-            }
+        $status = DB::table('zip_progress')->where('id','=',$dbid)->first();
+        $timer = 0;
+        while(!$status->finished && !$status->failed) {
+            sleep(3);
+            $timer++;
+            $status = DB::table('zip_progress')->where('id','=',$dbid)->first();
+            if($timer%3==0) //Helps give visual feedback to user
+                echo '.';
         }
+        echo "\n";
 
-        if($fileCount == 0)
-            return "No files found in the form: ".$form->name;
-
-        switch(config('filesystems.kora_storage')) {
-            case FileTypeField::_LaravelStorage:
-                $zip_name = $form->internal_name.'preppedFile_'.uniqid().'.zip';
-                $zip_dir = storage_path('app/tmpFiles');
-                $zip = new ZipArchive();
-
-                $dir_path = storage_path('app/files/'.$form->project_id . '/' . $form->id);
-                $count = 0;
-                if(
-                    $zip->open($zip_dir . '/' . $zip_name, ZipArchive::CREATE) === TRUE ||
-                    $zip->open($zip_dir . '/' . $zip_name, ZipArchive::OVERWRITE) === TRUE
-                ) {
-                    foreach($fileArray as $rid => $recordFileArray) {
-                        foreach(new \DirectoryIterator("$dir_path/$rid") as $file) {
-                            if($file->isFile() && array_key_exists($file->getFilename(), $recordFileArray)) {
-                                $content = file_get_contents($file->getRealPath());
-                                $zip->addFromString($rid.'/'.$recordFileArray[$file->getFilename()], $content);
-                                $zip->setCompressionIndex($count, ZipArchive::CM_STORE);
-                                $count++;
-                            }
-                        }
-                    }
-                    $zip->close();
-                }
-
-                $filetopath = $zip_dir . '/' . $zip_name;
-
-                if(file_exists($filetopath))
-                    return "Success! File located at $filetopath";
-                break;
-            case FileTypeField::_JoyentManta:
-                //TODO::MANTA
-                break;
-            default:
-                break;
-        }
-
-        return "No files found in the form: ".$form->name;
+        if($status->finished)
+            $this->info("Zip file successfully created at:".storage_path('app/tmpFiles/').$status->filename);
+        else if($status->failed)
+            $this->info("Zip file failed to create with error code: ".$status->message);
     }
 }

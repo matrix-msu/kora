@@ -176,13 +176,12 @@ class ExportController extends Controller {
 
         $status = DB::table('zip_progress')->where('id','=',$request->dbid)->first();
 
-        if($status->finished) {
+        if($status->finished)
             return response()->json(["status" => true, "message" => "finished", "filename" => $status->filename], 200);
-        } else if($status->failed) {
+        else if($status->failed)
             return response()->json(["status" => false, "message" => $status->message], 500);
-        } else {
+        else
             return response()->json(["status" => true, "message" => "inprogress"], 200);
-        }
     }
 
     /**
