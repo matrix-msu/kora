@@ -487,10 +487,11 @@ Kora.Fields.TypedFieldDisplays.Initialize = function() {
     function initializeRichtext() {
         $('.richtext-field-display-js').each(function() {
             var $fieldDisplay = $(this);
-            var $text = $fieldDisplay.find('.richtext-js');
             var $showMoreButton = $fieldDisplay.find('.show-more-richtext-js');
+            var $text = $fieldDisplay.find('.richtext-js');
+            var $iframe = $fieldDisplay.find('.richtext-iframe-js');
 
-            var charLength = $text.html().length;
+            var charLength = $iframe.contents().text().length;
             var tooLongLimit = 3000;
 
             if (charLength > tooLongLimit) {

@@ -13,6 +13,11 @@
 
     p {
       margin: 0;
+
+      iframe {
+        width:100%;
+        height: 1px;
+      }
     }
 
     &.more {
