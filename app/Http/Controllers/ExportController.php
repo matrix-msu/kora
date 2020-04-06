@@ -5,6 +5,7 @@ use App\FieldValuePreset;
 use App\Form;
 use App\RecordPreset;
 use Carbon\Carbon;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Http\Request;
@@ -139,11 +140,12 @@ class ExportController extends Controller {
     }
 
     /**
-     * To speed things up, this function preps record data files into a zip beforehand.
+     * To speed things up, this function preps record data files into a zip in the background.
      *
      * @param  int $pid - Project ID
      * @param  int $fid - Form ID
      * @param  Request $request
+     * @return JsonResponse - Status report on success of zip kick off
      */
     public function prepRecordFiles($pid, $fid, Request $request) {
         if(!FormController::validProjForm($pid, $fid))
@@ -166,6 +168,14 @@ class ExportController extends Controller {
         return response()->json(["status" => true, "message" => "success", "dbid" => $dbid], 200);
     }
 
+    /**
+     * This function checks on the status of the zip creation background process
+     *
+     * @param  int $pid - Project ID
+     * @param  int $fid - Form ID
+     * @param  Request $request
+     * @return JsonResponse - Status report of the process
+     */
     public function checkRecordFiles($pid, $fid, Request $request) {
         if(!FormController::validProjForm($pid, $fid))
             return redirect('projects/'.$pid)->with('k3_global_error', 'form_invalid');
