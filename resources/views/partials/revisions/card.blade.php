@@ -56,7 +56,7 @@
                         @if($field != $data["old"][$id])
                             <div class="field">
                                 <div class="field-title">{{$form->layout['fields'][$id]['name']}}</div>
-                                <div class="field-data">{!! $field !!}</div>
+                                <div class="field-data">{{ $field }}</div>
                             </div>
                         @endif
                     @endforeach
@@ -67,7 +67,7 @@
                         @if($field != $data["current"][$id])
                             <div class="field">
                                 <div class="field-title">{{$form->layout['fields'][$id]['name']}}</div>
-                                <div class="field-data">{!! $field !!}</div>
+                                <div class="field-data">{{ $field }}</div>
                             </div>
                         @endif
                     @endforeach
@@ -76,7 +76,7 @@
                 @foreach ($data as $id => $field)
                     <div class="field">
                         <div class="field-title">{{$form->layout['fields'][$id]['name']}}</div>
-                        <div class="field-data">{!! $field !!}</div>
+                        <div class="field-data">{{ $field }}</div>
                     </div>
                 @endforeach
             @endif

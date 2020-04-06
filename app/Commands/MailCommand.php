@@ -9,7 +9,7 @@ abstract class MailCommand {
     | Command
     |--------------------------------------------------------------------------
     |
-    | This command handles the kora backup process
+    | This command handles emails
     |
     */
 

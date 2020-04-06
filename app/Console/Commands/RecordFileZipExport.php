@@ -1,7 +1,9 @@
 <?php namespace App\Console\Commands;
 
+use App\Commands\PrepRecordFileZip;
 use App\Http\Controllers\FormController;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\DB;
 
 class RecordFileZipExport extends Command {
 
@@ -49,41 +51,26 @@ class RecordFileZipExport extends Command {
 
         $form = FormController::getForm($fid);
 
-        $path = storage_path('app/files/'.$form->project_id.'/'.$form->id);
-        $zipPath = storage_path('app/tmpFiles/'.$form->name.'_record_file_export.zip');
+        $filename = $form->internal_name.uniqid().'.zip';
+        $dbid = DB::table('zip_progress')->insertGetId(['filename' => $filename]);
 
-        // Initialize archive object
-        $zip = new \ZipArchive();
-        $zip->open($zipPath, (\ZipArchive::CREATE | \ZipArchive::OVERWRITE));
+        PrepRecordFileZip::dispatch($dbid, $filename, $form, "ALL")->onQueue('zip_file');
+        echo "Generating zip file...";
 
-        if(file_exists($path)) {
-            ini_set('max_execution_time',0);
-
-            //add files
-            $files = new \RecursiveIteratorIterator(
-                new \RecursiveDirectoryIterator($path),
-                \RecursiveIteratorIterator::LEAVES_ONLY
-            );
-
-            foreach ($files as $name => $file) {
-                // Skip directories (they would be added automatically)
-                if (!$file->isDir()) {
-                    // Get real and relative path for current file
-                    $filePath = $file->getRealPath();
-                    $relativePath = substr($filePath, strlen($path) + 1);
-
-                    // Add current file to archive
-                    $zip->addFile($filePath, $relativePath);
-                }
-            }
-        } else {
-            $this->info("No record files in form: $form->name");
-            return '';
+        $status = DB::table('zip_progress')->where('id','=',$dbid)->first();
+        $timer = 0;
+        while(!$status->finished && !$status->failed) {
+            sleep(3);
+            $timer++;
+            $status = DB::table('zip_progress')->where('id','=',$dbid)->first();
+            if($timer%3==0) //Helps give visual feedback to user
+                echo '.';
         }
+        echo "\n";
 
-        // Zip archive will be created only after closing object
-        $zip->close();
-
-        $this->info("Success! File located at storage/app/tmpFiles/".$form->name."_record_file_export.zip");
+        if($status->finished)
+            $this->info("Zip file successfully created at:".storage_path('app/tmpFiles/').$status->filename);
+        else if($status->failed)
+            $this->info("Zip file failed to create with error code: ".$status->message);
     }
 }

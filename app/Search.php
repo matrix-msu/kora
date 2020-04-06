@@ -84,13 +84,19 @@ class Search {
                     if(!$customWildcards && $arg!="")
                         $arg = "%$arg%";
 
+                    $searchTypes = array();
+
                     //search the fields
                     foreach($fields as $flid => $field) {
                         // These checks make sure the field is searchable
-                        if( (!$external && $field['searchable']) || ($external && $field['external_search']) ) {
-                            $results = $form->getFieldModel($field['type'])->keywordSearchTyped($flid, $arg, $recordMod, $form, $negative);
-                            $this->imitateMerge($rids, $results);
-                        }
+                        if( (!$external && $field['searchable']) || ($external && $field['external_search']) )
+                            $searchTypes[$field['type']][] = $flid;
+                    }
+
+                    //This way we don't run more DB queries than the max number of available field types
+                    foreach($searchTypes as $type => $flids) {
+                        $results = $form->getFieldModel($type)->keywordSearchTyped($flids, $arg, $recordMod, $form, $negative);
+                        $this->imitateMerge($rids, $results);
                     }
                 }
 
@@ -107,15 +113,21 @@ class Search {
                         $arg = "%$arg%";
 
                     $set = array();
+                    $searchTypes = array();
 
                     //search the fields
                     foreach($fields as $flid => $field) {
                         // These checks make sure the field is searchable
-                        if( (!$external && $field['searchable']) || ($external && $field['external_search']) ) {
-                            $results = $form->getFieldModel($field['type'])->keywordSearchTyped($flid, $arg, $recordMod, $form, $negative);
-                            $this->imitateMerge($set, $results);
-                        }
+                        if( (!$external && $field['searchable']) || ($external && $field['external_search']) )
+                            $searchTypes[$field['type']][] = $flid;
                     }
+
+                    //This way we don't run more DB queries than the max number of available field types
+                    foreach($searchTypes as $type => $flids) {
+                        $results = $form->getFieldModel($type)->keywordSearchTyped($flids, $arg, $recordMod, $form, $negative);
+                        $this->imitateMerge($set, $results);
+                    }
+
                     //create unique set of rids
                     $set = array_flip(array_flip($set));
                     //add to array set

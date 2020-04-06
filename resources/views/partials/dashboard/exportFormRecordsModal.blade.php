@@ -13,7 +13,8 @@
             <div class="form-group mt-m">
                 <a href="#" class="btn export-dashboard-begin-files-js" token="{{ csrf_token() }}"
                    startURL="{{ action('ExportController@prepRecordFiles',['pid' => $form->project_id, 'fid' => $form->id]) }}"
-                   endURL="{{ action('ExportController@exportRecordFiles',['pid' => $form->project_id, 'fid' => $form->id]) }}"
+                   checkURL="{{ action('ExportController@checkRecordFiles',['pid' => $form->project_id, 'fid' => $form->id]) }}"
+                   endURL="{{ action('ExportController@exportRecordFiles',['pid' => $form->project_id, 'fid' => $form->id, 'name' => '']) }}"
                 >Export Record Files</a>
             </div>
             <div class="form-group mt-m">

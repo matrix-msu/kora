@@ -358,13 +358,13 @@ class GeolocatorField extends BaseField {
     /**
      * Performs a keyword search on this field and returns any results.
      *
-     * @param  string $flid - Field ID
+     * @param  array $flids - Field ID
      * @param  string $arg - The keywords
      * @param  Record $recordMod - Model to search through
      * @param  boolean $negative - Get opposite results of the search
      * @return array - The RIDs that match search
      */
-    public function keywordSearchTyped($flid, $arg, $recordMod, $form, $negative = false) {
+    public function keywordSearchTyped($flids, $arg, $recordMod, $form, $negative = false) {
         if($negative)
             $param = 'NOT LIKE';
         else
@@ -374,12 +374,19 @@ class GeolocatorField extends BaseField {
             ->select("id");
 
         $arg = strtolower($arg); //Solves the JSON mysql case-insensitive issue
-        if($negative) {
-            $dbQuery->whereRaw("LOWER(`$flid`->\"$[*].formatted_address\") $param \"$arg\"");
-            $dbQuery->whereRaw("LOWER(`$flid`->\"$[*].description\") $param \"$arg\"");
-        } else {
-            $dbQuery->orWhereRaw("LOWER(`$flid`->\"$[*].formatted_address\") $param \"$arg\"");
-            $dbQuery->orWhereRaw("LOWER(`$flid`->\"$[*].description\") $param \"$arg\"");
+
+        foreach($flids as $f) {
+            if($negative) {
+                $dbQuery = $dbQuery->orWhere(function($query) use ($f, $param, $arg) {
+                    $query = $query->whereRaw("LOWER(`$f`->\"$[*].formatted_address\") $param \"$arg\"");
+                    $query = $query->whereRaw("LOWER(`$f`->\"$[*].description\") $param \"$arg\"");
+                });
+            } else {
+                $dbQuery = $dbQuery->orWhere(function($query) use ($f, $param, $arg) {
+                    $query = $query->orWhereRaw("LOWER(`$f`->\"$[*].formatted_address\") $param \"$arg\"");
+                    $query = $query->orWhereRaw("LOWER(`$f`->\"$[*].description\") $param \"$arg\"");
+                });
+            }
         }
 
         return $dbQuery->pluck('id')

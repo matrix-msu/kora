@@ -247,7 +247,9 @@ class RevisionController extends Controller {
             case Revision::CREATE:
                 foreach($form->layout['fields'] as $flid => $field) {
                     $fieldMod = $form->getFieldModel($field['type']);
-                    if(is_null($revData['data'][$flid]))
+                    if(!isset($revData['data'][$flid]))
+                        $formatted[$flid] = 'Data Not Found';
+                    else if(is_null($revData['data'][$flid]))
                         $formatted[$flid] = 'No Field Data';
                     else
                         $formatted[$flid] = $fieldMod->processRevisionData($revData['data'][$flid]);
@@ -270,7 +272,9 @@ class RevisionController extends Controller {
             case Revision::DELETE:
                 foreach($form->layout['fields'] as $flid => $field) {
                     $fieldMod = $form->getFieldModel($field['type']);
-                    if(is_null($revData['oldData'][$flid]))
+                    if(!isset($revData['oldData'][$flid]))
+                        $formatted[$flid] = 'Data Not Found';
+                    else if(is_null($revData['oldData'][$flid]))
                         $formatted[$flid] = 'No Field Data';
                     else
                         $formatted[$flid] = $fieldMod->processRevisionData($revData['oldData'][$flid]);
