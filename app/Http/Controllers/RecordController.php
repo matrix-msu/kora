@@ -746,11 +746,15 @@ class RecordController extends Controller {
         if(!Record::isLegacyKIDPattern($kid))
             return null;
 
-        $parts = explode('-',$kid);
-        $recordMod = new Record(array(),$parts[1]);
-        $record = $recordMod->newQuery()->where('legacy_kid', '=', $kid)->first();
+        $forms = Form::all();
+        foreach($forms as $form) {
+            $recordMod = new Record(array(),$form->id);
+            $record = $recordMod->newQuery()->where('legacy_kid', '=', $kid)->first();
+            if(!is_null($record))
+                return $record;
+        }
 
-        return $record;
+        return null;
     }
 
     /**
