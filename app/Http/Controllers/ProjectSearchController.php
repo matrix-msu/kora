@@ -89,7 +89,6 @@ class ProjectSearchController extends Controller {
             //INITIAL PAGE VISIT
             $records = [];
             $total = 0;
-            $ignored = [];
             $initial = true;
             $page = 1;
             $pageCount = 10;
@@ -102,7 +101,7 @@ class ProjectSearchController extends Controller {
             $forms[$f->id] = $f->name;
         }
 
-        return view('projectSearch.results', compact("project", "forms", "records", "total", "ignored", "initial", "page", "pageCount"));
+        return view('projectSearch.results', compact("project", "forms", "records", "total", "initial", "page", "pageCount"));
     }
 
     private function imitateMerge(&$array1, &$array2) {
@@ -173,7 +172,6 @@ class ProjectSearchController extends Controller {
             //INITIAL PAGE VISIT
             $records = [];
             $total = 0;
-            $ignored = [];
             $page = 1;
             $pageCount = 10;
         }
@@ -221,7 +219,7 @@ class ProjectSearchController extends Controller {
         }
 
         return view('globalSearch.results', compact(
-            "projects", "records", "total", "ignored",
+            "projects", "records", "total",
             'projectArray', 'formArray', 'fieldArray', "page", "pageCount"
         ));
     }
