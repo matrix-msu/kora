@@ -729,11 +729,15 @@ class RecordController extends Controller {
         if(!Record::isKIDPattern($kid))
             return null;
 
-        $parts = explode('-',$kid);
-        $recordMod = new Record(array(),$parts[1]);
-        $record = $recordMod->newQuery()->where('kid', '=', $kid)->first();
+        $fid = explode('-',$kid)[1];
+        if(!is_null(Form::where('id',$fid)->first())) {
+            $recordMod = new Record(array(),$fid);
+            $record = $recordMod->newQuery()->where('kid', '=', $kid)->first();
+            if(!is_null($record))
+                return $record;
+        }
 
-        return $record;
+        return null;
     }
 
     /**
