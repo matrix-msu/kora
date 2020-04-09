@@ -18,6 +18,7 @@ class CreateZipProgressTable extends Migration
             $table->string('filename');
             $table->integer('files_finished')->default(0);
             $table->integer('total_files')->default(0);
+            $table->string('file_size')->default('');
             $table->boolean('finished')->default(0);
             $table->boolean('failed')->default(0);
             $table->string('message')->default('');

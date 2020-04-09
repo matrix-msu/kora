@@ -191,7 +191,7 @@ class ExportController extends Controller {
         else if($status->failed)
             return response()->json(["status" => false, "message" => $status->message], 500);
         else
-            return response()->json(["status" => true, "message" => "inprogress"], 200);
+            return response()->json(["status" => true, "message" => "inprogress", "file_size" => $status->file_size], 200);
     }
 
     /**

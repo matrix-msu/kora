@@ -11,7 +11,7 @@
                 @endphp
                 <div>
                     <p class="filename"><a class="documents-link underline-middle-hover" href="{{$link}}">{{$name}}</a></p>
-                    <p class="file-info">File size: {{formatBytes($size)}}</p>
+                    <p class="file-info">File size: {{fileSizeConvert($size)}}</p>
                     @if($caption!='')
                         <p class="file-info">{{$caption}}</p>
                     @endif

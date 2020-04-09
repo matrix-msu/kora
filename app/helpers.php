@@ -51,18 +51,45 @@ function getDashboardBlockLink($block, $link_type) {
 }
 
 /**
- * Returns formatted string of bytes to the best readable size
+ * Converts the directory size in bytes to the most readable form.
  *
- * @return string - formatted bytes
+ * @param  int $bytes - Size in bytes
+ * @return string - The readable size value
  */
-function formatBytes($bytes) {
-    $units = ['b', 'kb', 'mb', 'gb', 'tb'];
+function fileSizeConvert($bytes) {
+    $result = "0 B";
+    $bytes = floatval($bytes);
+    $arBytes = array(
+        0 => array(
+            "UNIT" => "TB",
+            "VALUE" => pow(1024, 4)
+        ),
+        1 => array(
+            "UNIT" => "GB",
+            "VALUE" => pow(1024, 3)
+        ),
+        2 => array(
+            "UNIT" => "MB",
+            "VALUE" => pow(1024, 2)
+        ),
+        3 => array(
+            "UNIT" => "KB",
+            "VALUE" => 1024
+        ),
+        4 => array(
+            "UNIT" => "B",
+            "VALUE" => 1
+        ),
+    );
 
-    for($i = 0; $bytes > 1024; $i++) {
-        $bytes /= 1024;
+    foreach($arBytes as $arItem) {
+        if($bytes >= $arItem["VALUE"]) {
+            $result = $bytes / $arItem["VALUE"];
+            $result = strval(round($result, 2))." ".$arItem["UNIT"];
+            break;
+        }
     }
-
-    return round($bytes, 1) . ' ' . $units[$i];
+    return $result;
 }
 
 /**

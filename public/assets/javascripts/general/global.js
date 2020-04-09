@@ -457,6 +457,16 @@ function recursiveZipCheck(checkURL, endURL, token, dbid, $exportDiv, $exportDiv
     success: function (data) {
       if(data.message=="inprogress") {
         display_loader();
+
+        //Update filesize info
+        if(data.file_size=='') {
+          $exportDivTitle.text("Determining filesize...");
+          $exportDescDiv.text("Estimating size of the zip file.");
+        } else {
+          $exportDivTitle.text("Generating zip file...");
+          $exportDescDiv.text("The estimated size of the zip file is "+data.file_size+". Please be patient as larger file sizes can take a few minutes to prep for download.");
+        }
+
         //wait 5 seconds
         setTimeout(function() {
           //call again
