@@ -836,7 +836,7 @@ class RecordController extends Controller {
         $basedir = storage_path('app/files/'.$pid.'/'.$fid);
         $filesize += self::dirCrawl($basedir);
 
-        $filesize = self::fileSizeConvert($filesize);
+        $filesize = fileSizeConvert($filesize);
 
         return $filesize;
     }
@@ -863,48 +863,6 @@ class RecordController extends Controller {
         }
 
         return $filesize;
-    }
-
-    /**
-     * Converts the directory size in bytes to the most readable form.
-     *
-     * @param  int $bytes - Size in bytes
-     * @return string - The readable size value
-     */
-    private static function fileSizeConvert($bytes) {
-        $result = "0 B";
-        $bytes = floatval($bytes);
-        $arBytes = array(
-            0 => array(
-                "UNIT" => "TB",
-                "VALUE" => pow(1024, 4)
-            ),
-            1 => array(
-                "UNIT" => "GB",
-                "VALUE" => pow(1024, 3)
-            ),
-            2 => array(
-                "UNIT" => "MB",
-                "VALUE" => pow(1024, 2)
-            ),
-            3 => array(
-                "UNIT" => "KB",
-                "VALUE" => 1024
-            ),
-            4 => array(
-                "UNIT" => "B",
-                "VALUE" => 1
-            ),
-        );
-
-        foreach($arBytes as $arItem) {
-            if($bytes >= $arItem["VALUE"]) {
-                $result = $bytes / $arItem["VALUE"];
-                $result = strval(round($result, 2))." ".$arItem["UNIT"];
-                break;
-            }
-        }
-        return $result;
     }
 
     /**

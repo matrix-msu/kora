@@ -66,7 +66,8 @@ class PrepRecordFileZip implements ShouldQueue {
         ini_set('max_execution_time',0);
         ini_set('memory_limit', "51G");
         $query = DB::table('zip_progress')->where('id','=',$this->dbid);
-        $fileSizeCount = 0.0;
+        $totalFileSize = 0.0;
+        $totalByteSize = 0;
         $fileCount = 0;
 
         //Build an array of the files that actually need to be zipped from every file field
@@ -85,8 +86,9 @@ class PrepRecordFileZip implements ShouldQueue {
                         $files = json_decode($record->{$flid}, true);
                         foreach($files as $recordFile) {
                             $fileCount++;
-                            $fileSizeCount += number_format($recordFile['size'] / 1073741824, 2);
-                            if($fileSizeCount > 50) {
+                            $totalFileSize += number_format($recordFile['size'] / 1073741824, 2);
+                            $totalByteSize += $recordFile['size'];
+                            if($totalFileSize > 50) {
                                 $query->update(["message" => "zip_too_big", "failed" => 1]);
                                 return null;
                             }
@@ -102,9 +104,9 @@ class PrepRecordFileZip implements ShouldQueue {
         if($fileCount == 0) {
             $query->update(["message" => "no_record_files", "failed" => 1]);
             return null;
-        } else {
-            $query->update(["total_files" => $fileCount]);
         }
+
+        $query->update(["total_files" => $fileCount, "file_size" => fileSizeConvert($totalByteSize)]);
 
         switch(config('filesystems.kora_storage')) {
             case FileTypeField::_LaravelStorage:
