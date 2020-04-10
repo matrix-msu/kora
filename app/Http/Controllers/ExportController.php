@@ -163,7 +163,7 @@ class ExportController extends Controller {
         $filename = $form->internal_name.uniqid().'.zip';
         $dbid = DB::table('zip_progress')->insertGetId(['filename' => $filename]);
 
-        PrepRecordFileZip::dispatch($dbid, $filename, $form, $kids)->onQueue('zip_file');
+        PrepRecordFileZip::dispatch($dbid, $filename, $form, $kids)->onQueue('kora_bg');
 
         return response()->json(["status" => true, "message" => "success", "dbid" => $dbid], 200);
     }
