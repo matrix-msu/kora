@@ -169,35 +169,6 @@ class ExportController extends Controller {
     }
 
     /**
-     * To speed things up, this function preps record data files into a zip in the background.
-     *
-     * @param  int $pid - Project ID
-     * @param  int $fid - Form ID
-     * @param  Request $request
-     * @return JsonResponse - Status report on success of zip kick off
-     */
-    public function prepRecordFiles($pid, $fid, Request $request) {
-        if(!FormController::validProjForm($pid, $fid))
-            return redirect('projects/'.$pid)->with('k3_global_error', 'form_invalid');
-
-        $form = FormController::getForm($fid);
-        if(!(\Auth::user()->isFormAdmin($form)))
-            return redirect('projects/'.$pid)->with('k3_global_error', 'not_form_admin');
-
-        if(isset($request->rids))
-            $kids = explode(',', $request->rids);
-        else
-            $kids = 'ALL';
-
-        $filename = $form->internal_name.uniqid().'.zip';
-        $dbid = DB::table('zip_progress')->insertGetId(['filename' => $filename]);
-
-        PrepRecordFileZip::dispatch($dbid, $filename, $form, $kids)->onQueue('kora_bg');
-
-        return response()->json(["status" => true, "message" => "success", "dbid" => $dbid], 200);
-    }
-
-    /**
      * This function checks on the status of the zip creation background process
      *
      * @param  int $pid - Project ID
