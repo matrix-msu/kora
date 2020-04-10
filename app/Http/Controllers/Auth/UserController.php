@@ -12,6 +12,7 @@ use App\User;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
@@ -762,6 +763,13 @@ class UserController extends Controller {
                     "updated_at" => $time]
             );
         }
+    }
+
+    public function kickOffQueue() {
+        Artisan::call('queue:listen', [
+            '—queue' => 'kora_bg',
+            '—timeout' => 3000
+        ]);
     }
 
     /**
