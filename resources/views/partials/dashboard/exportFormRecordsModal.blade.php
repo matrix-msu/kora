@@ -15,6 +15,7 @@
                    startURL="{{ action('ExportController@prepRecordFiles',['pid' => $form->project_id, 'fid' => $form->id]) }}"
                    checkURL="{{ action('ExportController@checkRecordFiles',['pid' => $form->project_id, 'fid' => $form->id]) }}"
                    endURL="{{ action('ExportController@exportRecordFiles',['pid' => $form->project_id, 'fid' => $form->id, 'name' => '']) }}"
+                   queueURL="{{ action('AdminController@kickOffQueue') }}"
                 >Export Record Files</a>
             </div>
             <div class="form-group mt-m">

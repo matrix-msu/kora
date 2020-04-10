@@ -422,7 +422,16 @@ $('.export-begin-files-js').click(function(e) {
     startURL = $exportDiv.attr('startURL');
     checkURL = $exportDiv.attr('checkURL');
     endURL = $exportDiv.attr('endURL');
+    queueURL = $exportDiv.attr('queueURL');
     token = $exportDiv.attr('token');
+
+    $.ajax({
+      url: queueURL,
+      type: 'POST',
+      data: {
+        "_token": token
+      }
+    });
 
     //Ajax call to prep zip
     $.ajax({

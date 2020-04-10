@@ -12,6 +12,7 @@ use App\User;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
@@ -507,6 +508,13 @@ class AdminController extends Controller {
         $tableManager->swapTempCacheTable();
 
         return response()->json(["status" => true, "message" => "reverse_cache_built"], 200);
+    }
+
+    public function kickOffQueue() {
+        Artisan::call('queue:listen', [
+            '—queue' => 'kora_bg',
+            '—timeout' => 3000
+        ]);
     }
 
     /**
