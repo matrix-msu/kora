@@ -767,8 +767,8 @@ class UserController extends Controller {
 
     public function kickOffQueue() {
         Artisan::call('queue:listen', [
-            '—queue' => 'kora_bg',
-            '—timeout' => 3000
+            '--queue' => 'kora_bg',
+            '--timeout' => 3000
         ]);
     }
 
