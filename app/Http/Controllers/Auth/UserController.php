@@ -765,13 +765,6 @@ class UserController extends Controller {
         }
     }
 
-    public function kickOffQueue() {
-        Artisan::call('queue:listen', [
-            '--queue' => 'kora_bg',
-            '--timeout' => 3000
-        ]);
-    }
-
     /**
      * Build permission set array of all the users projects
      *
