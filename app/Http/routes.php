@@ -205,7 +205,6 @@ Route::group(['middleware' => 'web'], function () {
     Route::post('/auth/activator', 'Auth\UserController@activator');
     Route::post('/user/picture', 'Auth\UserController@changepicture');
     Route::post('/user/validate', 'Auth\RegisterController@validateUserFields');
-    Route::post('user/startQueue', 'Auth\UserController@kickOffQueue');
 	Route::patch('/toggleOnboarding', 'Auth\UserController@toggleOnboarding');
 	Route::patch('/user/validateEditProfile', 'Auth\UserController@validateEditProfile');
 
