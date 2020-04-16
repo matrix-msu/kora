@@ -602,11 +602,11 @@ class RestfulBetaController extends Controller {
         $recRequest['userId'] = $uToken; //the new record will ultimately be owned by the root/sytem
         if(!is_null($request->file("zipFile")) ) {
             $file = $request->file("zipFile");
-            $zipPath = $file->move(storage_path('app/tmpFiles/recordU' . $uToken));
+            $zipPath = $file->move(storage_path('app/tmpFiles/impU' . $uToken));
             $zip = new \ZipArchive();
             $res = $zip->open($zipPath);
             if($res === TRUE) {
-                $zip->extractTo(storage_path('app/tmpFiles/recordU' . $uToken));
+                $zip->extractTo(storage_path('app/tmpFiles/impU' . $uToken));
                 $zip->close();
             } else {
                 return response()->json(["status"=>false,"error"=>"There was an error extracting the provided zip"],500);
@@ -671,11 +671,11 @@ class RestfulBetaController extends Controller {
         $recRequest['userId'] = $uToken; //the new record will ultimately be owned by the root/sytem
         if( !is_null($request->file("zipFile")) ) {
             $file = $request->file("zipFile");
-            $zipPath = $file->move(storage_path('app/tmpFiles/recordU' . $uToken));
+            $zipPath = $file->move(storage_path('app/tmpFiles/impU' . $uToken));
             $zip = new \ZipArchive();
             $res = $zip->open($zipPath);
             if($res === TRUE) {
-                $zip->extractTo(storage_path('app/tmpFiles/recordU' . $uToken));
+                $zip->extractTo(storage_path('app/tmpFiles/impU' . $uToken));
                 $zip->close();
             } else {
                 return response()->json(["status"=>false,"error"=>"There was an issue extracting the provided file zip"],500);
