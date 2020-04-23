@@ -135,7 +135,7 @@ Kora.Records.ImportMF = function () {
                     failed = [];
                     total = 0;
                     for(var fid in data) {
-                        total += data[fid]['records'].length;
+                        total += Object.keys(data[fid]['records']).length;
                     }
                     var progressText = $('.progress-text-js');
                     var progressFill = $('.progress-fill-js');
@@ -182,7 +182,7 @@ Kora.Records.ImportMF = function () {
                         var connections = {};
 
                         //Initialize throttler to prevent
-                        var throttle = throttledQueue(75, 5000);
+                        var throttle = throttledQueue(150, 5000);
 
                         for(var fid in data) {
                             fids.push(fid);

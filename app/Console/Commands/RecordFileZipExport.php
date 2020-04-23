@@ -1,9 +1,9 @@
 <?php namespace App\Console\Commands;
 
-use App\Commands\PrepRecordFileZip;
+use App\Http\Controllers\ExportController;
 use App\Http\Controllers\FormController;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Http\Request;
 
 class RecordFileZipExport extends Command {
 
@@ -48,29 +48,29 @@ class RecordFileZipExport extends Command {
     public function handle()
     {
         $fid = $this->argument('fid');
-
         $form = FormController::getForm($fid);
-
         $filename = $form->internal_name.uniqid().'.zip';
-        $dbid = DB::table('zip_progress')->insertGetId(['filename' => $filename]);
+        $exCtrl = new ExportController();
 
-        PrepRecordFileZip::dispatch($dbid, $filename, $form, "ALL")->onQueue('zip_file');
-        echo "Generating zip file...";
+        $prep = $exCtrl->evaluateFormRecordsForExport($form,"ALL",$filename);
+        $prep = $prep->original;
 
-        $status = DB::table('zip_progress')->where('id','=',$dbid)->first();
-        $timer = 0;
-        while(!$status->finished && !$status->failed) {
-            sleep(3);
-            $timer++;
-            $status = DB::table('zip_progress')->where('id','=',$dbid)->first();
-            if($timer%3==0) //Helps give visual feedback to user
-                echo '.';
+        if($prep['message']=='no_record_files')
+            $this->error('No record files found in form: '.$form->name);
+        else {
+            $this->info("Generating zip file...");
+
+            $request = new Request();
+            $request['file_name'] = $filename;
+            $request['file_array'] = $prep['file_array'];
+            $exCtrl->buildFormRecordZip($form->project_id, $fid, $request);
+            $expectedPath = storage_path('app/tmpFiles/').$filename;
+
+            if(file_exists($expectedPath)) {
+                $this->info("Zip file generated. You may retreive it at $expectedPath");
+            } else {
+                $this->error("Trouble finding generated zip file.");
+            }
         }
-        echo "\n";
-
-        if($status->finished)
-            $this->info("Zip file successfully created at:".storage_path('app/tmpFiles/').$status->filename);
-        else if($status->failed)
-            $this->info("Zip file failed to create with error code: ".$status->message);
     }
 }

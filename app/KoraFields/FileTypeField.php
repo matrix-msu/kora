@@ -258,9 +258,13 @@ abstract class FileTypeField extends BaseField {
             $parts = explode('/',$pathname);
             $name = end($parts);
 
-            if(!file_exists($currDir . '/' . $pathname))
-                return response()->json(["status" => false, "message" => "json_validation_error",
-                    "record_validation_error" => [$request->kid => "$flid: trouble finding file $name"]], 500);
+            if(!file_exists($currDir . '/' . $pathname)) {
+                if(file_exists($currDir . '/' . $request['kidForReimportingRecordFiles'] . '/' . $pathname))
+                    $currDir .= '/' . $request['kidForReimportingRecordFiles'];
+                else
+                    return response()->json(["status" => false, "message" => "json_validation_error",
+                        "record_validation_error" => [$request->kid => "$flid: trouble finding file $name"]], 500);
+            }
             if(!self::validateRecordFileName($name))
                 return response()->json(["status"=>false,"message"=>"json_validation_error",
                     "record_validation_error"=>[$request->kid => "$flid has file with illegal filename"]],500);
@@ -309,9 +313,13 @@ abstract class FileTypeField extends BaseField {
             $parts = explode('/',$pathname);
             $name = end($parts);
             //move file from imp temp to tmp files
-            if(!file_exists($currDir . '/' . $pathname))
-                return response()->json(["status" => false, "message" => "xml_validation_error",
-                    "record_validation_error" => [$request->kid => "$flid: trouble finding file $name"]], 500);
+            if(!file_exists($currDir . '/' . $pathname)) {
+                if(file_exists($currDir . '/' . $request['kidForReimportingRecordFiles'] . '/' . $pathname))
+                    $currDir .= '/' . $request['kidForReimportingRecordFiles'];
+                else
+                    return response()->json(["status" => false, "message" => "json_validation_error",
+                        "record_validation_error" => [$request->kid => "$flid: trouble finding file $name"]], 500);
+            }
             if(!self::validateRecordFileName($name))
                 return response()->json(["status"=>false,"message"=>"json_validation_error",
                     "record_validation_error"=>[$request->kid => "$flid has file with illegal filename"]],500);
