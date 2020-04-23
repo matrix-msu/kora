@@ -740,31 +740,12 @@ Kora.Dashboard.Index = function() {
             $exportDiv.addClass('disabled');
             $exportDivTitle.text("Generating zip file...");
 
-            startURL = $exportDiv.attr('startURL');
-            checkURL = $exportDiv.attr('checkURL');
-            endURL = $exportDiv.attr('endURL');
+            prepURL = $exportDiv.attr('prepURL');
+            buildURL = $exportDiv.attr('buildURL');
+            downloadURL = $exportDiv.attr('downloadURL');
             token = $exportDiv.attr('token');
 
-            //Ajax call to prep zip
-            $.ajax({
-                url: startURL,
-                type: 'POST',
-                data: {
-                    "_token": token
-                },
-                success: function (data) {
-                    recursiveZipCheck(checkURL, endURL, token, data.dbid, $exportDiv, $exportDivTitle, $exportDescDiv, $ogDesc);
-                },
-                error: function (error) {
-                    hide_loader();
-
-                    $exportDiv.removeClass('disabled');
-                    $exportDivTitle.text("Something went wrong :(");
-                    $exportDescDiv.text("An unknown error occurred while trying to start the zip process. Please contact " +
-                        "your administrator for more information. \n\nA zip file can still be retrieved via the php artisan command " +
-                        "line tool. If you do not have access to this tool, let your administrator know this as well.");
-                }
-            });
+            formRecordZipAjaxCall(prepURL, buildURL, downloadURL, token, $exportDiv, $exportDivTitle, $exportDescDiv, $ogDesc);
         });
     }
 
