@@ -353,15 +353,15 @@ class ImportMultiFormController extends Controller {
                     return $recRequest;
             }
         } else if($request->type==self::JSON) {
+            //Special case to handle the reimporting of records that were exported to help find record files and associations
+            if(isset($record['kid']) && Record::isKIDPattern($record['kid'])) {
+                $recRequest['kidForReimportingRecordFiles'] = explode('-', $record['kid'])[2];
+
+                if(!isset($record['kidConnection']))
+                    $recRequest['kidConnection'] = $record['kid'];
+            }
+
             foreach($record as $key => $field) {
-                //Special case to handle the reimporting of records that were exported to help find record files
-                if($key=='kid' && Record::isKIDPattern($field)) {
-                    $recRequest['kidForReimportingRecordFiles'] = explode('-', $field)[2];
-
-                    if(!isset($record['kidConnection']))
-                        $recRequest['kidConnection'] = $record['kid'];
-                }
-
                 //Just in case there are extra/unused fields in the JSON
                 if(!array_key_exists($key,$matchup))
                     continue;

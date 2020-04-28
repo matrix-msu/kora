@@ -118,7 +118,7 @@ Kora.Records.Import = function () {
                             var connections = {};
 
                             //Initialize throttler to prevent
-                            var throttle = throttledQueue(150, 5000);
+                            var throttle = throttledQueue(100, 5000);
 
                             //foreach record in the dataset
                             for (var import_id in importRecs) {

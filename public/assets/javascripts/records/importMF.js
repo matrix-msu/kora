@@ -182,7 +182,7 @@ Kora.Records.ImportMF = function () {
                         var connections = {};
 
                         //Initialize throttler to prevent
-                        var throttle = throttledQueue(150, 5000);
+                        var throttle = throttledQueue(100, 5000);
 
                         for(var fid in data) {
                             fids.push(fid);
