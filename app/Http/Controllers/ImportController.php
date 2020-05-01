@@ -4,6 +4,7 @@ use App\FieldValuePreset;
 use App\Form;
 use App\FormGroup;
 use App\KoraFields\ComboListField;
+use App\KoraFields\ListField;
 use App\Project;
 use App\ProjectGroup;
 use App\Record;
@@ -625,7 +626,9 @@ class ImportController extends Controller {
                     'one' => ['type' => $field['one']['type'], 'name' => $field['one']['name']],
                     'two' => ['type' => $field['two']['type'], 'name' => $field['two']['name']],
                 ]);
-            } else
+            } else if($fieldMod instanceof ListField)
+                $fieldMod->addDatabaseColumn($form->id, $newFlid, $fieldMod::FIELD_DATABASE_METHOD, $field['options']['Options']);
+            else
                 $fieldMod->addDatabaseColumn($form->id, $newFlid, $fieldMod::FIELD_DATABASE_METHOD);
         }
 
@@ -699,7 +702,9 @@ class ImportController extends Controller {
                     'one' => ['type' => $field['one']['type'], 'name' => $field['one']['name']],
                     'two' => ['type' => $field['two']['type'], 'name' => $field['two']['name']],
                 ]);
-            } else
+            } else if($fieldMod instanceof ListField)
+                $fieldMod->addDatabaseColumn($form->id, $newFlid, $fieldMod::FIELD_DATABASE_METHOD, $field['options']['Options']);
+            else
                 $fieldMod->addDatabaseColumn($form->id, $newFlid, $fieldMod::FIELD_DATABASE_METHOD);
         }
 
