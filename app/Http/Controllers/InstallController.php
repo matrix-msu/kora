@@ -342,8 +342,8 @@ class InstallController extends Controller {
             return redirect("/");
 
         $configs = array(
-            ['title'=>'Recaptcha Private Key', 'slug'=>'recaptcha_private',    'value'=>config('auth.recap_private')],
             ['title'=>'Recaptcha Public Key',  'slug'=>'recaptcha_public',     'value'=>config('auth.recap_public')],
+            ['title'=>'Recaptcha Private Key', 'slug'=>'recaptcha_private',    'value'=>config('auth.recap_private')],
             ['title'=>'Gitlab Client',         'slug'=>'gitlab_client',        'value'=>config('services.gitlab.client')],
             ['title'=>'Gitlab Client ID',      'slug'=>'gitlab_client_id',     'value'=>config('services.gitlab.client_id')],
             ['title'=>'Gitlab Client Secret',  'slug'=>'gitlab_client_secret', 'value'=>config('services.gitlab.client_secret')],
