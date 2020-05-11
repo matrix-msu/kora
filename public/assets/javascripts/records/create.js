@@ -754,7 +754,7 @@ Kora.Records.Create = function() {
                     $field.siblings('.error-message').text('');
                     if(error=='InvalidFileNames'){
                         $field.addClass('error');
-                        $errorMessage.text('Filename not supported (limited to a-z, A-Z, 0-9, ., -, and _)');
+                        $errorMessage.text('Filename not supported (filenames limited to a-z, A-Z, 0-9, ., -, and _ )');
                     } else if(error=='InvalidType'){
                         $field.addClass('error');
                         $errorMessage.text('Invalid file type provided');
