@@ -197,6 +197,10 @@ abstract class FileTypeField extends BaseField {
             if(empty($files))
                 return null;
 
+            //Fixes weird json bug
+            ksort($files);
+            $files = array_values($files);
+
             return json_encode($files);
         } else {
             return null;
