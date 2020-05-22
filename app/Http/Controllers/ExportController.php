@@ -308,15 +308,16 @@ class ExportController extends Controller {
         if(!FormController::validProjForm($pid, $fid))
             return redirect('projects/'.$pid)->with('k3_global_error', 'form_invalid');
 
+        $project = ProjectController::getProject($pid);
         $form = FormController::getForm($fid);
 
         if(!(\Auth::user()->isFormAdmin($form)))
             return redirect('projects/'.$pid)->with('k3_global_error', 'not_form_admin');
 
-
         $formArray = array();
 
         $formArray['name'] = $form->name;
+        $formArray['original_project_name'] = $project->name;
         $formArray['internal_name'] = $form->internal_name;
         $formArray['description'] = $form->description;
         $formArray['preset'] = $form->preset;
