@@ -150,6 +150,8 @@ class ReverseAssocCache extends Command
 
         $tableManager->swapTempCacheTable();
 
+        updateGlobalTimer("reverse_assoc_cache_build");
+
         $this->info('Reverse association cache generated!');
     }
 }

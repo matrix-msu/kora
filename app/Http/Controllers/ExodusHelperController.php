@@ -673,6 +673,8 @@ class ExodusHelperController extends Controller {
 
         unset($ridChunks);
 
+        updateGlobalTimer("last_record_updated");
+
         //Last but not least, record presets!!!!!!!!!
         $recordPresets = $records = $con->query('select * from recordPreset where schemeid='.$ogSid);
         $pc = new RecordPresetController();

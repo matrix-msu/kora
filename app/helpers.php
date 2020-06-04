@@ -114,6 +114,22 @@ function slugFormat($name, $project_id, $form_id) {
 }
 
 /**
+ * Maps a field name to its internal FLID.
+ *
+ * @param  string $name - Name of field
+ * @param  int $pid - Project ID
+ * @param  int $fid - Form ID
+ * @return string - The FLID
+ */
+function updateGlobalTimer($name) {
+    $timer = \App\Timer::where('name','=',$name)->first();
+    $timer->timestamps = false;
+    $timer->interval = \Carbon\Carbon::now();
+    $timer->save();
+}
+
+
+/**
  * Returns array of links
  *
  * @return array - the links

@@ -1,6 +1,7 @@
 <?php namespace App\Http\Controllers;
 
 use App\FieldValuePreset;
+use App\Timer;
 use App\User;
 use App\Version;
 use Carbon\Carbon;
@@ -198,6 +199,24 @@ class InstallController extends Controller {
         } catch(\Exception $e) {
             Log::info($e);
             echo "Failed to set version number! Review the logs for more error information.\n";
+            $this->resetInstall($dbc);
+            return false;
+        }
+
+				//Set the global timers for this Kora 3 install
+        try {
+            echo "Setting global timers...\n";
+						foreach(Version::$globalTimers as $tName) {
+		            $timer = new Timer();
+						    $timer->timestamps = false;
+		            $timer->name = $tName;
+								$timer->interval = Carbon::now();
+		            $timer->save();
+					  }
+            echo "Global timers set!\n";
+        } catch(\Exception $e) {
+            Log::info($e);
+            echo "Failed to set global timers! Review the logs for more error information.\n";
             $this->resetInstall($dbc);
             return false;
         }

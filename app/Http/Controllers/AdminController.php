@@ -178,11 +178,11 @@ class AdminController extends Controller {
       public function updateStatus(Request $request) {
         if($request->id == 1)
           return response()->json(["status" => false, "message" => "root_admin_error"], 200);
-		
+
         $user = User::where('id', '=', $request->id)->first();
-		
+
         $message = array();
-		
+
         if($request->status == "admin") {
           // Updating admin status
           $action = "admin";
@@ -193,12 +193,12 @@ class AdminController extends Controller {
 
             //Build the list of project groups they are a part of
             $guPairs = DB::table("project_group_user")->where('user_id', '=', $user->id)->get();
-			
+
 			$user_project_group_ids = array();
 			foreach($guPairs as $gu) {
 				array_push($user_project_group_ids, $gu->project_group_id);
 			}
-			
+
 			$safe_pids_assoc = array();
 			$pids_data = ProjectGroup::whereIn('id', $user_project_group_ids)->get();
 			foreach($pids_data as $project) {// json -> array
@@ -207,12 +207,12 @@ class AdminController extends Controller {
 
             //Build the list of form groups they are a part of
             $guPairs = DB::table("form_group_user")->where("user_id", "=", $user->id)->get();
-			
+
 			$user_form_group_ids = array();
 			foreach($guPairs as $gu) {
 				array_push($user_form_group_ids, $gu->form_group_id);
 			}
-			
+
 			$safe_fids_assoc = array();
 			$fids_data = FormGroup::whereIn('id', $user_form_group_ids)->get();
 			foreach($fids_data as $group) { // json -> array
@@ -227,7 +227,7 @@ class AdminController extends Controller {
 					array_push($pids_to_remove, $project->project_id);
             }
 			$user->bulkRemoveCustomProjects($pids_to_remove);
-			
+
             //If the user isn't a part of the form group, we want to remove their custom access to it
             $forms = Form::all();
 			$fids_to_remove = array();
@@ -244,7 +244,7 @@ class AdminController extends Controller {
 
 			$user->addNewAdminToAllCustomProjects();
 			$user->addNewAdminToAllCustomForms();
-			
+
             array_push($message, "admin");
           }
         } else {
@@ -262,12 +262,12 @@ class AdminController extends Controller {
             $user->active = 1;
           }
         }
-		
+
         $user->save();
-		
+
         return response()->json(["status" => true, "message" => $message, "action" => $action], 200);
       }
-      
+
     /**
       * Checks whether the email is already taken.
       *
@@ -505,6 +505,8 @@ class AdminController extends Controller {
         }
 
         $tableManager->swapTempCacheTable();
+
+        updateGlobalTimer("reverse_assoc_cache_build");
 
         return response()->json(["status" => true, "message" => "reverse_cache_built"], 200);
     }
