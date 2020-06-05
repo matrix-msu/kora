@@ -114,6 +114,44 @@ function slugFormat($name, $project_id, $form_id) {
 }
 
 /**
+ * Updates a global timer.
+ *
+ * @param  string $name - Name of timer to update
+ */
+function updateGlobalTimer($name) {
+    $timer = \App\Timer::where('name','=',$name)->first();
+    $timer->timestamps = false;
+    $timer->interval = \Carbon\Carbon::now();
+    $timer->save();
+}
+
+/**
+ * Checks if we should remind an admin to update the reverse cache table.
+ * If it has been 7 days since cache was built, and last record update after last cache update
+ *
+ * @return string - The FLID
+ */
+function checkAssocCacheState() {
+    $user = Auth::user();
+    if(is_null($user) || !$user->admin)
+        return false;
+
+    $cacheTimer = \App\Timer::where('name','=','reverse_assoc_cache_build')->first();
+    $cache = \Carbon\Carbon::parse($cacheTimer->interval);
+    $recordTimer = \App\Timer::where('name','=','last_record_updated')->first();
+    $record = \Carbon\Carbon::parse($recordTimer->interval);
+    $now = \Carbon\Carbon::now();
+
+    $daysSinceCache = $cache->diffInDays($now,false);
+    $recordsUpdatedSinceCache = $cache->diffInDays($record,false);
+
+    if($daysSinceCache >= 7 && $recordsUpdatedSinceCache > 0)
+        return true;
+
+    return false;
+}
+
+/**
  * Returns array of links
  *
  * @return array - the links

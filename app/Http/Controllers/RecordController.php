@@ -257,6 +257,8 @@ class RecordController extends Controller {
             }
         }
 
+        updateGlobalTimer("last_record_updated");
+
         if($request->api)
             return response()->json(["status"=>true,"message"=>"record_created","kid"=>$record->kid, "kidConnection"=>$connection],200);
         else if($request->mass_creation_num > 0)
@@ -500,6 +502,8 @@ class RecordController extends Controller {
             RecordPresetController::updateIfExists($record);
         }
 
+        updateGlobalTimer("last_record_updated");
+
         if(!$request->api)
             return redirect('projects/' . $pid . '/forms/' . $fid . '/records/' . $rid)->with('k3_global_success', 'record_updated');
         else
@@ -586,7 +590,9 @@ class RecordController extends Controller {
 
         $record->delete();
 
-		return redirect('projects/' . $pid . '/forms/' . $fid . '/records')->with('k3_global_success', 'record_deleted');
+        updateGlobalTimer("last_record_updated");
+
+		    return redirect('projects/' . $pid . '/forms/' . $fid . '/records')->with('k3_global_success', 'record_deleted');
     }
 
     /**
@@ -613,6 +619,8 @@ class RecordController extends Controller {
             $record->delete();
         }
 
+        updateGlobalTimer("last_record_updated");
+
         return redirect('projects/' . $pid . '/forms/' . $fid . '/records')->with('k3_global_success', 'multiple_records_deleted');
     }
 
@@ -637,6 +645,8 @@ class RecordController extends Controller {
 
             return redirect()->action('FormController@show', ['pid' => $pid, 'fid' => $fid])->with('k3_global_success', 'all_record_deleted');
         }
+
+        updateGlobalTimer("last_record_updated");
     }
 
     /**
@@ -946,6 +956,8 @@ class RecordController extends Controller {
         $typedField = $form->getFieldModel($field['type']);
         $formFieldValue = $request->{$flid};
 
+        updateGlobalTimer("last_record_updated");
+
         //A field may not be required for a record but we want to force validation here so we use forceReq
         $message = $typedField->validateField($flid, $field, $request, true);
         if(empty($message)) {
@@ -1004,6 +1016,9 @@ class RecordController extends Controller {
             $kids = explode(',', $request->rids);
         else
             $kids = array();
+
+        updateGlobalTimer("last_record_updated");
+        
         //A field may not be required for a record but we want to force validation here so we use forceReq
         $message = $typedField->validateField($flid, $field, $request, true);
         if(empty($message)) {
