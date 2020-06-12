@@ -172,6 +172,12 @@ class koraApiExternalTool {
         $form["queries"] = $queries;
         if(!is_null($qLogic))
             $form["logic"] = $qLogic;
+        else if(sizeof($form["queries"])==1) {
+            //If default query being used, it's quicker to ditch it
+            $firstQuery = $form["queries"][0];
+            if($firstQuery["search"]=="kid" && empty($firstQuery["kids"]) && $firstQuery["not"])
+                unset($form["queries"]);
+        }
 
         return $form;
     }
