@@ -180,7 +180,7 @@ class InstallController extends Controller {
         try {
             echo "Installing kora tables...\n";
             $shellRes = Artisan::call('migrate', array('--force' => true));
-            echo "Kora 3 tables installed!\n";
+            echo "Kora tables installed!\n";
         } catch(\Exception $e) {
             Log::info($e);
             Log::info($shellRes);
@@ -206,7 +206,7 @@ class InstallController extends Controller {
 				//Set the global timers for this Kora 3 install
         try {
             echo "Setting global timers...\n";
-						foreach(Version::$globalTimers as $tName) {
+						foreach(Timer::$globalTimers as $tName) {
 		            $timer = new Timer();
 						    $timer->timestamps = false;
 		            $timer->name = $tName;
