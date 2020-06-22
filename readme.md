@@ -16,9 +16,11 @@ educational value of the objects.
 1) `PHP` >= 7.1.3
 2) `MySQL` >= 5.7.20
 
-### Installation
+### Installation Summary
 
-1) Clone the repository
+0) Install a LAMP stack, according to [these configuration instructions](https://chi-initiative.github.io/kora-documentation/getting-started/system_requirements/)
+
+1) Clone the repository into your home or data directories -- do not install it into `/var/www/html`
 
 2) Create `.htaccess` from the example in `kora/public`:
 
@@ -61,6 +63,8 @@ educational value of the objects.
        kora/public/assets/javascripts/production/
        
     c) **COPY THE ADMIN USER PASSWORD YOU ARE GIVEN!!!**
+
+6) Add the `public` directory as a [subdomain or subdirectory](https://chi-initiative.github.io/kora-documentation/getting-started/installing_kora_domains/#create-kora-installation-urls). It is very important that only this directory is served by your webserver.
 
 ## Contributing
 
