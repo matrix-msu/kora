@@ -13,14 +13,16 @@ educational value of the objects.
 ***
 
 ### Software Requirements
-1) `PHP` >= 7.1.3
-2) `MySQL` >= 5.7.20
+1) Linux Operating System
+2) Apache >= 2.0
+3) MySQL >= 5.7.20
+4) PHP >= 7.1.3
 
 ### Installation Summary
 
 0) Install a LAMP stack, according to [these configuration instructions](https://chi-initiative.github.io/kora-documentation/getting-started/system_requirements/)
 
-1) Clone the repository into your home or data directories -- do not install it into `/var/www/html`
+1) Clone the repository into your home or data directories -- **DO NOT** install it into your Document Root.
 
 2) Create `.htaccess` from the example in `kora/public`:
 
@@ -28,9 +30,9 @@ educational value of the objects.
        
     a) Configure the `RewriteBase` rule if the installation is **NOT** located at the root of your url.
     
-    i.e if url is http://www.example.com/digitalRepo/kora/public, then the rule is:
+    i.e if url is http://www.example.com/digitalRepo/kora, then the rule is:
        
-       RewriteBase /digitalRepo/kora/public
+       RewriteBase /digitalRepo/kora
        
     b) Configure the `php_value` rules in the newly created `.htaccess` if the installation supports variable 
        overwriting in htaccess (i.e. if you plan on uploading larger files).
