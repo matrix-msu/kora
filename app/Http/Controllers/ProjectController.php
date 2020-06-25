@@ -80,7 +80,7 @@ class ProjectController extends Controller {
                 $requestableProjects[$project->id] = $project->name. " (" . $project->internal_name.")";
             }
         }
-		
+
         //We need to sort the custom array
         ksort($custom);
 
@@ -124,7 +124,7 @@ class ProjectController extends Controller {
 
         return view('projects.index', compact('projects', 'inactive', 'custom', 'pSearch', 'hasProjects', 'requestableProjects', 'notification'));
 	}
-	
+
 	/**
      * Gets modal to request project permissions
      *
@@ -138,7 +138,7 @@ class ProjectController extends Controller {
 			if($project->active and !(\Auth::user()->inAProjectGroup($project)))
 				$requestableProjects[$project->id] = $project->name. " (" . $project->internal_name.")";
 		}
-		
+
 		return view('partials.projects.projectRequestModalForm', ['requestableProjects' => $requestableProjects])->render();
 	}
 
@@ -182,7 +182,7 @@ class ProjectController extends Controller {
                 $job = new ProjectEmails('RequestProjectPermissions', ['installAdmin' => $installAdmin, 'bccEmails' => $bccEmails, 'project' => $project]);
                 $job->handle();
             }
-			
+
             // only occurs on form submit, not on AJAX call
             return response()->json(["status"=>true, "message"=>"project_access_requested", 200]);
         }
@@ -409,11 +409,7 @@ class ProjectController extends Controller {
      * @return Project - Project model matching ID/slug
      */
     public static function getProject($id) {
-        $project = Project::where('id',$id)->first();
-        if(is_null($project))
-            $project = Project::where('internal_name','=',$id)->first();
-
-        return $project;
+        return Project::where('id',$id)->orWhere('internal_name','=',$id)->first();
     }
 
     /**

@@ -1832,9 +1832,10 @@ class Form extends Model {
                         $histDateTest = $ogFLID;
                     } else {
                         $subField = $key;
+                        $ogFLID = fieldMapper($key,$form->project_id,$form->id);
                         //Used to protect SQL
                         $subField = preg_replace("/[^A-Za-z0-9_]/", '', $subField);
-                        $pieces .= ", `$subField`";
+                        $pieces .= ", `$ogFLID` as `$subField`";
                         $histDateTest = $subField;
                     }
 

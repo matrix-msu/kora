@@ -218,20 +218,6 @@ class RestfulController extends Controller {
             $globalSort = false;
         }
 
-        //next, we authenticate each form
-        foreach($forms as $f) {
-            //next, we authenticate the form
-            $form = FormController::getForm($f->form);
-            if(is_null($form))
-                return response()->json(["status"=>false,"error"=>"Invalid Form: ".$this->cleanseOutput($f->form),"warnings"=>$this->minorErrors],500);
-
-            //Authentication failed
-            if(!isset($f->bearer_token))
-                return response()->json(["status"=>false,"error"=>"No search token provided for form: ".$this->cleanseOutput($f->form),"warnings"=>$this->minorErrors],500);
-            if(!$this->validateToken($form->project_id,$f->bearer_token,"search"))
-                return response()->json(["status"=>false,"error"=>"Invalid search token provided for form: ".$this->cleanseOutput($f->form),"warnings"=>$this->minorErrors],500);
-        }
-
         //now we actually do searches per form
         $resultsGlobal = [];
         $filtersGlobal = [];
@@ -242,6 +228,15 @@ class RestfulController extends Controller {
         foreach($forms as $f) {
             //initialize form
             $form = FormController::getForm($f->form);
+            if(is_null($form))
+                return response()->json(["status"=>false,"error"=>"Invalid Form: ".$this->cleanseOutput($f->form),"warnings"=>$this->minorErrors],500);
+
+            //Authentication failed
+            if(!isset($f->bearer_token))
+                return response()->json(["status"=>false,"error"=>"No search token provided for form: ".$this->cleanseOutput($f->form),"warnings"=>$this->minorErrors],500);
+            if(!$this->validateToken($form->project_id,$f->bearer_token,"search"))
+                return response()->json(["status"=>false,"error"=>"Invalid search token provided for form: ".$this->cleanseOutput($f->form),"warnings"=>$this->minorErrors],500);
+
             $layout = $form->layout;
             $recMod = new Record(array(),$form->id);
             if($globalSort)
@@ -404,13 +399,13 @@ class RestfulController extends Controller {
                 //If we merged results already, we can peak into the top level instead of looking at each form record set
                 if($globalMerge) {
                     //Move said record to the new Results array
-                    if(isset($resultsGlobal[$kid]))
+                    if(array_key_exists($kid,$resultsGlobal))
                         $globalSortedResults[$kid] = $resultsGlobal[$kid];
                 } else {
                     //Peak into the form results to find the record
-                    foreach ($resultsGlobal as $formRecordSet) {
+                    foreach($resultsGlobal as $formRecordSet) {
                         //Move said record to the new Results array
-                        if(isset($formRecordSet[$kid]))
+                        if(array_key_exists($kid,$formRecordSet))
                             $globalSortedResults[$kid] = $formRecordSet[$kid];
                     }
                 }
@@ -619,9 +614,9 @@ class RestfulController extends Controller {
                 }
                 $negative = isset($query->not) && is_bool($query->not) ? $query->not : false;
                 if($negative)
-                    $rids = $recMod->newQuery()->whereNotIn('kid',$kids)->pluck('id')->toArray();
+                    $rids = $recMod->newQuery()->select('id')->whereNotIn('kid',$kids)->pluck('id')->toArray();
                 else
-                    $rids = $recMod->newQuery()->whereIn('kid',$kids)->pluck('id')->toArray();
+                    $rids = $recMod->newQuery()->select('id')->whereIn('kid',$kids)->pluck('id')->toArray();
                 return $rids;
                 break;
             case 'legacy_kid':
@@ -841,10 +836,10 @@ class RestfulController extends Controller {
     private function validateToken($pid,$token,$permission) {
         //Get all the projects tokens
         $project = ProjectController::getProject($pid);
-        $tokens = $project->tokens()->get();
+        $tokens = $project->tokens()->where('token','=',$token)->get();
         //compare
         foreach($tokens as $t) {
-            if($t->token == $token && $t->$permission)
+            if($t->$permission)
                 return true;
         }
         return false;
