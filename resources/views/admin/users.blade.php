@@ -20,6 +20,7 @@
 
 @section('body')
   @include('partials.projects.notification')
+  @include('partials.admin.userManagement.revokeGitlabModal')
 
   <section class="filters center">
     <div class="underline-middle search search-js">
@@ -87,6 +88,7 @@
     var adminId = '{{ \Auth::user()->id }}';
     var loginUrl = '{{ url('/') }}';
     var validateEmailsUrl = '{{ url('/') }}/admin/users/validateEmails';
+    var gitlabURL = "{{action('AdminController@revokeGitlab',['id'=>''])}}";
 
     Kora.Admin.Users();
 

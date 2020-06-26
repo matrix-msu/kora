@@ -76,6 +76,12 @@
         </a>
       @endif
 
+      @if(!is_null($user->gitlab_token))
+        <a class="quick-action underline-middle-hover danger revoke-gitlab-js" href="#" user='{{$user->id}}'>
+          <span>Revoke Gitlab Auth</span>
+        </a>
+      @endif
+
       <a class="quick-action underline-middle-hover" href="{{ url('user/'.$user->id) }}">
         <i class="icon icon-edit-little"></i>
         <span>View User Profile</span>

@@ -66,6 +66,7 @@ Route::group(['middleware' => 'web'], function () {
     Route::patch('/admin/updateStatus/{id}', 'AdminController@updateStatus');
     Route::patch('/admin/batch', 'AdminController@batch');
     Route::delete('admin/deleteUser/{id}', 'AdminController@deleteUser');
+    Route::delete('admin/revokeGitlab/{id}', 'AdminController@revokeGitlab');
 
 //token routes
     Route::get('/tokens', 'TokenController@index');
