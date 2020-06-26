@@ -288,11 +288,7 @@ class FormController extends Controller {
      * @return Form - The requested form
      */
     public static function getForm($fid) {
-        $form = Form::where('id','=',$fid)->first();
-        if(is_null($form))
-            $form = Form::where('internal_name','=',$fid)->first();
-
-        return $form;
+        return Form::where('id','=',$fid)->orWhere('internal_name','=',$fid)->first();
     }
 
     /**

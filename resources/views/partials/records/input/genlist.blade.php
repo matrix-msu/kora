@@ -27,7 +27,7 @@
     <label>@if(!isset($seq) && $field['required'])<span class="oval-icon"></span> @endif{{$field['name']}}</label>
     <span class="error-message"></span>
     <div class="form-input-container">
-        <p class="directions">Add List Options below, and order them via drag & drop or their arrow icons.</p>
+        <p class="directions">Add List Options below, and order them via drag & drop or their arrow icons. Separate options with , and use "" to include a comma inside an option.</p>
 
         <!-- Cards of list options -->
         <div class="genlist-record-input list-option-card-container list-option-card-container-js {{$jsFiller}}">

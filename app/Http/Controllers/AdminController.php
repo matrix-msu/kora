@@ -255,8 +255,8 @@ class AdminController extends Controller {
             // User already active, need to deactivate
             $user->active = 0;
 
-            // We need to give them a new regtoken so they can't use the old one to reactivate
-            $user->regtoken = RegisterController::makeRegToken();
+            // We need to remove the registration token so they can't come back in
+            $user->regtoken = '';
           } else {
             // User not active, need to activate
             $user->active = 1;

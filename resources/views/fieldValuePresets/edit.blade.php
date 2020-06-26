@@ -52,7 +52,7 @@
                     <span class="error-message">{{array_key_exists("preset", $errors->messages()) ? $errors->messages()["preset"][0] : ''}}</span>
 
                     <div class="form-input-container">
-                        <p class="directions">Add List Options below, and order them via drag & drop or their arrow icons.</p>
+                        <p class="directions">Add List Options below, and order them via drag & drop or their arrow icons. Separate options with , and use "" to include a comma inside an option.</p>
 
                         <!-- Cards of list options -->
                         <div class="list-option-card-container list-option-card-container-js">

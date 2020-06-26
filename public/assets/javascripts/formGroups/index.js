@@ -287,7 +287,7 @@ Kora.FormGroups.Index = function() {
     var permCreate = ($('#create-' + formGroup).is(':checked') ? 1 : 0);
     var permEdit = ($('#edit-' + formGroup).is(':checked') ? 1 : 0);
     var permDelete = ($('#delete-' + formGroup).is(':checked') ? 1 : 0);
-    var permIngest = ($('#injest-' + formGroup).is(':checked') ? 1 : 0);
+    var permIngest = ($('#ingest-' + formGroup).is(':checked') ? 1 : 0);
     var permModify = ($('#modify-' + formGroup).is(':checked') ? 1 : 0);
     var permDestroy = ($('#destroy-' + formGroup).is(':checked') ? 1 : 0);
 
@@ -301,7 +301,7 @@ Kora.FormGroups.Index = function() {
         "permCreate": permCreate,
         "permEdit": permEdit,
         "permDelete": permDelete,
-        "permInjest": permIngest,
+        "permIngest": permIngest,
         "permModify": permModify,
         "permDestroy": permDestroy
       }
@@ -516,25 +516,25 @@ Kora.FormGroups.Index = function() {
       Kora.Modal.open($('.delete-permission-group-modal-js'));
     });
   }
-  
+
   function initializeValidation() {
-	var checkbox_names = {"create": true, "ingest": true, "edit": true, "modify": true, 
+	var checkbox_names = {"create": true, "ingest": true, "edit": true, "modify": true,
 		"delete": true, "destroy": true};
-		
+
 	function error(input, error_message) {
 	  $(input).prev().text(error_message);
 	  $(input).addClass("error"); // applies the error border styling
 	}
-	
+
 	function success(input) { // when validation is passed on an input
 	  $(input).prev().text("");
 	  $(input).removeClass("error");
 	}
-	  
+
 	function validateGroupName() {
 	  var name_input = $(".create-group-name-js");
 	  var name = name_input.val();
-	  
+
 	  if (name == null || name == "") {
 		error(name_input, "This field is required");
 		return false;
@@ -543,7 +543,7 @@ Kora.FormGroups.Index = function() {
 		return true;
 	  }
 	}
-	
+
 	function validateGroupOptions() {
 	  var check_create = $("input[name='create'].check-box-input");
 	  var check_ingest = $("input[name='ingest'].check-box-input");
@@ -552,7 +552,7 @@ Kora.FormGroups.Index = function() {
 	  var check_delete = $("input[name='delete'].check-box-input");
 	  var check_destroy = $("input[name='destroy'].check-box-input");
 	  var error_msg = $(".group-options-error-message");
-	  
+
 	  if (check_create && check_edit && check_delete &&
 	  (check_create.prop("checked") || check_ingest.prop("checked") || check_edit.prop("checked")
 	  || check_modify.prop("checked") || check_delete.prop("checked") || check_destroy.prop("checked"))) {
@@ -563,22 +563,22 @@ Kora.FormGroups.Index = function() {
 		return false;
 	  }
 	}
-	
+
     $(".create-group-name-js").blur(function() {
 	  validateGroupName();
     });
-	
+
 	$(".check-box-input").click(function() {
 	  var name = $(this).attr("name");
 	  if (name !== null && checkbox_names[name] != null) {
 	    validateGroupOptions();
 	  }
 	});
-	
+
 	$(".create-submit-js").click(function(e) {
 	  var valid_name = validateGroupName();
 	  var valid_options = validateGroupOptions();
-	  
+
 	  if (!valid_name || !valid_options) {
 		e.preventDefault();
 	  } else {

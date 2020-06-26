@@ -57,7 +57,9 @@ class WelcomeController extends Controller {
 			}
 
 			return view('/welcome', compact('notification'));
-		} else if (!\Auth::user()->active) {
+		} else if (!\Auth::user()->active && \Auth::user()->regtoken=='') {
+			return view('/auth/deactivate');
+		}	else if (!\Auth::user()->active) {
 			$notification = array(
 				'message' => '',
 				'description' => '',
