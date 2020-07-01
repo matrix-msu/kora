@@ -2,7 +2,7 @@ var Kora = Kora || {};
 Kora.Admin = Kora.Admin || {};
 
 Kora.Admin.Users = function() {
-  
+
   function initializeOptionDropdowns() {
     $('.option-dropdown-js').chosen({
       disable_search_threshold: 10,
@@ -16,9 +16,9 @@ Kora.Admin.Users = function() {
   function clearSearch() {
     $('.search-js .icon-cancel-js').click();
   }
-  
+
   /**
-   * Clear sorting 
+   * Clear sorting
    */
   function clearSortResults() {
     // Clear previous filter results
@@ -135,7 +135,7 @@ Kora.Admin.Users = function() {
       setFilter($(this).val());
     });
   }
-  
+
   /**
    * Display sorted users
    */
@@ -147,7 +147,7 @@ Kora.Admin.Users = function() {
 
     // Display corresponding content
     content.addClass('active');
-	
+
 	$(window).resize(); // fixes name disappearing bug
   }
 
@@ -235,8 +235,35 @@ Kora.Admin.Users = function() {
           });
         }
       });
-      
+
       Kora.Modal.open();
+    });
+
+    var userForGitlab = '';
+
+    $('.revoke-gitlab-js').click(function(e) {
+      e.preventDefault();
+
+      userForGitlab = $(this).attr('user');
+      $revokeModal = $('.revoke-gitlab-modal-js');
+
+      Kora.Modal.open($revokeModal);
+    });
+
+    $('.revoke-gitlab-submit-js').click(function(e) {
+        $.ajax({
+          url: gitlabURL + "/" + userForGitlab,
+          type: 'POST',
+          data: {
+            "_method": 'DELETE',
+            "_token" : CSRFToken
+          },
+          datatype: 'json',
+          success: function(data) {
+            window.localStorage.setItem('message', 'User Gitlab Access Revoked');
+            location.reload();
+          }
+        });
     });
 
     // Inviting new users
@@ -328,7 +355,7 @@ Kora.Admin.Users = function() {
       return true;
     }
   }
-  
+
   /**
    * Initialize event handling for each user for updating status or deletion
    */
@@ -396,7 +423,7 @@ Kora.Admin.Users = function() {
         var cards = $($(".user-sort-js").find(".user.card"));
       }
 
-      for (i = 0; i < cards.length; i++) {	
+      for (i = 0; i < cards.length; i++) {
         var card = $(cards[i]);
         var name_span = $(card.find($(".name")));
         var chevron = $(card.find($(".icon-chevron")));
@@ -426,33 +453,33 @@ Kora.Admin.Users = function() {
     // Recalculate ellipses when switching project types
     $("[href='#custom'], [href='#active'], [href='#inactive']").click(function() { adjustProjectCardTitle(); });
   }
-  
+
   function initializeInviteUserValidation()
   {
 	function error(input, error_message) {
 	  $(input).prev().text(error_message);
 	  $(input).addClass("error"); // applies the error border styling
 	}
-	
+
 	function success(input) { // when validation is passed on an input
 	  $(input).prev().text("");
 	  $(input).removeClass("error");
 	}
-	  
+
 	function validateEmails() {
 	  var email_input = $("#emails.text-input");
 	  var emails_string = email_input.val();
-	  
+
 	  if (emails_string != null && emails_string != "") {
 		emails_string = emails_string.replace(/,/g, " ");
-		
+
 		var emails = emails_string.split(" ");
 		var has_malformed = false;
 		var has_valid = false;
-		
+
 		for (i = 0; i < emails.length; i++) {
 		  var email = emails[i];
-		  
+
 		  if (email.length > 3) {
 			if (!validateEmail(email)) {
 			  error(email_input, "Email: " + email + " is not valid");
@@ -464,12 +491,12 @@ Kora.Admin.Users = function() {
 			has_malformed = true;
 		  }
 		}
-		
+
 		if (has_malformed && !has_valid) {
 		  error(email_input, "Malformed email separation - use commas and/or spaces");
 		  return false;
 		}
-		
+
 		success(email_input);
 	    return true; // passed validation
 	  } else {
@@ -477,23 +504,23 @@ Kora.Admin.Users = function() {
 	    return false;
 	  }
 	}
-	
+
 	function validateEmail(email) {
       var re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
 	  return re.test(String(email).toLowerCase());
 	}
-	  
+
     $("#emails.text-input").blur(function() {
 	  validateEmails();
 	});
-	
+
 	$( "input[name='sendButton']" ).click(function(e) {
 	  if (!validateEmails()) {
 	    e.preventDefault();
 	  }
 	})
   }
-  
+
   initializeOptionDropdowns();
   initializeFilters();
   initializeCards();

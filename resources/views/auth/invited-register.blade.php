@@ -108,9 +108,18 @@
           <div style="padding: 5px" align="center" class="g-recaptcha" data-sitekey="{{ config('auth.recap_public') }}"></div>
       </div>
 
-      <div class="form-group mt-xxxl" >
-          <button type="submit" class="btn btn-primary validate-user-js">Sign Up</button>
-      </div>
+      @if( (session()->has('notification') && session('notification')['message'] == "ReCaptcha validation error")
+              || config('auth.recap_public')=='' || config('auth.recap_private')=='')
+          <div class="form-group mt-xxxl" >
+              <button type="submit" class="btn btn-primary warning disabled">Missing reCAPTCHA Keys</button>
+
+              <p>Please add or update the reCAPTCHA keys in order to complete registration. Contact your system administrator if you need assistance.</p>
+          </div>
+      @else
+          <div class="form-group mt-xxxl" >
+              <button type="submit" class="btn btn-primary validate-user-js">Sign Up</button>
+          </div>
+      @endif
     </form>
   </div>
 </div>

@@ -168,6 +168,23 @@ class AdminController extends Controller {
         return response()->json(["status" => true, "message" => "user_deleted"], 200);
     }
 
+    /**
+     * Deletes a user from the system.
+     *
+     * @param  int $id - The ID of user to be deleted
+     * @return JsonResponse - User deleted
+     */
+    public function revokeGitlab($id) {
+        if(!\Auth::user()->admin)
+            return response()->json(["status" => false, "message" => "not_admin"], 200);
+
+        $user = User::where('id', '=', $id)->first();
+        $user->gitlab_token = null;
+        $user->save();
+
+        return response()->json(["status" => true, "message" => "user_revoked"], 200);
+    }
+
      /**
       * Updates admin and activation status of a user.
       * Adds or removes access to projects, forms, and groups.

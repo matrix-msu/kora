@@ -45,6 +45,13 @@
   }
 }
 
+.underline-middle-hover.danger {
+  &:hover::before,
+  &:hover::after {
+    background-color: palette('red', warning);
+  }
+}
+
 // Create an underline effect originating from the left when .active is added.
 //
 // For on hover use .underline-left-hover.
