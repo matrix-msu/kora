@@ -391,6 +391,20 @@ class InstallController extends Controller {
         else
             $debug = 'false';
 
+				//ENV values with spaces need to be surrounded in quotes
+				//Whether or not a particular ENV value should have a space is another issue, but those errors are more manageable
+				//ENV errors break everything!
+				$mail_host = (strpos($request->mail_host, ' ') !== false) ? '"'.$request->mail_host.'"' : $request->mail_host;
+				$mail_address = (strpos($request->mail_address, ' ') !== false) ? '"'.$request->mail_address.'"' : $request->mail_address;
+				$mail_name = (strpos($request->mail_name, ' ') !== false) ? '"'.$request->mail_name.'"' : $request->mail_name;
+				$mail_user = (strpos($request->mail_user, ' ') !== false) ? '"'.$request->mail_user.'"' : $request->mail_user;
+				$mail_password = (strpos($request->mail_password, ' ') !== false) ? '"'.$request->mail_password.'"' : $request->mail_password;
+				$recaptcha_public = (strpos($request->recaptcha_public, ' ') !== false) ? '"'.$request->recaptcha_public.'"' : $request->recaptcha_public;
+				$recaptcha_private = (strpos($request->recaptcha_private, ' ') !== false) ? '"'.$request->recaptcha_private.'"' : $request->recaptcha_private;
+				$gitlab_client = (strpos($request->gitlab_client, ' ') !== false) ? '"'.$request->gitlab_client.'"' : $request->gitlab_client;
+				$gitlab_client_id = (strpos($request->gitlab_client_id, ' ') !== false) ? '"'.$request->gitlab_client_id.'"' : $request->gitlab_client_id;
+				$gitlab_client_secret = (strpos($request->gitlab_client_secret, ' ') !== false) ? '"'.$request->gitlab_client_secret.'"' : $request->gitlab_client_secret;
+
         $layout = "APP_ENV=" . config('app.env') . "\n".
             "APP_DEBUG=" . $debug . "\n".
             "APP_KEY=" . config('app.key') . "\n\n".
@@ -402,22 +416,22 @@ class InstallController extends Controller {
             "DB_DEFAULT=" . config('database.default') . "\n" .
             "DB_PREFIX=" . config('database.connections.mysql.prefix') . "\n\n" .
 
-            "MAIL_HOST=" . $request->mail_host . "\n" .
-            "MAIL_FROM_ADDRESS=" . $request->mail_address . "\n" .
-            "MAIL_FROM_NAME=\"" . $request->mail_name . "\"\n" .
-            "MAIL_USER=" . $request->mail_user . "\n" .
-            "MAIL_PASSWORD=" . $request->mail_password . "\n\n" .
+            "MAIL_HOST=" . $mail_host . "\n" .
+            "MAIL_FROM_ADDRESS=" . $mail_address . "\n" .
+            "MAIL_FROM_NAME=" . $mail_name . "\n" .
+            "MAIL_USER=" . $mail_user . "\n" .
+            "MAIL_PASSWORD=" . $mail_password . "\n\n" .
 
             "CACHE_DRIVER=" . config('cache.default') . "\n".
             "SESSION_DRIVER=" . config('session.driver') . "\n" .
             "STORAGE_TYPE=" . config('filesystems.kora_storage') . "\n\n" .
 
-            "RECAPTCHA_PUBLIC_KEY=" . $request->recaptcha_public . "\n" .
-            "RECAPTCHA_PRIVATE_KEY=" . $request->recaptcha_private . "\n\n" .
+            "RECAPTCHA_PUBLIC_KEY=" . $recaptcha_public . "\n" .
+            "RECAPTCHA_PRIVATE_KEY=" . $recaptcha_private . "\n\n" .
 
-            "GITLAB_CLIENT=" . $request->gitlab_client . "\n" .
-            "GITLAB_CLIENT_ID=" . $request->gitlab_client_id . "\n" .
-            "GITLAB_CLIENT_SECRET=" . $request->gitlab_client_secret;
+            "GITLAB_CLIENT=" . $gitlab_client . "\n" .
+            "GITLAB_CLIENT_ID=" . $gitlab_client_id . "\n" .
+            "GITLAB_CLIENT_SECRET=" . $gitlab_client_secret;
 
         try {
             Log::info("Beginning ENV Write");
