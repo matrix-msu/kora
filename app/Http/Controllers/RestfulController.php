@@ -31,6 +31,11 @@ class RestfulController extends Controller {
     const VALID_FORMATS = [ self::JSON, self::KORA, self::XML];
 
     /**
+     * @var array - This is an array of record metadata that can be used in sort;
+     */
+    const SORTABLE_META = ['kid','legacy_kid','created_at','updated_at'];
+
+    /**
      * @var array - Minor errors in api search. Since they happen in nested functions, it's easier to store globally.
      */
     public $minorErrors = array();
@@ -266,7 +271,6 @@ class RestfulController extends Controller {
             $filters['under'] = isset($f->under) && is_bool($f->under) ? $f->under : false; //Replace field spaces with underscores
             //If merge was provided, pass it along in the filters
             $filters['merge'] = $globalMerge ? $globalMergeArray : null;
-
             //Index and count become irrelevant to a single form in global sort, because we want to return count after all forms are sorted.
             if($globalSort) {
                 if(!is_null($filters['index']))
@@ -291,7 +295,7 @@ class RestfulController extends Controller {
                 foreach($filters['sort'] as $rule) {
                     foreach($rule as $field => $direction) {
                         $flid = fieldMapper($field, $form->project_id, $form->id);
-                        if(!isset($layout['fields'][$flid]))
+                        if(!isset($layout['fields'][$flid]) && !in_array(strtolower($field), RestfulController::SORTABLE_META))
                             return response()->json(["status" => false, "error" => "The following sort field is not apart of the requested form: " . $this->cleanseOutput($flid), "warnings" => $this->minorErrors], 500);
                     }
                 }
