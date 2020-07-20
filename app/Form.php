@@ -1825,7 +1825,13 @@ class Form extends Model {
             $orderBy = ' ORDER BY ';
             foreach($sortFields as $sf) {
                 foreach($sf as $key => $dir) {
-                    if(!is_null($mergeFields) && isset($mergeFields->{$key})) { // AND in that merge array
+                    if(in_array(strtolower($key),RestfulController::SORTABLE_META)) {
+                        $meta = strtolower($key);
+                        $pieces .= ", `$meta`";
+                        $histDateTest = '';
+                        $orderBy .= "`$meta` IS NULL, `$meta` $dir,";
+                        continue;
+                    } else if(!is_null($mergeFields) && isset($mergeFields->{$key})) { // AND in that merge array
                         $subField = $key;
                         $ogField = $mergeFields->{$key}[$index];
                         $ogFLID = fieldMapper($ogField,$form->project_id,$form->id);
