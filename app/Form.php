@@ -1,6 +1,7 @@
 <?php namespace App;
 
 use App\Http\Controllers\FormController;
+use App\Http\Controllers\RestfulController;
 use App\Http\Controllers\RestfulBetaController;
 use App\KoraFields\BaseField;
 use Illuminate\Database\Eloquent\Model;
@@ -600,8 +601,8 @@ class Form extends Model {
             $orderBy = ' ORDER BY ';
             foreach($filters['sort'] as $sortRule) {
                 foreach($sortRule as $flid => $order) {
-                    if(strtolower($flid) == 'kid')
-                        $field = 'kid';
+                    if(in_array(strtolower($flid), RestfulController::SORTABLE_META))
+                        $field = strtolower($flid);
                     else
                         $field = fieldMapper($flid,$this->project_id,$this->id);
                     //Used to protect SQL
@@ -1175,8 +1176,8 @@ class Form extends Model {
             $orderBy = ' ORDER BY ';
             foreach($filters['sort'] as $sortRule) {
                 foreach($sortRule as $flid => $order) {
-                    if(strtolower($flid) == 'kid')
-                        $field = 'kid';
+                    if(in_array(strtolower($flid), RestfulController::SORTABLE_META))
+                        $field = strtolower($flid);
                     else
                         $field = fieldMapper($flid,$this->project_id,$this->id);
                     //Used to protect SQL
@@ -1461,7 +1462,10 @@ class Form extends Model {
             foreach($filters['sort'] as $sortRule) {
                 foreach($sortRule as $flid => $order) {
                     //Used to protect SQL
-                    $field = fieldMapper($flid,$this->project_id,$this->id);
+                    if(in_array(strtolower($flid), RestfulController::SORTABLE_META))
+                        $field = strtolower($flid);
+                    else
+                        $field = fieldMapper($flid,$this->project_id,$this->id);
                     $field = preg_replace("/[^A-Za-z0-9_]/", '', $field);
                     if(isset($layout['fields'][$field]) && $layout['fields'][$field]['type'] == Form::_HISTORICAL_DATE)
                         $orderBy .= "$field IS NULL, $field->\"$.sort\" $order,";
