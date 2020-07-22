@@ -117,8 +117,18 @@ class RestfulController extends Controller {
             return response()->json(["status"=>false,"error"=>"Invalid Project/Form Pair","warnings"=>$this->minorErrors],500);
 
         $form = FormController::getForm($fid);
+        $fields = $form->layout['fields'];
+        $pages = $form->layout['pages'];
 
-        return $form->layout['fields'];
+        $orderedForms = [];
+        //Reorder fields based on
+        foreach($pages as $page) {
+            foreach($page['flids'] as $flid) {
+                $orderedForms[$flid] = $fields[$flid];
+            }
+        }
+
+        return $orderedForms;
     }
 
     /**
