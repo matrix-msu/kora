@@ -569,7 +569,7 @@ class Form extends Model {
                             $comboInfo[$tmp]['jsonFields'][$cName] = 1;
 
                         //Create its mysql select call
-                        array_push($subFields, $layout['fields'][$flid][$seq]['flid']." as `$cName`");
+                        array_push($subFields, "`".$layout['fields'][$flid][$seq]['flid']."` as `$cName`");
                     }
 
                     //Build the full select call
@@ -927,7 +927,7 @@ class Form extends Model {
                             $comboInfo[$tmp]['jsonFields'][$cName] = 1;
 
                         //Create its mysql select call
-                        array_push($subFields, $layout['fields'][$flid][$seq]['flid']." as `$cName`");
+                        array_push($subFields, "`".$layout['fields'][$flid][$seq]['flid']."` as `$cName`");
                     }
 
                     //Build the full select call
@@ -972,7 +972,7 @@ class Form extends Model {
                             $comboInfo[$tmp]['jsonFields'][$cName] = 1;
 
                         //Create its mysql select call
-                        array_push($subFields, $layout['fields'][$flid][$seq]['flid']." as `$cName`");
+                        array_push($subFields, "`".$layout['fields'][$flid][$seq]['flid']."` as `$cName`");
                     }
 
                     //Build the full select call
