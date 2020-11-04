@@ -359,11 +359,11 @@ class ImportController extends Controller {
 
     public function connectRecords($pid, $fid, Request $request) {
 	    ini_set('max_execution_time',0);
-        
+
         $kids = json_decode($request->kids,true);
 		$connections = json_decode($request->connections,true);
 		$connErrors = [];
-        
+
         $form = FormController::getForm($fid);
         $recModel = new Record(array(),$fid);
         $records = $recModel->newQuery()->whereIn('kid', $kids)->get();
@@ -374,7 +374,7 @@ class ImportController extends Controller {
             if($field['type'] == Form::_ASSOCIATOR)
                 $assocField[] = $flid;
         }
-        
+
         foreach($records as $record) {
         	foreach($assocField as $flid) {
                 $assoc = json_decode($record->{$flid});
@@ -388,11 +388,17 @@ class ImportController extends Controller {
                             $newAssoc[] = $connections[$val];
                         } else if(Record::isKIDPattern($val)) { //Normal KID value
                             $newAssoc[] = $val;
-                        } else //Connection not found
+                        } else { //Connection not found
+							$update = true;
                             $connErrors[] = ['connection' => $val, 'record' => $record->kid, 'field' => $fieldsArray[$flid]['name']];
+                        }
                     }
-                    if($update)
-                    	$record->{$flid} = json_encode($newAssoc);
+                    if($update) {
+                        if(empty($newAssoc))
+                    	    $record->{$flid} = null;
+                        else
+                            $record->{$flid} = json_encode($newAssoc);
+                    }
                 }
             }
             $record->save();
