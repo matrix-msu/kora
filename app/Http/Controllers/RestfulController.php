@@ -2,6 +2,7 @@
 
 use App\Form;
 use App\Record;
+use App\RecordPreset;
 use App\Search;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -129,6 +130,42 @@ class RestfulController extends Controller {
         }
 
         return $orderedForms;
+    }
+
+    /**
+     * Get a basic list of the fields in a form.
+     *
+     * @param  int $pid - Project ID
+     * @param  int $fid - Form ID
+     * @return mixed - The fields
+     */
+    public function getFormLayoutDump($pid, $fid) {
+        if(!FormController::validProjForm($pid,$fid))
+            return response()->json(["status"=>false,"error"=>"Invalid Project/Form Pair","warnings"=>$this->minorErrors],500);
+
+        $form = FormController::getForm($fid);
+        $project = ProjectController::getProject($form->project_id);
+
+        $formArray = array();
+
+        $formArray['name'] = $form->name;
+        $formArray['original_project_name'] = $project->name;
+        $formArray['internal_name'] = $form->internal_name;
+        $formArray['description'] = $form->description;
+        $formArray['preset'] = $form->preset;
+        $formArray['layout'] = $form->layout;
+
+        //record presets
+        $recPresets = RecordPreset::where('form_id','=',$form->id)->get();
+        $formArray['recPresets'] = array();
+        foreach($recPresets as $pre) {
+            $rec = array();
+            $rec['preset'] = $pre->preset;
+
+            array_push($formArray['recPresets'],$rec);
+        }
+
+        return $formArray;
     }
 
     /**

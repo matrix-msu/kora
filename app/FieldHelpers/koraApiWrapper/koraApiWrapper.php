@@ -70,6 +70,17 @@ class koraApiWrapper {
     }
 
     /**
+     * Gets the specific form layout dump.
+     *
+     * @param  int $pid - Project ID
+     * @param  int $fid - Form ID
+     * @return bool|string - API Result
+     */
+    public function getFormLayout($pid, $fid) {
+        return $this->callAPI("projects/$pid/forms/$fid/layout");
+    }
+
+    /**
      * Gets the number of records belonging to a given form.
      *
      * @param  int $pid - Project ID

@@ -261,6 +261,7 @@ Route::group(['middleware' => 'api'], function () {
     Route::post('/api/projects/{pid}/forms/create', 'RestfulController@createForm');
     Route::get('/api/projects/{pid}/forms/{fid}/fields', 'RestfulController@getFormFields');
     Route::put('/api/projects/{pid}/forms/{fid}/fields', 'RestfulController@modifyFormFields');
+    Route::get('/api/projects/{pid}/forms/{fid}/layout', 'RestfulController@getFormLayoutDump');
     Route::get('/api/projects/{pid}/forms/{fid}/recordCount', 'RestfulController@getFormRecordCount');
     Route::post('/api/search', 'RestfulController@search');
     Route::delete('/api/delete', 'RestfulController@delete');
