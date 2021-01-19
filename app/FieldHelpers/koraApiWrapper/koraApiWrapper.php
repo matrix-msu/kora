@@ -49,6 +49,15 @@ class koraApiWrapper {
     }
 
     /**
+     * Gets a list of projects, and their forms, including their IDs, name, and description.
+     *
+     * @return bool|string - API Result
+     */
+    public function getAllProjectForms() {
+        return $this->callAPI("projects");
+    }
+
+    /**
      * Gets a list of forms belonging to the given project, including their Form ID, name, and description.
      *
      * @param  int $pid - Project ID

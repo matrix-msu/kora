@@ -1,6 +1,7 @@
 <?php namespace App\Http\Controllers;
 
 use App\Form;
+use App\Project;
 use App\Record;
 use App\RecordPreset;
 use App\Search;
@@ -52,6 +53,35 @@ class RestfulController extends Controller {
             return response()->json(["status"=>false,"error"=>"Failed to retrieve kora installation version","warnings"=>$this->minorErrors],500);
         else
             return $instInfo->version;
+    }
+
+    /**
+     * Get a basic list of the forms in all projects.
+     *
+     * @return mixed - The forms
+     */
+    public function getAllProjectForms() {
+        $returnArray = [];
+        $projects = Project::all();
+
+        foreach($projects as $project) {
+            $formMods = $project->forms()->get();
+            $forms = [];
+            foreach($formMods as $form) {
+                $fArray = array();
+                $fArray['name'] = $form->name;
+                $fArray['nickname'] = $form->internal_name;
+                $fArray['description'] = $form->description;
+                $forms[$form->id] = $fArray;
+            }
+
+            $returnArray[$project->id]['name'] = $project->name;
+            $returnArray[$project->id]['nickname'] = $project->internal_name;
+            $returnArray[$project->id]['description'] = $project->description;
+            $returnArray[$project->id]['forms'] = $forms;
+        }
+
+        return $returnArray;
     }
 
     /**
