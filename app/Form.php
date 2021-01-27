@@ -1864,11 +1864,13 @@ class Form extends Model {
         $masterSelect = implode(' UNION ALL ', $formSelects);
 
         $results = $con->query($masterSelect.$orderBy);
-        while($row = $results->fetch_assoc()) {
-            if(array_key_exists($row['kid'],$kidKeyArray))
-                $newOrderArray[] = $row['kid'];
+        if($results !== false) {
+            while($row = $results->fetch_assoc()) {
+                if(array_key_exists($row['kid'], $kidKeyArray))
+                    $newOrderArray[] = $row['kid'];
+            }
+            $results->free();
         }
-        $results->free();
 
         return $newOrderArray;
     }
