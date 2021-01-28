@@ -257,10 +257,12 @@ Route::group(['middleware' => 'web'], function () {
 Route::group(['middleware' => 'api'], function () {
 //api routes
     Route::get('/api/version', 'RestfulController@getKoraVersion');
+    Route::get('/api/projects', 'RestfulController@getAllProjectForms');
     Route::get('/api/projects/{pid}/forms', 'RestfulController@getProjectForms');
     Route::post('/api/projects/{pid}/forms/create', 'RestfulController@createForm');
     Route::get('/api/projects/{pid}/forms/{fid}/fields', 'RestfulController@getFormFields');
     Route::put('/api/projects/{pid}/forms/{fid}/fields', 'RestfulController@modifyFormFields');
+    Route::get('/api/projects/{pid}/forms/{fid}/layout', 'RestfulController@getFormLayoutDump');
     Route::get('/api/projects/{pid}/forms/{fid}/recordCount', 'RestfulController@getFormRecordCount');
     Route::post('/api/search', 'RestfulController@search');
     Route::delete('/api/delete', 'RestfulController@delete');

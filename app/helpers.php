@@ -366,45 +366,30 @@ function getDashboardRecordBlockLink($record) {
 }
 
 function parseCSV($record) {
-  if (($handle = fopen($record, "r")) !== FALSE) {
-      $row = 0;
-      $result = $fields = $ids = $data = $records = array();
-      $bom = pack("CCC", 0xef, 0xbb, 0xbf);
-      while (($data = fgetcsv($handle, 0, ",")) !== FALSE) {
-          $num = count($data);
-          for ($c=0; $c < $num; $c++) {
-              if ($row == 0) {
-                  $result[$c] = [];
-                  //GETS RID OF BYTE ORDER MARKS THAT ARE SOMETIMES MADE BY FGETCSV
-                  if(0 === strncmp($data[$c], $bom, 3))
-                      $data[$c] = substr($data[$c], 3);
-                  array_push($fields, str_replace('ufeff','',$data[$c]));
-              } else {
-                  if($data[$c]) {
-                      if(!in_array($row, $ids))
-                          array_push($ids, $row);
-                      array_push($result[$c], array($row => $data[$c]));
-                  }
-              }
-          }
-          $row++;
-      }
-      fclose($handle);
-      for ($i=0; $i < count($fields); $i++) {
-          if ($result[$i])
-              $data[$fields[$i]] = $result[$i];
-      }
-      foreach ($ids as $id) {
-          $record = array();
-          foreach($data as $field => $pairs) {
-              $value = '';
-              foreach($pairs as $pair)
-                  if(array_key_exists($id, $pair))
-                      $value = $pair[$id];
-              $record[trim($field)] = $value;
-          }
-          array_push($records, $record);
-      }
-      return $records;
-  }
+    $firstRow = true;
+    $result = $fields = array();
+    if(($handle = fopen($record, "r")) !== FALSE) {
+        $bom = pack("CCC", 0xef, 0xbb, 0xbf);
+        while(($data = fgetcsv($handle, 0, ",")) !== FALSE) {
+            $num = count($data);
+            if($firstRow) {
+                for($c=0; $c < $num; $c++) {
+                    //GETS RID OF BYTE ORDER MARKS THAT ARE SOMETIMES MADE BY FGETCSV
+                    if(0 === strncmp($data[$c], $bom, 3))
+                        $data[$c] = substr($data[$c], 3);
+                    array_push($fields, str_replace('ufeff', '', $data[$c]));
+                }
+                $firstRow = false;
+            } else {
+                $record = [];
+                for($c=0; $c < $num; $c++) {
+                    $record[trim($fields[$c])] = $data[$c];
+                }
+                $result[] = $record;
+            }
+        }
+        fclose($handle);
+    }
+
+    return $result;
 }

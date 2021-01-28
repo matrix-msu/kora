@@ -49,6 +49,15 @@ class koraApiWrapper {
     }
 
     /**
+     * Gets a list of projects, and their forms, including their IDs, name, and description.
+     *
+     * @return bool|string - API Result
+     */
+    public function getAllProjectForms() {
+        return $this->callAPI("projects");
+    }
+
+    /**
      * Gets a list of forms belonging to the given project, including their Form ID, name, and description.
      *
      * @param  int $pid - Project ID
@@ -67,6 +76,17 @@ class koraApiWrapper {
      */
     public function getFormFields($pid, $fid) {
         return $this->callAPI("projects/$pid/forms/$fid/fields");
+    }
+
+    /**
+     * Gets the specific form layout dump.
+     *
+     * @param  int $pid - Project ID
+     * @param  int $fid - Form ID
+     * @return bool|string - API Result
+     */
+    public function getFormLayout($pid, $fid) {
+        return $this->callAPI("projects/$pid/forms/$fid/layout");
     }
 
     /**
