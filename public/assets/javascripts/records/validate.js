@@ -62,7 +62,7 @@ Kora.Records.Validate = function() {
                 data: values,
                 success: function(err) {
                     $('.error-message').text('');
-                    $('.text-input, .text-area, .cke, .chosen-container').removeClass('error');
+                    $('.text-input, .text-area, .cke, .chosen-container, .new-list-option-card-js').removeClass('error');
 
                     console.warn(err);
 
@@ -73,15 +73,22 @@ Kora.Records.Validate = function() {
                             var $field = $('#'+fieldName);
                             var $page = $field.parents('section').attr('id');
 
+                            if($page === undefined) {
+                              $field = $('[name="' + fieldName + '"]');
+                              $page = $field.parents('section').attr('id');
+                            }
+                            if($page === undefined) {
+                              $field = $('[name="' + fieldName + '[]"]');
+                              $page = $field.parents('section').attr('id');
+                            }
+
                             $field.addClass('error');
                             $field.siblings('.error-message').text(error);
 
-                            if ($page === undefined) {
-                              $page = $('[name="' + fieldName + '"]').parents('section').attr('id');
-                              errorList.push($page);
-                            } else {
-                              errorList.push($page);
-                            }
+                            if($field.siblings('.chosen-container') !== false)
+                                $field.siblings('.chosen-container').addClass('error');
+
+                            errorList.push($page);
                         });
                         
                         initializeValidationModal();

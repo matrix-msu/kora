@@ -25,7 +25,6 @@
 @endphp
 <div class="form-group mt-xxxl specialty-field-group list-input-form-group">
     <label>@if(!isset($seq) && $field['required'])<span class="oval-icon"></span> @endif{{$field['name']}}</label>
-    <span class="error-message"></span>
     <div class="form-input-container">
         <p class="directions">Add List Options below, and order them via drag & drop or their arrow icons. Separate options with , and use "" to include a comma inside an option.</p>
 
@@ -56,7 +55,8 @@
         </div>
 
         <!-- Card to add list options -->
-        <div class="card new-list-option-card new-list-option-card-js">
+        <span class="error-message"></span>
+        <div id="{{$flid}}" class="card new-list-option-card new-list-option-card-js">
             <div class="header">
                 <div class="left">
                     <input class="new-list-option new-list-option-js" type="text" placeholder='Type here and hit the enter key or "Add" to add new list options' data-flid='{{$listInputLabel}}'>
