@@ -28,6 +28,13 @@
         width: 40px;
       }
 
+      .icon-chevron.right {
+        transform: rotate(-90deg);
+      }
+      .icon-chevron.left {
+        transform: rotate(90deg);
+      }
+
       span {
         font-family: $ubuntu-medium;
         font-size: 12px;
