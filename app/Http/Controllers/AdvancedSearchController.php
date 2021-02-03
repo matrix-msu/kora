@@ -160,7 +160,7 @@ class AdvancedSearchController extends Controller {
 
         $pagination = app('request')->input('page-count') === null ? 10 : app('request')->input('page-count');
         $order = app('request')->input('order') === null ? 'lmd' : app('request')->input('order');
-        $order_type = substr($order, 0, 2) === "lm" ? "updated_at" : "rid";
+        $order_type = substr($order, 0, 2) === "lm" ? "updated_at" : "kid";
         $order_direction = substr($order, 2, 3) === "a" ? "asc" : "desc";
         $records = $recBuilder->orderBy($order_type, $order_direction)->paginate($pagination);
 
