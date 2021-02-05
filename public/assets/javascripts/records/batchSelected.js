@@ -28,5 +28,9 @@ Kora.Records.BatchSelected = function() {
       }
     }
 
+    $('.batch-selected-submit-js').click( function() {
+        window.localStorage.removeItem('selectedRecords');
+    });
+
     initializePage();
 }

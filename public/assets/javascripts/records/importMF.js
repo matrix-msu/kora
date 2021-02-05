@@ -123,6 +123,7 @@ Kora.Records.ImportMF = function () {
                     `;
 
                     recordMatchSection.html(matchup);
+                    $(document).scrollTop(0);
 
                     $('.single-select').chosen({
                         allow_single_deselect: true,

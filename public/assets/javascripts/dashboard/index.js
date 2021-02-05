@@ -765,6 +765,10 @@ Kora.Dashboard.Index = function() {
             else
                 $(this).addClass('no-children');
         });
+
+        $('.options-modal-js').click( function(e) {
+           e.preventDefault();
+        });
     });
 
     initializeSelects();

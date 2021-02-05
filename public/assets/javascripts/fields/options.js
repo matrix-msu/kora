@@ -289,17 +289,15 @@ Kora.Fields.Options = function(fieldType) {
         Kora.Modal.initialize();
 
         function setCardTitleWidth() {
-            $(window).load(function() {
-                var $cards = $('.list-option-card-js');
+            var $cards = $('.list-option-card-js');
 
-                $cards.each(function() {
-                    var $card = $(this);
-                    var $value = $card.find('.title');
+            $cards.each(function() {
+                var $card = $(this);
+                var $value = $card.find('.title');
 
-                    var maxValueWidth = $card.outerWidth() * .75;
-                    $value.css('max-width', maxValueWidth);
-                })
-            });
+                var maxValueWidth = $card.outerWidth() * .75;
+                $value.css('max-width', maxValueWidth);
+            })
         }
 
         // Function to add list options and the respective cards
