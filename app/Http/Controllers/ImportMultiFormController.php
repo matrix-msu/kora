@@ -214,6 +214,7 @@ class ImportMultiFormController extends Controller {
             $table = '<div class="get-fid-js" fid="'.$fid.'">';
 
             //Then build the field matchups
+            $table .= '<div class="records-imported-label form-group mt-xl">'.$form->name.'</div>';
             foreach($fields as $flid => $field) {
                 $table .= '<div class="form-group mt-xl half">';
                 $table .= '<div class="solid-box get-slug-js" slug="'.$flid.'">';

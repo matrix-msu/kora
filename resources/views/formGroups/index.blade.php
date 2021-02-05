@@ -194,6 +194,16 @@
               </p>
             @endif
 
+            @php
+              $uniqueNames = [];
+              $nonUniqueNames = [];
+              foreach($users as $user) {
+                  if(!in_array($user->getFullName(),$uniqueNames))
+                      $uniqueNames[] = $user->getFullName();
+                  else
+                      $nonUniqueNames[] = $user->getFullName();
+              }
+            @endphp
             @foreach($users as $user)
               <div class="user user-js" id="list-element{{$formGroup->id}}{{$user->id}}">
                 <a href="#" class="name view-user-js"
@@ -203,7 +213,7 @@
                    data-organization="{{$user->preferences['organization']}}"
                    data-profile="{{$user->getProfilePicUrl()}}"
                    data-profile-url="{{action('Auth\UserController@index', ['uid' => $user->id])}}">
-                  {{$user->getFullName()}}
+                   {{ (in_array($user->getFullName(), $nonUniqueNames)) ? $user->getFullName().' ('.$user->username.')' : $user->getFullName() }}
                 </a>
 
                 @if(\Auth::user()->id != $user->id)

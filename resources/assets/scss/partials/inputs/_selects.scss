@@ -42,7 +42,7 @@
   }
 
   &.error {
-    border: 2px solid palette('yellow');
+    border: 2px solid palette('yellow', base);
     border-radius: 5px;
   }
 

@@ -26,25 +26,28 @@ Kora.Records.Toolbar = function() {
 
   function initializeExportRecords () {
     Kora.Modal.initialize();
+    let rids = null;
 
     $('.export-mult-records-js').click(function (e) {
       e.preventDefault();
 
       var $modal = $('.export-mult-records-modal-js');
 
-      let rids = window.localStorage.getItem('selectedRecords');
+      rids = window.localStorage.getItem('selectedRecords');
       let $form = $('.export-multiple-js');
 
       if(rids) {
-        rids = rids.split(',');
-        $form.append('<input type="hidden" name="rids" value="' + rids + '">');
+        arrayrids = rids.split(',');
+        $form.append('<input type="hidden" name="rids" value="' + arrayrids + '">');
       }
+      resetSelectAndHideToolbar();
 
       Kora.Modal.open($modal);
     });
 
     $('.export-mult-begin-files-js').click(function(e) {
       e.preventDefault();
+
       $exportDiv = $(this);
       $exportDivTitle = $('.export-mult-records-title-js');
       $exportDescDiv = $('.export-mult-files-desc-js');
@@ -57,8 +60,6 @@ Kora.Records.Toolbar = function() {
       buildURL = $exportDiv.attr('buildURL');
       downloadURL = $exportDiv.attr('downloadURL');
       token = $exportDiv.attr('token');
-
-      let rids = window.localStorage.getItem('selectedRecords');
 
       formRecordZipAjaxCall(prepURL, buildURL, downloadURL, token, $exportDiv, $exportDivTitle, $exportDescDiv, $ogDesc, rids);
     });

@@ -67,6 +67,7 @@ Kora.Records.Import = function () {
                         recordMatchSection.removeClass('hidden');
 
                         recordMatchSection.html(data['matchup']);
+                        $(document).scrollTop(0);
 
                         $('.single-select').chosen({
                             allow_single_deselect: true,

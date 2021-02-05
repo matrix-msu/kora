@@ -36,7 +36,7 @@
   }
 
   &.error {
-    border: 2px solid palette('yellow');
+    border: 2px solid palette('yellow', base);
   }
 
   &::placeholder {
@@ -79,7 +79,7 @@
 //For ckeditor
 .cke {
   &.error {
-    border: 2px solid palette('yellow');
+    border: 2px solid palette('yellow', base);
     border-radius: 5px;
   }
 }
@@ -87,7 +87,7 @@
 //For gen list
 .new-list-option-card {
   &.error {
-    border: 2px solid palette('yellow') !important;
+    border: 2px solid palette('yellow', base) !important;
     border-radius: 5px;
   }
 }

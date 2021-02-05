@@ -1,3 +1,3 @@
-$('.next.page, .previous.page').click(function() {
+$('.pagination').on('click', '.next.page, .previous.page, .page-link', function(e) {
   $(document).scrollTop(0);
 });
