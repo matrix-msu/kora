@@ -106,10 +106,25 @@ Kora.Fields.TypedFieldInputs.Initialize = function() {
         });
     }
 
+    function initializeComboList() {
+        $('.clist-input-form-group').each(function() {
+            var $listFormGroup = $(this);
+            var $cardOptionsContainer = $listFormGroup.find('.combo-value-item-container-js');
+
+            // Drag cards into position
+            function initializeListOptionDrag() {
+                $cardOptionsContainer.sortable();
+            }
+
+            initializeListOptionDrag();
+        });
+    }
+
     initializeGallery();
     initializeGeolocator();
     intializeAudio();
     initializeVideo();
     initalize3DModel();
     initializeList();
+    initializeComboList();
 };
