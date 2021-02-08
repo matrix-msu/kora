@@ -169,6 +169,11 @@ Kora.Records.Create = function() {
     function initializeComboListOptions() {
         var flid, type1, type2, $comboValueDiv, $modal;
 
+
+        var $comboCardContainers = $('.combo-value-item-container-js');
+        var $comboCards = $comboCardContainers.find('.combo-value-item-js');
+        initializeMoveAction($comboCards);
+
         $('.combo-list-display-js').on('click', '.delete-combo-value-js', function() {
             parentDiv = $(this).parent();
             parentDiv.remove();
@@ -335,7 +340,7 @@ Kora.Records.Create = function() {
                     $comboValueDiv.find('.combo-list-empty').first().remove();
 
                 div = '<div class="combo-value-item combo-value-item-js">';
-
+                div += '<span class="move-actions"><a class="action move-action-js up-js" href=""><i class="icon icon-arrow-up"></i></a><a class="action move-action-js down-js" href=""><i class="icon icon-arrow-down"></i></a></span>';
                 div += '<input type="hidden" name="'+flid+'_combo_one[]" value="">';
                 div += '<span class="combo-column">'+dis1+'</span>';
 
@@ -346,9 +351,15 @@ Kora.Records.Create = function() {
 
                 div += '</div>';
 
-                $comboValueDiv.find('.combo-value-item-container-js').append(div);
+                $comboCardContainer = $comboValueDiv.find('.combo-value-item-container-js');
+
+                $comboCardContainer.append(div);
                 $comboValueDiv.find('[name="'+flid+'_combo_one[]"]').last().val(val1);
                 $comboValueDiv.find('[name="'+flid+'_combo_two[]"]').last().val(val2);
+                console.log("stuff");
+
+                initializeMoveAction($comboCardContainer.find('.combo-value-item-js'));
+                Kora.Fields.TypedFieldInputs.Initialize();
 
                 //Clear out entered default values
                 switch(type1) {

@@ -1,4 +1,4 @@
-<div class="form-group combo-value-div-js-{{$flid}} mt-xxxl">
+<div class="form-group clist-input-form-group combo-value-div-js-{{$flid}} mt-xxxl">
     <label>@if($field['required'])<span class="oval-icon"></span> @endif{{$field['name']}}</label>
     <span class="error-message"></span>
     {!! Form::hidden($flid, true, ['id' => $flid]) !!}
@@ -24,6 +24,16 @@
             @if(!is_null($items))
                 @for($i=0;$i<count($items);$i++)
                     <div class="combo-value-item combo-value-item-js">
+
+                        <span class="move-actions">
+                            <a class="action move-action-js up-js" href="">
+                                <i class="icon icon-arrow-up"></i>
+                            </a>
+
+                            <a class="action move-action-js down-js" href="">
+                                <i class="icon icon-arrow-down"></i>
+                            </a>
+                        </span>
                         <span class="combo-delete delete-combo-value-js tooltip" tooltip="Delete Combo Value"><i class="icon icon-trash"></i></span>
                         @foreach(['one', 'two'] as $seq)
                             @php

@@ -113,6 +113,66 @@
     padding: 15px 20px;
     position: relative;
 
+    .move-actions {
+      bottom: 4px;
+      position: relative;
+      vertical-align: middle;
+
+      .action {
+        @include transition();
+
+        padding: 20px 0;
+        will-change: transform;
+        color: inherit;
+        text-decoration: none;
+
+        .icon-arrow-down,
+        .icon-arrow-up {
+          color: palette('gray', slate);
+          display: inline-block;
+          font-size: 10px;
+          opacity: .2;
+          transform: rotate(90deg);
+
+          &:before {
+            content: $icon-arrow;
+          }
+        }
+
+        .icon-arrow-down {
+          transform: rotate(90deg);
+        }
+
+        .icon-arrow-up {
+          transform: rotate(-90deg);
+        }
+
+        &:first-child {
+          padding-left: 4px;
+          padding-right: 4px;
+        }
+
+        &:last-child {
+          padding-left: 4px;
+          padding-right: 16px;
+        }
+
+        &:hover {
+          .icon {
+            opacity: .6;
+          }
+
+          .icon-arrow-up {
+            transform: rotate(-90deg) scale($transform-scale-multiplier);
+          }
+
+          .icon-arrow-down {
+            transform: rotate(90deg) scale($transform-scale-multiplier);
+          }
+        }
+      }
+    }
+
     .combo-column {
       font-size: 13px;
       font-weight: normal;
