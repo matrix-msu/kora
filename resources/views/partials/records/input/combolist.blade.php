@@ -20,7 +20,7 @@
             <span class="combo-column combo-title">{{$oneName}}</span>
             <span class="combo-column combo-title">{{$twoName}}</span>
         </div>
-        <div class="combo-value-item-container-js">
+        <div class="combo-value-item-container-js" flid="{{$flid}}" typeOne="{{$oneType}}" typeTwo="{{$twoType}}">
             @if(!is_null($items))
                 @for($i=0;$i<count($items);$i++)
                     <div class="combo-value-item combo-value-item-js">
@@ -34,6 +34,7 @@
                                 <i class="icon icon-arrow-down"></i>
                             </a>
                         </span>
+                        <span class="combo-edit edit-combo-value-js tooltip" tooltip="Edit Combo Value"><i class="icon icon-edit-little"></i></span>
                         <span class="combo-delete delete-combo-value-js tooltip" tooltip="Delete Combo Value"><i class="icon icon-trash"></i></span>
                         @foreach(['one', 'two'] as $seq)
                             @php
@@ -156,6 +157,27 @@
                         </section>
                     @endforeach
                     <input class="btn mt-xs add-combo-value-js" type="button" value="Create Combo Value">
+                </div>
+            </div>
+        </div>
+        <div class="modal modal-js modal-mask combo-list-edit-modal-js">
+            <div class="content">
+                <div class="header">
+                    <span class="title title-js">Edit Value for {{$field['name']}}</span>
+                    <a href="#" class="modal-toggle modal-toggle-js">
+                        <i class="icon icon-cancel"></i>
+                    </a>
+                </div>
+                <div class="body">
+                    <span class="error-message combo-error-{{$flid}}-js"></span>
+                    @foreach(['one', 'two'] as $seq)
+                        <section class="combo-list-edit-input-{{$seq}}" cfType="{{$field[$seq]['type']}}">
+                            @include(
+                                ${'recInput'.$seq}, ['field'=>$field[$seq], 'seq'=>$seq, 'flid'=>'edit_'.$flid]
+                            )
+                        </section>
+                    @endforeach
+                    <input class="btn mt-xs submit-edit-combo-js" type="button" value="Update Combo Value">
                 </div>
             </div>
         </div>

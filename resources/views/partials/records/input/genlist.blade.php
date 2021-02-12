@@ -2,13 +2,11 @@
     $jsFiller = '';
     if(isset($seq)) { //Combo List
         $jsFiller = "list-option-card-container-$seq-js";
-        $fieldLabel = 'default_'.$seq;
-        $fieldDivID = $listInputLabel = 'default_'.$seq.'_'.$flid;
+        $fieldLabel = $listInputLabel = 'default_'.$seq.'_'.$flid.'[]';
         $listValues = null;
-        $mainValues = array();
+        $mainValues = [];
     } else if($editRecord) {
         $fieldLabel = $listInputLabel = $flid.'[]';
-        $fieldDivID = 'list'.$flid;
         $listValues = json_decode($record->{$flid});
         $mainValues = [];
         if($listValues != null) {
@@ -18,7 +16,6 @@
         }
     } else {
         $fieldLabel = $listInputLabel = $flid.'[]';
-        $fieldDivID = 'list'.$flid;
         $listValues = $field['default'];
         $mainValues = App\KoraFields\GeneratedListField::getList($field)["Options"];
     }

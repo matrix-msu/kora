@@ -167,8 +167,7 @@ Kora.Records.Create = function() {
     }
 
     function initializeComboListOptions() {
-        var flid, type1, type2, $comboValueDiv, $modal;
-
+        var flid, type1, type2, $comboValueDiv, $modal, $currentEditValue;
 
         var $comboCardContainers = $('.combo-value-item-container-js');
         var $comboCards = $comboCardContainers.find('.combo-value-item-js');
@@ -200,8 +199,7 @@ Kora.Records.Create = function() {
                 case 'Boolean':
                     val1 = 0; dis1 = false;
                     if($('#default_one_'+flid).prop('checked') == true) {
-                        val1 = 1;
-                        dis1 = true;
+                        val1 = 1; dis1 = true;
                     }
                     break;
                 case 'Associator':
@@ -232,13 +230,7 @@ Kora.Records.Create = function() {
                             dateArray.push(pad(dayOne,2));
                     }
                     dis1 = dateArray.join('-');
-                    val1 = {
-                        'month': monthOne,
-                        'day': dayOne,
-                        'year': yearOne,
-                        'era': '',
-                        'prefix': ''
-                    };
+                    val1 = {'month': monthOne, 'day': dayOne, 'year': yearOne, 'era': '', 'prefix': ''};
 
                     eraDisplayOne = ''
                     $('.era_default_one_'+flid).each(function () {
@@ -269,8 +261,7 @@ Kora.Records.Create = function() {
                 case 'Boolean':
                     val2 = 0; dis2 = false;
                     if($('#default_two_'+flid).prop('checked') == true) {
-                        val2 = 1;
-                        dis2 = true;
+                        val2 = 1; dis2 = true;
                     }
                     break;
                 case 'Associator':
@@ -301,13 +292,7 @@ Kora.Records.Create = function() {
                             dateArray.push(pad(dayTwo,2));
                     }
                     dis2 = dateArray.join('-');
-                    val2 = {
-                        'month': monthTwo,
-                        'day': dayTwo,
-                        'year': yearTwo,
-                        'era': '',
-                        'prefix': ''
-                    };
+                    val2 = {'month': monthTwo, 'day': dayTwo, 'year': yearTwo, 'era': '', 'prefix': ''};
 
                     eraDisplayTwo = ''
                     $('.era_default_two_'+flid).each(function () {
@@ -343,12 +328,10 @@ Kora.Records.Create = function() {
                 div += '<span class="move-actions"><a class="action move-action-js up-js" href=""><i class="icon icon-arrow-up"></i></a><a class="action move-action-js down-js" href=""><i class="icon icon-arrow-down"></i></a></span>';
                 div += '<input type="hidden" name="'+flid+'_combo_one[]" value="">';
                 div += '<span class="combo-column">'+dis1+'</span>';
-
                 div += '<input type="hidden" name="'+flid+'_combo_two[]" value="">';
                 div += '<span class="combo-column">'+dis2+'</span>';
-
                 div += '<span class="combo-delete delete-combo-value-js tooltip" tooltip="Delete Combo Value"><i class="icon icon-trash"></i></span>';
-
+                div += '<span class="combo-edit edit-combo-value-js tooltip" tooltip="Edit Combo Value"><i class="icon icon-edit-little"></i></span>';
                 div += '</div>';
 
                 $comboCardContainer = $comboValueDiv.find('.combo-value-item-container-js');
@@ -423,6 +406,343 @@ Kora.Records.Create = function() {
                     default:
                         $('#'+flid+'default_two').val('');
                         $('#default_two_'+flid).val('');
+                        break;
+                }
+
+                Kora.Modal.close();
+            }
+        });
+
+        ////THIS CODE IS FOR EDITING COMBOLIST VALUES///////////////////////////////////////////////////////////////////
+        $('.combo-list-display-js').on('click', '.edit-combo-value-js', function() {
+            $currentEditValue = $(this).closest('.combo-value-item-js').first();
+
+            $comboContainer = $currentEditValue.closest('.combo-value-item-container-js').first();
+            flid = $comboContainer.attr('flid');
+            type1 = $comboContainer.attr('typeOne');
+            type2 = $comboContainer.attr('typeTwo');
+
+            $comboValueDiv = $('.combo-value-div-js-'+flid);
+            var $modal = $comboValueDiv.find('.combo-list-edit-modal-js');
+
+            var editVal1 = $currentEditValue.find('[name="'+flid+'_combo_one[]"]').val();
+            var editVal2 = $currentEditValue.find('[name="'+flid+'_combo_two[]"]').val();
+
+            switch(type1) {
+                case 'Rich Text':
+                    CKEDITOR.instances['default_one_edit_'+flid].setData(editVal1);
+                    break;
+                case 'Boolean':
+                    if(editVal1)
+                        $('#default_one_edit_'+flid).prop('checked', true);
+                    else
+                        $('#default_one_edit_'+flid).prop('checked', false);
+                    break;
+                case 'Associator':
+                case 'Multi-Select List':
+                    $('#default_one_edit_'+flid).val(JSON.parse(editVal1));
+                    $('#default_one_edit_'+flid).trigger("chosen:updated");
+                    break;
+                case 'Generated List':
+                    $('.list-option-card-container-one-js').html('');
+                    $('[data-flid="default_one_edit_'+flid+'[]"]').val(JSON.parse(editVal1).join(','));
+                    $('[data-flid="default_one_edit_'+flid+'[]"]').closest('.new-list-option-card-js').first().find('.list-option-add-js').click();
+                    break;
+                case 'Date':
+                    dateParts = editVal1.split('-');
+                    $('#month_default_one_edit_'+flid).val(dateParts[1]); $('#day_default_one_edit_'+flid).val(parseInt(dateParts[2])); $('#year_default_one_edit_'+flid).val(dateParts[0]);
+                    $('#month_default_one_edit_'+flid).trigger("chosen:updated"); $('#day_default_one_edit_'+flid).trigger("chosen:updated"); $('#year_default_one_edit_'+flid).trigger("chosen:updated");
+                    break;
+                case 'DateTime':
+                    dateParts = editVal1.split(' ')[0].split('-');
+                    $('#month_default_one_edit_'+flid).val(dateParts[1]); $('#day_default_one_edit_'+flid).val(parseInt(dateParts[2])); $('#year_default_one_edit_'+flid).val(dateParts[0]);
+                    $('#month_default_one_edit_'+flid).trigger("chosen:updated"); $('#day_default_one_edit_'+flid).trigger("chosen:updated"); $('#year_default_one_edit_'+flid).trigger("chosen:updated");
+                    timeParts = editVal1.split(' ')[1].split(':');
+                    $('#hour_default_one_edit_'+flid).val(parseInt(timeParts[0])); $('#minute_default_one_edit_'+flid).val(parseInt(timeParts[1])); $('#second_default_one_edit_'+flid).val(parseInt(timeParts[2]));
+                    $('#hour_default_one_edit_'+flid).trigger("chosen:updated"); $('#minute_default_one_edit_'+flid).trigger("chosen:updated"); $('#second_default_one_edit_'+flid).trigger("chosen:updated");
+                    break;
+                case 'Historical Date':
+                    dateParts = JSON.parse(editVal1);
+                    $('#month_default_one_edit_'+flid).val(dateParts['month']); $('#day_default_one_edit_'+flid).val(dateParts['day']); $('#year_default_one_edit_'+flid).val(dateParts['year']);
+                    $('#month_default_one_edit_'+flid).trigger("chosen:updated"); $('#day_default_one_edit_'+flid).trigger("chosen:updated"); $('#year_default_one_edit_'+flid).trigger("chosen:updated");
+
+                    $('.prefix_default_one_edit_'+flid).prop('checked', false);
+                    $('.prefix_default_one_edit_'+flid).each(function() {
+                        if($(this).val()==dateParts['prefix'])
+                            $(this).prop('checked', true);
+                    });
+                    $('.era_default_one_edit_'+flid).prop('checked', false);
+                    $('.era_default_one_edit_'+flid).each(function() {
+                        if($(this).val()==dateParts['era'])
+                            $(this).prop('checked', true);
+                    });
+                    break;
+                default:
+                    $('#default_one_edit_'+flid).val(editVal1);
+                    break;
+            }
+
+            switch(type2) {
+                case 'Rich Text':
+                    CKEDITOR.instances['default_two_edit_'+flid].setData(editVal2);
+                    break;
+                case 'Boolean':
+                    if(editVal2)
+                        $('#default_two_edit_'+flid).prop('checked', true);
+                    else
+                        $('#default_two_edit_'+flid).prop('checked', false);
+                    break;
+                case 'Associator':
+                case 'Multi-Select List':
+                    $('#default_two_edit_'+flid).val(JSON.parse(editVal2));
+                    $('#default_two_edit_'+flid).trigger("chosen:updated");
+                    break;
+                case 'Generated List':
+                    $('.list-option-card-container-two-js').html('');
+                    $('[data-flid="default_two_edit_'+flid+'[]"]').val(JSON.parse(editVal2).join(','));
+                    $('[data-flid="default_two_edit_'+flid+'[]"]').closest('.new-list-option-card-js').first().find('.list-option-add-js').click();
+                    break;
+                case 'Date':
+                    dateParts = editVal2.split('-');
+                    $('#month_default_two_edit_'+flid).val(dateParts[1]); $('#day_default_two_edit_'+flid).val(parseInt(dateParts[2])); $('#year_default_two_edit_'+flid).val(dateParts[0]);
+                    $('#month_default_two_edit_'+flid).trigger("chosen:updated"); $('#day_default_two_edit_'+flid).trigger("chosen:updated"); $('#year_default_two_edit_'+flid).trigger("chosen:updated");
+                    break;
+                case 'DateTime':
+                    dateParts = editVal2.split(' ')[0].split('-');
+                    $('#month_default_two_edit_'+flid).val(dateParts[1]); $('#day_default_two_edit_'+flid).val(parseInt(dateParts[2])); $('#year_default_two_edit_'+flid).val(dateParts[0]);
+                    $('#month_default_two_edit_'+flid).trigger("chosen:updated"); $('#day_default_two_edit_'+flid).trigger("chosen:updated"); $('#year_default_two_edit_'+flid).trigger("chosen:updated");
+                    timeParts = editVal2.split(' ')[1].split(':');
+                    $('#hour_default_two_edit_'+flid).val(parseInt(timeParts[0])); $('#minute_default_two_edit_'+flid).val(parseInt(timeParts[1])); $('#second_default_two_edit_'+flid).val(parseInt(timeParts[2]));
+                    $('#hour_default_two_edit_'+flid).trigger("chosen:updated"); $('#minute_default_two_edit_'+flid).trigger("chosen:updated"); $('#second_default_two_edit_'+flid).trigger("chosen:updated");
+                    break;
+                case 'Historical Date':
+                    dateParts = JSON.parse(editVal2);
+                    $('#month_default_two_edit_'+flid).val(dateParts['month']); $('#day_default_two_edit_'+flid).val(dateParts['day']); $('#year_default_two_edit_'+flid).val(dateParts['year']);
+                    $('#month_default_two_edit_'+flid).trigger("chosen:updated"); $('#day_default_two_edit_'+flid).trigger("chosen:updated"); $('#year_default_two_edit_'+flid).trigger("chosen:updated");
+
+                    $('.prefix_default_two_edit_'+flid).prop('checked', false);
+                    $('.prefix_default_two_edit_'+flid).each(function() {
+                        if($(this).val()==dateParts['prefix'])
+                            $(this).prop('checked', true);
+                    });
+                    $('.era_default_two_edit_'+flid).prop('checked', false);
+                    $('.era_default_two_edit_'+flid).each(function() {
+                        if($(this).val()==dateParts['era'])
+                            $(this).prop('checked', true);
+                    });
+                    break;
+                default:
+                    $('#default_two_edit_'+flid).val(editVal2);
+                    break;
+            }
+
+            Kora.Modal.close();
+            Kora.Modal.open($modal);
+        });
+
+        $('.submit-edit-combo-js').click(function() {
+            //Grab the default values entered
+            switch(type1) {
+                case 'Rich Text':
+                    val1 = dis1 = CKEDITOR.instances['default_one_edit_'+flid].getData();
+                    break;
+                case 'Boolean':
+                    val1 = 0; dis1 = false;
+                    if($('#default_one_edit_'+flid).prop('checked') == true) {
+                        val1 = 1; dis1 = true;
+                    }
+                    break;
+                case 'Associator':
+                case 'Multi-Select List':
+                    val1 = JSON.stringify($('#default_one_edit_'+flid).val());
+                    dis1 = $('#default_one_edit_'+flid).val();
+                    break;
+                case 'Generated List':
+                    val1 = JSON.stringify($('[name="default_one_edit_'+flid+'[]"]').map((x, elm) => elm.value).get());
+                    dis1 = $('[name="default_one_edit_'+flid+'[]"]').map((x, elm) => elm.value).get().join(',');
+                    break;
+                case 'Date':
+                    monthOne = $('#month_default_one_edit_'+flid).val(); dayOne = $('#day_default_one_edit_'+flid).val(); yearOne = $('#year_default_one_edit_'+flid).val();
+                    val1 = dis1 = pad(yearOne,4) + '-' + pad(monthOne,2) + '-' + pad(dayOne,2);
+                    break;
+                case 'DateTime':
+                    monthOne = $('#month_default_one_edit_'+flid).val(); dayOne = $('#day_default_one_edit_'+flid).val(); yearOne = $('#year_default_one_edit_'+flid).val();
+                    hourOne = $('#hour_default_one_edit_'+flid).val(); minuteOne = $('#minute_default_one_edit_'+flid).val(); secondOne = $('#second_default_one_edit_'+flid).val();
+                    val1 = dis1 = pad(yearOne,4) + '-' + pad(monthOne,2) + '-' + pad(dayOne,2) + ' '
+                        + pad(hourOne,2) + ':' + pad(minuteOne,2) + ':' + pad(secondOne,2);
+                    break;
+                case 'Historical Date':
+                    monthOne = $('#month_default_one_edit_'+flid).val(); dayOne = $('#day_default_one_edit_'+flid).val(); yearOne = $('#year_default_one_edit_'+flid).val();
+                    dateArray = [pad(yearOne,4)];
+                    if(monthOne != '' && !$('#month_default_one_edit_'+flid).is(":disabled")) {
+                        dateArray.push(pad(monthOne,2));
+                        if(dayOne != '' && !$('#day_default_one_edit_'+flid).is(":disabled"))
+                            dateArray.push(pad(dayOne,2));
+                    }
+                    dis1 = dateArray.join('-');
+                    val1 = {'month': monthOne, 'day': dayOne, 'year': yearOne, 'era': '', 'prefix': ''};
+
+                    eraDisplayOne = ''
+                    $('.era_default_one_edit_'+flid).each(function () {
+                        if($(this).is(':checked')) {
+                            eraDisplayOne = ' ' + $(this).val();
+                            val1['era'] = $(this).val();
+                        }
+                    });
+                    prefixDisplayOne = '';
+                    $('.prefix_default_one_edit_'+flid).each(function () {
+                        if($(this).is(':checked')) {
+                            prefixDisplayOne = $(this).val() + ' ';
+                            val1['prefix'] = $(this).val();
+                        }
+                    });
+                    dis1 = prefixDisplayOne + dis1 + eraDisplayOne;
+                    val1 = JSON.stringify(val1);
+                    break;
+                default:
+                    val1 = dis1 = $('#default_one_edit_'+flid).val();
+                    break;
+            }
+
+            switch(type2) {
+                case 'Rich Text':
+                    val2 = dis2 = CKEDITOR.instances['default_two_edit_'+flid].getData();
+                    break;
+                case 'Boolean':
+                    val2 = 0; dis2 = false;
+                    if($('#default_two_edit_'+flid).prop('checked') == true) {
+                        val2 = 1; dis2 = true;
+                    }
+                    break;
+                case 'Associator':
+                case 'Multi-Select List':
+                    val2 = JSON.stringify($('#default_two_edit_'+flid).val());
+                    dis2 = $('#default_two_edit_'+flid).val();
+                    break;
+                case 'Generated List':
+                    val2 = JSON.stringify($('[name="default_two_edit_'+flid+'[]"]').map((x, elm) => elm.value).get());
+                    dis2 = $('[name="default_two_edit_'+flid+'[]"]').map((x, elm) => elm.value).get().join(',');
+                    break;
+                case 'Date':
+                    monthTwo = $('#month_default_two_edit_'+flid).val(); dayTwo = $('#day_default_two_edit_'+flid).val(); yearTwo = $('#year_default_two_edit_'+flid).val();
+                    val2 = dis2 = pad(yearTwo,4) + '-' + pad(monthTwo,2) + '-' + pad(dayTwo,2);
+                    break;
+                case 'DateTime':
+                    monthTwo = $('#month_default_two_edit_'+flid).val(); dayTwo = $('#day_default_two_edit_'+flid).val(); yearTwo = $('#year_default_two_edit_'+flid).val();
+                    hourTwo = $('#hour_default_two_edit_'+flid).val(); minuteTwo = $('#minute_default_two_edit_'+flid).val(); secondTwo = $('#second_default_two_edit_'+flid).val();
+                    val2 = dis2 = pad(yearTwo,4) + '-' + pad(monthTwo,2) + '-' + pad(dayTwo,2) + ' '
+                        + pad(hourTwo,2) + ':' + pad(minuteTwo,2) + ':' + pad(secondTwo,2);
+                    break;
+                case 'Historical Date':
+                    monthTwo = $('#month_default_two_edit_'+flid).val(); dayTwo = $('#day_default_two_edit_'+flid).val(); yearTwo = $('#year_default_two_edit_'+flid).val();
+                    dateArray = [pad(yearTwo,4)];
+                    if(monthTwo != '' && !$('#month_default_two_edit_'+flid).is(":disabled")) {
+                        dateArray.push(pad(monthTwo,2));
+                        if(dayTwo != '' && !$('#day_default_two_edit_'+flid).is(":disabled"))
+                            dateArray.push(pad(dayTwo,2));
+                    }
+                    dis2 = dateArray.join('-');
+                    val2 = {'month': monthTwo, 'day': dayTwo, 'year': yearTwo, 'era': '', 'prefix': ''};
+
+                    eraDisplayTwo = ''
+                    $('.era_default_two_edit_'+flid).each(function () {
+                        if($(this).is(':checked')) {
+                            eraDisplayTwo = ' ' + $(this).val();
+                            val2['era'] = $(this).val();
+                        }
+                    });
+                    prefixDisplayTwo = '';
+                    $('.prefix_default_two_edit_'+flid).each(function () {
+                        if($(this).is(':checked')) {
+                            prefixDisplayTwo = $(this).val() + ' ';
+                            val2['prefix'] = $(this).val();
+                        }
+                    });
+                    dis2 = prefixDisplayTwo + dis2 + eraDisplayTwo;
+                    val2 = JSON.stringify(val2);
+                    break;
+                default:
+                    val2 = dis2 = $('#default_two_edit_'+flid).val();
+                    break;
+            }
+
+            if(val1==null | val2==null) {
+                $('.combo-error-'+flid+'-js').text('Both fields must be filled out');
+            } else {
+                $('.combo-error-'+flid+'-js').text('');
+
+                $comboCardContainer = $comboValueDiv.find('.combo-value-item-container-js');
+
+                $currentEditValue.find('[name="'+flid+'_combo_one[]"]').val(val1);
+                $currentEditValue.find('[name="'+flid+'_combo_one[]"]').first().next().text(dis1);
+                $currentEditValue.find('[name="'+flid+'_combo_two[]"]').val(val2);
+                $currentEditValue.find('[name="'+flid+'_combo_two[]"]').first().next().text(dis2);
+
+                initializeMoveAction($comboCardContainer.find('.combo-value-item-js'));
+                Kora.Fields.TypedFieldInputs.Initialize();
+
+                //Clear out entered default values
+                switch(type1) {
+                    case 'Rich Text':
+                        CKEDITOR.instances['default_one_edit_'+flid].setData('');
+                        break;
+                    case 'Boolean':
+                        $('#default_one_edit_'+flid).prop('checked', false);
+                        break;
+                    case 'Generated List':
+                        $('.list-option-card-container-one-js').html('');
+                        break;
+                    case 'Date':
+                    case 'DateTime':
+                    case 'Historical Date':
+                        $('#month_default_one_edit_'+flid).val('');
+                        $('#day_default_one_edit_'+flid).val('');
+                        $('#year_default_one_edit_'+flid).val('');
+                        $('#month_default_one_edit_'+flid).trigger("chosen:updated");
+                        $('#day_default_one_edit_'+flid).trigger("chosen:updated");
+                        $('#year_default_one_edit_'+flid).trigger("chosen:updated");
+                        break;
+                    case 'List':
+                    case 'Multi-Select List':
+                    case 'Associator':
+                        $('#default_one_edit_'+flid).val('');
+                        $('#default_one_edit_'+flid).trigger("chosen:updated");
+                        break;
+                    default:
+                        $('#'+flid+'default_one_edit').val('');
+                        $('#default_one_edit_'+flid).val('');
+                        break;
+                }
+
+                switch(type2) {
+                    case 'Rich Text':
+                        CKEDITOR.instances['default_two_edit_'+flid].setData('');
+                        break;
+                    case 'Boolean':
+                        $('#default_two_edit_'+flid).prop('checked', false);
+                        break;
+                    case 'Generated List':
+                        $('.list-option-card-container-two-js').html('');
+                        break;
+                    case 'Date':
+                    case 'DateTime':
+                    case 'Historical Date':
+                        $('#month_default_two_edit_'+flid).val('');
+                        $('#day_default_two_edit_'+flid).val('');
+                        $('#year_default_two_edit_'+flid).val('');
+                        $('#month_default_two_edit_'+flid).trigger("chosen:updated");
+                        $('#day_default_two_edit_'+flid).trigger("chosen:updated");
+                        $('#year_default_two_edit_'+flid).trigger("chosen:updated");
+                        break;
+                    case 'List':
+                    case 'Multi-Select List':
+                    case 'Associator':
+                        $('#default_two_edit_'+flid).val('');
+                        $('#default_two_edit_'+flid).trigger("chosen:updated");
+                        break;
+                    default:
+                        $('#'+flid+'default_two_edit').val('');
+                        $('#default_two_edit_'+flid).val('');
                         break;
                 }
 
