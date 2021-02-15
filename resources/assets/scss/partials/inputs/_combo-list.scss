@@ -36,6 +36,8 @@
     font-size: 14px;
     line-height: 19px;
   }
+
+
 }
 
 .combo-list-input {
@@ -58,6 +60,10 @@
     font-family: $ubuntu-medium;
     font-size: 14px;
     line-height: 19px;
+
+    &:last-child {
+      margin-left: 64px;
+    }
   }
 
   .combo-edit {

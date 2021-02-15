@@ -52,7 +52,7 @@
                                         case \App\Form::_GENERATED_LIST:
                                         case \App\Form::_ASSOCIATOR:
                                             $vals = json_decode($value);
-                                            $display = implode(',',$vals);
+                                            $display = implode(', ',$vals);
                                             break;
                                         case \App\Form::_HISTORICAL_DATE:
                                             $dateParts = json_decode($value,true);
@@ -86,7 +86,7 @@
                                         case \App\Form::_GENERATED_LIST:
                                         case \App\Form::_ASSOCIATOR:
                                             $display = $field[$seq]['default'][$i];
-                                            $vals = explode(',',$display);
+                                            $vals = explode(', ',$display);
                                             $value = json_encode($vals);
                                             break;
                                         case \App\Form::_HISTORICAL_DATE:

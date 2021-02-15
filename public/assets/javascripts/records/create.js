@@ -205,11 +205,11 @@ Kora.Records.Create = function() {
                 case 'Associator':
                 case 'Multi-Select List':
                     val1 = JSON.stringify($('#default_one_'+flid).val());
-                    dis1 = $('#default_one_'+flid).val();
+                    dis1 = $('#default_one_'+flid).val().join(', ');
                     break;
                 case 'Generated List':
                     val1 = JSON.stringify($('[name="default_one_'+flid+'[]"]').map((x, elm) => elm.value).get());
-                    dis1 = $('[name="default_one_'+flid+'[]"]').map((x, elm) => elm.value).get().join(',');
+                    dis1 = $('[name="default_one_'+flid+'[]"]').map((x, elm) => elm.value).get().join(', ');
                     break;
                 case 'Date':
                     monthOne = $('#month_default_one_'+flid).val(); dayOne = $('#day_default_one_'+flid).val(); yearOne = $('#year_default_one_'+flid).val();
@@ -267,11 +267,11 @@ Kora.Records.Create = function() {
                 case 'Associator':
                 case 'Multi-Select List':
                     val2 = JSON.stringify($('#default_two_'+flid).val());
-                    dis2 = $('#default_two_'+flid).val();
+                    dis2 = $('#default_two_'+flid).val().join(', ');
                     break;
                 case 'Generated List':
                     val2 = JSON.stringify($('[name="default_two_'+flid+'[]"]').map((x, elm) => elm.value).get());
-                    dis2 = $('[name="default_two_'+flid+'[]"]').map((x, elm) => elm.value).get().join(',');
+                    dis2 = $('[name="default_two_'+flid+'[]"]').map((x, elm) => elm.value).get().join(', ');
                     break;
                 case 'Date':
                     monthTwo = $('#month_default_two_'+flid).val(); dayTwo = $('#day_default_two_'+flid).val(); yearTwo = $('#year_default_two_'+flid).val();
@@ -555,11 +555,11 @@ Kora.Records.Create = function() {
                 case 'Associator':
                 case 'Multi-Select List':
                     val1 = JSON.stringify($('#default_one_edit_'+flid).val());
-                    dis1 = $('#default_one_edit_'+flid).val();
+                    dis1 = $('#default_one_edit_'+flid).val().join(', ');
                     break;
                 case 'Generated List':
                     val1 = JSON.stringify($('[name="default_one_edit_'+flid+'[]"]').map((x, elm) => elm.value).get());
-                    dis1 = $('[name="default_one_edit_'+flid+'[]"]').map((x, elm) => elm.value).get().join(',');
+                    dis1 = $('[name="default_one_edit_'+flid+'[]"]').map((x, elm) => elm.value).get().join(', ');
                     break;
                 case 'Date':
                     monthOne = $('#month_default_one_edit_'+flid).val(); dayOne = $('#day_default_one_edit_'+flid).val(); yearOne = $('#year_default_one_edit_'+flid).val();
@@ -617,11 +617,11 @@ Kora.Records.Create = function() {
                 case 'Associator':
                 case 'Multi-Select List':
                     val2 = JSON.stringify($('#default_two_edit_'+flid).val());
-                    dis2 = $('#default_two_edit_'+flid).val();
+                    dis2 = $('#default_two_edit_'+flid).val().join(', ');
                     break;
                 case 'Generated List':
                     val2 = JSON.stringify($('[name="default_two_edit_'+flid+'[]"]').map((x, elm) => elm.value).get());
-                    dis2 = $('[name="default_two_edit_'+flid+'[]"]').map((x, elm) => elm.value).get().join(',');
+                    dis2 = $('[name="default_two_edit_'+flid+'[]"]').map((x, elm) => elm.value).get().join(', ');
                     break;
                 case 'Date':
                     monthTwo = $('#month_default_two_edit_'+flid).val(); dayTwo = $('#day_default_two_edit_'+flid).val(); yearTwo = $('#year_default_two_edit_'+flid).val();
