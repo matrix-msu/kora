@@ -36,6 +36,8 @@
     font-size: 14px;
     line-height: 19px;
   }
+
+
 }
 
 .combo-list-input {
@@ -58,8 +60,40 @@
     font-family: $ubuntu-medium;
     font-size: 14px;
     line-height: 19px;
+
+    &:last-child {
+      margin-left: 64px;
+    }
   }
 
+  .combo-edit {
+    cursor: pointer;
+    display: inline-block;
+    position: absolute;
+    right: 57px;
+    text-align: right;
+    top: 15px;
+
+    .icon-edit-little {
+      color: palette('black', base, .6);
+      display: inline-block;
+      font-size: 12px;
+      @include transition();
+    }
+
+    &:hover {
+      .icon-edit-little {
+        transform: scale(1.25);
+        transform-origin: center center;
+      }
+
+      &.tooltip {
+        &:after {
+          left: -62px;
+        }
+      }
+    }
+  }
   .combo-delete {
     cursor: pointer;
     display: inline-block;
