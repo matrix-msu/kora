@@ -40,48 +40,46 @@ class AssociatorSearchController extends Controller {
         $keyword = $request->keyword;
 
         $activeForms = array();
-
         if($request->has('combo'))
             $options = $field[$request->combo]['options']['SearchForms'];
         else
             $options = $field['options']['SearchForms'];
-
         foreach($options as $opt) {
             $opt_fid = $opt['form_id'];
             $opt_flids = $opt['flids'];
 
-            $flids = array();
-
-            foreach($opt_flids as $flid) {
-                if($flid!='') {
-                    $field = FieldController::getField($flid,$opt_fid);
-                    $flids[$field['name']] = $field['type'];
+            $flids = [];
+            if(!is_null($opt_flids)) {
+                foreach($opt_flids as $oflid) {
+                    //Make sure there actually is a preview field
+                    if($oflid=="")
+                        continue;
+                    $field = FieldController::getField($oflid,$opt_fid);
+                    $flids[$oflid] = $field;
                 }
             }
-
-            $activeForms[$opt_fid] = ['flids' => $flids];
+            $activeForms[$opt_fid] = ['fields' => $flids];
         }
 
         $results = array();
         foreach($activeForms as $actfid => $details) {
             if(Record::isKIDPattern($keyword)) {
                 //KID Search
-                $recModel = new Record(array(),$actfid);
-                $record = $recModel->newQuery()->where('kid','=',$keyword)->first();
-                if(!is_null($record) && $record->form_id == $actfid) {
+                $recModel = RecordController::getRecord($keyword);
+                if(!is_null($recModel) && $recModel->form_id == $actfid) {
                     $preview = array();
-                    foreach($details['flids'] as $dflid => $type) {
-                        if(!in_array($type,Form::$validAssocFields)) {
+                    foreach($details['fields'] as $oflid => $field) {
+                        if(!in_array($field['type'],Form::$validAssocFields)) {
                             array_push($preview, "Invalid Preview Field");
                         } else {
-                            $value = $record->{$dflid};
+                            $value = $recModel->{$oflid};
                             if(is_null($value))
                                 $value = "Preview Field Empty";
                             array_push($preview, $value);
                         }
                     }
 
-                    $results[$record->kid] = $preview;
+                    $results[$recModel->kid] = $preview;
                 }
             } else {
                 //Form Search
@@ -120,12 +118,11 @@ class AssociatorSearchController extends Controller {
             foreach($rids as $rid) {
                 $kid = $pid.'-'.$fid.'-'.$rid;
                 $preview = array();
-
-                foreach($details['flids'] as $dflid => $type) {
-                    if(!in_array($type,Form::$validAssocFields)) {
+                foreach($details['fields'] as $oflid => $field) {
+                    if(!in_array($field['type'],Form::$validAssocFields)) {
                         array_push($preview, "Invalid Preview Field");
                     } else {
-                        $value = $formRecords[$kid][$dflid];
+                        $value = $formRecords[$kid][$field['name']];
                         if(is_null($value))
                             $value = "Preview Field Empty";
                         array_push($preview, $value);
@@ -138,12 +135,11 @@ class AssociatorSearchController extends Controller {
             //If no search term given, return everything!!!!
             foreach($formRecords as $kid => $recData) {
                 $preview = array();
-
-                foreach($details['flids'] as $dflid => $type) {
-                    if(!in_array($type,Form::$validAssocFields)) {
+                foreach($details['fields'] as $oflid => $field) {
+                    if(!in_array($field['type'],Form::$validAssocFields)) {
                         array_push($preview, "Invalid Preview Field");
                     } else {
-                        $value = $formRecords[$kid][$dflid];
+                        $value = $formRecords[$kid][$field['name']];
                         if(is_null($value))
                             $value = "Preview Field Empty";
                         array_push($preview, $value);
