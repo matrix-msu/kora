@@ -119,10 +119,10 @@ Kora.Records.Import = function () {
                             var connections = {};
 
                             //Initialize throttler to prevent
-                            var throttle = throttledQueue(100, 5000);
+                            var throttle = throttledQueue(200, 5000);
 
                             //foreach record in the dataset
-                            for (var import_id in importRecs) {
+                            for(var import_id in importRecs) {
                                 throttle({ "import_id": import_id, "type": importType, "record": importRecs[import_id], "table": table }, function(importData) {
                                     //ajax to store record
                                     $.ajax({
@@ -139,7 +139,7 @@ Kora.Records.Import = function () {
                                         success: function (data) {
                                             //building connections
                                             kids.push(data['kid']);
-                                            if (data['kidConnection'].length != 0) connections[data['kidConnection']] = data['kid'];
+                                            if(data['kidConnection'].length != 0) connections[data['kidConnection']] = data['kid'];
 
                                             succ++;
                                             progressText.text(succ + ' of ' + total + ' Records Submitted');
@@ -147,14 +147,14 @@ Kora.Records.Import = function () {
                                             done++;
                                             //update progress bar
                                             percent = (done / total) * 100;
-                                            if (percent < 7)
+                                            if(percent < 7)
                                                 percent = 7;
                                             progressFill.attr('style', 'width:' + percent + '%');
                                             progressText.text(succ + ' of ' + total + ' Records Submitted');
 
-                                            if (done == total) {
+                                            if(done == total) {
                                                 $('.progress-text-js').html('Connecting cross-Form associations. One moment...');
-                                                if (connections && kids) {
+                                                if(connections && kids) {
                                                     $.ajax({
                                                         url: connectRecordsUrl,
                                                         type: 'POST',
@@ -171,7 +171,7 @@ Kora.Records.Import = function () {
                                                     completeImport(succ, total, importData["type"]);
                                             }
                                         },
-                                        error: function (data) {
+                                        error: function(data) {
                                             $.ajax({
                                                 url: saveFailedUrl,
                                                 type: 'POST',
@@ -179,7 +179,7 @@ Kora.Records.Import = function () {
                                                     "_token": CSRFToken,
                                                     "failure": JSON.stringify([importData["import_id"], importData["record"], data]),
                                                     "type": importData["type"]
-                                                }, success: function (data) {
+                                                }, success: function(data) {
                                                     //
                                                 }
                                             });
@@ -187,14 +187,14 @@ Kora.Records.Import = function () {
                                             done++;
                                             //update progress bar
                                             percent = (done / total) * 100;
-                                            if (percent < 7)
+                                            if(percent < 7)
                                                 percent = 7;
                                             progressFill.attr('style', 'width:' + percent + '%');
                                             progressText.text(succ + ' of ' + total + ' Records Submitted');
 
-                                            if (done == total) {
+                                            if(done == total) {
                                                 $('.progress-text-js').html('Connecting cross-Form associations. One moment...');
-                                                if (connections && kids) {
+                                                if(connections && kids) {
                                                     $.ajax({
                                                         url: connectRecordsUrl,
                                                         type: 'POST',
@@ -202,7 +202,7 @@ Kora.Records.Import = function () {
                                                             "_token": CSRFToken,
                                                             "connections": JSON.stringify(connections),
                                                             "kids": JSON.stringify(kids)
-                                                        }, success: function (data) {
+                                                        }, success: function(data) {
                                                             failedConnections = JSON.parse(data);
                                                             completeImport(succ, total, importData["type"]);
                                                         }
