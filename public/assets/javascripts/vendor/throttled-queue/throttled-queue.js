@@ -41,6 +41,7 @@
         var queue = [];
         var lastCalled = Date.now();
         var timeout;
+        var activeRecords = 0;
 
         /**
          * Gets called at a set interval to remove items from the queue.
@@ -55,9 +56,17 @@
             /**
              * Adjust the timer if it was called too early.
              */
-            if (now < threshold) {
+            if(now < threshold) {
                 clearTimeout(timeout);
                 timeout = setTimeout(dequeue, threshold - now);
+                return;
+            }
+
+            /**
+             * If the queue is backedup, wait another cycle.
+             */
+            if(activeRecords-done > 500) {
+                timeout = setTimeout(dequeue, interval);
                 return;
             }
 
@@ -65,6 +74,8 @@
             for(var x = 0; x < callbacks.length; x++) {
                 callbacks[x][0](callbacks[x][1]); //Now pass the temp ID into the callback (See enqueue below)
             }
+
+            activeRecords += callbacks.length;
 
             lastCalled = Date.now();
             if (queue.length) {
