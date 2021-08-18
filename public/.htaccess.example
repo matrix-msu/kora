@@ -4,7 +4,7 @@
     </IfModule>
 
     RewriteEngine On
-    #RewriteBase #add base url ex: www.website.com[/this part is your base url for this file up to "public"]
+    #RewriteBase #add base url ex: www.website.com[/this part is your base url, the url subdirectory where you want your installation to be accessible from]
 	#RewriteBase /your_base_url
 
     # Handle Authorization Header
