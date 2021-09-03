@@ -19,6 +19,7 @@ use Composer\Util\ProcessExecutor;
 use Composer\Repository\ArrayRepository;
 use Composer\Package\Dumper\ArrayDumper;
 use Composer\Package\Loader\ArrayLoader;
+use Composer\Plugin\PluginInterface;
 use Composer\Util\Git as GitUtil;
 use Composer\IO\IOInterface;
 use Seld\JsonLint\ParsingException;
@@ -253,7 +254,19 @@ class Locker
     {
         $lockData = $this->getLockData();
 
-        return isset($lockData['aliases']) ? $lockData['aliases'] : array();
+        if (!isset($lockData['aliases'])) {
+            return array();
+        }
+
+        // forward compatibility with Composer 2 lock files created
+        // before https://github.com/composer/composer/issues/9337 was fixed
+        foreach ($lockData['aliases'] as $index => $alias) {
+            if (in_array($alias['version'], array('dev-master', 'dev-default', 'dev-trunk'), true)) {
+                $lockData['aliases'][$index]['version'] = '9999999-dev';
+            }
+        }
+
+        return $lockData['aliases'];
     }
 
     public function getLockData()
@@ -322,6 +335,7 @@ class Locker
         if ($platformOverrides) {
             $lock['platform-overrides'] = $platformOverrides;
         }
+        $lock['plugin-api-version'] = PluginInterface::PLUGIN_API_VERSION;
 
         if (empty($lock['packages']) && empty($lock['packages-dev']) && empty($lock['platform']) && empty($lock['platform-dev'])) {
             if ($this->lockFile->exists()) {
@@ -420,7 +434,7 @@ class Locker
                 case 'git':
                     GitUtil::cleanEnv();
 
-                    if (0 === $this->process->execute('git log -n1 --pretty=%ct '.ProcessExecutor::escape($sourceRef), $output, $path) && preg_match('{^\s*\d+\s*$}', $output)) {
+                    if (0 === $this->process->execute('git log -n1 --pretty=%ct '.ProcessExecutor::escape($sourceRef).GitUtil::getNoShowSignatureFlag($this->process), $output, $path) && preg_match('{^\s*\d+\s*$}', $output)) {
                         $datetime = new \DateTime('@'.trim($output), new \DateTimeZone('UTC'));
                     }
                     break;

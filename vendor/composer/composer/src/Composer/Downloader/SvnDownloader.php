@@ -130,11 +130,11 @@ class SvnDownloader extends VcsDownloader
         $this->io->writeError(sprintf('    <error>The package has modified file%s:</error>', $countChanges === 1 ? '' : 's'));
         $this->io->writeError(array_slice($changes, 0, 10));
         if ($countChanges > 10) {
-            $remaingChanges = $countChanges - 10;
+            $remainingChanges = $countChanges - 10;
             $this->io->writeError(
                 sprintf(
-                    '    <info>'.$remaingChanges.' more file%s modified, choose "v" to view the full list</info>',
-                    $remaingChanges === 1 ? '' : 's'
+                    '    <info>'.$remainingChanges.' more file%s modified, choose "v" to view the full list</info>',
+                    $remainingChanges === 1 ? '' : 's'
                 )
             );
         }
@@ -172,7 +172,7 @@ class SvnDownloader extends VcsDownloader
     {
         if (preg_match('{.*@(\d+)$}', $fromReference) && preg_match('{.*@(\d+)$}', $toReference)) {
             // retrieve the svn base url from the checkout folder
-            $command = sprintf('svn info --non-interactive --xml %s', ProcessExecutor::escape($path));
+            $command = sprintf('svn info --non-interactive --xml -- %s', ProcessExecutor::escape($path));
             if (0 !== $this->process->execute($command, $output, $path)) {
                 throw new \RuntimeException(
                     'Failed to execute ' . $command . "\n\n" . $this->process->getErrorOutput()

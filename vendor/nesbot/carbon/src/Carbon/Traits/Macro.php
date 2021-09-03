@@ -11,22 +11,9 @@
 namespace Carbon\Traits;
 
 /**
- * Trait Boundaries.
+ * Trait Macros.
  *
- * startOf, endOf and derived method for each unit.
- *
- * Depends on the following properties:
- *
- * @property int $year
- * @property int $month
- * @property int $daysInMonth
- * @property int $quarter
- *
- * Depends on the following methods:
- *
- * @method $this setTime(int $hour, int $minute, int $second = 0, int $microseconds = 0)
- * @method $this setDate(int $year, int $month, int $day)
- * @method $this addMonths(int $value = 1)
+ * Allows users to register macros within the Carbon class.
  */
 trait Macro
 {
@@ -99,7 +86,7 @@ trait Macro
     }
 
     /**
-     * Checks if macro is registered.
+     * Checks if macro is registered globally.
      *
      * @param string $name
      *
@@ -108,5 +95,41 @@ trait Macro
     public static function hasMacro($name)
     {
         return isset(static::$globalMacros[$name]);
+    }
+
+    /**
+     * Get the raw callable macro registered globally for a given name.
+     *
+     * @param string $name
+     *
+     * @return callable|null
+     */
+    public static function getMacro($name)
+    {
+        return static::$globalMacros[$name] ?? null;
+    }
+
+    /**
+     * Checks if macro is registered globally or locally.
+     *
+     * @param string $name
+     *
+     * @return bool
+     */
+    public function hasLocalMacro($name)
+    {
+        return ($this->localMacros && isset($this->localMacros[$name])) || static::hasMacro($name);
+    }
+
+    /**
+     * Get the raw callable macro registered globally or locally for a given name.
+     *
+     * @param string $name
+     *
+     * @return callable|null
+     */
+    public function getLocalMacro($name)
+    {
+        return ($this->localMacros ?? [])[$name] ?? static::getMacro($name);
     }
 }

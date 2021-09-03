@@ -38,6 +38,9 @@ class GitDriver extends VcsDriver
     {
         if (Filesystem::isLocalPath($this->url)) {
             $this->url = preg_replace('{[\\/]\.git/?$}', '', $this->url);
+            if (!is_dir($this->url)) {
+                throw new \RuntimeException('Failed to read package information from '.$this->url.' as the path does not exist');
+            }
             $this->repoDir = $this->url;
             $cacheUrl = realpath($this->url);
         } else {
@@ -143,7 +146,7 @@ class GitDriver extends VcsDriver
     public function getChangeDate($identifier)
     {
         $this->process->execute(sprintf(
-            'git log -1 --format=%%at %s',
+            'git -c log.showSignature=false log -1 --format=%%at %s',
             ProcessExecutor::escape($identifier)
         ), $output, $this->repoDir);
 
@@ -219,8 +222,17 @@ class GitDriver extends VcsDriver
             return false;
         }
 
-        $process = new ProcessExecutor($io);
+        $gitUtil = new GitUtil($io, $config, new ProcessExecutor($io), new Filesystem());
+        GitUtil::cleanEnv();
 
-        return $process->execute('git ls-remote --heads ' . ProcessExecutor::escape($url), $output) === 0;
+        try {
+            $gitUtil->runCommand(function ($url) {
+                return 'git ls-remote --heads -- ' . ProcessExecutor::escape($url);
+            }, $url, sys_get_temp_dir());
+        } catch (\RuntimeException $e) {
+            return false;
+        }
+
+        return true;
     }
 }

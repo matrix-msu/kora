@@ -1,9 +1,19 @@
 {
     "name": "doctrine/cache",
     "type": "library",
-    "description": "Caching library offering an object-oriented API for many cache backends",
-    "keywords": ["cache", "caching"],
-    "homepage": "https://www.doctrine-project.org",
+    "description": "PHP Doctrine Cache library is a popular cache implementation that supports many different drivers such as redis, memcache, apc, mongodb and others.",
+    "keywords": [
+        "php",
+        "cache",
+        "caching",
+        "abstraction",
+        "redis",
+        "memcached",
+        "couchdb",
+        "xcache",
+        "apcu"
+    ],
+    "homepage": "https://www.doctrine-project.org/projects/cache.html",
     "license": "MIT",
     "authors": [
         {"name": "Guilherme Blanco", "email": "guilhermeblanco@gmail.com"},
@@ -13,14 +23,18 @@
         {"name": "Johannes Schmitt", "email": "schmittjoh@gmail.com"}
     ],
     "require": {
-        "php": "~7.1"
+        "php": "~7.1 || ^8.0"
     },
     "require-dev": {
         "alcaeus/mongo-php-adapter": "^1.1",
         "mongodb/mongodb": "^1.1",
-        "phpunit/phpunit": "^7.0",
+        "phpunit/phpunit": "^7.0 || ^8.0 || ^9.0",
         "predis/predis":   "~1.0",
-        "doctrine/coding-standard": "^4.0"
+        "doctrine/coding-standard": "^8.0",
+        "psr/cache": "^1.0 || ^2.0 || ^3.0",
+        "cache/integration-tests": "dev-master",
+        "symfony/cache": "^4.4 || ^5.2 || ^6.0@dev",
+        "symfony/var-exporter": "^4.4 || ^5.2 || ^6.0@dev"
     },
     "suggest": {
         "alcaeus/mongo-php-adapter": "Required to use legacy MongoDB driver"
@@ -33,10 +47,5 @@
     },
     "autoload-dev": {
         "psr-4": { "Doctrine\\Tests\\": "tests/Doctrine/Tests" }
-    },
-    "extra": {
-        "branch-alias": {
-            "dev-master": "1.8.x-dev"
-        }
     }
 }

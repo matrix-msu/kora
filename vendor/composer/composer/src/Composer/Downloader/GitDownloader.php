@@ -48,34 +48,40 @@ class GitDownloader extends VcsDownloader implements DvcsDownloaderInterface
         $flag = Platform::isWindows() ? '/D ' : '';
 
         // --dissociate option is only available since git 2.3.0-rc0
-        $gitVersion = $this->gitUtil->getVersion();
+        $gitVersion = GitUtil::getVersion($this->process);
         $msg = "Cloning ".$this->getShortHash($ref);
 
-        $command = 'git clone --no-checkout %url% %path% && cd '.$flag.'%path% && git remote add composer %url% && git fetch composer';
+        $command = 'git clone --no-checkout -- %url% %path% && cd '.$flag.'%path% && git remote add composer -- %url% && git fetch composer && git remote set-url origin -- %sanitizedUrl% && git remote set-url composer -- %sanitizedUrl%';
         if ($gitVersion && version_compare($gitVersion, '2.3.0-rc0', '>=') && Cache::isUsable($cachePath)) {
             $this->io->writeError('', true, IOInterface::DEBUG);
             $this->io->writeError(sprintf('    Cloning to cache at %s', ProcessExecutor::escape($cachePath)), true, IOInterface::DEBUG);
             try {
-                $this->gitUtil->fetchRefOrSyncMirror($url, $cachePath, $ref);
+                if (!$this->gitUtil->fetchRefOrSyncMirror($url, $cachePath, $ref)) {
+                    $this->io->writeError('<error>Failed to update '.$url.' in cache, package installation for '.$package->getPrettyName().' might fail.</error>');
+                }
                 if (is_dir($cachePath)) {
                     $command =
                         'git clone --no-checkout %cachePath% %path% --dissociate --reference %cachePath% '
                         . '&& cd '.$flag.'%path% '
-                        . '&& git remote set-url origin %url% && git remote add composer %url%';
+                        . '&& git remote set-url origin -- %sanitizedUrl% && git remote add composer -- %sanitizedUrl%';
                     $msg = "Cloning ".$this->getShortHash($ref).' from cache';
                 }
             } catch (\RuntimeException $e) {
+                if (0 === strpos(get_class($e), 'PHPUnit')) {
+                    throw $e;
+                }
             }
         }
         $this->io->writeError($msg);
 
         $commandCallable = function ($url) use ($path, $command, $cachePath) {
             return str_replace(
-                array('%url%', '%path%', '%cachePath%'),
+                array('%url%', '%path%', '%cachePath%', '%sanitizedUrl%'),
                 array(
                     ProcessExecutor::escape($url),
                     ProcessExecutor::escape($path),
                     ProcessExecutor::escape($cachePath),
+                    ProcessExecutor::escape(preg_replace('{://([^@]+?):(.+?)@}', '://', $url)),
                 ),
                 $command
             );
@@ -119,10 +125,15 @@ class GitDownloader extends VcsDownloader implements DvcsDownloaderInterface
 
         $ref = $target->getSourceReference();
         $this->io->writeError(" Checking out ".$this->getShortHash($ref));
-        $command = 'git remote set-url composer %s && git rev-parse --quiet --verify %s || (git fetch composer && git fetch --tags composer)';
+        $command = '(git remote set-url composer -- %s && git rev-parse --quiet --verify %s || (git fetch composer && git fetch --tags composer)) && git remote set-url composer -- %s';
 
         $commandCallable = function ($url) use ($command, $ref) {
-            return sprintf($command, ProcessExecutor::escape($url), ProcessExecutor::escape($ref.'^{commit}'));
+            return sprintf(
+                $command,
+                ProcessExecutor::escape($url),
+                ProcessExecutor::escape($ref.'^{commit}'),
+                ProcessExecutor::escape(preg_replace('{://([^@]+?):(.+?)@}', '://', $url))
+            );
         };
 
         $this->gitUtil->runCommand($commandCallable, $url, $path);
@@ -400,7 +411,7 @@ class GitDownloader extends VcsDownloader implements DvcsDownloaderInterface
 
     protected function updateOriginUrl($path, $url)
     {
-        $this->process->execute(sprintf('git remote set-url origin %s', ProcessExecutor::escape($url)), $output, $path);
+        $this->process->execute(sprintf('git remote set-url origin -- %s', ProcessExecutor::escape($url)), $output, $path);
         $this->setPushUrl($path, $url);
     }
 
@@ -413,7 +424,7 @@ class GitDownloader extends VcsDownloader implements DvcsDownloaderInterface
             if (!in_array('ssh', $protocols, true)) {
                 $pushUrl = 'https://' . $match[1] . '/'.$match[2].'/'.$match[3].'.git';
             }
-            $cmd = sprintf('git remote set-url --push origin %s', ProcessExecutor::escape($pushUrl));
+            $cmd = sprintf('git remote set-url --push origin -- %s', ProcessExecutor::escape($pushUrl));
             $this->process->execute($cmd, $ignoredOutput, $path);
         }
     }
@@ -424,7 +435,7 @@ class GitDownloader extends VcsDownloader implements DvcsDownloaderInterface
     protected function getCommitLogs($fromReference, $toReference, $path)
     {
         $path = $this->normalizePath($path);
-        $command = sprintf('git log %s..%s --pretty=format:"%%h - %%an: %%s"', ProcessExecutor::escape($fromReference), ProcessExecutor::escape($toReference));
+        $command = sprintf('git log %s..%s --pretty=format:"%%h - %%an: %%s"'.GitUtil::getNoShowSignatureFlag($this->process), ProcessExecutor::escape($fromReference), ProcessExecutor::escape($toReference));
 
         if (0 !== $this->process->execute($command, $output, $path)) {
             throw new \RuntimeException('Failed to execute ' . $command . "\n\n" . $this->process->getErrorOutput());
@@ -440,7 +451,7 @@ class GitDownloader extends VcsDownloader implements DvcsDownloaderInterface
     protected function discardChanges($path)
     {
         $path = $this->normalizePath($path);
-        if (0 !== $this->process->execute('git reset --hard', $output, $path)) {
+        if (0 !== $this->process->execute('git clean -df && git reset --hard', $output, $path)) {
             throw new \RuntimeException("Could not reset changes\n\n:".$this->process->getErrorOutput());
         }
 

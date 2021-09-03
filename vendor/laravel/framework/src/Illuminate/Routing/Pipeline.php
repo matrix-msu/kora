@@ -18,7 +18,7 @@ class Pipeline extends BasePipeline
     /**
      * Handles the value returned from each pipe before passing it to the next.
      *
-     * @param  mixed $carry
+     * @param  mixed  $carry
      * @return mixed
      */
     protected function handleCarry($carry)
@@ -50,7 +50,7 @@ class Pipeline extends BasePipeline
 
         $response = $handler->render($passable, $e);
 
-        if (method_exists($response, 'withException')) {
+        if (is_object($response) && method_exists($response, 'withException')) {
             $response->withException($e);
         }
 

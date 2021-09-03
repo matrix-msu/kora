@@ -47,11 +47,20 @@
     "gnu-javamail-exception": [
         "GNU JavaMail exception"
     ],
+    "GPL-3.0-linking-exception": [
+        "GPL-3.0 Linking Exception"
+    ],
+    "GPL-3.0-linking-source-exception": [
+        "GPL-3.0 Linking Exception (with Corresponding Source)"
+    ],
     "GPL-CC-1.0": [
         "GPL Cooperation Commitment 1.0"
     ],
     "i2p-gpl-java-exception": [
         "i2p GPL+Java Exception"
+    ],
+    "LGPL-3.0-linking-exception": [
+        "LGPL-3.0 Linking Exception"
     ],
     "Libtool-exception": [
         "Libtool Exception"
@@ -94,6 +103,12 @@
     ],
     "Qwt-exception-1.0": [
         "Qwt exception 1.0"
+    ],
+    "SHL-2.0": [
+        "Solderpad Hardware License v2.0"
+    ],
+    "SHL-2.1": [
+        "Solderpad Hardware License v2.1"
     ],
     "Swift-exception": [
         "Swift Exception"

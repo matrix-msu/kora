@@ -17,19 +17,21 @@ class SessionManager extends BaseSessionManager
             return parent::buildSession($handler);
         }
 
-        if ($this->app['config']['session.encrypt']) {
+        $container = isset($this->container) ? $this->container : $this->app;
+
+        if ($container['config']['session.encrypt']) {
             return new EncryptedStore(
-                $this->app['config']['session.cookie'],
+                $container['config']['session.cookie'],
                 $handler,
-                $this->app['encrypter'],
-                $this->app['config']['session.lockfile_dir']
+                $container['encrypter'],
+                $container['config']['session.lockfile_dir']
             );
         } else {
             return new Store(
-                $this->app['config']['session.cookie'],
+                $container['config']['session.cookie'],
                 $handler,
                 null,
-                $this->app['config']['session.lockfile_dir']
+                $container['config']['session.lockfile_dir']
             );
         }
     }

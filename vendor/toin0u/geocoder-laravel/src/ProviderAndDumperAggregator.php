@@ -32,6 +32,7 @@ class ProviderAndDumperAggregator
     protected $aggregator;
     protected $limit;
     protected $results;
+    protected $isCaching = true;
 
     public function __construct()
     {
@@ -57,6 +58,13 @@ class ProviderAndDumperAggregator
         return $this
             ->dump("geojson")
             ->first();
+    }
+
+    public function doNotCache() : self
+    {
+        $this->isCaching = false;
+
+        return $this;
     }
 
     public function dump(string $dumper) : Collection
@@ -122,12 +130,14 @@ class ProviderAndDumperAggregator
         return $this;
     }
 
-    /**
-     * @deprecated Use `getProviders()` instead.
-     */
     public function getProvider()
     {
-        return $this->getProviders()->first();
+        $reflectedClass = new ReflectionClass(ProviderAggregator::class);
+        $reflectedProperty = $reflectedClass->getProperty('provider');
+        $reflectedProperty->setAccessible(true);
+
+        return $reflectedProperty->getValue($this->aggregator)
+            ?? $this->getProviders()->first();
     }
 
     public function getProviders() : Collection
@@ -181,7 +191,13 @@ class ProviderAndDumperAggregator
 
     protected function cacheRequest(string $cacheKey, array $queryElements, string $queryType)
     {
-        $hashedCacheKey = sha1($cacheKey);
+        if (! $this->isCaching) {
+            $this->isCaching = true;
+
+            return collect($this->aggregator->{$queryType}(...$queryElements));
+        }
+
+        $hashedCacheKey = sha1($this->getProvider()->getName() . "-" . $cacheKey);
         $duration = config("geocoder.cache.duration", 0);
         $store = config('geocoder.cache.store');
 
@@ -221,6 +237,20 @@ class ProviderAndDumperAggregator
         return config('geocoder.adapter');
     }
 
+    protected function getReader()
+    {
+        $reader = config('geocoder.reader');
+
+        if (is_array(config('geocoder.reader'))) {
+            $readerClass = array_key_first(config('geocoder.reader'));
+            $readerArguments = config('geocoder.reader')[$readerClass];
+            $reflection = new ReflectionClass($readerClass);
+            $reader = $reflection->newInstanceArgs($readerArguments);
+        }
+
+        return $reader;
+    }
+
     protected function getArguments(array $arguments, string $provider) : array
     {
         if ($provider === 'Geocoder\Provider\Chain\Chain') {
@@ -232,9 +262,11 @@ class ProviderAndDumperAggregator
         $adapter = $this->getAdapterClass($provider);
 
         if ($adapter) {
-            $adapter = $this->requiresReader($provider)
-                ? new $adapter(config('geocoder.reader'))
-                : new $adapter;
+            if ($this->requiresReader($provider)) {
+                $adapter = new $adapter($this->getReader());
+            } else {
+                $adapter = new $adapter;
+            }
 
             array_unshift($arguments, $adapter);
         }
@@ -251,7 +283,8 @@ class ProviderAndDumperAggregator
             if ($provider === "Geocoder\Provider\Chain\Chain") {
                 $chainProvider = $reflection->newInstance($arguments);
 
-                if (in_array(LoggerAwareTrait::class, class_uses($chainProvider))
+                if (class_exists(Logger::class)
+                    && in_array(LoggerAwareTrait::class, class_uses($chainProvider))
                     && app(Logger::class) !== null
                 ) {
                     $chainProvider->setLogger(app(Logger::class));

@@ -62,7 +62,7 @@ class BaseDependencyCommand extends BaseCommand
      * @param  InputInterface  $input
      * @param  OutputInterface $output
      * @param  bool            $inverted Whether to invert matching process (why-not vs why behaviour)
-     * @return int|null        Exit code of the operation.
+     * @return int             Exit code of the operation.
      */
     protected function doExecute(InputInterface $input, OutputInterface $output, $inverted = false)
     {
@@ -184,7 +184,11 @@ class BaseDependencyCommand extends BaseCommand
         $renderer = new Table($output);
         $renderer->setStyle('compact');
         $rendererStyle = $renderer->getStyle();
-        $rendererStyle->setVerticalBorderChar('');
+        if (method_exists($rendererStyle, 'setVerticalBorderChars')) {
+            $rendererStyle->setVerticalBorderChars('');
+        } else {
+            $rendererStyle->setVerticalBorderChar('');
+        }
         $rendererStyle->setCellRowContentFormat('%s  ');
         $renderer->setRows($table)->render();
     }

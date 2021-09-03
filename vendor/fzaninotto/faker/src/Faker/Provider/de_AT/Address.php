@@ -4,7 +4,7 @@ namespace Faker\Provider\de_AT;
 
 class Address extends \Faker\Provider\Address
 {
-    protected static $buildingNumber = array('###', '##', '#', '##[abc]', '#[abc]');
+    protected static $buildingNumber = array('###', '##', '#');
 
     protected static $streetSuffixLong = array(
         'Gasse', 'Platz', 'Ring', 'Straße', 'Weg',
@@ -38,10 +38,6 @@ class Address extends \Faker\Provider\Address
         'Waidhofen an der Thaya', 'Waidhofen an der Ybbs', 'Weitra', 'Weiz', 'Wels', 'Wien', 'Wiener Neustadt', 'Wieselburg', 'Wilhelmsburg', 'Wolfsberg', 'Wolkersdorf', 'Wörgl',
         'Ybbs an der Donau',
         'Zell am See', 'Zeltweg', 'Zistersdorf', 'Zwettl',
-    );
-
-    protected static $state = array(
-        'Burgenland', 'Kärnten', 'Niederösterreich', 'Oberösterreich', 'Salzburg', 'Steiermark', 'Tirol', 'Vorarlberg', 'Wien'
     );
 
     protected static $country = array(
@@ -99,18 +95,5 @@ class Address extends \Faker\Provider\Address
     public function streetSuffixLong()
     {
         return static::randomElement(static::$streetSuffixLong);
-    }
-
-    /**
-     * @example 'Wien'
-     */
-    public static function state()
-    {
-        return static::randomElement(static::$state);
-    }
-
-    public static function buildingNumber()
-    {
-        return static::regexify(self::numerify(static::randomElement(static::$buildingNumber)));
     }
 }

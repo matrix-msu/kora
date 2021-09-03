@@ -91,11 +91,7 @@ trait AuthenticatesUsers
      */
     protected function credentials(Request $request)
     {
-        $credentials = $request->only($this->username(), 'password');
-
-        $credentials = \App\User::refineLoginCredentials($credentials);
-
-        return $credentials;
+        return $request->only($this->username(), 'password');
     }
 
     /**
@@ -162,6 +158,8 @@ trait AuthenticatesUsers
         $this->guard()->logout();
 
         $request->session()->invalidate();
+
+        $request->session()->regenerateToken();
 
         return $this->loggedOut($request) ?: redirect('/');
     }

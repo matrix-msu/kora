@@ -34,6 +34,8 @@ class GitHubDriver extends VcsDriver
     protected $hasIssues;
     protected $infoCache = array();
     protected $isPrivate = false;
+    private $isArchived = false;
+    private $fundingInfo;
 
     /**
      * Git Driver
@@ -47,10 +49,10 @@ class GitHubDriver extends VcsDriver
      */
     public function initialize()
     {
-        preg_match('#^(?:(?:https?|git)://([^/]+)/|git@([^:]+):)([^/]+)/(.+?)(?:\.git|/)?$#', $this->url, $match);
+        preg_match('#^(?:(?:https?|git)://([^/]+)/|git@([^:]+):/?)([^/]+)/(.+?)(?:\.git|/)?$#', $this->url, $match);
         $this->owner = $match[3];
         $this->repository = $match[4];
-        $this->originUrl = !empty($match[1]) ? $match[1] : $match[2];
+        $this->originUrl = strtolower(!empty($match[1]) ? $match[1] : $match[2]);
         if ($this->originUrl === 'www.github.com') {
             $this->originUrl = 'github.com';
         }
@@ -148,10 +150,14 @@ class GitHubDriver extends VcsDriver
 
         if (!isset($this->infoCache[$identifier])) {
             if ($this->shouldCache($identifier) && $res = $this->cache->read($identifier)) {
-                return $this->infoCache[$identifier] = JsonFile::parseJson($res);
-            }
+                $composer =  JsonFile::parseJson($res);
+            } else {
+                $composer = $this->getBaseComposerInformation($identifier);
 
-            $composer = $this->getBaseComposerInformation($identifier);
+                if ($this->shouldCache($identifier)) {
+                    $this->cache->write($identifier, json_encode($composer));
+                }
+            }
 
             if ($composer) {
                 // specials for github
@@ -162,16 +168,102 @@ class GitHubDriver extends VcsDriver
                 if (!isset($composer['support']['issues']) && $this->hasIssues) {
                     $composer['support']['issues'] = sprintf('https://%s/%s/%s/issues', $this->originUrl, $this->owner, $this->repository);
                 }
-            }
-
-            if ($this->shouldCache($identifier)) {
-                $this->cache->write($identifier, json_encode($composer));
+                if (!isset($composer['abandoned']) && $this->isArchived) {
+                    $composer['abandoned'] = true;
+                }
+                if (!isset($composer['funding']) && $funding = $this->getFundingInfo()) {
+                    $composer['funding'] = $funding;
+                }
             }
 
             $this->infoCache[$identifier] = $composer;
         }
 
         return $this->infoCache[$identifier];
+    }
+
+    private function getFundingInfo()
+    {
+        if (null !== $this->fundingInfo) {
+            return $this->fundingInfo;
+        }
+
+        if ($this->originUrl !== 'github.com') {
+            return $this->fundingInfo = false;
+        }
+
+        foreach (array($this->getApiUrl() . '/repos/'.$this->owner.'/'.$this->repository.'/contents/.github/FUNDING.yml', $this->getApiUrl() . '/repos/'.$this->owner.'/.github/contents/FUNDING.yml') as $file) {
+
+            try {
+                $result = $this->remoteFilesystem->getContents($this->originUrl, $file, false, array(
+                    'retry-auth-failure' => false,
+                ));
+                $response = json_decode($result, true);
+            } catch (TransportException $e) {
+                continue;
+            }
+            if (empty($response['content']) || $response['encoding'] !== 'base64' || !($funding = base64_decode($response['content']))) {
+                continue;
+            }
+            break;
+        }
+        if (empty($funding)) {
+            return $this->fundingInfo = false;
+        }
+
+        $result = array();
+        $key = null;
+        foreach (preg_split('{\r?\n}', $funding) as $line) {
+            $line = trim($line);
+            if (preg_match('{^(\w+)\s*:\s*(.+)$}', $line, $match)) {
+                if (preg_match('{^\[(.*)\](?:\s*#.*)?$}', $match[2], $match2)) {
+                    foreach (array_map('trim', preg_split('{[\'"]?\s*,\s*[\'"]?}', $match2[1])) as $item) {
+                        $result[] = array('type' => $match[1], 'url' => trim($item, '"\' '));
+                    }
+                } elseif (preg_match('{^([^#].*?)(\s+#.*)?$}', $match[2], $match2)) {
+                    $result[] = array('type' => $match[1], 'url' => trim($match2[1], '"\' '));
+                }
+                $key = null;
+            } elseif (preg_match('{^(\w+)\s*:\s*#\s*$}', $line, $match)) {
+                $key = $match[1];
+            } elseif ($key && preg_match('{^-\s*(.+)(\s+#.*)?$}', $line, $match)) {
+                $result[] = array('type' => $key, 'url' => trim($match[1], '"\' '));
+            }
+        }
+
+        foreach ($result as $key => $item) {
+            switch ($item['type']) {
+                case 'tidelift':
+                    $result[$key]['url'] = 'https://tidelift.com/funding/github/' . $item['url'];
+                    break;
+                case 'github':
+                    $result[$key]['url'] = 'https://github.com/' . basename($item['url']);
+                    break;
+                case 'patreon':
+                    $result[$key]['url'] = 'https://www.patreon.com/' . basename($item['url']);
+                    break;
+                case 'otechie':
+                    $result[$key]['url'] = 'https://otechie.com/' . basename($item['url']);
+                    break;
+                case 'open_collective':
+                    $result[$key]['url'] = 'https://opencollective.com/' . basename($item['url']);
+                    break;
+                case 'liberapay':
+                    $result[$key]['url'] = 'https://liberapay.com/' . basename($item['url']);
+                    break;
+                case 'ko_fi':
+                    $result[$key]['url'] = 'https://ko-fi.com/' . basename($item['url']);
+                    break;
+                case 'issuehunt':
+                    $result[$key]['url'] = 'https://issuehunt.io/r/' . $item['url'];
+                    break;
+                case 'community_bridge':
+                    $result[$key]['url'] = 'https://funding.communitybridge.org/projects/' . basename($item['url']);
+                    break;
+            }
+        }
+
+        return $this->fundingInfo = $result;
     }
 
     /**
@@ -244,13 +336,11 @@ class GitHubDriver extends VcsDriver
             $this->branches = array();
             $resource = $this->getApiUrl() . '/repos/'.$this->owner.'/'.$this->repository.'/git/refs/heads?per_page=100';
 
-            $branchBlacklist = array('gh-pages');
-
             do {
                 $branchData = JsonFile::parseJson($this->getContents($resource), $resource);
                 foreach ($branchData as $branch) {
                     $name = substr($branch['ref'], 11);
-                    if (!in_array($name, $branchBlacklist)) {
+                    if ($name !== 'gh-pages') {
                         $this->branches[$name] = $branch['object']['sha'];
                     }
                 }
@@ -267,12 +357,12 @@ class GitHubDriver extends VcsDriver
      */
     public static function supports(IOInterface $io, Config $config, $url, $deep = false)
     {
-        if (!preg_match('#^((?:https?|git)://([^/]+)/|git@([^:]+):)([^/]+)/(.+?)(?:\.git|/)?$#', $url, $matches)) {
+        if (!preg_match('#^((?:https?|git)://([^/]+)/|git@([^:]+):/?)([^/]+)/(.+?)(?:\.git|/)?$#', $url, $matches)) {
             return false;
         }
 
         $originUrl = !empty($matches[2]) ? $matches[2] : $matches[3];
-        if (!in_array(preg_replace('{^www\.}i', '', $originUrl), $config->get('github-domains'))) {
+        if (!in_array(strtolower(preg_replace('{^www\.}i', '', $originUrl)), $config->get('github-domains'))) {
             return false;
         }
 
@@ -425,6 +515,7 @@ class GitHubDriver extends VcsDriver
             $this->rootIdentifier = 'master';
         }
         $this->hasIssues = !empty($this->repoData['has_issues']);
+        $this->isArchived = !empty($this->repoData['archived']);
     }
 
     protected function attemptCloneFallback()

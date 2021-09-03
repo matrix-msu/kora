@@ -67,6 +67,27 @@ abstract class BaseRepository implements RepositoryInterface
             // Replacements are considered valid reasons for a package to be installed during forward resolution
             if (!$invert) {
                 $links += $package->getReplaces();
+
+                // On forward search, check if any replaced package was required and add the replaced
+                // packages to the list of needles. Contrary to the cross-reference link check below,
+                // replaced packages are the target of links.
+                foreach ($package->getReplaces() as $link) {
+                    foreach ($needles as $needle) {
+                        if ($link->getSource() === $needle) {
+                            if ($constraint === null || ($link->getConstraint()->matches($constraint) === !$invert)) {
+                                // already displayed this node's dependencies, cutting short
+                                if (in_array($link->getTarget(), $packagesInTree)) {
+                                    $results[] = array($package, $link, false);
+                                    continue;
+                                }
+                                $packagesInTree[] = $link->getTarget();
+                                $dependents = $recurse ? $this->getDependents($link->getTarget(), null, false, true, $packagesInTree) : array();
+                                $results[] = array($package, $link, $dependents);
+                                $needles[] = $link->getTarget();
+                            }
+                        }
+                    }
+                }
             }
 
             // Require-dev is only relevant for the root package
@@ -81,12 +102,12 @@ abstract class BaseRepository implements RepositoryInterface
                         if ($constraint === null || ($link->getConstraint()->matches($constraint) === !$invert)) {
                             // already displayed this node's dependencies, cutting short
                             if (in_array($link->getSource(), $packagesInTree)) {
-                                $results[$link->getSource()] = array($package, $link, false);
+                                $results[] = array($package, $link, false);
                                 continue;
                             }
                             $packagesInTree[] = $link->getSource();
                             $dependents = $recurse ? $this->getDependents($link->getSource(), null, false, true, $packagesInTree) : array();
-                            $results[$link->getSource()] = array($package, $link, $dependents);
+                            $results[] = array($package, $link, $dependents);
                         }
                     }
                 }
@@ -125,6 +146,16 @@ abstract class BaseRepository implements RepositoryInterface
                         }
 
                         $version = new Constraint('=', $pkg->getVersion());
+
+                        if ($link->getTarget() !== $pkg->getName()) {
+                            foreach (array_merge($pkg->getReplaces(), $pkg->getProvides()) as $prov) {
+                                if ($link->getTarget() === $prov->getTarget()) {
+                                    $version = $prov->getConstraint();
+                                    break;
+                                }
+                            }
+                        }
+
                         if (!$link->getConstraint()->matches($version)) {
                             // if we have a root package (we should but can not guarantee..) we show
                             // the root requires as well to perhaps allow to find an issue there
@@ -136,6 +167,7 @@ abstract class BaseRepository implements RepositoryInterface
                                         continue 3;
                                     }
                                 }
+
                                 $results[] = array($package, $link, false);
                                 $results[] = array($rootPackage, new Link($rootPackage->getName(), $link->getTarget(), null, 'does not require', 'but ' . $pkg->getPrettyVersion() . ' is installed'), false);
                             } else {

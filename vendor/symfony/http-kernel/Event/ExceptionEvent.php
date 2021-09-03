@@ -18,11 +18,13 @@ namespace Symfony\Component\HttpKernel\Event;
  * current request. The propagation of this event is stopped as soon as a
  * response is set.
  *
- * You can also call setException() to replace the thrown exception. This
+ * You can also call setThrowable() to replace the thrown exception. This
  * exception will be thrown if no response is set during processing of this
  * event.
  *
  * @author Bernhard Schussek <bschussek@gmail.com>
+ *
+ * @final since Symfony 4.4
  */
 class ExceptionEvent extends GetResponseForExceptionEvent
 {

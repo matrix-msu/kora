@@ -45,13 +45,23 @@ trait ManagesTransactions
             }
 
             try {
-                $this->commit();
+                if ($this->transactions == 1) {
+                    $this->getPdo()->commit();
+                }
+
+                $this->transactions = max(0, $this->transactions - 1);
             } catch (Exception $e) {
+                $commitFailed = true;
+
                 $this->handleCommitTransactionException(
                     $e, $currentAttempt, $attempts
                 );
 
                 continue;
+            }
+
+            if (! isset($commitFailed)) {
+                $this->fireConnectionEvent('committed');
             }
 
             return $callbackResult;
@@ -117,6 +127,8 @@ trait ManagesTransactions
     protected function createTransaction()
     {
         if ($this->transactions == 0) {
+            $this->reconnectIfMissingConnection();
+
             try {
                 $this->getPdo()->beginTransaction();
             } catch (Exception $e) {
@@ -152,7 +164,7 @@ trait ManagesTransactions
         if ($this->causedByLostConnection($e)) {
             $this->reconnect();
 
-            $this->pdo->beginTransaction();
+            $this->getPdo()->beginTransaction();
         } else {
             throw $e;
         }
@@ -184,7 +196,7 @@ trait ManagesTransactions
      */
     protected function handleCommitTransactionException($e, $currentAttempt, $maxAttempts)
     {
-        $this->transactions--;
+        $this->transactions = max(0, $this->transactions - 1);
 
         if ($this->causedByConcurrencyError($e) &&
             $currentAttempt < $maxAttempts) {
@@ -253,7 +265,8 @@ trait ManagesTransactions
     /**
      * Handle an exception from a rollback.
      *
-     * @param \Exception  $e
+     * @param  \Exception  $e
+     * @return void
      *
      * @throws \Exception
      */

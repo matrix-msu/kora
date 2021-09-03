@@ -3,9 +3,8 @@
 namespace Faker\Test\Provider;
 
 use Faker\Provider\UserAgent;
-use PHPUnit\Framework\TestCase;
 
-class UserAgentTest extends TestCase
+class UserAgentTest extends \PHPUnit_Framework_TestCase
 {
     public function testRandomUserAgent()
     {

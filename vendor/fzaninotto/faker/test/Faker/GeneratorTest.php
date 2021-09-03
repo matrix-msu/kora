@@ -3,9 +3,8 @@
 namespace Faker\Test;
 
 use Faker\Generator;
-use PHPUnit\Framework\TestCase;
 
-class GeneratorTest extends TestCase
+class GeneratorTest extends \PHPUnit_Framework_TestCase
 {
     public function testAddProviderGivesPriorityToNewlyAddedProvider()
     {
@@ -20,7 +19,7 @@ class GeneratorTest extends TestCase
         $generator = new Generator;
         $provider = new FooProvider();
         $generator->addProvider($provider);
-        $this->assertInternalType('callable', $generator->getFormatter('fooFormatter'));
+        $this->assertTrue(is_callable($generator->getFormatter('fooFormatter')));
     }
 
     public function testGetFormatterReturnsCorrectFormatter()
@@ -120,9 +119,6 @@ class GeneratorTest extends TestCase
         $this->assertNotEquals($mtRandWithSeedZero, $mtRandWithoutSeed, 'seed() should be different than seed(0)');
         $generator->seed();
         $this->assertNotEquals($mtRandWithoutSeed, mt_rand(), 'seed() should not be deterministic.');
-
-        $generator->seed('10');
-        $this->assertTrue(true, 'seeding with a non int value doesn\'t throw an exception');
     }
 }
 

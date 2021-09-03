@@ -4,10 +4,8 @@ namespace Faker\Test\Provider\pt_PT;
 
 use Faker\Generator;
 use Faker\Provider\pt_PT\Address;
-use Faker\Provider\pt_PT\Person;
-use PHPUnit\Framework\TestCase;
 
-class AddressTest extends TestCase
+class AddressTest extends \PHPUnit_Framework_TestCase
 {
 
     /**
@@ -28,13 +26,5 @@ class AddressTest extends TestCase
         $pattern = "/^($main)|($main-[0-9]{3})+$/";
         $postcode = $this->faker->postcode();
         $this->assertSame(preg_match($pattern, $postcode), 1, $postcode);
-    }
-
-    public function testAddressIsSingleLine()
-    {
-        $this->faker->addProvider(new Person($this->faker));
-
-        $address = $this->faker->address();
-        $this->assertFalse(strstr($address, "\n"));
     }
 }

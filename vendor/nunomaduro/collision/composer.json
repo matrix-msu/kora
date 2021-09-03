@@ -14,16 +14,14 @@
         }
     ],
     "require": {
-        "php": "^7.1",
+        "php": "^7.2.5 || ^8.0",
         "filp/whoops": "^2.1.4",
         "symfony/console": "~2.8|~3.3|~4.0",
-        "jakub-onderka/php-console-highlighter": "0.3.*|0.4.*"
+        "php-parallel-lint/php-console-highlighter": "0.5.*"
     },
     "require-dev": {
-        "laravel/framework": "5.7.*",
-        "nunomaduro/larastan": "^0.3.0",
-        "phpstan/phpstan": "^0.10",
-        "phpunit/phpunit": "~7.3"
+        "laravel/framework": "^6.0",
+        "phpunit/phpunit": "^8.0 || ^9.0"
     },
     "autoload-dev": {
         "psr-4": {

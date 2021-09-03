@@ -20,26 +20,42 @@ namespace PhpOption;
 
 use ArrayIterator;
 
+/**
+ * @template T
+ *
+ * @extends Option<T>
+ */
 final class Some extends Option
 {
+    /** @var T */
     private $value;
 
+    /**
+     * @param T $value
+     */
     public function __construct($value)
     {
         $this->value = $value;
     }
 
-    public static function create($value)
+    /**
+     * @template U
+     *
+     * @param U $value
+     *
+     * @return Some<U>
+     */
+    public static function create($value): self
     {
         return new self($value);
     }
 
-    public function isDefined()
+    public function isDefined(): bool
     {
         return true;
     }
 
-    public function isEmpty()
+    public function isEmpty(): bool
     {
         return false;
     }
@@ -69,30 +85,28 @@ final class Some extends Option
         return $this;
     }
 
-    /**
-     * @deprecated Use forAll() instead.
-     */
     public function ifDefined($callable)
     {
-        call_user_func($callable, $this->value);
+        $this->forAll($callable);
     }
 
     public function forAll($callable)
     {
-        call_user_func($callable, $this->value);
+        $callable($this->value);
 
         return $this;
     }
 
     public function map($callable)
     {
-        return new self(call_user_func($callable, $this->value));
+        return new self($callable($this->value));
     }
 
     public function flatMap($callable)
     {
-        $rs = call_user_func($callable, $this->value);
-        if ( ! $rs instanceof Option) {
+        /** @var mixed */
+        $rs = $callable($this->value);
+        if (!$rs instanceof Option) {
             throw new \RuntimeException('Callables passed to flatMap() must return an Option. Maybe you should use map() instead?');
         }
 
@@ -101,7 +115,7 @@ final class Some extends Option
 
     public function filter($callable)
     {
-        if (true === call_user_func($callable, $this->value)) {
+        if (true === $callable($this->value)) {
             return $this;
         }
 
@@ -110,7 +124,7 @@ final class Some extends Option
 
     public function filterNot($callable)
     {
-        if (false === call_user_func($callable, $this->value)) {
+        if (false === $callable($this->value)) {
             return $this;
         }
 
@@ -135,18 +149,18 @@ final class Some extends Option
         return $this;
     }
 
-    public function getIterator()
+    public function getIterator(): ArrayIterator
     {
-        return new ArrayIterator(array($this->value));
+        return new ArrayIterator([$this->value]);
     }
 
     public function foldLeft($initialValue, $callable)
     {
-        return call_user_func($callable, $initialValue, $this->value);
+        return $callable($initialValue, $this->value);
     }
 
     public function foldRight($initialValue, $callable)
     {
-        return call_user_func($callable, $this->value, $initialValue);
+        return $callable($this->value, $initialValue);
     }
 }

@@ -66,6 +66,11 @@ class Terminal
             return self::$stty;
         }
 
+        // skip check if exec function is disabled
+        if (!\function_exists('exec')) {
+            return false;
+        }
+
         exec('stty 2>&1', $output, $exitcode);
 
         return self::$stty = 0 === $exitcode;
@@ -79,7 +84,9 @@ class Terminal
                 // or [w, h] from "wxh"
                 self::$width = (int) $matches[1];
                 self::$height = isset($matches[4]) ? (int) $matches[4] : (int) $matches[2];
-            } elseif (self::hasSttyAvailable()) {
+            } elseif (!self::hasVt100Support() && self::hasSttyAvailable()) {
+                // only use stty on Windows if the terminal does not support vt100 (e.g. Windows 7 + git-bash)
+                // testing for stty in a Windows 10 vt100-enabled console will implicitly disable vt100 support on STDOUT
                 self::initDimensionsUsingStty();
             } elseif (null !== $dimensions = self::getConsoleMode()) {
                 // extract [w, h] from "wxh"
@@ -91,6 +98,17 @@ class Terminal
         }
     }
 
+    /**
+     * Returns whether STDOUT has vt100 support (some Windows 10+ configurations).
+     */
+    private static function hasVt100Support(): bool
+    {
+        return \function_exists('sapi_windows_vt100_support') && sapi_windows_vt100_support(fopen('php://stdout', 'w'));
+    }
+
+    /**
+     * Initializes dimensions using the output of an stty columns line.
+     */
     private static function initDimensionsUsingStty()
     {
         if ($sttyString = self::getSttyColumns()) {
@@ -111,7 +129,7 @@ class Terminal
      *
      * @return int[]|null An array composed of the width and the height or null if it could not be parsed
      */
-    private static function getConsoleMode()
+    private static function getConsoleMode(): ?array
     {
         $info = self::readFromProcess('mode CON');
 
@@ -124,20 +142,13 @@ class Terminal
 
     /**
      * Runs and parses stty -a if it's available, suppressing any error output.
-     *
-     * @return string|null
      */
-    private static function getSttyColumns()
+    private static function getSttyColumns(): ?string
     {
         return self::readFromProcess('stty -a | grep columns');
     }
 
-    /**
-     * @param string $command
-     *
-     * @return string|null
-     */
-    private static function readFromProcess($command)
+    private static function readFromProcess(string $command): ?string
     {
         if (!\function_exists('proc_open')) {
             return null;

@@ -8,8 +8,6 @@ $baseDir = dirname($vendorDir);
 return array(
     'Rairlie\\LockingSession' => array($vendorDir . '/rairlie/laravel-locking-session/src'),
     'PhpSpec' => array($vendorDir . '/phpspec/phpspec/src'),
-    'PhpOption\\' => array($vendorDir . '/phpoption/phpoption/src'),
-    'Parsedown' => array($vendorDir . '/erusev/parsedown'),
     'Mockery' => array($vendorDir . '/mockery/mockery/library'),
     'Laracasts\\Flash' => array($vendorDir . '/laracasts/flash/src'),
     'JShrink' => array($vendorDir . '/tedivm/jshrink/src'),

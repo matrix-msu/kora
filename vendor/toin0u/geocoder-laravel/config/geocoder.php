@@ -3,7 +3,6 @@
 use Geocoder\Provider\Chain\Chain;
 use Geocoder\Provider\GeoPlugin\GeoPlugin;
 use Geocoder\Provider\GoogleMaps\GoogleMaps;
-use Geocoder\Provider\Nominatim\Nominatim;
 use Http\Client\Curl\Client;
 
 return [
@@ -28,7 +27,7 @@ return [
         | Cache Duration
         |-----------------------------------------------------------------------
         |
-        | Specify the cache duration in minutes. The default approximates a
+        | Specify the cache duration in seconds. The default approximates a
         | "forever" cache, but there are certain issues with Laravel's forever
         | caching methods that prevent us from using them in this project.
         |
@@ -58,12 +57,8 @@ return [
     */
     'providers' => [
         Chain::class => [
-            Nominatim::class => [
-                'https://nominatim.openstreetmap.org',
-                url('/')
-            ],
             GoogleMaps::class => [
-                env('GOOGLE_MAPS_LOCALE', 'en-US'),
+                env('GOOGLE_MAPS_LOCALE', 'us'),
                 env('GOOGLE_MAPS_API_KEY'),
             ],
             GeoPlugin::class  => [],
@@ -93,12 +88,21 @@ return [
     |
     | You can specify a reader for specific providers, like GeoIp2, which
     | connect to a local file-database. The reader should be set to an
-    | instance of the required reader class.
+    | instance of the required reader class or an array containing the reader
+    | class and arguments.
     |
     | Please consult the official Geocoder documentation for more info.
     | https://github.com/geocoder-php/geoip2-provider
     |
     | Default: null
+    |
+    | Example:
+    |   'reader' => [
+    |       WebService::class => [
+    |           env('MAXMIND_USER_ID'),
+    |           env('MAXMIND_LICENSE_KEY')
+    |       ],
+    |   ],
     |
     */
     'reader' => null,

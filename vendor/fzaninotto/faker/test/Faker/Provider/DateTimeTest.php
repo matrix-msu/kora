@@ -3,77 +3,15 @@
 namespace Faker\Test\Provider;
 
 use Faker\Provider\DateTime as DateTimeProvider;
-use PHPUnit\Framework\TestCase;
 
-class DateTimeTest extends TestCase
+class DateTimeTest extends \PHPUnit_Framework_TestCase
 {
-    public function setUp()
-    {
-        $this->defaultTz = 'UTC';
-        DateTimeProvider::setDefaultTimezone($this->defaultTz);
-    }
-
-    public function tearDown()
-    {
-        DateTimeProvider::setDefaultTimezone();
-    }
-
-    public function testPreferDefaultTimezoneOverSystemTimezone()
-    {
-        /**
-         * Set the system timezone to something *other* than the timezone used
-         * in setUp().
-         */
-        $originalSystemTimezone = date_default_timezone_get();
-        $systemTimezone = 'Antarctica/Vostok';
-        date_default_timezone_set($systemTimezone);
-
-        /**
-         * Get a new date/time value and assert that it prefers the default
-         * timezone over the system timezone.
-         */
-        $date = DateTimeProvider::dateTime();
-        $this->assertNotSame($systemTimezone, $date->getTimezone()->getName());
-        $this->assertSame($this->defaultTz, $date->getTimezone()->getName());
-
-        /**
-         * Restore the system timezone.
-         */
-        date_default_timezone_set($originalSystemTimezone);
-    }
-
-    public function testUseSystemTimezoneWhenDefaultTimezoneIsNotSet()
-    {
-        /**
-         * Set the system timezone to something *other* than the timezone used
-         * in setUp() *and* reset the default timezone.
-         */
-        $originalSystemTimezone = date_default_timezone_get();
-        $originalDefaultTimezone = DateTimeProvider::getDefaultTimezone();
-        $systemTimezone = 'Antarctica/Vostok';
-        date_default_timezone_set($systemTimezone);
-        DateTimeProvider::setDefaultTimezone();
-
-        /**
-         * Get a new date/time value and assert that it uses the system timezone
-         * and not the system timezone.
-         */
-        $date = DateTimeProvider::dateTime();
-        $this->assertSame($systemTimezone, $date->getTimezone()->getName());
-        $this->assertNotSame($this->defaultTz, $date->getTimezone()->getName());
-
-        /**
-         * Restore the system timezone.
-         */
-        date_default_timezone_set($originalSystemTimezone);
-    }
-
     public function testUnixTime()
     {
         $timestamp = DateTimeProvider::unixTime();
         $this->assertInternalType('int', $timestamp);
-        $this->assertGreaterThanOrEqual(0, $timestamp);
-        $this->assertLessThanOrEqual(time(), $timestamp);
+        $this->assertTrue($timestamp >= 0);
+        $this->assertTrue($timestamp <= time());
     }
 
     public function testDateTime()
@@ -82,13 +20,6 @@ class DateTimeTest extends TestCase
         $this->assertInstanceOf('\DateTime', $date);
         $this->assertGreaterThanOrEqual(new \DateTime('@0'), $date);
         $this->assertLessThanOrEqual(new \DateTime(), $date);
-        $this->assertEquals(new \DateTimeZone($this->defaultTz), $date->getTimezone());
-    }
-
-    public function testDateTimeWithTimezone()
-    {
-        $date = DateTimeProvider::dateTime('now', 'America/New_York');
-        $this->assertEquals($date->getTimezone(), new \DateTimeZone('America/New_York'));
     }
 
     public function testDateTimeAD()
@@ -97,67 +28,6 @@ class DateTimeTest extends TestCase
         $this->assertInstanceOf('\DateTime', $date);
         $this->assertGreaterThanOrEqual(new \DateTime('0000-01-01 00:00:00'), $date);
         $this->assertLessThanOrEqual(new \DateTime(), $date);
-        $this->assertEquals(new \DateTimeZone($this->defaultTz), $date->getTimezone());
-    }
-
-    public function testDateTimeThisCentury()
-    {
-        $date = DateTimeProvider::dateTimeThisCentury();
-        $this->assertInstanceOf('\DateTime', $date);
-        $this->assertGreaterThanOrEqual(new \DateTime('-100 year'), $date);
-        $this->assertLessThanOrEqual(new \DateTime(), $date);
-        $this->assertEquals(new \DateTimeZone($this->defaultTz), $date->getTimezone());
-    }
-
-    public function testDateTimeThisDecade()
-    {
-        $date = DateTimeProvider::dateTimeThisDecade();
-        $this->assertInstanceOf('\DateTime', $date);
-        $this->assertGreaterThanOrEqual(new \DateTime('-10 year'), $date);
-        $this->assertLessThanOrEqual(new \DateTime(), $date);
-        $this->assertEquals(new \DateTimeZone($this->defaultTz), $date->getTimezone());
-    }
-
-    public function testDateTimeThisYear()
-    {
-        $date = DateTimeProvider::dateTimeThisYear();
-        $this->assertInstanceOf('\DateTime', $date);
-        $this->assertGreaterThanOrEqual(new \DateTime('-1 year'), $date);
-        $this->assertLessThanOrEqual(new \DateTime(), $date);
-        $this->assertEquals(new \DateTimeZone($this->defaultTz), $date->getTimezone());
-    }
-
-    public function testDateTimeThisMonth()
-    {
-        $date = DateTimeProvider::dateTimeThisMonth();
-        $this->assertInstanceOf('\DateTime', $date);
-        $this->assertGreaterThanOrEqual(new \DateTime('-1 month'), $date);
-        $this->assertLessThanOrEqual(new \DateTime(), $date);
-        $this->assertEquals(new \DateTimeZone($this->defaultTz), $date->getTimezone());
-    }
-
-    public function testDateTimeThisCenturyWithTimezone()
-    {
-        $date = DateTimeProvider::dateTimeThisCentury('now', 'America/New_York');
-        $this->assertEquals($date->getTimezone(), new \DateTimeZone('America/New_York'));
-    }
-
-    public function testDateTimeThisDecadeWithTimezone()
-    {
-        $date = DateTimeProvider::dateTimeThisDecade('now', 'America/New_York');
-        $this->assertEquals($date->getTimezone(), new \DateTimeZone('America/New_York'));
-    }
-
-    public function testDateTimeThisYearWithTimezone()
-    {
-        $date = DateTimeProvider::dateTimeThisYear('now', 'America/New_York');
-        $this->assertEquals($date->getTimezone(), new \DateTimeZone('America/New_York'));
-    }
-
-    public function testDateTimeThisMonthWithTimezone()
-    {
-        $date = DateTimeProvider::dateTimeThisMonth('now', 'America/New_York');
-        $this->assertEquals($date->getTimezone(), new \DateTimeZone('America/New_York'));
     }
 
     public function testIso8601()
@@ -192,7 +62,6 @@ class DateTimeTest extends TestCase
         $this->assertInstanceOf('\DateTime', $date);
         $this->assertGreaterThanOrEqual(new \DateTime($start), $date);
         $this->assertLessThanOrEqual(new \DateTime($end), $date);
-        $this->assertEquals(new \DateTimeZone($this->defaultTz), $date->getTimezone());
     }
 
     public function providerDateTimeBetween()
@@ -205,38 +74,9 @@ class DateTimeTest extends TestCase
         );
     }
 
-    /**
-     *
-     * @dataProvider providerDateTimeInInterval
-     */
-    public function testDateTimeInInterval($start, $interval = "+5 days", $isInFuture)
-    {
-        $date = DateTimeProvider::dateTimeInInterval($start, $interval);
-        $this->assertInstanceOf('\DateTime', $date);
-
-        $_interval = \DateInterval::createFromDateString($interval);
-        $_start = new \DateTime($start);
-        if ($isInFuture) {
-            $this->assertGreaterThanOrEqual($_start, $date);
-            $this->assertLessThanOrEqual($_start->add($_interval), $date);
-        } else {
-            $this->assertLessThanOrEqual($_start, $date);
-            $this->assertGreaterThanOrEqual($_start->add($_interval), $date);
-        }
-    }
-
-    public function providerDateTimeInInterval()
-    {
-        return array(
-            array('-1 year', '+5 days', true),
-            array('-1 day', '-1 hour', false),
-            array('-1 day', '+1 hour', true),
-        );
-    }
-
     public function testFixedSeedWithMaximumTimestamp()
     {
-        $max = '2118-03-01 12:00:00';
+        $max = '2018-03-01 12:00:00';
 
         mt_srand(1);
         $unixTime = DateTimeProvider::unixTime($max);

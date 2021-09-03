@@ -1,5 +1,6 @@
 <?php
 require __DIR__ .'/../vendor/autoload.php';
+
 $faker = Faker\Factory::create();
 $faker->seed(5);
 

@@ -111,25 +111,27 @@ class ValidatingArrayLoader implements LoaderInterface
             if (is_array($this->config['license']) || is_string($this->config['license'])) {
                 $licenses = (array) $this->config['license'];
 
-                // strip proprietary since it's not a valid SPDX identifier, but is accepted by composer
-                foreach ($licenses as $key => $license) {
-                    if ('proprietary' === $license) {
-                        unset($licenses[$key]);
-                    }
-                }
-
                 $licenseValidator = new SpdxLicenses();
-                if (count($licenses) === 1 && !$licenseValidator->validate($licenses) && $licenseValidator->validate(trim($licenses[0]))) {
-                    $this->warnings[] = sprintf(
-                        'License %s must not contain extra spaces, make sure to trim it.',
-                        json_encode($this->config['license'])
-                    );
-                } elseif (array() !== $licenses && !$licenseValidator->validate($licenses)) {
-                    $this->warnings[] = sprintf(
-                        'License %s is not a valid SPDX license identifier, see https://spdx.org/licenses/ if you use an open license.' . PHP_EOL .
-                        'If the software is closed-source, you may use "proprietary" as license.',
-                        json_encode($this->config['license'])
-                    );
+                foreach ($licenses as $license) {
+                    // replace proprietary by MIT for validation purposes since it's not a valid SPDX identifier, but is accepted by composer
+                    if ('proprietary' === $license) {
+                        continue;
+                    }
+                    $licenseToValidate = str_replace('proprietary', 'MIT', $license);
+                    if (!$licenseValidator->validate($licenseToValidate)) {
+                        if ($licenseValidator->validate(trim($licenseToValidate))) {
+                            $this->warnings[] = sprintf(
+                                'License %s must not contain extra spaces, make sure to trim it.',
+                                json_encode($license)
+                            );
+                        } else {
+                            $this->warnings[] = sprintf(
+                                'License %s is not a valid SPDX license identifier, see https://spdx.org/licenses/ if you use an open license.' . PHP_EOL .
+                                'If the software is closed-source, you may use "proprietary" as license.',
+                                json_encode($license)
+                            );
+                        }
+                    }
                 }
             }
         }
@@ -190,6 +192,32 @@ class ValidatingArrayLoader implements LoaderInterface
             }
             if (empty($this->config['support'])) {
                 unset($this->config['support']);
+            }
+        }
+
+        if ($this->validateArray('funding') && !empty($this->config['funding'])) {
+            foreach ($this->config['funding'] as $key => $fundingOption) {
+                if (!is_array($fundingOption)) {
+                    $this->errors[] = 'funding.'.$key.' : should be an array, '.gettype($fundingOption).' given';
+                    unset($this->config['funding'][$key]);
+                    continue;
+                }
+                foreach (array('type', 'url') as $fundingData) {
+                    if (isset($fundingOption[$fundingData]) && !is_string($fundingOption[$fundingData])) {
+                        $this->errors[] = 'funding.'.$key.'.'.$fundingData.' : invalid value, must be a string';
+                        unset($this->config['funding'][$key][$fundingData]);
+                    }
+                }
+                if (isset($fundingOption['url']) && !$this->filterUrl($fundingOption['url'])) {
+                    $this->warnings[] = 'funding.'.$key.'.url : invalid value ('.$fundingOption['url'].'), must be an http/https URL';
+                    unset($this->config['funding'][$key]['url']);
+                }
+                if (empty($this->config['funding'][$key])) {
+                    unset($this->config['funding'][$key]);
+                }
+            }
+            if (empty($this->config['funding'])) {
+                unset($this->config['funding']);
             }
         }
 
@@ -348,8 +376,8 @@ class ValidatingArrayLoader implements LoaderInterface
             return;
         }
 
-        if (!preg_match('{^[a-z0-9]([_.-]?[a-z0-9]+)*/[a-z0-9]([_.-]?[a-z0-9]+)*$}iD', $name)) {
-            return $name.' is invalid, it should have a vendor name, a forward slash, and a package name. The vendor and package name can be words separated by -, . or _. The complete name should match "[a-z0-9]([_.-]?[a-z0-9]+)*/[a-z0-9]([_.-]?[a-z0-9]+)*".';
+        if (!preg_match('{^[a-z0-9](?:[_.-]?[a-z0-9]+)*/[a-z0-9](?:(?:[_.]?|-{0,2})[a-z0-9]+)*$}iD', $name)) {
+            return $name.' is invalid, it should have a vendor name, a forward slash, and a package name. The vendor and package name can be words separated by -, . or _. The complete name should match "^[a-z0-9]([_.-]?[a-z0-9]+)*/[a-z0-9](([_.]?|-{0,2})[a-z0-9]+)*$".';
         }
 
         $reservedNames = array('nul', 'con', 'prn', 'aux', 'com1', 'com2', 'com3', 'com4', 'com5', 'com6', 'com7', 'com8', 'com9', 'lpt1', 'lpt2', 'lpt3', 'lpt4', 'lpt5', 'lpt6', 'lpt7', 'lpt8', 'lpt9');

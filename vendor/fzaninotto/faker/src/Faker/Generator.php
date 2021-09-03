@@ -4,14 +4,11 @@ namespace Faker;
 
 /**
  * @property string $name
- * @method string name(string $gender = null)
  * @property string $firstName
- * @method string firstName(string $gender = null)
  * @property string $firstNameMale
  * @property string $firstNameFemale
  * @property string $lastName
  * @property string $title
- * @method string title(string $gender = null)
  * @property string $titleMale
  * @property string $titleFemale
  *
@@ -36,16 +33,14 @@ namespace Faker;
  *
  * @property string $company
  * @property string $companySuffix
- * @property string $jobTitle
  *
  * @property string $creditCardType
  * @property string $creditCardNumber
  * @method string creditCardNumber($type = null, $formatted = false, $separator = '-')
  * @property \DateTime $creditCardExpirationDate
  * @property string $creditCardExpirationDateString
- * @property array $creditCardDetails
+ * @property string $creditCardDetails
  * @property string $bankAccountNumber
- * @method string iban($countryCode = null, $prefix = '', $length = null)
  * @property string $swiftBicNumber
  * @property string $vat
  *
@@ -94,31 +89,16 @@ namespace Faker;
  * @property \DateTime $dateTimeThisYear
  * @property \DateTime $dateTimeThisMonth
  * @property string    $amPm
- * @property string    $dayOfMonth
- * @property string    $dayOfWeek
- * @property string    $month
+ * @property int       $dayOfMonth
+ * @property int       $dayOfWeek
+ * @property int       $month
  * @property string    $monthName
- * @property string    $year
- * @property string    $century
+ * @property int       $year
+ * @property int       $century
  * @property string    $timezone
- * @method string amPm($max = 'now')
  * @method string date($format = 'Y-m-d', $max = 'now')
- * @method string dayOfMonth($max = 'now')
- * @method string dayOfWeek($max = 'now')
- * @method string iso8601($max = 'now')
- * @method string month($max = 'now')
- * @method string monthName($max = 'now')
  * @method string time($format = 'H:i:s', $max = 'now')
- * @method int unixTime($max = 'now')
- * @method string year($max = 'now')
- * @method \DateTime dateTime($max = 'now', $timezone = null)
- * @method \DateTime dateTimeAd($max = 'now', $timezone = null)
  * @method \DateTime dateTimeBetween($startDate = '-30 years', $endDate = 'now')
- * @method \DateTime dateTimeInInterval($date = '-30 years', $interval = '+5 days', $timezone = null)
- * @method \DateTime dateTimeThisCentury($max = 'now', $timezone = null)
- * @method \DateTime dateTimeThisDecade($max = 'now', $timezone = null)
- * @method \DateTime dateTimeThisYear($max = 'now', $timezone = null)
- * @method \DateTime dateTimeThisMonth($max = 'now', $timezone = null)
  *
  * @property string $md5
  * @property string $sha1
@@ -128,7 +108,6 @@ namespace Faker;
  * @property string $countryISOAlpha3
  * @property string $languageCode
  * @property string $currencyCode
- * @property boolean $boolean
  * @method boolean boolean($chanceOfGettingTrue = 50)
  *
  * @property int    $randomDigit
@@ -140,7 +119,7 @@ namespace Faker;
  * @method int numberBetween($min = 0, $max = 2147483647)
  * @method float randomFloat($nbMaxDecimals = null, $min = 0, $max = null)
  * @method mixed randomElement(array $array = array('a', 'b', 'c'))
- * @method array randomElements(array $array = array('a', 'b', 'c'), $count = 1, $allowDuplicates = false)
+ * @method array randomElements(array $array = array('a', 'b', 'c'), $count = 1)
  * @method array|string shuffle($arg = '')
  * @method array shuffleArray(array $array = array())
  * @method string shuffleString($string = '', $encoding = 'UTF-8')
@@ -153,7 +132,6 @@ namespace Faker;
  * @method string toUpper($string = '')
  * @method Generator optional($weight = 0.5, $default = null)
  * @method Generator unique($reset = false, $maxRetries = 10000)
- * @method Generator valid($validator = null, $maxRetries = 10000)
  *
  * @method integer biasedNumberBetween($min = 0, $max = 100, $function = 'sqrt')
  *
@@ -175,8 +153,8 @@ namespace Faker;
  * @property string $fileExtension
  * @method string file($sourceDirectory = '/tmp', $targetDirectory = '/tmp', $fullPath = true)
  *
- * @method string imageUrl($width = 640, $height = 480, $category = null, $randomize = true, $word = null, $gray = false)
- * @method string image($dir = null, $width = 640, $height = 480, $category = null, $fullPath = true, $randomize = true, $word = null)
+ * @method string imageUrl($width = 640, $height = 480, $category = null, $randomize = true)
+ * @method string image($dir = null, $width = 640, $height = 480, $category = null, $fullPath = true)
  *
  * @property string $hexColor
  * @property string $safeHexColor
@@ -185,9 +163,6 @@ namespace Faker;
  * @property string $rgbCssColor
  * @property string $safeColorName
  * @property string $colorName
- *
- * @method string randomHtml($maxDepth = 4, $maxWidth = 4)
- *
  */
 class Generator
 {
@@ -209,11 +184,7 @@ class Generator
         if ($seed === null) {
             mt_srand();
         } else {
-            if (PHP_VERSION_ID < 70100) {
-                mt_srand((int) $seed);
-            } else {
-                mt_srand((int) $seed, MT_RAND_PHP);
-            }
+            mt_srand($seed);
         }
     }
 
@@ -223,8 +194,6 @@ class Generator
     }
 
     /**
-     * @param string $formatter
-     *
      * @return Callable
      */
     public function getFormatter($formatter)
@@ -258,22 +227,11 @@ class Generator
         return $this->format($matches[1]);
     }
 
-    /**
-     * @param string $attribute
-     *
-     * @return mixed
-     */
     public function __get($attribute)
     {
         return $this->format($attribute);
     }
 
-    /**
-     * @param string $method
-     * @param array $attributes
-     *
-     * @return mixed
-     */
     public function __call($method, $attributes)
     {
         return $this->format($method, $attributes);

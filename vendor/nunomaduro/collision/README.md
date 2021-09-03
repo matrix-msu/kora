@@ -37,6 +37,14 @@ If you are not using Laravel, you need to register the handler in your code:
 (new \NunoMaduro\Collision\Provider)->register();
 ```
 
+## Lumen adapter
+
+Configure the Collision service provider:
+```php
+// bootstrap/app.php:
+$app->register(\NunoMaduro\Collision\Adapters\Laravel\CollisionServiceProvider::class);
+```
+
 ## Phpunit adapter
 
 Phpunit must be 7.0 or higher.
@@ -64,3 +72,5 @@ You can have a look at the [CHANGELOG](CHANGELOG.md) for constant updates & deta
 ## License
 
 Collision is an open-sourced software licensed under the [MIT license](LICENSE.md).
+
+Logo by [Caneco](https://twitter.com/caneco).

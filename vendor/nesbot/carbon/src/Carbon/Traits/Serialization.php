@@ -10,7 +10,9 @@
  */
 namespace Carbon\Traits;
 
-use InvalidArgumentException;
+use Carbon\Exceptions\InvalidFormatException;
+use ReturnTypeWillChange;
+use Throwable;
 
 /**
  * Trait Serialization.
@@ -26,11 +28,13 @@ use InvalidArgumentException;
  *
  * Depends on the following methods:
  *
- * @method string|static locale(string $locale = null)
+ * @method string|static locale(string $locale = null, string ...$fallbackLocales)
  * @method string        toJSON()
  */
 trait Serialization
 {
+    use ObjectInitialisation;
+
     /**
      * The custom Carbon JSON serializer.
      *
@@ -39,11 +43,26 @@ trait Serialization
     protected static $serializer;
 
     /**
+     * List of key to use for dump/serialization.
+     *
+     * @var string[]
+     */
+    protected $dumpProperties = ['date', 'timezone_type', 'timezone'];
+
+    /**
      * Locale to dump comes here before serialization.
      *
      * @var string|null
      */
-    protected $dumpLocale = null;
+    protected $dumpLocale;
+
+    /**
+     * Embed date properties to dump in a dedicated variables so it won't overlap native
+     * DateTime ones.
+     *
+     * @var array|null
+     */
+    protected $dumpDateProperties;
 
     /**
      * Return a serialized string of the instance.
@@ -60,16 +79,16 @@ trait Serialization
      *
      * @param string $value
      *
-     * @throws \InvalidArgumentException
+     * @throws InvalidFormatException
      *
      * @return static
      */
     public static function fromSerialized($value)
     {
-        $instance = @unserialize("$value");
+        $instance = @unserialize((string) $value);
 
         if (!$instance instanceof static) {
-            throw new InvalidArgumentException('Invalid serialized value.');
+            throw new InvalidFormatException("Invalid serialized value: $value");
         }
 
         return $instance;
@@ -82,9 +101,10 @@ trait Serialization
      *
      * @return static
      */
+    #[ReturnTypeWillChange]
     public static function __set_state($dump)
     {
-        if (is_string($dump)) {
+        if (\is_string($dump)) {
             return static::parse($dump);
         }
 
@@ -103,7 +123,8 @@ trait Serialization
      */
     public function __sleep()
     {
-        $properties = ['date', 'timezone_type', 'timezone'];
+        $properties = $this->getSleepProperties();
+
         if ($this->localTranslator ?? null) {
             $properties[] = 'dumpLocale';
             $this->dumpLocale = $this->locale ?? null;
@@ -115,15 +136,29 @@ trait Serialization
     /**
      * Set locale if specified on unserialize() called.
      */
+    #[ReturnTypeWillChange]
     public function __wakeup()
     {
         if (get_parent_class() && method_exists(parent::class, '__wakeup')) {
-            parent::__wakeup();
+            // @codeCoverageIgnoreStart
+            try {
+                parent::__wakeup();
+            } catch (Throwable $exception) {
+                // FatalError occurs when calling msgpack_unpack() in PHP 7.4 or later.
+                ['date' => $date, 'timezone' => $timezone] = $this->dumpDateProperties;
+                parent::__construct($date, unserialize($timezone));
+            }
+            // @codeCoverageIgnoreEnd
         }
+
+        $this->constructedObjectId = spl_object_hash($this);
+
         if (isset($this->dumpLocale)) {
             $this->locale($this->dumpLocale);
             $this->dumpLocale = null;
         }
+
+        $this->cleanupDumpProperties();
     }
 
     /**
@@ -131,13 +166,15 @@ trait Serialization
      *
      * @return array|string
      */
+    #[ReturnTypeWillChange]
     public function jsonSerialize()
     {
         $serializer = $this->localSerializer ?? static::$serializer;
+
         if ($serializer) {
-            return is_string($serializer)
+            return \is_string($serializer)
                 ? $this->rawFormat($serializer)
-                : call_user_func($serializer, $this);
+                : $serializer($this);
         }
 
         return $this->toJSON();
@@ -156,5 +193,45 @@ trait Serialization
     public static function serializeUsing($callback)
     {
         static::$serializer = $callback;
+    }
+
+    /**
+     * Cleanup properties attached to the public scope of DateTime when a dump of the date is requested.
+     * foreach ($date as $_) {}
+     * serializer($date)
+     * var_export($date)
+     * get_object_vars($date)
+     */
+    public function cleanupDumpProperties()
+    {
+        foreach ($this->dumpProperties as $property) {
+            if (isset($this->$property)) {
+                unset($this->$property);
+            }
+        }
+
+        return $this;
+    }
+
+    private function getSleepProperties(): array
+    {
+        $properties = $this->dumpProperties;
+
+        // @codeCoverageIgnoreStart
+        if (!\extension_loaded('msgpack')) {
+            return $properties;
+        }
+
+        if (isset($this->constructedObjectId)) {
+            $this->dumpDateProperties = [
+                'date' => $this->format('Y-m-d H:i:s.u'),
+                'timezone' => serialize($this->timezone ?? null),
+            ];
+
+            $properties[] = 'dumpDateProperties';
+        }
+
+        return $properties;
+        // @codeCoverageIgnoreEnd
     }
 }

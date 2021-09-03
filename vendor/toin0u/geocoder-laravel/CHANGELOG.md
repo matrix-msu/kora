@@ -2,6 +2,23 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [4.3.4] - 2020-06-21
+### Fixed
+- non-caching declaration to only apply to current query.
+- caching to take provider into account.
+
+### Changed
+- `getProvider()` method to no longer be deprecated, and instead return the
+    currently set provider, or if none set, the first configured provider.
+
+## [4.3.3] - 2020-06-20
+### Added
+- functionality to not cache requests by using `doNotCache()`.
+
+## [4.3.0] - 2020-02-29
+### Added
+- Laravel 7 compatibility.
+
 ## [4.1.2] - 23 May 2019
 ### Fixed
 - initialization of geocoder adapter.

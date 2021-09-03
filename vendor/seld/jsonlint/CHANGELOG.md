@@ -1,3 +1,17 @@
+### 1.8.1 (2020-08-13)
+
+  * Added type annotations
+
+### 1.8.0 (2020-04-30)
+
+  * Improved lexer performance
+  * Added (tentative) support for PHP 8
+  * Fixed wording of error reporting for invalid strings when the error happened after the 20th character
+
+### 1.7.2 (2019-10-24)
+
+  * Fixed issue decoding some unicode escaped characters (for " and ')
+
 ### 1.7.1 (2018-01-24)
 
   * Fixed PHP 5.3 compatibility in bin/jsonlint

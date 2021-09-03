@@ -22,7 +22,7 @@ class Address extends \Faker\Provider\Address
 
     /** @link http://www.univ-ab.pt/PINTAC/carta_normas.htm address example in letters **/
     protected static $addressFormats = array(
-        "{{streetAddress}} {{postcode}} {{city}}",
+        "{{streetAddress}}\n{{postcode}} {{city}}",
     );
 
     /** @link http://www.mapadeportugal.net/indicecidades.asp **/

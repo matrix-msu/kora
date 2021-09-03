@@ -5,11 +5,47 @@ namespace Laravel\Socialite\Two;
 class GitlabProvider extends AbstractProvider implements ProviderInterface
 {
     /**
+     * The scopes being requested.
+     *
+     * @var array
+     */
+    protected $scopes = ['read_user'];
+
+    /**
+     * The separating character for the requested scopes.
+     *
+     * @var string
+     */
+    protected $scopeSeparator = ' ';
+
+    /**
+     * The Gitlab instance host.
+     *
+     * @var string
+     */
+    protected $host = 'https://gitlab.com';
+
+    /**
+     * Set the Gitlab instance host.
+     *
+     * @param  string|null  $host
+     * @return $this
+     */
+    public function setHost($host)
+    {
+        if (! empty($host)) {
+            $this->host = rtrim($host, '/');
+        }
+
+        return $this;
+    }
+
+    /**
      * {@inheritdoc}
      */
     protected function getAuthUrl($state)
     {
-        return $this->buildAuthUrlFromBase(config('services.gitlab.client').'/oauth/authorize', $state);
+        return $this->buildAuthUrlFromBase($this->host.'/oauth/authorize', $state);
     }
 
     /**
@@ -17,7 +53,7 @@ class GitlabProvider extends AbstractProvider implements ProviderInterface
      */
     protected function getTokenUrl()
     {
-        return config('services.gitlab.client').'/oauth/token';
+        return $this->host.'/oauth/token';
     }
 
     /**
@@ -25,7 +61,7 @@ class GitlabProvider extends AbstractProvider implements ProviderInterface
      */
     protected function getUserByToken($token)
     {
-        $userUrl = config('services.gitlab.client').'/api/v3/user?access_token='.$token;
+        $userUrl = $this->host.'/api/v3/user?access_token='.$token;
 
         $response = $this->getHttpClient()->get($userUrl);
 
@@ -46,13 +82,5 @@ class GitlabProvider extends AbstractProvider implements ProviderInterface
             'email' => $user['email'],
             'avatar' => $user['avatar_url'],
         ]);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    protected function getTokenFields($code)
-    {
-        return parent::getTokenFields($code) + ['grant_type' => 'authorization_code'];
     }
 }

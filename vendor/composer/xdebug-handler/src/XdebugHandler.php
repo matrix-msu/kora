@@ -104,7 +104,7 @@ class XdebugHandler
     }
 
     /**
-     * Persist the settings to keep xdebug out of sub-processes
+     * Persist the settings to keep Xdebug out of sub-processes
      *
      * @return $this
      */
@@ -115,7 +115,7 @@ class XdebugHandler
     }
 
     /**
-     * Checks if xdebug is loaded and the process needs to be restarted
+     * Checks if Xdebug is loaded and the process needs to be restarted
      *
      * This behaviour can be disabled by setting the MYAPP_ALLOW_XDEBUG
      * environment variable to 1. This variable is used internally so that
@@ -132,23 +132,24 @@ class XdebugHandler
 
             if ($this->prepareRestart()) {
                 $command = $this->getCommand();
-                $this->notify(Status::RESTARTING, $command);
                 $this->restart($command);
             }
             return;
         }
 
         if (self::RESTART_ID === $envArgs[0] && count($envArgs) === 5) {
-            // Restarting, so unset environment variable and use saved values
+            // Restarted, so unset environment variable and use saved values
             $this->notify(Status::RESTARTED);
 
             Process::setEnv($this->envAllowXdebug);
             self::$inRestart = true;
 
             if (!$this->loaded) {
-                // Skipped version is only set if xdebug is not loaded
+                // Skipped version is only set if Xdebug is not loaded
                 self::$skipped = $envArgs[1];
             }
+
+            $this->tryEnableSignals();
 
             // Put restart settings in the environment
             $this->setEnvRestartSettings($envArgs);
@@ -204,7 +205,7 @@ class XdebugHandler
 
         if (count($envArgs) !== 6
             || (!self::$inRestart && php_ini_loaded_file() !== $envArgs[0])) {
-            return;
+            return null;
         }
 
         return array(
@@ -218,7 +219,7 @@ class XdebugHandler
     }
 
     /**
-     * Returns the xdebug version that triggered a successful restart
+     * Returns the Xdebug version that triggered a successful restart
      *
      * @return string
      */
@@ -228,9 +229,9 @@ class XdebugHandler
     }
 
     /**
-     * Returns true if xdebug is loaded, or as directed by an extending class
+     * Returns true if Xdebug is loaded, or as directed by an extending class
      *
-     * @param bool $isLoaded Whether xdebug is loaded
+     * @param bool $isLoaded Whether Xdebug is loaded
      *
      * @return bool
      */
@@ -256,8 +257,29 @@ class XdebugHandler
      */
     private function doRestart($command)
     {
-        passthru($command, $exitCode);
-        $this->notify(Status::INFO, 'Restarted process exited '.$exitCode);
+        $this->tryEnableSignals();
+        $this->notify(Status::RESTARTING, $command);
+
+        // Prefer proc_open to keep fds intact, because passthru pipes to stdout
+        if (function_exists('proc_open')) {
+            if (defined('PHP_WINDOWS_VERSION_BUILD') && PHP_VERSION_ID < 80000) {
+                $command = '"'.$command.'"';
+            }
+            $process = proc_open($command, array(), $pipes);
+            if (is_resource($process)) {
+                $exitCode = proc_close($process);
+            }
+        } else {
+            passthru($command, $exitCode);
+        }
+
+        if (!isset($exitCode)) {
+            // Unlikely that the default shell cannot be invoked
+            $this->notify(Status::ERROR, 'Unable to restart process');
+            $exitCode = -1;
+        } else {
+            $this->notify(Status::INFO, 'Restarted process exited '.$exitCode);
+        }
 
         if ($this->debug === '2') {
             $this->notify(Status::INFO, 'Temp ini saved: '.$this->tmpIni);
@@ -333,7 +355,7 @@ class XdebugHandler
 
         foreach ($iniFiles as $file) {
             // Check for inaccessible ini files
-            if (!$data = @file_get_contents($file)) {
+            if (($data = @file_get_contents($file)) === false) {
                 $error = 'Unable to read ini: '.$file;
                 return false;
             }
@@ -490,7 +512,7 @@ class XdebugHandler
     /**
      * Adds restart settings to the environment
      *
-     * @param string $envArgs
+     * @param string[] $envArgs
      */
     private function setEnvRestartSettings($envArgs)
     {
@@ -542,15 +564,16 @@ class XdebugHandler
      * Returns true if there are no known configuration issues
      *
      * @param string $info Set by method
+     * @return bool
      */
     private function checkConfiguration(&$info)
     {
-        if (false !== strpos(ini_get('disable_functions'), 'passthru')) {
-            $info = 'passthru function is disabled';
+        if (!function_exists('proc_open') && !function_exists('passthru')) {
+            $info = 'execution functions have been disabled (proc_open or passthru required)';
             return false;
         }
 
-        if (extension_loaded('uopz')) {
+        if (extension_loaded('uopz') && !ini_get('uopz.disable')) {
             // uopz works at opcode level and disables exit calls
             if (function_exists('uopz_allow_exit')) {
                 @uopz_allow_exit(true);
@@ -561,5 +584,37 @@ class XdebugHandler
         }
 
         return true;
+    }
+
+    /**
+     * Enables async signals and control interrupts in the restarted process
+     *
+     * Available on Unix PHP 7.1+ with the pcntl extension and Windows PHP 7.4+.
+     */
+    private function tryEnableSignals()
+    {
+        if (function_exists('pcntl_async_signals') && function_exists('pcntl_signal')) {
+            pcntl_async_signals(true);
+            $message = 'Async signals enabled';
+
+            if (!self::$inRestart) {
+                // Restarting, so ignore SIGINT in parent
+                pcntl_signal(SIGINT, SIG_IGN);
+                $message .= ' (SIGINT = SIG_IGN)';
+            } elseif (is_int(pcntl_signal_get_handler(SIGINT))) {
+                // Restarted, no handler set so force default action
+                pcntl_signal(SIGINT, SIG_DFL);
+                $message .= ' (SIGINT = SIG_DFL)';
+            }
+            $this->notify(Status::INFO, $message);
+        }
+
+        if (!self::$inRestart && function_exists('sapi_windows_set_ctrl_handler')) {
+            // Restarting, so set a handler to ignore CTRL events in the parent.
+            // This ensures that CTRL+C events will be available in the child
+            // process without having to enable them there, which is unreliable.
+            sapi_windows_set_ctrl_handler(function ($evt) {});
+            $this->notify(Status::INFO, 'CTRL signals suppressed');
+        }
     }
 }

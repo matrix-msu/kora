@@ -11,6 +11,7 @@
 namespace Carbon\Traits;
 
 use Carbon\CarbonInterface;
+use ReturnTypeWillChange;
 
 /**
  * Trait Modifiers.
@@ -82,7 +83,7 @@ trait Modifiers
         }
 
         return $this->change(
-            'next '.(is_string($modifier) ? $modifier : static::$days[$modifier])
+            'next '.(\is_string($modifier) ? $modifier : static::$days[$modifier])
         );
     }
 
@@ -96,7 +97,7 @@ trait Modifiers
      */
     private function nextOrPreviousDay($weekday = true, $forward = true)
     {
-        /** @var CarbonInterface $step */
+        /** @var CarbonInterface $date */
         $date = $this;
         $step = $forward ? 1 : -1;
 
@@ -164,7 +165,7 @@ trait Modifiers
         }
 
         return $this->change(
-            'last '.(is_string($modifier) ? $modifier : static::$days[$modifier])
+            'last '.(\is_string($modifier) ? $modifier : static::$days[$modifier])
         );
     }
 
@@ -223,11 +224,11 @@ trait Modifiers
      */
     public function nthOfMonth($nth, $dayOfWeek)
     {
-        $date = $this->copy()->firstOfMonth();
+        $date = $this->avoidMutation()->firstOfMonth();
         $check = $date->rawFormat('Y-m');
         $date = $date->modify('+'.$nth.' '.static::$days[$dayOfWeek]);
 
-        return $date->rawFormat('Y-m') === $check ? $this->modify("$date") : false;
+        return $date->rawFormat('Y-m') === $check ? $this->modify((string) $date) : false;
     }
 
     /**
@@ -273,12 +274,12 @@ trait Modifiers
      */
     public function nthOfQuarter($nth, $dayOfWeek)
     {
-        $date = $this->copy()->day(1)->month($this->quarter * static::MONTHS_PER_QUARTER);
+        $date = $this->avoidMutation()->day(1)->month($this->quarter * static::MONTHS_PER_QUARTER);
         $lastMonth = $date->month;
         $year = $date->year;
         $date = $date->firstOfQuarter()->modify('+'.$nth.' '.static::$days[$dayOfWeek]);
 
-        return ($lastMonth < $date->month || $year !== $date->year) ? false : $this->modify("$date");
+        return ($lastMonth < $date->month || $year !== $date->year) ? false : $this->modify((string) $date);
     }
 
     /**
@@ -324,9 +325,9 @@ trait Modifiers
      */
     public function nthOfYear($nth, $dayOfWeek)
     {
-        $date = $this->copy()->firstOfYear()->modify('+'.$nth.' '.static::$days[$dayOfWeek]);
+        $date = $this->avoidMutation()->firstOfYear()->modify('+'.$nth.' '.static::$days[$dayOfWeek]);
 
-        return $this->year === $date->year ? $this->modify("$date") : false;
+        return $this->year === $date->year ? $this->modify((string) $date) : false;
     }
 
     /**
@@ -429,6 +430,7 @@ trait Modifiers
      *
      * @see https://php.net/manual/en/datetime.modify.php
      */
+    #[ReturnTypeWillChange]
     public function modify($modify)
     {
         return parent::modify((string) $modify);
@@ -452,11 +454,16 @@ trait Modifiers
     {
         return $this->modify(preg_replace_callback('/^(next|previous|last)\s+(\d{1,2}(h|am|pm|:\d{1,2}(:\d{1,2})?))$/i', function ($match) {
             $match[2] = str_replace('h', ':00', $match[2]);
-            $test = $this->copy()->modify($match[2]);
+            $test = $this->avoidMutation()->modify($match[2]);
             $method = $match[1] === 'next' ? 'lt' : 'gt';
             $match[1] = $test->$method($this) ? $match[1].' day' : 'today';
 
             return $match[1].' '.$match[2];
-        }, trim($modifier)));
+        }, strtr(trim($modifier), [
+            ' at ' => ' ',
+            'just now' => 'now',
+            'after tomorrow' => 'tomorrow +1 day',
+            'before yesterday' => 'yesterday -1 day',
+        ])));
     }
 }

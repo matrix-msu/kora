@@ -3,7 +3,6 @@
 namespace Laravel\Socialite\Two;
 
 use Illuminate\Support\Arr;
-use GuzzleHttp\ClientInterface;
 
 class FacebookProvider extends AbstractProvider implements ProviderInterface
 {
@@ -19,7 +18,7 @@ class FacebookProvider extends AbstractProvider implements ProviderInterface
      *
      * @var string
      */
-    protected $version = 'v3.0';
+    protected $version = 'v3.3';
 
     /**
      * The user fields being requested.
@@ -50,6 +49,13 @@ class FacebookProvider extends AbstractProvider implements ProviderInterface
     protected $reRequest = false;
 
     /**
+     * The access token that was last used to retrieve a user.
+     *
+     * @var string|null
+     */
+    protected $lastToken;
+
+    /**
      * {@inheritdoc}
      */
     protected function getAuthUrl($state)
@@ -70,10 +76,8 @@ class FacebookProvider extends AbstractProvider implements ProviderInterface
      */
     public function getAccessTokenResponse($code)
     {
-        $postKey = (version_compare(ClientInterface::VERSION, '6') === 1) ? 'form_params' : 'body';
-
         $response = $this->getHttpClient()->post($this->getTokenUrl(), [
-            $postKey => $this->getTokenFields($code),
+            'form_params' => $this->getTokenFields($code),
         ]);
 
         $data = json_decode($response->getBody(), true);
@@ -86,6 +90,8 @@ class FacebookProvider extends AbstractProvider implements ProviderInterface
      */
     protected function getUserByToken($token)
     {
+        $this->lastToken = $token;
+
         $meUrl = $this->graphUrl.'/'.$this->version.'/me?access_token='.$token.'&fields='.implode(',', $this->fields);
 
         if (! empty($this->clientSecret)) {
@@ -172,6 +178,29 @@ class FacebookProvider extends AbstractProvider implements ProviderInterface
     public function reRequest()
     {
         $this->reRequest = true;
+
+        return $this;
+    }
+
+    /**
+     * Get the last access token used.
+     *
+     * @return string|null
+     */
+    public function lastToken()
+    {
+        return $this->lastToken;
+    }
+
+    /**
+     * Specify which graph version should be used.
+     *
+     * @param  string  $version
+     * @return $this
+     */
+    public function usingGraphVersion(string $version)
+    {
+        $this->version = $version;
 
         return $this;
     }

@@ -5,13 +5,13 @@ namespace Faker\Provider\uk_UA;
 class Person extends \Faker\Provider\Person
 {
     protected static $maleNameFormats = array(
-        '{{firstNameMale}} {{middleNameMale}} {{lastName}}',
-        '{{lastName}} {{firstNameMale}} {{middleNameMale}}',
+        '{{firstNameMale}} {{middleName}} {{lastName}}',
+        '{{lastName}} {{firstNameMale}} {{middleName}}',
     );
 
     protected static $femaleNameFormats = array(
-        '{{lastName}} {{firstNameFemale}} {{middleNameFemale}}',
-        '{{firstNameFemale}} {{middleNameFemale}} {{lastName}}',
+        '{{lastName}} {{firstNameFemale}} {{middleName}}',
+        '{{firstNameFemale}} {{middleName}} {{lastName}}',
     );
 
     protected static $firstNameMale = array(
@@ -29,18 +29,11 @@ class Person extends \Faker\Provider\Person
         'Юлія', 'Ярослава'
     );
 
-    protected static $middleNameMale = array(
+    protected static $middleName = array(
         'Олександрович', 'Олексійович', 'Андрійович', 'Євгенович', 'Сергійович', 'Іванович',
         'Федорович', 'Тарасович', 'Васильович', 'Романович', 'Петрович', 'Миколайович',
         'Борисович', 'Йосипович', 'Михайлович', 'Валентинович', 'Янович', 'Анатолійович',
         'Євгенійович', 'Володимирович'
-    );
-
-    protected static $middleNameFemale = array(
-        'Олександрівна', 'Олексіївна', 'Андріївна', 'Євгенівна', 'Сергіївна', 'Іванівна',
-        'Федорівна', 'Тарасівна', 'Василівна', 'Романівна', 'Петрівна', 'Миколаївна',
-        'Борисівна', 'Йосипівна', 'Михайлівна', 'Валентинівна', 'Янівна', 'Анатоліївна',
-        'Євгеніївна', 'Володимирівна'
     );
 
     protected static $lastName = array(
@@ -52,48 +45,13 @@ class Person extends \Faker\Provider\Person
     );
 
     /**
-     * Return male middle name
-     *
+     * Return middle name
      * @example 'Іванович'
      * @access public
      * @return string Middle name
      */
-    public function middleNameMale()
+    public function middleName()
     {
-        return static::randomElement(static::$middleNameMale);
-    }
-
-    /**
-     * Return female middle name
-     *
-     * @example 'Івановна'
-     * @access public
-     * @return string Middle name
-     */
-    public function middleNameFemale()
-    {
-        return static::randomElement(static::$middleNameFemale);
-    }
-
-    /**
-     * Return middle name for the specified gender.
-     *
-     * @access public
-     * @param string|null $gender A gender the middle name should be generated
-     *     for. If the argument is skipped a random gender will be used.
-     * @return string Middle name
-     */
-    public function middleName($gender = null)
-    {
-        if ($gender === static::GENDER_MALE) {
-            return $this->middleNameMale();
-        } elseif ($gender === static::GENDER_FEMALE) {
-            return $this->middleNameFemale();
-        }
-
-        return $this->middleName(static::randomElement(array(
-            static::GENDER_MALE,
-            static::GENDER_FEMALE,
-        )));
+        return static::randomElement(static::$middleName);
     }
 }

@@ -43,7 +43,7 @@ class PhoneNumber extends \Faker\Provider\PhoneNumber
     /**
      * @link http://en.wikipedia.org/wiki/Telephone_numbers_in_Romania#Last_years
      */
-    public function phoneNumber()
+    public static function phoneNumber()
     {
         $type = static::randomElement(array_keys(static::$normalFormats));
         $number = static::numerify(static::randomElement(static::$normalFormats[$type]));

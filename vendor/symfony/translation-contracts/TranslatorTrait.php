@@ -25,25 +25,27 @@ trait TranslatorTrait
     /**
      * {@inheritdoc}
      */
-    public function setLocale($locale)
+    public function setLocale(string $locale)
     {
-        $this->locale = (string) $locale;
+        $this->locale = $locale;
     }
 
     /**
      * {@inheritdoc}
+     *
+     * @return string
      */
     public function getLocale()
     {
-        return $this->locale ?: \Locale::getDefault();
+        return $this->locale ?: (class_exists(\Locale::class) ? \Locale::getDefault() : 'en');
     }
 
     /**
      * {@inheritdoc}
      */
-    public function trans($id, array $parameters = [], $domain = null, $locale = null)
+    public function trans(?string $id, array $parameters = [], string $domain = null, string $locale = null): string
     {
-        if ('' === $id = (string) $id) {
+        if (null === $id || '' === $id) {
             return '';
         }
 
@@ -52,7 +54,7 @@ trait TranslatorTrait
         }
 
         $number = (float) $parameters['%count%'];
-        $locale = (string) $locale ?: $this->getLocale();
+        $locale = $locale ?: $this->getLocale();
 
         $parts = [];
         if (preg_match('/^\|++$/', $id)) {
@@ -92,8 +94,8 @@ EOF;
                         }
                     }
                 } else {
-                    $leftNumber = '-Inf' === $matches['left'] ? -INF : (float) $matches['left'];
-                    $rightNumber = is_numeric($matches['right']) ? (float) $matches['right'] : INF;
+                    $leftNumber = '-Inf' === $matches['left'] ? -\INF : (float) $matches['left'];
+                    $rightNumber = is_numeric($matches['right']) ? (float) $matches['right'] : \INF;
 
                     if (('[' === $matches['left_delimiter'] ? $number >= $leftNumber : $number > $leftNumber)
                         && (']' === $matches['right_delimiter'] ? $number <= $rightNumber : $number < $rightNumber)
@@ -136,8 +138,10 @@ EOF;
      * which is subject to the new BSD license (http://framework.zend.com/license/new-bsd).
      * Copyright (c) 2005-2010 Zend Technologies USA Inc. (http://www.zend.com)
      */
-    private function getPluralizationRule(int $number, string $locale): int
+    private function getPluralizationRule(float $number, string $locale): int
     {
+        $number = abs($number);
+
         switch ('pt_BR' !== $locale && \strlen($locale) > 3 ? substr($locale, 0, strrpos($locale, '_')) : $locale) {
             case 'af':
             case 'bn':
@@ -205,7 +209,7 @@ EOF;
             case 'pt_BR':
             case 'ti':
             case 'wa':
-                return ((0 == $number) || (1 == $number)) ? 0 : 1;
+                return ($number < 2) ? 0 : 1;
 
             case 'be':
             case 'bs':

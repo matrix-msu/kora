@@ -54,7 +54,7 @@ file:
 ### VCS Versioning
 
 Composer uses your VCS's branch and tag features to resolve the version
-constraints you specify in your `require` field to specific sets of files.
+constraints you specify in your [`require`](04-schema.md#require) field to specific sets of files.
 When determining valid available versions, Composer looks at all of your tags
 and branches and translates their names into an internal list of options that
 it then matches against the version constraint you provided.
@@ -142,9 +142,9 @@ Packagist is available automatically through Composer. Since
 can depend on it without having to specify any additional repositories.
 
 If we wanted to share `hello-world` with the world, we would publish it on
-Packagist as well. Doing so is really easy.
+Packagist as well.
 
-You simply visit [Packagist](https://packagist.org) and hit the "Submit"
+You visit [Packagist](https://packagist.org) and hit the "Submit"
 button. This will prompt you to sign up if you haven't already, and then
 allows you to submit the URL to your VCS repository, at which point Packagist
 will start crawling it. Once it is done, your package will be available to

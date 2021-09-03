@@ -13,9 +13,13 @@
  * Authors:
  * - Quentí
  */
-\Symfony\Component\Translation\PluralizationRules::set(function ($number) {
-    return $number == 1 ? 0 : 1;
-}, 'oc');
+// @codeCoverageIgnoreStart
+if (class_exists('Symfony\\Component\\Translation\\PluralizationRules')) {
+    \Symfony\Component\Translation\PluralizationRules::set(function ($number) {
+        return $number == 1 ? 0 : 1;
+    }, 'oc');
+}
+// @codeCoverageIgnoreEnd
 
 return [
     'year' => ':count an|:count ans',
@@ -44,8 +48,12 @@ return [
     'after' => ':time aprèp',
     'before' => ':time abans',
     'diff_now' => 'ara meteis',
+    'diff_today' => 'Uèi',
+    'diff_today_regexp' => 'Uèi(?:\\s+a)?',
     'diff_yesterday' => 'ièr',
+    'diff_yesterday_regexp' => 'Ièr(?:\\s+a)?',
     'diff_tomorrow' => 'deman',
+    'diff_tomorrow_regexp' => 'Deman(?:\\s+a)?',
     'diff_before_yesterday' => 'ièr delà',
     'diff_after_tomorrow' => 'deman passat',
     'period_recurrences' => ':count còp|:count còps',
@@ -74,18 +82,15 @@ return [
     'weekdays' => ['dimenge', 'diluns', 'dimars', 'dimècres', 'dijòus', 'divendres', 'dissabte'],
     'weekdays_short' => ['dg', 'dl', 'dm', 'dc', 'dj', 'dv', 'ds'],
     'weekdays_min' => ['dg', 'dl', 'dm', 'dc', 'dj', 'dv', 'ds'],
-    'ordinal' => function ($number, $period) {
-        return $number.(
-            ($period === 'w' || $period === 'W') ? 'a' : (
-                ($number === 1) ? 'r' : (
-                    ($number === 2) ? 'n' : (
-                        ($number === 3) ? 'r' : (
-                            ($number === 4) ? 't' : 'è'
-                        )
-                    )
-                )
-            )
-        );
+    'ordinal' => function ($number, string $period = '') {
+        $ordinal = [1 => 'èr', 2 => 'nd'][(int) $number] ?? 'en';
+
+        // feminine for year, week, hour, minute, second
+        if (preg_match('/^[yYwWhHgGis]$/', $period)) {
+            $ordinal .= 'a';
+        }
+
+        return $number.$ordinal;
     },
     'first_day_of_week' => 1,
     'day_of_first_week_of_year' => 4,

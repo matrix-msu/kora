@@ -4,9 +4,8 @@ namespace Faker\Test\Provider\ro_RO;
 
 use Faker\Generator;
 use Faker\Provider\ro_RO\PhoneNumber;
-use PHPUnit\Framework\TestCase;
 
-class PhoneNumberTest extends TestCase
+class PhoneNumberTest extends \PHPUnit_Framework_TestCase
 {
     public function setUp()
     {
@@ -22,7 +21,7 @@ class PhoneNumberTest extends TestCase
 
     public function testTollFreePhoneNumberReturnsTollFreePhoneNumber()
     {
-        $this->assertRegExp('/^08(?:0[01267]|70)\d{6}$/', $this->faker->tollFreePhoneNumber());
+        $this->assertRegExp('/^08(?:0[1267]|70)\d{6}$/', $this->faker->tollFreePhoneNumber());
     }
 
     public function testPremiumRatePhoneNumberReturnsPremiumRatePhoneNumber()

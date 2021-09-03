@@ -102,6 +102,8 @@ class PusherBroadcaster extends Broadcaster
      * @param  string  $event
      * @param  array  $payload
      * @return void
+     *
+     * @throws \Illuminate\Broadcasting\BroadcastException
      */
     public function broadcast(array $channels, $event, array $payload = [])
     {
@@ -117,7 +119,9 @@ class PusherBroadcaster extends Broadcaster
         }
 
         throw new BroadcastException(
-            is_bool($response) ? 'Failed to connect to Pusher.' : $response['body']
+            ! empty($response['body'])
+                ? sprintf('Pusher error: %s.', $response['body'])
+                : 'Failed to connect to Pusher.'
         );
     }
 

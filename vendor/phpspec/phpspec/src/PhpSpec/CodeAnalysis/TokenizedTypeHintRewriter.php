@@ -42,14 +42,16 @@ final class TokenizedTypeHintRewriter implements TypeHintRewriter
      */
     private $namespaceResolver;
 
-    /**
-     * @param TypeHintIndex $typeHintIndex
-     * @param NamespaceResolver $namespaceResolver
-     */
+    
     public function __construct(TypeHintIndex $typeHintIndex, NamespaceResolver $namespaceResolver)
     {
         $this->typeHintIndex = $typeHintIndex;
         $this->namespaceResolver = $namespaceResolver;
+
+        if (\PHP_VERSION_ID >= 80000) {
+            $this->typehintTokens[] = T_NAME_FULLY_QUALIFIED;
+            $this->typehintTokens[] = T_NAME_QUALIFIED;
+        }
     }
 
     public function rewrite(string $classDefinition): string
@@ -130,10 +132,7 @@ final class TokenizedTypeHintRewriter implements TypeHintRewriter
         return $tokens;
     }
 
-    /**
-     * @param array $tokens
-     * @return string
-     */
+    
     private function tokensToString(array $tokens): string
     {
         return join('', array_map(function ($token) {
@@ -144,8 +143,8 @@ final class TokenizedTypeHintRewriter implements TypeHintRewriter
     private function extractTypehints(array &$tokens, int $index, array $token): void
     {
         $typehint = '';
-        for ($i = $index - 1; \in_array($tokens[$i][0], $this->typehintTokens); $i--) {
-            $typehint = $tokens[$i][1] . $typehint;
+        for ($i = $index - 1; !$this->haveNotReachedEndOfTypeHint($tokens[$i]); $i--) {
+            $typehint = (is_array($tokens[$i]) ? $tokens[$i][1] : $tokens[$i]) . $typehint;
 
             if (T_WHITESPACE !== $tokens[$i][0]) {
                 unset($tokens[$i]);
@@ -153,7 +152,20 @@ final class TokenizedTypeHintRewriter implements TypeHintRewriter
         }
 
         if ($typehint = trim($typehint)) {
+
             $class = $this->namespaceResolver->resolve($this->currentClass);
+
+            if (\strpos($typehint, '|') !== false) {
+                $this->typeHintIndex->addInvalid(
+                    $class,
+                    trim($this->currentFunction),
+                    $token[1],
+                    new DisallowedUnionTypehintException("Union type $typehint cannot be used to create a double")
+                );
+
+                return;
+            }
+
             try {
                 $typehintFcqn = $this->namespaceResolver->resolve($typehint);
                 $this->typeHintIndex->add(
@@ -173,10 +185,19 @@ final class TokenizedTypeHintRewriter implements TypeHintRewriter
         }
     }
 
+    private function haveNotReachedEndOfTypeHint($token) : bool
+    {
+        if ($token == '|') {
+            return false;
+        }
+
+        return !\in_array($token[0], $this->typehintTokens);
+    }
+
     /**
      * @param array|string $token
      */
-    private function tokenHasType($token, string $type): bool
+    private function tokenHasType($token, int $type): bool
     {
         return \is_array($token) && $type == $token[0];
     }

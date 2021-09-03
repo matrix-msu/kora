@@ -18,6 +18,7 @@ use Composer\CaBundle\CaBundle;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Process\Process;
 use Seld\PharUtils\Timestamps;
+use Seld\PharUtils\Linter;
 
 /**
  * The Compiler class compiles composer into a phar
@@ -106,6 +107,7 @@ class Compiler
             $this->addFile($phar, $file, false);
         }
         $this->addFile($phar, new \SplFileInfo(__DIR__ . '/../../vendor/symfony/console/Resources/bin/hiddeninput.exe'), false);
+        $this->addFile($phar, new \SplFileInfo(__DIR__ . '/../../vendor/symfony/polyfill-mbstring/Resources/mb_convert_variables.php8'), false);
 
         $finder = new Finder();
         $finder->files()
@@ -162,6 +164,8 @@ class Compiler
         $util = new Timestamps($pharFile);
         $util->updateTimestamps($this->versionDate);
         $util->save($pharFile, \Phar::SHA1);
+
+        Linter::lint($pharFile);
     }
 
     /**

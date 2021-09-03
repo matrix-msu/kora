@@ -17,9 +17,16 @@ use Symfony\Component\VarDumper\Cloner\Stub;
  * Casts common resource types to array representation.
  *
  * @author Nicolas Grekas <p@tchwork.com>
+ *
+ * @final since Symfony 4.4
  */
 class ResourceCaster
 {
+    /**
+     * @param \CurlHandle|resource $h
+     *
+     * @return array
+     */
     public static function castCurl($h, array $a, Stub $stub, $isNested)
     {
         return curl_getinfo($h);
@@ -41,7 +48,7 @@ class ResourceCaster
     public static function castStream($stream, array $a, Stub $stub, $isNested)
     {
         $a = stream_get_meta_data($stream) + static::castStreamContext($stream, $a, $stub, $isNested);
-        if (isset($a['uri'])) {
+        if ($a['uri'] ?? false) {
             $a['uri'] = new LinkStub($a['uri']);
         }
 

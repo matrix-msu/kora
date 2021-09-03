@@ -62,11 +62,11 @@ class RepositoryFactory
      * @param  bool                $allowFilesystem
      * @return RepositoryInterface
      */
-    public static function fromString(IOInterface $io, Config $config, $repository, $allowFilesystem = false)
+    public static function fromString(IOInterface $io, Config $config, $repository, $allowFilesystem = false, RepositoryManager $rm = null)
     {
         $repoConfig = static::configFromString($io, $config, $repository, $allowFilesystem);
 
-        return static::createRepo($io, $config, $repoConfig);
+        return static::createRepo($io, $config, $repoConfig, $rm);
     }
 
     /**
@@ -75,9 +75,11 @@ class RepositoryFactory
      * @param  array               $repoConfig
      * @return RepositoryInterface
      */
-    public static function createRepo(IOInterface $io, Config $config, array $repoConfig)
+    public static function createRepo(IOInterface $io, Config $config, array $repoConfig, RepositoryManager $rm = null)
     {
-        $rm = static::manager($io, $config, null, Factory::createRemoteFilesystem($io, $config));
+        if (!$rm) {
+            $rm = static::manager($io, $config, null, Factory::createRemoteFilesystem($io, $config));
+        }
         $repos = static::createRepos($rm, array($repoConfig));
 
         return reset($repos);
@@ -153,10 +155,8 @@ class RepositoryFactory
             if (!isset($repo['type'])) {
                 throw new \UnexpectedValueException('Repository "'.$index.'" ('.json_encode($repo).') must have a type defined');
             }
-            $name = is_int($index) && isset($repo['url']) ? preg_replace('{^https?://}i', '', $repo['url']) : $index;
-            while (isset($repos[$name])) {
-                $name .= '2';
-            }
+
+            $name = self::generateRepositoryName($index, $repo, $repos);
             if ($repo['type'] === 'filesystem') {
                 $repos[$name] = new FilesystemRepository($repo['json']);
             } else {
@@ -165,5 +165,15 @@ class RepositoryFactory
         }
 
         return $repos;
+    }
+
+    public static function generateRepositoryName($index, array $repo, array $existingRepos)
+    {
+        $name = is_int($index) && isset($repo['url']) ? preg_replace('{^https?://}i', '', $repo['url']) : $index;
+        while (isset($existingRepos[$name])) {
+            $name .= '2';
+        }
+
+        return $name;
     }
 }

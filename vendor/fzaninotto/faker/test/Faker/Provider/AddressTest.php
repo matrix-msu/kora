@@ -4,9 +4,8 @@ namespace Faker\Test\Provider;
 
 use Faker\Generator;
 use Faker\Provider\Address;
-use PHPUnit\Framework\TestCase;
 
-class AddressTest extends TestCase
+class AddressTest extends \PHPUnit_Framework_TestCase
 {
     private $faker;
 
@@ -31,17 +30,5 @@ class AddressTest extends TestCase
         $this->assertInternalType('float', $longitude);
         $this->assertGreaterThanOrEqual(-180, $longitude);
         $this->assertLessThanOrEqual(180, $longitude);
-    }
-
-    public function testCoordinate()
-    {
-        $coordinate = $this->faker->localCoordinates();
-        $this->assertInternalType('array', $coordinate);
-        $this->assertInternalType('float', $coordinate['latitude']);
-        $this->assertGreaterThanOrEqual(-90, $coordinate['latitude']);
-        $this->assertLessThanOrEqual(90, $coordinate['latitude']);
-        $this->assertInternalType('float', $coordinate['longitude']);
-        $this->assertGreaterThanOrEqual(-180, $coordinate['longitude']);
-        $this->assertLessThanOrEqual(180, $coordinate['longitude']);
     }
 }

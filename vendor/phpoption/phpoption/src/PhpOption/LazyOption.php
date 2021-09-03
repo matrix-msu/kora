@@ -18,37 +18,39 @@
 
 namespace PhpOption;
 
+/**
+ * @template T
+ *
+ * @extends Option<T>
+ */
 final class LazyOption extends Option
 {
-    /** @var callable */
+    /** @var callable(mixed...):(Option<T>) */
     private $callback;
 
-    /** @var array */
+    /** @var array<int, mixed> */
     private $arguments;
 
-    /** @var Option|null */
+    /** @var Option<T>|null */
     private $option;
 
     /**
-     * Helper Constructor.
+     * @template S
+     * @param callable(mixed...):(Option<S>) $callback
+     * @param array<int, mixed>              $arguments
      *
-     * @param callable $callback
-     * @param array $arguments
-     *
-     * @return LazyOption
+     * @return LazyOption<S>
      */
-    public static function create($callback, array $arguments = array())
+    public static function create($callback, array $arguments = []): self
     {
         return new self($callback, $arguments);
     }
 
     /**
-     * Constructor.
-     *
-     * @param callable $callback
-     * @param array $arguments
+     * @param callable(mixed...):(Option<T>) $callback
+     * @param array<int, mixed>              $arguments
      */
-    public function __construct($callback, array $arguments = array())
+    public function __construct($callback, array $arguments = [])
     {
         if (!is_callable($callback)) {
             throw new \InvalidArgumentException('Invalid callback given');
@@ -58,12 +60,12 @@ final class LazyOption extends Option
         $this->arguments = $arguments;
     }
 
-    public function isDefined()
+    public function isDefined(): bool
     {
         return $this->option()->isDefined();
     }
 
-    public function isEmpty()
+    public function isEmpty(): bool
     {
         return $this->option()->isEmpty();
     }
@@ -93,12 +95,9 @@ final class LazyOption extends Option
         return $this->option()->orElse($else);
     }
 
-    /**
-     * @deprecated Use forAll() instead.
-     */
     public function ifDefined($callable)
     {
-        $this->option()->ifDefined($callable);
+        $this->option()->forAll($callable);
     }
 
     public function forAll($callable)
@@ -152,15 +151,17 @@ final class LazyOption extends Option
     }
 
     /**
-     * @return Option
+     * @return Option<T>
      */
-    private function option()
+    private function option(): Option
     {
         if (null === $this->option) {
-            $this->option = call_user_func_array($this->callback, $this->arguments);
-            if (!$this->option instanceof Option) {
-                $this->option = null;
-                throw new \RuntimeException('Expected instance of \PhpOption\Option');
+            /** @var mixed */
+            $option = call_user_func_array($this->callback, $this->arguments);
+            if ($option instanceof Option) {
+                $this->option = $option;
+            } else {
+                throw new \RuntimeException(sprintf('Expected instance of %s', Option::class));
             }
         }
 

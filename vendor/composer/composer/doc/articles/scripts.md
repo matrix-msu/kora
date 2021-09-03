@@ -202,7 +202,7 @@ and can be retrieved as an array via `$event->getArguments()` by PHP handlers.
 If you add custom scripts that do not fit one of the predefined event name
 above, you can either run them with run-script or also run them as native
 Composer commands. For example the handler defined below is executable by
-simply running `composer test`:
+running `composer test`:
 
 ```json
 {
@@ -218,7 +218,7 @@ to the `phpunit` script.
 
 > **Note:** Before executing scripts, Composer's bin-dir is temporarily pushed
 > on top of the PATH environment variable so that binaries of dependencies
-> are easily accessible. In this example no matter if the `phpunit` binary is
+> are directly accessible. In this example no matter if the `phpunit` binary is
 > actually in `vendor/bin/phpunit` or `bin/phpunit` it will be found and executed.
 
 Although Composer is not intended to manage long-running processes and other
@@ -341,6 +341,21 @@ JSON array of commands.
 
 You can also call a shell/bash script, which will have the path to
 the PHP executable available in it as a `PHP_BINARY` env var.
+
+## Setting environment variables
+
+To set an environment variable in a cross-platform way, you can use `@putenv`:
+
+```json
+{
+    "scripts": {
+        "install-phpstan": [
+            "@putenv COMPOSER=phpstan-composer.json",
+            "composer install --prefer-dist"
+        ]
+    }
+}
+```
 
 ## Custom descriptions.
 

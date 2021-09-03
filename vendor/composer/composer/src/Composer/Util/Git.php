@@ -20,7 +20,7 @@ use Composer\IO\IOInterface;
  */
 class Git
 {
-    private static $version;
+    private static $version = false;
 
     /** @var IOInterface */
     protected $io;
@@ -54,9 +54,9 @@ class Git
         }
 
         if (!$initialClone) {
-            // capture username/password from URL if there is one
+            // capture username/password from URL if there is one and we have no auth configured yet
             $this->process->execute('git remote -v', $output, $cwd);
-            if (preg_match('{^(?:composer|origin)\s+https?://(.+):(.+)@([^/]+)}im', $output, $match)) {
+            if (preg_match('{^(?:composer|origin)\s+https?://(.+):(.+)@([^/]+)}im', $output, $match) && !$this->io->hasAuthentication($match[3])) {
                 $this->io->setAuthentication($match[3], rawurldecode($match[1]), rawurldecode($match[2]));
             }
         }
@@ -85,7 +85,9 @@ class Git
             }
 
             // failed to checkout, first check git accessibility
-            $this->throwException('Failed to clone ' . $url . ' via ' . implode(', ', $protocols) . ' protocols, aborting.' . "\n\n" . implode("\n", $messages), $url);
+            if (!$this->io->hasAuthentication($match[1]) && !$this->io->isInteractive()) {
+                $this->throwException('Failed to clone ' . $url . ' via ' . implode(', ', $protocols) . ' protocols, aborting.' . "\n\n" . implode("\n", $messages), $url);
+            }
         }
 
         // if we have a private github url and the ssh protocol is disabled then we skip it and directly fallback to https
@@ -95,8 +97,11 @@ class Git
 
         $auth = null;
         if ($bypassSshForGitHub || 0 !== $this->process->execute($command, $ignoredOutput, $cwd)) {
-            // private github repository without git access, try https with auth
-            if (preg_match('{^git@' . self::getGitHubDomainsRegex($this->config) . ':(.+?)\.git$}i', $url, $match)) {
+            $errorMsg = $this->process->getErrorOutput();
+            // private github repository without ssh key access, try https with auth
+            if (preg_match('{^git@' . self::getGitHubDomainsRegex($this->config) . ':(.+?)\.git$}i', $url, $match)
+                || preg_match('{^https?://' . self::getGitHubDomainsRegex($this->config) . '/(.*)}', $url, $match)
+            ) {
                 if (!$this->io->hasAuthentication($match[1])) {
                     $gitHubUtil = new GitHub($this->io, $this->config, $this->process);
                     $message = 'Cloning failed using an ssh key for authentication, enter your GitHub credentials to access private repos';
@@ -113,6 +118,8 @@ class Git
                     if (0 === $this->process->execute($command, $ignoredOutput, $cwd)) {
                         return;
                     }
+
+                    $errorMsg = $this->process->getErrorOutput();
                 }
             } elseif (preg_match('{^https://(bitbucket\.org)/(.*)(\.git)?$}U', $url, $match)) { //bitbucket oauth
                 $bitbucketUtil = new Bitbucket($this->io, $this->config, $this->process);
@@ -145,6 +152,8 @@ class Git
                     if (0 === $this->process->execute($command, $ignoredOutput, $cwd)) {
                         return;
                     }
+
+                    $errorMsg = $this->process->getErrorOutput();
                 } else { // Falling back to ssh
                     $sshUrl = 'git@bitbucket.org:' . $match[2] . '.git';
                     $this->io->writeError('    No bitbucket authentication configured. Falling back to ssh.');
@@ -152,8 +161,17 @@ class Git
                     if (0 === $this->process->execute($command, $ignoredOutput, $cwd)) {
                         return;
                     }
+
+                    $errorMsg = $this->process->getErrorOutput();
                 }
-            } elseif (preg_match('{^(https?)://' . self::getGitLabDomainsRegex($this->config) . '/(.*)}', $url, $match)) {
+            } elseif (
+                preg_match('{^(git)@' . self::getGitLabDomainsRegex($this->config) . ':(.+?\.git)$}i', $url, $match)
+                || preg_match('{^(https?)://' . self::getGitLabDomainsRegex($this->config) . '/(.*)}', $url, $match)
+            ) {
+                if ($match[1] === 'git') {
+                    $match[1] = 'https';
+                }
+
                 if (!$this->io->hasAuthentication($match[2])) {
                     $gitLabUtil = new GitLab($this->io, $this->config, $this->process);
                     $message = 'Cloning failed, enter your GitLab credentials to access private repos';
@@ -165,17 +183,20 @@ class Git
 
                 if ($this->io->hasAuthentication($match[2])) {
                     $auth = $this->io->getAuthentication($match[2]);
-                    if($auth['password'] === 'private-token' || $auth['password'] === 'oauth2') {
+                    if ($auth['password'] === 'private-token' || $auth['password'] === 'oauth2' || $auth['password'] === 'gitlab-ci-token') {
                         $authUrl = $match[1] . '://' . rawurlencode($auth['password']) . ':' . rawurlencode($auth['username']) . '@' . $match[2] . '/' . $match[3]; // swap username and password
                     } else {
                         $authUrl = $match[1] . '://' . rawurlencode($auth['username']) . ':' . rawurlencode($auth['password']) . '@' . $match[2] . '/' . $match[3];
                     }
+
                     $command = call_user_func($commandCallable, $authUrl);
                     if (0 === $this->process->execute($command, $ignoredOutput, $cwd)) {
                         return;
                     }
+
+                    $errorMsg = $this->process->getErrorOutput();
                 }
-            } elseif ($this->isAuthenticationFailure($url, $match)) { // private non-github repo that failed to authenticate
+            } elseif ($this->isAuthenticationFailure($url, $match)) { // private non-github/gitlab/bitbucket repo that failed to authenticate
                 if (strpos($match[2], '@')) {
                     list($authParts, $match[2]) = explode('@', $match[2], 2);
                 }
@@ -193,7 +214,7 @@ class Git
                         }
                     }
 
-                    $this->io->writeError('    Authentication required (<info>' . parse_url($url, PHP_URL_HOST) . '</info>):');
+                    $this->io->writeError('    Authentication required (<info>' . $match[2] . '</info>):');
                     $auth = array(
                         'username' => $this->io->ask('      Username: ', $defaultUsername),
                         'password' => $this->io->askAndHideAnswer('      Password: '),
@@ -212,13 +233,16 @@ class Git
 
                         return;
                     }
+
+                    $errorMsg = $this->process->getErrorOutput();
                 }
             }
 
             if ($initialClone) {
                 $this->filesystem->removeDirectory($origCwd);
             }
-            $this->throwException('Failed to execute ' . $command . "\n\n" . $this->process->getErrorOutput(), $url);
+
+            $this->throwException('Failed to execute ' . $command . "\n\n" . $errorMsg, $url);
         }
     }
 
@@ -228,10 +252,14 @@ class Git
         if (is_dir($dir) && 0 === $this->process->execute('git rev-parse --git-dir', $output, $dir) && trim($output) === '.') {
             try {
                 $commandCallable = function ($url) {
-                    return sprintf('git remote set-url origin %s && git remote update --prune origin', ProcessExecutor::escape($url));
+                    $sanitizedUrl = preg_replace('{://([^@]+?):(.+?)@}', '://', $url);
+
+                    return sprintf('git remote set-url origin -- %s && git remote update --prune origin && git remote set-url origin -- %s', ProcessExecutor::escape($url), ProcessExecutor::escape($sanitizedUrl));
                 };
                 $this->runCommand($commandCallable, $url, $dir);
             } catch (\Exception $e) {
+                $this->io->writeError('<error>Sync mirror failed: ' . $e->getMessage() . '</error>', true, IOInterface::DEBUG);
+
                 return false;
             }
 
@@ -242,7 +270,7 @@ class Git
         $this->filesystem->removeDirectory($dir);
 
         $commandCallable = function ($url) use ($dir) {
-            return sprintf('git clone --mirror %s %s', ProcessExecutor::escape($url), ProcessExecutor::escape($dir));
+            return sprintf('git clone --mirror -- %s %s', ProcessExecutor::escape($url), ProcessExecutor::escape($dir));
         };
 
         $this->runCommand($commandCallable, $url, $dir, true);
@@ -252,15 +280,36 @@ class Git
 
     public function fetchRefOrSyncMirror($url, $dir, $ref)
     {
+        if ($this->checkRefIsInMirror($url, $dir, $ref)) {
+            return true;
+        }
+
+        if ($this->syncMirror($url, $dir)) {
+            return $this->checkRefIsInMirror($url, $dir, $ref);
+        }
+
+        return false;
+    }
+
+    public static function getNoShowSignatureFlag(ProcessExecutor $process)
+    {
+        $gitVersion = self::getVersion($process);
+        if ($gitVersion && version_compare($gitVersion, '2.10.0-rc0', '>=')) {
+            return ' --no-show-signature';
+        }
+
+        return '';
+    }
+
+    private function checkRefIsInMirror($url, $dir, $ref)
+    {
         if (is_dir($dir) && 0 === $this->process->execute('git rev-parse --git-dir', $output, $dir) && trim($output) === '.') {
             $escapedRef = ProcessExecutor::escape($ref.'^{commit}');
-            $exitCode = $this->process->execute(sprintf('git rev-parse --quiet --verify %s', $escapedRef), $output, $dir);
+            $exitCode = $this->process->execute(sprintf('git rev-parse --quiet --verify %s', $escapedRef), $ignoredOutput, $dir);
             if ($exitCode === 0) {
                 return true;
             }
         }
-
-        $this->syncMirror($url, $dir);
 
         return false;
     }
@@ -298,7 +347,7 @@ class Git
         // added in git 1.7.1, prevents prompting the user for username/password
         if (getenv('GIT_ASKPASS') !== 'echo') {
             putenv('GIT_ASKPASS=echo');
-            unset($_SERVER['GIT_ASKPASS']);
+            $_SERVER['GIT_ASKPASS'] = 'echo';
         }
 
         // clean up rogue git env vars in case this is running in a git hook
@@ -314,6 +363,7 @@ class Git
         // Run processes with predictable LANGUAGE
         if (getenv('LANGUAGE') !== 'C') {
             putenv('LANGUAGE=C');
+            $_SERVER['LANGUAGE'] = 'C';
         }
 
         // clean up env for OSX, see https://github.com/composer/composer/issues/2146#issuecomment-35478940
@@ -359,16 +409,18 @@ class Git
      *
      * @return string|null The git version number.
      */
-    public function getVersion()
+    public static function getVersion(ProcessExecutor $process = null)
     {
-        if (isset(self::$version)) {
-            return self::$version;
+        if (false === self::$version) {
+            self::$version = null;
+            if (!$process) {
+                $process = new ProcessExecutor;
+            }
+            if (0 === $process->execute('git --version', $output) && preg_match('/^git version (\d+(?:\.\d+)+)/m', $output, $matches)) {
+                self::$version = $matches[1];
+            }
         }
-        if (0 !== $this->process->execute('git --version', $output)) {
-            return;
-        }
-        if (preg_match('/^git version (\d+(?:\.\d+)+)/m', $output, $matches)) {
-            return self::$version = $matches[1];
-        }
+
+        return self::$version;
     }
 }

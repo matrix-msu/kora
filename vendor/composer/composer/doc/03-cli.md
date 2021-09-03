@@ -3,7 +3,7 @@
 You've already learned how to use the command-line interface to do some
 things. This chapter documents all the available commands.
 
-To get help from the command-line, simply call `composer` or `composer list`
+To get help from the command-line, call `composer` or `composer list`
 to see the complete list of commands, then `--help` combined with any of those
 can give you more information.
 
@@ -39,8 +39,7 @@ The following options are available with every command:
 ## init
 
 In the [Libraries](02-libraries.md) chapter we looked at how to create a
-`composer.json` by hand. There is also an `init` command available that makes
-it a bit easier to do this.
+`composer.json` by hand. There is also an `init` command available to do this.
 
 When you run the command it will interactively ask you to fill in the fields,
 while using some smart defaults.
@@ -157,8 +156,8 @@ php composer.phar update "vendor/*"
 * **--no-progress:** Removes the progress display that can mess with some
   terminals or scripts which don't handle backspace characters.
 * **--no-suggest:** Skips suggested packages in the output.
-* **--with-dependencies:** Add also dependencies of whitelisted packages to the whitelist, except those that are root requirements.
-* **--with-all-dependencies:** Add also all dependencies of whitelisted packages to the whitelist, including those that are root requirements.
+* **--with-dependencies:** Add also dependencies of allowed packages to the allow list, except those that are root requirements.
+* **--with-all-dependencies:** Add also all dependencies of allowed packages to the allow list, including those that are root requirements.
 * **--optimize-autoloader (-o):** Convert PSR-0/4 autoloading to classmap to get a faster
   autoloader. This is recommended especially for production, but can take
   a bit of time to run so it is currently not done by default.
@@ -173,6 +172,8 @@ php composer.phar update "vendor/*"
   versions of requirements, generally used with `--prefer-stable`.
 * **--interactive:** Interactive interface with autocompletion to select the packages to update.
 * **--root-reqs:** Restricts the update to your first degree dependencies.
+
+Specifying one of the words `mirrors`, `lock`, or `nothing` as an argument has the same effect as specifying the option `--lock`, for example `composer update mirrors` is exactly the same as `composer update --lock`.
 
 ## require
 
@@ -190,7 +191,7 @@ If you do not want to choose requirements interactively, you can pass them
 to the command.
 
 ```sh
-php composer.phar require vendor/package:2.* vendor/package2:dev-master
+php composer.phar require "vendor/package:2.*" vendor/package2:dev-master
 ```
 
 If you do not specify a package, composer will prompt you to search for a package, and given results, provide a list of  matches to require.
@@ -295,8 +296,8 @@ php composer.phar global update
 ## search
 
 The search command allows you to search through the current project's package
-repositories. Usually this will be packagist. You simply pass it the
-terms you want to search for.
+repositories. Usually this will be packagist. You pass it the terms you want
+to search for.
 
 ```sh
 php composer.phar search monolog
@@ -420,6 +421,11 @@ This implies `--by-package --by-suggestion`, showing both lists.
 * **--by-suggestion:** Groups output by suggested package.
 * **--no-dev:** Excludes suggestions from `require-dev` packages.
 
+## fund
+
+Discover how to help fund the maintenance of your dependencies. This lists
+all funding links from the installed dependencies.
+
 ## depends (why)
 
 The `depends` command tells you which other packages depend on a certain
@@ -533,7 +539,7 @@ command. It will replace your `composer.phar` with the latest version.
 php composer.phar self-update
 ```
 
-If you would like to instead update to a specific release simply specify it:
+If you would like to instead update to a specific release specify it:
 
 ```sh
 php composer.phar self-update 1.0.0-alpha7
@@ -647,7 +653,7 @@ provide a version as third argument, otherwise the latest version is used.
 If the directory does not currently exist, it will be created during installation.
 
 ```sh
-php composer.phar create-project doctrine/orm path 2.2.*
+php composer.phar create-project doctrine/orm path "2.2.*"
 ```
 
 It is also possible to run the command without params in a directory with an
@@ -665,6 +671,7 @@ By default the command checks for the packages on packagist.org.
   to a `composer` repository, a path to a local `packages.json` file, or a
   JSON string which similar to what the [repositories](04-schema.md#repositories)
   key accepts.
+* **--add-repository:** Add the repository option to the composer.json.
 * **--dev:** Install packages listed in `require-dev`.
 * **--no-dev:** Disables installation of require-dev packages.
 * **--no-scripts:** Disables the execution of the scripts defined in the root
@@ -706,7 +713,7 @@ performance.
 * **--apcu:** Use APCu to cache found/not-found classes.
 * **--no-dev:** Disables autoload-dev rules.
 
-## clear-cache (clearcache)
+## clear-cache / clearcache / cc
 
 Deletes all content from Composer's cache directories.
 
@@ -808,6 +815,10 @@ If set to 1, this env disables the warning about running commands as root/super 
 It also disables automatic clearing of sudo sessions, so you should really only set this
 if you use Composer as super user at all times like in docker containers.
 
+### COMPOSER_ALLOW_XDEBUG
+
+If set to 1, this env allows running Composer when the Xdebug extension is enabled, without restarting PHP without it.
+
 ### COMPOSER_AUTH
 
 The `COMPOSER_AUTH` var allows you to set up authentication as an environment variable.
@@ -832,6 +843,10 @@ By default it points to `$COMPOSER_HOME/cache` on \*nix and macOS, and
 
 By setting this environmental value, you can set a path to a certificate bundle
 file to be used during SSL/TLS peer verification.
+
+### COMPOSER_DISABLE_XDEBUG_WARN
+
+If set to 1, this env suppresses a warning when Composer is running with the Xdebug extension enabled.
 
 ### COMPOSER_DISCARD_CHANGES
 
@@ -899,7 +914,7 @@ directory other than `vendor`.
 ### http_proxy or HTTP_PROXY
 
 If you are using Composer from behind an HTTP proxy, you can use the standard
-`http_proxy` or `HTTP_PROXY` env vars. Simply set it to the URL of your proxy.
+`http_proxy` or `HTTP_PROXY` env vars. Set it to the URL of your proxy.
 Many operating systems already set this variable for you.
 
 Using `http_proxy` (lowercased) or even defining both might be preferable since
@@ -931,7 +946,7 @@ If set, makes the self-update command write the new Composer phar file into that
 ### no_proxy or NO_PROXY
 
 If you are behind a proxy and would like to disable it for certain domains, you
-can use the `no_proxy` or `NO_PROXY` env var. Simply set it to a comma separated list of
+can use the `no_proxy` or `NO_PROXY` env var. Set it to a comma separated list of
 domains the proxy should *not* be used for.
 
 The env var accepts domains, IP addresses, and IP address blocks in CIDR

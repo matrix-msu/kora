@@ -6,7 +6,6 @@
 namespace Faker\Test\Provider;
 
 use Faker;
-use PHPUnit\Framework\TestCase;
 
 /**
  * Class ProviderOverrideTest
@@ -17,7 +16,7 @@ use PHPUnit\Framework\TestCase;
  * locale specific provider (can) has specific implementations. The goal of this test is to test the common denominator
  * and to try to catch possible invalid multi-byte sequences.
  */
-class ProviderOverrideTest extends TestCase
+class ProviderOverrideTest extends \PHPUnit_Framework_TestCase
 {
     /**
      * Constants with regular expression patterns for testing the output.
@@ -78,10 +77,6 @@ class ProviderOverrideTest extends TestCase
      */
     public function testInternet($locale = null)
     {
-        if ($locale && $locale !== 'en_US' && !class_exists('Transliterator')) {
-            $this->markTestSkipped('Transliterator class not available (intl extension)');
-        }
-
         $faker = Faker\Factory::create($locale);
 
         $this->assertRegExp(static::TEST_STRING_REGEX, $faker->userName);

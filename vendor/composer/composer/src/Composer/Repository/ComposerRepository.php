@@ -249,6 +249,14 @@ class ComposerRepository extends ArrayRepository implements ConfigurableReposito
             $this->loadProviderListings($this->loadRootServerFile());
         }
 
+        if ($this->hasPartialPackages) {
+            if (null === $this->partialPackagesByName) {
+                $this->initializePartialPackages();
+            }
+
+            return array_keys($this->partialPackagesByName);
+        }
+
         if ($this->lazyProvidersUrl) {
             // Can not determine list of provided packages for lazy repositories
             return array();
@@ -629,7 +637,7 @@ class ComposerRepository extends ArrayRepository implements ConfigurableReposito
 
         if (isset($data['includes'])) {
             foreach ($data['includes'] as $include => $metadata) {
-                if ($this->cache->sha1($include) === $metadata['sha1']) {
+                if (isset($metadata['sha1']) && $this->cache->sha1($include) === $metadata['sha1']) {
                     $includedData = json_decode($this->cache->read($include), true);
                 } else {
                     $includedData = $this->fetchFile($include);

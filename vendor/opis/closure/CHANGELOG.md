@@ -1,6 +1,63 @@
 CHANGELOG
 ---------
 
+### v3.6.2, 2021.04.09
+
+- Fixed string interpolation
+
+### v3.6.1, 2020.11.07
+
+- Fixed serialization error [#84](https://github.com/opis/closure/issues/84)
+
+### v3.6.0, 2020.10.12
+
+- Initial PHP 8 Support [#67](https://github.com/opis/closure/issues/67).
+
+### v3.5.7, 2020.09.06
+
+- Fixed issue [#76](https://github.com/opis/closure/issues/76).
+- Fixed issue [#78](https://github.com/opis/closure/issues/78).
+
+### v3.5.6, 2020.08.11
+
+- Fixed issue [#70](https://github.com/opis/closure/issues/70)
+
+### v3.5.5, 2020.06.17
+
+- Fixed a false-positive when using `Opis\Closure\ReflectionClosure::isScopeRequired` method
+
+### v3.5.4, 2020.06.07
+
+- Fixed a false-positive when using `Opis\Closure\ReflectionClosure::isScopeRequired` method
+- Fixed a bug related to `T_STRING_VARNAME`
+
+### v3.5.3, 2020.05.25
+
+- Improved parser
+- The class scope optimisation is no longer used. We always bind now to the closure's original class scope.
+When the class scope was `null`, the optimisation failed to work as expected and kept the wrong `SerializableClosure` scope.
+
+### v3.5.2, 2020.05.21
+
+- Removed extra semicolon in short closures, since is not part of the closure's body.
+
+### v3.5.1, 2019.11.30
+
+- Bugfix. See #47
+
+### v3.5.0, 2019.11.29
+
+- Added support for short closures (arrow functions)
+- Added `isShortClosure` method to `Opis\Closure\ReflectionClosure`
+
+### v3.4.2, 2019.11.29
+
+- Added `stream_set_option()`
+
+### v3.4.1, 2019.10.19
+
+- Fixed a [bug](https://github.com/opis/closure/issues/40) that prevented serialization to work correctly.
+
 ### v3.4.0, 2019.09.03
 
 - Added `createClosure` static method in `Opis\Closure\SerializableClosure`.

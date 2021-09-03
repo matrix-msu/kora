@@ -106,7 +106,7 @@ class PhpStringTokenParser
         );
     }
 
-    private static function parseCallback($matches)
+    private static function parseCallback(array $matches): string
     {
         $str = $matches[1];
 
@@ -133,7 +133,7 @@ class PhpStringTokenParser
         $str = preg_replace('~(\r\n|\n|\r)$~', '', $str);
 
         // nowdoc string
-        if (false !== strpos($startToken, '\'')) {
+        if (str_contains($startToken, '\'')) {
             return $str;
         }
 

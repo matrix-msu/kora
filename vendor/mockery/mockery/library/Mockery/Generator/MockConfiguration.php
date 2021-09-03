@@ -318,7 +318,15 @@ class MockConfiguration
         }
 
         if (class_exists($this->targetClassName)) {
-            $dtc = DefinedTargetClass::factory($this->targetClassName);
+            $alias = null;
+            if (strpos($this->targetClassName, '@') !== false) {
+                $alias = (new MockNameBuilder())
+                    ->addPart('anonymous_class')
+                    ->addPart(md5($this->targetClassName))
+                    ->build();
+                class_alias($this->targetClassName, $alias);
+            }
+            $dtc = DefinedTargetClass::factory($this->targetClassName, $alias);
 
             if ($this->getTargetObject() == false && $dtc->isFinal()) {
                 throw new \Mockery\Exception(
@@ -419,11 +427,13 @@ class MockConfiguration
         $nameBuilder = new MockNameBuilder();
 
         if ($this->getTargetObject()) {
-            $nameBuilder->addPart(get_class($this->getTargetObject()));
+            $className = get_class($this->getTargetObject());
+            $nameBuilder->addPart(strpos($className, '@') !== false ? md5($className) : $className);
         }
 
         if ($this->getTargetClass()) {
-            $nameBuilder->addPart($this->getTargetClass()->getName());
+            $className = $this->getTargetClass()->getName();
+            $nameBuilder->addPart(strpos($className, '@') !== false ? md5($className) : $className);
         }
 
         foreach ($this->getTargetInterfaces() as $targetInterface) {
@@ -515,34 +525,6 @@ class MockConfiguration
             $names[] = $method->getName();
             return true;
         });
-
-        // In HHVM, class methods can be annotated with the built-in
-        // <<__Memoize>> attribute (similar to a Python decorator),
-        // which builds an LRU cache of method arguments and their
-        // return values.
-        // https://docs.hhvm.com/hack/attributes/special#__memoize
-        //
-        // HHVM implements this behavior by inserting a private helper
-        // method into the class at runtime which is named as the
-        // method to be memoized, suffixed by `$memoize_impl`.
-        // https://github.com/facebook/hhvm/blob/6aa46f1e8c2351b97d65e67b73e26f274a7c3f2e/hphp/runtime/vm/func.cpp#L364
-        //
-        // Ordinarily, PHP does not all allow the `$` token in method
-        // names, but since the memoization helper is inserted at
-        // runtime (and not in userland), HHVM allows it.
-        //
-        // We use code generation and eval() for some types of mocks,
-        // so to avoid syntax errors from these memoization helpers,
-        // we must filter them from our list of class methods.
-        //
-        // This effectively disables the memoization behavior in HHVM,
-        // but that's preferable to failing catastrophically when
-        // attempting to mock a class using the attribute.
-        if (defined('HHVM_VERSION')) {
-            $methods = array_filter($methods, function ($method) {
-                return strpos($method->getName(), '$memoize_impl') === false;
-            });
-        }
 
         return $this->allMethods = $methods;
     }

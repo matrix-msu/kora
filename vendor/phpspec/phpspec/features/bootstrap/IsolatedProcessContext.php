@@ -16,14 +16,17 @@ class IsolatedProcessContext implements Context, SnippetAcceptingContext
 
     private $lastOutput;
 
+    protected $executablePath = __DIR__ . '/../../bin/phpspec';
+
     /**
      * @Given I have started describing the :class class
      */
     public function iHaveStartedDescribingTheClass($class)
     {
-        $command = sprintf('%s %s %s', $this->buildPhpSpecCmd(), 'describe', escapeshellarg($class));
-
-        $process = new Process($command);
+        $process = $this->createPhpSpecProcess([
+            'describe',
+            escapeshellarg($class)
+        ]);
 
         $process->run();
 
@@ -37,7 +40,6 @@ class IsolatedProcessContext implements Context, SnippetAcceptingContext
      */
     public function iRunPhpspecAndAnswerWhenAskedIfIWantToGenerateTheCode($answer)
     {
-        $command = sprintf('%s %s', $this->buildPhpSpecCmd(), 'run');
         $env = array(
             'SHELL_INTERACTIVE' => true,
             'HOME' => getenv('HOME'),
@@ -45,7 +47,7 @@ class IsolatedProcessContext implements Context, SnippetAcceptingContext
             'COLUMNS' => 80,
         );
 
-        $this->process = $process = new Process($command);
+        $this->process = $process = $this->createPhpSpecProcess(['run']);
 
         $process->setEnv($env);
         $process->setInput($answer);
@@ -57,8 +59,12 @@ class IsolatedProcessContext implements Context, SnippetAcceptingContext
      */
     protected function buildPhpSpecCmd()
     {
+        if (!file_exists($this->executablePath)) {
+            throw new \RuntimeException('Could not find phpspec executable at ' . $this->executablePath);
+        }
+
         $isWindows = DIRECTORY_SEPARATOR === '\\';
-        $cmd = escapeshellcmd('' . __DIR__ . '/../../bin/phpspec');
+        $cmd = escapeshellcmd($this->executablePath);
         if ($isWindows) {
             $cmd = 'php ' . $cmd;
         }
@@ -91,9 +97,7 @@ class IsolatedProcessContext implements Context, SnippetAcceptingContext
      */
     public function iRunPhpspec()
     {
-        $process = new Process(
-            $this->buildPhpSpecCmd() . ' run'
-        );
+        $process = $this->createPhpSpecProcess(['run']);
         $process->run();
         $this->lastOutput = $process->getOutput();
     }
@@ -103,9 +107,10 @@ class IsolatedProcessContext implements Context, SnippetAcceptingContext
      */
     public function iRunPhpspecWithThe($formatter)
     {
-        $process = new Process(
-            $this->buildPhpSpecCmd() . " --format=$formatter run"
-        );
+        $process = $this->createPhpSpecProcess([
+            "--format=$formatter",
+            "run"
+        ]);
         $process->run();
         $this->lastOutput = $process->getErrorOutput().$process->getOutput();
 
@@ -117,7 +122,7 @@ class IsolatedProcessContext implements Context, SnippetAcceptingContext
     public function iShouldSee($message)
     {
         if (strpos($this->lastOutput, $message) === false) {
-            throw new \Exception("Missing message: $message");
+            throw new \Exception("Missing message: $message\nActual: {$this->lastOutput}");
         }
     }
 
@@ -132,5 +137,14 @@ class IsolatedProcessContext implements Context, SnippetAcceptingContext
         }
     }
 
+    private function createPhpSpecProcess(array $arguments)
+    {
+        $command = $this->buildPhpSpecCmd() . ' ' . implode(' ', $arguments);
 
+        if (method_exists(Process::class, 'fromShellCommandline')) {
+            return Process::fromShellCommandline($command);
+        }
+
+        return new Process($command);
+    }
 }

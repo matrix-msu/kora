@@ -30,28 +30,12 @@ trait RegistersUsers
     {
         $this->validator($request->all())->validate();
 
-        if(!\App\User::verifyRegisterRecaptcha($request)) {
-            $notification = array(
-                'message' => 'ReCaptcha validation error',
-                'description' => '',
-                'warning' => true,
-                'static' => true
-            );
-
-            return redirect("/register")->withInput()->with('notification', $notification)->send();
-        }
-
         event(new Registered($user = $this->create($request->all())));
 
         $this->guard()->login($user);
 
-        if(\App\User::finishRegistration($request))
-            $status = 'activation_email_sent';
-        else
-            $status = 'activation_email_failed';
-
         return $this->registered($request, $user)
-                        ?: redirect($this->redirectPath())->with('status', $status)->send();
+                        ?: redirect($this->redirectPath());
     }
 
     /**
