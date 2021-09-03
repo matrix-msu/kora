@@ -24,7 +24,6 @@ function str_hyphenated($string) {
  * @return bool - is installed
  */
  function isInstalled() {
-     return true;
      try {
          \Illuminate\Support\Facades\DB::connection()->getPdo();
      } catch (\Exception $e) {
