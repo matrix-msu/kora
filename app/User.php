@@ -165,8 +165,7 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
     }
 
     /** LOGIN
-     * Filters login results to allow login with either username or email. Happens in the authentication system login
-     * attempt function.
+     * Filters login results to allow login with either username or email. Happens in the AuthenticatesUsers::credentials
      *
      * @param  array $credentials - The login credentials
      * @return array - The filtered credentials
