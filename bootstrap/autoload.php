@@ -14,6 +14,24 @@ define('LARAVEL_START', microtime(true));
 |
 */
 
+/**
+ * Generate a url for the application. This override for Foundation::helpers.php needs to be created before the vendor
+ * files are loaded. The goal of the override is to always force HTTPS
+ *
+ * @param  string|null  $path
+ * @param  mixed  $parameters
+ * @param  bool|null  $secure
+ * @return \Illuminate\Contracts\Routing\UrlGenerator|string
+ */
+function url($path = null, $parameters = [], $secure = null)
+{
+    if (is_null($path)) {
+        return app(\Illuminate\Contracts\Routing\UrlGenerator::class);
+    }
+
+    return app(\Illuminate\Contracts\Routing\UrlGenerator::class)->to($path, $parameters, true);
+}
+
 require __DIR__.'/../vendor/autoload.php';
 
 /*
