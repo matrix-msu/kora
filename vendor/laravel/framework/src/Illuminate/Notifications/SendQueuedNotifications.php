@@ -3,9 +3,13 @@
 namespace Illuminate\Notifications;
 
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldBeEncrypted;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Database\Eloquent\Collection as EloquentCollection;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Collection;
 
 class SendQueuedNotifications implements ShouldQueue
 {
@@ -47,9 +51,16 @@ class SendQueuedNotifications implements ShouldQueue
     public $timeout;
 
     /**
+     * Indicates if the job should be encrypted.
+     *
+     * @var bool
+     */
+    public $shouldBeEncrypted = false;
+
+    /**
      * Create a new job instance.
      *
-     * @param  \Illuminate\Support\Collection  $notifiables
+     * @param  \Illuminate\Notifications\Notifiable|\Illuminate\Support\Collection  $notifiables
      * @param  \Illuminate\Notifications\Notification  $notification
      * @param  array|null  $channels
      * @return void
@@ -57,10 +68,29 @@ class SendQueuedNotifications implements ShouldQueue
     public function __construct($notifiables, $notification, array $channels = null)
     {
         $this->channels = $channels;
-        $this->notifiables = $notifiables;
         $this->notification = $notification;
+        $this->notifiables = $this->wrapNotifiables($notifiables);
         $this->tries = property_exists($notification, 'tries') ? $notification->tries : null;
         $this->timeout = property_exists($notification, 'timeout') ? $notification->timeout : null;
+        $this->afterCommit = property_exists($notification, 'afterCommit') ? $notification->afterCommit : null;
+        $this->shouldBeEncrypted = $notification instanceof ShouldBeEncrypted;
+    }
+
+    /**
+     * Wrap the notifiable(s) in a collection.
+     *
+     * @param  \Illuminate\Notifications\Notifiable|\Illuminate\Support\Collection  $notifiables
+     * @return \Illuminate\Support\Collection
+     */
+    protected function wrapNotifiables($notifiables)
+    {
+        if ($notifiables instanceof Collection) {
+            return $notifiables;
+        } elseif ($notifiables instanceof Model) {
+            return EloquentCollection::wrap($notifiables);
+        }
+
+        return Collection::wrap($notifiables);
     }
 
     /**
@@ -87,7 +117,7 @@ class SendQueuedNotifications implements ShouldQueue
     /**
      * Call the failed method on the notification instance.
      *
-     * @param  \Exception  $e
+     * @param  \Throwable  $e
      * @return void
      */
     public function failed($e)
@@ -98,17 +128,17 @@ class SendQueuedNotifications implements ShouldQueue
     }
 
     /**
-     * Get the retry delay for the notification.
+     * Get the number of seconds before a released notification will be available.
      *
      * @return mixed
      */
-    public function retryAfter()
+    public function backoff()
     {
-        if (! method_exists($this->notification, 'retryAfter') && ! isset($this->notification->retryAfter)) {
+        if (! method_exists($this->notification, 'backoff') && ! isset($this->notification->backoff)) {
             return;
         }
 
-        return $this->notification->retryAfter ?? $this->notification->retryAfter();
+        return $this->notification->backoff ?? $this->notification->backoff();
     }
 
     /**
@@ -118,11 +148,11 @@ class SendQueuedNotifications implements ShouldQueue
      */
     public function retryUntil()
     {
-        if (! method_exists($this->notification, 'retryUntil') && ! isset($this->notification->timeoutAt)) {
+        if (! method_exists($this->notification, 'retryUntil') && ! isset($this->notification->retryUntil)) {
             return;
         }
 
-        return $this->notification->timeoutAt ?? $this->notification->retryUntil();
+        return $this->notification->retryUntil ?? $this->notification->retryUntil();
     }
 
     /**

@@ -33,9 +33,7 @@ class ConfigurationUrlParser
             $config = ['url' => $config];
         }
 
-        $url = $config['url'] ?? null;
-
-        $config = Arr::except($config, 'url');
+        $url = Arr::pull($config, 'url');
 
         if (! $url) {
             return $config;
@@ -172,7 +170,7 @@ class ConfigurationUrlParser
     }
 
     /**
-     * Get all of the current drivers aliases.
+     * Get all of the current drivers' aliases.
      *
      * @return array
      */

@@ -14,14 +14,14 @@ namespace Symfony\Component\HttpKernel\EventListener;
 use Psr\Container\ContainerInterface;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\HttpFoundation\Session\Storage\NativeSessionStorage;
-use Symfony\Component\HttpKernel\Event\GetResponseEvent;
+use Symfony\Component\HttpKernel\Event\RequestEvent;
 
 /**
  * Sets the session in the request.
  *
  * When the passed container contains a "session_storage" entry which
  * holds a NativeSessionStorage instance, the "cookie_secure" option
- * will be set to true whenever the current master request is secure.
+ * will be set to true whenever the current main request is secure.
  *
  * @author Fabien Potencier <fabien@symfony.com>
  *
@@ -29,23 +29,23 @@ use Symfony\Component\HttpKernel\Event\GetResponseEvent;
  */
 class SessionListener extends AbstractSessionListener
 {
-    public function __construct(ContainerInterface $container)
+    public function __construct(ContainerInterface $container, bool $debug = false)
     {
-        $this->container = $container;
+        parent::__construct($container, $debug);
     }
 
-    public function onKernelRequest(GetResponseEvent $event)
+    public function onKernelRequest(RequestEvent $event)
     {
         parent::onKernelRequest($event);
 
-        if (!$event->isMasterRequest() || !$this->container->has('session')) {
+        if (!$event->isMainRequest() || !$this->container->has('session')) {
             return;
         }
 
         if ($this->container->has('session_storage')
             && ($storage = $this->container->get('session_storage')) instanceof NativeSessionStorage
-            && ($masterRequest = $this->container->get('request_stack')->getMasterRequest())
-            && $masterRequest->isSecure()
+            && ($mainRequest = $this->container->get('request_stack')->getMainRequest())
+            && $mainRequest->isSecure()
         ) {
             $storage->setOptions(['cookie_secure' => true]);
         }

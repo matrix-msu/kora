@@ -9,7 +9,7 @@
         <li class="navigation-item pr-0">
           <a href="{{ url('/register') }}" class="text navigation-toggle-js underline-middle-hover">Need to Sign Up?</a>
         </li>
-      @elseif(isInstalled())
+      @elseif(databaseConnectionExists())
         <li class="navigation-item">
           <a href="{{ url('/') }}" class="text navigation-toggle-js underline-middle-hover">Need to Login?</a>
         </li>
@@ -29,7 +29,7 @@
           <img src="{{url('assets/logos/logo_dark.svg')}}">
       </li>
     @else
-      @if(isInstalled())
+      @if(databaseConnectionExists())
         <li class="logo">
           @php
               $logo = \App\Http\Controllers\Auth\UserController::returnUserPrefs('logo_target');

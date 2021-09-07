@@ -23,7 +23,7 @@ class WelcomeController extends Controller {
      * @return View
      */
 	public function index() {
-	    if(!isInstalled())
+	    if(!databaseConnectionExists())
         	return redirect('/helloworld');
 		else if(\Auth::guest()) {
 			$notification = array(
@@ -95,15 +95,15 @@ class WelcomeController extends Controller {
 	}
 
     /**
-     * Gets the view for successful installation.
+     * Gets the view for when database is down, or even uninstalled.
      *
      * @return View
      */
-    public function installSuccess() {
-        if(!isInstalled())
-            return redirect('/helloworld');
+    public function helloWorld() {
+        if(databaseConnectionExists())
+            return redirect('/');
         else {
-            return view('install.success');
+            return view('helloworld');
         }
     }
 

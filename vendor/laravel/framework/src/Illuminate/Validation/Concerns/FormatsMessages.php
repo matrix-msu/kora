@@ -54,7 +54,7 @@ trait FormatsMessages
         // messages out of the translator service for this validation rule.
         $key = "validation.{$lowerRule}";
 
-        if ($key != ($value = $this->translator->get($key))) {
+        if ($key !== ($value = $this->translator->get($key))) {
             return $value;
         }
 
@@ -116,7 +116,7 @@ trait FormatsMessages
     }
 
     /**
-     * Get the custom error message from translator.
+     * Get the custom error message from the translator.
      *
      * @param  string  $key
      * @return string
@@ -307,7 +307,7 @@ trait FormatsMessages
         $actualValue = $this->getValue($attribute);
 
         if (is_scalar($actualValue) || is_null($actualValue)) {
-            $message = str_replace(':input', $actualValue, $message);
+            $message = str_replace(':input', $this->getDisplayableValue($attribute, $actualValue), $message);
         }
 
         return $message;
@@ -340,7 +340,7 @@ trait FormatsMessages
             return 'empty';
         }
 
-        return $value;
+        return (string) $value;
     }
 
     /**

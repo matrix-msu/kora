@@ -39,7 +39,7 @@ class Kernel extends HttpKernel {
         'guest' => \App\Http\Middleware\RedirectIfAuthenticated::class,
         'active' => \App\Http\Middleware\IsActive::class,
         'admin' => \App\Http\Middleware\IsAdmin::class,
-        'install' => \App\Http\Middleware\IsInstalled::class,
+        'databaseConnected' => \App\Http\Middleware\IsConnectedToDatabase::class,
 	];
 
 }

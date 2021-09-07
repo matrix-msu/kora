@@ -2,11 +2,14 @@
 
 namespace Illuminate\Foundation\Testing\Concerns;
 
+use Illuminate\Contracts\Support\Jsonable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Foundation\Testing\Constraints\HasInDatabase;
-use Illuminate\Foundation\Testing\Constraints\SoftDeletedInDatabase;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Testing\Constraints\CountInDatabase;
+use Illuminate\Testing\Constraints\HasInDatabase;
+use Illuminate\Testing\Constraints\SoftDeletedInDatabase;
 use PHPUnit\Framework\Constraint\LogicalNot as ReverseConstraint;
 
 trait InteractsWithDatabase
@@ -14,7 +17,7 @@ trait InteractsWithDatabase
     /**
      * Assert that a given where condition exists in the database.
      *
-     * @param  string  $table
+     * @param  \Illuminate\Database\Eloquent\Model|string  $table
      * @param  array  $data
      * @param  string|null  $connection
      * @return $this
@@ -22,7 +25,7 @@ trait InteractsWithDatabase
     protected function assertDatabaseHas($table, array $data, $connection = null)
     {
         $this->assertThat(
-            $table, new HasInDatabase($this->getConnection($connection), $data)
+            $this->getTable($table), new HasInDatabase($this->getConnection($connection), $data)
         );
 
         return $this;
@@ -31,7 +34,7 @@ trait InteractsWithDatabase
     /**
      * Assert that a given where condition does not exist in the database.
      *
-     * @param  string  $table
+     * @param  \Illuminate\Database\Eloquent\Model|string  $table
      * @param  array  $data
      * @param  string|null  $connection
      * @return $this
@@ -42,7 +45,24 @@ trait InteractsWithDatabase
             new HasInDatabase($this->getConnection($connection), $data)
         );
 
-        $this->assertThat($table, $constraint);
+        $this->assertThat($this->getTable($table), $constraint);
+
+        return $this;
+    }
+
+    /**
+     * Assert the count of table entries.
+     *
+     * @param  \Illuminate\Database\Eloquent\Model|string  $table
+     * @param  int  $count
+     * @param  string|null  $connection
+     * @return $this
+     */
+    protected function assertDatabaseCount($table, int $count, $connection = null)
+    {
+        $this->assertThat(
+            $this->getTable($table), new CountInDatabase($this->getConnection($connection), $count)
+        );
 
         return $this;
     }
@@ -61,7 +81,7 @@ trait InteractsWithDatabase
             return $this->assertDatabaseMissing($table->getTable(), [$table->getKeyName() => $table->getKey()], $table->getConnectionName());
         }
 
-        $this->assertDatabaseMissing($table, $data, $connection);
+        $this->assertDatabaseMissing($this->getTable($table), $data, $connection);
 
         return $this;
     }
@@ -82,7 +102,7 @@ trait InteractsWithDatabase
         }
 
         $this->assertThat(
-            $table, new SoftDeletedInDatabase($this->getConnection($connection), $data, $deletedAtColumn)
+            $this->getTable($table), new SoftDeletedInDatabase($this->getConnection($connection), $data, $deletedAtColumn)
         );
 
         return $this;
@@ -101,6 +121,25 @@ trait InteractsWithDatabase
     }
 
     /**
+     * Cast a JSON string to a database compatible type.
+     *
+     * @param  array|string  $value
+     * @return \Illuminate\Database\Query\Expression
+     */
+    public function castAsJson($value)
+    {
+        if ($value instanceof Jsonable) {
+            $value = $value->toJson();
+        } elseif (is_array($value) || is_object($value)) {
+            $value = json_encode($value);
+        }
+
+        $value = DB::connection()->getPdo()->quote($value);
+
+        return DB::raw("CAST($value AS JSON)");
+    }
+
+    /**
      * Get the database connection.
      *
      * @param  string|null  $connection
@@ -116,12 +155,23 @@ trait InteractsWithDatabase
     }
 
     /**
+     * Get the table name from the given model or string.
+     *
+     * @param  \Illuminate\Database\Eloquent\Model|string  $table
+     * @return string
+     */
+    protected function getTable($table)
+    {
+        return is_subclass_of($table, Model::class) ? (new $table)->getTable() : $table;
+    }
+
+    /**
      * Seed a given database connection.
      *
      * @param  array|string  $class
      * @return $this
      */
-    public function seed($class = 'DatabaseSeeder')
+    public function seed($class = 'Database\\Seeders\\DatabaseSeeder')
     {
         foreach (Arr::wrap($class) as $class) {
             $this->artisan('db:seed', ['--class' => $class, '--no-interaction' => true]);

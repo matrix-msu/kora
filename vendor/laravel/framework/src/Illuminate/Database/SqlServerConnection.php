@@ -4,12 +4,14 @@ namespace Illuminate\Database;
 
 use Closure;
 use Doctrine\DBAL\Driver\PDOSqlsrv\Driver as DoctrineDriver;
-use Exception;
+use Doctrine\DBAL\Version;
+use Illuminate\Database\PDO\SqlServerDriver;
 use Illuminate\Database\Query\Grammars\SqlServerGrammar as QueryGrammar;
 use Illuminate\Database\Query\Processors\SqlServerProcessor;
 use Illuminate\Database\Schema\Grammars\SqlServerGrammar as SchemaGrammar;
 use Illuminate\Database\Schema\SqlServerBuilder;
-use LogicException;
+use Illuminate\Filesystem\Filesystem;
+use RuntimeException;
 use Throwable;
 
 class SqlServerConnection extends Connection
@@ -21,7 +23,7 @@ class SqlServerConnection extends Connection
      * @param  int  $attempts
      * @return mixed
      *
-     * @throws \Exception|\Throwable
+     * @throws \Throwable
      */
     public function transaction(Closure $callback, $attempts = 1)
     {
@@ -41,14 +43,10 @@ class SqlServerConnection extends Connection
                 $this->getPdo()->exec('COMMIT TRAN');
             }
 
-            // If we catch an exception, we will roll back so nothing gets messed
+            // If we catch an exception, we will rollback so nothing gets messed
             // up in the database. Then we'll re-throw the exception so it can
             // be handled how the developer sees fit for their applications.
-            catch (Exception $e) {
-                $this->getPdo()->exec('ROLLBACK TRAN');
-
-                throw $e;
-            } catch (Throwable $e) {
+            catch (Throwable $e) {
                 $this->getPdo()->exec('ROLLBACK TRAN');
 
                 throw $e;
@@ -93,6 +91,19 @@ class SqlServerConnection extends Connection
     }
 
     /**
+     * Get the schema state for the connection.
+     *
+     * @param  \Illuminate\Filesystem\Filesystem|null  $files
+     * @param  callable|null  $processFactory
+     *
+     * @throws \RuntimeException
+     */
+    public function getSchemaState(Filesystem $files = null, callable $processFactory = null)
+    {
+        throw new RuntimeException('Schema dumping is not supported when using SQL Server.');
+    }
+
+    /**
      * Get the default post processor instance.
      *
      * @return \Illuminate\Database\Query\Processors\SqlServerProcessor
@@ -105,16 +116,10 @@ class SqlServerConnection extends Connection
     /**
      * Get the Doctrine DBAL driver.
      *
-     * @return \Doctrine\DBAL\Driver\PDOSqlsrv\Driver
+     * @return \Doctrine\DBAL\Driver\PDOSqlsrv\Driver|\Illuminate\Database\PDO\SqlServerDriver
      */
     protected function getDoctrineDriver()
     {
-        if (! class_exists(DoctrineDriver::class)) {
-            throw new LogicException(
-                'Laravel v6 is only compatible with doctrine/dbal 2, in order to use this feature you must require the package "doctrine/dbal:^2.6".'
-            );
-        }
-
-        return new DoctrineDriver;
+        return class_exists(Version::class) ? new DoctrineDriver : new SqlServerDriver;
     }
 }

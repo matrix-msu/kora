@@ -46,7 +46,7 @@ class HttpCache implements HttpKernelInterface, TerminableInterface
      *                            will try to carry on and deliver a meaningful response.
      *
      *   * trace_level            May be one of 'none', 'short' and 'full'. For 'short', a concise trace of the
-     *                            master request will be added as an HTTP header. 'full' will add traces for all
+     *                            main request will be added as an HTTP header. 'full' will add traces for all
      *                            requests (including ESI subrequests). (default: 'full' if in debug; 'none' otherwise)
      *
      *   * trace_header           Header name to use for traces. (default: X-Symfony-Cache)
@@ -158,7 +158,7 @@ class HttpCache implements HttpKernelInterface, TerminableInterface
     }
 
     /**
-     * Gets the Request instance associated with the master request.
+     * Gets the Request instance associated with the main request.
      *
      * @return Request A Request instance
      */
@@ -192,10 +192,10 @@ class HttpCache implements HttpKernelInterface, TerminableInterface
     /**
      * {@inheritdoc}
      */
-    public function handle(Request $request, $type = HttpKernelInterface::MASTER_REQUEST, $catch = true)
+    public function handle(Request $request, int $type = HttpKernelInterface::MAIN_REQUEST, bool $catch = true)
     {
         // FIXME: catch exceptions and implement a 500 error page here? -> in Varnish, there is a built-in error page mechanism
-        if (HttpKernelInterface::MASTER_REQUEST === $type) {
+        if (HttpKernelInterface::MAIN_REQUEST === $type) {
             $this->traces = [];
             // Keep a clone of the original request for surrogates so they can access it.
             // We must clone here to get a separate instance because the application will modify the request during
@@ -226,12 +226,12 @@ class HttpCache implements HttpKernelInterface, TerminableInterface
 
         $this->restoreResponseBody($request, $response);
 
-        if (HttpKernelInterface::MASTER_REQUEST === $type) {
+        if (HttpKernelInterface::MAIN_REQUEST === $type) {
             $this->addTraces($response);
         }
 
         if (null !== $this->surrogate) {
-            if (HttpKernelInterface::MASTER_REQUEST === $type) {
+            if (HttpKernelInterface::MAIN_REQUEST === $type) {
                 $this->surrogateCacheStrategy->update($response);
             } else {
                 $this->surrogateCacheStrategy->add($response);
@@ -262,7 +262,7 @@ class HttpCache implements HttpKernelInterface, TerminableInterface
      *
      * @return Response A Response instance
      */
-    protected function pass(Request $request, $catch = false)
+    protected function pass(Request $request, bool $catch = false)
     {
         $this->record($request, 'pass');
 
@@ -280,7 +280,7 @@ class HttpCache implements HttpKernelInterface, TerminableInterface
      *
      * @see RFC2616 13.10
      */
-    protected function invalidate(Request $request, $catch = false)
+    protected function invalidate(Request $request, bool $catch = false)
     {
         $response = $this->pass($request, $catch);
 
@@ -326,7 +326,7 @@ class HttpCache implements HttpKernelInterface, TerminableInterface
      *
      * @throws \Exception
      */
-    protected function lookup(Request $request, $catch = false)
+    protected function lookup(Request $request, bool $catch = false)
     {
         try {
             $entry = $this->store->lookup($request);
@@ -373,7 +373,7 @@ class HttpCache implements HttpKernelInterface, TerminableInterface
      *
      * @return Response A Response instance
      */
-    protected function validate(Request $request, Response $entry, $catch = false)
+    protected function validate(Request $request, Response $entry, bool $catch = false)
     {
         $subRequest = clone $request;
 
@@ -436,7 +436,7 @@ class HttpCache implements HttpKernelInterface, TerminableInterface
      *
      * @return Response A Response instance
      */
-    protected function fetch(Request $request, $catch = false)
+    protected function fetch(Request $request, bool $catch = false)
     {
         $subRequest = clone $request;
 
@@ -469,14 +469,14 @@ class HttpCache implements HttpKernelInterface, TerminableInterface
      *
      * @return Response A Response instance
      */
-    protected function forward(Request $request, $catch = false, Response $entry = null)
+    protected function forward(Request $request, bool $catch = false, Response $entry = null)
     {
         if ($this->surrogate) {
             $this->surrogate->addSurrogateCapability($request);
         }
 
         // always a "master" request (as the real master request can be in cache)
-        $response = SubRequestHandler::handle($this->kernel, $request, HttpKernelInterface::MASTER_REQUEST, $catch);
+        $response = SubRequestHandler::handle($this->kernel, $request, HttpKernelInterface::MAIN_REQUEST, $catch);
 
         /*
          * Support stale-if-error given on Responses or as a config option.

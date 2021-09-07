@@ -4,13 +4,14 @@ namespace Illuminate\Database\Query\Grammars;
 
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Str;
 
 class SqlServerGrammar extends Grammar
 {
     /**
      * All of the available clause operators.
      *
-     * @var array
+     * @var string[]
      */
     protected $operators = [
         '=', '<', '>', '<=', '>=', '!<', '!>', '<>', '!=',
@@ -180,6 +181,10 @@ class SqlServerGrammar extends Grammar
 
         unset($components['orders']);
 
+        if ($this->queryOrderContainsSubquery($query)) {
+            $query->bindings = $this->sortBindingsForSubqueryOrderBy($query);
+        }
+
         // Next we need to calculate the constraints that should be placed on the query
         // to get the right offset and limit from our query but if there is no limit
         // set we will just handle the offset only since that is all that matters.
@@ -197,6 +202,36 @@ class SqlServerGrammar extends Grammar
     protected function compileOver($orderings)
     {
         return ", row_number() over ({$orderings}) as row_num";
+    }
+
+    /**
+     * Determine if the query's order by clauses contain a subquery.
+     *
+     * @param  \Illuminate\Database\Query\Builder  $query
+     * @return bool
+     */
+    protected function queryOrderContainsSubquery($query)
+    {
+        if (! is_array($query->orders)) {
+            return false;
+        }
+
+        return Arr::first($query->orders, function ($value) {
+            return $this->isExpression($value['column'] ?? null);
+        }, false) !== false;
+    }
+
+    /**
+     * Move the order bindings to be after the "select" statement to account for an order by subquery.
+     *
+     * @param  \Illuminate\Database\Query\Builder  $query
+     * @return array
+     */
+    protected function sortBindingsForSubqueryOrderBy($query)
+    {
+        return Arr::sort($query->bindings, function ($bindings, $key) {
+            return array_search($key, ['select', 'order', 'from', 'join', 'where', 'groupBy', 'having', 'union', 'unionOrder']);
+        });
     }
 
     /**
@@ -230,6 +265,23 @@ class SqlServerGrammar extends Grammar
         }
 
         return ">= {$start}";
+    }
+
+    /**
+     * Compile a delete statement without joins into SQL.
+     *
+     * @param  \Illuminate\Database\Query\Builder  $query
+     * @param  string  $table
+     * @param  string  $where
+     * @return string
+     */
+    protected function compileDeleteWithoutJoins(Builder $query, $table, $where)
+    {
+        $sql = parent::compileDeleteWithoutJoins($query, $table, $where);
+
+        return ! is_null($query->limit) && $query->limit > 0 && $query->offset <= 0
+                        ? Str::replaceFirst('delete', 'delete top ('.$query->limit.')', $sql)
+                        : $sql;
     }
 
     /**
@@ -321,6 +373,48 @@ class SqlServerGrammar extends Grammar
         $joins = $this->compileJoins($query, $query->joins);
 
         return "update {$alias} set {$columns} from {$table} {$joins} {$where}";
+    }
+
+    /**
+     * Compile an "upsert" statement into SQL.
+     *
+     * @param  \Illuminate\Database\Query\Builder  $query
+     * @param  array  $values
+     * @param  array  $uniqueBy
+     * @param  array  $update
+     * @return string
+     */
+    public function compileUpsert(Builder $query, array $values, array $uniqueBy, array $update)
+    {
+        $columns = $this->columnize(array_keys(reset($values)));
+
+        $sql = 'merge '.$this->wrapTable($query->from).' ';
+
+        $parameters = collect($values)->map(function ($record) {
+            return '('.$this->parameterize($record).')';
+        })->implode(', ');
+
+        $sql .= 'using (values '.$parameters.') '.$this->wrapTable('laravel_source').' ('.$columns.') ';
+
+        $on = collect($uniqueBy)->map(function ($column) use ($query) {
+            return $this->wrap('laravel_source.'.$column).' = '.$this->wrap($query->from.'.'.$column);
+        })->implode(' and ');
+
+        $sql .= 'on '.$on.' ';
+
+        if ($update) {
+            $update = collect($update)->map(function ($value, $key) {
+                return is_numeric($key)
+                    ? $this->wrap($value).' = '.$this->wrap('laravel_source.'.$value)
+                    : $this->wrap($key).' = '.$this->parameter($value);
+            })->implode(', ');
+
+            $sql .= 'when matched then update set '.$update.' ';
+        }
+
+        $sql .= 'when not matched then insert ('.$columns.') values ('.$columns.');';
+
+        return $sql;
     }
 
     /**

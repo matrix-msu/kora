@@ -39,7 +39,7 @@ class LoginController extends Controller
      */
     public function __construct()
     {
-        $this->middleware('install');
+        $this->middleware('databaseConnected');
         $this->middleware('guest', ['except' => [
             'logout',
             'redirectToGitlab',

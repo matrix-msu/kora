@@ -3,11 +3,14 @@
 namespace Illuminate\Database;
 
 use Doctrine\DBAL\Driver\PDOSqlite\Driver as DoctrineDriver;
+use Doctrine\DBAL\Version;
+use Illuminate\Database\PDO\SQLiteDriver;
 use Illuminate\Database\Query\Grammars\SQLiteGrammar as QueryGrammar;
 use Illuminate\Database\Query\Processors\SQLiteProcessor;
 use Illuminate\Database\Schema\Grammars\SQLiteGrammar as SchemaGrammar;
 use Illuminate\Database\Schema\SQLiteBuilder;
-use LogicException;
+use Illuminate\Database\Schema\SqliteSchemaState;
+use Illuminate\Filesystem\Filesystem;
 
 class SQLiteConnection extends Connection
 {
@@ -70,6 +73,19 @@ class SQLiteConnection extends Connection
     }
 
     /**
+     * Get the schema state for the connection.
+     *
+     * @param  \Illuminate\Filesystem\Filesystem|null  $files
+     * @param  callable|null  $processFactory
+     *
+     * @throws \RuntimeException
+     */
+    public function getSchemaState(Filesystem $files = null, callable $processFactory = null)
+    {
+        return new SqliteSchemaState($this, $files, $processFactory);
+    }
+
+    /**
      * Get the default post processor instance.
      *
      * @return \Illuminate\Database\Query\Processors\SQLiteProcessor
@@ -82,17 +98,11 @@ class SQLiteConnection extends Connection
     /**
      * Get the Doctrine DBAL driver.
      *
-     * @return \Doctrine\DBAL\Driver\PDOSqlite\Driver
+     * @return \Doctrine\DBAL\Driver\PDOSqlite\Driver|\Illuminate\Database\PDO\SQLiteDriver
      */
     protected function getDoctrineDriver()
     {
-        if (! class_exists(DoctrineDriver::class)) {
-            throw new LogicException(
-                'Laravel v6 is only compatible with doctrine/dbal 2, in order to use this feature you must require the package "doctrine/dbal:^2.6".'
-            );
-        }
-
-        return new DoctrineDriver;
+        return class_exists(Version::class) ? new DoctrineDriver : new SQLiteDriver;
     }
 
     /**

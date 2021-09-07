@@ -1,6 +1,6 @@
 <?php namespace App\Exceptions;
 
-use Exception;
+use Throwable;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 
@@ -23,7 +23,7 @@ class Handler extends ExceptionHandler {
 	 * @param  \Exception  $e
 	 * @return void
 	 */
-	public function report(Exception $e)
+	public function report(Throwable $e)
 	{
         return parent::report($e);
 	}
@@ -35,7 +35,7 @@ class Handler extends ExceptionHandler {
 	 * @param  \Exception  $e
 	 * @return \Illuminate\Http\Response
 	 */
-	public function render($request, Exception $exception)
+	public function render($request, Throwable $exception)
 	{
         if($request->is('api/*')) {
             return response()->json(["status"=>false,"error"=>"Unknown error occurred. Please contact your system administrator."],500);

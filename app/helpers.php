@@ -23,14 +23,14 @@ function str_hyphenated($string) {
  *
  * @return bool - is installed
  */
- function isInstalled() {
-     try {
-         \Illuminate\Support\Facades\DB::connection()->getPdo();
-     } catch (\Exception $e) {
-         return false;
-     }
-     return \Illuminate\Support\Facades\Schema::hasTable('users');
- }
+function databaseConnectionExists() {
+    try {
+        \Illuminate\Support\Facades\DB::connection()->getPdo();
+    } catch (\Exception $e) {
+        return false;
+    }
+    return \Illuminate\Support\Facades\Schema::hasTable('users');
+}
 
 /**
  * Returns array of links

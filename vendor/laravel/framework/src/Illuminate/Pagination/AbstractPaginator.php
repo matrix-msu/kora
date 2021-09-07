@@ -8,13 +8,14 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 use Illuminate\Support\Traits\ForwardsCalls;
+use Illuminate\Support\Traits\Tappable;
 
 /**
  * @mixin \Illuminate\Support\Collection
  */
 abstract class AbstractPaginator implements Htmlable
 {
-    use ForwardsCalls;
+    use ForwardsCalls, Tappable;
 
     /**
      * All of the items being paginated.
@@ -94,6 +95,13 @@ abstract class AbstractPaginator implements Htmlable
     protected static $currentPageResolver;
 
     /**
+     * The query string resolver callback.
+     *
+     * @var \Closure
+     */
+    protected static $queryStringResolver;
+
+    /**
      * The view factory resolver callback.
      *
      * @var \Closure
@@ -105,14 +113,14 @@ abstract class AbstractPaginator implements Htmlable
      *
      * @var string
      */
-    public static $defaultView = 'pagination::bootstrap-4';
+    public static $defaultView = 'pagination::tailwind';
 
     /**
      * The default "simple" pagination view.
      *
      * @var string
      */
-    public static $defaultSimpleView = 'pagination::simple-bootstrap-4';
+    public static $defaultSimpleView = 'pagination::simple-tailwind';
 
     /**
      * Determine if the given value is a valid page number.
@@ -231,6 +239,20 @@ abstract class AbstractPaginator implements Htmlable
     }
 
     /**
+     * Add all current query string values to the paginator.
+     *
+     * @return $this
+     */
+    public function withQueryString()
+    {
+        if (isset(static::$queryStringResolver)) {
+            return $this->appends(call_user_func(static::$queryStringResolver));
+        }
+
+        return $this;
+    }
+
+    /**
      * Add a query string value to the paginator.
      *
      * @param  string  $key
@@ -271,6 +293,20 @@ abstract class AbstractPaginator implements Htmlable
     }
 
     /**
+     * Load a set of relationship counts onto the mixed relationship collection.
+     *
+     * @param  string  $relation
+     * @param  array  $relations
+     * @return $this
+     */
+    public function loadMorphCount($relation, $relations)
+    {
+        $this->getCollection()->loadMorphCount($relation, $relations);
+
+        return $this;
+    }
+
+    /**
      * Get the slice of items being paginated.
      *
      * @return array
@@ -298,6 +334,19 @@ abstract class AbstractPaginator implements Htmlable
     public function lastItem()
     {
         return count($this->items) > 0 ? $this->firstItem() + $this->count() - 1 : null;
+    }
+
+    /**
+     * Transform each item in the slice of items using a callback.
+     *
+     * @param  callable  $callback
+     * @return $this
+     */
+    public function through(callable $callback)
+    {
+        $this->items->transform($callback);
+
+        return $this;
     }
 
     /**
@@ -464,6 +513,32 @@ abstract class AbstractPaginator implements Htmlable
     }
 
     /**
+     * Resolve the query string or return the default value.
+     *
+     * @param  string|array|null  $default
+     * @return string
+     */
+    public static function resolveQueryString($default = null)
+    {
+        if (isset(static::$queryStringResolver)) {
+            return (static::$queryStringResolver)();
+        }
+
+        return $default;
+    }
+
+    /**
+     * Set with query string resolver callback.
+     *
+     * @param  \Closure  $resolver
+     * @return void
+     */
+    public static function queryStringResolver(Closure $resolver)
+    {
+        static::$queryStringResolver = $resolver;
+    }
+
+    /**
      * Get an instance of the view factory from the resolver.
      *
      * @return \Illuminate\Contracts\View\Factory
@@ -507,6 +582,28 @@ abstract class AbstractPaginator implements Htmlable
     }
 
     /**
+     * Indicate that Tailwind styling should be used for generated links.
+     *
+     * @return void
+     */
+    public static function useTailwind()
+    {
+        static::defaultView('pagination::tailwind');
+        static::defaultSimpleView('pagination::simple-tailwind');
+    }
+
+    /**
+     * Indicate that Bootstrap 4 styling should be used for generated links.
+     *
+     * @return void
+     */
+    public static function useBootstrap()
+    {
+        static::defaultView('pagination::bootstrap-4');
+        static::defaultSimpleView('pagination::simple-bootstrap-4');
+    }
+
+    /**
      * Indicate that Bootstrap 3 styling should be used for generated links.
      *
      * @return void
@@ -522,6 +619,7 @@ abstract class AbstractPaginator implements Htmlable
      *
      * @return \ArrayIterator
      */
+    #[\ReturnTypeWillChange]
     public function getIterator()
     {
         return $this->items->getIterator();
@@ -552,6 +650,7 @@ abstract class AbstractPaginator implements Htmlable
      *
      * @return int
      */
+    #[\ReturnTypeWillChange]
     public function count()
     {
         return $this->items->count();
@@ -596,6 +695,7 @@ abstract class AbstractPaginator implements Htmlable
      * @param  mixed  $key
      * @return bool
      */
+    #[\ReturnTypeWillChange]
     public function offsetExists($key)
     {
         return $this->items->has($key);
@@ -607,6 +707,7 @@ abstract class AbstractPaginator implements Htmlable
      * @param  mixed  $key
      * @return mixed
      */
+    #[\ReturnTypeWillChange]
     public function offsetGet($key)
     {
         return $this->items->get($key);
@@ -619,6 +720,7 @@ abstract class AbstractPaginator implements Htmlable
      * @param  mixed  $value
      * @return void
      */
+    #[\ReturnTypeWillChange]
     public function offsetSet($key, $value)
     {
         $this->items->put($key, $value);
@@ -630,6 +732,7 @@ abstract class AbstractPaginator implements Htmlable
      * @param  mixed  $key
      * @return void
      */
+    #[\ReturnTypeWillChange]
     public function offsetUnset($key)
     {
         $this->items->forget($key);
@@ -658,7 +761,7 @@ abstract class AbstractPaginator implements Htmlable
     }
 
     /**
-     * Render the contents of the paginator when casting to string.
+     * Render the contents of the paginator when casting to a string.
      *
      * @return string
      */

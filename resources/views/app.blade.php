@@ -5,24 +5,24 @@
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
         <title>kora - {{ $page_title }}</title>
 
-        @if(isInstalled())
+        @if(databaseConnectionExists())
             @yield('stylesheets')
         @endif
 
         <link rel="stylesheet" href="{{url('assets/css/app.css')}}">
     </head>
-    <body class="{{ str_hyphenated($page_class) }}-body {{ ((Auth::guest() || !Auth::user()->active) && isInstalled()) ? 'auth-body' : '' }}">
+    <body class="{{ str_hyphenated($page_class) }}-body {{ ((Auth::guest() || !Auth::user()->active) && databaseConnectionExists()) ? 'auth-body' : '' }}">
       @include('partials.nav')
       @include('partials.sideMenu')
 
-      <div class="{{ str_hyphenated($page_class) }} {{ ((Auth::guest() || !Auth::user()->active) && isInstalled()) ? 'auth' : '' }}">
+      <div class="{{ str_hyphenated($page_class) }} {{ ((Auth::guest() || !Auth::user()->active) && databaseConnectionExists()) ? 'auth' : '' }}">
 
           @include('partials.records.modals.reverseAssociationModal')
         @yield('header')
         @yield('body')
         @yield('footer')
 
-        @if((Auth::guest() || !Auth::user()->active) && isInstalled())
+        @if((Auth::guest() || !Auth::user()->active) && databaseConnectionExists())
           @include('partials.footer')
         @endif
       </div>

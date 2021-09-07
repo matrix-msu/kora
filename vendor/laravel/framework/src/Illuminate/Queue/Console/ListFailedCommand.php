@@ -24,7 +24,7 @@ class ListFailedCommand extends Command
     /**
      * The table headers for the command.
      *
-     * @var array
+     * @var string[]
      */
     protected $headers = ['ID', 'Connection', 'Queue', 'Class', 'Failed At'];
 
@@ -66,7 +66,7 @@ class ListFailedCommand extends Command
     {
         $row = array_values(Arr::except($failed, ['payload', 'exception']));
 
-        array_splice($row, 3, 0, $this->extractJobName($failed['payload']));
+        array_splice($row, 3, 0, $this->extractJobName($failed['payload']) ?: '');
 
         return $row;
     }
@@ -92,7 +92,7 @@ class ListFailedCommand extends Command
      * Match the job name from the payload.
      *
      * @param  array  $payload
-     * @return string
+     * @return string|null
      */
     protected function matchJobName($payload)
     {

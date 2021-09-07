@@ -3,6 +3,7 @@
 Route::group(['middleware' => 'web'], function () {
     Route::get('/', 'WelcomeController@index');
     Route::get('/home', 'WelcomeController@index');
+    Route::get('/helloworld', 'WelcomeController@helloWorld');
     Route::post('/language', 'WelcomeController@setTemporaryLanguage');
 
 //dashboard routes
@@ -60,6 +61,8 @@ Route::group(['middleware' => 'web'], function () {
     Route::get('/admin/users', 'AdminController@users');
     Route::get('/admin/users/{id}/edit', 'AdminController@editUser');
     Route::post('/admin/users/validateEmails', 'AdminController@validateEmails');
+    Route::get('/admin/config', "InstallController@editEnvConfigs");
+    Route::post('/admin/config', "InstallController@updateEnvConfigs");
     Route::post('admin/reverseCache', 'AdminController@buildReverseCache');
     Route::patch('/admin/update/{id}', 'AdminController@update');
     Route::patch('/admin/updateActivation/{id}', 'AdminController@updateActivation');
@@ -208,14 +211,6 @@ Route::group(['middleware' => 'web'], function () {
     Route::post('/user/validate', 'Auth\RegisterController@validateUserFields');
 	Route::patch('/toggleOnboarding', 'Auth\UserController@toggleOnboarding');
 	Route::patch('/user/validateEditProfile', 'Auth\UserController@validateEditProfile');
-
-//install routes
-    Route::get('/helloworld', 'InstallController@helloworld');
-    Route::get('/install', 'InstallController@index');
-    Route::post('/install', 'InstallController@installFromWeb');
-    Route::get('/readyplayerone', "WelcomeController@installSuccess");
-    Route::get('/install/config', "InstallController@editEnvConfigs");
-    Route::post('/install/config', "InstallController@updateEnvConfigs");
 
 //update routes
     Route::get('/update', 'UpdateController@index');

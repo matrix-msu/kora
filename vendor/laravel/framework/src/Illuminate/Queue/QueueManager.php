@@ -169,7 +169,7 @@ class QueueManager implements FactoryContract, MonitorContract
     protected function getConnector($driver)
     {
         if (! isset($this->connectors[$driver])) {
-            throw new InvalidArgumentException("No connector for [$driver]");
+            throw new InvalidArgumentException("No connector for [$driver].");
         }
 
         return call_user_func($this->connectors[$driver]);
@@ -244,6 +244,33 @@ class QueueManager implements FactoryContract, MonitorContract
     public function getName($connection = null)
     {
         return $connection ?: $this->getDefaultDriver();
+    }
+
+    /**
+     * Get the application instance used by the manager.
+     *
+     * @return \Illuminate\Contracts\Foundation\Application
+     */
+    public function getApplication()
+    {
+        return $this->app;
+    }
+
+    /**
+     * Set the application instance used by the manager.
+     *
+     * @param  \Illuminate\Contracts\Foundation\Application  $app
+     * @return $this
+     */
+    public function setApplication($app)
+    {
+        $this->app = $app;
+
+        foreach ($this->connections as $connection) {
+            $connection->setContainer($app);
+        }
+
+        return $this;
     }
 
     /**

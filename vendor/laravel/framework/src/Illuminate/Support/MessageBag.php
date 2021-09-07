@@ -2,14 +2,13 @@
 
 namespace Illuminate\Support;
 
-use Countable;
 use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Contracts\Support\Jsonable;
 use Illuminate\Contracts\Support\MessageBag as MessageBagContract;
 use Illuminate\Contracts\Support\MessageProvider;
 use JsonSerializable;
 
-class MessageBag implements Arrayable, Countable, Jsonable, JsonSerializable, MessageBagContract, MessageProvider
+class MessageBag implements Jsonable, JsonSerializable, MessageBagContract, MessageProvider
 {
     /**
      * All of the registered messages.
@@ -67,6 +66,19 @@ class MessageBag implements Arrayable, Countable, Jsonable, JsonSerializable, Me
     }
 
     /**
+     * Add a message to the message bag if the given conditional is "true".
+     *
+     * @param  bool  $boolean
+     * @param  string  $key
+     * @param  string  $message
+     * @return $this
+     */
+    public function addIf($boolean, $key, $message)
+    {
+        return $boolean ? $this->add($key, $message) : $this;
+    }
+
+    /**
      * Determine if a key and message combination already exists.
      *
      * @param  string  $key
@@ -100,7 +112,7 @@ class MessageBag implements Arrayable, Countable, Jsonable, JsonSerializable, Me
     /**
      * Determine if messages exist for all of the given keys.
      *
-     * @param  array|string  $key
+     * @param  array|string|null  $key
      * @return bool
      */
     public function has($key)
@@ -167,7 +179,7 @@ class MessageBag implements Arrayable, Countable, Jsonable, JsonSerializable, Me
      * Get all of the messages from the message bag for a given key.
      *
      * @param  string  $key
-     * @param  string  $format
+     * @param  string|null  $format
      * @return array
      */
     public function get($key, $format = null)
@@ -211,7 +223,7 @@ class MessageBag implements Arrayable, Countable, Jsonable, JsonSerializable, Me
     /**
      * Get all of the messages for every key in the message bag.
      *
-     * @param  string  $format
+     * @param  string|null  $format
      * @return array
      */
     public function all($format = null)
@@ -230,7 +242,7 @@ class MessageBag implements Arrayable, Countable, Jsonable, JsonSerializable, Me
     /**
      * Get all of the unique messages for every key in the message bag.
      *
-     * @param  string  $format
+     * @param  string|null  $format
      * @return array
      */
     public function unique($format = null)
@@ -356,6 +368,7 @@ class MessageBag implements Arrayable, Countable, Jsonable, JsonSerializable, Me
      *
      * @return int
      */
+    #[\ReturnTypeWillChange]
     public function count()
     {
         return count($this->messages, COUNT_RECURSIVE) - count($this->messages);
@@ -376,6 +389,7 @@ class MessageBag implements Arrayable, Countable, Jsonable, JsonSerializable, Me
      *
      * @return array
      */
+    #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
         return $this->toArray();

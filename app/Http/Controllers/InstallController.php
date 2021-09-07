@@ -43,102 +43,6 @@ class InstallController extends Controller {
 	];
 
     /**
-     * Gets home view for the uninstalled welcome page.
-     *
-     * @return View
-     */
-    public function helloworld() {
-        if(isInstalled())
-            return redirect('/');
-
-        return view('install.helloworld');
-    }
-
-    /**
-     * Gets view for install setup.
-     *
-     * @return View
-     */
-    public function index() {
-        if(isInstalled())
-            return redirect('/');
-
-        return view('install.install');
-    }
-
-    /**
-     * Installs kora from the web interface.
-     *
-     * @param  Request $request
-     * @return View
-     */
-    public function installFromWeb(Request $request) {
-        if($this->updateEnvDB($request)) {
-            $password = uniqid();
-            if($this->install($password,$request))
-                return redirect()->action('WelcomeController@installSuccess',['pw'=>$password]);
-        }
-
-        return redirect('/install')->withInput();
-    }
-
-    /**
-     * Updates DB in the ENV configuration file.
-     *
-     * @param  Request $request
-     * @return bool
-     */
-    private function updateEnvDB(Request $request) {
-        if(config('app.debug'))
-            $debug = 'true';
-        else
-            $debug = 'false';
-
-        $layout = "APP_ENV=" . config('app.env') . "\n".
-            "APP_DEBUG=" . $debug . "\n".
-            "APP_KEY=" . config('app.key') . "\n\n".
-
-            "DB_HOST=" . $request->db_host . "\n" .
-            "DB_DATABASE=" . $request->db_database . "\n" .
-            "DB_USERNAME=" . $request->db_username . "\n" .
-            "DB_PASSWORD=" . $request->db_password . "\n" .
-            "DB_DEFAULT=" . config('database.default') . "\n" .
-            "DB_PREFIX=" . $request->db_prefix . "\n\n" .
-
-            "MAIL_HOST=" . config('mail.host') . "\n" .
-            "MAIL_FROM_ADDRESS=" . config('mail.from.address') . "\n" .
-            "MAIL_FROM_NAME=\"" . config('mail.from.name') . "\"\n" .
-            "MAIL_USER=" . config('mail.username') . "\n" .
-            "MAIL_PASSWORD=" . config('mail.password') . "\n\n" .
-
-            "CACHE_DRIVER=" . config('cache.default') . "\n" .
-            "SESSION_DRIVER=" . config('session.driver') . "\n" .
-            "STORAGE_TYPE=" . config('filesystems.kora_storage') . "\n\n" .
-
-            "RECAPTCHA_PUBLIC_KEY=" . config('auth.recap_public') . "\n" .
-            "RECAPTCHA_PRIVATE_KEY=" . config('auth.recap_private') . "\n\n" .
-
-            "GITLAB_CLIENT=" . config('services.gitlab.client') . "\n" .
-            "GITLAB_CLIENT_ID=" . config('services.gitlab.client_id') . "\n" .
-            "GITLAB_CLIENT_SECRET=" . config('services.gitlab.client_secret');
-
-        try {
-            Log::info("Beginning ENV Write");
-            $envfile = fopen(base_path(".env"), "w");
-
-            fwrite($envfile, $layout);
-
-            fclose($envfile);
-            Log::info("Ending ENV Write");
-        } catch(\Exception $e) { //Most likely if the file is owned by another user or PHP doesn't have permission
-            Log::info($e);
-            return false;
-        }
-
-        return true;
-    }
-
-    /**
      * Install kora - Creates the database, and adds any defaults needed
      *
      * @param  string $password - The admin password to create
@@ -373,7 +277,7 @@ class InstallController extends Controller {
             ['title'=>'Mail Password',         'slug'=>'mail_password',        'value'=>config('mail.password')],
         );
 
-        return view('install.config',compact('configs'));
+        return view('admin.config',compact('configs'));
     }
 
     /**
@@ -443,9 +347,9 @@ class InstallController extends Controller {
             Log::info("Ending ENV Write");
         } catch(\Exception $e) { //Most likely if the file is owned by another user or PHP doesn't have permission
             Log::info($e);
-            return redirect('install/config')->with('k3_global_error', 'env_cant_write');
+            return redirect('admin/config')->with('k3_global_error', 'env_cant_write');
         }
 
-        return redirect('install/config')->with('k3_global_success', 'kora_config_updated');
+        return redirect('admin/config')->with('k3_global_success', 'kora_config_updated');
     }
 }
