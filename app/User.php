@@ -164,22 +164,6 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
         $job->handle();
     }
 
-    /** LOGIN
-     * Filters login results to allow login with either username or email. Happens in the AuthenticatesUsers::credentials
-     *
-     * @param  array $credentials - The login credentials
-     * @return array - The filtered credentials
-     */
-    public static function refineLoginCredentials($credentials) {
-        if(strpos($credentials['email'], '@') == false) {
-            //logging in with username not email, so change the column-name
-            $credentials['username'] = $credentials['email'];
-            unset($credentials['email']);
-        }
-
-        return $credentials;
-    }
-
     ////END AUTH FUNCTIONS//////////////////////////////////////////////////////////////////////////////////////////////
 
     /**

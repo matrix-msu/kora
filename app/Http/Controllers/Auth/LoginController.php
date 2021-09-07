@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\User;
 use Carbon\Carbon;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Laravel\Socialite\Facades\Socialite;
@@ -45,6 +46,25 @@ class LoginController extends Controller
             'redirectToGitlab',
             'handleGitlabCallback'
         ]]);
+    }
+
+    /**
+     * Override of function in AuthenticatesUsers. Filters login results to allow login with either username or email
+     *
+     * @param  Request $request
+     * @return array - The filtered credentials
+     */
+    protected function credentials(Request $request)
+    {
+        $credentials = $request->only($this->username(), 'password');
+
+        if(strpos($credentials['email'], '@') == false) {
+            //logging in with username not email, so change the column-name
+            $credentials['username'] = $credentials['email'];
+            unset($credentials['email']);
+        }
+
+        return $credentials;
     }
 
     /**
