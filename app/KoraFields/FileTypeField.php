@@ -68,12 +68,8 @@ abstract class FileTypeField extends BaseField {
      */
     public function validateField($flid, $field, $request, $forceReq = false) {
         $req = $field['required'];
-        if(Auth::guest())
-            $value = 'recordU'.$request['userId'];
-        else
-            $value = 'recordU'.Auth::user()->id;
 
-        $tmpPath = 'app/tmpFiles/' . $value;
+        $tmpPath = 'app/tmpFiles/' . $request->tmpFileDir;
 
         if($req==1 | $forceReq) {
             if(glob(storage_path($tmpPath . '/*.*')) == false)

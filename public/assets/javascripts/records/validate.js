@@ -55,6 +55,7 @@ Kora.Records.Validate = function() {
                     values[field.name] = field.value;
             });
             values['_method'] = 'POST';
+            values['tmpFileDir'] = tmpFileDir;
 
             $.ajax({
                 url: validationUrl,
