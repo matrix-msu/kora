@@ -105,8 +105,8 @@ class RecordController extends Controller {
         }
 
         //Make sure tmp file field folder exists
-        $folder = 'recordU'.\Auth::user()->id;
-        $dirTmp = storage_path('app/tmpFiles/'.$folder);
+        $tmpFileDir = 'record'.uniqid();
+        $dirTmp = storage_path('app/tmpFiles/'.$tmpFileDir);
         if(file_exists($dirTmp)) {
             foreach(new \DirectoryIterator($dirTmp) as $file) {
                 if($file->isFile())
@@ -118,7 +118,7 @@ class RecordController extends Controller {
             mkdir($dirTmp.'/thumbnail',0775,true); //Make it!
         }
 
-        return view('records.create', compact('form', 'presets'));
+        return view('records.create', compact('form', 'presets', 'tmpFileDir'));
 	}
 
     /**
@@ -366,8 +366,8 @@ class RecordController extends Controller {
         $form = FormController::getForm($fid);
 
         //Make sure tmp file field folder exists
-        $folder = 'recordU'.\Auth::user()->id;
-        $dirTmp = storage_path('app/tmpFiles/'.$folder);
+        $tmpFileDir = 'record'.uniqid();
+        $dirTmp = storage_path('app/tmpFiles/'.$tmpFileDir);
         if(file_exists($dirTmp)) {
             foreach(new \DirectoryIterator($dirTmp) as $file) {
                 if($file->isFile())
@@ -402,7 +402,7 @@ class RecordController extends Controller {
             }
         }
 
-        return view('records.edit', compact('record', 'form'));
+        return view('records.edit', compact('record', 'form', 'tmpFileDir'));
 	}
 
     /**
@@ -527,8 +527,8 @@ class RecordController extends Controller {
         $record = self::getRecord($kid);
 
         //Make sure tmp file field folder exists
-        $folder = 'recordU'.\Auth::user()->id;
-        $dirTmp = storage_path('app/tmpFiles/'.$folder);
+        $tmpFileDir = 'record'.uniqid();
+        $dirTmp = storage_path('app/tmpFiles/'.$tmpFileDir);
         if(file_exists($dirTmp)) {
             foreach(new \DirectoryIterator($dirTmp) as $file) {
                 if($file->isFile())
@@ -563,7 +563,7 @@ class RecordController extends Controller {
             }
         }
 
-        return view('records.clone', compact('record', 'form'));
+        return view('records.clone', compact('record', 'form', 'tmpFileDir'));
     }
 
     /**

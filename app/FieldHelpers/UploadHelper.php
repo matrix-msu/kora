@@ -264,7 +264,7 @@ class UploadHandler
     }
 
     protected function set_additional_file_properties($file) {
-        $file->deleteUrl = url('deleteTmpFile/'.$this->options['fid'].'/'.$this->options['flid'].'/'.urlencode($file->name));
+        $file->deleteUrl = url('deleteTmpFile/'.$this->options['fid'].'/'.$this->options['flid'].'/'.urlencode($this->options['folder']).'/'.urlencode($file->name));
         $file->deleteType = $this->options['delete_type'];
         if ($file->deleteType !== 'DELETE') {
             $file->deleteUrl .= '&_method=DELETE';

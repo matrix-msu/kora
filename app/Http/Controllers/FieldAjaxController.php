@@ -92,12 +92,13 @@ class FieldAjaxController extends Controller {
      *
      * @param  int $fid - Form ID
      * @param  string $flid - File field that record file will be loaded to
+     * @param  string $tmpDir - Temporary directory to save file to
      * @param  Request $request
      */
-    public function saveTmpFile($fid, $flid) {
+    public function saveTmpFile($fid, $flid, $tmpDir) {
         $field = FieldController::getField($flid,$fid);
         $form = FormController::getForm($fid);
-        $form->getFieldModel($field['type'])->saveTmpFile($form, $flid, $field);
+        $form->getFieldModel($field['type'])->saveTmpFile($form, $flid, $field, $tmpDir);
     }
 
     /**
@@ -105,13 +106,14 @@ class FieldAjaxController extends Controller {
      *
      * @param  int $fid - Form ID
      * @param  string $flid - File field to clear temp files for
-     * @param  string $name - Name of the file to delete
+     * @param  string $tmpDir - Temporary directory to save file to
+     * @param  string $filename - Name of the file to delete
      * @param  Request $request
      */
-    public function delTmpFile($fid, $flid, $filename) {
+    public function delTmpFile($fid, $flid, $tmpDir, $filename) {
         $field = FieldController::getField($flid,$fid);
         $form = FormController::getForm($fid);
-        $form->getFieldModel($field['type'])->delTmpFile($fid, $flid, $filename);
+        $form->getFieldModel($field['type'])->delTmpFile($fid, $flid, $filename, $tmpDir);
     }
 
     /**

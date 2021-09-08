@@ -103,6 +103,7 @@
         var geoConvertUrl = '{{ action('FieldAjaxController@geoConvert',['pid' => $form->project_id, 'fid' => $form->id, 'flid' => 0]) }}';
         var csrfToken = "{{ csrf_token() }}";
         var userID = "{{\Auth::user()->id}}";
+        var tmpFileDir = "{{$tmpFileDir}}";
         var baseFileUrl = "{{url('deleteTmpFile')}}/";
         var validationUrl = "{{action('RecordController@validateRecord',['pid' => $form->project_id, 'fid' => $form->id])}}";
 

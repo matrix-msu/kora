@@ -1492,7 +1492,7 @@ Kora.Records.Create = function() {
         function fileDivHTML(file, flid, btnName) {
             var name = file['name'];
             var caption = file['caption'];
-            deleteUrl = deleteFileUrl+flid+"/"+name;
+            deleteUrl = deleteFileUrl+flid+"/"+tmpFileDir+"/"+name;
 
             var HTML = '<div class="card file-card file-card-js">';
             HTML += '<input type="hidden" name="'+flid+'[]" value="'+name+'">';

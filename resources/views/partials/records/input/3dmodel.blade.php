@@ -32,7 +32,7 @@
                         </div>
 
                         <div class="card-toggle-wrap">
-                            <a href="#" class="file-delete upload-filedelete-js ml-sm tooltip" tooltip="Remove Model File" data-url="{{ url("deleteTmpFile/$form->id/$flid/".urlencode($name)) }}">
+                            <a href="#" class="file-delete upload-filedelete-js ml-sm tooltip" tooltip="Remove Model File" data-url="{{ url("deleteTmpFile/$form->id/$flid/".urlencode($tmpFileDir)."/".urlencode($name)) }}">
                                 <i class="icon icon-trash danger"></i>
                             </a>
                         </div>
@@ -59,5 +59,5 @@
     </label>
 
     <input type="file" flid="{{$flid}}" id="{{$flid}}" name="file{{$flid}}[]" class="kora-file-upload-js hidden"
-           data-url="{{ url("saveTmpFile/$form->id/$flid") }}" multiple>
+           data-url="{{ url("saveTmpFile/$form->id/$flid/".urlencode($tmpFileDir)) }}" multiple>
 </div>

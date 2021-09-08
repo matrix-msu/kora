@@ -102,11 +102,7 @@ abstract class FileTypeField extends BaseField {
      * @return mixed - Processed data
      */
     public function processRecordData($field, $value, $request) {
-        if($request->api && isset($request->userId))
-            $uid = $request->userId;
-        else
-            $uid = Auth::user()->id;
-        $tmpPath = 'app/tmpFiles/recordU' . $uid;
+        $tmpPath = 'app/tmpFiles/'.$request->tmpFileDir;
         $flid = $field['flid'];
         $captions = !is_null($request->input('file_captions'.$flid)) ? $request->input('file_captions'.$flid) : null;
 
@@ -574,10 +570,9 @@ abstract class FileTypeField extends BaseField {
      * @param  int $field - File field that record file will be loaded to
      * @param  Request $request
      */
-    public function saveTmpFile($form, $flid, $field) {
-        $uid = \Auth::user()->id;
+    public function saveTmpFile($form, $flid, $field, $tmpDir) {
         //We are going to store in the tmp directory in a user unique folder
-        $dir = storage_path('recordU'.$uid);
+        $dir = storage_path($tmpDir);
 
         //Validate file names
         $validNames = true;
@@ -634,7 +629,7 @@ abstract class FileTypeField extends BaseField {
         $options = array();
         $options['fid'] = $form->id;
         $options['flid'] = $flid;
-        $options['folder'] = 'recordU'.$uid;
+        $options['folder'] = $tmpDir;
 
         if(!$validNames) {
             echo "InvalidFileNames";
@@ -656,13 +651,12 @@ abstract class FileTypeField extends BaseField {
      * @param  string $name - Name of the file to delete
      * @param  Request $request
      */
-    public function delTmpFile($fid, $flid, $filename) {
-        $uid = \Auth::user()->id;
+    public function delTmpFile($fid, $flid, $filename, $tmpDir) {
         $options = array();
         $options['fid'] = $fid;
         $options['flid'] = $flid;
         $options['filename'] = $filename;
-        $options['folder'] = 'recordU'.$uid;
+        $options['folder'] = $tmpDir;
         $options['deleteThat'] = true;
         $upload_handler = new UploadHandler($options);
     }

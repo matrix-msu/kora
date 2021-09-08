@@ -127,9 +127,9 @@ Route::group(['middleware' => 'web'], function () {
     Route::post('/projects/{pid}/forms/{fid}/fields/{flid}/options/geoConvert', 'FieldAjaxController@geoConvert');
     Route::post('/projects/{pid}/forms/{fid}/fields/{flid}/options/assoc', 'AssociatorSearchController@assocSearch');
     Route::post('/projects/{pid}/forms/{fid}', 'FieldController@store');
-    Route::post('/saveTmpFile/{fid}/{flid}', 'FieldAjaxController@saveTmpFile');
-    Route::patch('/saveTmpFile/{fid}/{flid}', 'FieldAjaxController@saveTmpFile');
-    Route::delete('/deleteTmpFile/{fid}/{flid}/{filename}', 'FieldAjaxController@delTmpFile');
+    Route::post('/saveTmpFile/{fid}/{flid}/{tmpDir}', 'FieldAjaxController@saveTmpFile');
+    Route::patch('/saveTmpFile/{fid}/{flid}/{tmpDir}', 'FieldAjaxController@saveTmpFile');
+    Route::delete('/deleteTmpFile/{fid}/{flid}/{tmpDir}/{filename}', 'FieldAjaxController@delTmpFile');
     Route::get('/download/{kid}/zip', 'FieldAjaxController@getZipDownload');
     Route::get('/download/{kid}/{filename}', 'FieldAjaxController@getFileDownload');
     Route::get('/files/{kid}/{filename}', 'FieldAjaxController@publicRecordFile');
