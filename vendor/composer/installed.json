@@ -2527,6 +2527,10 @@
                 "assoc-array",
                 "hash-map"
             ],
+            "support": {
+                "issues": "https://github.com/igorw/get-in/issues",
+                "source": "https://github.com/igorw/get-in/tree/v1.0.3"
+            },
             "install-path": "../igorw/get-in"
         },
         {
@@ -3783,7 +3787,7 @@
             "install-path": "../myclabs/deep-copy"
         },
         {
-            "name": "natxet/CssMin",
+            "name": "natxet/cssmin",
             "version": "v3.0.6",
             "version_normalized": "3.0.6.0",
             "source": {
@@ -3830,7 +3834,11 @@
                 "css",
                 "minify"
             ],
-            "install-path": "../natxet/CssMin"
+            "support": {
+                "issues": "https://github.com/natxet/CssMin/issues",
+                "source": "https://github.com/natxet/CssMin/tree/master"
+            },
+            "install-path": "../natxet/cssmin"
         },
         {
             "name": "nesbot/carbon",
@@ -4753,6 +4761,10 @@
                 "stream",
                 "uri"
             ],
+            "support": {
+                "issues": "https://github.com/php-http/message-factory/issues",
+                "source": "https://github.com/php-http/message-factory/tree/master"
+            },
             "install-path": "../php-http/message-factory"
         },
         {
@@ -5911,6 +5923,9 @@
                 "request",
                 "response"
             ],
+            "support": {
+                "source": "https://github.com/php-fig/http-factory/tree/master"
+            },
             "install-path": "../psr/http-factory"
         },
         {
@@ -5964,6 +5979,9 @@
                 "request",
                 "response"
             ],
+            "support": {
+                "source": "https://github.com/php-fig/http-message/tree/master"
+            },
             "install-path": "../psr/http-message"
         },
         {
@@ -6068,6 +6086,9 @@
                 "psr-16",
                 "simple-cache"
             ],
+            "support": {
+                "source": "https://github.com/php-fig/simple-cache/tree/master"
+            },
             "install-path": "../psr/simple-cache"
         },
         {
@@ -6240,6 +6261,10 @@
                 }
             ],
             "description": "A polyfill for getallheaders.",
+            "support": {
+                "issues": "https://github.com/ralouphie/getallheaders/issues",
+                "source": "https://github.com/ralouphie/getallheaders/tree/develop"
+            },
             "install-path": "../ralouphie/getallheaders"
         },
         {

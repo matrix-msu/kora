@@ -5,7 +5,7 @@
         'type' => 'project',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
-        'reference' => '3d9ca0ba810031f02f8bede93e2bdcd2e1930ce3',
+        'reference' => '42a056d11078982588a0347325b9b1c5e8806b63',
         'name' => 'laravel/laravel',
         'dev' => true,
     ),
@@ -568,7 +568,7 @@
             'type' => 'project',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
-            'reference' => '3d9ca0ba810031f02f8bede93e2bdcd2e1930ce3',
+            'reference' => '42a056d11078982588a0347325b9b1c5e8806b63',
             'dev_requirement' => false,
         ),
         'laravel/socialite' => array(
@@ -692,7 +692,7 @@
             'pretty_version' => 'v3.0.6',
             'version' => '3.0.6.0',
             'type' => 'library',
-            'install_path' => __DIR__ . '/../natxet/CssMin',
+            'install_path' => __DIR__ . '/../natxet/cssmin',
             'aliases' => array(),
             'reference' => 'd5d9f4c3e5cedb1ae96a95a21731f8790e38f1dd',
             'dev_requirement' => false,
@@ -1046,8 +1046,8 @@
         'psr/log-implementation' => array(
             'dev_requirement' => false,
             'provided' => array(
-                0 => '1.0.0',
-                1 => '1.0|2.0',
+                0 => '1.0|2.0',
+                1 => '1.0.0',
             ),
         ),
         'psr/simple-cache' => array(
