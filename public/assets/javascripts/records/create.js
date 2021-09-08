@@ -1449,7 +1449,8 @@ Kora.Records.Create = function() {
                 type: 'POST',
                 data: {
                     '_token': csrfToken,
-                    'presetID': presetID
+                    'presetID': presetID,
+                    'tmpFileDir': tmpFileDir
                 }
             });
         }
