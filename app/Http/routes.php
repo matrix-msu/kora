@@ -10,14 +10,14 @@ Route::group(['middleware' => 'web'], function () {
     Route::get('/dashboard', 'DashboardController@dashboard');
     Route::post('/dashboard/addBlock', 'DashboardController@addBlock');
     Route::post('/dashboard/addBlock/validate', 'DashboardController@validateBlockFields');
-    Route::post('/dashboard/addSection/{sectionTitle}','DashboardController@addSection');
+    Route::post('/dashboard/addSection/{sectionTitle?}','DashboardController@addSection');
     Route::patch('/dashboard/editBlock', 'DashboardController@editBlock');
     Route::patch('/dashboard/editNoteBlock', 'DashboardController@editNoteBlock');
     Route::patch('/dashboard/editSection', 'DashboardController@editSection');
     Route::patch('/dashboard/editBlockOrder', 'DashboardController@editBlockOrder');
     Route::patch('/dashboard/editBlockQuickActions', 'DashboardController@editBlockQuickActions');
-    Route::delete('/dashboard/deleteBlock/{blkID}/{secID}', 'DashboardController@deleteBlock');
-    Route::delete('/dashboard/deleteSection/{sectionID}', 'DashboardController@deleteSection');
+    Route::delete('/dashboard/deleteBlock/{blkID?}/{secID?}', 'DashboardController@deleteBlock');
+    Route::delete('/dashboard/deleteSection/{sectionID?}', 'DashboardController@deleteSection');
 
 //project routes
     Route::get('/projects/import', 'ProjectController@importProjectView');
@@ -25,7 +25,7 @@ Route::group(['middleware' => 'web'], function () {
     Route::post('/projects/import', 'ImportController@importProject');
     Route::resource('projects', 'ProjectController');
     Route::post('projects/request', 'ProjectController@request');
-    Route::post('projects/{pid}/archive', 'ProjectController@setArchiveProject');
+    Route::post('projects/{pid?}/archive', 'ProjectController@setArchiveProject');
     Route::get('/projects/{pid}/importMF', 'ImportMultiFormController@index');
     Route::post('/projects/{pid}/importMF', 'ImportMultiFormController@beginImport');
     Route::post('/projects/{pid}/importMFRecord', 'ImportMultiFormController@importRecord');
@@ -68,8 +68,8 @@ Route::group(['middleware' => 'web'], function () {
     Route::patch('/admin/updateActivation/{id}', 'AdminController@updateActivation');
     Route::patch('/admin/updateStatus/{id}', 'AdminController@updateStatus');
     Route::patch('/admin/batch', 'AdminController@batch');
-    Route::delete('admin/deleteUser/{id}', 'AdminController@deleteUser');
-    Route::delete('admin/revokeGitlab/{id}', 'AdminController@revokeGitlab');
+    Route::delete('admin/deleteUser/{id?}', 'AdminController@deleteUser');
+    Route::delete('admin/revokeGitlab/{id?}', 'AdminController@revokeGitlab');
 
 //token routes
     Route::get('/tokens', 'TokenController@index');
@@ -108,7 +108,7 @@ Route::group(['middleware' => 'web'], function () {
     Route::post('/projects/{pid}/forms/{fid}/exportSelectedRecords/{type}', 'ExportController@exportSelectedRecords');
     Route::post('/projects/{pid}/forms/{fid}/prepFiles', 'ExportController@prepRecordFiles');
     Route::post('/projects/{pid}/forms/{fid}/buildFiles', 'ExportController@buildFormRecordZip');
-    Route::get('/projects/{pid}/forms/{fid}/exportFiles/{name}', 'ExportController@exportRecordFiles');
+    Route::get('/projects/{pid}/forms/{fid}/exportFiles/{name?}', 'ExportController@exportRecordFiles');
     Route::get('/projects/{pid}/forms/{fid}/exportForm', 'ExportController@exportForm');
     Route::get('/projects/{pid}/exportProj', 'ExportController@exportProject');
 
@@ -168,7 +168,7 @@ Route::group(['middleware' => 'web'], function () {
     Route::post('/projects/{pid}/forms/{fid}/records/validateMass', 'RecordController@validateMassRecord');
     Route::post('/projects/{pid}/forms/{fid}/records/importRecord', 'ImportController@importRecord');
     Route::post('/projects/{pid}/forms/{fid}/records/connectRecords', 'ImportController@connectRecords');
-    Route::post('/projects/{pid}/forms/{fid}/records/importFailureSave', 'ImportController@saveImportFailure');
+    Route::post('/projects/{pid}/forms/{fid?}/records/importFailureSave', 'ImportController@saveImportFailure');
     Route::post('/projects/{pid}/forms/{fid}/records/importRecordFailed', 'ImportController@downloadFailedRecords');
     Route::post('/projects/{pid}/forms/{fid}/records/importReasonsFailed', 'ImportController@downloadFailedReasons');
     Route::post('/projects/{pid}/forms/{fid}/records/importConnectionsFailed', 'ImportController@downloadFailedConnections');
@@ -177,7 +177,7 @@ Route::group(['middleware' => 'web'], function () {
     Route::get('/projects/{pid}/forms/{fid}/records/{rid}/edit', 'RecordController@edit');
     Route::post('/projects/{pid}/forms/{fid}/records', 'RecordController@store');
     Route::delete('projects/{pid}/forms/{fid}/records/deleteMultipleRecords', 'RecordController@deleteMultipleRecords');
-    Route::delete('projects/{pid}/forms/{fid}/records/{rid}', 'RecordController@destroy');
+    Route::delete('projects/{pid}/forms/{fid}/records/{rid?}', 'RecordController@destroy');
     Route::delete('projects/{pid}/forms/{fid}/deleteAllRecords', 'RecordController@deleteAllRecords');
     Route::post('/projects/{pid}/forms/{fid}/cleanUp', 'RecordController@cleanUp');
     Route::get('/projects/{pid}/forms/{fid}/clone/{rid}', 'RecordController@cloneRecord');
