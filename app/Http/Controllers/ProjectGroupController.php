@@ -39,8 +39,9 @@ class ProjectGroupController extends Controller {
      * @param $pid - Project ID
      * @return View
      */
-    public function index($pid, $active = 0, Request $request) {
+    public function index($pid, Request $request) {
         $project = ProjectController::getProject($pid);
+        $active = 0;
 
         if(!\Auth::user()->isProjectAdmin($project))
             return redirect('projects')->with('k3_global_error', 'not_project_admin');
