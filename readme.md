@@ -48,11 +48,11 @@ educational value of the objects.
        GRANT ALL PRIVILEGES ON *.* TO 'kora'@'localhost' IDENTIFIED BY 'kora';
        CREATE DATABASE kora;
 
+   b) Otherwise, modify the ENV file to connect an existing empty database
+
 4) Run the following command in the kora root directory to complete the installation:
 
        php artisan kora:install
-       
-   **NOTE**: Alternatively, you can visit kora on the web at this point to complete installation there.
 
 5) After installation is complete:
 
