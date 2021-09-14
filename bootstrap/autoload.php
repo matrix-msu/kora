@@ -32,6 +32,25 @@ function url($path = null, $parameters = [], $secure = null)
     return app(\Illuminate\Contracts\Routing\UrlGenerator::class)->to($path, $parameters, true);
 }
 
+/**
+ * Get an instance of the redirector. This override for Foundation::helpers.php needs to be created before the vendor
+ * files are loaded. The goal of the override is to always force HTTPS
+ *
+ * @param  string|null  $to
+ * @param  int  $status
+ * @param  array  $headers
+ * @param  bool|null  $secure
+ * @return \Illuminate\Routing\Redirector|\Illuminate\Http\RedirectResponse
+ */
+function redirect($to = null, $status = 302, $headers = [], $secure = null)
+{
+    if (is_null($to)) {
+        return app('redirect');
+    }
+
+    return app('redirect')->to($to, $status, $headers, true);
+}
+
 require __DIR__.'/../vendor/autoload.php';
 
 /*

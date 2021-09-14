@@ -49,7 +49,7 @@ class LoginController extends Controller
     }
 
     /**
-     * Override of function in AuthenticatesUsers. Filters login results to allow login with either username or email
+     * Override of function in the use class above, AuthenticatesUsers. Filters login results to allow login with either username or email
      *
      * @param  Request $request
      * @return array - The filtered credentials
