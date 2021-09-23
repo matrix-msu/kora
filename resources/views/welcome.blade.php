@@ -40,7 +40,7 @@
           <button type="submit" class="btn btn-primary">Login</button>
         </div>
 
-          @if(preg_match('/^http(s)?:\/\/[a-z0-9-]+(\.[a-z0-9-]+)*(:[0-9]+)?(\/.*)?$/i', config('services.gitlab.client')))
+          @if(preg_match('/^http(s)?:\/\/[a-z0-9-]+(\.[a-z0-9-]+)*(:[0-9]+)?(\/.*)?$/i', config('services.gitlab.host')))
           <div class="form-group center mt-xxxl">
               <a href="{{ action('Auth\LoginController@redirectToGitlab') }}" class="btn half-sub-btn extend-mobile" data-unsp-sanitized="clean">Login with Gitlab</a>
           </div>

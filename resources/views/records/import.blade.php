@@ -141,6 +141,7 @@
         var downloadReasonsUrl = '{{ action('ImportController@downloadFailedReasons',['pid'=>$form->project_id,'fid'=>$form->id]) }}';
         var downloadConnectionUrl = '{{ action('ImportController@downloadFailedConnections',['pid'=>$form->project_id,'fid'=>$form->id]) }}';
         var CSRFToken = '{{ csrf_token() }}';
+        var tmpFileDir = '{{ 'record'.uniqid() }}';
 
         Kora.Records.Import();
     </script>

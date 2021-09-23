@@ -241,7 +241,7 @@ abstract class FileTypeField extends BaseField {
         $currDir = storage_path( 'app/tmpFiles/impU' . $subpath);
 
         //Make destination directory
-        $newDir = storage_path('app/tmpFiles/recordU' . $subpath);
+        $newDir = storage_path('app/tmpFiles/'.$request->tmpFileDir);
         if(!file_exists($newDir))
             mkdir($newDir, 0775, true);
 
@@ -297,7 +297,7 @@ abstract class FileTypeField extends BaseField {
         $currDir = storage_path( 'app/tmpFiles/impU' . \Auth::user()->id);
 
         //Make destination directory
-        $newDir = storage_path('app/tmpFiles/recordU' . \Auth::user()->id);
+        $newDir = storage_path('app/tmpFiles/'.$request->tmpFileDir);
         if(!file_exists($newDir))
             mkdir($newDir, 0775, true);
 
@@ -356,7 +356,7 @@ abstract class FileTypeField extends BaseField {
         $currDir = storage_path( 'app/tmpFiles/impU' . $subpath);
 
         //Make destination directory
-        $newDir = storage_path('app/tmpFiles/recordU' . $subpath);
+        $newDir = storage_path('app/tmpFiles/'.$request->tmpFileDir);
         if(!file_exists($newDir))
             mkdir($newDir, 0775, true);
 

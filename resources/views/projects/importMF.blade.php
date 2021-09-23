@@ -156,6 +156,7 @@
         var downloadFailedUrl = '{{ action('ImportMultiFormController@downloadFailedRecords',['pid'=>$project->id]) }}';
         var downloadReasonsUrl = '{{ action('ImportMultiFormController@downloadFailedReasons',['pid'=>$project->id]) }}';
         var downloadConnectionUrl = '{{ action('ImportMultiFormController@downloadFailedConnections',['pid'=>$project->id]) }}';
+        var tmpFileDir = '{{ 'record'.uniqid() }}';
 
         Kora.Records.ImportMF();
     </script>
