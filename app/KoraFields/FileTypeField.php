@@ -71,15 +71,13 @@ abstract class FileTypeField extends BaseField {
 
         $tmpPath = 'app/tmpFiles/' . $request->tmpFileDir;
 
-        if($req==1 | $forceReq) {
-            if(glob(storage_path($tmpPath . '/*.*')) == false)
-                return [$flid => $field['name'].' is required'];
-        }
+        if(($req==1 || $forceReq) && is_null($request->{$flid}))
+            return [$flid => $field['name'].' is required'];
 
-        if(file_exists(storage_path($tmpPath))) {
-            foreach (new \DirectoryIterator(storage_path($tmpPath)) as $file) {
-                if ($file->isFile()) {
-                    if (!self::validateRecordFileName($file->getFilename()))
+        if(file_exists(storage_path($tmpPath)) && !is_null($request->{$flid})) {
+            foreach(new \DirectoryIterator(storage_path($tmpPath)) as $file) {
+                if($file->isFile() && in_array($file->getFilename(), $request->{$flid})) {
+                    if(!self::validateRecordFileName($file->getFilename()))
                         return [$flid => $field['name'] . ' has file with illegal filename'];
                 }
             }
