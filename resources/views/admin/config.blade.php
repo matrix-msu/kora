@@ -25,11 +25,23 @@
         <form method="post" action="{{action("InstallController@updateEnvConfigs")}}" class="config-form">
             <input type="hidden" name="_token" value="{{csrf_token()}}">
             @foreach($configs as $config)
-                <div class="form-group mt-xl">
-                    <label for="{{$config['slug']}}">{{$config['title']}}</label>
-                    <span class="error-message"></span>
-                    <input id="{{$config['slug']}}" name="{{$config['slug']}}" class="text-input" @if($config['slug']=='mail_password') type="password" @else type="text"@endif value="{{$config['value']}}">
-                </div>
+                @if($config['boolean'])
+                    <div class="form-group mt-xl">
+                        <label for="{{$config['slug']}}">{{$config['title']}}</label>
+                        <div class="check-box-half">
+                            <input type="checkbox" value="1" id="preset" class="check-box-input" name="{{$config['slug']}}"
+                                    {{($config['value']) ? 'checked' : ''}}>
+                            <span class="check"></span>
+                            <span class="placeholder"></span>
+                        </div>
+                    </div>
+                @else
+                    <div class="form-group mt-xl">
+                        <label for="{{$config['slug']}}">{{$config['title']}}</label>
+                        <span class="error-message"></span>
+                        <input id="{{$config['slug']}}" name="{{$config['slug']}}" class="text-input" @if($config['slug']=='mail_password') type="password" @else type="text"@endif value="{{$config['value']}}">
+                    </div>
+                @endif
             @endforeach
             <div class="form-group mt-xxl">
                 <button class="btn btn-primary validate-config-js" type="submit">Update Configuration File</button>
