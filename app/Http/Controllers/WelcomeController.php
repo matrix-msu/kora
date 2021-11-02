@@ -54,7 +54,12 @@ class WelcomeController extends Controller {
 				$notification['description'] ='Provided username/email from OAuth account already exists. Go to edit user page to assign account, or contact your kora administrator';
 				$notification['warning'] = true;
 				$notification['static'] = true;
-			}
+			} else if($session == 'public_registration_off') {
+                $notification['message'] ='Public registration is disabled.';
+                $notification['description'] ='Please contact an administrator to receive an invite';
+                $notification['warning'] = true;
+                $notification['static'] = true;
+            }
 
 			return view('/welcome', compact('notification'));
 		} else if (!\Auth::user()->active && \Auth::user()->regtoken=='') {

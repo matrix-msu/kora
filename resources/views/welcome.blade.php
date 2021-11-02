@@ -46,7 +46,9 @@
           </div>
           @endif
 
-        <p class="mt-xxxl mb-0"><a class="text underline-middle-hover" href="{{ url('/register') }}">Need to Sign Up?</a></p>
+          @if(config('auth.public_registration'))
+            <p class="mt-xxxl mb-0"><a class="text underline-middle-hover" href="{{ url('/register') }}">Need to Sign Up?</a></p>
+          @endif
       </form>
     </div>
   </div>

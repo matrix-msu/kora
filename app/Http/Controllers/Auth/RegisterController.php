@@ -44,6 +44,19 @@ class RegisterController extends Controller {
     }
 
     /**
+     * Show the application registration form.
+     *
+     * @return \Illuminate\View\View
+     */
+    public function showRegistrationForm()
+    {
+        if(!config('auth.public_registration'))
+            return redirect("/home")->with('status', 'public_registration_off');
+
+        return view('auth.register');
+    }
+
+    /**
      * Override of function in the use class above, RegistersUsers. Handle a registration request for the application.
      *
      * @param  Request  $request

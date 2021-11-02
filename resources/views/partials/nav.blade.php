@@ -11,7 +11,7 @@
         </li>
       @elseif(databaseConnectionExists())
         <li class="navigation-item">
-          <a href="{{ url('/') }}" class="text navigation-toggle-js underline-middle-hover">Need to Login?</a>
+          <a href="{{ url('/home') }}" class="text navigation-toggle-js underline-middle-hover">Need to Login?</a>
         </li>
       @endif
     @elseif (!Auth::user()->active && strtolower($page_class == "invited-register"))
