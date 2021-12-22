@@ -47,18 +47,19 @@
 
   <ul class="navigation-right navigation-right-js">
     @if(Auth::guest())
-      <li class="navigation-item pl-0">
-        <a href="#" class="text menu-toggle navigation-toggle-js underline-middle-hover">
-          <span>English</span>
-          <i class="icon icon-chevron"></i>
-        </a>
-        <ul class="navigation-sub-menu navigation-sub-menu-js language-select">
-          @foreach(getLangs()->keys() as $lang)
-              <li><a onclick='setTempLang({{$lang}})' href='#'>{{getLangs()->get($lang)[1]}}</a> </li>
-          @endforeach
-          <li>More Languages <br> Coming Soon!</li>
-        </ul>
-      </li>
+{{--        TEMPORARILY DISABLED THIS UNTIL NEW LANGUAGES ACTUALLY BECOME A THING--}}
+{{--      <li class="navigation-item pl-0">--}}
+{{--        <a href="#" class="text menu-toggle navigation-toggle-js underline-middle-hover">--}}
+{{--          <span>English</span>--}}
+{{--          <i class="icon icon-chevron"></i>--}}
+{{--        </a>--}}
+{{--        <ul class="navigation-sub-menu navigation-sub-menu-js language-select">--}}
+{{--          @foreach(getLangs()->keys() as $lang)--}}
+{{--              <li><a onclick='setTempLang({{$lang}})' href='#'>{{getLangs()->get($lang)[1]}}</a> </li>--}}
+{{--          @endforeach--}}
+{{--          <li>More Languages <br> Coming Soon!</li>--}}
+{{--        </ul>--}}
+{{--      </li>--}}
     @elseif (!Auth::user()->active)
       <li class="navigation-item">
         <form id="logout_link" class="form-horizontal" role="form" method="POST" action="{{ url('/logout') }}">
