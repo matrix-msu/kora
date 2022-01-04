@@ -234,9 +234,6 @@ Route::group(['middleware' => 'web'], function () {
     Route::get("/projects/{pid}/forms/{fid}/advancedSearch/results", "AdvancedSearchController@recent");
     Route::post("/projects/{pid}/forms/{fid}/advancedSearch/results", "AdvancedSearchController@search");
 
-//reset password routes
-	Route::post("/reset/email/validate", "Auth\ResetPasswordController@preValidateEmail");
-
 //user auth
     Auth::routes(); // generates user authentication routes
     Route::get('login/gitlab', 'Auth\LoginController@redirectToGitlab');

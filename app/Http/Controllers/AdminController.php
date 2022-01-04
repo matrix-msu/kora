@@ -271,9 +271,6 @@ class AdminController extends Controller {
           if($user->active) {
             // User already active, need to deactivate
             $user->active = 0;
-
-            // We need to remove the registration token so they can't come back in
-            $user->regtoken = '';
           } else {
             // User not active, need to activate
             $user->active = 1;
@@ -364,8 +361,6 @@ class AdminController extends Controller {
                         $user->email = $email;
                         $password = uniqid();
                         $user->password = bcrypt($password);
-                        $token = RegisterController::makeRegToken();
-                        $user->regtoken = $token;
 
                         $preferences = [];
                         $preferences['created_at'] = Carbon::now();
@@ -388,7 +383,7 @@ class AdminController extends Controller {
                         // Send a confirmation email.
                         //
                         $emailOptions = [
-                            'token' => $token, 'password' => $password, 'username' => $username,
+                            'token' => '', 'password' => $password, 'username' => $username,
                             'personal_message' => $personal_message, 'sender' => Auth::User(), 'project' => $project,
                             'projectGroup' => $projectGroup, 'email' => $email
                         ];

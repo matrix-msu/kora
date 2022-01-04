@@ -46,34 +46,6 @@ class UserEmails extends MailCommand implements ShouldQueue {
                     Log::info($e);
                 }
                 break;
-            case 'UserActivationRequest':
-                $token = $this->options['token'];
-                $email = $this->options['email'];
-                try {
-                    Mail::send('emails.activation', compact('token', 'email'), function($message) use ($email) {
-                        $message->from(config('mail.from.address'));
-                        $message->to($email);
-                        $message->subject('kora Account Activation');
-                    });
-                } catch(\Exception $e) {
-                    Log::error("User Activation Request Email Failed!!!");
-                    Log::info($e);
-                }
-                break;
-            case 'PasswordReset':
-                $token = $this->options['token'];
-                $userMail = $this->options['userMail'];
-                try {
-                    Mail::send('emails.password', compact('token'), function ($message) use ($userMail) {
-                        $message->from(config('mail.from.address'));
-                        $message->to($userMail);
-                        $message->subject('kora Password Reset');
-                    });
-                } catch(\Exception $e) {
-                    Log::error("Password Reset Email Failed!!!");
-                    Log::info($e);
-                }
-                break;
             default:
                 Log::info("Unknown email type was requested.");
                 break;

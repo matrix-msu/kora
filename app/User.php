@@ -1,6 +1,5 @@
 <?php namespace App;
 
-use App\Commands\UserEmails;
 use App\Http\Controllers\FormController;
 use App\Http\Controllers\ProjectController;
 use Carbon\Carbon;
@@ -35,11 +34,11 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
     /**
      * @var array - Attributes that can be mass assigned to model
      */
-	protected $fillable = ['username', 'email', 'password', 'regtoken', 'preferences'];
+	protected $fillable = ['username', 'email', 'password', 'preferences'];
     /**
      * @var array - Attributes that ignored in the model representation
      */
-	protected $hidden = ['password', 'remember_token'];
+	protected $hidden = ['password'];
 
     protected $casts = [
         'preferences' => 'array'
@@ -56,20 +55,6 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
      */
     public function gsCaches() {
         return DB::table("global_cache")->where("user_id", "=", $this->id);
-    }
-
-    /**
-     * Overrides the laravel password reset email function so we can customize it. Unless the overridden function
-     * changes, we shouldn't need to modify anything when upgrading.
-     *
-     * @param  string $token - The reset token
-     */
-    public function sendPasswordResetNotification($token) {
-        $userMail = $this->email;
-
-        //Send email
-        $job = new UserEmails('PasswordReset', ['token' => $token, 'userMail' => $userMail]);
-        $job->handle();
     }
 
     /**

@@ -20,10 +20,8 @@ class CreateUsersTable extends Migration {
             $table->string('username',20)->unique();
             $table->string('email', 60)->unique();
             $table->string('password', 60);
-            $table->string('regtoken',100);
             $table->string('gitlab_token',100)->nullable()->unique();
             $table->jsonb('preferences')->nullable();
-            $table->rememberToken();
             $table->timestamps();
         });
     }

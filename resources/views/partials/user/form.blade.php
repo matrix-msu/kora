@@ -1,5 +1,3 @@
-<input type="hidden" id="regtoken" name="regtoken" value="{{\App\Http\Controllers\Auth\RegisterController::makeRegToken()}}">
-
 <input type="hidden" id="uid" name="uid" value="{{$user->id}}">
 
 <div class="form-group mt-xl">

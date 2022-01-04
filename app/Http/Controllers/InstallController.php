@@ -194,8 +194,7 @@ class InstallController extends Controller {
         $newuser = User::create([
             'username' => 'admin',
             'email' => 'root@localhost.com',
-            'password' => bcrypt($password),
-            'regtoken' => ''
+            'password' => bcrypt($password)
         ]);
 
         $preferences = array();
