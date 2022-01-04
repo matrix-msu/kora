@@ -43,7 +43,7 @@
   </section>
 
   <section class="new-object-button new-object-button-js center">
-    <input type="button" value="Invite New User(s)">
+    <input type="button" value="Create New User(s)">
   </section>
 
   <section class="user-selection user-selection-js center">
@@ -71,7 +71,7 @@
           {!! Form::close() !!}
 
           {!! Form::open(['method' => 'PATCH', 'action' => 'AdminController@batch', 'class' => 'modal-content-js invite-content-js']) !!}
-            @include("partials.admin.userManagement.inviteForm")
+            @include("partials.admin.userManagement.createUserForm")
           {!! Form::close() !!}
         </div>
       </div>
