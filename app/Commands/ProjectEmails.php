@@ -26,22 +26,6 @@ class ProjectEmails extends MailCommand implements ShouldQueue {
      */
     public function handle() {
         switch($this->operation) {
-            case 'RequestProjectPermissions':
-                $installAdmin = $this->options['installAdmin'];
-                $bccEmails = $this->options['bccEmails'];
-                $project = $this->options['project'];
-                try {
-                    Mail::send('emails.request.access', compact('project'), function ($message) use($installAdmin, $bccEmails) {
-                        $message->from(config('mail.from.address'));
-                        $message->to($installAdmin->email);
-                        $message->bcc($bccEmails);
-                        $message->subject('kora Project Request');
-                    });
-                } catch(\Exception $e) {
-                    Log::error("Request Project Permissions Email Failed!!!");
-                    Log::info($e);
-                }
-                break;
             case 'NewProjectUser':
                 $userMail = $this->options['userMail'];
                 $name = $this->options['name'];

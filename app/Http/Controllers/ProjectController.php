@@ -125,69 +125,6 @@ class ProjectController extends Controller {
         return view('projects.index', compact('projects', 'inactive', 'custom', 'pSearch', 'hasProjects', 'requestableProjects', 'notification'));
 	}
 
-	/**
-     * Gets modal to request project permissions
-     *
-     * @param  Request $request
-     * @return View
-     */
-	public function getProjectPermissionsModal(Request $request) {
-		$projectCollections = Project::all()->sortBy("name", SORT_NATURAL|SORT_FLAG_CASE);
-		$requestableProjects = array();
-		foreach($projectCollections as $project) {
-			if($project->active and !(\Auth::user()->inAProjectGroup($project)))
-				$requestableProjects[$project->id] = $project->name. " (" . $project->internal_name.")";
-		}
-
-		return view('partials.projects.projectRequestModalForm', ['requestableProjects' => $requestableProjects])->render();
-	}
-
-    /**
-     * Sends an access request to admins of project(s).
-     *
-     * @param  Request $request
-     * @return Redirect
-     */
-    public function request(Request $request) {
-        $projects = array();
-        if(!is_null($request->pids)) {
-            foreach($request->pids as $pid) {
-                $project = self::getProject($pid);
-                if(!is_null($project))
-                    array_push($projects, $project);
-            }
-        }
-
-        if(sizeof($projects)==0) {
-            return response()->json(["status"=>false, "message"=>"project_access_empty", 500]);
-        } else {
-            //find the installation admin
-            $installAdmin = User::where('id','=',1)->first();
-
-            foreach($projects as $project) {
-                $admins = $this->getProjectAdminNames($project);
-
-                //remove install admin for bcc
-                foreach($admins as $index => $admin_data) {
-                    //Log::info($admin_data[0]);
-                    if($admin_data->id == $installAdmin->id) {
-                        // make sure the email target isn't getting BCC'ed as well
-                        $admins->forget($index);
-                        break;
-                    }
-                }
-
-                $bccEmails = $admins->pluck('email')->toArray();
-
-                $job = new ProjectEmails('RequestProjectPermissions', ['installAdmin' => $installAdmin, 'bccEmails' => $bccEmails, 'project' => $project]);
-                $job->handle();
-            }
-
-            // only occurs on form submit, not on AJAX call
-            return response()->json(["status"=>true, "message"=>"project_access_requested", 200]);
-        }
-    }
-
     /**
      * Gets the create view for a project.
      *

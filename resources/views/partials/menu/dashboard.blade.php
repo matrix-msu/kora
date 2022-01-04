@@ -61,11 +61,5 @@
            </ul>
          </li>
         @endif
-
-		@if(\Auth::user()->admin==0)
-		  <li class="link">
-            <a class="nav-textwrap-override project-request-perms-js" href="#">Request Project Permissions</a>
-          </li>
-		@endif
     </ul>
 </li>

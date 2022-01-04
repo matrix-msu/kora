@@ -58,11 +58,5 @@
           </ul>
         </li>
       @endif
-	  
-	  @if(!is_null(\Auth::user()) && \Auth::user()->admin==0)
-	  <li class="content-link request-permissions-js">
-        <a class="project-request-perms-js" href="#">Request Project Permissions</a>
-      </li>
-	  @endif
   </ul>
 </div>

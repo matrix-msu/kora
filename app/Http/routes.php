@@ -21,10 +21,8 @@ Route::group(['middleware' => 'web'], function () {
 
 //project routes
     Route::get('/projects/import', 'ProjectController@importProjectView');
-    Route::post('/projects/getProjectPermissionsModal', 'ProjectController@getProjectPermissionsModal');
     Route::post('/projects/import', 'ImportController@importProject');
     Route::resource('projects', 'ProjectController');
-    Route::post('projects/request', 'ProjectController@request');
     Route::post('projects/{pid?}/archive', 'ProjectController@setArchiveProject');
     Route::get('/projects/{pid}/importMF', 'ImportMultiFormController@index');
     Route::post('/projects/{pid}/importMF', 'ImportMultiFormController@beginImport');
