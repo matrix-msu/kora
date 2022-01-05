@@ -26,22 +26,6 @@ class ProjectEmails extends MailCommand implements ShouldQueue {
      */
     public function handle() {
         switch($this->operation) {
-            case 'NewProjectUser':
-                $userMail = $this->options['userMail'];
-                $name = $this->options['name'];
-                $group = $this->options['group'];
-                $project = $this->options['project'];
-                try {
-                    Mail::send('emails.project.added', compact('project', 'name', 'group'), function ($message) use ($userMail) {
-                        $message->from(config('mail.from.address'));
-                        $message->to($userMail);
-                        $message->subject('kora Project Permissions');
-                    });
-                } catch(\Exception $e) {
-                    Log::error("New Project User Email Failed!!!");
-                    Log::info($e);
-                }
-                break;
             case 'ProjectPermissionsUpdated':
                 $email = $this->options['email'];
                 $userMail = $this->options['userMail'];

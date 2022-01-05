@@ -59,8 +59,15 @@ class ProjectGroupController extends Controller {
 
         $prevUrlArray = $request->session()->get('_previous');
         $session = $request->session()->get('k3_global_success');
-        if(!is_null($prevUrlArray) && reset($prevUrlArray) !== url()->current() && $session == 'project_group_created')
+        if(!is_null($prevUrlArray) && reset($prevUrlArray) !== url()->current() && $session == 'project_group_created') {
             $notification['message'] = 'Project Permissions Group Successfully Created';
+            $notification['description'] = $request->session()->get('batch_user_status');
+            $notification['static'] = true;
+        } else if(!is_null($prevUrlArray) && reset($prevUrlArray) !== url()->current() && $session == 'project_user_added') {
+            $notification['message'] = 'Users Successfully Added to Project Group';
+            $notification['description'] = $request->session()->get('batch_user_status');
+            $notification['static'] = true;
+        }
 
         return view('projectGroups.index', compact('project', 'projectGroups', 'users', 'all_users', 'active', 'notification'));
     }
@@ -79,7 +86,9 @@ class ProjectGroupController extends Controller {
 		// send invite emails & create new users
 	    if(is_string($request->emails) && $request->emails !== '') {
 		  $request->return_user_ids = true;
-		  $user_ids = (new AdminController())->batch($request); // this action creates the new users in db and sends invite emails
+          $batchResults = (new AdminController())->batch($request); // this action creates the new users
+          $user_ids = $batchResults[0];
+          $user_results = $batchResults[1];
 
 		  if(is_array($request->users))
 		    $request->users = array_merge($request->users, $user_ids);
@@ -136,7 +145,7 @@ class ProjectGroupController extends Controller {
             $group->users()->attach($request->users);
         }
 
-        return redirect('projects/'.$pid.'/manage/projectgroups')->with('k3_global_success', 'project_group_created');
+        return redirect('projects/'.$pid.'/manage/projectgroups')->with('k3_global_success', 'project_group_created')->with('batch_user_status', implode(" | ", $user_results));;
     }
 
     /**
@@ -173,7 +182,9 @@ class ProjectGroupController extends Controller {
         if (is_string($request->emails) && $request->emails !== '') {
 			$request->return_user_ids = true;
 			// returns new & existing users' ids
-			$user_ids = (new AdminController())->batch($request); // this action creates the new users in db
+            $batchResults = (new AdminController())->batch($request); // this action creates the new users
+            $user_ids = $batchResults[0];
+            $user_results = $batchResults[1];
 
 			if (is_array($request->userIDs))
 				$request->userIDs = array_merge($request->userIDs, $user_ids);
@@ -249,6 +260,8 @@ class ProjectGroupController extends Controller {
 				$FGC->addUser($request);
 			}
 		}
+
+        session(['k3_global_success' => 'project_user_added', "batch_user_status"=>implode(" | ", $user_results)]);
     }
 
     /**

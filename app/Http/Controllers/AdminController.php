@@ -313,18 +313,11 @@ class AdminController extends Controller {
         $emails = preg_replace('!\s+!', ' ', $emails);
         $emails = array_unique(explode(' ', $emails));
 
-        if(isset($request->projectGroup)) {
-            $projectGroup = ProjectGroup::where('id', '=', $request->projectGroup)->first();
-            $project = Project::where('id','=',$projectGroup->project_id)->first();
-        } else {
-            $projectGroup = null;
-            $project = null;
-        }
-
         // The user hasn't entered anything.
         if($emails[0] == "") {
             return redirect('admin/users')->with('k3_global_error', 'batch_no_data');
         } else {
+			$user_results = array();
 			$user_ids = array();
 
             foreach($emails as $email) {
@@ -368,17 +361,18 @@ class AdminController extends Controller {
                         $user->preferences = $preferences;
                         $user->save();
 
-                        $user_ids[] = "Email: ".$email." Password: ".$password;
+                        $user_results[] = "Email: ".$email." Password: ".$password;
+                        $user_ids[] = $user->id;
                     } else {
-                        $user_ids[] = "Email: ".$email." Already Exists";
+                        $user_results[] = "Email: ".$email." Already Exists";
                     }
 		        }
             }
 
 			if(isset($request->return_user_ids))
-				return $user_ids; //TODO::EMAIL
+				return [$user_ids, $user_results];
 			else
-				return redirect('admin/users')->with('k3_global_success', 'batch_users')->with('batch_user_status', implode(" | ", $user_ids));
+				return redirect('admin/users')->with('k3_global_success', 'batch_users')->with('batch_user_status', implode(" | ", $user_results));
         }
     }
 
