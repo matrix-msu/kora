@@ -176,8 +176,6 @@ class LoginController extends Controller
         $password = uniqid();
         $user->password = bcrypt($password);
         $user->{$client} = Hash::make($token);
-        $regtoken = RegisterController::makeRegToken();
-        $user->regtoken = $regtoken;
 
         $preferences = [];
         $preferences['created_at'] = Carbon::now();

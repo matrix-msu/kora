@@ -1,10 +1,8 @@
 <?php namespace App\Http\Controllers\Auth;
 
-use App\Commands\UserEmails;
 use App\Form;
 use App\Http\Requests\UserRequest;
 use App\Project;
-use App\ProjectGroup;
 use App\Http\Controllers\Controller;
 use App\Record;
 use App\Revision;
@@ -311,7 +309,7 @@ class UserController extends Controller {
      * @param  Request $request
      * @return Redirect
      */
-    public function updateFromEmail(Request $request) {
+    public function updateFromEmail(Request $request) { //TODO::EMAIL
         if(!\Auth::user()->admin && \Auth::user()->id != $request->uid)
             return response()->json(["status" => false, "message" => "cannot_update_user"], 200);
 
@@ -571,140 +569,6 @@ class UserController extends Controller {
         $file->move($pDir, $newFilename);
 
         return json_encode(["status"=>true,"message"=>"profile_pic_updated","pic_url"=>$pURL.$newFilename],200);
-    }
-
-    /**
-     * Returns the view for the user activation page.
-     *
-     * @return View
-     */
-    public function activateshow() {
-        if(is_null(\Auth::user()))
-            return redirect('register');
-        else if(!\Auth::user()->active) {
-			$notification = array(
-				'message' => '',
-				'description' => '',
-				'warning' => false,
-				'static' => false
-			);
-			return view('auth.activate', compact('notification'));
-        } else
-            return redirect('projects');
-    }
-
-    /**
-     * Returns the view for the user activation page.
-     *
-     * @return Redirect
-     */
-    public function resendActivation() {
-        $token = \Auth::user()->token;
-
-        //Send email
-        $job = new UserEmails('UserActivationRequest', ['token' => $token, 'email' => \Auth::user()->email]);
-        $job->handle();
-
-        return redirect('/')->with('status', 'user_activate_resent');
-    }
-
-    /**
-     * Validates registration token to activate a user.
-     *
-     * @param  Request $request
-     * @return Redirect
-     */
-    public function activator(Request $request) {
-        $user = User::where('username', '=', \Auth::user()->username)->first();
-        if($user==null)
-            return redirect('auth/activate')->with('k3_global_error', 'user_doesnt_exist');
-
-        $token = trim($request->activationtoken);
-
-        if(!empty($user->regtoken) && strcmp($user->regtoken, $token) == 0 && !($user->active == 1)) {
-            $user->active = 1;
-            $user->save();
-
-            \Auth::login($user);
-
-            //$this->makeDefaultProject($user);
-
-            return redirect('/');
-        } else {
-            return redirect('/')->with('status', 'bad_activation_token');
-        }
-    }
-
-    /**
-     * Handles activation from an email link.
-     *
-     * @param  String $token - Token user will register with
-     * @return Redirect
-     */
-    public function activate($token) {
-        //Since we are coming from an email client or otherwise, we need to make sure that no one on the browser is already
-        // logged in.
-        if(!is_null(\Auth::user()))
-            \Auth::logout(\Auth::user()->id);
-
-        $user = User::where('regtoken', '=', $token)->first();
-
-        \Auth::login($user);
-
-        if($token != $user->regtoken) {
-            return redirect('/')->with('status', 'bad_activation_token');
-        } else {
-            $user->active = 1;
-            $user->save();
-
-            //$this->makeDefaultProject($user);
-
-            return redirect('/');
-        }
-    }
-
-    /**
-     * Account registration from email invitation.
-     *
-     * @param String $token - Token to register and identify user with
-     * @return View
-     */
-    public function activateFromInvite ($token) {
-        // coming from email client or otherwise, need to make sure no one on the browser is already logged in.
-        if(!is_null(\Auth::user()))
-            \Auth::logout(\Auth::user()->id);
-
-        $user = User::where('regtoken', '=', $token)->first();
-
-        if(is_null($user))
-            return redirect('/')->with('status', 'bad_activation_token');
-
-        \Auth::login($user);
-
-        if($token != $user->regtoken)
-            return redirect('/')->with('status', 'bad_activation_token');
-
-        return view('auth.invited-register', compact('user'));
-    }
-
-    /**
-     * Creates a default project for the new user. Kept private because this should only happen on activation by user.
-     *
-     * @param  User $user - User to make default project
-     */
-    private function makeDefaultProject($user) {
-        $default = new Project();
-
-        $default->name = "Test Project for ".$user->username;
-        $default->description = "Test project for user, ".$user->username;
-        $default->save();
-
-        $adminGroup = ProjectGroup::makeAdminGroup($default);
-        ProjectGroup::makeDefaultGroup($default);
-        $default->adminGroup_id = $adminGroup->id;
-        $default->active = 1;
-        $default->internal_name = str_replace(" ","_", $default->name).'_'.$default->id.'_';
-        $default->save();
     }
 
     /**

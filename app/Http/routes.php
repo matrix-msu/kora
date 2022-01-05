@@ -21,10 +21,8 @@ Route::group(['middleware' => 'web'], function () {
 
 //project routes
     Route::get('/projects/import', 'ProjectController@importProjectView');
-    Route::post('/projects/getProjectPermissionsModal', 'ProjectController@getProjectPermissionsModal');
     Route::post('/projects/import', 'ImportController@importProject');
     Route::resource('projects', 'ProjectController');
-    Route::post('projects/request', 'ProjectController@request');
     Route::post('projects/{pid?}/archive', 'ProjectController@setArchiveProject');
     Route::get('/projects/{pid}/importMF', 'ImportMultiFormController@index');
     Route::post('/projects/{pid}/importMF', 'ImportMultiFormController@beginImport');
@@ -83,7 +81,6 @@ Route::group(['middleware' => 'web'], function () {
 //association routes
     Route::get('/projects/{pid}/forms/{fid}/assoc', 'AssociationController@index');
     Route::post('/projects/{pid}/forms/{fid}/assoc', 'AssociationController@create');
-    Route::post('/projects/{pid}/forms/{fid}/assoc/request', 'AssociationController@requestAccess');
     Route::delete('/projects/{pid}/forms/{fid}/assoc', 'AssociationController@destroy');
     Route::delete('/projects/{pid}/forms/{fid}/assocReverse', 'AssociationController@destroyReverse');
 
@@ -233,9 +230,6 @@ Route::group(['middleware' => 'web'], function () {
     Route::get("/projects/{pid}/forms/{fid}/advancedSearch", "AdvancedSearchController@index");
     Route::get("/projects/{pid}/forms/{fid}/advancedSearch/results", "AdvancedSearchController@recent");
     Route::post("/projects/{pid}/forms/{fid}/advancedSearch/results", "AdvancedSearchController@search");
-
-//reset password routes
-	Route::post("/reset/email/validate", "Auth\ResetPasswordController@preValidateEmail");
 
 //user auth
     Auth::routes(); // generates user authentication routes

@@ -115,7 +115,7 @@ Kora.ProjectGroups.Index = function() {
    * @param userIDs {array} The array of user ids.
    * @param $select {jQuery} The selector for removing.
    */
-  self.addUsers = function(projectGroup, userIDs, invited_users_emails, invited_personal_msg, $select) {
+  self.addUsers = function(projectGroup, userIDs, invited_users_emails, $select) {
 
     $.ajax({
       url: addUsersPath,
@@ -125,12 +125,9 @@ Kora.ProjectGroups.Index = function() {
         "_method": 'patch',
         "userIDs": userIDs,
         "emails": invited_users_emails,
-        "message": invited_personal_msg,
         "projectGroup": projectGroup
       },
       success: function(data) {
-        //console.log(data)
-        window.localStorage.setItem('message', "User(s) Successfully Added to Permissions Group!");
         window.location.reload();
       },
       error: function(err) {
@@ -393,10 +390,9 @@ Kora.ProjectGroups.Index = function() {
 
           var users_to_add = $("#select-" + groupID).chosen().val();
           var invited_users_emails = $("#emails-" + groupID).val();
-          var invited_personal_msg = $("#message-" + groupID).val();
 
           // Validation: at least one selected
-          self.addUsers(groupID, users_to_add, invited_users_emails, invited_personal_msg, $select);
+          self.addUsers(groupID, users_to_add, invited_users_emails, $select);
           Kora.Modal.close($addUserModal);
 
           // Kill the chosen element after Modal Close.

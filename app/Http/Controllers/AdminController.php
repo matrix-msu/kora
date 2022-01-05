@@ -1,9 +1,7 @@
 <?php namespace App\Http\Controllers;
 
-use App\Commands\UserEmails;
 use App\Form;
 use App\FormGroup;
-use App\Http\Controllers\Auth\RegisterController;
 use App\KoraFields\AssociatorField;
 use App\Project;
 use App\ProjectGroup;
@@ -63,18 +61,19 @@ class AdminController extends Controller {
           'warning' => false,
           'static' => false
         );
-        $prevUrlArray = $request->session()->get('_previous');
+
         $profChangesArray = $request->session()->get('user_changes');
         if($profChangesArray) $profChanges = reset($profChangesArray);
-        if(!is_null($prevUrlArray) && reset($prevUrlArray) !== url()->current()) {
-          $session = $request->session()->get('k3_global_success');
 
-          if($session == 'user_updated' && isset($profChanges) && $profChanges == 'password')
+        $session = $request->session()->get('k3_global_success');
+        if($session == 'user_updated' && isset($profChanges) && $profChanges == 'password')
             $notification['message'] = 'Password Successfully Updated!';
-          else if($session == 'user_updated')
+        else if($session == 'user_updated')
             $notification['message'] = 'User Successfully Updated!';
-        } else if($request->session()->get('k3_global_success') == 'batch_users') {
-          $notification['message'] = 'User(s) Successfully Invited!';
+        else if($session == 'batch_users') {
+            $notification['message'] = 'User(s) Successfully Created!';
+            $notification['description'] = $request->session()->get('batch_user_status');
+            $notification['static'] = true;
         }
 
         return view('admin.users', compact('usersAz', 'usersZa', 'usersNto', 'usersOtn', 'notification'));
@@ -271,9 +270,6 @@ class AdminController extends Controller {
           if($user->active) {
             // User already active, need to deactivate
             $user->active = 0;
-
-            // We need to remove the registration token so they can't come back in
-            $user->regtoken = '';
           } else {
             // User not active, need to activate
             $user->active = 1;
@@ -316,29 +312,12 @@ class AdminController extends Controller {
         $emails = str_replace(',', ' ', $request->emails);
         $emails = preg_replace('!\s+!', ' ', $emails);
         $emails = array_unique(explode(' ', $emails));
-        $personal_message = $request->message;
-
-        if(isset($request->projectGroup)) {
-            $projectGroup = ProjectGroup::where('id', '=', $request->projectGroup)->first();
-            $project = Project::where('id','=',$projectGroup->project_id)->first();
-        } else {
-            $projectGroup = null;
-            $project = null;
-        }
-
-        $notification = array(
-            'message' => '',
-            'description' => '',
-            'warning' => false,
-            'static' => false
-        );
 
         // The user hasn't entered anything.
         if($emails[0] == "") {
             return redirect('admin/users')->with('k3_global_error', 'batch_no_data');
         } else {
-            $skipped = 0;
-            $created = 0;
+			$user_results = array();
 			$user_ids = array();
 
             foreach($emails as $email) {
@@ -360,12 +339,11 @@ class AdminController extends Controller {
                         // Create the new user.
                         //
                         $user = new User;
+                        $user->active = 1;
                         $user->username = $username;
                         $user->email = $email;
                         $password = uniqid();
                         $user->password = bcrypt($password);
-                        $token = RegisterController::makeRegToken();
-                        $user->regtoken = $token;
 
                         $preferences = [];
                         $preferences['created_at'] = Carbon::now();
@@ -382,33 +360,19 @@ class AdminController extends Controller {
 
                         $user->preferences = $preferences;
                         $user->save();
-                        array_push($user_ids, $user->id);
 
-                        //
-                        // Send a confirmation email.
-                        //
-                        $emailOptions = [
-                            'token' => $token, 'password' => $password, 'username' => $username,
-                            'personal_message' => $personal_message, 'sender' => Auth::User(), 'project' => $project,
-                            'projectGroup' => $projectGroup, 'email' => $email
-                        ];
-                        $job = new UserEmails('BatchUserInvite', $emailOptions);
-                        $job->handle();
-                        $created++;
+                        $user_results[] = "Email: ".$email." Password: ".$password;
+                        $user_ids[] = $user->id;
                     } else {
-                        if (isset($request->return_user_ids)) { // return user id of existing user
-                            $user = User::where('email', '=', $email)->first();
-                            array_push($user_ids, $user->id);
-                        }
-                        $skipped++;
+                        $user_results[] = "Email: ".$email." Already Exists";
                     }
 		        }
             }
 
 			if(isset($request->return_user_ids))
-				return $user_ids;
+				return [$user_ids, $user_results];
 			else
-				return redirect('admin/users')->with('k3_global_success', 'batch_users')->with('batch_users_created', $created)->with('batch_users_skipped', $skipped)->with('notification', $notification);
+				return redirect('admin/users')->with('k3_global_success', 'batch_users')->with('batch_user_status', implode(" | ", $user_results));
         }
     }
 

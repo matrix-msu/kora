@@ -38,7 +38,7 @@
         </div>
         <div class="body onboarding">
             <h3>Do you need project permissions?</h3>
-            <p><span class="bold">If you're supposed to be apart of a certain project, you should request permissions to it.</span>  You can always request project permissions on the Projects page later on.</p>
+            <p><span class="bold">If you're supposed to be apart of a certain project, you should request permissions to it.</span> Please contact your system administrator.</p>
 			<p><span class="bold">You currently have been given access to the following project(s):</span></p>
             @php $projects = \App\Http\Controllers\Auth\UserController::getOnboardingProjects(\Auth::user()); @endphp
 			<ul>
@@ -47,15 +47,6 @@
                 @endforeach
 			</ul>
 			<div class="form-group mt-xxl">
-            {!! Form::open(['action' => 'ProjectController@request', 'class' => 'onboarding-request-project-form-js']) !!}
-                {!! Form::label('pids', 'Select the Project to Request Permissions') !!}
-                {!! Form::select('pids[]', $projects[1], null, [
-                    'class' => 'multi-select',
-                    'multiple',
-                    'data-placeholder' => "Select the project you would like to request permissions to here",
-                    'id' => 'request_project'
-                ]) !!}
-            {!! Form::close() !!}
             </div>
         </div>
     </section>

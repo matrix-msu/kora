@@ -274,7 +274,7 @@ Kora.Admin.Users = function() {
       cleanupModal.find('.modal-content-js').hide();
       cleanupModal.find('.invite-content-js').show();
       cleanupModal.find('.content').removeClass('small');
-      cleanupModal.find('.title-js').html('Invite User(s)');
+      cleanupModal.find('.title-js').html('Create User(s)');
 
       Kora.Modal.open();
     });
@@ -319,26 +319,6 @@ Kora.Admin.Users = function() {
         }
       });
     });
-
-	$('.invite-content-js .btn-primary').click(function(e) {
-		e.preventDefault();
-
-		let $form = $('.invite-content-js');
-		let $formUrl = $form.prop('action');
-		let $formData = $('.invite-content-js').serialize();
-
-		$.ajax({
-			url: $formUrl,
-			type: 'POST',
-			data: $formData,
-			success: function (data) {
-				$form.submit();
-			},
-			error: function (err) {
-				console.warn(err)
-			}
-		});
-	});
   }
 
   /**

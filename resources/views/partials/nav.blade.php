@@ -79,8 +79,6 @@
     var globalSearchUrl = '{{action('ProjectSearchController@globalSearch')}}';
     var cacheGlobalSearchUrl = '{{ action('ProjectSearchController@cacheGlobalSearch') }}';
     var clearGlobalCacheUrl = '{{ action('ProjectSearchController@clearGlobalCache') }}';
-    var getProjectPermissionsModal = '{{ action('ProjectController@getProjectPermissionsModal') }}';
-    var requestProjectPermissionsURL = '{{ action('ProjectController@request') }}';
     var baseURL = '{{ url('') }}/';
     var CSRFToken = '{{ csrf_token() }}';
   </script>

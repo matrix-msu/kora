@@ -19,12 +19,6 @@
                 <span>Form Association Permissions</span>
             </h1>
             <p class="description">This page allows you to grant association access for other forms. Associating other forms will allow them to search within this form. Select "Create a New Form Association" below, to begin creating a new form association. The newly associated form will then appear in the list below. You may also request association permission for this form to associate with other forms.</p>
-            <div class="content-sections">
-              <div class="content-sections-scroll">
-                <a href="#create" class="section underline-middle underline-middle-hover toggle-by-name active">Create Form Association</a>
-                <a href="#request" class="section underline-middle underline-middle-hover toggle-by-name">Request Form Association</a>
-              </div>
-            </div>
         </div>
     </section>
 @stop
@@ -32,7 +26,6 @@
 @section('body')
     @include('partials.projects.notification')
     @include("partials.formAssociations.newPermissionModal")
-    @include("partials.formAssociations.requestPermissionModal")
     @include("partials.formAssociations.deletePermissionModal")
 
     <section class="create-section">
@@ -46,7 +39,7 @@
 
       @if (count($assocs) > 0)
         <section class="permission-association-selection center permission-association-js create">
-            <p class="description create-description-js {{count($assocs) === 0 ? 'hidden' : ''}}">The following forms are allowed to associate with and can search within this form:</p>
+            <p class="description create-description-js {{count($assocs) === 0 ? 'hidden' : ''}}">The following forms are allowed to associate with and can search within {{$form->name}}:</p>
             @foreach ($assocs as $index=>$a)
                 @php $f = \App\Form::where('id', '=', $a->assoc_form)->first() @endphp
                 <div class="association association-js card" id="create-{{$f->id}}">
@@ -80,17 +73,11 @@
       @else
         @include('partials.formAssociations.no-assocs')
       @endif
-    </section>
 
-    <section class="request-section hidden">
-        <p class="description center">You may also request association permissions for this form to associate with other forms. Select "Request Form Association" to begin. Once requested, a notification will be sent to the admins of the selected form to allow association from your form.</p>
-        <section class="new-object-button center">
-            @if(\Auth::user()->isProjectAdmin($project))
-                <form action="#">
-                    <input class="request-permission-js" type="submit" value="Request Form Association">
-                </form>
-            @endif
-        </section>
+        <div class="form-group">
+        <div class="spacer"></div>
+        </div>
+
         @if(count($available_associations) > 0)
             <section class="permission-association-selection center permission-association-js request">
                 <p class="description request-description-js {{count($available_associations) === 0 ? 'hidden' : ''}}">{{$form->name}} is allowed to associate with and can search within the following forms:</p>
@@ -137,7 +124,6 @@
         var CSRFToken = '{{ csrf_token() }}';
         var pid = '{{ $project->id }}';
         var createAssociationPath = '{{ action('AssociationController@create', ["pid" => $form->project_id, "fid" => $form->id]) }}';
-        var requestAssociationPath = '{{ action('AssociationController@requestAccess', ["pid" => $form->project_id, "fid" => $form->id]) }}';
         var destroyAssociationPath = '{{ action('AssociationController@destroy', ["pid" => $form->project_id, "fid" => $form->id]) }}';
         var destroyReverseAssociationPath = '{{ action('AssociationController@destroyReverse', ["pid" => $form->project_id, "fid" => $form->id]) }}';
         Kora.FormAssociations.Index();

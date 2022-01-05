@@ -71,10 +71,7 @@
       <p class="permission-information">
           Don't see the project you are looking for? You might not have the permissions...
       </p>
-      <p>
-      <a href="#" class="request-permissions project-request-perms-js underline-middle-hover">
-          Request Permissions to a Project
-      </a></p>
+      <p>Please contact your system administrator.</p>
     </section>
   @endif
 @stop

@@ -23,7 +23,6 @@
 
     <form id="register-form" class="form-horizontal form-file-input user-form" role="form" method="POST" enctype="multipart/form-data" action="{{ url('/register') }}">
       <input type="hidden" id="_token" name="_token" value="{{ csrf_token() }}">
-      <input type="hidden" id="regtoken" name="regtoken" value="{{\App\Http\Controllers\Auth\RegisterController::makeRegToken()}}">
 
       <div class="form-group half mt-xl">
         <label for="first-name">Your First Name</label>

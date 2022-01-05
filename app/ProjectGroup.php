@@ -94,7 +94,6 @@ class ProjectGroup extends Model {
 			
             foreach($request->admins as $uid) {
 				array_push($users_to_add, $uid);
-                self::emailProjectAdmin($uid, $adminGroup->id);
             }
         }
 
@@ -117,24 +116,6 @@ class ProjectGroup extends Model {
         $adminGroup->save();
 
         return $adminGroup;
-    }
-
-    /**
-     * Emails a user when they are added as admin to a newly created project.
-     *
-     * @param  int $uid - User ID
-     * @param  int $pgid - Project Group ID
-     */
-    private static function emailProjectAdmin($uid, $pgid) {
-        $user = User::where('id', $uid)->first();
-        $userMail = $user->email;
-        $name = $user->preferences['first_name'];
-
-        $group = ProjectGroup::where('id', '=', $pgid)->first();
-        $project = ProjectController::getProject($group->project_id);
-
-        $job = new ProjectEmails('NewProjectUser', ['userMail' => $userMail, 'name' => $name, 'group' => $group, 'project' => $project]);
-        $job->handle();
     }
 
     /**

@@ -1,7 +1,6 @@
 <?php namespace App\Http\Controllers;
 
 use App\Association;
-use App\Commands\FormEmails;
 use App\Form;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -206,38 +205,5 @@ class AssociationController extends Controller {
         }
 
         return $requestable;
-    }
-
-    /**
-     * Makes the request for permission to associate a form. Emails all admins of the requested form.
-     *
-     * @param  int $pid - Project ID
-     * @param  int $fid - Form ID
-     * @param  Request $request
-     * @return JsonResponse
-     */
-    public function requestAccess($pid, $fid, Request $request) {
-        if(!FormController::validProjForm($pid, $fid))
-            return response()->json(['k3_global_error' => 'form_invalid']);
-
-        $myForm = FormController::getForm($fid);
-        $myProj = ProjectController::getProject($myForm->project_id);
-        $thierForm = FormController::getForm($request->rfid);
-        $thierProj = ProjectController::getProject($thierForm->project_id);
-
-        //form admins only
-        if(!(\Auth::user()->isFormAdmin($myForm)))
-            return response()->json(['k3_global_error' => 'not_form_admin']);
-
-        $group = $thierForm->adminGroup()->first();
-        $users = $group->users()->get();
-
-        foreach($users as $user) {
-            $job = new FormEmails('FormAssociationRequest', ['myForm' => $myForm, 'myProj' => $myProj,
-                'thierForm' => $thierForm, 'thierProj' => $thierProj, 'user' => $user]);
-            $job->handle();
-        }
-
-        return response()->json(['k3_global_success' => 'assoc_access_requested']);
     }
 }
