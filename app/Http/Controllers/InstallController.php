@@ -264,17 +264,12 @@ class InstallController extends Controller {
             return redirect("/");
 
         $configs = array(
-            ['title'=>'Public Registration',   'slug'=>'public_registration',  'value'=>config('auth.public_registration'), 'boolean'=>true],
+            ['title'=>'Allow Public Registration?',   'slug'=>'public_registration',  'value'=>config('auth.public_registration'), 'boolean'=>true],
             ['title'=>'Recaptcha Public Key',  'slug'=>'recaptcha_public',     'value'=>config('auth.recap_public'), 'boolean'=>false],
             ['title'=>'Recaptcha Private Key', 'slug'=>'recaptcha_private',    'value'=>config('auth.recap_private'), 'boolean'=>false],
             ['title'=>'Gitlab Client',         'slug'=>'gitlab_client',        'value'=>config('services.gitlab.host'), 'boolean'=>false],
             ['title'=>'Gitlab Client ID',      'slug'=>'gitlab_client_id',     'value'=>config('services.gitlab.client_id'), 'boolean'=>false],
             ['title'=>'Gitlab Client Secret',  'slug'=>'gitlab_client_secret', 'value'=>config('services.gitlab.client_secret'), 'boolean'=>false],
-            ['title'=>'Mail Host',             'slug'=>'mail_host',            'value'=>config('mail.host'), 'boolean'=>false],
-            ['title'=>'Mail From Address',     'slug'=>'mail_address',         'value'=>config('mail.from.address'), 'boolean'=>false],
-            ['title'=>'Mail From Name',        'slug'=>'mail_name',            'value'=>config('mail.from.name'), 'boolean'=>false],
-            ['title'=>'Mail User',             'slug'=>'mail_user',            'value'=>config('mail.username'), 'boolean'=>false],
-            ['title'=>'Mail Password',         'slug'=>'mail_password',        'value'=>config('mail.password'), 'boolean'=>false],
         );
 
         return view('admin.config',compact('configs'));
@@ -298,11 +293,6 @@ class InstallController extends Controller {
         //ENV values with spaces need to be surrounded in quotes
         //Whether or not a particular ENV value should have a space is another issue, but those errors are more manageable
         //ENV errors break everything!
-        $mail_host = (strpos($request->mail_host, ' ') !== false) ? '"'.$request->mail_host.'"' : $request->mail_host;
-        $mail_address = (strpos($request->mail_address, ' ') !== false) ? '"'.$request->mail_address.'"' : $request->mail_address;
-        $mail_name = (strpos($request->mail_name, ' ') !== false) ? '"'.$request->mail_name.'"' : $request->mail_name;
-        $mail_user = (strpos($request->mail_user, ' ') !== false) ? '"'.$request->mail_user.'"' : $request->mail_user;
-        $mail_password = (strpos($request->mail_password, ' ') !== false) ? '"'.$request->mail_password.'"' : $request->mail_password;
         $public_registration = (isset($request->public_registration) && $request->public_registration) ? 'true' : 'false';
         $recaptcha_public = (strpos($request->recaptcha_public, ' ') !== false) ? '"'.$request->recaptcha_public.'"' : $request->recaptcha_public;
         $recaptcha_private = (strpos($request->recaptcha_private, ' ') !== false) ? '"'.$request->recaptcha_private.'"' : $request->recaptcha_private;
@@ -320,12 +310,6 @@ class InstallController extends Controller {
             "DB_PASSWORD=" . config('database.connections.mysql.password') . "\n" .
             "DB_DEFAULT=" . config('database.default') . "\n" .
             "DB_PREFIX=" . config('database.connections.mysql.prefix') . "\n\n" .
-
-            "MAIL_HOST=" . $mail_host . "\n" .
-            "MAIL_FROM_ADDRESS=" . $mail_address . "\n" .
-            "MAIL_FROM_NAME=" . $mail_name . "\n" .
-            "MAIL_USER=" . $mail_user . "\n" .
-            "MAIL_PASSWORD=" . $mail_password . "\n\n" .
 
             "CACHE_DRIVER=" . config('cache.default') . "\n".
             "SESSION_DRIVER=" . config('session.driver') . "\n" .
