@@ -4,27 +4,6 @@ Kora.FormAssociations = Kora.FormAssociations || {};
 Kora.FormAssociations.Index = function() {
   var self = Kora.FormAssociations.Index;
 
-  /**
-   * Request association permissions for another group
-   *
-   * @param rfid {int} The form id being requested.
-   */
-  self.requestPermissions = function(rfid) {
-    $.ajax({
-      url: requestAssociationPath,
-      type: 'POST',
-      data: {
-        "_token": CSRFToken,
-        "rfid": rfid
-      },
-      success: function(response) {
-        window.localStorage.setItem('message', 'Form Associations Requested');
-        Kora.Modal.close();
-        location.reload();
-      }
-    });
-  }
-
   self.createPermissions = function(assocfid) {
     $.ajax({
       url: createAssociationPath,
@@ -186,35 +165,6 @@ Kora.FormAssociations.Index = function() {
     });
   }
 
-  function initializeRequestPermissionModal() {
-    $('.request-permission-js').click(function(e) {
-      e.preventDefault();
-
-      $requestPermissionsModal = $('.request-permission-modal-js');
-      $requestPermissionsModal.find('.single-select').val('').trigger('chosen:updated').chosen({
-        width: '100%'
-      });
-
-      var submitAssociation = function() {
-        return function(e) {
-          e.preventDefault();
-          var rfid = $(this).siblings('.form-group').children('select').val();
-          if(rfid !== "") {
-            $('.request-assoc-error-js').text('');
-            self.requestPermissions(rfid);
-          } else {
-            $('.request-assoc-error-js').text('Please select a form');
-          }
-        }
-      }
-
-      $('.request-association-submit-js').unbind('click');
-      $('.request-association-submit-js').click(submitAssociation());
-
-      Kora.Modal.open($requestPermissionsModal);
-    });
-  }
-
   function initializeDeletePermissionModal() {
     $('.delete-permission-association-js').unbind('click');
     $('.delete-permission-association-js').click(function (e) {
@@ -240,69 +190,6 @@ Kora.FormAssociations.Index = function() {
     });
   }
 
-  function scrollTabs () {
-    var isOverflow = document.querySelector('.content-sections-scroll');
-    var isAppended = false
-    var scrollPos
-
-    window.setInterval(function() {
-      if (isOverflow.offsetWidth < isOverflow.scrollWidth && isAppended === false) {
-        $('<i class="icon icon-chevron tabs-right"></i>').appendTo('.content-sections');
-        $('<i class="icon icon-chevron tabs-left hidden"></i>').appendTo('.content-sections');
-        isAppended = true
-      } else if (isOverflow.offsetWidth == isOverflow.scrollWidth && isAppended === true) {
-        $('.tabs-right').remove();
-        $('.tabs-left').remove();
-        isAppended = false
-      }
-    }, 200);
-
-    $('.content-sections').on('click', '.tabs-left', function (e) {
-      e.stopPropagation();
-      scrollPos = $('.content-sections-scroll').scrollLeft();
-      scrollPos = scrollPos - 250
-      scroll ()
-    });
-
-    $('.content-sections').on('click', '.tabs-right', function (e) {
-      e.stopPropagation();
-      scrollPos = $('.content-sections-scroll').scrollLeft();
-      scrollPos = scrollPos + 250
-      scroll ()
-    });
-
-    var scrollWidth
-    var viewWidth
-    var maxScroll
-    function scroll () {
-      scrollWidth = isOverflow.scrollWidth
-      viewWidth = isOverflow.offsetWidth
-      maxScroll = scrollWidth - viewWidth
-      if (scrollPos > maxScroll) {
-        scrollPos = maxScroll
-      } else if (scrollPos < 0) {
-        scrollPos = 0
-      }
-      $('.content-sections-scroll').animate({
-        scrollLeft: scrollPos
-      }, 80);
-    }
-
-    $('.content-sections-scroll').scroll(function () {
-        var fb = $('.content-sections-scroll');
-        if (fb.scrollLeft() + fb.innerWidth() >= fb[0].scrollWidth) {
-            $('.tabs-right').addClass('hidden');
-        } else {
-            $('.tabs-right').removeClass('hidden');
-        }
-        if (fb.scrollLeft() <= 20) {
-            $('.tabs-left').addClass('hidden');
-        } else {
-            $('.tabs-left').removeClass('hidden');
-        }
-    });
-  }
-
   function showNotification() {
     var $noteBody = $('.notification');
     var $note = $('.note').children('p');
@@ -324,12 +211,6 @@ Kora.FormAssociations.Index = function() {
 
         $noteBody.removeClass('dismiss');
         $('.welcome-body').addClass('with-notification');
-
-        //if (!$noteBody.hasClass('static-js')) {
-        //  setTimeout(function(){
-        //    $noteBody.addClass('dismiss');
-        //  }, 4000);
-        //}
       }
     }, 200);
 
@@ -344,7 +225,5 @@ Kora.FormAssociations.Index = function() {
   Kora.Modal.initialize();
   initializePermissionsToggles();
   initializeNewPermissionModal();
-  initializeRequestPermissionModal();
   initializeDeletePermissionModal();
-  scrollTabs();
 }
