@@ -4,6 +4,8 @@
 .idea/
 phpunit.xml
 /backup-tmp
+/vendor
+composer.lock
 
 .DS_Store
 .sass-cache
