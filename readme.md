@@ -16,7 +16,7 @@ educational value of the objects.
 1) Linux Operating System
 2) Apache >= 2.0
 3) MySQL >= 5.7.20
-4) PHP >= 7.1.3
+4) PHP >= 8.0.0
 
 ### Installation Summary
 
@@ -24,7 +24,11 @@ educational value of the objects.
 
 1) Clone the repository into your home or data directories -- **DO NOT** install it into your Document Root.
 
-2) Create `.htaccess` from the example in `kora/public`:
+2) Installer composer dependencies
+
+       composer install
+
+3) Create `.htaccess` from the example in `kora/public`:
 
        cp kora/public/.htaccess.example kora/public/.htaccess
        
@@ -37,7 +41,7 @@ educational value of the objects.
     b) Configure the `php_value` rules in the newly created `.htaccess` if the installation supports variable 
        overwriting in htaccess (i.e. if you plan on uploading larger files).
 
-3) Create `.env` from the example in `kora`:
+4) Create `.env` from the example in `kora`:
 
        cp kora/.env.example kora/.env
        
@@ -50,11 +54,11 @@ educational value of the objects.
 
    b) Otherwise, modify the ENV file to connect an existing empty database
 
-4) Run the following command in the kora root directory to complete the installation:
+5) Run the following command in the kora root directory to complete the installation:
 
        php artisan kora:install
 
-5) After installation is complete:
+6) After installation is complete:
 
     a) Give **READ** access to the web user for kora and **ALL** sub-folders.
     
@@ -66,7 +70,7 @@ educational value of the objects.
        
     c) **COPY THE ADMIN USER PASSWORD YOU ARE GIVEN!!!**
 
-6) Add the `public` directory as a [subdomain or subdirectory](https://chi-initiative.github.io/kora-documentation/getting-started/installing_kora_domains/#create-kora-installation-urls). It is very important that only this directory is served by your webserver.
+7) Add the `public` directory as a [subdomain or subdirectory](https://chi-initiative.github.io/kora-documentation/getting-started/installing_kora_domains/#create-kora-installation-urls). It is very important that only this directory is served by your webserver.
 
 ## Contributing
 
