@@ -1269,6 +1269,9 @@ Kora.Records.Create = function() {
             moveFiles(presetID);
 
             for(var flid in data) {
+                if(fields[flid] === undefined)
+                    continue;
+
                 value = data[flid];
                 type = fields[flid]['type'];
 

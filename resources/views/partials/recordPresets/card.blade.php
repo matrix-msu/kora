@@ -33,6 +33,9 @@
                 $presetData = $format['data'];
             @endphp
             @foreach($presetData as $flid => $data)
+                @if(!isset($form->layout['fields'][$flid]))
+                    @continue
+                @endif
                 @php
                     $field = $form->layout['fields'][$flid];
                     $fieldMod = $form->getFieldModel($field['type']);
