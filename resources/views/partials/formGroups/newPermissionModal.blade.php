@@ -24,7 +24,7 @@
                         class="check-box-input preset-input-js"
                         name="create" />
                   <span class="check"></span>
-                  <span class="placeholder">Can Create Forms</span>
+                  <span class="placeholder">Can Create Fields</span>
                 </div>
           
                 <div class="check-box-half check-box-rectangle">
@@ -46,7 +46,7 @@
                         class="check-box-input preset-input-js"
                         name="edit" />
                   <span class="check"></span>
-                  <span class="placeholder">Can Edit Forms</span>
+                  <span class="placeholder">Can Edit Fields</span>
                 </div>
           
                 <div class="check-box-half check-box-rectangle">
@@ -68,7 +68,7 @@
                         class="check-box-input preset-input-js"
                         name="delete" />
                   <span class="check"></span>
-                  <span class="placeholder">Can Delete Forms</span>
+                  <span class="placeholder">Can Delete Fields</span>
                 </div>
                 
                 <div class="check-box-half check-box-rectangle">
