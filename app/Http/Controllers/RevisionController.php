@@ -45,7 +45,7 @@ class RevisionController extends Controller {
 
         $pagination = app('request')->input('page-count') === null ? 10 : app('request')->input('page-count');
         $order = app('request')->input('order') === null ? 'lmd' : app('request')->input('order');
-        $order_type = substr($order, 0, 2) === "lm" ? "updated_at" : "id";
+        $order_type = substr($order, 0, 2) === "lm" ? "created_at" : "id";
         $order_direction = substr($order, 2, 3) === "a" ? "asc" : "desc";
         $selected_records = app('request')->input('records') == null ? [] : explode(",", app('request')->input('records'));
         $selected_users = app('request')->input('users') == null ? [] : explode(",", app('request')->input('users'));
@@ -61,9 +61,9 @@ class RevisionController extends Controller {
               $formatted_dates = array_map(function($date) {return Carbon::parse($date)->format('Y-m-d');}, $selected_dates);
               foreach ($formatted_dates as $index => $date) {
                 if ($index == 0) {
-                  $query->whereDate('updated_at', $date);
+                  $query->whereDate('created_at', $date);
                 } else {
-                  $query->orWhereDate('updated_at', $date);
+                  $query->orWhereDate('created_at', $date);
                 }
               }
               return $query;
@@ -115,7 +115,7 @@ class RevisionController extends Controller {
 
         $pagination = app('request')->input('page-count') === null ? 10 : app('request')->input('page-count');
         $order = app('request')->input('order') === null ? 'lmd' : app('request')->input('order');
-        $order_type = substr($order, 0, 2) === "lm" ? "updated_at" : "id";
+        $order_type = substr($order, 0, 2) === "lm" ? "created_at" : "id";
         $order_direction = substr($order, 2, 3) === "a" ? "asc" : "desc";
         $selected_records = app('request')->input('records') == null ? [] : explode(",", app('request')->input('records'));
         $selected_users = app('request')->input('users') == null ? [] : explode(",", app('request')->input('users'));
@@ -132,9 +132,9 @@ class RevisionController extends Controller {
               $formatted_dates = array_map(function($date) {return Carbon::parse($date)->format('Y-m-d');}, $selected_dates);
               foreach ($formatted_dates as $index => $date) {
                 if ($index == 0) {
-                  $query->whereDate('updated_at', $date);
+                  $query->whereDate('created_at', $date);
                 } else {
-                  $query->orWhereDate('updated_at', $date);
+                  $query->orWhereDate('created_at', $date);
                 }
               }
               return $query;
