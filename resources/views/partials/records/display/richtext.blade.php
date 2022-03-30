@@ -15,7 +15,7 @@
   var doc = iframe.contentWindow.document;
   //Store in iframe
   doc.open();
-  doc.write('{!! $processed !!}');
+  doc.write('{!! addslashes($processed) !!}');
   doc.close();
   //Reset the height to fit content, and let KORA handle the max height/read more stuff
   var height = iframe.contentWindow.document.documentElement.scrollHeight; //TODO::Not perfect, but close

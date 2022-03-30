@@ -3,28 +3,27 @@
 Route::group(['middleware' => 'web'], function () {
     Route::get('/', 'WelcomeController@index');
     Route::get('/home', 'WelcomeController@index');
+    Route::get('/helloworld', 'WelcomeController@helloWorld');
     Route::post('/language', 'WelcomeController@setTemporaryLanguage');
 
 //dashboard routes
     Route::get('/dashboard', 'DashboardController@dashboard');
     Route::post('/dashboard/addBlock', 'DashboardController@addBlock');
     Route::post('/dashboard/addBlock/validate', 'DashboardController@validateBlockFields');
-    Route::post('/dashboard/addSection/{sectionTitle}','DashboardController@addSection');
+    Route::post('/dashboard/addSection/{sectionTitle?}','DashboardController@addSection');
     Route::patch('/dashboard/editBlock', 'DashboardController@editBlock');
     Route::patch('/dashboard/editNoteBlock', 'DashboardController@editNoteBlock');
     Route::patch('/dashboard/editSection', 'DashboardController@editSection');
     Route::patch('/dashboard/editBlockOrder', 'DashboardController@editBlockOrder');
     Route::patch('/dashboard/editBlockQuickActions', 'DashboardController@editBlockQuickActions');
-    Route::delete('/dashboard/deleteBlock/{blkID}/{secID}', 'DashboardController@deleteBlock');
-    Route::delete('/dashboard/deleteSection/{sectionID}', 'DashboardController@deleteSection');
+    Route::delete('/dashboard/deleteBlock/{blkID?}/{secID?}', 'DashboardController@deleteBlock');
+    Route::delete('/dashboard/deleteSection/{sectionID?}', 'DashboardController@deleteSection');
 
 //project routes
     Route::get('/projects/import', 'ProjectController@importProjectView');
-    Route::post('/projects/getProjectPermissionsModal', 'ProjectController@getProjectPermissionsModal');
     Route::post('/projects/import', 'ImportController@importProject');
     Route::resource('projects', 'ProjectController');
-    Route::post('projects/request', 'ProjectController@request');
-    Route::post('projects/{pid}/archive', 'ProjectController@setArchiveProject');
+    Route::post('projects/{pid?}/archive', 'ProjectController@setArchiveProject');
     Route::get('/projects/{pid}/importMF', 'ImportMultiFormController@index');
     Route::post('/projects/{pid}/importMF', 'ImportMultiFormController@beginImport');
     Route::post('/projects/{pid}/importMFRecord', 'ImportMultiFormController@importRecord');
@@ -60,13 +59,15 @@ Route::group(['middleware' => 'web'], function () {
     Route::get('/admin/users', 'AdminController@users');
     Route::get('/admin/users/{id}/edit', 'AdminController@editUser');
     Route::post('/admin/users/validateEmails', 'AdminController@validateEmails');
+    Route::get('/admin/config', "InstallController@editEnvConfigs");
+    Route::post('/admin/config', "InstallController@updateEnvConfigs");
     Route::post('admin/reverseCache', 'AdminController@buildReverseCache');
     Route::patch('/admin/update/{id}', 'AdminController@update');
     Route::patch('/admin/updateActivation/{id}', 'AdminController@updateActivation');
     Route::patch('/admin/updateStatus/{id}', 'AdminController@updateStatus');
     Route::patch('/admin/batch', 'AdminController@batch');
-    Route::delete('admin/deleteUser/{id}', 'AdminController@deleteUser');
-    Route::delete('admin/revokeGitlab/{id}', 'AdminController@revokeGitlab');
+    Route::delete('admin/deleteUser/{id?}', 'AdminController@deleteUser');
+    Route::delete('admin/revokeGitlab/{id?}', 'AdminController@revokeGitlab');
 
 //token routes
     Route::get('/tokens', 'TokenController@index');
@@ -80,7 +81,6 @@ Route::group(['middleware' => 'web'], function () {
 //association routes
     Route::get('/projects/{pid}/forms/{fid}/assoc', 'AssociationController@index');
     Route::post('/projects/{pid}/forms/{fid}/assoc', 'AssociationController@create');
-    Route::post('/projects/{pid}/forms/{fid}/assoc/request', 'AssociationController@requestAccess');
     Route::delete('/projects/{pid}/forms/{fid}/assoc', 'AssociationController@destroy');
     Route::delete('/projects/{pid}/forms/{fid}/assocReverse', 'AssociationController@destroyReverse');
 
@@ -105,7 +105,7 @@ Route::group(['middleware' => 'web'], function () {
     Route::post('/projects/{pid}/forms/{fid}/exportSelectedRecords/{type}', 'ExportController@exportSelectedRecords');
     Route::post('/projects/{pid}/forms/{fid}/prepFiles', 'ExportController@prepRecordFiles');
     Route::post('/projects/{pid}/forms/{fid}/buildFiles', 'ExportController@buildFormRecordZip');
-    Route::get('/projects/{pid}/forms/{fid}/exportFiles/{name}', 'ExportController@exportRecordFiles');
+    Route::get('/projects/{pid}/forms/{fid}/exportFiles/{name?}', 'ExportController@exportRecordFiles');
     Route::get('/projects/{pid}/forms/{fid}/exportForm', 'ExportController@exportForm');
     Route::get('/projects/{pid}/exportProj', 'ExportController@exportProject');
 
@@ -124,9 +124,9 @@ Route::group(['middleware' => 'web'], function () {
     Route::post('/projects/{pid}/forms/{fid}/fields/{flid}/options/geoConvert', 'FieldAjaxController@geoConvert');
     Route::post('/projects/{pid}/forms/{fid}/fields/{flid}/options/assoc', 'AssociatorSearchController@assocSearch');
     Route::post('/projects/{pid}/forms/{fid}', 'FieldController@store');
-    Route::post('/saveTmpFile/{fid}/{flid}', 'FieldAjaxController@saveTmpFile');
-    Route::patch('/saveTmpFile/{fid}/{flid}', 'FieldAjaxController@saveTmpFile');
-    Route::delete('/deleteTmpFile/{fid}/{flid}/{filename}', 'FieldAjaxController@delTmpFile');
+    Route::post('/saveTmpFile/{fid}/{flid}/{tmpDir}', 'FieldAjaxController@saveTmpFile');
+    Route::patch('/saveTmpFile/{fid}/{flid}/{tmpDir}', 'FieldAjaxController@saveTmpFile');
+    Route::delete('/deleteTmpFile/{fid}/{flid}/{tmpDir}/{filename}', 'FieldAjaxController@delTmpFile');
     Route::get('/download/{kid}/zip', 'FieldAjaxController@getZipDownload');
     Route::get('/download/{kid}/{filename}', 'FieldAjaxController@getFileDownload');
     Route::get('/files/{kid}/{filename}', 'FieldAjaxController@publicRecordFile');
@@ -165,7 +165,7 @@ Route::group(['middleware' => 'web'], function () {
     Route::post('/projects/{pid}/forms/{fid}/records/validateMass', 'RecordController@validateMassRecord');
     Route::post('/projects/{pid}/forms/{fid}/records/importRecord', 'ImportController@importRecord');
     Route::post('/projects/{pid}/forms/{fid}/records/connectRecords', 'ImportController@connectRecords');
-    Route::post('/projects/{pid}/forms/{fid}/records/importFailureSave', 'ImportController@saveImportFailure');
+    Route::post('/projects/{pid}/forms/{fid?}/records/importFailureSave', 'ImportController@saveImportFailure');
     Route::post('/projects/{pid}/forms/{fid}/records/importRecordFailed', 'ImportController@downloadFailedRecords');
     Route::post('/projects/{pid}/forms/{fid}/records/importReasonsFailed', 'ImportController@downloadFailedReasons');
     Route::post('/projects/{pid}/forms/{fid}/records/importConnectionsFailed', 'ImportController@downloadFailedConnections');
@@ -174,7 +174,7 @@ Route::group(['middleware' => 'web'], function () {
     Route::get('/projects/{pid}/forms/{fid}/records/{rid}/edit', 'RecordController@edit');
     Route::post('/projects/{pid}/forms/{fid}/records', 'RecordController@store');
     Route::delete('projects/{pid}/forms/{fid}/records/deleteMultipleRecords', 'RecordController@deleteMultipleRecords');
-    Route::delete('projects/{pid}/forms/{fid}/records/{rid}', 'RecordController@destroy');
+    Route::delete('projects/{pid}/forms/{fid}/records/{rid?}', 'RecordController@destroy');
     Route::delete('projects/{pid}/forms/{fid}/deleteAllRecords', 'RecordController@deleteAllRecords');
     Route::post('/projects/{pid}/forms/{fid}/cleanUp', 'RecordController@cleanUp');
     Route::get('/projects/{pid}/forms/{fid}/clone/{rid}', 'RecordController@cloneRecord');
@@ -209,14 +209,6 @@ Route::group(['middleware' => 'web'], function () {
 	Route::patch('/toggleOnboarding', 'Auth\UserController@toggleOnboarding');
 	Route::patch('/user/validateEditProfile', 'Auth\UserController@validateEditProfile');
 
-//install routes
-    Route::get('/helloworld', 'InstallController@helloworld');
-    Route::get('/install', 'InstallController@index');
-    Route::post('/install', 'InstallController@installFromWeb');
-    Route::get('/readyplayerone', "WelcomeController@installSuccess");
-    Route::get('/install/config', "InstallController@editEnvConfigs");
-    Route::post('/install/config', "InstallController@updateEnvConfigs");
-
 //update routes
     Route::get('/update', 'UpdateController@index');
     Route::get('/update/runScripts', 'UpdateController@runScripts');
@@ -238,9 +230,6 @@ Route::group(['middleware' => 'web'], function () {
     Route::get("/projects/{pid}/forms/{fid}/advancedSearch", "AdvancedSearchController@index");
     Route::get("/projects/{pid}/forms/{fid}/advancedSearch/results", "AdvancedSearchController@recent");
     Route::post("/projects/{pid}/forms/{fid}/advancedSearch/results", "AdvancedSearchController@search");
-
-//reset password routes
-	Route::post("/reset/email/validate", "Auth\ResetPasswordController@preValidateEmail");
 
 //user auth
     Auth::routes(); // generates user authentication routes

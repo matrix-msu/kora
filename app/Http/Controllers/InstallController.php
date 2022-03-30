@@ -43,102 +43,6 @@ class InstallController extends Controller {
 	];
 
     /**
-     * Gets home view for the uninstalled welcome page.
-     *
-     * @return View
-     */
-    public function helloworld() {
-        if(isInstalled())
-            return redirect('/');
-
-        return view('install.helloworld');
-    }
-
-    /**
-     * Gets view for install setup.
-     *
-     * @return View
-     */
-    public function index() {
-        if(isInstalled())
-            return redirect('/');
-
-        return view('install.install');
-    }
-
-    /**
-     * Installs kora from the web interface.
-     *
-     * @param  Request $request
-     * @return View
-     */
-    public function installFromWeb(Request $request) {
-        if($this->updateEnvDB($request)) {
-            $password = uniqid();
-            if($this->install($password,$request))
-                return redirect()->action('WelcomeController@installSuccess',['pw'=>$password]);
-        }
-
-        return redirect('/install')->withInput();
-    }
-
-    /**
-     * Updates DB in the ENV configuration file.
-     *
-     * @param  Request $request
-     * @return bool
-     */
-    private function updateEnvDB(Request $request) {
-        if(config('app.debug'))
-            $debug = 'true';
-        else
-            $debug = 'false';
-
-        $layout = "APP_ENV=" . config('app.env') . "\n".
-            "APP_DEBUG=" . $debug . "\n".
-            "APP_KEY=" . config('app.key') . "\n\n".
-
-            "DB_HOST=" . $request->db_host . "\n" .
-            "DB_DATABASE=" . $request->db_database . "\n" .
-            "DB_USERNAME=" . $request->db_username . "\n" .
-            "DB_PASSWORD=" . $request->db_password . "\n" .
-            "DB_DEFAULT=" . config('database.default') . "\n" .
-            "DB_PREFIX=" . $request->db_prefix . "\n\n" .
-
-            "MAIL_HOST=" . config('mail.host') . "\n" .
-            "MAIL_FROM_ADDRESS=" . config('mail.from.address') . "\n" .
-            "MAIL_FROM_NAME=\"" . config('mail.from.name') . "\"\n" .
-            "MAIL_USER=" . config('mail.username') . "\n" .
-            "MAIL_PASSWORD=" . config('mail.password') . "\n\n" .
-
-            "CACHE_DRIVER=" . config('cache.default') . "\n" .
-            "SESSION_DRIVER=" . config('session.driver') . "\n" .
-            "STORAGE_TYPE=" . config('filesystems.kora_storage') . "\n\n" .
-
-            "RECAPTCHA_PUBLIC_KEY=" . config('auth.recap_public') . "\n" .
-            "RECAPTCHA_PRIVATE_KEY=" . config('auth.recap_private') . "\n\n" .
-
-            "GITLAB_CLIENT=" . config('services.gitlab.client') . "\n" .
-            "GITLAB_CLIENT_ID=" . config('services.gitlab.client_id') . "\n" .
-            "GITLAB_CLIENT_SECRET=" . config('services.gitlab.client_secret');
-
-        try {
-            Log::info("Beginning ENV Write");
-            $envfile = fopen(base_path(".env"), "w");
-
-            fwrite($envfile, $layout);
-
-            fclose($envfile);
-            Log::info("Ending ENV Write");
-        } catch(\Exception $e) { //Most likely if the file is owned by another user or PHP doesn't have permission
-            Log::info($e);
-            return false;
-        }
-
-        return true;
-    }
-
-    /**
      * Install kora - Creates the database, and adds any defaults needed
      *
      * @param  string $password - The admin password to create
@@ -290,8 +194,7 @@ class InstallController extends Controller {
         $newuser = User::create([
             'username' => 'admin',
             'email' => 'root@localhost.com',
-            'password' => bcrypt($password),
-            'regtoken' => ''
+            'password' => bcrypt($password)
         ]);
 
         $preferences = array();
@@ -361,19 +264,15 @@ class InstallController extends Controller {
             return redirect("/");
 
         $configs = array(
-            ['title'=>'Recaptcha Public Key',  'slug'=>'recaptcha_public',     'value'=>config('auth.recap_public')],
-            ['title'=>'Recaptcha Private Key', 'slug'=>'recaptcha_private',    'value'=>config('auth.recap_private')],
-            ['title'=>'Gitlab Client',         'slug'=>'gitlab_client',        'value'=>config('services.gitlab.client')],
-            ['title'=>'Gitlab Client ID',      'slug'=>'gitlab_client_id',     'value'=>config('services.gitlab.client_id')],
-            ['title'=>'Gitlab Client Secret',  'slug'=>'gitlab_client_secret', 'value'=>config('services.gitlab.client_secret')],
-            ['title'=>'Mail Host',             'slug'=>'mail_host',            'value'=>config('mail.host')],
-            ['title'=>'Mail From Address',     'slug'=>'mail_address',         'value'=>config('mail.from.address')],
-            ['title'=>'Mail From Name',        'slug'=>'mail_name',            'value'=>config('mail.from.name')],
-            ['title'=>'Mail User',             'slug'=>'mail_user',            'value'=>config('mail.username')],
-            ['title'=>'Mail Password',         'slug'=>'mail_password',        'value'=>config('mail.password')],
+            ['title'=>'Allow Public Registration?',   'slug'=>'public_registration',  'value'=>config('auth.public_registration'), 'boolean'=>true],
+            ['title'=>'Recaptcha Public Key',  'slug'=>'recaptcha_public',     'value'=>config('auth.recap_public'), 'boolean'=>false],
+            ['title'=>'Recaptcha Private Key', 'slug'=>'recaptcha_private',    'value'=>config('auth.recap_private'), 'boolean'=>false],
+            ['title'=>'Gitlab Client',         'slug'=>'gitlab_client',        'value'=>config('services.gitlab.host'), 'boolean'=>false],
+            ['title'=>'Gitlab Client ID',      'slug'=>'gitlab_client_id',     'value'=>config('services.gitlab.client_id'), 'boolean'=>false],
+            ['title'=>'Gitlab Client Secret',  'slug'=>'gitlab_client_secret', 'value'=>config('services.gitlab.client_secret'), 'boolean'=>false],
         );
 
-        return view('install.config',compact('configs'));
+        return view('admin.config',compact('configs'));
     }
 
     /**
@@ -391,19 +290,15 @@ class InstallController extends Controller {
         else
             $debug = 'false';
 
-				//ENV values with spaces need to be surrounded in quotes
-				//Whether or not a particular ENV value should have a space is another issue, but those errors are more manageable
-				//ENV errors break everything!
-				$mail_host = (strpos($request->mail_host, ' ') !== false) ? '"'.$request->mail_host.'"' : $request->mail_host;
-				$mail_address = (strpos($request->mail_address, ' ') !== false) ? '"'.$request->mail_address.'"' : $request->mail_address;
-				$mail_name = (strpos($request->mail_name, ' ') !== false) ? '"'.$request->mail_name.'"' : $request->mail_name;
-				$mail_user = (strpos($request->mail_user, ' ') !== false) ? '"'.$request->mail_user.'"' : $request->mail_user;
-				$mail_password = (strpos($request->mail_password, ' ') !== false) ? '"'.$request->mail_password.'"' : $request->mail_password;
-				$recaptcha_public = (strpos($request->recaptcha_public, ' ') !== false) ? '"'.$request->recaptcha_public.'"' : $request->recaptcha_public;
-				$recaptcha_private = (strpos($request->recaptcha_private, ' ') !== false) ? '"'.$request->recaptcha_private.'"' : $request->recaptcha_private;
-				$gitlab_client = (strpos($request->gitlab_client, ' ') !== false) ? '"'.$request->gitlab_client.'"' : $request->gitlab_client;
-				$gitlab_client_id = (strpos($request->gitlab_client_id, ' ') !== false) ? '"'.$request->gitlab_client_id.'"' : $request->gitlab_client_id;
-				$gitlab_client_secret = (strpos($request->gitlab_client_secret, ' ') !== false) ? '"'.$request->gitlab_client_secret.'"' : $request->gitlab_client_secret;
+        //ENV values with spaces need to be surrounded in quotes
+        //Whether or not a particular ENV value should have a space is another issue, but those errors are more manageable
+        //ENV errors break everything!
+        $public_registration = (isset($request->public_registration) && $request->public_registration) ? 'true' : 'false';
+        $recaptcha_public = (strpos($request->recaptcha_public, ' ') !== false) ? '"'.$request->recaptcha_public.'"' : $request->recaptcha_public;
+        $recaptcha_private = (strpos($request->recaptcha_private, ' ') !== false) ? '"'.$request->recaptcha_private.'"' : $request->recaptcha_private;
+        $gitlab_client = (strpos($request->gitlab_client, ' ') !== false) ? '"'.$request->gitlab_client.'"' : $request->gitlab_client;
+        $gitlab_client_id = (strpos($request->gitlab_client_id, ' ') !== false) ? '"'.$request->gitlab_client_id.'"' : $request->gitlab_client_id;
+        $gitlab_client_secret = (strpos($request->gitlab_client_secret, ' ') !== false) ? '"'.$request->gitlab_client_secret.'"' : $request->gitlab_client_secret;
 
         $layout = "APP_ENV=" . config('app.env') . "\n".
             "APP_DEBUG=" . $debug . "\n".
@@ -416,16 +311,11 @@ class InstallController extends Controller {
             "DB_DEFAULT=" . config('database.default') . "\n" .
             "DB_PREFIX=" . config('database.connections.mysql.prefix') . "\n\n" .
 
-            "MAIL_HOST=" . $mail_host . "\n" .
-            "MAIL_FROM_ADDRESS=" . $mail_address . "\n" .
-            "MAIL_FROM_NAME=" . $mail_name . "\n" .
-            "MAIL_USER=" . $mail_user . "\n" .
-            "MAIL_PASSWORD=" . $mail_password . "\n\n" .
-
             "CACHE_DRIVER=" . config('cache.default') . "\n".
             "SESSION_DRIVER=" . config('session.driver') . "\n" .
             "STORAGE_TYPE=" . config('filesystems.kora_storage') . "\n\n" .
 
+            "PUBLIC_REGISTRATION=" . $public_registration . "\n" .
             "RECAPTCHA_PUBLIC_KEY=" . $recaptcha_public . "\n" .
             "RECAPTCHA_PRIVATE_KEY=" . $recaptcha_private . "\n\n" .
 
@@ -443,9 +333,9 @@ class InstallController extends Controller {
             Log::info("Ending ENV Write");
         } catch(\Exception $e) { //Most likely if the file is owned by another user or PHP doesn't have permission
             Log::info($e);
-            return redirect('install/config')->with('k3_global_error', 'env_cant_write');
+            return redirect('admin/config')->with('k3_global_error', 'env_cant_write');
         }
 
-        return redirect('install/config')->with('k3_global_success', 'kora_config_updated');
+        return redirect('admin/config')->with('k3_global_success', 'kora_config_updated');
     }
 }

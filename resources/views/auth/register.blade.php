@@ -23,7 +23,6 @@
 
     <form id="register-form" class="form-horizontal form-file-input user-form" role="form" method="POST" enctype="multipart/form-data" action="{{ url('/register') }}">
       <input type="hidden" id="_token" name="_token" value="{{ csrf_token() }}">
-      <input type="hidden" id="regtoken" name="regtoken" value="{{\App\Http\Controllers\Auth\RegisterController::makeRegToken()}}">
 
       <div class="form-group half mt-xl">
         <label for="first-name">Your First Name</label>
@@ -94,15 +93,16 @@
               <input type="text" class="form-control" name="language" value="{{ App::getLocale() }}">
       </div> --}}
 
-      <div class="form-group mt-xl">
-          <label for="language">Language</label>
-          <select id="language" name="language" class="chosen-select">
-              {{$languages_available = Config::get('app.locales_supported')}}
-              @foreach($languages_available->keys() as $lang)
-                  <option value='{{$languages_available->get($lang)[0]}}'>{{$languages_available->get($lang)[1]}} </option>
-              @endforeach
-          </select>
-      </div>
+      {{--        TEMPORARILY DISABLED THIS UNTIL NEW LANGUAGES ACTUALLY BECOME A THING--}}
+{{--      <div class="form-group mt-xl">--}}
+{{--          <label for="language">Language</label>--}}
+{{--          <select id="language" name="language" class="chosen-select">--}}
+{{--              {{$languages_available = Config::get('app.locales_supported')}}--}}
+{{--              @foreach($languages_available->keys() as $lang)--}}
+{{--                  <option value='{{$languages_available->get($lang)[0]}}'>{{$languages_available->get($lang)[1]}} </option>--}}
+{{--              @endforeach--}}
+{{--          </select>--}}
+{{--      </div>--}}
 
       <div class="form-group mt-xxxl">
           <div style="padding: 5px" align="center" class="g-recaptcha" data-sitekey="{{ config('auth.recap_public') }}"></div>

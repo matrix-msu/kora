@@ -23,7 +23,7 @@ class WelcomeController extends Controller {
      * @return View
      */
 	public function index() {
-	    if(!isInstalled())
+	    if(!databaseConnectionExists())
         	return redirect('/helloworld');
 		else if(\Auth::guest()) {
 			$notification = array(
@@ -54,10 +54,15 @@ class WelcomeController extends Controller {
 				$notification['description'] ='Provided username/email from OAuth account already exists. Go to edit user page to assign account, or contact your kora administrator';
 				$notification['warning'] = true;
 				$notification['static'] = true;
-			}
+			} else if($session == 'public_registration_off') {
+                $notification['message'] ='Public registration is disabled.';
+                $notification['description'] ='Please contact an administrator to receive an invite';
+                $notification['warning'] = true;
+                $notification['static'] = true;
+            }
 
 			return view('/welcome', compact('notification'));
-		} else if (!\Auth::user()->active && \Auth::user()->regtoken=='') {
+		} else if (!\Auth::user()->active) {
 			return view('/auth/deactivate');
 		}	else if (!\Auth::user()->active) {
 			$notification = array(
@@ -95,15 +100,15 @@ class WelcomeController extends Controller {
 	}
 
     /**
-     * Gets the view for successful installation.
+     * Gets the view for when database is down, or even uninstalled.
      *
      * @return View
      */
-    public function installSuccess() {
-        if(!isInstalled())
-            return redirect('/helloworld');
+    public function helloWorld() {
+        if(databaseConnectionExists())
+            return redirect('/');
         else {
-            return view('install.success');
+            return view('helloworld');
         }
     }
 

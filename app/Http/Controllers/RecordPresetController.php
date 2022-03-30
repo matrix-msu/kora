@@ -277,14 +277,13 @@ class RecordPresetController extends Controller {
      */
     public function moveFilesToTemp(Request $request) {
         $presetID = $request->presetID;
-        $userID = \Auth::user()->id;
 
         $preset = RecordPreset::where('id',$presetID)->first();
 
         switch(config('filesystems.kora_storage')) {
             case FileTypeField::_LaravelStorage:
                 //Clear the current directory
-                $dir = storage_path('app/tmpFiles/recordU'.$userID);
+                $dir = storage_path('app/tmpFiles/'.$request->tmpFileDir);
                 if(file_exists($dir)) {
                     foreach(new \DirectoryIterator($dir) as $file) {
                         if($file->isFile())

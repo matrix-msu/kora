@@ -118,8 +118,6 @@ class ExodusController extends Controller {
                     $user->active = 1;
                     $password = uniqid();
                     $user->password = bcrypt($password);
-                    $token = RegisterController::makeRegToken();
-                    $user->regtoken = $token;
                     $user->save();
 
                     $preferences = array();

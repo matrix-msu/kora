@@ -1,7 +1,7 @@
 @php
     $exists = \App\Http\Controllers\RecordController::exists($revision->record_kid);
     $record_id = explode('-',$revision->record_kid)[2];
-    $datetime = explode(' ', $revision->updated_at);
+    $datetime = explode(' ', $revision->created_at);
     $showLink = action("RevisionController@show", ["pid" => $form->project_id, "fid" => $form->id, "rid" => $record_id]);
     $type = ucfirst($revision->revision['type'] === "edit" ? 'edited' : ($revision->revision['type'] === 'rollback' ? 'rollback' : $revision->revision['type'].'d'));
     $data = \App\Http\Controllers\RevisionController::formatRevision($revision->id);

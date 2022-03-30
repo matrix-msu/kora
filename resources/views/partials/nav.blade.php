@@ -9,9 +9,9 @@
         <li class="navigation-item pr-0">
           <a href="{{ url('/register') }}" class="text navigation-toggle-js underline-middle-hover">Need to Sign Up?</a>
         </li>
-      @elseif(isInstalled())
+      @elseif(databaseConnectionExists())
         <li class="navigation-item">
-          <a href="{{ url('/') }}" class="text navigation-toggle-js underline-middle-hover">Need to Login?</a>
+          <a href="{{ url('/home') }}" class="text navigation-toggle-js underline-middle-hover">Need to Login?</a>
         </li>
       @endif
     @elseif (!Auth::user()->active && strtolower($page_class == "invited-register"))
@@ -29,7 +29,7 @@
           <img src="{{url('assets/logos/logo_dark.svg')}}">
       </li>
     @else
-      @if(isInstalled())
+      @if(databaseConnectionExists())
         <li class="logo">
           @php
               $logo = \App\Http\Controllers\Auth\UserController::returnUserPrefs('logo_target');
@@ -47,18 +47,19 @@
 
   <ul class="navigation-right navigation-right-js">
     @if(Auth::guest())
-      <li class="navigation-item pl-0">
-        <a href="#" class="text menu-toggle navigation-toggle-js underline-middle-hover">
-          <span>English</span>
-          <i class="icon icon-chevron"></i>
-        </a>
-        <ul class="navigation-sub-menu navigation-sub-menu-js language-select">
-          @foreach(getLangs()->keys() as $lang)
-              <li><a onclick='setTempLang({{$lang}})' href='#'>{{getLangs()->get($lang)[1]}}</a> </li>
-          @endforeach
-          <li>More Languages <br> Coming Soon!</li>
-        </ul>
-      </li>
+{{--        TEMPORARILY DISABLED THIS UNTIL NEW LANGUAGES ACTUALLY BECOME A THING--}}
+{{--      <li class="navigation-item pl-0">--}}
+{{--        <a href="#" class="text menu-toggle navigation-toggle-js underline-middle-hover">--}}
+{{--          <span>English</span>--}}
+{{--          <i class="icon icon-chevron"></i>--}}
+{{--        </a>--}}
+{{--        <ul class="navigation-sub-menu navigation-sub-menu-js language-select">--}}
+{{--          @foreach(getLangs()->keys() as $lang)--}}
+{{--              <li><a onclick='setTempLang({{$lang}})' href='#'>{{getLangs()->get($lang)[1]}}</a> </li>--}}
+{{--          @endforeach--}}
+{{--          <li>More Languages <br> Coming Soon!</li>--}}
+{{--        </ul>--}}
+{{--      </li>--}}
     @elseif (!Auth::user()->active)
       <li class="navigation-item">
         <form id="logout_link" class="form-horizontal" role="form" method="POST" action="{{ url('/logout') }}">
@@ -78,8 +79,6 @@
     var globalSearchUrl = '{{action('ProjectSearchController@globalSearch')}}';
     var cacheGlobalSearchUrl = '{{ action('ProjectSearchController@cacheGlobalSearch') }}';
     var clearGlobalCacheUrl = '{{ action('ProjectSearchController@clearGlobalCache') }}';
-    var getProjectPermissionsModal = '{{ action('ProjectController@getProjectPermissionsModal') }}';
-    var requestProjectPermissionsURL = '{{ action('ProjectController@request') }}';
     var baseURL = '{{ url('') }}/';
     var CSRFToken = '{{ csrf_token() }}';
   </script>

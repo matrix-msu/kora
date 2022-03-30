@@ -224,6 +224,7 @@ class ImportController extends Controller {
         $recRequest = new Request();
         $recRequest['userId'] = \Auth::user()->id;
         $recRequest['api'] = true;
+        $recRequest['tmpFileDir'] = $request->tmpFileDir;
 
         if($request->type==self::XML) {
             $record = simplexml_load_string($record);

@@ -15,14 +15,9 @@
     </div>
 	
 	<div class="form-group mt-xxl add-users-email-js">
-	  <label for="emails">Not Listed Above? Invite Users Via Email</label>
+	  <label for="emails">Not Listed Above? Enter Email(s) to Create Users</label>
     <span class="error-message emails"></span>
-	  <input type="text" class="text-input emails" id="emails-{{$projectGroup->id}}" name="emails" placeholder="Enter invitee email(s) here. Seperate multiple emails with a space or a comma.">
-	</div>
-	
-	<div class="form-group mt-xxl">
-	  <label for="message">Include a Personal Message?</label>
-	  <textarea class="text-area" id="message-{{$projectGroup->id}}" name="message" placeholder="Provide further details to be sent to added and invited users. Including a personal message is optional."></textarea>
+	  <input type="text" class="text-input emails" id="emails-{{$projectGroup->id}}" name="emails" placeholder="Enter user email(s) here. Seperate multiple emails with a space or a comma.">
 	</div>
 
     <div class="form-group mt-xxl add-users-submit add-users-submit-js">

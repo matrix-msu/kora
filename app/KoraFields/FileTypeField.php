@@ -68,22 +68,16 @@ abstract class FileTypeField extends BaseField {
      */
     public function validateField($flid, $field, $request, $forceReq = false) {
         $req = $field['required'];
-        if(Auth::guest())
-            $value = 'recordU'.$request['userId'];
-        else
-            $value = 'recordU'.Auth::user()->id;
 
-        $tmpPath = 'app/tmpFiles/' . $value;
+        $tmpPath = 'app/tmpFiles/' . $request->tmpFileDir;
 
-        if($req==1 | $forceReq) {
-            if(glob(storage_path($tmpPath . '/*.*')) == false)
-                return [$flid => $field['name'].' is required'];
-        }
+        if(($req==1 || $forceReq) && is_null($request->{$flid}))
+            return [$flid => $field['name'].' is required'];
 
-        if(file_exists(storage_path($tmpPath))) {
-            foreach (new \DirectoryIterator(storage_path($tmpPath)) as $file) {
-                if ($file->isFile()) {
-                    if (!self::validateRecordFileName($file->getFilename()))
+        if(file_exists(storage_path($tmpPath)) && !is_null($request->{$flid})) {
+            foreach(new \DirectoryIterator(storage_path($tmpPath)) as $file) {
+                if($file->isFile() && in_array($file->getFilename(), $request->{$flid})) {
+                    if(!self::validateRecordFileName($file->getFilename()))
                         return [$flid => $field['name'] . ' has file with illegal filename'];
                 }
             }
@@ -102,11 +96,7 @@ abstract class FileTypeField extends BaseField {
      * @return mixed - Processed data
      */
     public function processRecordData($field, $value, $request) {
-        if($request->api && isset($request->userId))
-            $uid = $request->userId;
-        else
-            $uid = Auth::user()->id;
-        $tmpPath = 'app/tmpFiles/recordU' . $uid;
+        $tmpPath = 'app/tmpFiles/'.$request->tmpFileDir;
         $flid = $field['flid'];
         $captions = !is_null($request->input('file_captions'.$flid)) ? $request->input('file_captions'.$flid) : null;
 
@@ -249,7 +239,7 @@ abstract class FileTypeField extends BaseField {
         $currDir = storage_path( 'app/tmpFiles/impU' . $subpath);
 
         //Make destination directory
-        $newDir = storage_path('app/tmpFiles/recordU' . $subpath);
+        $newDir = storage_path('app/tmpFiles/'.$request->tmpFileDir);
         if(!file_exists($newDir))
             mkdir($newDir, 0775, true);
 
@@ -305,7 +295,7 @@ abstract class FileTypeField extends BaseField {
         $currDir = storage_path( 'app/tmpFiles/impU' . \Auth::user()->id);
 
         //Make destination directory
-        $newDir = storage_path('app/tmpFiles/recordU' . \Auth::user()->id);
+        $newDir = storage_path('app/tmpFiles/'.$request->tmpFileDir);
         if(!file_exists($newDir))
             mkdir($newDir, 0775, true);
 
@@ -364,7 +354,7 @@ abstract class FileTypeField extends BaseField {
         $currDir = storage_path( 'app/tmpFiles/impU' . $subpath);
 
         //Make destination directory
-        $newDir = storage_path('app/tmpFiles/recordU' . $subpath);
+        $newDir = storage_path('app/tmpFiles/'.$request->tmpFileDir);
         if(!file_exists($newDir))
             mkdir($newDir, 0775, true);
 
@@ -574,10 +564,9 @@ abstract class FileTypeField extends BaseField {
      * @param  int $field - File field that record file will be loaded to
      * @param  Request $request
      */
-    public function saveTmpFile($form, $flid, $field) {
-        $uid = \Auth::user()->id;
+    public function saveTmpFile($form, $flid, $field, $tmpDir) {
         //We are going to store in the tmp directory in a user unique folder
-        $dir = storage_path('recordU'.$uid);
+        $dir = storage_path($tmpDir);
 
         //Validate file names
         $validNames = true;
@@ -634,7 +623,7 @@ abstract class FileTypeField extends BaseField {
         $options = array();
         $options['fid'] = $form->id;
         $options['flid'] = $flid;
-        $options['folder'] = 'recordU'.$uid;
+        $options['folder'] = $tmpDir;
 
         if(!$validNames) {
             echo "InvalidFileNames";
@@ -656,13 +645,12 @@ abstract class FileTypeField extends BaseField {
      * @param  string $name - Name of the file to delete
      * @param  Request $request
      */
-    public function delTmpFile($fid, $flid, $filename) {
-        $uid = \Auth::user()->id;
+    public function delTmpFile($fid, $flid, $filename, $tmpDir) {
         $options = array();
         $options['fid'] = $fid;
         $options['flid'] = $flid;
         $options['filename'] = $filename;
-        $options['folder'] = 'recordU'.$uid;
+        $options['folder'] = $tmpDir;
         $options['deleteThat'] = true;
         $upload_handler = new UploadHandler($options);
     }

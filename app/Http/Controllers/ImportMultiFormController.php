@@ -302,6 +302,7 @@ class ImportMultiFormController extends Controller {
         $recRequest = new Request();
         $recRequest['userId'] = \Auth::user()->id;
         $recRequest['api'] = true;
+        $recRequest['tmpFileDir'] = $request->tmpFileDir;
 
         $matchup = json_decode($request->table,true)[$fid];
 

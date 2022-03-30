@@ -1,4 +1,5 @@
 <input type="hidden" name="userId" value="{{\Auth::user()->id}}">
+<input type="hidden" name="tmpFileDir" value="{{$tmpFileDir}}">
 
 @foreach($layout['pages'] as $page)
     <section id="#{{$page["title"]}}" class="page-section-js hidden">

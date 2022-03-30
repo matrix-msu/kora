@@ -130,6 +130,7 @@ Kora.Records.Import = function () {
                                         type: 'POST',
                                         data: {
                                             "_token": CSRFToken,
+                                            "tmpFileDir": tmpFileDir,
                                             "record": JSON.stringify(importData["record"]),
                                             "import_id": importData["import_id"],
                                             "table": JSON.stringify(importData["table"]),

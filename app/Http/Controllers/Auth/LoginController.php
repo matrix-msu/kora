@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\User;
 use Carbon\Carbon;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Laravel\Socialite\Facades\Socialite;
@@ -39,12 +41,54 @@ class LoginController extends Controller
      */
     public function __construct()
     {
-        $this->middleware('install');
+        $this->middleware('databaseConnected');
         $this->middleware('guest', ['except' => [
             'logout',
             'redirectToGitlab',
             'handleGitlabCallback'
         ]]);
+    }
+
+    /**
+     * Override of function in the use class above, AuthenticatesUsers. Filters login results to allow login with either username or email
+     *
+     * @param  Request $request
+     * @return array - The filtered credentials
+     */
+    protected function credentials(Request $request)
+    {
+        $credentials = $request->only($this->username(), 'password');
+
+        if(strpos($credentials['email'], '@') == false) {
+            //logging in with username not email, so change the column-name
+            $credentials['username'] = $credentials['email'];
+            unset($credentials['email']);
+        }
+
+        return $credentials;
+    }
+
+    /**
+     * Log the user out of the application.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Http\JsonResponse
+     */
+    public function logout(Request $request)
+    {
+        $this->guard()->logout();
+
+        $request->session()->invalidate();
+
+        $request->session()->regenerateToken();
+
+        if ($response = $this->loggedOut($request)) {
+            return $response;
+        }
+
+        return $request->wantsJson()
+            ? new JsonResponse([], 204)
+            : redirect('/home');
     }
 
     /**
@@ -132,8 +176,6 @@ class LoginController extends Controller
         $password = uniqid();
         $user->password = bcrypt($password);
         $user->{$client} = Hash::make($token);
-        $regtoken = RegisterController::makeRegToken();
-        $user->regtoken = $regtoken;
 
         $preferences = [];
         $preferences['created_at'] = Carbon::now();

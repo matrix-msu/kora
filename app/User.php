@@ -1,6 +1,5 @@
 <?php namespace App;
 
-use App\Commands\UserEmails;
 use App\Http\Controllers\FormController;
 use App\Http\Controllers\ProjectController;
 use Carbon\Carbon;
@@ -35,11 +34,11 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
     /**
      * @var array - Attributes that can be mass assigned to model
      */
-	protected $fillable = ['username', 'email', 'password', 'regtoken', 'preferences'];
+	protected $fillable = ['username', 'email', 'password', 'preferences'];
     /**
      * @var array - Attributes that ignored in the model representation
      */
-	protected $hidden = ['password', 'remember_token'];
+	protected $hidden = ['password'];
 
     protected $casts = [
         'preferences' => 'array'
@@ -57,131 +56,6 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
     public function gsCaches() {
         return DB::table("global_cache")->where("user_id", "=", $this->id);
     }
-
-    ////THESE FUNCTIONS WILL HANDLE MODIFICATIONS TO AUTHENTICATION IN LARAVEL//////////////////////////////////////////
-
-    ////NOTE: You may have to fix re-implement these functions when updating to newer versions of laravel, so test them!!
-
-    /** RECAPTCHA
-     * Verifies recaptcha token on register. Happens in registration before we verify the other User request data.
-     *
-     * @param  Request $request - The registration request data
-     */
-    public static function verifyRegisterRecaptcha($request) {
-        $recaptcha = new ReCaptcha(config('auth.recap_private'));
-        $resp = $recaptcha->verify($request['g-recaptcha-response'], $_SERVER['REMOTE_ADDR']);
-
-        if($resp->isSuccess())
-            return true;
-        else
-            return false;
-
-        //NOTE::When you re-implement this function in the laravel Register system, use this fail state:
-        //For more information, check out the Laravel Upgrade Documentation
-//        if(!\App\User::verifyRegisterRecaptcha($request,$this)) {
-//            $notification = array(
-//                'message' => 'ReCaptcha validation error',
-//                'description' => '',
-//                'warning' => true,
-//                'static' => true
-//            );
-//
-//            return redirect("/register")->withInput()->with('notification', $notification)->send();
-//        }
-    }
-
-    /** REGISTRATION
-     * Finishes the registration process by submitting user photo and sending activation email. Happens in registration
-     * right after logging in the newly created user.
-     *
-     * @param  Request $request - The registration request data
-     * @return bool - Success of activation email
-     */
-    public static function finishRegistration($request) {
-        $user = \Auth::user();
-        $token = $user->token;
-        $preferences = array();
-
-        //Metadata stuff
-        $preferences['first_name'] = $request->first_name;
-        $preferences['last_name'] = $request->last_name;
-        $preferences['organization'] = $request->organization;
-        $preferences['language'] = 'en';
-
-        //Profile picture
-        if(!is_null($request->file('profile'))) {
-            //get the file object
-            $file = $request->file('profile');
-            $filename = $file->getClientOriginalName();
-            //path where file will be stored
-            $destinationPath = storage_path('app/profiles/'.$user->id.'/');
-            //store filename in user model
-            $preferences['profile_pic'] = $filename;
-            //move the file
-            $file->move($destinationPath,$filename);
-        } else {
-            $preferences['profile_pic'] = '';
-        }
-
-        //Assign new user preferences
-        $preferences['use_dashboard'] = 1;
-        $preferences['logo_target'] = 2;
-        $preferences['proj_tab_selection'] = 2;
-        $preferences['form_tab_selection'] = 2;
-        $preferences['onboarding'] = 1;
-        $user->preferences = $preferences;
-        $user->save();
-
-        //Send email
-        $job = new UserEmails('UserActivationRequest', ['token' => $token, 'email' => $user->email]);
-        $job->handle();
-
-        return true;
-
-        //NOTE::When you re-implement this function in the laravel Register system, use this fail state:
-        //For more information, check out the Laravel Upgrade Documentation
-//        if(\App\User::finishRegistration($request))
-//            $status = 'activation_email_sent';
-//        else
-//            $status = 'activation_email_failed';
-//
-//
-//        return $this->registered($request, $user)
-//            ?: redirect($this->redirectPath())->with('status', $status)->send();
-    }
-
-    /** PASSWORD RESET
-     * Overrides the laravel password reset email function so we can customize it. Unless the overridden function
-     * changes, we shouldn't need to modify anything when upgrading.
-     *
-     * @param  string $token - The reset token
-     */
-    public function sendPasswordResetNotification($token) {
-        $userMail = $this->email;
-
-        //Send email
-        $job = new UserEmails('PasswordReset', ['token' => $token, 'userMail' => $userMail]);
-        $job->handle();
-    }
-
-    /** LOGIN
-     * Filters login results to allow login with either username or email. Happens in the authentication system login
-     * attempt function.
-     *
-     * @param  array $credentials - The login credentials
-     * @return array - The filtered credentials
-     */
-    public static function refineLoginCredentials($credentials) {
-        if(strpos($credentials['email'], '@') == false) {
-            //logging in with username not email, so change the column-name
-            $credentials['username'] = $credentials['email'];
-            unset($credentials['email']);
-        }
-
-        return $credentials;
-    }
-
-    ////END AUTH FUNCTIONS//////////////////////////////////////////////////////////////////////////////////////////////
 
     /**
      * Returns true if a user is allowed to create forms in a project, false if not.

@@ -747,6 +747,7 @@ class RestfulController extends Controller {
 
         $uToken = uniqid(); //need a temp user id to interact, specifically for files
         $recRequest['userId'] = $uToken; //the new record will ultimately be owned by the root/sytem
+        $recRequest['tmpFileDir'] = 'record'.uniqid();
         if(!is_null($request->file("zip_file")) ) {
             $file = $request->file("zip_file");
             $zipPath = $file->move(storage_path('app/tmpFiles/impU' . $uToken));
@@ -819,6 +820,7 @@ class RestfulController extends Controller {
         $uToken = uniqid(); //need a temp user id to interact, specifically for files
 
         $recRequest['userId'] = $uToken; //the new record will ultimately be owned by the root/sytem
+        $recRequest['tmpFileDir'] = 'record'.uniqid();
         if( !is_null($request->file("zip_file")) ) {
             $file = $request->file("zip_file");
             $zipPath = $file->move(storage_path('app/tmpFiles/impU' . $uToken));
