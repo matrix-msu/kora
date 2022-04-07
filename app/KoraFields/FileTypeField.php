@@ -576,18 +576,15 @@ abstract class FileTypeField extends BaseField {
         }
 
         //Prep comparing of allowed number files, vs files already in tmp folder
-        $maxFileNum = !is_null($field['options']['MaxFiles']) ? $field['options']['MaxFiles'] : 0;
+        $maxFileNum = (!is_null($field['options']['MaxFiles']) && $field['options']['MaxFiles']!="") ? $field['options']['MaxFiles'] : 0;
         $fileNumRequest = sizeof($_FILES['file'.$flid]['name']);
         if(glob($dir.'/*.*') != false)
             $fileNumDisk = count(glob($dir.'/*.*'));
         else
             $fileNumDisk = 0;
-
-        $maxFieldSize = $field['options']['FieldSize'];
-    		if (trim($maxFieldSize) === '') {
-    			$maxFieldSize = '0';
-    		}
-    		$maxFieldSize = $maxFieldSize * 1024;
+        
+        $maxFieldSize = (!is_null($field['options']['FieldSize']) && $field['options']['FieldSize']!="") ? $field['options']['FieldSize'] : 0;
+        $maxFieldSize = $maxFieldSize * 1024;
 
         $fileSizeRequest = 0;
         foreach($_FILES['file'.$flid]['size'] as $size) {
