@@ -19,7 +19,7 @@
             $preDisabled = (!is_null($default) && ($default['era'] == 'BP' | $default['era'] == 'KYA BP'));
         @endphp
 
-        {!! Form::select('default_month'.$seq,['' => '', '0' => 'Current Month',
+        {!! Form::select('default_month'.$seq,['' => '', '00' => 'Current Month',
             '01' => '01 - '.date("F", mktime(0, 0, 0, 1, 10)), '02' => '02 - '.date("F", mktime(0, 0, 0, 2, 10)),
             '03' => '03 - '.date("F", mktime(0, 0, 0, 3, 10)), '04' => '04 - '.date("F", mktime(0, 0, 0, 4, 10)),
             '05' => '05 - '.date("F", mktime(0, 0, 0, 5, 10)), '06' => '06 - '.date("F", mktime(0, 0, 0, 6, 10)),
@@ -34,7 +34,7 @@
         <select name="default_day{{$seq}}" id='default_day{{$seq}}' class="single-select" data-placeholder="Select a Day" {{ $preDisabled ? 'disabled' : '' }}>
             <option value=""></option>
             @php
-                if(!is_null($default) && $default['day'] === 0)
+                if(!is_null($default) && $default['day'] == 0)
                     echo "<option value=" . 0 . " selected>Current Day</option>";
                 else
                     echo "<option value=" . 0 . ">Current Day</option>";
@@ -56,7 +56,7 @@
         <select name="default_year{{$seq}}" id="default_year{{$seq}}" class="single-select default-year-{{$jseq}}js {{$defClass}}" data-placeholder="Select a Year">
             <option value=""></option>
             @php
-                if(!is_null($default) && $default['year'] === 0)
+                if(!is_null($default) && $default['year'] == 0)
                     echo "<option value=" . 0 . " selected>Current Year</option>";
                 else
                     echo "<option value=" . 0 . ">Current Year</option>";

@@ -96,7 +96,10 @@ class DateField extends BaseField {
      * @return array - The updated field array
      */
     public function updateOptions($field, Request $request, $flid = null, $prefix = 'records_') {
-        if(self::validateDate($request->default_month,$request->default_day,$request->default_year)) {
+        $testMonth = $request->default_month == '0' ? date("m") : $request->default_month;
+        $testDay = $request->default_day == '0' ? date("d") : $request->default_day;
+        $testYear = $request->default_year == '0' ? date("Y") : $request->default_year;
+        if(self::validateDate($testMonth,$testDay,$testYear)) {
             $default = [
                 'month' => $request->default_month,
                 'day' => $request->default_day,
