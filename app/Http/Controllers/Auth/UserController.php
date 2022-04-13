@@ -36,6 +36,15 @@ class UserController extends Controller {
         self::PROJECTS  => 'Projects',
     );
 
+    // Design Options
+    const LIGHTMODE = 1;
+    const DARKMODE = 2;
+
+    protected static $themeOptions = array(
+        self::LIGHTMODE => 'Light',
+        self::DARKMODE  => 'Dark',
+    );
+
     // Projects Page Tab Selection Options
     const CUSTOM = 1;
     const ALPHABETICAL = 2;
@@ -56,6 +65,10 @@ class UserController extends Controller {
 
     public static function logoTargetOptions() {
         return static::$logoTargetOptions;
+    }
+
+    public static function themeOptions() {
+        return static::$themeOptions;
     }
 
     public static function projPageTabSelOptions() {
@@ -255,77 +268,6 @@ class UserController extends Controller {
             $user->email = $newEmail;
             array_push($message, 'email');
         }
-      
-        if(!empty($newFirstName) && $newFirstName != $user->preferences['first_name']) {
-            $userPrefs['first_name'] = $newFirstName;
-            array_push($message, "first_name");
-        }
-
-        if(!empty($newLastName) && $newLastName != $user->preferences['last_name']) {
-            $userPrefs['last_name'] = $newLastName;
-            array_push($message, "last_name");
-        }
-
-        if(!empty($newOrganization) && $newOrganization != $user->preferences['organization']) {
-            $userPrefs['organization'] = $newOrganization;
-            array_push($message, "organization");
-        }
-
-        // Handle password change cases.
-        if(!empty($newPass) || !empty($confirm)) {
-            // If passwords don't match.
-            if($newPass != $confirm)
-                return response()->json(["status" => false, "message" => "passwords_unmatched"], 200);
-
-            // If password is less than 6 chars
-            if(strlen($newPass)<6)
-                return response()->json(["status" => false, "message" => "password_minimum"], 200);
-
-            // If password contains spaces
-            if(preg_match('/\s/',$newPass))
-                return response()->json(["status" => false, "message" => "password_whitespaces"], 200);
-
-            $user->password = bcrypt($newPass);
-            array_push($message,"password");
-        }
-
-        $user->preferences = $userPrefs; // __set
-        $user->save();
-
-        if(!empty($newProfilePic)) {
-            $changePicResponse = json_decode($this->changepicture($request, $user), true);
-            if($changePicResponse['status'])
-                array_push($message, $changePicResponse['message']);
-        }
-
-        return redirect('user/'.Auth::user()->id)->with('k3_global_success', 'user_updated')->with('user_changes', $message);
-    }
-
-    /**
-     * Create account from email invite
-     * Since we 'create' the account when we invite the user, we are updating their things rather than creating them
-     * Can't use the 'Update' function above since we need this function to send the activation email
-     *
-     * @param  Request $request
-     * @return Redirect
-     */
-    public function updateFromEmail(Request $request) { //TODO::EMAIL
-        if(!\Auth::user()->admin && \Auth::user()->id != $request->uid)
-            return response()->json(["status" => false, "message" => "cannot_update_user"], 200);
-
-        $message = array();
-        $user = User::where('id', '=', $request->uid)->first();
-        $newFirstName = $request->first_name;
-        $newLastName = $request->last_name;
-        $newUsername = $request->username;
-        $newProfilePic = $request->profile;
-        $newOrganization = $request->organization;
-        $newPass = $request->password;
-        $confirm = $request->password_confirmation;
-
-        $userPrefs = $user->preferences; // doesn't access property directly, uses __get
-
-        $user->username = $newUsername;
 
         if(!empty($newFirstName) && $newFirstName != $user->preferences['first_name']) {
             $userPrefs['first_name'] = $newFirstName;
@@ -361,7 +303,6 @@ class UserController extends Controller {
         }
 
         $user->preferences = $userPrefs; // __set
-        $user->active = 1;
         $user->save();
 
         if(!empty($newProfilePic)) {
@@ -425,6 +366,7 @@ class UserController extends Controller {
 
         $user = \Auth::user();
         $logoTargetOptions = self::logoTargetOptions();
+        $themeOptions = self::themeOptions();
         $projPageTabSelOptions = self::projPageTabSelOptions();
         $singleProjTabSelOptions = self::singleProjTabSelOptions();
 
@@ -436,7 +378,7 @@ class UserController extends Controller {
         );
 
         //sideMenuOptions
-        return view('user.preferences', compact('user', 'logoTargetOptions', 'projPageTabSelOptions', 'singleProjTabSelOptions', 'notification'));
+        return view('user.preferences', compact('user', 'logoTargetOptions', 'themeOptions', 'projPageTabSelOptions', 'singleProjTabSelOptions', 'notification'));
     }
 
     /**
@@ -462,6 +404,7 @@ class UserController extends Controller {
         $user->save();
 
         $logoTargetOptions = self::logoTargetOptions();
+        $themeOptions = self::themeOptions();
         $projPageTabSelOptions = self::projPageTabSelOptions();
         $singleProjTabSelOptions = self::singleProjTabSelOptions();
 
@@ -472,7 +415,7 @@ class UserController extends Controller {
             'static' => false
         );
 
-        return view('user.preferences', compact('user', 'logoTargetOptions', 'projPageTabSelOptions', 'singleProjTabSelOptions', 'notification'));
+        return view('user.preferences', compact('user', 'logoTargetOptions', 'themeOptions', 'projPageTabSelOptions', 'singleProjTabSelOptions', 'notification'));
     }
 
 	 // triggered from onboarding.js and from 'replay kora intro' button on user preferences page
