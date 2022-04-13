@@ -582,7 +582,7 @@ abstract class FileTypeField extends BaseField {
             $fileNumDisk = count(glob($dir.'/*.*'));
         else
             $fileNumDisk = 0;
-        
+
         $maxFieldSize = (!is_null($field['options']['FieldSize']) && $field['options']['FieldSize']!="") ? $field['options']['FieldSize'] : 0;
         $maxFieldSize = $maxFieldSize * 1024;
 

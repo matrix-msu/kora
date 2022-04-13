@@ -33,6 +33,22 @@
     text-decoration: none;
   }
 
+  .nav-spacer {
+    bottom:-250px;
+    height: 250px;
+    position: fixed;
+    -webkit-animation:adjust 1000ms ease-in-out alternate 2;
+  }
+
+  @-webkit-keyframes adjust  {
+    from {
+      bottom:-250px;
+    }
+    to {
+      bottom:-150px;
+    }
+  }
+
   @import 'navigation/status';
   @import 'navigation/left';
   @import 'navigation/right';

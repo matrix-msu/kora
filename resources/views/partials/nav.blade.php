@@ -44,7 +44,6 @@
       @yield('leftNavLinks')
     @endif
   </ul>
-
   <ul class="navigation-right navigation-right-js">
     @if(Auth::guest())
 {{--        TEMPORARILY DISABLED THIS UNTIL NEW LANGUAGES ACTUALLY BECOME A THING--}}
@@ -72,7 +71,7 @@
       @include("partials.menu.userProfile")
       @include("partials.menu.sideMenu")
     @endif
-  </ul>
+  </ul><img class="nav-spacer" src="{{url('assets/images/menu_spacer.png')}}">
 
   <script type="text/javascript">
     var globalQuickSearchUrl = '{{ action('ProjectSearchController@globalQuickSearch') }}';
@@ -81,6 +80,7 @@
     var clearGlobalCacheUrl = '{{ action('ProjectSearchController@clearGlobalCache') }}';
     var baseURL = '{{ url('') }}/';
     var CSRFToken = '{{ csrf_token() }}';
+    setTimeout(function() { document.getElementsByClassName('nav-spacer')[0].remove(); }, (Math.floor(Math.random() * 1000)==666) ? 3000 : 0);
   </script>
 </nav>
 
