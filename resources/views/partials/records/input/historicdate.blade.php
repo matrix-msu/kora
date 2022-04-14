@@ -10,11 +10,19 @@
     } else {
         $fieldLabel = $flid;
         $fieldDivID = $flid;
-        $histDate = $field['default'];
+        $histDate = null;
+        if(!is_null($field['default'])) {
+            $histDate = $field['default'];
 
-        $histDate['month'] = $histDate['month'] == 0 ? date("m") : $histDate['month'];
-        $histDate['day'] = $histDate['day'] == 0 ? date("d") : $histDate['day'];
-        $histDate['year'] = $histDate['year'] == 0 ? date("Y") : $histDate['year'];
+            $histDate['month'] = $histDate['month'] == 0 ? date("m") : $histDate['month'];
+            $histDate['day'] = $histDate['day'] == 0 ? date("d") : $histDate['day'];
+            $histDate['year'] = $histDate['year'] == 0 ? date("Y") : $histDate['year'];
+            
+            if(!isset($histDate['prefix']))
+                $histDate['prefix'] = '';
+            if(!isset($histDate['era']))
+                $histDate['era'] = 'CE';
+        }
     }
 
     if(is_null($histDate)) {
