@@ -19,11 +19,15 @@
     } else {
         $fieldLabel = $flid;
         $fieldDivID = $flid;
-        $dateObj = $field['default'];
 
-        $dateObj['month'] = $dateObj['month'] == 0 ? date("m") : $dateObj['month'];
-        $dateObj['day'] = $dateObj['day'] == 0 ? date("d") : $dateObj['day'];
-        $dateObj['year'] = $dateObj['year'] == 0 ? date("Y") : $dateObj['year'];
+        $dateObj = null;
+        if(!is_null($field['default'])) {
+            $dateObj = $field['default'];
+
+            $dateObj['month'] = $dateObj['month'] == 0 ? date("m") : $dateObj['month'];
+            $dateObj['day'] = $dateObj['day'] == 0 ? date("d") : $dateObj['day'];
+            $dateObj['year'] = $dateObj['year'] == 0 ? date("Y") : $dateObj['year'];
+        }
     }
 
     if(is_null($dateObj)) {
