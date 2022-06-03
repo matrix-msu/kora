@@ -113,7 +113,7 @@ class LoginController extends Controller
             $koraUsersByHash = User::whereNotNull('gitlab_token')->get();
             foreach($koraUsersByHash as $hashUser) {
                 //Found the user
-                if(Hash::check($user->token, $hashUser->gitlab_token)) {
+                if(Hash::check($user->id, $hashUser->gitlab_token)) {
                     Auth::login($hashUser);
 
                     //This handles intended url redirects after login
@@ -130,7 +130,7 @@ class LoginController extends Controller
                 return redirect('/home')->with('status', 'oauth_user_conflict');
             } else {
                 //Create user and then send them to profile page
-                $newKoraUser = $this->createNewUserFromOAuth($user->nickname, $user->email, 'gitlab_token', $user->token);
+                $newKoraUser = $this->createNewUserFromOAuth($user->nickname, $user->email, 'gitlab_token', $user->id);
 
                 Auth::login($newKoraUser);
 
@@ -144,12 +144,12 @@ class LoginController extends Controller
                 //Make sure this account isn't assigned to another
                 $koraUsersByHash = User::whereNotNull('gitlab_token')->get();
                 foreach($koraUsersByHash as $hashUser) {
-                    if(Hash::check($user->token, $hashUser->gitlab_token))
+                    if(Hash::check($user->id, $hashUser->gitlab_token))
                         return redirect('/user/' . $currentUser->id)->with('k3_global_success', 'gitlab_user_used');
                 }
 
                 //Gitlab account not in use so assign it!
-                $currentUser->gitlab_token = Hash::make($user->token);
+                $currentUser->gitlab_token = Hash::make($user->id);
                 $currentUser->save();
                 return redirect('/user/' . $currentUser->id)->with('k3_global_success', 'gitlab_user_assigned');
             } else {
