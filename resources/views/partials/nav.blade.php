@@ -80,7 +80,7 @@
     var clearGlobalCacheUrl = '{{ action('ProjectSearchController@clearGlobalCache') }}';
     var baseURL = '{{ url('') }}/';
     var CSRFToken = '{{ csrf_token() }}';
-    setTimeout(function() { document.getElementsByClassName('nav-spacer')[0].remove(); }, (Math.floor(Math.random() * 1000)==666) ? 3000 : 0);
+    setTimeout(function() { document.getElementsByClassName('nav-spacer')[0].remove(); }, (Math.floor(Math.random() * 1000)==666) ? 5000 : 0);
   </script>
 </nav>
 
