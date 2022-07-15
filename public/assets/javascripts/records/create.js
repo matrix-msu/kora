@@ -1348,7 +1348,7 @@ Kora.Records.Create = function() {
                             $('[name=era_' + flid + ']').val(date['era']).trigger("chosen:updated");
                             break;
                         case 'Boolean':
-                            if(value)
+                            if(parseInt(value))
                                 $('[name=' + flid + ']').prop('checked', true);
                             break;
                         case 'Geolocator':
