@@ -1819,6 +1819,7 @@ class Form extends Model {
         }
 
         //First we build the selects and unionize them
+        $orderBy = '';
         foreach($forms as $index => $form) {
             $layout = $form->layout;
             $pieces = 'kid';
