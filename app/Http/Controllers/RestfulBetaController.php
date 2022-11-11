@@ -207,7 +207,10 @@ class RestfulBetaController extends Controller {
             }
 
             //parse the query
-            if(!isset($f->query)) {
+            //note: if there is a query, we check to make sure the search isn't just asking for all records in the
+            //      opposite sense (i.e. give me the opposite of no records). If we don't check this, the final MYSQL
+            //      query will have every record id listed in it for no reason.
+            if(!isset($f->query) || (sizeof($f->query)==1 && $f->query[0]->search=="kid" && empty($f->query[0]->kids) && $f->query[0]->not)) {
                 //return all records
                 if($apiFormat==self::XML)
                     $records = $form->getRecordsForExportXML($filters);
