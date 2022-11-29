@@ -184,20 +184,14 @@ class UserController extends Controller {
                     $recMod = new Record(array(),$fid);
 
                     if($first) {
-                        $userRevisions = Revision::leftJoin("records_$fid", "revisions.record_kid", "=", "records_$fid.kid")
-                            ->select("revisions.*", "records_$fid.kid", "records_$fid.project_id")
-                            ->where("revisions.owner", "=", $user->username)
-                            ->whereNotNull("kid");
+                        $userRevisions = Revision::where("owner", "=", $user->username)->where("form_id", "=", $fid);
 
                         $userCreatedRecords = $recMod->newQuery()->select('kid','created_at')->where('owner', '=', $user->id);
 
                         $first = false;
                     } else {
                         $userRevisions = $userRevisions->union(
-                            Revision::leftJoin("records_$fid", "revisions.record_kid", "=", "records_$fid.kid")
-                                ->select("revisions.*", "records_$fid.kid", "records_$fid.project_id")
-                                ->where("revisions.owner", "=", $user->username)
-                                ->whereNotNull("kid")
+                            Revision::where("owner", "=", $user->username)->where("form_id", "=", $fid)
                         );
 
                         $userCreatedRecords = $userCreatedRecords->union(

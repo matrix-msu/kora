@@ -1,14 +1,14 @@
 @php
-    $exists = \App\Http\Controllers\RecordController::exists($revision->kid);
+    $exists = \App\Http\Controllers\RecordController::exists($revision->record_kid);
     $data = \App\Http\Controllers\RevisionController::formatRevision($revision->id);
     $form = \App\Http\Controllers\FormController::getForm($revision->form_id);
     $type = ucfirst($revision->revision['type'] === "edit" ? 'edited' : ($revision->revision['type'] === 'rollback' ? 'rollback' : $revision->revision['type'].'d'));
 @endphp
-<div class="record card {{ $index == 0 ? 'active' : '' }}" id="{{$revision->kid}}">
+<div class="record card {{ $index == 0 ? 'active' : '' }}" id="{{$revision->record_kid}}">
     <div class="header {{ $index == 0 ? 'active' : '' }}">
         <div class="left pl-m">
-            <a class="title underline-middle-hover" href="{{ action("RevisionController@show",["pid" => $revision->project_id, "fid" => $revision->form_id, "rid" => $revision->record_kid]) }}">
-                <span class="name">{{$revision->kid}}</span>
+            <a class="title underline-middle-hover" href="{{ action("RevisionController@show",["pid" => $form->project_id, "fid" => $revision->form_id, "rid" => $revision->record_kid]) }}">
+                <span class="name">{{$revision->record_kid}}</span>
             </a>
 
         </div>
@@ -67,7 +67,7 @@
 
         <div class="footer">
             @if (!isset($rid))
-                <a class="quick-action underline-middle-hover left" href="{{action("RevisionController@show", ["pid" => $revision->project_id, "fid" => $revision->form_id, "rid" => $revision->record_kid])}}">
+                <a class="quick-action underline-middle-hover left" href="{{action("RevisionController@show", ["pid" => $form->project_id, "fid" => $revision->form_id, "rid" => $revision->record_kid])}}">
                     <span>See Revisions for this Record Only</span>
                 </a>
             @endif
