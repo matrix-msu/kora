@@ -723,10 +723,12 @@ abstract class FileTypeField extends BaseField {
                     $lastModifiedValue = gmdate('D, d M Y H:i:s', filemtime($filePath));
                     $time = Carbon::createFromFormat('D, d M Y H:i:s', $lastModifiedValue);
 
-                    if(isset($headers['If-Modified-Since'])) {
-                        $requestTime = Carbon::createFromFormat('D, d M Y H:i:s', $headers['If-Modified-Since']);
-                        if($requestTime->gt($time))
-                            return response('', 304)->header('HTTP/1.1 304 Not Modified');
+                    if(isset($headers['if-modified-since'])) {
+                        $requestTime = Carbon::createFromFormat('D, d M Y H:i:s', $headers['if-modified-since']);
+                        if($requestTime->gt($time)) {
+                            header('HTTP/1.1 304 Not Modified');
+                            exit;
+                        }
                     }
 
                     if($createThumb) {
