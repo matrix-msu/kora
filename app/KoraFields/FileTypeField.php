@@ -724,7 +724,7 @@ abstract class FileTypeField extends BaseField {
                     $time = Carbon::createFromFormat('D, d M Y H:i:s', $lastModifiedValue);
 
                     if(isset($headers['if-modified-since'])) {
-                        $requestTime = Carbon::createFromFormat('D, d M Y H:i:s', $headers['if-modified-since']);
+                        $requestTime = Carbon::createFromFormat('D, d M Y H:i:s T', $headers['if-modified-since']);
                         if($requestTime->gt($time)) {
                             header('HTTP/1.1 304 Not Modified');
                             exit;
