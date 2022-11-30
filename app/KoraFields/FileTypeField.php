@@ -5,6 +5,7 @@ use App\Form;
 use App\Http\Controllers\FormController;
 use App\Http\Controllers\RecordController;
 use App\Record;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -718,6 +719,16 @@ abstract class FileTypeField extends BaseField {
                 // Check if file exists in app/storage/file folder
                 $filePath = storage_path('app/files/'.$record->project_id.'/'.$record->form_id.'/'.$record->id.'/'.$filename);
                 if(file_exists($filePath)) {
+                    $headers = getallheaders();
+                    $lastModifiedValue = gmdate('D, d M Y H:i:s', filemtime($filePath));
+                    $time = Carbon::createFromFormat('D, d M Y H:i:s', $lastModifiedValue);
+
+                    if(isset($headers['If-Modified-Since'])) {
+                        $requestTime = Carbon::createFromFormat('D, d M Y H:i:s', $headers['If-Modified-Since']);
+                        if($requestTime->gt($time))
+                            return response('', 304)->header('HTTP/1.1 304 Not Modified');
+                    }
+
                     if($createThumb) {
                         $thumbPath = storage_path('app/files/'.$record->project_id.'/'.$record->form_id.'/'.$record->id.'/'.$thumbFilename);
 
@@ -747,6 +758,7 @@ abstract class FileTypeField extends BaseField {
 
                     //Helps us handle video streaming
                     header("Content-type: $filetype");
+                    header("Last-Modified: $lastModifiedValue GMT", true, 200);
                     if(isset($_SERVER['HTTP_RANGE'])){ // do it for any device that supports byte-ranges not only iPhone
                         self::rangeDownload($filePath);
                     } else {
