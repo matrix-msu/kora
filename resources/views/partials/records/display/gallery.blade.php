@@ -36,9 +36,11 @@
                 {{ $img['caption'] }}
                 @php
                     $name = $img['name'];
+                    $size = $img['size'];
                     $link = action('FieldAjaxController@publicRecordFile',['kid' => $record->kid, 'filename' => $name]);
                 @endphp
                 <div>Public URL: {{ $link }}</div>
+                <div>File size: {{ fileSizeConvert($size) }}</div>
             </div>
         @endforeach
     </div>
@@ -105,9 +107,11 @@
                         {{ $img['caption'] }}
                         @php
                             $name = $img['name'];
+                            $size = $img['size'];
                             $link = action('FieldAjaxController@publicRecordFile',['kid' => $record->kid, 'filename' => $name]);
                         @endphp
                         <div>Public URL: {{ $link }}</div>
+                        <div>File size: {{ fileSizeConvert($size) }}</div>
                     </div>
                 @endforeach
             </div>
