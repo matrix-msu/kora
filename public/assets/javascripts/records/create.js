@@ -1296,28 +1296,12 @@ Kora.Records.Create = function() {
                             $('#list' + flid).val(JSON.parse(value)).trigger("chosen:updated");
                             break;
                         case 'Generated List':
-                            var options = JSON.parse(value);
-                            var valArray = [];
-                            var h = 0;
-                            var selector = $("#list" + flid);
+                            var listContainer = $("#" + flid).siblings(".genlist-record-input").first();
+                            var listInput = $('[data-flid="'+flid+'[]"]');
 
-                            $('#' + flid + ' option[value!="0"]').remove();
-                            for (var k = 0; k < options.length; k++) {
-                                if ($("#list" + flid + " option[value='" + options[k] + "']").length > 0) {
-                                    valArray[h] = options[k];
-                                    h++;
-                                }
-                                else {
-                                    selector.append($('<option/>', {
-                                        value: options[k],
-                                        text: options[k],
-                                        selected: 'selected'
-                                    }));
-                                    valArray[h] = options[k];
-                                    h++;
-                                }
-                            }
-                            selector.val(valArray).trigger("chosen:updated");
+                            listContainer.html('');
+                            listInput.val('"' + JSON.parse(value).join('","') + '"');
+                            listInput.closest('.new-list-option-card-js').first().find('.list-option-add-js').click();
                             break;
                         case 'Date':
                             var date = moment(value);
