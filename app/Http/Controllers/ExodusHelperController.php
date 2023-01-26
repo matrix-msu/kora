@@ -580,7 +580,7 @@ class ExodusHelperController extends Controller {
                                         //OLD FILE DOESNT EXIST SO BALE
                                         Log::info('File not found: '.$oldDir.$localname);
                                         echo 'File not found: '.$oldDir.$localname,"\n";
-                                        continue(2);
+                                        break 2;
                                     }
 
                                     //Hash the file
