@@ -24,7 +24,7 @@ class WelcomeController extends Controller {
      */
 	public function index() {
 	    if(!databaseConnectionExists())
-        	return redirect('/helloworld');
+        	return redirect('/helloworld', 307);
 		else if(\Auth::guest()) {
 			$notification = array(
 			  'message' => '',
