@@ -344,7 +344,7 @@ class ComboListField extends BaseField {
                 }
                 $form = new Form();
                 $object = $form->getFieldModel($type);
-                $request = $object->processImportDataXML($subFlid, $field, $subValue, $request);
+                $request = $object->processImportDataCSV($subFlid, $field, $subValue, $request);
                 $values = $request->{$flid . '_combo_' . $subSeq};
                 $processedData = $object->processRecordData($field[$subSeq], $request->{$subFlid}, $request);
                 array_push($values, $processedData);
