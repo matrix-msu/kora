@@ -325,23 +325,21 @@ class ComboListField extends BaseField {
      */
     public function processImportDataCSV($flid, $field, $value, $request) {
         $request[$flid] = $flid;
+        $seqArray = ['one', 'two'];
 
         // Setting up for return request
         foreach(['_combo_one', '_combo_two'] as $suffix) {
             $request[$flid . $suffix] = [];
         }
-        $value = simplexml_load_string('<?xml version="1.0" encoding="utf-8"?><document>'. $value . '</document>');
+        $value = explode('||',$value);
 
-        foreach ($value as $json) {
-            foreach ($json as $name => $subValue) {
-                $type = $subFlid = $subSeq = '';
-                foreach (['one', 'two'] as $seq) {
-                    if ($field[$seq]['name'] == str_replace('_', ' ', $name)) {
-                        $type = $field[$seq]['type'];
-                        $subFlid = $field[$seq]['flid'];
-                        $subSeq = $seq;
-                    }
-                }
+        foreach ($value as $row) {
+            $subVals = explode('&&',$row);
+            foreach ($subVals as $idx => $subValue) {
+                $subSeq = $seqArray[$idx];
+                $type = $field[$subSeq]['type'];
+                $subFlid = $field[$subSeq]['flid'];
+
                 $form = new Form();
                 $object = $form->getFieldModel($type);
                 $request = $object->processImportDataCSV($subFlid, $field, $subValue, $request);
