@@ -1,10 +1,2 @@
 ﻿kidConnection,reverseAssociations,Text,Rich Text,Integer,Float,List,MS List,Gen List,Date,DateTime,Historical Date,File Fields,Gallery,Boolean,Geolocator,Assoc,Combo List
-,"Outside Associator [KIDS] 1-3-77,1-3-78 | ...",Your text value,Your <b>rich</b> text value,3,3.21,List value,List value | Another value | …,List value | Another value | …,2012-12-21,2012-12-21 11:11:11,circa 2012-12-21 CE,file.txt | …,image.jpeg [CAPTION] Some description for this gallery | …,1,"42.7314094,-84.476258 [DESCRIPTION] Matrix | …",1-23-4 | 5-67-8 | 9-10-11 | customTmpName,<Value><subField1>actual_value</subField1><subField2>actual_value</subField2></Value>…
-customTmpName,,,,,,,,,,,,,,,,,
-,,,,,,,,,,,,,,,,,
-,,,,,,,,,,,,,,,,,
-,,,,,,,,,,,,,,,,,
-,,,,,,,,,,,,,,,,,
-,,,,,,,,,,,,,,,,,
-,,,,,,,,,,,,,,,,,
-,,,,,,,,,,,,,,,,,
+customTmpName,"Outside Associator [KIDS] 1-3-77,1-3-78 | ...",Your text value,Your <b>rich</b> text value,3,3.21,List value,List value | Another value | ...,List value | Another value | ...,2012-12-21,2012-12-21 11:11:11,circa 2012-12-21 CE,file.txt | ...,image.jpeg [CAPTION] Some description for this gallery | ...,1,"42.7314094,-84.476258 [DESCRIPTION] Matrix | ...",1-23-4 | 5-67-8 | 9-10-11 | customTmpName,left_column_csv_value && right_column_csv_value || ...

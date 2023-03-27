@@ -629,9 +629,13 @@ class ImportController extends Controller {
             $fieldMod = $form->getFieldModel($field['type']);
 
             if($fieldMod instanceof ComboListField) {
+                $newSubFieldSlugOne = str_replace(" ","_", $field['one']['name']).'_'.$form->project_id.'_'.$form->id.'_';
+                $newSubFieldSlugTwo = str_replace(" ","_", $field['two']['name']).'_'.$form->project_id.'_'.$form->id.'_';
+                $newFieldsArray[$newFlid]['one']['flid'] = $newSubFieldSlugOne;
+                $newFieldsArray[$newFlid]['two']['flid'] = $newSubFieldSlugTwo;
                 $fieldMod->addDatabaseColumn($form->id, $newFlid, $fieldMod::FIELD_DATABASE_METHOD, [
-                    'one' => ['type' => $field['one']['type'], 'name' => $field['one']['name']],
-                    'two' => ['type' => $field['two']['type'], 'name' => $field['two']['name']],
+                    'one' => ['type' => $field['one']['type'], 'name' => $newSubFieldSlugOne],
+                    'two' => ['type' => $field['two']['type'], 'name' => $newSubFieldSlugTwo],
                 ]);
             } else if($fieldMod instanceof ListField)
                 $fieldMod->addDatabaseColumn($form->id, $newFlid, $fieldMod::FIELD_DATABASE_METHOD, $field['options']['Options']);
@@ -705,9 +709,13 @@ class ImportController extends Controller {
             $fieldMod = $form->getFieldModel($field['type']);
 
             if($fieldMod instanceof ComboListField) {
+                $newSubFieldSlugOne = str_replace(" ","_", $field['one']['name']).'_'.$form->project_id.'_'.$form->id.'_';
+                $newSubFieldSlugTwo = str_replace(" ","_", $field['two']['name']).'_'.$form->project_id.'_'.$form->id.'_';
+                $newFieldsArray[$newFlid]['one']['flid'] = $newSubFieldSlugOne;
+                $newFieldsArray[$newFlid]['two']['flid'] = $newSubFieldSlugTwo;
                 $fieldMod->addDatabaseColumn($form->id, $newFlid, $fieldMod::FIELD_DATABASE_METHOD, [
-                    'one' => ['type' => $field['one']['type'], 'name' => $field['one']['name']],
-                    'two' => ['type' => $field['two']['type'], 'name' => $field['two']['name']],
+                    'one' => ['type' => $field['one']['type'], 'name' => $newSubFieldSlugOne],
+                    'two' => ['type' => $field['two']['type'], 'name' => $newSubFieldSlugTwo],
                 ]);
             } else if($fieldMod instanceof ListField)
                 $fieldMod->addDatabaseColumn($form->id, $newFlid, $fieldMod::FIELD_DATABASE_METHOD, $field['options']['Options']);
