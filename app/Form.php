@@ -655,9 +655,9 @@ class Form extends Model {
                     $comboIds = json_decode($data, true);
                     //Determine if we want assoc data back for the combo list
                     if($comboIds !== NULL && $useAssoc)
-                        $result[$column] = $this->getComboRecord($column, $comboIds, $comboInfo[$column], $con, $prefix, [$assocForms, $assocFilters]);
+                        $result[$column] = $this->getComboRecord($row['kid'], $column, $comboIds, $comboInfo[$column], $con, $prefix, [$assocForms, $assocFilters]);
                     else if($comboIds !== NULL && !$useAssoc)
-                        $result[$column] = $this->getComboRecord($column, $comboIds, $comboInfo[$column], $con, $prefix, null);
+                        $result[$column] = $this->getComboRecord($row['kid'], $column, $comboIds, $comboInfo[$column], $con, $prefix, null);
                 } else if(array_key_exists($column,$jsonFields)) {
                     $result[$column] = json_decode($data, true);
                 } else {
@@ -685,6 +685,7 @@ class Form extends Model {
     /**
      * Gets the record data for a combo list field.
      *
+     * @param  $kid - KID of record
      * @param  $field - The name of the combo field
      * @param  $comboIds - The array of ids from the records table that represent rows in the combo table
      * @param  $comboInfo - The data about the combo field and its sub fields
@@ -694,7 +695,7 @@ class Form extends Model {
      *
      * @return array - The combo field record data
      */
-    private function getComboRecord($field, $comboIds, $comboInfo, &$con, $prefix, $assocData = null) {
+    private function getComboRecord($kid, $field, $comboIds, $comboInfo, &$con, $prefix, $assocData = null) {
         $result = [];
         $assocForms = !is_null($assocData) ? $assocData[0] : [];
         $assocFilters = !is_null($assocData) ? $assocData[1] : [];
@@ -706,13 +707,19 @@ class Form extends Model {
         //Build the query
         $fieldForStatement = $comboInfo['flid'];
         $comboTableName = $prefix.$fieldForStatement.$this->id;
-        $comboIds = implode(',', $comboIds);
-        $selectRecords = "SELECT $fieldString FROM $comboTableName WHERE FIND_IN_SET(`id`, '$comboIds')";
+        $rid = explode('-',$kid)[2];
+        $selectRecords = "SELECT id, $fieldString FROM $comboTableName WHERE record_id=$rid";
 
         $records = $con->query($selectRecords);
         $int=0;
         while($row = $records->fetch_assoc()) {
+            if(!in_array($row['id'], $comboIds))
+                continue;
+
             foreach($row as $column => $data) {
+                if($column=="id")
+                    continue;
+
                 if(array_key_exists($column,$jsonFields))
                     $result[$int][$column] = json_decode($data, true);
                 else if(array_key_exists($column,$assocFields)) {
@@ -1049,7 +1056,7 @@ class Form extends Model {
                 } else if(array_key_exists($column,$comboFields)) {
                     $comboIds = json_decode($data, true);
                     if(!is_null($comboIds))
-                        $result[$column]['value'] = $this->getComboRecord($column, $comboIds, $comboInfo[$column], $con, $prefix, null);
+                        $result[$column]['value'] = $this->getComboRecord($row['kid'], $column, $comboIds, $comboInfo[$column], $con, $prefix, null);
                     else
                         $result[$column]['value'] = null;
                 } else if(array_key_exists($column,$jsonFields)) { //array key search is faster than in array so that's why we use it here
