@@ -612,6 +612,10 @@ abstract class FileTypeField extends BaseField {
                 if($field['type'] == Form::_PLAYLIST && $type == "audio/mpeg")
                     $type = "audio/mp3";
 
+                //Conversion to handle certain updated browsers
+                if($field['type'] == Form::_3D_MODEL && $type == "model/obj")
+                    $type = "obj";
+
                 if(!in_array($type, $fileTypes))
                     $validTypes = false;
             }
