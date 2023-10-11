@@ -721,6 +721,7 @@ abstract class FileTypeField extends BaseField {
 
             //Define the name of the thumb
             $fileParts = explode('.',$filename);
+            $thumb = $thumbParts[0]."x".$thumbParts[1];
             $ext = array_pop($fileParts);
             $thumbFilename = implode('.',$fileParts)."_$thumb.".$ext;
         }
