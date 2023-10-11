@@ -712,6 +712,13 @@ abstract class FileTypeField extends BaseField {
 
             $thumbParts = explode('x',$thumb);
 
+            //Unicode characters can slip through the regex pattern checker, so make sure values are both integers
+            //This also double checks that neither value is 0
+            $thumbParts[0] = intval($thumbParts[0]);
+            $thumbParts[1] = intval($thumbParts[1]);
+            if($thumbParts[0] == 0 || $thumbParts[1] == 0)
+                return response()->json(["status" => false, "message" => "bad_thumb_format"], 500);
+
             //Define the name of the thumb
             $fileParts = explode('.',$filename);
             $ext = array_pop($fileParts);
