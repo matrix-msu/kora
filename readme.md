@@ -16,7 +16,7 @@ educational value of the objects.
 1) Linux Operating System
 2) Apache >= 2.0
 3) MySQL >= 5.7.20
-4) PHP >= 8.0.0
+4) PHP >= 8.1
 
 ### Installation Summary
 
