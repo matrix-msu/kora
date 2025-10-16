@@ -442,6 +442,27 @@ abstract class FileTypeField extends BaseField {
     }
 
     /**
+     * Formats data for Markdown record display.
+     *
+     * @param string $field - Field Name
+     * @param  string $value - Data to format
+     *
+     * @return mixed - Processed data
+     */
+    public function processMarkdownData($field, $value, $fid = null, $tab = "") {
+        $files = json_decode($value, true);
+        $md = "\n";
+        foreach($files as $file) {
+            $md .= "$tab  - \"".$file['name']."\"\n";
+        }
+        $md .= "$tab$field Captions:\n";
+        foreach($files as $file) {
+            $md .= "$tab  - \"".$file['caption']."\"\n";
+        }
+        return $md;
+    }
+
+    /**
      * Formats data for XML record display.
      *
      * @param  string $value - Data to format

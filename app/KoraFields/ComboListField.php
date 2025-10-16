@@ -378,8 +378,7 @@ class ComboListField extends BaseField {
     public function processXMLData($field, $value, $fid = null) {
         $fieldData = FieldController::getField($field, $fid);
         $form = FormController::getForm($fid);
-        $records = $this->
-        retrieve($field, $fid, $value);
+        $records = $this->retrieve($field, $fid, $value);
         $xml = "<$field>";
         foreach($records as $record) {
             $value = '<Value>';
@@ -396,6 +395,39 @@ class ComboListField extends BaseField {
         $xml .= "</$field>";
 
         return $xml;
+    }
+
+    /**
+     * Formats data for Markdown record display.
+     *
+     * @param string $field - Field Name
+     * @param  string $value - Data to format
+     * @param int $fid - Form ID
+     * @param int $tab - Extra indentation, used primarily to support combo field
+     *
+     * @return mixed - Processed data
+     */
+    public function processMarkdownData($field, $value, $fid = null, $tab = "") {
+        $form = FormController::getForm($fid);
+        $flid = slugFormat($field, $form->project_id, $fid);
+        $fieldData = FieldController::getField($flid, $fid);
+        $records = $this->retrieve($flid, $fid, $value);
+        $i = 0;
+
+        $md = "\n";
+        foreach($records as $record) {
+            $md .= "  $i:\n";
+            foreach (['one', 'two'] as $seq) {
+                $object = $form->getFieldModel($fieldData[$seq]['type']);
+                $fieldName = $fieldData[$seq]['name'];
+                $md .= "    $fieldName: " . $object->processMarkdownData(
+                    $fieldName, $record->{$fieldData[$seq]['flid']}, null, "    "
+                );
+            }
+            $i++;
+        }
+
+        return $md;
     }
 
     /**

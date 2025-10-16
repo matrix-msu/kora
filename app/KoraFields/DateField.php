@@ -329,6 +329,18 @@ class DateField extends BaseField {
     }
 
     /**
+     * Formats data for Markdown record display.
+     *
+     * @param string $field - Field Name
+     * @param  string $value - Data to format
+     *
+     * @return mixed - Processed data
+     */
+    public function processMarkdownData($field, $value, $fid = null, $tab = "") {
+        return "\"$value\"\n";
+    }
+
+    /**
      * Formats data for XML record display.
      *
      * @param  string $value - Data to format

@@ -414,6 +414,26 @@ class HistoricalDateField extends BaseField {
     }
 
     /**
+     * Formats data for Markdown record display.
+     *
+     * @param string $field - Field Name
+     * @param  string $value - Data to format
+     *
+     * @return mixed - Processed data
+     */
+    public function processMarkdownData($field, $value, $fid = null, $tab = "") {
+        $date = json_decode($value,true);
+        $md = "\n";
+        $md .= "$tab  prefix: \"".$date['prefix']."\"\n";
+        $md .= "$tab  month: ".$date['month']."\n";
+        $md .= "$tab  day: ".$date['day']."\n";
+        $md .= "$tab  year: ".$date['year']."\n";
+        $md .= "$tab  era: \"".$date['era']."\"\n";
+
+        return $md;
+    }
+
+    /**
      * Formats data for XML record display.
      *
      * @param  string $value - Data to format

@@ -174,6 +174,18 @@ abstract class BaseField extends Model {
     abstract public function processXMLData($field, $value, $fid = null);
 
     /**
+     * Formats data for Markdown record display.
+     *
+     * @param  string $field - Field Name
+     * @param  string $value - Data to format
+     * @param  int $fid - Form ID
+     * @param  int $tab - Extra indentation, used primarily to support combo field
+     *
+     * @return mixed - Processed data
+     */
+    abstract public function processMarkdownData($field, $value, $fid = null, $tab = "");
+
+    /**
      * Formats data for XML record display.
      *
      * @param  string $value - Data to format

@@ -21,7 +21,7 @@ class CreateFormsTable extends Migration {
 			$table->string('description',1000);
             $table->integer('adminGroup_id')->unsigned();
             $table->boolean('preset');
-            $table->jsonb('layout');
+            $table->jsonb('layout')->nullable();
 			$table->timestamps();
 
             $table->foreign('project_id')->references('id')->on('projects')->onDelete('cascade');

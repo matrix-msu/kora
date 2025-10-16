@@ -263,6 +263,23 @@ class AssociatorField extends BaseField {
     }
 
     /**
+     * Formats data for Markdown record display.
+     *
+     * @param string $field - Field Name
+     * @param  string $value - Data to format
+     *
+     * @return mixed - Processed data
+     */
+    public function processMarkdownData($field, $value, $fid = null, $tab = "") {
+        $values = json_decode($value, true);
+        $md = "\n";
+        foreach($values as $value) {
+            $md .= "$tab  - \"$value\"\n";
+        }
+        return $md;
+    }
+
+    /**
      * Formats data for XML record display.
      *
      * @param  string $value - Data to format

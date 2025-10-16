@@ -312,6 +312,31 @@ class GeolocatorField extends BaseField {
     }
 
     /**
+     * Formats data for Markdown record display.
+     *
+     * @param string $field - Field Name
+     * @param  string $value - Data to format
+     *
+     * @return mixed - Processed data
+     */
+    public function processMarkdownData($field, $value, $fid = null, $tab = "") {
+        $locs = json_decode($value, true);
+        $md = "\n";
+        foreach($locs as $loc) {
+            $md .= "$tab  - ".$loc['geometry']['location']['lat'].", ".$loc['geometry']['location']['lng']."\n";
+        }
+        $md .= "$tab$field Addresses:\n";
+        foreach($locs as $loc) {
+            $md .= "$tab  - \"".$loc['formatted_address']."\"\n";
+        }
+        $md .= "$tab$field Description:\n";
+        foreach($locs as $loc) {
+            $md .= "$tab  - \"".$loc['description']."\"\n";
+        }
+        return $md;
+    }
+
+    /**
      * Formats data for XML record display.
      *
      * @param  string $value - Data to format

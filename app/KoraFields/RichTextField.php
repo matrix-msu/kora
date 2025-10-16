@@ -218,6 +218,20 @@ class RichTextField extends BaseField {
     }
 
     /**
+     * Formats data for Markdown record display.
+     *
+     * @param string $field - Field Name
+     * @param  string $value - Data to format
+     *
+     * @return mixed - Processed data
+     */
+    public function processMarkdownData($field, $value, $fid = null, $tab = "") {
+        $cleanedString = str_replace(["<br />"], "\r\n$tab  ", $value);
+        $cleanedString = str_replace(["\r\n"], "\n$tab  ", $cleanedString);
+        return "\"$cleanedString\"\n";
+    }
+
+    /**
      * Formats data for XML record display.
      *
      * @param  string $value - Data to format

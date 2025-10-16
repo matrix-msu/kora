@@ -14,6 +14,7 @@ class Kernel extends ConsoleKernel {
         'App\Console\Commands\ConvertField',
         'App\Console\Commands\DisableRollbacks',
 		'App\Console\Commands\ExodusScript',
+		'App\Console\Commands\ExportMarkdown',
 		'App\Console\Commands\FileCntSizeData',
 		'App\Console\Commands\FileUrlFix',
         'App\Console\Commands\GenerateThumbs',

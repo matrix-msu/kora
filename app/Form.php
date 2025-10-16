@@ -1523,6 +1523,140 @@ class Form extends Model {
     }
 
     /**
+     * Gets the data out of the DB in Markdown format.
+     *
+     * @param  $filters - The filters to modify the returned results
+     * @param  $rids - The subset of rids we would like back
+     * @param  $title - field to use as name of markdown file
+     * @param  $longform - The subset of rids we would like back
+     *
+     * @return string - The XML of records
+     */
+    public function getRecordsForExportMarkdown($filters, $rids=null, $title=null, $longform=null) {
+        $results = [];
+
+        $con = mysqli_connect(
+            config('database.connections.mysql.host'),
+            config('database.connections.mysql.username'),
+            config('database.connections.mysql.password'),
+            config('database.connections.mysql.database')
+        );
+        $prefix = config('database.connections.mysql.prefix');
+        $layout = $this->layout;
+
+        //We want to make sure we are doing things in utf8 for special characters
+        if(!mysqli_set_charset($con, "utf8")) {
+            printf("Error loading character set utf8: %s\n", mysqli_error($con));
+            exit();
+        }
+
+        $fields = ['kid'];
+        $fieldToModel = [];
+        $fieldToName = [];
+
+        //TODO::Prep to make reverse associations faster
+//        if($filters['revAssoc']) {
+//            $reverseAssociations = $this->getReverseAssociationsMapping($con,$prefix,'XML');
+//        }
+
+        //Adds the data fields
+        if(!is_array($filters['fields']) && $filters['fields'] == 'ALL') {
+            //Builds out order of fields based on page
+            $flids = array();
+            foreach($layout['pages'] as $page) {
+                $flids = array_merge($flids, $page['flids']);
+            }
+        } else {
+            $flids = array();
+            foreach($filters['fields'] as $fieldName) {
+                $flids[] = fieldMapper($fieldName,$this->project_id,$this->id);
+            }
+        }
+
+        $fields = array_merge($flids,$fields);
+        $fieldString = implode(',',$fields);
+
+        //Store the models
+        foreach($fields as $f) {
+            if($f!='kid') {
+                $fieldToModel[$f] = $this->getFieldModel($layout['fields'][$f]['type']);
+                $fieldToName[$f] = $layout['fields'][$f]['name'];
+            }
+        }
+
+        //Subset of rids?
+        $subset = '';
+        if(!is_null($rids)) {
+            if(empty($rids))
+                return [];
+            $ridString = implode(',',$rids);
+            $subset = " WHERE `id` IN ($ridString)";
+        }
+
+        //Add the sorts
+        $orderBy = '';
+        if(!is_null($filters['sort'])) {
+            $orderBy = ' ORDER BY ';
+            foreach($filters['sort'] as $sortRule) {
+                foreach($sortRule as $flid => $order) {
+                    //Used to protect SQL
+                    if(in_array(strtolower($flid), RestfulController::SORTABLE_META))
+                        $field = strtolower($flid);
+                    else
+                        $field = fieldMapper($flid,$this->project_id,$this->id);
+                    $field = preg_replace("/[^A-Za-z0-9_]/", '', $field);
+                    if(isset($layout['fields'][$field]) && $layout['fields'][$field]['type'] == Form::_HISTORICAL_DATE)
+                        $orderBy .= "$field IS NULL, $field->\"$.sort\" $order,";
+                    else
+                        $orderBy .= "$field IS NULL, $field $order,";
+                }
+            }
+            $orderBy = substr($orderBy, 0, -1); //Trim the last comma
+        }
+
+        //Limit the results
+        $limitBy = '';
+        if(!is_null($filters['count'])) {
+            $limitBy = ' LIMIT '.$filters['count'];
+            if(!is_null($filters['index']))
+                $limitBy .= ' OFFSET '.$filters['index'];
+        }
+
+        $selectRecords = "SELECT $fieldString FROM ".$prefix."records_".$this->id.$subset.$orderBy.$limitBy;
+
+        $records = $con->query($selectRecords);
+        while($row = $records->fetch_assoc()) {
+            $kid = $row['kid'];
+            $mdString = "---\n";
+
+            foreach($row as $index => $value) {
+                if($index != 'kid' && !is_null($value)) {
+                    $fieldName = $fieldToName[$index];
+                    $mdString .= "$fieldName: " . $fieldToModel[$index]->processMarkdownData($fieldName, $value, $this->id, "");
+                }
+            }
+
+            $mdString .= "---\n";
+
+            //TODO::Prep to make reverse associations faster
+//            if($filters['revAssoc']) {
+//                $results .= '<reverseAssociations>';
+//                if(array_key_exists($row['kid'],$reverseAssociations)) {
+//                    $results .= implode('',$reverseAssociations[$row['kid']]);
+//                }
+//                $results .= '</reverseAssociations>';
+//            }
+
+            $results[$kid] = $mdString;
+        }
+        $records->free();
+
+        $con->close();
+
+        return $results;
+    }
+
+    /**
      * Get mapping of records to their reverse associations
      *
      * @param  $con - DB connection
