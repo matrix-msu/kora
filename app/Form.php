@@ -1626,7 +1626,7 @@ class Form extends Model {
         $records = $con->query($selectRecords);
         while($row = $records->fetch_assoc()) {
             $filename = ($title != "") ? $row[$title] : $row['kid'];
-            $mdString = "---\n";
+            $mdString = "---\nkid: \"".$row['kid']."\"\n";
 
             foreach($row as $index => $value) {
                 if($longform == $index)
