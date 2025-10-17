@@ -1642,7 +1642,7 @@ class Form extends Model {
                 if(array_key_exists($row['kid'],$reverseAssociations)) {
                     $mdString .= "Reverse Associations:\n";
                     foreach($reverseAssociations[$row['kid']] as $akid) {
-                        $mdString .= "  - $akid\n";
+                        $mdString .= "  - \"$akid\"\n";
                     }
                 }
             }
