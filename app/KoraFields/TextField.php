@@ -249,6 +249,7 @@ class TextField extends BaseField {
      */
     public function processMarkdownData($field, $value, $fid = null, $tab = "") {
         $cleanedString = str_replace(["\r\n"], "\r\n$tab  ", $value);
+        $cleanedString = addslashes($cleanedString);
         return "\"$cleanedString\"\n";
     }
 

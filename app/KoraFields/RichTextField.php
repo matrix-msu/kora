@@ -228,6 +228,7 @@ class RichTextField extends BaseField {
     public function processMarkdownData($field, $value, $fid = null, $tab = "") {
         $cleanedString = str_replace(["<br />"], "\r\n$tab  ", $value);
         $cleanedString = str_replace(["\r\n"], "\n$tab  ", $cleanedString);
+        $cleanedString = addslashes($cleanedString);
         return "\"$cleanedString\"\n";
     }
 
