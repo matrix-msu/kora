@@ -1530,9 +1530,9 @@ class Form extends Model {
      * @param  $title - field to use as name of markdown file
      * @param  $longform - The subset of rids we would like back
      *
-     * @return string - The XML of records
+     * @return array - Array of strings representing the YAML/MD for each record
      */
-    public function getRecordsForExportMarkdown($filters, $rids=null, $title=null, $longform=null) {
+    public function getRecordsForExportMarkdown($filters, $rids=null, $title="", $longform="") {
         $results = [];
 
         $con = mysqli_connect(
@@ -1554,10 +1554,9 @@ class Form extends Model {
         $fieldToModel = [];
         $fieldToName = [];
 
-        //TODO::Prep to make reverse associations faster
-//        if($filters['revAssoc']) {
-//            $reverseAssociations = $this->getReverseAssociationsMapping($con,$prefix,'XML');
-//        }
+        if($filters['revAssoc']) {
+            $reverseAssociations = $this->getReverseAssociationsMapping($con,$prefix,'Markdown');
+        }
 
         //Adds the data fields
         if(!is_array($filters['fields']) && $filters['fields'] == 'ALL') {
@@ -1626,28 +1625,39 @@ class Form extends Model {
 
         $records = $con->query($selectRecords);
         while($row = $records->fetch_assoc()) {
-            $kid = $row['kid'];
+            $filename = ($title != "") ? $row[$title] : $row['kid'];
             $mdString = "---\n";
 
             foreach($row as $index => $value) {
+                if($longform == $index)
+                    continue;
+
                 if($index != 'kid' && !is_null($value)) {
                     $fieldName = $fieldToName[$index];
                     $mdString .= "$fieldName: " . $fieldToModel[$index]->processMarkdownData($fieldName, $value, $this->id, "");
                 }
             }
 
+            if($filters['revAssoc']) {
+                if(array_key_exists($row['kid'],$reverseAssociations)) {
+                    $mdString .= "Reverse Associations:\n";
+                    foreach($reverseAssociations[$row['kid']] as $akid) {
+                        $mdString .= "  - $akid\n";
+                    }
+                }
+            }
+
             $mdString .= "---\n";
 
-            //TODO::Prep to make reverse associations faster
-//            if($filters['revAssoc']) {
-//                $results .= '<reverseAssociations>';
-//                if(array_key_exists($row['kid'],$reverseAssociations)) {
-//                    $results .= implode('',$reverseAssociations[$row['kid']]);
-//                }
-//                $results .= '</reverseAssociations>';
-//            }
+            if(isset($row[$longform]))
+                $mdString .= $row[$longform]."\n";
 
-            $results[$kid] = $mdString;
+            if(array_key_exists($filename,$results)) {
+                echo("Invalid field selected for markdown filenames: $title (data not unique)\n");
+                exit();
+            }
+
+            $results[$filename] = $mdString;
         }
         $records->free();
 
@@ -1674,6 +1684,7 @@ class Form extends Model {
                 case 'JSON':
                     $return[$row['associated_kid']][$row['source_form_id']][$row['source_flid']][] = $row['source_kid'];
                     break;
+                case 'Markdown':
                 case 'KORA_OLD':
                     $return[$row['associated_kid']][] = $row['source_kid'];
                     break;

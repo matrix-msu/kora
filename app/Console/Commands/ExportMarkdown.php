@@ -12,7 +12,7 @@ class ExportMarkdown extends Command
      *
      * @var string
      */
-    protected $signature = 'kora:export-markdown {fid} {uid} {longform}';
+    protected $signature = 'kora:export-markdown {fid} {uid} {title} {longform}';
 
     /**
      * The console command description.
@@ -47,6 +47,6 @@ class ExportMarkdown extends Command
         $filters = ["revAssoc" => true, "meta" => false, "fields" => 'ALL', "altNames" => false, "assoc" => false,
             "data" => true, "sort" => null, "count" => null, "index" => null];
 
-        var_dump($form->getRecordsForExportMarkdown($filters, null, $this->argument('longform')));
+        var_dump($form->getRecordsForExportMarkdown($filters, null, $this->argument('title'), $this->argument('longform')));
     }
 }

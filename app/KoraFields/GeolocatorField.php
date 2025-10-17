@@ -323,7 +323,7 @@ class GeolocatorField extends BaseField {
         $locs = json_decode($value, true);
         $md = "\n";
         foreach($locs as $loc) {
-            $md .= "$tab  - ".$loc['geometry']['location']['lat'].", ".$loc['geometry']['location']['lng']."\n";
+            $md .= "$tab  - \"".$loc['geometry']['location']['lat'].", ".$loc['geometry']['location']['lng']."\"\n";
         }
         $md .= "$tab$field Addresses:\n";
         foreach($locs as $loc) {
