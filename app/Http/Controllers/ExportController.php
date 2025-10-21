@@ -249,12 +249,14 @@ class ExportController extends Controller {
                     $zip->open($zip_dir . '/' . $zip_name, ZipArchive::OVERWRITE) === TRUE
                 ) {
                     foreach($fileArray as $rid => $recordFileArray) {
-                        foreach(new \DirectoryIterator("$dir_path/$rid") as $file) {
-                            if($file->isFile() && array_key_exists($file->getFilename(), $recordFileArray)) {
-                                $content = file_get_contents($file->getRealPath());
-                                $zip->addFromString($rid.'/'.$recordFileArray[$file->getFilename()], $content);
+                        foreach($recordFileArray as $local => $fName) {
+                            if(file_exists("$dir_path/$rid/$local")) {
+                                $content = file_get_contents("$dir_path/$rid/$local");
+                                $zip->addFromString($rid.'/'.$recordFileArray[$local], $content);
                                 $zip->setCompressionIndex($count, ZipArchive::CM_STORE);
                                 $count++;
+                            } else {
+                                //TODO::Error report
                             }
                         }
                     }
