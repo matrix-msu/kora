@@ -184,23 +184,27 @@ class ExportController extends Controller {
         //This will ignore old record files
         //Also builds an array of local file names to original names to compensate for timestamps
         $recMod = new Record(array(), $form->id);
+        $fieldsArray = [];
         $fileArray = [];
         foreach($form->layout['fields'] as $flid => $field) {
-            if($form->getFieldModel($field['type']) instanceof FileTypeField) {
-                $records = $recMod->newQuery()->select(['id','kid',$flid])->whereNotNull($flid)->get();
-                foreach($records as $record) {
-                    if(is_array($kids) && !in_array($record->kid,$kids))
-                        continue;
+            if($form->getFieldModel($field['type']) instanceof FileTypeField)
+                $fieldsArray[] = $flid;
+        }
 
-                    if(!is_null($record->{$flid})) {
-                        $files = json_decode($record->{$flid}, true);
-                        foreach($files as $recordFile) {
-                            $fileCount++;
-                            $totalByteSize += $recordFile['size'];
+        $records = $recMod->newQuery()->select(array_merge(['id','kid'], $fieldsArray))->get();
+        foreach($records as $record) {
+            if(is_array($kids) && !in_array($record->kid,$kids))
+                continue;
 
-                            $localName = isset($recordFile['timestamp']) ? $recordFile['timestamp'] . '.' . $recordFile['name'] : $recordFile['name'];
-                            $fileArray[$record->id][$localName] = $recordFile['name'];
-                        }
+            foreach($fieldsArray as $flid) {
+                if (!is_null($record->{$flid})) {
+                    $files = json_decode($record->{$flid}, true);
+                    foreach ($files as $recordFile) {
+                        $fileCount++;
+                        $totalByteSize += $recordFile['size'];
+
+                        $localName = isset($recordFile['timestamp']) ? $recordFile['timestamp'] . '.' . $recordFile['name'] : $recordFile['name'];
+                        $fileArray[$record->id][$localName] = $recordFile['name'];
                     }
                 }
             }
