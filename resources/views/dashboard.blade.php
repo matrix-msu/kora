@@ -90,7 +90,7 @@
 							<div class="title-container">
 								<i class="icon icon-project"></i>
 								<a class="name underline-middle-hover"
-								href="{{ action('ProjectController@show',['pid' => $block['pid']]) }}">
+								href="{{ action('ProjectController@show',['projects' => $block['pid']]) }}">
 									<span>{{ $block['name'] }}</span>
 									<i class="icon icon-arrow-right"></i>
 								</a>

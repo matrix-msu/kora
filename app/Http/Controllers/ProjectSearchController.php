@@ -249,7 +249,7 @@ class ProjectSearchController extends Controller {
         //Filter those results
         foreach($projResults as $project) {
             if(\Auth::user()->admin || \Auth::user()->inAProjectGroup($project)) {
-                $result = "<li>Go to Project: <a data-type=\"Project\" href=\"".action("ProjectController@show",["pid" => $project->id])
+                $result = "<li>Go to Project: <a data-type=\"Project\" href=\"".action("ProjectController@show",["projects" => $project->id])
                     ."\">".$project->name;
                 if(Project::where("name","=",$project->name)->count() > 1)
                     $result .= " (".$project->internal_name.")";
