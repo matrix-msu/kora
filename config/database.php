@@ -26,7 +26,7 @@ return [
 	|
 	*/
 
-	'default' => env('DB_DEFAULT', 'mysql'),
+	'default' => env('DB_DEFAULT', 'mariadb'),
 
 	/*
 	|--------------------------------------------------------------------------
@@ -75,6 +75,18 @@ return [
 			'prefix'    => env('DB_PREFIX','kora_'),
 			'strict'    => false,
 		],
+
+        'mariadb' => [
+            'driver' => 'mariadb',
+            'host' => env('DB_HOST', '127.0.0.1'),
+            'database' => env('DB_DATABASE', 'laravel'),
+            'username' => env('DB_USERNAME', 'root'),
+            'password' => env('DB_PASSWORD', ''),
+            'charset' => 'utf8mb4',
+            'collation' => 'utf8mb4_unicode_ci',
+            'prefix'    => env('DB_PREFIX','kora_'),
+            'strict' => false,
+        ],
 
 		'pgsql' => [
 			'driver'   => 'pgsql',
