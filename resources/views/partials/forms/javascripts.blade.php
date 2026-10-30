@@ -1,13 +1,11 @@
-{!! Minify::javascript([
-  '/assets/javascripts/vendor/jquery/jquery.js',
-  '/assets/javascripts/vendor/jquery/jquery-ui.js',
-  '/assets/javascripts/vendor/chosen.js',
-  '/assets/javascripts/general/modal.js',
-  '/assets/javascripts/inputs/file.js',
-  '/assets/javascripts/forms/create.js',
-  '/assets/javascripts/forms/edit.js',
-  '/assets/javascripts/forms/show.js',
-  '/assets/javascripts/forms/import.js',
-  '/assets/javascripts/navigation/navigation.js',
-  '/assets/javascripts/general/global.js'
-])->withFullUrl() !!}
+<script type="text/javascript" src="{{ url('/assets/javascripts/vendor/jquery/jquery.js') }}"></script>
+<script type="text/javascript" src="{{ url('/assets/javascripts/vendor/jquery/jquery-ui.js') }}"></script>
+<script type="text/javascript" src="{{ url('/assets/javascripts/vendor/chosen.js') }}"></script>
+<script type="text/javascript" src="{{ url('/assets/javascripts/general/modal.js') }}"></script>
+<script type="text/javascript" src="{{ url('/assets/javascripts/inputs/file.js') }}"></script>
+<script type="text/javascript" src="{{ url('/assets/javascripts/forms/create.js') }}"></script>
+<script type="text/javascript" src="{{ url('/assets/javascripts/forms/edit.js') }}"></script>
+<script type="text/javascript" src="{{ url('/assets/javascripts/forms/show.js') }}"></script>
+<script type="text/javascript" src="{{ url('/assets/javascripts/forms/import.js') }}"></script>
+<script type="text/javascript" src="{{ url('/assets/javascripts/navigation/navigation.js') }}"></script>
+<script type="text/javascript" src="{{ url('/assets/javascripts/general/global.js') }}"></script>

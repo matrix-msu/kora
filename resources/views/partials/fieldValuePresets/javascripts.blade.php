@@ -1,10 +1,8 @@
-{!! Minify::javascript([
-  '/assets/javascripts/vendor/jquery/jquery.js',
-  '/assets/javascripts/vendor/jquery/jquery-ui.js',
-  '/assets/javascripts/vendor/chosen.js',
-  '/assets/javascripts/general/modal.js',
-  '/assets/javascripts/fieldValuePresets/index.js',
-  '/assets/javascripts/fieldValuePresets/create.js',
-  '/assets/javascripts/navigation/navigation.js',
-  '/assets/javascripts/general/global.js'
-])->withFullUrl() !!}
+<script type="text/javascript" src="{{ url('/assets/javascripts/vendor/jquery/jquery.js') }}"></script>
+<script type="text/javascript" src="{{ url('/assets/javascripts/vendor/jquery/jquery-ui.js') }}"></script>
+<script type="text/javascript" src="{{ url('/assets/javascripts/vendor/chosen.js') }}"></script>
+<script type="text/javascript" src="{{ url('/assets/javascripts/general/modal.js') }}"></script>
+<script type="text/javascript" src="{{ url('/assets/javascripts/fieldValuePresets/index.js') }}"></script>
+<script type="text/javascript" src="{{ url('/assets/javascripts/fieldValuePresets/create.js') }}"></script>
+<script type="text/javascript" src="{{ url('/assets/javascripts/navigation/navigation.js') }}"></script>
+<script type="text/javascript" src="{{ url('/assets/javascripts/general/global.js') }}"></script>
