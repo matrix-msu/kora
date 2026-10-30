@@ -142,8 +142,8 @@ function checkAssocCacheState() {
     $record = \Carbon\Carbon::parse($recordTimer->interval);
     $now = \Carbon\Carbon::now();
 
-    $daysSinceCache = $cache->diffInDays($now,false);
-    $recordsUpdatedSinceCache = $cache->diffInDays($record,false);
+    $daysSinceCache = (int)abs($cache->diffInDays($now,false));
+    $recordsUpdatedSinceCache = (int)abs($cache->diffInDays($record,false));
 
     if($daysSinceCache >= 7 && $recordsUpdatedSinceCache > 0)
         return true;
