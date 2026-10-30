@@ -2,10 +2,10 @@
 
 use App\Http\Requests\Request;
 use Closure;
-use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken as BaseVerifier;
+use Illuminate\Foundation\Http\Middleware\PreventRequestForgery as BaseVerifier;
 use Illuminate\Session\TokenMismatchException;
 
-class VerifyCsrfToken extends BaseVerifier {
+class PreventRequestForgery extends BaseVerifier {
 
     /*
     |--------------------------------------------------------------------------
