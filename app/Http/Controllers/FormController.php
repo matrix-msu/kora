@@ -225,10 +225,10 @@ class FormController extends Controller {
      */
 	public function destroy($pid, $fid) {
         if(!self::validProjForm($pid,$fid))
-            return redirect()->action('ProjectController@show', ['pid' => $pid])->with('k3_global_error', 'form_invalid');
+            return redirect()->action('ProjectController@show', ['projects' => $pid])->with('k3_global_error', 'form_invalid');
 
         if(!self::checkPermissions($pid, 'delete'))
-            return redirect()->action('ProjectController@show', ['pid' => $pid])->with('k3_global_error', 'cant_delete_form');
+            return redirect()->action('ProjectController@show', ['projects' => $pid])->with('k3_global_error', 'cant_delete_form');
 
         $form = self::getForm($fid);
         $form->delete();

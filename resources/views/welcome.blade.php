@@ -54,8 +54,6 @@
 @stop
 
 @section('javascripts')
-    {!! Minify::javascript([
-		'/assets/javascripts/vendor/jquery/jquery.js',
-		'/assets/javascripts/vendor/jquery/jquery-ui.js'
-	])->withFullUrl() !!}
+    <script type="text/javascript" src="{{ url('/assets/javascripts/vendor/jquery/jquery.js') }}"></script>
+<script type="text/javascript" src="{{ url('/assets/javascripts/vendor/jquery/jquery-ui.js') }}"></script>
 @stop

@@ -1,13 +1,11 @@
-{!! Minify::javascript([
-  '/assets/javascripts/vendor/jquery/jquery.js',
-  '/assets/javascripts/vendor/jquery/jquery-ui.js',
-  '/assets/javascripts/vendor/chosen.js',
-  '/assets/javascripts/general/modal.js',
-  '/assets/javascripts/inputs/number.js',
-  '/assets/javascripts/fields/typedFieldInputs.js',
-  '/assets/javascripts/fields/create.js',
-  '/assets/javascripts/fields/show.js',
-  '/assets/javascripts/fields/options.js',
-  '/assets/javascripts/navigation/navigation.js',
-  '/assets/javascripts/general/global.js'
-])->withFullUrl() !!}
+<script type="text/javascript" src="{{ url('/assets/javascripts/vendor/jquery/jquery.js') }}"></script>
+<script type="text/javascript" src="{{ url('/assets/javascripts/vendor/jquery/jquery-ui.js') }}"></script>
+<script type="text/javascript" src="{{ url('/assets/javascripts/vendor/chosen.js') }}"></script>
+<script type="text/javascript" src="{{ url('/assets/javascripts/general/modal.js') }}"></script>
+<script type="text/javascript" src="{{ url('/assets/javascripts/inputs/number.js') }}"></script>
+<script type="text/javascript" src="{{ url('/assets/javascripts/fields/typedFieldInputs.js') }}"></script>
+<script type="text/javascript" src="{{ url('/assets/javascripts/fields/create.js') }}"></script>
+<script type="text/javascript" src="{{ url('/assets/javascripts/fields/show.js') }}"></script>
+<script type="text/javascript" src="{{ url('/assets/javascripts/fields/options.js') }}"></script>
+<script type="text/javascript" src="{{ url('/assets/javascripts/navigation/navigation.js') }}"></script>
+<script type="text/javascript" src="{{ url('/assets/javascripts/general/global.js') }}"></script>

@@ -1,7 +1,7 @@
 <div class="project card {{ $index == 0 ? 'active' : '' }}" id="{{$project['id']}}">
     <div class="header {{ $index == 0 ? 'active' : '' }}">
         <div class="left pl-m">
-            <a class="title underline-middle-hover mr-xl" href="{{ action("ProjectController@show",["pid" => $project['id']]) }}">
+            <a class="title underline-middle-hover mr-xl" href="{{ action("ProjectController@show",["projects" => $project['id']]) }}">
                 <span class="name">{{$project['name']}}</span>
             </a>
             <a class="group" href="{{ action("ProjectGroupController@index",["pid" => $project['id'], 'active' => $project['group']['id']]) }}">

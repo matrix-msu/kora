@@ -164,7 +164,6 @@ return [
 		'App\Providers\ViewComposerServiceProvider',
 
 		'Laracasts\Flash\FlashServiceProvider',
-        'Devfactory\Minify\MinifyServiceProvider',
 	],
 
 	/*
@@ -217,7 +216,6 @@ return [
 		'Html'      => 'Collective\Html\HtmlFacade',
 		'Flash'     => 'Laracasts\Flash\Flash',
 		'Geocoder'  => 'Toin0u\Geocoder\Facade\Geocoder',
-        'Minify'    => 'Devfactory\Minify\Facades\MinifyFacade',
 	],
 
 ];

@@ -13,7 +13,7 @@
         </div>
       @endif
 
-      <a class="title {{$archived ? 'inactive': 'underline-middle-hover'}}" href="{{ action("ProjectController@show",["pid" => $project->id]) }}">
+      <a class="title {{$archived ? 'inactive': 'underline-middle-hover'}}" href="{{ action("ProjectController@show",["projects" => $project->id]) }}">
         <span class="name">{{$project->name}}</span>
         @if (!$archived)
           <i class="icon icon-arrow-right"></i>
@@ -99,7 +99,7 @@
           <span>Search Project Records</span>
         </a>
 
-        <a class="quick-action underline-middle-hover" href="{{ action('ProjectController@show',['pid' => $project->id]) }}">
+        <a class="quick-action underline-middle-hover" href="{{ action('ProjectController@show',['projects' => $project->id]) }}">
           <span>Go to Project</span>
           <i class="icon icon-arrow-right"></i>
         </a>

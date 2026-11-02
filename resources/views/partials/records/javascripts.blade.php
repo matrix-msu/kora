@@ -1,38 +1,36 @@
-{!! Minify::javascript([
-  '/assets/javascripts/vendor/jquery/jquery.js',
-  '/assets/javascripts/vendor/jquery/jquery-ui.js',
-  '/assets/javascripts/vendor/chosen.js',
-  '/assets/javascripts/vendor/moment.js',
-  '/assets/javascripts/vendor/fileUpload/vendor/jquery.ui.widget.js',
-  '/assets/javascripts/vendor/fileUpload/jquery.iframe-transport.js',
-  '/assets/javascripts/vendor/fileUpload/jquery.fileupload.js',
-  '/assets/javascripts/vendor/jplayer/jquery.jplayer.min.js',
-  '/assets/javascripts/vendor/jplayer/jplayer.playlist.min.js',
-  '/assets/javascripts/vendor/jsc3d/jsc3d.js',
-  '/assets/javascripts/vendor/jsc3d/jsc3d.webgl.js',
-  '/assets/javascripts/vendor/jsc3d/jsc3d.touch.js',
-  '/assets/javascripts/vendor/slick/slick.js',
-  '/assets/javascripts/vendor/throttled-queue/throttled-queue.js',
-  '/assets/javascripts/general/global.js',
-  '/assets/javascripts/inputs/number.js',
-  '/assets/javascripts/inputs/textarea.js',
-  '/assets/javascripts/navigation/navigation.js',
-  '/assets/javascripts/fields/options.js',
-  '/assets/javascripts/fields/typedFieldDisplays.js',
-  '/assets/javascripts/fields/typedFieldInputs.js',
-  '/assets/javascripts/general/modal.js',
-  '/assets/javascripts/records/modal.js',
-  '/assets/javascripts/records/batch.js',
-  '/assets/javascripts/records/create.js',
-  '/assets/javascripts/records/advanced.js',
-  '/assets/javascripts/records/index.js',
-  '/assets/javascripts/records/show.js',
-  '/assets/javascripts/records/import.js',
-  '/assets/javascripts/records/importMF.js',
-  '/assets/javascripts/records/duplicate.js',
-  '/assets/javascripts/records/tabs.js',
-  '/assets/javascripts/records/scrollTop.js',
-  '/assets/javascripts/records/validate.js',
-  '/assets/javascripts/records/toolbar.js',
-  '/assets/javascripts/records/batchSelected.js'
-])->withFullUrl() !!}
+<script type="text/javascript" src="{{ url('/assets/javascripts/vendor/jquery/jquery.js') }}"></script>
+<script type="text/javascript" src="{{ url('/assets/javascripts/vendor/jquery/jquery-ui.js') }}"></script>
+<script type="text/javascript" src="{{ url('/assets/javascripts/vendor/chosen.js') }}"></script>
+<script type="text/javascript" src="{{ url('/assets/javascripts/vendor/moment.js') }}"></script>
+<script type="text/javascript" src="{{ url('/assets/javascripts/vendor/fileUpload/vendor/jquery.ui.widget.js') }}"></script>
+<script type="text/javascript" src="{{ url('/assets/javascripts/vendor/fileUpload/jquery.iframe-transport.js') }}"></script>
+<script type="text/javascript" src="{{ url('/assets/javascripts/vendor/fileUpload/jquery.fileupload.js') }}"></script>
+<script type="text/javascript" src="{{ url('/assets/javascripts/vendor/jplayer/jquery.jplayer.min.js') }}"></script>
+<script type="text/javascript" src="{{ url('/assets/javascripts/vendor/jplayer/jplayer.playlist.min.js') }}"></script>
+<script type="text/javascript" src="{{ url('/assets/javascripts/vendor/jsc3d/jsc3d.js') }}"></script>
+<script type="text/javascript" src="{{ url('/assets/javascripts/vendor/jsc3d/jsc3d.webgl.js') }}"></script>
+<script type="text/javascript" src="{{ url('/assets/javascripts/vendor/jsc3d/jsc3d.touch.js') }}"></script>
+<script type="text/javascript" src="{{ url('/assets/javascripts/vendor/slick/slick.js') }}"></script>
+<script type="text/javascript" src="{{ url('/assets/javascripts/vendor/throttled-queue/throttled-queue.js') }}"></script>
+<script type="text/javascript" src="{{ url('/assets/javascripts/general/global.js') }}"></script>
+<script type="text/javascript" src="{{ url('/assets/javascripts/inputs/number.js') }}"></script>
+<script type="text/javascript" src="{{ url('/assets/javascripts/inputs/textarea.js') }}"></script>
+<script type="text/javascript" src="{{ url('/assets/javascripts/navigation/navigation.js') }}"></script>
+<script type="text/javascript" src="{{ url('/assets/javascripts/fields/options.js') }}"></script>
+<script type="text/javascript" src="{{ url('/assets/javascripts/fields/typedFieldDisplays.js') }}"></script>
+<script type="text/javascript" src="{{ url('/assets/javascripts/fields/typedFieldInputs.js') }}"></script>
+<script type="text/javascript" src="{{ url('/assets/javascripts/general/modal.js') }}"></script>
+<script type="text/javascript" src="{{ url('/assets/javascripts/records/modal.js') }}"></script>
+<script type="text/javascript" src="{{ url('/assets/javascripts/records/batch.js') }}"></script>
+<script type="text/javascript" src="{{ url('/assets/javascripts/records/create.js') }}"></script>
+<script type="text/javascript" src="{{ url('/assets/javascripts/records/advanced.js') }}"></script>
+<script type="text/javascript" src="{{ url('/assets/javascripts/records/index.js') }}"></script>
+<script type="text/javascript" src="{{ url('/assets/javascripts/records/show.js') }}"></script>
+<script type="text/javascript" src="{{ url('/assets/javascripts/records/import.js') }}"></script>
+<script type="text/javascript" src="{{ url('/assets/javascripts/records/importMF.js') }}"></script>
+<script type="text/javascript" src="{{ url('/assets/javascripts/records/duplicate.js') }}"></script>
+<script type="text/javascript" src="{{ url('/assets/javascripts/records/tabs.js') }}"></script>
+<script type="text/javascript" src="{{ url('/assets/javascripts/records/scrollTop.js') }}"></script>
+<script type="text/javascript" src="{{ url('/assets/javascripts/records/validate.js') }}"></script>
+<script type="text/javascript" src="{{ url('/assets/javascripts/records/toolbar.js') }}"></script>
+<script type="text/javascript" src="{{ url('/assets/javascripts/records/batchSelected.js') }}"></script>
